@@ -1,16 +1,19 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { AppHeader } from '@/components/AppHeader';
 import { DailyLimitBanner } from '@/components/DailyLimitBanner';
 import { ApiKeyBar } from '@/components/ApiKeyBar';
 import { WorldNameInput } from '@/components/WorldNameInput';
+import { WorldSelector } from '@/components/WorldSelector';
 import { TabNav } from '@/components/TabNav';
 import { TabConstruir } from '@/components/TabConstruir';
 import { TabVisaoGeral } from '@/components/TabVisaoGeral';
 import { TabGaleria } from '@/components/TabGaleria';
 import { TabGerarImagens } from '@/components/TabGerarImagens';
+import { saveWorld, loadSave, type WorldSave } from '@/lib/saves';
+import { toast } from 'sonner';
 import type { AppState, TabType, MethodType, GalleryImage } from '@/lib/data';
 
-const initialState: AppState = {
+const createNewState = (): AppState => ({
   worldName: '',
   db: {},
   currentFruit: 0,
@@ -19,10 +22,11 @@ const initialState: AppState = {
   activeTab: 'construir',
   apiKey: '',
   generatedPrompt: '',
-};
+  currentSaveId: '',
+});
 
 const Index = () => {
-  const [state, setState] = useState<AppState>(initialState);
+  const [state, setState] = useState<AppState>(createNewState);
 
   const setActiveTab = useCallback((tab: TabType) => setState(s => ({ ...s, activeTab: tab })), []);
   const setApiKey = useCallback((apiKey: string) => setState(s => ({ ...s, apiKey })), []);
@@ -43,9 +47,48 @@ const Index = () => {
     setState(s => ({ ...s, gallery: [...s.gallery, img] }));
   }, []);
 
+  const handleSaveWorld = useCallback(() => {
+    setState(s => {
+      const saved = saveWorld(s);
+      toast.success(`"${saved.name}" salvo com sucesso!`);
+      return { ...s, currentSaveId: saved.id };
+    });
+  }, []);
+
+  const handleLoadWorld = useCallback((save: WorldSave) => {
+    // Auto-save current world before switching
+    setState(prev => {
+      if (prev.currentSaveId && (prev.worldName || Object.keys(prev.db).length > 0)) {
+        saveWorld(prev);
+      }
+      return {
+        ...prev,
+        worldName: save.name,
+        db: save.db,
+        method: save.method,
+        gallery: save.gallery,
+        currentFruit: 0,
+        currentSaveId: save.id,
+        generatedPrompt: '',
+        activeTab: 'construir',
+      };
+    });
+    toast.success(`"${save.name}" carregado!`);
+  }, []);
+
+  const handleNewWorld = useCallback(() => {
+    // Auto-save current before creating new
+    setState(prev => {
+      if (prev.currentSaveId && (prev.worldName || Object.keys(prev.db).length > 0)) {
+        saveWorld(prev);
+      }
+      return { ...createNewState(), apiKey: prev.apiKey };
+    });
+    toast.info('Novo mundo criado!');
+  }, []);
+
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Background overlay */}
       <div
         className="fixed inset-0 pointer-events-none z-0"
         style={{
@@ -57,6 +100,12 @@ const Index = () => {
         <AppHeader />
         <DailyLimitBanner />
         <ApiKeyBar apiKey={state.apiKey} setApiKey={setApiKey} />
+        <WorldSelector
+          currentSaveId={state.currentSaveId}
+          onNewWorld={handleNewWorld}
+          onLoadWorld={handleLoadWorld}
+          onSaveWorld={handleSaveWorld}
+        />
         <WorldNameInput worldName={state.worldName} setWorldName={setWorldName} />
         <TabNav activeTab={state.activeTab} setActiveTab={setActiveTab} />
 
@@ -75,7 +124,6 @@ const Index = () => {
           )}
         </main>
 
-        {/* Footer */}
         <footer className="text-center py-8 opacity-40">
           <p className="text-[10px] text-text-dim font-montserrat uppercase tracking-[0.2em]">
             A Árvore dos Mundos · Template com IA · Universo STORIA

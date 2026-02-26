@@ -36,6 +36,7 @@ export interface AppState {
   activeTab: TabType;
   apiKey: string;
   generatedPrompt: string;
+  currentSaveId: string;
 }
 
 export const CATEGORIES = [
@@ -177,6 +178,28 @@ export const FRUITS: Fruit[] = [
     chips: ['Desenvolver premissa', 'Primeiro capítulo', 'Refinar conflito', 'Gerar sinopse'],
   },
 ];
+
+// Top-down: world → details → characters (default order)
+export const TOP_DOWN_ORDER = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+// Bottom-up: characters → local → expand world
+export const BOTTOM_UP_ORDER = [9, 10, 0, 3, 4, 5, 8, 2, 1, 6, 7];
+
+export function getOrderedFruits(method: MethodType): Fruit[] {
+  const order = method === 'top-down' ? TOP_DOWN_ORDER : BOTTOM_UP_ORDER;
+  return order.map(id => FRUITS[id]);
+}
+
+export const METHOD_DESCRIPTIONS: Record<MethodType, { title: string; desc: string }> = {
+  'top-down': {
+    title: '⬇ Cima para Baixo',
+    desc: 'Começa pela visão geral — continentes, nações, história — e vai detalhando até personagens e cenas. Cria mundos coesos antes de qualquer história existir. Ideal para criadores que precisam do mundo completo para sentir confiança.',
+  },
+  'bottom-up': {
+    title: '⬆ Baixo para Cima',
+    desc: 'Começa pelos personagens e um local central com alta densidade de detalhes, expandindo o mundo conforme a história exige. Cada nova região surge de uma necessidade narrativa real.',
+  },
+};
 
 export const STYLE_OPTIONS = [
   'Fantasy épico (estilo Tolkien)', 'Dark Fantasy (sombrio)', 'Anime / Mangá',

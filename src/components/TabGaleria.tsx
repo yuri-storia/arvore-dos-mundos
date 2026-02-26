@@ -18,7 +18,6 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
     if (!files) return;
     const items = Array.from(files).filter(f => /image\/(png|jpe?g|webp)/.test(f.type));
     if (items.length === 0) return;
-
     const queue = items.map(f => ({
       file: f,
       name: f.name.replace(/\.[^.]+$/, ''),
@@ -51,11 +50,11 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
   const removeImage = (id: string) => setGallery(gallery.filter(img => img.id !== id));
 
   return (
-    <div className="animate-fadeUp mx-auto max-w-[1060px] px-4 py-6">
+    <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-6">
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
         <div>
-          <h1 className="font-cinzel font-bold text-2xl text-foreground mb-1">🖼 Galeria de Referências</h1>
+          <h1 className="font-cinzel font-bold text-xl sm:text-2xl text-foreground mb-1">🖼 Galeria de Referências</h1>
           <p className="font-merriweather italic text-text-dim text-sm">Imagens de referência para o seu mundo</p>
         </div>
         <button
@@ -71,7 +70,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
       {/* Upload zone */}
       <div
         onClick={() => fileRef.current?.click()}
-        className="border-2 border-dashed border-blue-bright/25 rounded-lg p-8 text-center mb-5 cursor-pointer hover:border-blue-bright/50 transition-colors"
+        className="border-2 border-dashed border-blue-bright/25 rounded-lg p-6 sm:p-8 text-center mb-5 cursor-pointer hover:border-blue-bright/50 transition-colors"
       >
         <span className="text-3xl mb-2 block">🖼</span>
         <p className="text-sm text-text-secondary font-montserrat">Clique para adicionar imagens</p>
@@ -99,13 +98,13 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
       {filtered.length === 0 ? (
         <p className="text-center text-text-dim text-sm py-10">Nenhuma imagem na galeria ainda.</p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))' }}>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
           {filtered.map(img => (
             <div
               key={img.id}
               className="group relative rounded-lg overflow-hidden border border-blue-bright/15 hover:border-blue-bright/40 hover:-translate-y-0.5 hover:shadow-lg transition-all"
             >
-              <img src={img.src} alt={img.name} className="w-full h-[136px] object-cover" />
+              <img src={img.src} alt={img.name} className="w-full h-[100px] sm:h-[136px] object-cover" />
               <div className="p-2">
                 <p className="text-xs text-foreground font-montserrat truncate">{img.name}</p>
                 <p className="text-[10px] text-text-dim">{img.cat}</p>
@@ -123,10 +122,10 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
 
       {/* Upload modal */}
       {currentUpload && (
-        <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4">
-          <div className="card-glass rounded-lg max-w-md w-full p-5 animate-fadeUp">
+        <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-3 sm:p-4">
+          <div className="card-glass rounded-lg w-full max-w-sm sm:max-w-md p-4 sm:p-5 animate-fadeUp">
             <h3 className="font-cinzel font-bold text-foreground mb-3">Salvar Imagem</h3>
-            <img src={currentUpload.preview} alt="Preview" className="w-full h-[155px] object-cover rounded-md mb-3" />
+            <img src={currentUpload.preview} alt="Preview" className="w-full h-[120px] sm:h-[155px] object-cover rounded-md mb-3" />
             <input
               type="text"
               value={currentUpload.name}
