@@ -62,7 +62,7 @@ export const UserMenu: React.FC = () => {
 
       {/* Admin dropdown */}
       {isAdmin && menuOpen && (
-        <div className="absolute top-full mt-2 z-50 animate-fadeUp rounded-lg border border-blue-bright/20 backdrop-blur-[16px] overflow-hidden min-w-[200px]" style={{ background: 'linear-gradient(135deg, hsl(211 76% 42% / 0.15) 0%, hsl(214 60% 3% / 0.9) 100%)' }}>
+        <div className="absolute top-full mt-2 z-[60] animate-fadeUp rounded-lg border border-blue-bright/20 backdrop-blur-[16px] overflow-hidden min-w-[200px]" style={{ background: 'linear-gradient(135deg, hsl(211 76% 42% / 0.15) 0%, hsl(214 60% 3% / 0.9) 100%)' }}>
           <button
             onClick={() => { navigate('/admin'); setMenuOpen(false); }}
             className="w-full text-left px-4 py-2.5 text-[10px] font-montserrat font-bold uppercase tracking-wider text-gold-light/80 hover:text-gold-light hover:bg-gold/[0.08] transition-all border-b border-blue-bright/10"
