@@ -24,7 +24,7 @@ export const ApiKeyBar: React.FC<Props> = ({ apiKey, setApiKey }) => {
             value={apiKey}
             onChange={e => setApiKey(e.target.value)}
             placeholder="Cole aqui sua chave OpenAI (sk-…)"
-            className="flex-1 bg-background/60 border border-blue-bright/20 rounded-md px-3 py-2 text-sm text-foreground placeholder:text-text-dim focus:outline-none focus:border-blue-bright/50 font-montserrat"
+            className="flex-1 bg-background/60 border border-gold/15 rounded-md px-3 py-2 text-sm text-foreground placeholder:text-text-dim focus:outline-none focus:border-gold/40 font-montserrat"
           />
           {apiKey ? (
             isValid ? (
@@ -38,14 +38,14 @@ export const ApiKeyBar: React.FC<Props> = ({ apiKey, setApiKey }) => {
         </div>
 
         <div className="flex flex-wrap gap-2 mb-2 text-[11px] text-text-dim">
-          <span className="px-2 py-0.5 rounded-full border border-blue-bright/15 bg-blue-bright/5">Texto: GPT-4o mini</span>
-          <span className="px-2 py-0.5 rounded-full border border-blue-bright/15 bg-blue-bright/5">Imagens: DALL-E 3</span>
-          <span className="px-2 py-0.5 rounded-full border border-blue-bright/15 bg-blue-bright/5">Limite diário: 15 textos / 3 imagens</span>
+          <span className="px-2 py-0.5 rounded-full border border-gold/15 bg-gold/[0.04]">Texto: GPT-4o mini</span>
+          <span className="px-2 py-0.5 rounded-full border border-gold/15 bg-gold/[0.04]">Imagens: DALL-E 3</span>
+          <span className="px-2 py-0.5 rounded-full border border-gold/15 bg-gold/[0.04]">Limite diário: 15 textos / 3 imagens</span>
         </div>
 
         <p className="text-[11px] text-text-dim font-merriweather italic">
           Sua chave é usada localmente — nunca enviada a servidor algum.{' '}
-          <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" className="text-blue-light hover:underline">
+          <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" className="text-gold-light hover:underline">
             Obter chave →
           </a>
         </p>

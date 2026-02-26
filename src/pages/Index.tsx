@@ -3,7 +3,7 @@ import { AppHeader } from '@/components/AppHeader';
 import { DailyLimitBanner } from '@/components/DailyLimitBanner';
 import { OnboardingBanner } from '@/components/OnboardingBanner';
 import { ApiKeyBar } from '@/components/ApiKeyBar';
-import treeBgBlur from '@/assets/tree-bg-blur.png';
+import mysticalTree from '@/assets/mystical-tree.jpg';
 import { WorldNameInput } from '@/components/WorldNameInput';
 import { WorldSelector } from '@/components/WorldSelector';
 import { TabNav } from '@/components/TabNav';
@@ -91,15 +91,15 @@ const Index = () => {
     <div className="min-h-screen bg-background relative">
       {/* Ambient gradient overlays */}
       <div className="fixed inset-0 pointer-events-none z-0" style={{
-        background: 'radial-gradient(ellipse 100% 80% at 50% 0%, rgba(4,8,15,0.2) 0%, rgba(4,8,15,0.75) 60%, rgba(4,8,15,0.97) 100%)',
+        background: 'radial-gradient(ellipse 100% 80% at 50% 0%, rgba(10,6,3,0.2) 0%, rgba(10,6,3,0.75) 60%, rgba(10,6,3,0.97) 100%)',
       }} />
 
-      {/* Tree-themed blue blur background — seamless transition from header */}
+      {/* Mystical background — seamless transition from header */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute inset-0" style={{
-          background: `url(${treeBgBlur}) center 30% / cover no-repeat`,
-          opacity: 0.4,
-          filter: 'blur(20px)',
+          background: `url(${mysticalTree}) center 30% / cover no-repeat`,
+          opacity: 0.25,
+          filter: 'blur(24px) saturate(0.7)',
           maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 18%, black 38%, black 65%, transparent 92%)',
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 18%, black 38%, black 65%, transparent 92%)',
         }} />
@@ -107,12 +107,9 @@ const Index = () => {
 
       <div className="relative z-10">
         <AppHeader />
-        {/* UserMenu is now inside AppHeader */}
 
-        {/* World name — identity before management */}
         <WorldNameInput worldName={state.worldName} setWorldName={setWorldName} />
 
-        {/* World management */}
         <WorldSelector
           currentSaveId={state.currentSaveId}
           onNewWorld={handleNewWorld}
@@ -138,7 +135,6 @@ const Index = () => {
           )}
         </main>
 
-        {/* AI usage + API key grouped together at the bottom */}
         <DailyLimitBanner />
         <ApiKeyBar apiKey={state.apiKey} setApiKey={setApiKey} />
 

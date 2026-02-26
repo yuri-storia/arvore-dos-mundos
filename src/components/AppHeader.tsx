@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import treeWallpaper from '@/assets/tree-wallpaper.webp';
+import mysticalTree from '@/assets/mystical-tree.jpg';
 import { UserMenu } from '@/components/UserMenu';
 
 const Particles: React.FC = () => {
@@ -26,10 +26,10 @@ const Particles: React.FC = () => {
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         r: Math.random() * 2.2 + 0.4,
-        vx: (Math.random() - 0.5) * 0.2,
-        vy: -Math.random() * 0.2 - 0.05,
-        o: Math.random() * 0.6 + 0.2,
-        vo: (Math.random() - 0.5) * 0.005,
+        vx: (Math.random() - 0.5) * 0.15,
+        vy: -Math.random() * 0.15 - 0.03,
+        o: Math.random() * 0.5 + 0.15,
+        vo: (Math.random() - 0.5) * 0.004,
       });
     }
 
@@ -39,17 +39,17 @@ const Particles: React.FC = () => {
         p.x += p.vx;
         p.y += p.vy;
         p.o += p.vo;
-        if (p.o > 0.8) p.vo = -Math.abs(p.vo);
-        if (p.o < 0.1) p.vo = Math.abs(p.vo);
+        if (p.o > 0.7) p.vo = -Math.abs(p.vo);
+        if (p.o < 0.08) p.vo = Math.abs(p.vo);
         if (p.y < -5) { p.y = canvas.height + 5; p.x = Math.random() * canvas.width; }
         if (p.x < -5) p.x = canvas.width + 5;
         if (p.x > canvas.width + 5) p.x = -5;
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(144, 202, 249, ${p.o})`;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = 'rgba(33, 150, 243, 0.6)';
+        ctx.fillStyle = `rgba(200, 160, 80, ${p.o})`;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = 'rgba(180, 140, 60, 0.5)';
         ctx.fill();
       }
       ctx.shadowBlur = 0;
@@ -71,11 +71,11 @@ export const AppHeader: React.FC = () => (
     {/* Background image */}
     <div className="absolute inset-0 z-0">
       <img
-        src={treeWallpaper}
+        src={mysticalTree}
         alt=""
-        className="w-full h-full object-cover object-[center_25%] md:object-[center_35%] opacity-75"
+        className="w-full h-full object-cover object-[center_35%] md:object-[center_40%] opacity-60"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background" />
       <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-background" />
     </div>
 
@@ -84,8 +84,8 @@ export const AppHeader: React.FC = () => (
 
     <div className="relative z-10 pt-4">
       {/* Badge */}
-      <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-blue-bright/20 bg-blue-bright/[0.06] backdrop-blur-sm">
-        <span className="font-cinzel text-xs tracking-[0.15em] text-blue-light">
+      <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-gold/25 bg-gold/[0.06] backdrop-blur-sm">
+        <span className="font-cinzel text-xs tracking-[0.15em] text-gold-light">
           ✦ Universo STORIA · Template Oficial ✦
         </span>
       </div>
@@ -93,7 +93,7 @@ export const AppHeader: React.FC = () => (
       {/* Title */}
       <h1 className="font-cinzel font-bold text-[clamp(1.6rem,5vw,2.8rem)] leading-tight mb-3">
         <span className="text-foreground">A Árvore </span>
-        <span className="text-blue-light">dos Mundos</span>
+        <span className="text-gold-light">dos Mundos</span>
       </h1>
 
       {/* Subtitle */}
@@ -102,17 +102,17 @@ export const AppHeader: React.FC = () => (
       </p>
 
       {/* Decorative line */}
-      <div className="mx-auto w-[60px] h-[2px] bg-gradient-to-r from-transparent via-blue-bright to-transparent mb-4" />
+      <div className="mx-auto w-[60px] h-[2px] bg-gradient-to-r from-transparent via-gold to-transparent mb-4" />
 
       {/* User account info */}
       <UserMenu />
     </div>
 
-    {/* Glowing blue divider at end of header */}
+    {/* Warm amber divider at end of header */}
     <div className="absolute bottom-0 left-0 right-0 z-10 h-[2px]">
-      <div className="w-full h-full bg-gradient-to-r from-transparent via-blue-bright to-transparent opacity-90" />
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-bright to-transparent blur-[8px] opacity-70" />
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-bright to-transparent blur-[16px] opacity-40" />
+      <div className="w-full h-full bg-gradient-to-r from-transparent via-gold to-transparent opacity-70" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold to-transparent blur-[8px] opacity-50" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold to-transparent blur-[16px] opacity-25" />
     </div>
   </header>
 );

@@ -6,8 +6,8 @@ export const DailyLimitBanner: React.FC = () => {
   const textsLeft = 15 - usage.text;
   const imgsLeft = 3 - usage.img;
 
-  const textColor = textsLeft <= 0 ? 'text-red-alert' : textsLeft <= 3 ? 'text-gold-light' : 'text-blue-light';
-  const imgColor = imgsLeft <= 0 ? 'text-red-alert' : imgsLeft <= 1 ? 'text-gold-light' : 'text-blue-light';
+  const textColor = textsLeft <= 0 ? 'text-red-alert' : textsLeft <= 3 ? 'text-gold-light' : 'text-amber-light';
+  const imgColor = imgsLeft <= 0 ? 'text-red-alert' : imgsLeft <= 1 ? 'text-gold-light' : 'text-amber-light';
 
   return (
     <div className="mx-auto max-w-[1060px] px-4 mb-4">

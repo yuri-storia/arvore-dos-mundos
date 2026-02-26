@@ -37,8 +37,8 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName }) => 
           className="cursor-text w-full max-w-2xl text-center text-[clamp(1.6rem,4.5vw,2.8rem)] font-cinzel font-bold text-foreground leading-tight transition-all duration-500"
           style={{
             textShadow: glowing
-              ? '0 0 40px hsl(207 90% 61% / 0.7), 0 0 80px hsl(207 90% 61% / 0.4), 0 0 120px hsl(207 90% 61% / 0.2), 0 2px 4px rgba(0,0,0,0.5)'
-              : '0 0 30px hsl(207 90% 61% / 0.25), 0 2px 4px rgba(0,0,0,0.5)',
+              ? '0 0 40px hsl(38 65% 52% / 0.6), 0 0 80px hsl(38 65% 52% / 0.3), 0 0 120px hsl(38 65% 52% / 0.15), 0 2px 4px rgba(0,0,0,0.5)'
+              : '0 0 30px hsl(38 65% 52% / 0.2), 0 2px 4px rgba(0,0,0,0.5)',
           }}
         >
           {worldName}
@@ -55,8 +55,8 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName }) => 
           className="w-full max-w-2xl bg-transparent border-0 text-center text-[clamp(1.6rem,4.5vw,2.8rem)] font-cinzel font-bold text-foreground placeholder:text-text-dim/40 placeholder:text-[clamp(1.1rem,3vw,1.8rem)] placeholder:font-normal focus:outline-none leading-tight transition-all duration-500"
           style={{
             textShadow: glowing
-              ? '0 0 40px hsl(207 90% 61% / 0.7), 0 0 80px hsl(207 90% 61% / 0.4), 0 0 120px hsl(207 90% 61% / 0.2), 0 2px 4px rgba(0,0,0,0.5)'
-              : '0 0 30px hsl(207 90% 61% / 0.25), 0 2px 4px rgba(0,0,0,0.5)',
+              ? '0 0 40px hsl(38 65% 52% / 0.6), 0 0 80px hsl(38 65% 52% / 0.3), 0 0 120px hsl(38 65% 52% / 0.15), 0 2px 4px rgba(0,0,0,0.5)'
+              : '0 0 30px hsl(38 65% 52% / 0.2), 0 2px 4px rgba(0,0,0,0.5)',
           }}
         />
       )}
