@@ -72,7 +72,7 @@ export const AppHeader: React.FC = () => (
       <img
         src={treeWallpaper}
         alt=""
-        className="w-full h-full object-cover object-center opacity-40"
+        className="w-full h-full object-cover object-[center_30%] md:object-[center_40%] opacity-60"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background" />
       <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-b from-transparent to-background" />
