@@ -4,6 +4,7 @@ import { UserMenu } from '@/components/UserMenu';
 import { DailyLimitBanner } from '@/components/DailyLimitBanner';
 import { OnboardingBanner } from '@/components/OnboardingBanner';
 import { ApiKeyBar } from '@/components/ApiKeyBar';
+import blueBlurBg from '@/assets/blue-blur-bg.webp';
 import { WorldNameInput } from '@/components/WorldNameInput';
 import { WorldSelector } from '@/components/WorldSelector';
 import { TabNav } from '@/components/TabNav';
@@ -93,9 +94,16 @@ const Index = () => {
       <div className="fixed inset-0 pointer-events-none z-0" style={{
         background: 'radial-gradient(ellipse 100% 80% at 50% 0%, rgba(4,8,15,0.2) 0%, rgba(4,8,15,0.75) 60%, rgba(4,8,15,0.97) 100%)',
       }} />
-      <div className="fixed inset-0 pointer-events-none z-0" style={{
-        background: 'radial-gradient(ellipse 80% 40% at 50% 55%, hsl(207 90% 61% / 0.07) 0%, transparent 70%), radial-gradient(ellipse 70% 35% at 40% 90%, hsl(207 90% 61% / 0.06) 0%, transparent 60%)',
-      }} />
+
+      {/* Abstract blue blur background — below tree, blended with black gradients */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute inset-0" style={{
+          background: `url(${blueBlurBg}) center center / cover no-repeat`,
+          opacity: 0.35,
+          maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 25%, black 45%, black 70%, transparent 95%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 25%, black 45%, black 70%, transparent 95%)',
+        }} />
+      </div>
 
       <div className="relative z-10">
         <AppHeader />
