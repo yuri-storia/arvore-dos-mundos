@@ -91,14 +91,16 @@ export const AppHeader: React.FC = () => (
       </div>
 
       {/* Title */}
-      <h1 className="font-cinzel font-bold text-[clamp(1.6rem,5vw,2.8rem)] leading-tight mb-3">
-        <span className="text-foreground">A Árvore </span>
-        <span className="text-blue-light">dos Mundos</span>
+      <h1
+        className="font-cinzel font-bold text-[clamp(1.6rem,5vw,2.8rem)] leading-tight mb-3 text-foreground"
+        style={{ textShadow: '0 0 20px hsl(207 90% 61% / 0.6), 0 0 50px hsl(207 90% 61% / 0.3), 0 0 80px hsl(207 90% 61% / 0.15), 0 2px 4px rgba(0,0,0,0.5)' }}
+      >
+        A Árvore dos Mundos
       </h1>
 
       {/* Subtitle */}
-      <p className="font-merriweather italic text-text-secondary text-sm md:text-base max-w-2xl mx-auto mb-4">
-        O Template Definitivo de Worldbuilding: seu sistema completo para construir em horas o que levaria meses
+      <p className="font-merriweather italic text-text-secondary text-sm md:text-base max-w-md mx-auto mb-4">
+        O Template Definitivo de Worldbuilding: seu sistema completo para construir<br className="hidden md:inline" /> em horas o que levaria meses
       </p>
 
       {/* Decorative line */}
