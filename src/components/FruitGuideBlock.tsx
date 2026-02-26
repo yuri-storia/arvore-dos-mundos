@@ -12,19 +12,19 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide }) => {
     <div
       className="mb-6 rounded-r-sm overflow-hidden"
       style={{
-        background: 'rgba(4,10,20,0.5)',
-        border: '1px solid rgba(33,150,243,0.14)',
-        borderLeft: '3px solid rgba(200,146,42,0.5)',
+        background: 'rgba(14,10,6,0.5)',
+        border: '1px solid hsl(38 25% 25% / 0.2)',
+        borderLeft: '3px solid hsl(38 65% 48% / 0.5)',
       }}
     >
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-blue-bright/[0.03] transition-colors"
+        className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-gold/[0.03] transition-colors"
       >
         <span
           className="text-[10px] transition-transform duration-200"
           style={{
-            color: '#c8922a',
+            color: 'hsl(38 65% 48%)',
             display: 'inline-block',
             transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
           }}
@@ -33,7 +33,7 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide }) => {
         </span>
         <span
           className="font-montserrat font-bold uppercase text-[0.6rem] tracking-[0.12em]"
-          style={{ color: '#c8922a' }}
+          style={{ color: 'hsl(38 65% 48%)' }}
         >
           📖 Orientação do Livro — Mínimo Mundo Viável + Estudo de Caso
         </span>
@@ -41,20 +41,18 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide }) => {
 
       {open && (
         <div className="animate-fadeUp px-4 pb-4">
-          {/* Mínimo Mundo Viável */}
           <p
             className="font-merriweather leading-[1.7]"
-            style={{ color: '#64b5f6', fontSize: '0.72rem' }}
+            style={{ color: 'hsl(38 50% 72%)', fontSize: '0.72rem' }}
           >
             {guide.min}
           </p>
 
-          {/* Passo a Passo */}
           {guide.steps && guide.steps.length > 0 && (
             <div className="mt-3">
               <span
                 className="font-montserrat font-bold uppercase text-[0.58rem] tracking-[0.1em] block mb-2"
-                style={{ color: '#c8922a' }}
+                style={{ color: 'hsl(38 65% 48%)' }}
               >
                 🗺 Passo a Passo
               </span>
@@ -63,13 +61,13 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide }) => {
                   <li key={i} className="flex gap-2 items-start">
                     <span
                       className="font-montserrat font-bold text-[0.65rem] mt-0.5 shrink-0 w-5 h-5 rounded-full flex items-center justify-center"
-                      style={{ background: 'rgba(200,146,42,0.15)', color: '#c8922a' }}
+                      style={{ background: 'hsl(38 65% 48% / 0.15)', color: 'hsl(38 65% 48%)' }}
                     >
                       {i + 1}
                     </span>
                     <span
                       className="font-merriweather leading-[1.65]"
-                      style={{ color: '#b0c8e4', fontSize: '0.7rem' }}
+                      style={{ color: 'hsl(30 20% 72%)', fontSize: '0.7rem' }}
                     >
                       {step}
                     </span>
@@ -79,24 +77,21 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide }) => {
             </div>
           )}
 
-          {/* Separator */}
           <div className="my-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} />
 
-          {/* Estudo de Caso */}
           <p
             className="font-merriweather italic leading-[1.7] whitespace-pre-line"
-            style={{ color: '#b0c8e4', fontSize: '0.72rem' }}
+            style={{ color: 'hsl(30 20% 72%)', fontSize: '0.72rem' }}
           >
             {guide.ref}
           </p>
 
-          {/* Closing quote */}
           {guide.closing && (
             <>
               <div className="my-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} />
               <p
                 className="font-cinzel italic text-center leading-[1.7]"
-                style={{ color: '#c8922a', fontSize: '0.7rem' }}
+                style={{ color: 'hsl(38 65% 48%)', fontSize: '0.7rem' }}
               >
                 "{guide.closing}"
               </p>

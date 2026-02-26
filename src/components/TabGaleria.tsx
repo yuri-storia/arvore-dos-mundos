@@ -61,7 +61,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
         </div>
         <button
           onClick={() => fileRef.current?.click()}
-          className="px-4 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+          className="px-4 py-2 bg-amber hover:bg-amber-bright text-background rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
         >
           + Adicionar
         </button>
@@ -72,7 +72,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
       {/* Upload zone */}
       <div
         onClick={() => fileRef.current?.click()}
-        className="border-2 border-dashed border-blue-bright/25 rounded-lg p-6 sm:p-8 text-center mb-5 cursor-pointer hover:border-blue-bright/50 transition-colors"
+        className="border-2 border-dashed border-gold/20 rounded-lg p-6 sm:p-8 text-center mb-5 cursor-pointer hover:border-gold/40 transition-colors"
       >
         <span className="text-3xl mb-2 block">🖼</span>
         <p className="text-sm text-text-secondary font-montserrat">Clique para adicionar imagens</p>
@@ -87,8 +87,8 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
             onClick={() => setFilter(cat)}
             className={`px-3 py-1.5 rounded-full text-xs font-montserrat whitespace-nowrap transition-all ${
               filter === cat
-                ? 'border border-blue-bright text-blue-light bg-blue-bright/[0.07]'
-                : 'border border-blue-bright/15 text-text-dim hover:text-text-secondary'
+                ? 'border border-gold text-gold-light bg-gold/[0.07]'
+                : 'border border-gold/15 text-text-dim hover:text-text-secondary'
             }`}
           >
             {cat}
@@ -104,7 +104,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
           {filtered.map(img => (
             <div
               key={img.id}
-              className="group relative rounded-lg overflow-hidden border border-blue-bright/15 hover:border-blue-bright/40 hover:-translate-y-0.5 hover:shadow-lg transition-all"
+              className="group relative rounded-lg overflow-hidden border border-gold/10 hover:border-gold/30 hover:-translate-y-0.5 hover:shadow-lg transition-all"
             >
               <img
                 src={img.src}
@@ -141,12 +141,12 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
               value={currentUpload.name}
               onChange={e => setCurrentUpload({ ...currentUpload, name: e.target.value })}
               placeholder="Nome da imagem"
-              className="w-full bg-background/60 border border-blue-bright/20 rounded-md px-3 py-2 text-sm text-foreground mb-3 focus:outline-none focus:border-blue-bright/50"
+              className="w-full bg-background/60 border border-gold/15 rounded-md px-3 py-2 text-sm text-foreground mb-3 focus:outline-none focus:border-gold/40"
             />
             <select
               value={currentUpload.cat}
               onChange={e => setCurrentUpload({ ...currentUpload, cat: e.target.value })}
-              className="w-full bg-background/60 border border-blue-bright/20 rounded-md px-3 py-2 text-sm text-foreground mb-4 focus:outline-none focus:border-blue-bright/50"
+              className="w-full bg-background/60 border border-gold/15 rounded-md px-3 py-2 text-sm text-foreground mb-4 focus:outline-none focus:border-gold/40"
             >
               <optgroup label="Categorias">
                 {GALLERY_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -158,13 +158,13 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => { setCurrentUpload(null); setUploadQueue([]); }}
-                className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-blue-bright/15 hover:text-foreground transition-colors"
+                className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-gold/15 hover:text-foreground transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={saveUpload}
-                className="px-4 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold transition-colors"
+                className="px-4 py-2 bg-amber hover:bg-amber-bright text-background rounded-md text-xs font-montserrat font-bold transition-colors"
               >
                 Salvar
               </button>
