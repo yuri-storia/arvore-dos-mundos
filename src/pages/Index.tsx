@@ -11,7 +11,7 @@ import { TabConstruir } from '@/components/TabConstruir';
 import { TabVisaoGeral } from '@/components/TabVisaoGeral';
 import { TabGaleria } from '@/components/TabGaleria';
 import { TabGerarImagens } from '@/components/TabGerarImagens';
-import { saveWorld, loadSave, type WorldSave } from '@/lib/saves';
+import { saveWorld, listSaves, type WorldSave } from '@/lib/saves';
 import { toast } from 'sonner';
 import type { AppState, TabType, MethodType, GalleryImage } from '@/lib/data';
 
@@ -29,6 +29,7 @@ const createNewState = (): AppState => ({
 
 const Index = () => {
   const [state, setState] = useState<AppState>(createNewState);
+  const [worldsOpen, setWorldsOpen] = useState(false);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const setActiveTab = useCallback((tab: TabType) => setState(s => ({ ...s, activeTab: tab })), []);
@@ -103,8 +104,11 @@ const Index = () => {
       }
       return { ...createNewState(), apiKey: prev.apiKey };
     });
+    setWorldsOpen(false);
     toast.info('Novo mundo criado!');
   }, []);
+
+  const worldCount = listSaves().length;
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -122,22 +126,28 @@ const Index = () => {
       </div>
 
       <div className="relative z-10">
-        <AppHeader />
-
-        {/* World name — identity before management */}
-        <WorldNameInput
-          worldName={state.worldName}
-          setWorldName={setWorldName}
-          hasBeenCreated={!!state.currentSaveId}
-          onCreateWorld={handleCreateWorld}
+        <AppHeader
+          onOpenWorlds={() => setWorldsOpen(!worldsOpen)}
+          onNewWorld={handleNewWorld}
+          worldCount={worldCount}
         />
 
-        {/* World management */}
+        {/* Worlds dropdown list */}
         <WorldSelector
           currentSaveId={state.currentSaveId}
           onNewWorld={handleNewWorld}
           onLoadWorld={handleLoadWorld}
           onSaveWorld={handleSaveWorld}
+          open={worldsOpen}
+          setOpen={setWorldsOpen}
+        />
+
+        {/* World name */}
+        <WorldNameInput
+          worldName={state.worldName}
+          setWorldName={setWorldName}
+          hasBeenCreated={!!state.currentSaveId}
+          onCreateWorld={handleCreateWorld}
         />
 
         <OnboardingBanner />
@@ -158,7 +168,6 @@ const Index = () => {
           )}
         </main>
 
-        {/* AI usage + API key grouped together at the bottom */}
         <DailyLimitBanner />
         <ApiKeyBar apiKey={state.apiKey} setApiKey={setApiKey} />
 

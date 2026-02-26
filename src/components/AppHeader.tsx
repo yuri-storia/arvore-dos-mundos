@@ -2,6 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import treeWallpaper from '@/assets/tree-wallpaper.webp';
 import { UserMenu } from '@/components/UserMenu';
 
+interface AppHeaderProps {
+  onOpenWorlds?: () => void;
+  onNewWorld?: () => void;
+  worldCount?: number;
+}
+
 const Particles: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -66,7 +72,7 @@ const Particles: React.FC = () => {
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-[1]" />;
 };
 
-export const AppHeader: React.FC = () => (
+export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenWorlds, onNewWorld, worldCount }) => (
   <header className="relative text-center pt-8 pb-6 px-4 overflow-hidden min-h-[320px]">
     {/* Background image */}
     <div className="absolute inset-0 z-0">
@@ -104,8 +110,8 @@ export const AppHeader: React.FC = () => (
       {/* Decorative line */}
       <div className="mx-auto w-[60px] h-[2px] bg-gradient-to-r from-transparent via-blue-bright to-transparent mb-4" />
 
-      {/* User account info */}
-      <UserMenu />
+      {/* User account + world buttons */}
+      <UserMenu onOpenWorlds={onOpenWorlds} onNewWorld={onNewWorld} worldCount={worldCount} />
     </div>
 
     {/* Glowing blue divider at end of header */}
