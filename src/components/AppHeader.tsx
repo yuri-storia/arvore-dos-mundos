@@ -67,20 +67,20 @@ const Particles: React.FC = () => {
 };
 
 export const AppHeader: React.FC = () => (
-  <header className="relative text-center pt-8 pb-6 px-4 overflow-hidden min-h-[320px]">
-    {/* Background image */}
-    <div className="absolute inset-0 z-0">
-      <img
-        src={treeWallpaper}
-        alt=""
-        className="w-full h-full object-cover object-[center_25%] md:object-[center_35%] opacity-75"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background" />
-      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-background" />
+  <header className="relative text-center pt-8 pb-6 px-4 min-h-[320px]">
+    {/* Background container with overflow hidden */}
+    <div className="absolute inset-0 overflow-hidden z-0">
+      <div className="absolute inset-0">
+        <img
+          src={treeWallpaper}
+          alt=""
+          className="w-full h-full object-cover object-[center_25%] md:object-[center_35%] opacity-75"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background" />
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-background" />
+      </div>
+      <Particles />
     </div>
-
-    {/* Particles */}
-    <Particles />
 
     <div className="relative z-10 pt-4">
       {/* Badge */}
