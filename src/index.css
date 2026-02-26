@@ -104,17 +104,15 @@
 
 /* Card glass */
 .card-glass {
-  background: rgba(6, 14, 28, 0.92);
-  backdrop-filter: blur(12px);
-  border: 1px solid hsl(var(--border-subtle));
-  border-top: 2px solid hsl(var(--blue-bright));
+  background: linear-gradient(135deg, hsl(211 76% 42% / 0.18) 0%, hsl(214 60% 3% / 0.85) 100%);
+  backdrop-filter: blur(16px);
+  border: 1px solid hsl(var(--blue-bright) / 0.2);
 }
 
 .card-glass-gold {
-  background: rgba(6, 14, 28, 0.92);
-  backdrop-filter: blur(12px);
-  border: 1px solid hsl(var(--border-subtle));
-  border-top: 2px solid hsl(var(--gold));
+  background: linear-gradient(135deg, hsl(211 76% 42% / 0.18) 0%, hsl(214 60% 3% / 0.85) 100%);
+  backdrop-filter: blur(16px);
+  border: 1px solid hsl(var(--gold) / 0.25);
 }
 
 /* Scrollbar */
