@@ -89,18 +89,22 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
-      <div
-        className="fixed inset-0 pointer-events-none z-0"
-        style={{
-          background: 'radial-gradient(ellipse 100% 80% at 50% 0%, rgba(4,8,15,0.2) 0%, rgba(4,8,15,0.75) 60%, rgba(4,8,15,0.97) 100%)',
-        }}
-      />
+      {/* Ambient gradient overlays */}
+      <div className="fixed inset-0 pointer-events-none z-0" style={{
+        background: 'radial-gradient(ellipse 100% 80% at 50% 0%, rgba(4,8,15,0.2) 0%, rgba(4,8,15,0.75) 60%, rgba(4,8,15,0.97) 100%)',
+      }} />
+      <div className="fixed inset-0 pointer-events-none z-0" style={{
+        background: 'radial-gradient(ellipse 80% 40% at 50% 55%, hsl(207 90% 61% / 0.07) 0%, transparent 70%), radial-gradient(ellipse 70% 35% at 40% 90%, hsl(207 90% 61% / 0.06) 0%, transparent 60%)',
+      }} />
 
       <div className="relative z-10">
         <AppHeader />
         <UserMenu />
 
-        {/* World management - top for easy access */}
+        {/* World name first — identity before management */}
+        <WorldNameInput worldName={state.worldName} setWorldName={setWorldName} />
+
+        {/* World management */}
         <WorldSelector
           currentSaveId={state.currentSaveId}
           onNewWorld={handleNewWorld}
@@ -109,7 +113,6 @@ const Index = () => {
         />
 
         <OnboardingBanner />
-        <WorldNameInput worldName={state.worldName} setWorldName={setWorldName} />
         <TabNav activeTab={state.activeTab} setActiveTab={setActiveTab} />
 
         <main>
