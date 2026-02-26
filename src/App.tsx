@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import LoginPage from "./pages/LoginPage";
 import AdminPage from "./pages/AdminPage";
+import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
