@@ -24,7 +24,7 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName }) => 
   }, [focused]);
 
   return (
-    <div className="mx-auto max-w-[1060px] px-4 mb-6 text-center">
+    <div className="mx-auto max-w-[1060px] px-4 mb-6 mt-8 text-center">
       <label className="font-cinzel text-[10px] uppercase tracking-[0.25em] text-gold/60 mb-3 block">
         ✦ Nome do seu Projeto ✦
       </label>
@@ -40,7 +40,7 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName }) => 
               : '0 0 30px hsl(207 90% 61% / 0.25), 0 2px 4px rgba(0,0,0,0.5)',
           }}
         >
-          ◆ {worldName.toUpperCase()} ◆
+          ◆ {worldName} ◆
         </div>
       ) : (
         <input
