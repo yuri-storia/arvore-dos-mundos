@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FRUITS, getOrderedFruits, METHOD_DESCRIPTIONS, MethodType } from '@/lib/data';
 import { getFruitProgress, canUseAI, incrementUsage, callGPT, exportWorldMarkdown } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
+import { FruitGuideBlock } from '@/components/FruitGuideBlock';
 import type { AppState } from '@/lib/data';
 
 interface Props {
@@ -189,6 +190,9 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
             <span className="font-cinzel text-xs text-blue-light">✦ {fruit.num}</span>
             <h2 className="font-cinzel font-bold text-xl sm:text-2xl text-foreground mt-1 mb-1">{fruit.name}</h2>
             <p className="font-merriweather italic text-text-dim text-sm mb-6">{fruit.desc}</p>
+
+            {/* Guide block */}
+            <FruitGuideBlock guide={fruit.guide} />
 
             {/* Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">

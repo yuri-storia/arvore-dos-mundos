@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { AppHeader } from '@/components/AppHeader';
 import { DailyLimitBanner } from '@/components/DailyLimitBanner';
+import { OnboardingBanner } from '@/components/OnboardingBanner';
 import { ApiKeyBar } from '@/components/ApiKeyBar';
 import { WorldNameInput } from '@/components/WorldNameInput';
 import { WorldSelector } from '@/components/WorldSelector';
@@ -99,6 +100,7 @@ const Index = () => {
       <div className="relative z-10">
         <AppHeader />
         <DailyLimitBanner />
+        <OnboardingBanner />
         <WorldSelector
           currentSaveId={state.currentSaveId}
           onNewWorld={handleNewWorld}
