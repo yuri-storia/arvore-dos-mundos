@@ -19,13 +19,18 @@ export const OnboardingBanner: React.FC = () => {
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-center gap-2 group py-2"
       >
-        <h2 className="font-cinzel font-bold text-xs sm:text-sm text-gold-light/70 group-hover:text-gold-light transition-colors uppercase tracking-[0.15em]">
-          Tutorial: Como usar A Árvore dos Mundos
+        <h2
+          className="font-cinzel font-bold text-xs sm:text-sm text-gold-light group-hover:text-gold-light transition-colors uppercase tracking-[0.15em] animate-pulse"
+          style={{
+            textShadow: '0 0 8px hsl(38 73% 60% / 0.8), 0 0 20px hsl(38 73% 60% / 0.5), 0 0 40px hsl(38 67% 48% / 0.3)',
+          }}
+        >
+          ✦ Tutorial: Como usar A Árvore dos Mundos ✦
         </h2>
         {expanded ? (
-          <ChevronUp className="w-4 h-4 text-gold-light/70 group-hover:text-gold-light shrink-0 transition-colors" />
+          <ChevronUp className="w-4 h-4 text-gold-light shrink-0 transition-colors" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-gold-light/70 group-hover:text-gold-light shrink-0 animate-pulse transition-colors" />
+          <ChevronDown className="w-4 h-4 text-gold-light shrink-0 animate-bounce transition-colors" />
         )}
       </button>
 
