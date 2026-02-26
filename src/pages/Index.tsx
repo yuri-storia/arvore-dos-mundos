@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { AppHeader } from '@/components/AppHeader';
 import { DailyLimitBanner } from '@/components/DailyLimitBanner';
 import { OnboardingBanner } from '@/components/OnboardingBanner';
@@ -29,6 +29,7 @@ const createNewState = (): AppState => ({
 
 const Index = () => {
   const [state, setState] = useState<AppState>(createNewState);
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const setActiveTab = useCallback((tab: TabType) => setState(s => ({ ...s, activeTab: tab })), []);
   const setApiKey = useCallback((apiKey: string) => setState(s => ({ ...s, apiKey })), []);
@@ -47,6 +48,24 @@ const Index = () => {
 
   const addToGallery = useCallback((img: GalleryImage) => {
     setState(s => ({ ...s, gallery: [...s.gallery, img] }));
+  }, []);
+
+  // Auto-save: debounce 2s after any state change if world has been created
+  useEffect(() => {
+    if (!state.currentSaveId) return;
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      saveWorld(state);
+    }, 2000);
+    return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
+  }, [state.worldName, state.db, state.method, state.gallery, state.currentSaveId]);
+
+  const handleCreateWorld = useCallback(() => {
+    setState(s => {
+      const saved = saveWorld({ ...s, worldName: s.worldName || 'Mundo Sem Nome' });
+      toast.success(`"${saved.name}" criado com sucesso!`);
+      return { ...s, currentSaveId: saved.id };
+    });
   }, []);
 
   const handleSaveWorld = useCallback(() => {
@@ -94,13 +113,24 @@ const Index = () => {
         background: 'radial-gradient(ellipse 100% 80% at 50% 0%, rgba(4,8,15,0.2) 0%, rgba(4,8,15,0.75) 60%, rgba(4,8,15,0.97) 100%)',
       }} />
 
+      {/* Abstract blurred background shape */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute top-[300px] left-1/2 -translate-x-1/2 w-[140%] h-[600px]" style={{
+          background: 'radial-gradient(ellipse 80% 100% at 50% 0%, rgba(43,74,108,0.12) 0%, rgba(4,12,17,0.08) 60%, transparent 100%)',
+          filter: 'blur(80px)',
+        }} />
+      </div>
 
       <div className="relative z-10">
         <AppHeader />
-        {/* UserMenu is now inside AppHeader */}
 
         {/* World name — identity before management */}
-        <WorldNameInput worldName={state.worldName} setWorldName={setWorldName} />
+        <WorldNameInput
+          worldName={state.worldName}
+          setWorldName={setWorldName}
+          hasBeenCreated={!!state.currentSaveId}
+          onCreateWorld={handleCreateWorld}
+        />
 
         {/* World management */}
         <WorldSelector

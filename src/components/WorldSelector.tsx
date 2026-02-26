@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { listSaves, deleteSave, type WorldSave } from '@/lib/saves';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Plus, FolderOpen } from 'lucide-react';
 
 interface Props {
   currentSaveId: string;
@@ -9,7 +9,7 @@ interface Props {
   onSaveWorld: () => void;
 }
 
-export const WorldSelector: React.FC<Props> = ({ currentSaveId, onNewWorld, onLoadWorld, onSaveWorld }) => {
+export const WorldSelector: React.FC<Props> = ({ currentSaveId, onNewWorld, onLoadWorld }) => {
   const [open, setOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const saves = listSaves().sort((a, b) => b.updatedAt - a.updatedAt);
@@ -27,27 +27,24 @@ export const WorldSelector: React.FC<Props> = ({ currentSaveId, onNewWorld, onLo
 
   return (
     <div className="mx-auto max-w-[1060px] px-4 mb-2">
-      <div className="flex items-center justify-center gap-2 flex-wrap">
-        <button
-          onClick={onSaveWorld}
-          className="px-2.5 py-1 rounded text-[10px] font-montserrat font-bold uppercase tracking-wider text-blue-light/70 hover:text-blue-light transition-colors"
-        >
-          💾 Salvar
-        </button>
-        <span className="text-text-dim/30 text-[10px]">·</span>
+      <div className="flex items-center justify-center gap-3">
+        {/* Mundos button */}
         <button
           onClick={() => setOpen(!open)}
-          className="px-2.5 py-1 rounded text-[10px] font-montserrat font-bold uppercase tracking-wider text-text-dim/60 hover:text-text-secondary transition-colors flex items-center gap-1"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-blue-bright/25 bg-blue-bright/[0.08] hover:bg-blue-bright/[0.15] text-blue-light/80 hover:text-blue-light transition-all backdrop-blur-sm"
         >
-          📂 Mundos {saves.length > 0 && `(${saves.length})`}
+          <FolderOpen className="w-3 h-3" />
+          Mundos {saves.length > 0 && `(${saves.length})`}
           {open ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
         </button>
-        <span className="text-text-dim/30 text-[10px]">·</span>
+
+        {/* Novo button */}
         <button
           onClick={onNewWorld}
-          className="px-2.5 py-1 rounded text-[10px] font-montserrat font-bold uppercase tracking-wider text-gold-light/60 hover:text-gold-light transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/30 bg-gold/[0.08] hover:bg-gold/[0.15] text-gold-light/80 hover:text-gold-light transition-all backdrop-blur-sm"
         >
-          ✦ Novo
+          <Plus className="w-3 h-3" />
+          Novo
         </button>
       </div>
 
