@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { CATEGORIES, GalleryImage } from '@/lib/data';
+import { CATEGORIES, GALLERY_CATEGORIES, FRUIT_CATEGORIES, GalleryImage } from '@/lib/data';
 
 interface Props {
   gallery: GalleryImage[];
@@ -138,7 +138,12 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
               onChange={e => setCurrentUpload({ ...currentUpload, cat: e.target.value })}
               className="w-full bg-background/60 border border-blue-bright/20 rounded-md px-3 py-2 text-sm text-foreground mb-4 focus:outline-none focus:border-blue-bright/50"
             >
-              {CATEGORIES.filter(c => c !== 'Todos').map(c => <option key={c} value={c}>{c}</option>)}
+              <optgroup label="Categorias">
+                {GALLERY_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </optgroup>
+              <optgroup label="Vincular a Fruto">
+                {FRUIT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </optgroup>
             </select>
             <div className="flex gap-2 justify-end">
               <button
