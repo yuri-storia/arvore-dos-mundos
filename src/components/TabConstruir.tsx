@@ -3,6 +3,7 @@ import { FRUITS, getOrderedFruits, METHOD_DESCRIPTIONS, MethodType, GalleryImage
 import { getFruitProgress, canUseAI, incrementUsage, callGPT, exportWorldMarkdown } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
 import { FruitGuideBlock } from '@/components/FruitGuideBlock';
+import { ImageLightbox } from '@/components/ImageLightbox';
 import type { AppState } from '@/lib/data';
 
 interface Props {
@@ -19,6 +20,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   const [aiLoading, setAiLoading] = useState(false);
   const [activeChip, setActiveChip] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
 
   const orderedFruits = getOrderedFruits(method);
   const fruitsStarted = FRUITS.filter(f => getFruitProgress(db, f.id).filled > 0).length;
@@ -205,7 +207,12 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                     {fruitImages.map(img => (
                       <div key={img.id} className="rounded-lg overflow-hidden border border-gold/20 hover:border-gold/50 transition-colors">
-                        <img src={img.src} alt={img.name} className="w-full h-[80px] sm:h-[100px] object-cover" />
+                        <img
+                          src={img.src}
+                          alt={img.name}
+                          className="w-full h-[80px] sm:h-[100px] object-cover cursor-zoom-in"
+                          onClick={() => setLightbox({ src: img.src, alt: img.name })}
+                        />
                         <p className="text-[9px] text-text-dim font-montserrat p-1 truncate">{img.name}</p>
                       </div>
                     ))}
@@ -341,6 +348,9 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
           </div>
         </div>
       )}
+
+      {/* Lightbox */}
+      {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
     </div>
   );
 };

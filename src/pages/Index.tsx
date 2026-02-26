@@ -142,7 +142,7 @@ const Index = () => {
         <DailyLimitBanner />
         <ApiKeyBar apiKey={state.apiKey} setApiKey={setApiKey} />
 
-        <footer className="text-center py-8 opacity-40">
+        <footer className="text-center py-8 pb-24 opacity-40">
           <p className="text-[10px] text-text-dim font-montserrat uppercase tracking-[0.2em]">
             A Árvore dos Mundos · Template com IA · Universo STORIA
           </p>
