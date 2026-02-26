@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import treeWallpaper from '@/assets/tree-wallpaper.webp';
+import { UserMenu } from '@/components/UserMenu';
 
 const Particles: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -101,13 +102,17 @@ export const AppHeader: React.FC = () => (
       </p>
 
       {/* Decorative line */}
-      <div className="mx-auto w-[60px] h-[2px] bg-gradient-to-r from-transparent via-blue-bright to-transparent" />
+      <div className="mx-auto w-[60px] h-[2px] bg-gradient-to-r from-transparent via-blue-bright to-transparent mb-4" />
+
+      {/* User account info */}
+      <UserMenu />
     </div>
 
     {/* Glowing blue divider at end of header */}
     <div className="absolute bottom-0 left-0 right-0 z-10 h-[2px]">
-      <div className="w-full h-full bg-gradient-to-r from-transparent via-blue-bright to-transparent opacity-70" />
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-bright to-transparent blur-[6px] opacity-50" />
+      <div className="w-full h-full bg-gradient-to-r from-transparent via-blue-bright to-transparent opacity-90" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-bright to-transparent blur-[8px] opacity-70" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-bright to-transparent blur-[16px] opacity-40" />
     </div>
   </header>
 );
