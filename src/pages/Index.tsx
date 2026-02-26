@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { AppHeader } from '@/components/AppHeader';
 import { DailyLimitBanner } from '@/components/DailyLimitBanner';
 import { OnboardingBanner } from '@/components/OnboardingBanner';
@@ -57,7 +57,6 @@ const Index = () => {
   }, []);
 
   const handleLoadWorld = useCallback((save: WorldSave) => {
-    // Auto-save current world before switching
     setState(prev => {
       if (prev.currentSaveId && (prev.worldName || Object.keys(prev.db).length > 0)) {
         saveWorld(prev);
@@ -78,7 +77,6 @@ const Index = () => {
   }, []);
 
   const handleNewWorld = useCallback(() => {
-    // Auto-save current before creating new
     setState(prev => {
       if (prev.currentSaveId && (prev.worldName || Object.keys(prev.db).length > 0)) {
         saveWorld(prev);
@@ -93,20 +91,22 @@ const Index = () => {
       <div
         className="fixed inset-0 pointer-events-none z-0"
         style={{
-          background: 'radial-gradient(ellipse 100% 80% at 50% 0%, rgba(4,8,15,0.3) 0%, rgba(4,8,15,0.85) 60%, rgba(4,8,15,0.97) 100%)',
+          background: 'radial-gradient(ellipse 100% 80% at 50% 0%, rgba(4,8,15,0.2) 0%, rgba(4,8,15,0.75) 60%, rgba(4,8,15,0.97) 100%)',
         }}
       />
 
       <div className="relative z-10">
         <AppHeader />
-        <DailyLimitBanner />
-        <OnboardingBanner />
+
+        {/* World management - top for easy access */}
         <WorldSelector
           currentSaveId={state.currentSaveId}
           onNewWorld={handleNewWorld}
           onLoadWorld={handleLoadWorld}
           onSaveWorld={handleSaveWorld}
         />
+
+        <OnboardingBanner />
         <WorldNameInput worldName={state.worldName} setWorldName={setWorldName} />
         <TabNav activeTab={state.activeTab} setActiveTab={setActiveTab} />
 
@@ -125,6 +125,8 @@ const Index = () => {
           )}
         </main>
 
+        {/* AI usage + API key grouped together at the bottom */}
+        <DailyLimitBanner />
         <ApiKeyBar apiKey={state.apiKey} setApiKey={setApiKey} />
 
         <footer className="text-center py-8 opacity-40">

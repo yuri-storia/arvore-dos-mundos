@@ -19,7 +19,7 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide }) => {
     >
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center gap-2 px-4 py-3 text-left"
+        className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-blue-bright/[0.03] transition-colors"
       >
         <span
           className="text-[10px] transition-transform duration-200"
@@ -49,6 +49,36 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide }) => {
             {guide.min}
           </p>
 
+          {/* Passo a Passo */}
+          {guide.steps && guide.steps.length > 0 && (
+            <div className="mt-3">
+              <span
+                className="font-montserrat font-bold uppercase text-[0.58rem] tracking-[0.1em] block mb-2"
+                style={{ color: '#c8922a' }}
+              >
+                🗺 Passo a Passo
+              </span>
+              <ol className="space-y-1.5 pl-1">
+                {guide.steps.map((step, i) => (
+                  <li key={i} className="flex gap-2 items-start">
+                    <span
+                      className="font-montserrat font-bold text-[0.65rem] mt-0.5 shrink-0 w-5 h-5 rounded-full flex items-center justify-center"
+                      style={{ background: 'rgba(200,146,42,0.15)', color: '#c8922a' }}
+                    >
+                      {i + 1}
+                    </span>
+                    <span
+                      className="font-merriweather leading-[1.65]"
+                      style={{ color: '#b0c8e4', fontSize: '0.7rem' }}
+                    >
+                      {step}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
           {/* Separator */}
           <div className="my-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} />
 
@@ -59,6 +89,19 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide }) => {
           >
             {guide.ref}
           </p>
+
+          {/* Closing quote */}
+          {guide.closing && (
+            <>
+              <div className="my-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} />
+              <p
+                className="font-cinzel italic text-center leading-[1.7]"
+                style={{ color: '#c8922a', fontSize: '0.7rem' }}
+              >
+                "{guide.closing}"
+              </p>
+            </>
+          )}
         </div>
       )}
     </div>

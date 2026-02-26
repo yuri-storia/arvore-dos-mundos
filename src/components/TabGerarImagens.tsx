@@ -179,7 +179,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
             {loading2 ? '⏳ Gerando…' : '🎨 2. Gerar com DALL-E 3'}
           </button>
           <span className="text-[11px] text-text-dim font-merriweather italic">
-            Texto: ~$0,001 · Imagem: ~$0,04
+            GPT-4o mini (texto) · DALL-E 3 (imagem)
           </span>
         </div>
 
