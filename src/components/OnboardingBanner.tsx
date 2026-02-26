@@ -14,7 +14,7 @@ export const OnboardingBanner: React.FC = () => {
 
   return (
     <div className="mx-auto max-w-[1060px] px-3 sm:px-4 py-4">
-      <div className="rounded-lg p-5 sm:p-6 backdrop-blur-[16px] border border-gold-light/40 shadow-[0_4px_24px_rgba(200,146,42,0.15)]" style={{ background: 'linear-gradient(135deg, hsl(38 67% 48% / 0.82) 0%, hsl(38 73% 60% / 0.7) 50%, hsl(38 67% 48% / 0.78) 100%)' }}>
+      <div className="rounded-lg p-5 sm:p-6 backdrop-blur-[20px] border border-gold-light/50 shadow-[0_4px_30px_rgba(200,146,42,0.2)]" style={{ background: 'linear-gradient(135deg, hsl(38 67% 48% / 0.4) 0%, hsl(38 73% 60% / 0.3) 50%, hsl(38 67% 48% / 0.35) 100%)' }}>
         <button
           onClick={() => setExpanded(!expanded)}
           className="w-full flex items-center justify-between gap-3 text-left group"
