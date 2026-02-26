@@ -13,46 +13,40 @@ export const OnboardingBanner: React.FC = () => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="mx-auto max-w-[1060px] px-3 sm:px-4 py-4">
-      <div className="rounded-lg p-5 sm:p-6 backdrop-blur-[20px] border border-gold-light/50 shadow-[0_4px_30px_rgba(200,146,42,0.2)]" style={{ background: 'linear-gradient(135deg, hsl(38 67% 48% / 0.4) 0%, hsl(38 73% 60% / 0.3) 50%, hsl(38 67% 48% / 0.35) 100%)' }}>
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="w-full flex items-center justify-between gap-3 text-left group"
-        >
-          <h2 className="font-cinzel font-bold text-base sm:text-lg text-bg-deep group-hover:text-bg-deep/80 transition-colors">
-            ✦ Como usar a Árvore dos Mundos
-          </h2>
-          {expanded ? (
-            <ChevronUp className="w-5 h-5 text-bg-deep shrink-0" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-bg-deep shrink-0" />
-          )}
-        </button>
-
-        {!expanded && (
-          <p className="font-merriweather text-bg-deep/70 text-xs sm:text-sm mt-2 leading-relaxed">
-            Clique para ver o passo a passo e começar a construir seu mundo.
-          </p>
+    <div className="mx-auto max-w-[1060px] px-3 sm:px-4 py-3">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center justify-center gap-2 group py-2"
+      >
+        <h2 className="font-cinzel font-bold text-xs sm:text-sm text-gold-light/70 group-hover:text-gold-light transition-colors uppercase tracking-[0.15em]">
+          Tutorial: Como usar A Árvore dos Mundos
+        </h2>
+        {expanded ? (
+          <ChevronUp className="w-4 h-4 text-gold-light/70 group-hover:text-gold-light shrink-0 transition-colors" />
+        ) : (
+          <ChevronDown className="w-4 h-4 text-gold-light/70 group-hover:text-gold-light shrink-0 animate-pulse transition-colors" />
         )}
+      </button>
 
-        {expanded && (
-          <div className="mt-4 space-y-3 animate-fadeUp">
+      {expanded && (
+        <div className="mt-2 rounded-lg p-5 sm:p-6 backdrop-blur-[20px] border border-gold-light/30 shadow-[0_4px_30px_rgba(200,146,42,0.15)] animate-fadeUp" style={{ background: 'linear-gradient(135deg, hsl(38 67% 48% / 0.25) 0%, hsl(38 73% 60% / 0.18) 50%, hsl(38 67% 48% / 0.22) 100%)' }}>
+          <div className="space-y-3">
             {STEPS.map((step, i) => (
               <div key={i} className="flex gap-3 items-start">
                 <span className="text-lg shrink-0 mt-0.5">{step.icon}</span>
                 <div>
-                  <h3 className="font-montserrat font-bold text-sm text-bg-deep">
+                  <h3 className="font-montserrat font-bold text-sm text-gold-light">
                     {i + 1}. {step.title}
                   </h3>
-                  <p className="font-merriweather text-bg-deep/70 text-xs leading-relaxed mt-0.5">
+                  <p className="font-merriweather text-text-secondary text-xs leading-relaxed mt-0.5">
                     {step.desc}
                   </p>
                 </div>
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
