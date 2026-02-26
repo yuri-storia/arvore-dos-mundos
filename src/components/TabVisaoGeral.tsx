@@ -124,7 +124,7 @@ export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrent
           onClick={() => exportWorldMarkdown(worldName, method, db)}
           className="px-5 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
         >
-          🌳 Exportar (.md)
+          🌳 Exportar PDF
         </button>
       </div>
     </div>
