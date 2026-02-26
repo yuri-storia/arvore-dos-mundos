@@ -99,8 +99,8 @@ export const AppHeader: React.FC = () => (
       </h1>
 
       {/* Subtitle */}
-      <p className="font-merriweather italic text-text-secondary text-sm md:text-base max-w-md mx-auto mb-4">
-        O Template Definitivo de Worldbuilding: seu sistema completo para construir<br className="hidden md:inline" /> em horas o que levaria meses
+      <p className="font-merriweather italic text-text-secondary text-sm md:text-base max-w-2xl mx-auto mb-4">
+        O Template Definitivo de Worldbuilding: seu sistema completo<br />para construir em horas o que levaria meses
       </p>
 
       {/* Decorative line */}
