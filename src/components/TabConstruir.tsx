@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { FRUITS, Fruit, MethodType } from '@/lib/data';
+import { FRUITS, getOrderedFruits, METHOD_DESCRIPTIONS, MethodType } from '@/lib/data';
 import { getFruitProgress, canUseAI, incrementUsage, callGPT, exportWorldMarkdown } from '@/lib/helpers';
+import { FRUIT_IMAGES } from '@/assets/fruitImages';
 import type { AppState } from '@/lib/data';
 
 interface Props {
@@ -18,16 +19,14 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   const [activeChip, setActiveChip] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
+  const orderedFruits = getOrderedFruits(method);
   const fruitsStarted = FRUITS.filter(f => getFruitProgress(db, f.id).filled > 0).length;
-  const totalPct = FRUITS.reduce((acc, f) => {
-    const p = getFruitProgress(db, f.id);
-    return acc + p.filled;
-  }, 0);
+  const totalPct = FRUITS.reduce((acc, f) => acc + getFruitProgress(db, f.id).filled, 0);
   const totalFields = FRUITS.reduce((acc, f) => acc + f.fields.length, 0);
   const pct = totalFields ? Math.round((totalPct / totalFields) * 100) : 0;
 
   const fruit = FRUITS[currentFruit];
-  const progress = getFruitProgress(db, currentFruit);
+  const currentOrderIndex = orderedFruits.findIndex(f => f.id === currentFruit);
 
   const handleConsult = async () => {
     if (!apiKey.startsWith('sk-')) {
@@ -66,10 +65,19 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
     setActiveChip(null);
   };
 
+  const navigateFruit = (dir: -1 | 1) => {
+    const newIdx = currentOrderIndex + dir;
+    if (newIdx >= 0 && newIdx < orderedFruits.length) {
+      selectFruit(orderedFruits[newIdx].id);
+    }
+  };
+
+  const methodInfo = METHOD_DESCRIPTIONS[method];
+
   return (
-    <div className="animate-fadeUp mx-auto max-w-[1060px] px-4 py-6">
+    <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-6">
       {/* Method toggle */}
-      <div className="flex gap-2 mb-5">
+      <div className="flex flex-col sm:flex-row gap-2 mb-3">
         {(['top-down', 'bottom-up'] as const).map(m => (
           <button
             key={m}
@@ -80,9 +88,16 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 : 'border border-blue-bright/20 text-text-dim hover:text-text-secondary'
             }`}
           >
-            {m === 'top-down' ? '⬇ Cima para Baixo' : '⬆ Baixo para Cima'}
+            {METHOD_DESCRIPTIONS[m].title}
           </button>
         ))}
+      </div>
+
+      {/* Method description */}
+      <div className="mb-5 p-3 rounded-md bg-blue-bright/[0.04] border border-blue-bright/10">
+        <p className="font-merriweather italic text-text-secondary text-xs leading-relaxed">
+          {methodInfo.desc}
+        </p>
       </div>
 
       {/* Progress bar */}
@@ -100,11 +115,12 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       </div>
 
       {/* Fruit grid */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 mb-6">
-        {FRUITS.map(f => {
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 mb-6">
+        {orderedFruits.map((f, idx) => {
           const fp = getFruitProgress(db, f.id);
           const isActive = currentFruit === f.id;
           const isComplete = fp.filled === fp.total;
+          const coverImage = FRUIT_IMAGES[f.id];
           return (
             <button
               key={f.id}
@@ -115,18 +131,31 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                   : 'border border-transparent hover:border-blue-bright/30'
               }`}
             >
-              {/* Gradient bg */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${f.gradient} ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-80'} transition-opacity`} />
-              {/* Icon */}
-              <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-30">{f.icon}</div>
+              {/* Cover image or gradient fallback */}
+              {coverImage ? (
+                <img
+                  src={coverImage}
+                  alt={f.name}
+                  className={`absolute inset-0 w-full h-full object-cover ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-80'} transition-opacity`}
+                />
+              ) : (
+                <div className={`absolute inset-0 bg-gradient-to-br ${f.gradient} ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-80'} transition-opacity`} />
+              )}
+              {!coverImage && (
+                <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-30">{f.icon}</div>
+              )}
               {/* Dark overlay bottom */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              {/* Step number badge */}
+              <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/50 text-[9px] text-blue-light font-montserrat font-bold">
+                {idx + 1}º
+              </div>
               {/* Content */}
               <div className="absolute bottom-0 left-0 right-0 p-2">
-                <span className="font-cinzel text-[10px] text-blue-light block">{f.num}</span>
-                <span className="font-montserrat font-bold text-[11px] text-foreground uppercase leading-tight block">{f.name}</span>
+                <span className="font-cinzel text-[9px] sm:text-[10px] text-blue-light block">{f.num}</span>
+                <span className="font-montserrat font-bold text-[10px] sm:text-[11px] text-foreground uppercase leading-tight block">{f.name}</span>
                 {fp.filled > 0 && !isComplete && (
-                  <span className="text-[10px] text-gold-light">{fp.filled}/{fp.total} campos</span>
+                  <span className="text-[9px] sm:text-[10px] text-gold-light">{fp.filled}/{fp.total} campos</span>
                 )}
               </div>
               {/* Complete badge */}
@@ -144,15 +173,21 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       {fruit && (
         <div key={currentFruit} className="animate-fadeUp card-glass rounded-lg overflow-hidden">
           {/* Hero */}
-          <div className={`relative h-[200px] bg-gradient-to-br ${fruit.gradient}`}>
-            <div className="absolute inset-0 flex items-center justify-center text-8xl opacity-20">{fruit.icon}</div>
+          <div className="relative h-[140px] sm:h-[200px]">
+            {FRUIT_IMAGES[fruit.id] ? (
+              <img src={FRUIT_IMAGES[fruit.id]} alt={fruit.name} className="absolute inset-0 w-full h-full object-cover opacity-50" />
+            ) : (
+              <div className={`absolute inset-0 bg-gradient-to-br ${fruit.gradient}`}>
+                <div className="absolute inset-0 flex items-center justify-center text-8xl opacity-20">{fruit.icon}</div>
+              </div>
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-[rgba(6,14,28,0.95)] via-transparent to-transparent" />
           </div>
 
-          <div className="p-5 md:p-7">
+          <div className="p-4 sm:p-5 md:p-7">
             {/* Header */}
             <span className="font-cinzel text-xs text-blue-light">✦ {fruit.num}</span>
-            <h2 className="font-cinzel font-bold text-2xl text-foreground mt-1 mb-1">{fruit.name}</h2>
+            <h2 className="font-cinzel font-bold text-xl sm:text-2xl text-foreground mt-1 mb-1">{fruit.name}</h2>
             <p className="font-merriweather italic text-text-dim text-sm mb-6">{fruit.desc}</p>
 
             {/* Fields */}
@@ -217,7 +252,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               </div>
 
               {/* Question input */}
-              <div className="flex gap-2 mb-4">
+              <div className="flex flex-col sm:flex-row gap-2 mb-4">
                 <input
                   type="text"
                   value={aiQuestion}
@@ -229,7 +264,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 <button
                   onClick={handleConsult}
                   disabled={!aiQuestion.trim() || aiLoading}
-                  className="px-4 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors"
+                  className="px-4 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
                 >
                   ✦ Consultar
                 </button>
@@ -257,23 +292,23 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
             {/* Navigation */}
             <div className="flex justify-between items-center mt-8 pt-5 border-t border-blue-bright/15">
               <button
-                onClick={() => currentFruit > 0 && selectFruit(currentFruit - 1)}
-                disabled={currentFruit === 0}
-                className="px-4 py-2 rounded-md text-xs font-montserrat font-bold text-text-dim border border-blue-bright/15 hover:text-foreground hover:border-blue-bright/30 disabled:opacity-30 transition-all"
+                onClick={() => navigateFruit(-1)}
+                disabled={currentOrderIndex <= 0}
+                className="px-3 sm:px-4 py-2 rounded-md text-xs font-montserrat font-bold text-text-dim border border-blue-bright/15 hover:text-foreground hover:border-blue-bright/30 disabled:opacity-30 transition-all"
               >
                 ← Anterior
               </button>
-              {currentFruit < 10 ? (
+              {currentOrderIndex < orderedFruits.length - 1 ? (
                 <button
-                  onClick={() => selectFruit(currentFruit + 1)}
-                  className="px-5 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+                  onClick={() => navigateFruit(1)}
+                  className="px-4 sm:px-5 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
                 >
                   Próximo Fruto →
                 </button>
               ) : (
                 <button
                   onClick={() => exportWorldMarkdown(worldName, method, db)}
-                  className="px-5 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+                  className="px-4 sm:px-5 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
                 >
                   🌳 Exportar Mundo
                 </button>
