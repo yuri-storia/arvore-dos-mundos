@@ -14,7 +14,7 @@ interface Props {
 }
 
 export const TabNav: React.FC<Props> = ({ activeTab, setActiveTab }) => (
-  <nav className="fixed bottom-0 left-0 right-0 z-[150] bg-blue-light/90 backdrop-blur-[12px] border-t border-blue-bright/30 shadow-[0_-4px_20px_rgba(0,0,0,0.4)]">
+  <nav className="fixed bottom-0 left-0 right-0 z-[150] backdrop-blur-[16px] border-t border-blue-glow/40 shadow-[0_-4px_24px_rgba(33,150,243,0.15)]" style={{ background: 'linear-gradient(135deg, hsl(210 84% 69% / 0.85) 0%, hsl(211 76% 42% / 0.75) 50%, hsl(207 90% 61% / 0.8) 100%)' }}>
     <div className="mx-auto max-w-[1060px] flex">
       {TABS.map(tab => (
         <button
