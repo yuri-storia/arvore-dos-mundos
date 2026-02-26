@@ -30,9 +30,9 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName, hasBe
 
   return (
     <div className="mx-auto max-w-[1060px] px-4 mb-6 mt-8 flex flex-col items-center text-center">
-      <span className="inline-block px-4 py-1 rounded-full bg-gold/20 border border-gold/40 mb-3">
-        <span className="font-cinzel text-[10px] uppercase tracking-[0.25em] text-gold">
-          ✦ Nome do seu Projeto ✦
+      <span className="inline-block px-3 py-0.5 rounded-full bg-gold/20 border border-gold/40 mb-2">
+        <span className="font-cinzel text-[9px] uppercase tracking-[0.25em] text-gold">
+          ✦ Seu Projeto ✦
         </span>
       </span>
 
