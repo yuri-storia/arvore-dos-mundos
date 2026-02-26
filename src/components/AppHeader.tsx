@@ -20,13 +20,13 @@ const Particles: React.FC = () => {
     resize();
     window.addEventListener('resize', resize);
 
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 65; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        r: Math.random() * 2 + 0.5,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: -Math.random() * 0.4 - 0.1,
+        r: Math.random() * 2.2 + 0.4,
+        vx: (Math.random() - 0.5) * 0.2,
+        vy: -Math.random() * 0.2 - 0.05,
         o: Math.random() * 0.6 + 0.2,
         vo: (Math.random() - 0.5) * 0.005,
       });
@@ -66,16 +66,16 @@ const Particles: React.FC = () => {
 };
 
 export const AppHeader: React.FC = () => (
-  <header className="relative text-center pt-8 pb-6 px-4 overflow-hidden min-h-[280px]">
+  <header className="relative text-center pt-8 pb-6 px-4 overflow-hidden min-h-[320px]">
     {/* Background image */}
     <div className="absolute inset-0 z-0">
       <img
         src={treeWallpaper}
         alt=""
-        className="w-full h-full object-cover object-[center_30%] md:object-[center_40%] opacity-60"
+        className="w-full h-full object-cover object-[center_25%] md:object-[center_35%] opacity-75"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background" />
-      <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-b from-transparent to-background" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background" />
+      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-background" />
     </div>
 
     {/* Particles */}
@@ -96,8 +96,8 @@ export const AppHeader: React.FC = () => (
       </h1>
 
       {/* Subtitle */}
-      <p className="font-merriweather italic text-text-secondary text-sm md:text-base max-w-xl mx-auto mb-4">
-        Construa universos ricos e sem furos — fruto a fruto — com o auxílio da Inteligência Artificial
+      <p className="font-merriweather italic text-text-secondary text-sm md:text-base max-w-2xl mx-auto mb-4">
+        O Template Definitivo de Worldbuilding: seu sistema completo para construir em horas o que levaria meses
       </p>
 
       {/* Decorative line */}

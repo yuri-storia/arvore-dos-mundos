@@ -9,6 +9,8 @@ export interface FruitField {
 export interface FruitGuide {
   min: string;
   ref: string;
+  steps: string[];
+  closing?: string;
 }
 
 export interface Fruit {
@@ -64,7 +66,16 @@ export const FRUITS: Fruit[] = [
     chips: ['Criar 3 regiões com conflito entre elas', 'Sugerir nomes para regiões e cidades', 'Desenvolver a rota principal', 'Criar fronteira de tensão política'],
     guide: {
       min: '✦ Mínimo Mundo Viável: 3–7 regiões com clima/bioma definido · 1 rota importante (comércio, guerra ou peregrinação) · 2 fronteiras onde o conflito é inevitável.',
-      ref: '📖 Westeros (George R. R. Martin): o mapa não é decoração — é o coração do mundo. Geografia dita história, cultura e conflito. Martin se inspirou no formato real do Reino Unido e da Irlanda. Inspiração real não mata originalidade — acelera.\n\nSeu gatilho: que forma geográfica real poderia ser a espinha dorsal do seu mundo?',
+      ref: '📖 Westeros (George R. R. Martin): No Norte, o frio intenso e a Muralha forjam um povo resistente. Em Dorne, o clima quente resulta em cultura liberal. O Vale de Arryn é protegido por montanhas, criando isolamento defensivo. Martin usou a fusão dos mapas do Reino Unido e da Irlanda como base — inspiração real não mata originalidade, acelera.\n\nSeu gatilho: que forma geográfica real poderia ser a espinha dorsal do seu mundo?',
+      steps: [
+        'Defina o Conceito: fantasia, ficção científica ou histórico? Semelhante à Terra ou alienígena?',
+        'Esboce a Geografia Geral: desenhe o contorno das massas de terra, oceanos, rios e desertos',
+        'Desenvolva Climas e Biomas: zonas climáticas (quentes perto do equador, frias nos polos) e biomas',
+        'Crie Regiões e Reinos: divida usando fronteiras naturais e nomeie com a língua local',
+        'Cidades e Rotas de Comércio: marque cidades estratégicas e trace rotas de conexão',
+        'Integração Narrativa: o mapa deve orientar viagens e planejamento de batalhas',
+      ],
+      closing: 'Ao tomar deste fruto, o firmamento do seu Mundo será materializado.',
     },
   },
   {
@@ -80,7 +91,16 @@ export const FRUITS: Fruit[] = [
     chips: ['Criar conflito entre as 2 facções', 'Desenvolver a exceção política regional', 'Gerar lei reveladora do poder', 'Criar conspiração política em andamento'],
     guide: {
       min: '✦ Mínimo Mundo Viável: 1 forma de governo dominante + 1 exceção regional · 2 facções em disputa (com objetivo e método) · 1 lei que revela o tom do poder.',
-      ref: '📖 Terra-média (Tolkien): um único mundo, múltiplos sistemas políticos — Gondor é monarquia, os Elfos têm conselhos, os Hobbits têm uma Comarca quase anarquista. Essa variedade cria sensação épica e conflitos de valores entre aliados.\n\nSeu gatilho: como dois povos aliados poderiam entrar em atrito por terem formas completamente diferentes de decidir quem lidera?',
+      ref: '📖 Diversidade de Poder: Monarquias (Gondor/Rohan em Tolkien), Repúblicas (Roma Antiga com Senado + Assembleias), Impérios (Star Wars — poder centralizado como antagonista), Teocracias (Covenant em Halo — líderes religiosos com poder absoluto). A variedade cria sensação épica e conflitos de valores entre aliados.\n\nSeu gatilho: como dois povos aliados poderiam entrar em atrito por terem formas completamente diferentes de decidir quem lidera?',
+      steps: [
+        'Determine o Tipo de Governo: monarquia, república, ditadura, teocracia ou original',
+        'Defina a Estrutura de Poder: líder único ou conselho? Herdado, eleito ou conquistado?',
+        'Estratificação Social: classes (nobres, plebeus, castas) e mobilidade entre elas',
+        'Crie Leis e Justiça: leis fundamentais, punições e sistema formal ou comunitário',
+        'Relações e Conflitos: intrigas políticas internas e relações com outras nações',
+        'Influência Religiosa: papel oficial ou influência política da religião no governo',
+      ],
+      closing: 'Ao tomar deste fruto, os fios do destino começarão a se ordenar diante do caos.',
     },
   },
   {
@@ -96,7 +116,16 @@ export const FRUITS: Fruit[] = [
     chips: ['Criar os 5 eventos históricos fundamentais', 'Desenvolver relíquia ou documento histórico', 'Expandir o herói/vilão do passado', 'Conectar história ao conflito presente'],
     guide: {
       min: '✦ Mínimo Mundo Viável: 5 eventos históricos (1 fundação, 1 ascensão, 1 queda, 1 tragédia, 1 descoberta) · 2 relíquias ou documentos que sobraram · 1 figura histórica com legado ainda ativo.',
-      ref: '📖 The Elder Scrolls (Bethesda): o Aetherium é o modelo perfeito — uma descoberta rara muda a história, gera avanços tecnológicos e cria conflito entre facções que querem controlar o recurso.\n\nSeu gatilho: que recurso ou verdade do seu mundo gerou uma disputa histórica que ainda sangra no presente?',
+      ref: '📖 The Elder Scrolls (Tamriel): eventos fundadores (guerras divinas), a Grande Guerra entre Império e Domínio Aldmeri gera repercussões em Skyrim, ciclos de poder (ascensão e queda do Império Septim), descobertas como o Aetherium que impulsionam avanços e conflitos, e figuras como Tiber Septim que se tornam mitos.\n\nSeu gatilho: que recurso ou verdade do seu mundo gerou uma disputa histórica que ainda sangra no presente?',
+      steps: [
+        'Desenvolva a Cronologia: fundação do mundo, grandes guerras, quedas de reinos e catástrofes',
+        'Conecte à Narrativa Atual: quais tradições ou conflitos foram moldados por esses eventos?',
+        'Crie Documentos e Relíquias: manuscritos, armas lendárias ou coroas com significado especial',
+        'Desenvolva Personagens Históricos: heróis e vilões cujas ações ainda impactam o mundo',
+        'Adapte à Cultura e Religião: integre fatos históricos em feriados e mitos religiosos',
+        'Inspire-se no Mundo Real: revoluções, coroações e batalhas trazem verossimilhança',
+      ],
+      closing: 'Ao tomar deste fruto, linhas do tempo são criadas e possibilidades se abrem.',
     },
   },
   {
@@ -112,7 +141,17 @@ export const FRUITS: Fruit[] = [
     chips: ['Criar os 3 valores centrais com contradição', 'Desenvolver o ritual público do povo', 'Criar o tabu e suas consequências', 'Gerar cena que mostra a cultura em ação'],
     guide: {
       min: '✦ Mínimo Mundo Viável: 3 valores centrais do povo · 2 rituais (1 público e 1 íntimo) · 1 tabu com consequência real.',
-      ref: '📖 Avatar: A Lenda de Aang (Nickelodeon): cultura como worldbuilding completo — cada nação tem crença, tradição, arte, língua e costumes visíveis em cada cena.\n\nSeu checklist: o povo do seu mundo pode ser identificado só pelo comportamento em cena, sem legenda?',
+      ref: '📖 Avatar: A Lenda de Aang: cada nação (Fogo, Água, Terra, Ar) tem estrutura, valores, rituais e arte distintos — o espectador identifica o povo pelo comportamento antes de ler qualquer nome. Nação do Fogo valoriza força e disciplina; Tribo da Água, comunidade e cooperação; Reino da Terra, resiliência; Nômades do Ar, desapego e paz.\n\nSeu checklist: o povo do seu mundo pode ser identificado só pelo comportamento em cena, sem legenda?',
+      steps: [
+        'Defina as Bases Culturais: como geografia e história influenciam a identidade do povo',
+        'Desenvolva Crenças e Valores: deuses, rituais, festivais e valores éticos centrais',
+        'Crie Costumes e Tradições: rituais de passagem, alimentos típicos e práticas culinárias',
+        'Desenvolva Arte e Literatura: estilos musicais, danças e contos que refletem a visão de mundo',
+        'Estabeleça Língua e Dialetos: vocabulário principal e dialetos regionais',
+        'Defina a Estrutura Social: classes, papel de gênero e mobilidade social',
+        'Integre na Narrativa: use cultura em diálogos e descrições concretas',
+      ],
+      closing: 'Ao tomar deste fruto, povos e raças cantam e dançam ao redor da própria identidade.',
     },
   },
   {
@@ -128,7 +167,15 @@ export const FRUITS: Fruit[] = [
     chips: ['Definir o custo e limite do sistema de magia', 'Criar item híbrido (tecnologia + magia)', 'Gerar conflito político em torno da magia', 'Desenvolver grupo que rejeita a magia'],
     guide: {
       min: '✦ Mínimo Mundo Viável: a magia é rara ou comum? · Tem custo/limitação real? · Existe tensão ou hibridismo com tecnologia?',
-      ref: '📖 Game of Thrones (George R. R. Martin): equilíbrio perfeito — magia com custo e imprevisibilidade, itens híbridos (Aço Valiriano + Fogovivo), e o choque simbólico entre dragões e balistas como tensão magia vs. engenhosidade humana.\n\nSeu gatilho: quem perde poder político se a magia se tornar acessível a todos?',
+      ref: '📖 Game of Thrones (Martin): balistas vs. dragões como tensão magia vs. engenhosidade. Fogovivo como híbrido químico-mágico. Magia Suave (Senhor da Luz — misteriosa) + Magia Dura (vidro de dragão — regra clara). A raridade da magia, seu alto custo e suas limitações mantêm o equilíbrio.\n\nSeu gatilho: quem perde poder político se a magia se tornar acessível a todos?',
+      steps: [
+        'Nível Tecnológico: Idade da Pedra, Medieval, Industrial ou futuro?',
+        'Prevalência e Importância: magia/tecnologia acessíveis a todos ou restritas a uma elite?',
+        'Escolha o Sistema de Magia: Dura (regras claras), Suave (misteriosa) ou mescla',
+        'Crie Interações: magia e tecnologia se complementam ou entram em conflito?',
+        'Integre na Narrativa: origem da magia e precursores da tecnologia impulsionam a trama',
+      ],
+      closing: 'Ao tomar deste fruto, fantasia e ciência dançam ao redor da existência.',
     },
   },
   {
@@ -144,7 +191,16 @@ export const FRUITS: Fruit[] = [
     chips: ['Criar criatura com papel político no mundo', 'Desenvolver raça com cultura própria', 'Gerar conflito entre espécies', 'Criar ser cuja origem é mistério central'],
     guide: {
       min: '✦ Mínimo Mundo Viável: 3 criaturas/raças · Para cada uma: origem + papel no mundo + como humanos lidam com ela.',
-      ref: '📖 Tolkien (coerência) + Attack on Titan (mistério e origem): Tolkien mostra que criaturas mudam política e história. Attack on Titan vai além: a criatura pode ser ameaça e mistério central ao mesmo tempo, com origem ligada ao próprio humano.\n\nSeu gatilho: e se a criatura mais temida do seu mundo fosse o que a humanidade se torna quando perde algo essencial?',
+      ref: '📖 Tolkien (raças com culturas ricas: Elfos imortais, Anões ferreiros, Hobbits pacíficos, Ents e Nazgûl) + Attack on Titan (Titãs são humanos transformados — muda a percepção da guerra de conflito simples para trama de poder e manipulação). Criaturas bem integradas mudam política e história.\n\nSeu gatilho: e se a criatura mais temida fosse o que a humanidade se torna quando perde algo essencial?',
+      steps: [
+        'Colete Referências: estude mitologias e folclores, misture com elementos da sua realidade',
+        'Defina o Papel dos Seres: aliados, antagonistas ou neutros? Como influenciam os protagonistas?',
+        'Origem e História: parte do mito fundador ou fruto de acontecimentos recentes?',
+        'Características e Habilidades: aparência, poderes e fraquezas coerentes com o sistema de magia',
+        'Cultura e Sociedade: são racionais? Têm linguagem, tradições e valores próprios?',
+        'Adapte Conforme Necessidade: ajuste habilidades mantendo lógica interna do mundo',
+      ],
+      closing: 'Ao tomar deste fruto, a vida fantástica se materializa diante de seus olhos.',
     },
   },
   {
@@ -160,7 +216,16 @@ export const FRUITS: Fruit[] = [
     chips: ['Criar o recurso raro e quem o controla', 'Desenvolver rota comercial com conflito', 'Gerar crise econômica em andamento', 'Criar guilda ou banco com agenda própria'],
     guide: {
       min: '✦ Mínimo Mundo Viável: recursos naturais ligados à geografia · sistema econômico com quem controla produção e distribuição · moeda ou forma de troca.',
-      ref: '📖 O Nome do Vento (Patrick Rothfuss): Kvothe conta moedas antes de decidir o que comer — e isso diz mais sobre o mundo do que páginas de lore. Economia aparece em escolhas de personagem, não em explicações.\n\nSeu gatilho: o que seu protagonista não consegue comprar — e como isso muda uma decisão importante da trama?',
+      ref: '📖 O Nome do Vento (Rothfuss): Kvothe conta moedas antes de decidir o que comer. A Universidade cobra mensalidades — dinheiro é pré-requisito para conhecimento e poder. Dívida e desigualdade humanizam o protagonista. Locais como a taverna Eolio funcionam como centros de comércio.\n\nSeu gatilho: o que seu protagonista não consegue comprar — e como isso muda uma decisão importante?',
+      steps: [
+        'Recursos e Geografia: quais recursos são abundantes ou escassos? Como o clima afeta produção?',
+        'Sistema Econômico: feudalismo, mercado livre ou original? Quem controla? Existem guildas?',
+        'Sistema Monetário: tipo de moeda, impostos, sistema bancário ou de crédito',
+        'Setores e Tecnologia: como agricultura, indústria e comércio interagem?',
+        'Classes Sociais e Desigualdade: como a riqueza é distribuída? Existe classe média?',
+        'Rotas Comerciais: caminhos por terra, mar ou ar — perigos e taxas dessas rotas',
+      ],
+      closing: 'Ao tomar deste fruto, moedas de ouro cintilam e sibilam: o bem e o mal lutam por poder.',
     },
   },
   {
@@ -176,7 +241,16 @@ export const FRUITS: Fruit[] = [
     chips: ['Criar padrão fonético para 2 povos', 'Gerar 10 termos culturais com significado', 'Criar expressão idiomática reveladora', 'Desenvolver variação de dialeto com preconceito'],
     guide: {
       min: '✦ Mínimo Mundo Viável: padrões de nomes com sons consistentes · 10 termos culturais (saudações, ofensas, cargos, lugares) · 3 frases típicas.',
-      ref: '📖 Tolkien (consistência como padrão): o Sindarin e o Quenya existem porque Tolkien criou regras fonéticas antes de criar palavras — e isso é perceptível mesmo sem estudo. Você não precisa criar gramática completa: precisa de consistência.\n\nSeu gatilho: crie 3 nomes para lugares usando o mesmo padrão sonoro. Se soam como vieram do mesmo povo, você acertou.',
+      ref: '📖 Tolkien (linguista): Quenya (erudita e cerimonial), Sindarin (élfico falado), Khuzdul (secreta dos Anões), Rohanese (inspirado no anglo-saxão). Tolkien criou regras fonéticas antes de criar palavras — e isso é perceptível mesmo sem estudo. Consistência > quantidade.\n\nSeu gatilho: crie 3 nomes de lugares com o mesmo padrão sonoro. Se soam como vieram do mesmo povo, você acertou.',
+      steps: [
+        'Defina o Propósito: língua sagrada, comum ou código secreto?',
+        'Defina o Escopo: quantas línguas, dialetos e nível de detalhamento',
+        'Escolha uma Base Fonética: inspire-se em idiomas reais para criar fonemas únicos e pronunciáveis',
+        'Crie um Vocabulário: comece por palavras essenciais e expanda conforme a história exige',
+        'Integre a Cultura: o idioma deve refletir geografia e valores do povo',
+        'Escrita (Opcional): sistema de símbolos, alfabeto próprio ou escrita ideográfica',
+      ],
+      closing: 'Ao tomar deste fruto, palavras ganham vida e culturas recebem a voz de muitas almas.',
     },
   },
   {
@@ -192,7 +266,15 @@ export const FRUITS: Fruit[] = [
     chips: ['Criar mito de criação com tom moral definido', 'Desenvolver heresia e seus seguidores', 'Gerar profecia que move a trama', 'Criar relíquia com disputa política'],
     guide: {
       min: '✦ Mínimo Mundo Viável: mito de criação · sistema de crenças com influência na vida real · rituais e práticas religiosas · relíquias e locais sagrados.',
-      ref: '📖 Mitologia Grega (Hesíodo, As Idades do Homem): as eras do homem organizam a história mítica e definem o tom moral de cada época. A Idade de Ferro, de decadência moral, serve de imagem para qualquer mundo em declínio.\n\nSeu gatilho: em que "era" seu mundo está — e quem sabe que a próxima queda está chegando?',
+      ref: '📖 Mitologia Nórdica (Ciclo da Existência): Ginnungagap (vazio primordial) como origem, Ragnarök como fim e renovação — diferente de mitologias focadas só na criação. As lendas de Odin, Thor e as Nornas explicam destino e moldam a bravura viking. A mitologia pode traçar a linha do tempo total do universo.\n\nSeu gatilho: em que "era" seu mundo está — e quem sabe que a próxima queda está chegando?',
+      steps: [
+        'Crie o Mito de Origem: como o mundo surgiu e qual a natureza das forças criadoras',
+        'Explique Fenômenos Naturais: use lendas para dar significado a tempestades e eclipses',
+        'Estabeleça Valores e Crenças: como histórias de heróis e deuses reforçam certo/errado',
+        'Desenvolva a Natureza dos Deuses: distantes, guias espirituais ou interferem no destino?',
+        'Trace o Prelúdio do Fim: profecia de destruição ou renovação que dá peso às ações do presente',
+      ],
+      closing: 'Ao tomar deste fruto, o destino do seu mundo estará traçado nas linhas da eternidade.',
     },
   },
   {
@@ -208,7 +290,15 @@ export const FRUITS: Fruit[] = [
     chips: ['Desenvolver a ferida do protagonista', 'Criar antagonista que o leitor quase defende', 'Gerar conflito entre aliados', 'Definir o arco de transformação completo'],
     guide: {
       min: '✦ Mínimo Mundo Viável: 1 protagonista (desejo + medo + ferida) · 1 antagonista (objetivo + método + justificativa) · 2 aliados com funções diferentes + 1 rival.',
-      ref: '📖 George R. R. Martin (personagens cinzas): crie personagens que você ama e odeia ao mesmo tempo. Ned Stark é honrado e idiota. Cersei é cruel e está certa sobre algumas coisas. A regra: virtude forte + falha forte + consequência real.\n\nSeu gatilho: qual é a maior virtude do seu protagonista — e como exatamente ela vai causar sua maior derrota?',
+      ref: '📖 George R. R. Martin (personagens cinzas): seres que não são puramente bons ou maus. Heróis cometem erros terríveis e vilões amam e sentem dor. A verossimilhança permite conexão emocional — quando personagens agem com lógica interna, o público desenvolve empatia.\n\nExercícios: O Espelho de Sombras (3 qualidades + 3 falhas), Raízes do Agora (eventos que moldaram a personalidade), A Prova de Fogo (comportamento sob estresse), Agente de Mudança (como suas decisões mudam a história).\n\nSeu gatilho: qual é a maior virtude do protagonista — e como ela vai causar sua maior derrota?',
+      steps: [
+        'O Espelho de Sombras: defina 3 qualidades admiráveis e 3 falhas graves do personagem',
+        'Raízes do Agora: quais eventos traumáticos moldaram a personalidade atual?',
+        'A Prova de Fogo: como o personagem se comporta sob estresse? Agressivo, diplomático?',
+        'Agente de Mudança: como as decisões dele influenciam o rumo da história?',
+        'Garanta Verossimilhança: ações devem ser lógicas dentro das motivações do personagem',
+      ],
+      closing: 'Ao tomar deste fruto, a alma do seu mundo despertará através dos olhos de quem o habita.',
     },
   },
   {
@@ -224,7 +314,15 @@ export const FRUITS: Fruit[] = [
     chips: ['Escrever a premissa em uma frase', 'Definir a pergunta-tema da história', 'Criar a cena de abertura', 'Gerar sinopse de 3 parágrafos'],
     guide: {
       min: '✦ Método camadas: detalhe alto no ponto de partida, menos detalhe nas bordas — o mundo cresce conforme a história exige. Não construa o que ainda não é necessário.',
-      ref: '📖 Regra de ouro da metodologia: cultura não é texto — é comportamento em cena. Em vez de explicar que seu povo valoriza honra, mostre um personagem recusando uma oferta vantajosa porque ela vem de uma fonte desonrosa. O mundo age sobre as pessoas. As pessoas causam reação em cadeia. Você escreve as reações.',
+      ref: '📖 O "Mundo Autorregente": um universo tão vivo que as ideias se encaixam naturalmente. Servidão do Cenário (mapa e leis servem à história), Show Don\'t Tell (exponha os personagens ao mundo e descreva reações), Percepção da Realidade (a imersão acontece quando o leitor descobre o mundo organicamente, através das ações dos protagonistas).\n\nRegra de ouro: cultura não é texto — é comportamento em cena. Mostre um personagem recusando uma oferta porque a fonte é desonrosa, em vez de explicar que o povo valoriza honra.',
+      steps: [
+        'Servidão do Cenário: mapa e leis devem servir à história, não ao contrário',
+        'Show, Don\'t Tell: exponha personagens ao mundo e descreva como reagem',
+        'Percepção da Realidade: o leitor descobre o mundo organicamente, pelas ações',
+        'Integre todos os Frutos: cada pilar deve dialogar com os outros',
+        'Não construa o que ainda não é necessário: detalhamento segue a demanda narrativa',
+      ],
+      closing: 'Ao tomar deste fruto, a sua voz ecoará por mundos que agora possuem vida própria.',
     },
   },
 ];
