@@ -87,8 +87,8 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
             onClick={() => setMethod(m)}
             className={`px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all ${
               method === m
-                ? 'border border-gold text-gold bg-gold/15'
-                : 'border border-gold/15 text-text-dim hover:text-text-secondary'
+                ? 'border border-blue-bright text-blue-bright bg-blue-main/20'
+                : 'border border-blue-bright/20 text-text-dim hover:text-text-secondary'
             }`}
           >
             {METHOD_DESCRIPTIONS[m].title}
@@ -97,7 +97,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       </div>
 
       {/* Method description */}
-      <div className="mb-5 p-3 rounded-md bg-gold/[0.04] border border-gold/10">
+      <div className="mb-5 p-3 rounded-md bg-blue-bright/[0.04] border border-blue-bright/10">
         <p className="font-merriweather italic text-text-secondary text-xs leading-relaxed">
           {methodInfo.desc}
         </p>
@@ -107,13 +107,13 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       <div className="mb-5">
         <div className="relative h-[3px] bg-secondary rounded-full overflow-hidden mb-1">
           <div
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-amber to-gold-light rounded-full shadow-[0_0_10px_hsl(38_65%_48%_/_0.4)]"
+            className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-main to-blue-bright rounded-full shadow-[0_0_10px_rgba(33,150,243,0.5)]"
             style={{ width: `${pct}%`, transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)' }}
           />
         </div>
         <div className="flex justify-between text-xs text-text-dim">
           <span>{fruitsStarted} de 11 frutos iniciados</span>
-          <span className="text-gold-light font-bold">{pct}%</span>
+          <span className="text-blue-light font-bold">{pct}%</span>
         </div>
       </div>
 
@@ -130,10 +130,11 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               onClick={() => selectFruit(f.id)}
               className={`relative aspect-[3/4] rounded-lg overflow-hidden transition-all group ${
                 isActive
-                  ? 'border border-gold shadow-[0_0_20px_hsl(38_65%_48%_/_0.25),inset_0_0_30px_hsl(38_65%_48%_/_0.08)]'
-                  : 'border border-transparent hover:border-gold/25'
+                  ? 'border border-blue-bright shadow-[0_0_20px_rgba(33,150,243,0.3),inset_0_0_30px_rgba(33,150,243,0.1)]'
+                  : 'border border-transparent hover:border-blue-bright/30'
               }`}
             >
+              {/* Cover image or gradient fallback */}
               {coverImage ? (
                 <img
                   src={coverImage}
@@ -146,21 +147,26 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               {!coverImage && (
                 <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-30">{f.icon}</div>
               )}
+              {/* Dark overlay bottom */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/50 text-[9px] text-gold-light font-montserrat font-bold">
+              {/* Step number badge */}
+              <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/50 text-[9px] text-blue-light font-montserrat font-bold">
                 {idx + 1}º
               </div>
+              {/* Content */}
               <div className="absolute bottom-0 left-0 right-0 p-2">
-                <span className="font-cinzel text-[9px] sm:text-[10px] text-gold-light block">{f.num}</span>
+                <span className="font-cinzel text-[9px] sm:text-[10px] text-blue-light block">{f.num}</span>
                 <span className="font-montserrat font-bold text-[10px] sm:text-[11px] text-foreground uppercase leading-tight block">{f.name}</span>
                 {fp.filled > 0 && !isComplete && (
-                  <span className="text-[9px] sm:text-[10px] text-amber-light">{fp.filled}/{fp.total} campos</span>
+                  <span className="text-[9px] sm:text-[10px] text-gold-light">{fp.filled}/{fp.total} campos</span>
                 )}
               </div>
+              {/* Complete badge */}
               {isComplete && (
                 <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center text-[10px] text-white">✓</div>
               )}
-              <div className={`absolute bottom-0 left-0 right-0 h-[2px] bg-gold transition-transform origin-left ${isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
+              {/* Active border bottom */}
+              <div className={`absolute bottom-0 left-0 right-0 h-[2px] bg-blue-bright transition-transform origin-left ${isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
             </button>
           );
         })}
@@ -178,14 +184,16 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 <div className="absolute inset-0 flex items-center justify-center text-8xl opacity-20">{fruit.icon}</div>
               </div>
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-[rgba(14,10,6,0.95)] via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[rgba(6,14,28,0.95)] via-transparent to-transparent" />
           </div>
 
           <div className="p-4 sm:p-5 md:p-7">
-            <span className="font-cinzel text-xs text-gold-light">✦ {fruit.num}</span>
+            {/* Header */}
+            <span className="font-cinzel text-xs text-blue-light">✦ {fruit.num}</span>
             <h2 className="font-cinzel font-bold text-xl sm:text-2xl text-foreground mt-1 mb-1">{fruit.name}</h2>
             <p className="font-merriweather italic text-text-dim text-sm mb-6">{fruit.desc}</p>
 
+            {/* Guide block */}
             <FruitGuideBlock guide={fruit.guide} />
 
             {/* Gallery images linked to this fruit */}
@@ -217,14 +225,14 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               {fruit.fields.map(field => (
                 <div key={field.id} className={field.type === 'textarea' ? 'md:col-span-2' : ''}>
-                  <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">
+                  <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">
                     {field.label}
                   </label>
                   {field.type === 'select' ? (
                     <select
                       value={db[currentFruit]?.[field.id] || ''}
                       onChange={e => updateField(currentFruit, field.id, e.target.value)}
-                      className="w-full bg-[rgba(12,8,4,0.6)] border border-gold/10 border-b-gold/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-gold/40"
+                      className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-blue-bright/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50"
                     >
                       <option value="">Selecione…</option>
                       {field.opts?.map(o => <option key={o} value={o}>{o}</option>)}
@@ -235,7 +243,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                       onChange={e => updateField(currentFruit, field.id, e.target.value)}
                       placeholder={field.ph}
                       rows={4}
-                      className="w-full bg-[rgba(12,8,4,0.6)] border border-gold/10 border-b-gold/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/40 resize-y"
+                      className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-blue-bright/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-blue-bright/50 resize-y"
                     />
                   ) : (
                     <input
@@ -243,7 +251,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                       value={db[currentFruit]?.[field.id] || ''}
                       onChange={e => updateField(currentFruit, field.id, e.target.value)}
                       placeholder={field.ph}
-                      className="w-full bg-[rgba(12,8,4,0.6)] border border-gold/10 border-b-gold/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/40"
+                      className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-blue-bright/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-blue-bright/50"
                     />
                   )}
                 </div>
@@ -251,12 +259,13 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
             </div>
 
             {/* AI Assistant */}
-            <div className="border-t border-gold/10 pt-6">
+            <div className="border-t border-blue-bright/15 pt-6">
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-2 h-2 rounded-full bg-gold animate-blink" />
+                <span className="w-2 h-2 rounded-full bg-blue-bright animate-blink" />
                 <span className="font-montserrat font-bold text-xs text-foreground">GPT-4o mini — Assistente de Worldbuilding</span>
               </div>
 
+              {/* Chips */}
               <div className="flex flex-wrap gap-2 mb-3">
                 {fruit.chips.map(chip => (
                   <button
@@ -264,8 +273,8 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                     onClick={() => { setAiQuestion(chip); setActiveChip(chip); }}
                     className={`px-3 py-1 rounded-full text-xs font-montserrat transition-all ${
                       activeChip === chip
-                        ? 'border border-gold text-gold bg-gold/10'
-                        : 'border border-gold/15 text-text-dim hover:text-text-secondary hover:border-gold/25'
+                        ? 'border border-blue-bright text-blue-bright bg-blue-main/15'
+                        : 'border border-blue-bright/20 text-text-dim hover:text-text-secondary hover:border-blue-bright/30'
                     }`}
                   >
                     {chip}
@@ -273,6 +282,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 ))}
               </div>
 
+              {/* Question input */}
               <div className="flex flex-col sm:flex-row gap-2 mb-4">
                 <input
                   type="text"
@@ -280,47 +290,49 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                   onChange={e => setAiQuestion(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && aiQuestion.trim() && handleConsult()}
                   placeholder="Faça uma pergunta ao assistente…"
-                  className="flex-1 bg-[rgba(12,8,4,0.6)] border border-gold/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/40"
+                  className="flex-1 bg-[rgba(4,12,24,0.6)] border border-blue-bright/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-blue-bright/50"
                 />
                 <button
                   onClick={handleConsult}
                   disabled={!aiQuestion.trim() || aiLoading}
-                  className="px-4 py-2 bg-amber hover:bg-amber-bright text-background rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
+                  className="px-4 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
                 >
                   ✦ Consultar
                 </button>
               </div>
 
+              {/* Loading */}
               {aiLoading && (
                 <div className="flex items-center gap-1 text-text-dim text-sm mb-4">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gold-light dot-bounce" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-gold-light dot-bounce-2" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-gold-light dot-bounce-3" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce-2" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce-3" />
                   <span className="ml-2 font-merriweather italic text-xs">Consultando GPT-4o mini…</span>
                 </div>
               )}
 
+              {/* Response */}
               {aiResponse && !aiLoading && (
-                <div className="animate-fadeUp border-l-[3px] border-gold pl-4 py-3 bg-gold/[0.04] rounded-r-md">
-                  <span className="font-cinzel text-[10px] text-gold-light block mb-2">✦ Resposta do GPT-4o mini</span>
+                <div className="animate-fadeUp border-l-[3px] border-blue-bright pl-4 py-3 bg-blue-bright/5 rounded-r-md">
+                  <span className="font-cinzel text-[10px] text-blue-light block mb-2">✦ Resposta do GPT-4o mini</span>
                   <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed">{aiResponse}</p>
                 </div>
               )}
             </div>
 
             {/* Navigation */}
-            <div className="flex justify-between items-center mt-8 pt-5 border-t border-gold/10">
+            <div className="flex justify-between items-center mt-8 pt-5 border-t border-blue-bright/15">
               <button
                 onClick={() => navigateFruit(-1)}
                 disabled={currentOrderIndex <= 0}
-                className="px-3 sm:px-4 py-2 rounded-md text-xs font-montserrat font-bold text-text-dim border border-gold/15 hover:text-foreground hover:border-gold/30 disabled:opacity-30 transition-all"
+                className="px-3 sm:px-4 py-2 rounded-md text-xs font-montserrat font-bold text-text-dim border border-blue-bright/15 hover:text-foreground hover:border-blue-bright/30 disabled:opacity-30 transition-all"
               >
                 ← Anterior
               </button>
               {currentOrderIndex < orderedFruits.length - 1 ? (
                 <button
                   onClick={() => navigateFruit(1)}
-                  className="px-4 sm:px-5 py-2 bg-amber hover:bg-amber-bright text-background rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+                  className="px-4 sm:px-5 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
                 >
                   Próximo Fruto →
                 </button>
@@ -337,6 +349,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
         </div>
       )}
 
+      {/* Lightbox */}
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
     </div>
   );

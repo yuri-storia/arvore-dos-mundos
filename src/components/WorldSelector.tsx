@@ -31,13 +31,13 @@ export const WorldSelector: React.FC<Props> = ({ currentSaveId, onNewWorld, onLo
           <div className="flex items-center gap-3 flex-wrap">
             <button
               onClick={onSaveWorld}
-              className="px-3 py-1.5 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider bg-amber hover:bg-amber-bright text-background transition-colors"
+              className="px-3 py-1.5 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider bg-blue-main hover:bg-blue-bright text-foreground transition-colors"
             >
               💾 Salvar
             </button>
             <button
               onClick={() => setOpen(!open)}
-              className="px-3 py-1.5 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold/25 text-text-secondary hover:text-foreground transition-colors"
+              className="px-3 py-1.5 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-blue-bright/30 text-text-secondary hover:text-foreground transition-colors"
             >
               📂 Meus Mundos {saves.length > 0 && `(${saves.length})`}
             </button>
@@ -66,17 +66,17 @@ export const WorldSelector: React.FC<Props> = ({ currentSaveId, onNewWorld, onLo
                 {saves.map(s => (
                   <div
                     key={s.id}
-                    className={`flex items-center justify-between gap-3 p-3 rounded-md border transition-all cursor-pointer hover:border-gold/30 ${
+                    className={`flex items-center justify-between gap-3 p-3 rounded-md border transition-all cursor-pointer hover:border-blue-bright/40 ${
                       s.id === currentSaveId
-                        ? 'border-gold/40 bg-gold/[0.05]'
-                        : 'border-gold/10 hover:bg-gold/[0.03]'
+                        ? 'border-blue-bright/50 bg-blue-bright/[0.06]'
+                        : 'border-blue-bright/15 hover:bg-blue-bright/[0.03]'
                     }`}
                     onClick={() => { onLoadWorld(s); setOpen(false); }}
                   >
                     <div className="min-w-0 flex-1">
                       <h4 className="font-cinzel font-bold text-sm text-foreground truncate">
                         {s.name}
-                        {s.id === currentSaveId && <span className="text-gold-light text-[10px] ml-2">● ativo</span>}
+                        {s.id === currentSaveId && <span className="text-blue-light text-[10px] ml-2">● ativo</span>}
                       </h4>
                       <div className="flex gap-3 text-[10px] text-text-dim font-montserrat">
                         <span>{s.method === 'top-down' ? 'Cima p/ Baixo' : 'Baixo p/ Cima'}</span>
@@ -94,7 +94,7 @@ export const WorldSelector: React.FC<Props> = ({ currentSaveId, onNewWorld, onLo
                           </button>
                           <button
                             onClick={() => setConfirmDelete(null)}
-                            className="px-2 py-1 rounded text-[10px] font-montserrat text-text-dim border border-gold/15"
+                            className="px-2 py-1 rounded text-[10px] font-montserrat text-text-dim border border-blue-bright/15"
                           >
                             Cancelar
                           </button>
@@ -102,7 +102,7 @@ export const WorldSelector: React.FC<Props> = ({ currentSaveId, onNewWorld, onLo
                       ) : (
                         <button
                           onClick={() => setConfirmDelete(s.id)}
-                          className="px-2 py-1 rounded text-[10px] font-montserrat text-text-dim border border-gold/10 hover:border-destructive/30 hover:text-destructive transition-colors"
+                          className="px-2 py-1 rounded text-[10px] font-montserrat text-text-dim border border-blue-bright/15 hover:border-destructive/30 hover:text-destructive transition-colors"
                         >
                           🗑
                         </button>

@@ -48,7 +48,7 @@ export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrent
           { label: 'Imagens na Galeria', value: gallery.length },
         ].map(s => (
           <div key={s.label} className="card-glass rounded-lg p-3 sm:p-4 text-center">
-            <div className="font-cinzel font-bold text-xl sm:text-2xl text-gold-light mb-1">{s.value}</div>
+            <div className="font-cinzel font-bold text-xl sm:text-2xl text-blue-bright mb-1">{s.value}</div>
             <div className="text-[10px] sm:text-[11px] text-text-dim font-montserrat uppercase tracking-wider">{s.label}</div>
           </div>
         ))}
@@ -74,8 +74,8 @@ export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrent
         {orderedFruits.map(f => {
           const p = getFruitProgress(db, f.id);
           const status = p.filled === p.total ? 'complete' : p.filled > 0 ? 'partial' : 'empty';
-          const borderColor = status === 'complete' ? 'border-l-gold-light' : status === 'partial' ? 'border-l-gold' : 'border-l-transparent';
-          const barColor = status === 'complete' ? 'bg-gold-light' : status === 'partial' ? 'bg-gold' : 'bg-secondary';
+          const borderColor = status === 'complete' ? 'border-l-blue-bright' : status === 'partial' ? 'border-l-gold' : 'border-l-transparent';
+          const barColor = status === 'complete' ? 'bg-blue-bright' : status === 'partial' ? 'bg-gold' : 'bg-secondary';
           const barW = p.total ? (p.filled / p.total) * 100 : 0;
           const coverImage = FRUIT_IMAGES[f.id];
 
@@ -83,7 +83,7 @@ export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrent
             <button
               key={f.id}
               onClick={() => goToFruit(f.id)}
-              className={`relative card-glass rounded-lg p-3 text-left border-l-[3px] ${borderColor} hover:border-gold/40 transition-all group overflow-hidden`}
+              className={`relative card-glass rounded-lg p-3 text-left border-l-[3px] ${borderColor} hover:border-blue-bright/50 transition-all group overflow-hidden`}
             >
               {coverImage ? (
                 <div className="absolute inset-0 opacity-[0.08]">
@@ -92,7 +92,7 @@ export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrent
               ) : (
                 <div className={`absolute inset-0 bg-gradient-to-br ${f.gradient} opacity-[0.05] rounded-lg`} />
               )}
-              <span className="font-cinzel text-[10px] text-gold-light relative">{f.num}</span>
+              <span className="font-cinzel text-[10px] text-blue-light relative">{f.num}</span>
               <h4 className="font-montserrat font-bold text-xs text-foreground mb-2 relative">{f.name}</h4>
               <div className="h-[2px] bg-secondary rounded-full mb-1.5 relative">
                 <div className={`h-full ${barColor} rounded-full transition-all`} style={{ width: `${barW}%` }} />
@@ -100,8 +100,8 @@ export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrent
               <div className="flex justify-between items-center relative">
                 <span className="text-[10px] text-text-dim">{p.filled} de {p.total}</span>
                 <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${
-                  status === 'complete' ? 'bg-gold-light/20 text-gold-light' :
-                  status === 'partial' ? 'bg-gold/20 text-gold' :
+                  status === 'complete' ? 'bg-blue-bright/20 text-blue-light' :
+                  status === 'partial' ? 'bg-gold/20 text-gold-light' :
                   'bg-secondary text-text-dim'
                 }`}>
                   {status === 'complete' ? 'Completo' : status === 'partial' ? 'Em andamento' : 'Não iniciado'}
@@ -116,7 +116,7 @@ export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrent
       <div className="flex flex-wrap gap-3">
         <button
           onClick={() => setActiveTab('construir')}
-          className="px-5 py-2 bg-amber hover:bg-amber-bright text-background rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+          className="px-5 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
         >
           ✏️ Continuar Construindo
         </button>

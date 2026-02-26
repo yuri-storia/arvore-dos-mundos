@@ -4,53 +4,50 @@
 
 @layer base {
   :root {
-    --background: 20 18% 4%;
-    --foreground: 38 30% 90%;
+    --background: 214 60% 3%;
+    --foreground: 204 80% 94%;
 
-    --card: 20 15% 7%;
-    --card-foreground: 38 30% 90%;
+    --card: 214 65% 6%;
+    --card-foreground: 204 80% 94%;
 
-    --popover: 20 15% 7%;
-    --popover-foreground: 38 30% 90%;
+    --popover: 214 65% 6%;
+    --popover-foreground: 204 80% 94%;
 
-    --primary: 38 65% 48%;
-    --primary-foreground: 20 18% 4%;
+    --primary: 211 76% 42%;
+    --primary-foreground: 204 80% 94%;
 
-    --secondary: 20 12% 12%;
-    --secondary-foreground: 38 30% 90%;
+    --secondary: 214 50% 12%;
+    --secondary-foreground: 204 80% 94%;
 
-    --muted: 20 10% 15%;
-    --muted-foreground: 30 15% 45%;
+    --muted: 214 30% 15%;
+    --muted-foreground: 210 25% 50%;
 
-    --accent: 275 25% 38%;
-    --accent-foreground: 38 30% 90%;
+    --accent: 38 67% 48%;
+    --accent-foreground: 204 80% 94%;
 
-    --destructive: 0 55% 42%;
-    --destructive-foreground: 38 30% 90%;
+    --destructive: 4 82% 56%;
+    --destructive-foreground: 204 80% 94%;
 
-    --border: 38 20% 25% / 0.18;
-    --input: 38 20% 25% / 0.18;
-    --ring: 38 65% 55%;
+    --border: 211 76% 42% / 0.18;
+    --input: 211 76% 42% / 0.18;
+    --ring: 207 90% 61%;
 
     --radius: 0.5rem;
 
-    /* Custom tokens — Dark Fantasy */
-    --bg-deep: 20 18% 4%;
-    --amber: 35 70% 42%;
-    --amber-bright: 38 75% 52%;
-    --amber-light: 35 55% 62%;
-    --amber-glow: 38 60% 75%;
-    --arcane: 275 25% 38%;
-    --arcane-light: 275 35% 55%;
-    --arcane-glow: 275 40% 68%;
-    --gold: 38 65% 48%;
-    --gold-light: 38 70% 58%;
-    --text-main: 38 30% 90%;
-    --text-secondary: 30 18% 62%;
-    --text-dim: 25 12% 38%;
-    --border-subtle: 38 25% 25% / 0.2;
-    --border-active: 38 50% 45% / 0.35;
-    --red-alert: 0 55% 42%;
+    /* Custom tokens */
+    --bg-deep: 214 60% 3%;
+    --blue-main: 211 76% 42%;
+    --blue-bright: 207 90% 61%;
+    --blue-light: 210 84% 69%;
+    --blue-glow: 207 89% 78%;
+    --gold: 38 67% 48%;
+    --gold-light: 38 73% 60%;
+    --text-main: 204 80% 94%;
+    --text-secondary: 213 35% 72%;
+    --text-dim: 210 22% 49%;
+    --border-subtle: 211 76% 42% / 0.18;
+    --border-active: 210 84% 69% / 0.35;
+    --red-alert: 4 82% 56%;
   }
 }
 
@@ -88,16 +85,12 @@
   30% { transform: translateY(-5px); opacity: 1; }
 }
 @keyframes glow-pulse {
-  0%, 100% { filter: drop-shadow(0 0 6px hsl(38 65% 52% / 0.5)); }
-  50% { filter: drop-shadow(0 0 14px hsl(38 65% 52% / 0.8)); }
+  0%, 100% { filter: drop-shadow(0 0 6px hsl(207 90% 61% / 0.6)); }
+  50% { filter: drop-shadow(0 0 14px hsl(207 90% 61% / 0.9)); }
 }
 @keyframes scaleX-in {
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
-}
-@keyframes rune-flicker {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
 }
 
 .animate-fadeUp { animation: fadeUp 0.33s ease-out both; }
@@ -109,29 +102,23 @@
 .dot-bounce-2 { animation: bounce-dot 1.2s ease-in-out 0.15s infinite; }
 .dot-bounce-3 { animation: bounce-dot 1.2s ease-in-out 0.3s infinite; }
 
-/* Card — grimoire page */
+/* Card glass */
 .card-glass {
-  background: rgba(14, 10, 6, 0.92);
+  background: rgba(6, 14, 28, 0.92);
   backdrop-filter: blur(12px);
   border: 1px solid hsl(var(--border-subtle));
-  box-shadow:
-    inset 0 1px 0 hsl(var(--gold) / 0.05),
-    0 4px 24px rgba(0, 0, 0, 0.5);
+  border-top: 2px solid hsl(var(--blue-bright));
 }
 
 .card-glass-gold {
-  background: rgba(14, 10, 6, 0.92);
+  background: rgba(6, 14, 28, 0.92);
   backdrop-filter: blur(12px);
-  border: 1px solid hsl(var(--gold) / 0.25);
-  border-top: 1px solid hsl(var(--gold) / 0.4);
-  box-shadow:
-    inset 0 1px 0 hsl(var(--gold) / 0.1),
-    0 4px 24px rgba(0, 0, 0, 0.5),
-    0 0 40px hsl(var(--gold) / 0.04);
+  border: 1px solid hsl(var(--border-subtle));
+  border-top: 2px solid hsl(var(--gold));
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: hsl(var(--gold) / 0.2); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: hsl(var(--gold) / 0.35); }
+::-webkit-scrollbar-thumb { background: hsl(var(--blue-main) / 0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--blue-main) / 0.5); }

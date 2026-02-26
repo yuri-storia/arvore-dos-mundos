@@ -104,7 +104,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
       </p>
 
       {/* Limit box */}
-      <div className="card-glass rounded-lg p-3 mb-5 border-l-[3px] border-l-gold">
+      <div className="card-glass rounded-lg p-3 mb-5 border-l-[3px] border-l-blue-bright">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <span className="text-sm text-foreground font-montserrat">
             <strong>{imgsLeft}</strong> imagens restantes hoje
@@ -119,54 +119,55 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
       <div className="card-glass rounded-lg p-5 mb-5">
         <div className="space-y-4">
           <div>
-            <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Descreva em português</label>
+            <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">Descreva em português</label>
             <textarea
               value={desc}
               onChange={e => setDesc(e.target.value)}
               placeholder="Ex: A capital do meu reino élfico ao entardecer, com torres de cristal…"
               rows={3}
-              className="w-full bg-[rgba(12,8,4,0.6)] border border-gold/10 border-b-gold/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/40 resize-y"
+              className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-blue-bright/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-blue-bright/50 resize-y"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Estilo Visual</label>
-              <select value={style} onChange={e => setStyle(e.target.value)} className="w-full bg-[rgba(12,8,4,0.6)] border border-gold/10 border-b-gold/20 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-gold/40">
+              <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">Estilo Visual</label>
+              <select value={style} onChange={e => setStyle(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-blue-bright/30 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-blue-bright/50">
                 {STYLE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Tipo de Imagem</label>
-              <select value={imgType} onChange={e => setImgType(e.target.value)} className="w-full bg-[rgba(12,8,4,0.6)] border border-gold/10 border-b-gold/20 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-gold/40">
+              <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">Tipo de Imagem</label>
+              <select value={imgType} onChange={e => setImgType(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-blue-bright/30 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-blue-bright/50">
                 {IMAGE_TYPE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Tom / Iluminação</label>
-              <select value={tone} onChange={e => setTone(e.target.value)} className="w-full bg-[rgba(12,8,4,0.6)] border border-gold/10 border-b-gold/20 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-gold/40">
+              <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">Tom / Iluminação</label>
+              <select value={tone} onChange={e => setTone(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-blue-bright/30 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-blue-bright/50">
                 {TONE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Detalhes extras (opcional)</label>
+            <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">Detalhes extras (opcional)</label>
             <input
               type="text"
               value={extras}
               onChange={e => setExtras(e.target.value)}
               placeholder="Cores, elementos obrigatórios…"
-              className="w-full bg-[rgba(12,8,4,0.6)] border border-gold/10 border-b-gold/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/40"
+              className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-blue-bright/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-blue-bright/50"
             />
           </div>
         </div>
 
+        {/* Action buttons */}
         <div className="flex flex-wrap items-center gap-3 mt-5">
           <button
             onClick={handleCreatePrompt}
             disabled={loading1}
-            className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold text-gold hover:bg-gold/15 disabled:opacity-40 transition-all"
+            className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-blue-bright text-blue-bright hover:bg-blue-main/20 disabled:opacity-40 transition-all"
           >
             {loading1 ? '⏳ Criando…' : '✦ 1. Criar Prompt com GPT'}
           </button>
@@ -184,11 +185,12 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
 
         {error && <p className="text-red-alert text-sm mt-3">{error}</p>}
 
+        {/* Loading dots */}
         {(loading1 || loading2) && (
           <div className="flex items-center gap-1 mt-4 text-text-dim text-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-gold-light dot-bounce" />
-            <span className="w-1.5 h-1.5 rounded-full bg-gold-light dot-bounce-2" />
-            <span className="w-1.5 h-1.5 rounded-full bg-gold-light dot-bounce-3" />
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce" />
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce-2" />
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce-3" />
             <span className="ml-2 font-merriweather italic text-xs">
               {loading1 ? 'Criando prompt com GPT-4o mini…' : 'Gerando imagem com DALL-E 3…'}
             </span>
@@ -196,12 +198,13 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
         )}
       </div>
 
+      {/* Generated prompt */}
       {generatedPrompt && !loading1 && (
         <div className="animate-fadeUp card-glass rounded-lg p-5 mb-5">
-          <span className="font-cinzel text-[10px] text-gold-light block mb-2">✦ Prompt criado pelo GPT-4o mini</span>
+          <span className="font-cinzel text-[10px] text-blue-light block mb-2">✦ Prompt criado pelo GPT-4o mini</span>
           <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed mb-4">{generatedPrompt}</p>
           <div className="flex flex-wrap gap-2">
-            <button onClick={copyPrompt} className="px-3 py-1.5 rounded-md text-xs font-montserrat border border-gold/25 text-text-secondary hover:text-foreground transition-colors">
+            <button onClick={copyPrompt} className="px-3 py-1.5 rounded-md text-xs font-montserrat border border-blue-bright/30 text-text-secondary hover:text-foreground transition-colors">
               {copied ? '✓ Copiado!' : '📋 Copiar para Midjourney / Leonardo'}
             </button>
             <button
@@ -215,14 +218,15 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
         </div>
       )}
 
+      {/* Generated image */}
       {generatedImage && !loading2 && (
         <div className="animate-fadeUp card-glass rounded-lg p-5">
           <img src={generatedImage} alt="Imagem gerada" className="w-full max-w-[512px] mx-auto rounded-lg mb-4" />
           <div className="flex flex-wrap gap-2 justify-center">
-            <button onClick={saveToGallery} className="px-4 py-2 bg-amber hover:bg-amber-bright text-background rounded-md text-xs font-montserrat font-bold transition-colors">
+            <button onClick={saveToGallery} className="px-4 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold transition-colors">
               💾 Salvar na Galeria
             </button>
-            <a href={generatedImage} download target="_blank" rel="noopener" className="px-4 py-2 rounded-md text-xs font-montserrat border border-gold/25 text-text-secondary hover:text-foreground transition-colors">
+            <a href={generatedImage} download target="_blank" rel="noopener" className="px-4 py-2 rounded-md text-xs font-montserrat border border-blue-bright/30 text-text-secondary hover:text-foreground transition-colors">
               ⬇ Baixar
             </a>
           </div>
