@@ -110,7 +110,7 @@ const Index = () => {
         <AppHeader />
         <UserMenu />
 
-        {/* World name first — identity before management */}
+        {/* World name — identity before management */}
         <WorldNameInput worldName={state.worldName} setWorldName={setWorldName} />
 
         {/* World management */}
