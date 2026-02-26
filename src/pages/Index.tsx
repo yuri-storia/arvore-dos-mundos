@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { AppHeader } from '@/components/AppHeader';
+import { UserMenu } from '@/components/UserMenu';
 import { DailyLimitBanner } from '@/components/DailyLimitBanner';
 import { OnboardingBanner } from '@/components/OnboardingBanner';
 import { ApiKeyBar } from '@/components/ApiKeyBar';
@@ -97,6 +98,7 @@ const Index = () => {
 
       <div className="relative z-10">
         <AppHeader />
+        <UserMenu />
 
         {/* World management - top for easy access */}
         <WorldSelector
