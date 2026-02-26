@@ -26,7 +26,7 @@ export const TabNav: React.FC<Props> = ({ activeTab, setActiveTab }) => (
               : 'text-bg-deep/60 hover:text-bg-deep/80'
           }`}
         >
-          <span className="block text-base mb-0.5">{tab.icon}</span>
+          <span className="block text-base mb-0.5" style={{ color: 'initial', filter: 'none' }}>{tab.icon}</span>
           <span className={`block ${activeTab === tab.id ? 'opacity-100' : 'opacity-70'}`}>{tab.label}</span>
           {activeTab === tab.id && (
             <div className="mx-auto mt-1 w-6 h-[2px] rounded-full bg-bg-deep" />
