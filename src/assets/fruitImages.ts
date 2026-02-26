@@ -8,6 +8,7 @@ import fruit6 from './fruits/fruit-6.webp';
 import fruit7 from './fruits/fruit-7.webp';
 import fruit8 from './fruits/fruit-8.webp';
 import fruit9 from './fruits/fruit-9.webp';
+import fruit10 from './fruits/fruit-10.webp';
 
 export const FRUIT_IMAGES: Record<number, string> = {
   0: fruit0,
@@ -20,4 +21,5 @@ export const FRUIT_IMAGES: Record<number, string> = {
   7: fruit7,
   8: fruit8,
   9: fruit9,
+  10: fruit10,
 };

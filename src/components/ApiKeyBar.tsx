@@ -38,8 +38,8 @@ export const ApiKeyBar: React.FC<Props> = ({ apiKey, setApiKey }) => {
         </div>
 
         <div className="flex flex-wrap gap-2 mb-2 text-[11px] text-text-dim">
-          <span className="px-2 py-0.5 rounded-full border border-blue-bright/15 bg-blue-bright/5">GPT-4o mini: ~R$0,005/consulta</span>
-          <span className="px-2 py-0.5 rounded-full border border-blue-bright/15 bg-blue-bright/5">DALL-E 3: ~R$0,22/imagem</span>
+          <span className="px-2 py-0.5 rounded-full border border-blue-bright/15 bg-blue-bright/5">Texto: GPT-4o mini</span>
+          <span className="px-2 py-0.5 rounded-full border border-blue-bright/15 bg-blue-bright/5">Imagens: DALL-E 3</span>
           <span className="px-2 py-0.5 rounded-full border border-blue-bright/15 bg-blue-bright/5">Limite diário: 15 textos / 3 imagens</span>
         </div>
 
