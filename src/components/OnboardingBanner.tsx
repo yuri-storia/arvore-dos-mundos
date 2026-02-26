@@ -14,23 +14,23 @@ export const OnboardingBanner: React.FC = () => {
 
   return (
     <div className="mx-auto max-w-[1060px] px-3 sm:px-4 py-4">
-      <div className="card-glass-gold rounded-lg p-5 sm:p-6">
+      <div className="rounded-lg p-5 sm:p-6 bg-gold/90 border border-gold-light/30">
         <button
           onClick={() => setExpanded(!expanded)}
           className="w-full flex items-center justify-between gap-3 text-left group"
         >
-          <h2 className="font-cinzel font-bold text-base sm:text-lg text-gold-light group-hover:text-gold transition-colors">
+          <h2 className="font-cinzel font-bold text-base sm:text-lg text-bg-deep group-hover:text-bg-deep/80 transition-colors">
             ✦ Como usar a Árvore dos Mundos
           </h2>
           {expanded ? (
-            <ChevronUp className="w-5 h-5 text-gold shrink-0" />
+            <ChevronUp className="w-5 h-5 text-bg-deep shrink-0" />
           ) : (
-            <ChevronDown className="w-5 h-5 text-gold shrink-0" />
+            <ChevronDown className="w-5 h-5 text-bg-deep shrink-0" />
           )}
         </button>
 
         {!expanded && (
-          <p className="font-merriweather text-gold-light/70 text-xs sm:text-sm mt-2 leading-relaxed">
+          <p className="font-merriweather text-bg-deep/70 text-xs sm:text-sm mt-2 leading-relaxed">
             Clique para ver o passo a passo e começar a construir seu mundo.
           </p>
         )}
@@ -41,10 +41,10 @@ export const OnboardingBanner: React.FC = () => {
               <div key={i} className="flex gap-3 items-start">
                 <span className="text-lg shrink-0 mt-0.5">{step.icon}</span>
                 <div>
-                  <h3 className="font-montserrat font-bold text-sm text-gold-light">
+                  <h3 className="font-montserrat font-bold text-sm text-bg-deep">
                     {i + 1}. {step.title}
                   </h3>
-                  <p className="font-merriweather text-text-secondary text-xs leading-relaxed mt-0.5">
+                  <p className="font-merriweather text-bg-deep/70 text-xs leading-relaxed mt-0.5">
                     {step.desc}
                   </p>
                 </div>
