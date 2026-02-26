@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { CATEGORIES, GALLERY_CATEGORIES, FRUIT_CATEGORIES, GalleryImage } from '@/lib/data';
+import { ImageLightbox } from '@/components/ImageLightbox';
 
 interface Props {
   gallery: GalleryImage[];
@@ -10,6 +11,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
   const [filter, setFilter] = useState('Todos');
   const [uploadQueue, setUploadQueue] = useState<{ file: File; name: string; cat: string }[]>([]);
   const [currentUpload, setCurrentUpload] = useState<{ file: File; name: string; cat: string; preview: string } | null>(null);
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const filtered = filter === 'Todos' ? gallery : gallery.filter(img => img.cat === filter);
@@ -104,7 +106,12 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
               key={img.id}
               className="group relative rounded-lg overflow-hidden border border-blue-bright/15 hover:border-blue-bright/40 hover:-translate-y-0.5 hover:shadow-lg transition-all"
             >
-              <img src={img.src} alt={img.name} className="w-full h-[100px] sm:h-[136px] object-cover" />
+              <img
+                src={img.src}
+                alt={img.name}
+                className="w-full h-[100px] sm:h-[136px] object-cover cursor-zoom-in"
+                onClick={() => setLightbox({ src: img.src, alt: img.name })}
+              />
               <div className="p-2">
                 <p className="text-xs text-foreground font-montserrat truncate">{img.name}</p>
                 <p className="text-[10px] text-text-dim">{img.cat}</p>
@@ -119,6 +126,9 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
           ))}
         </div>
       )}
+
+      {/* Lightbox */}
+      {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
 
       {/* Upload modal */}
       {currentUpload && (
