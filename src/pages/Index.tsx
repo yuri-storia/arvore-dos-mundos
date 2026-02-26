@@ -5,13 +5,12 @@ import { OnboardingBanner } from '@/components/OnboardingBanner';
 import { ApiKeyBar } from '@/components/ApiKeyBar';
 
 import { WorldNameInput } from '@/components/WorldNameInput';
-import { WorldSelector } from '@/components/WorldSelector';
 import { TabNav } from '@/components/TabNav';
 import { TabConstruir } from '@/components/TabConstruir';
 import { TabVisaoGeral } from '@/components/TabVisaoGeral';
 import { TabGaleria } from '@/components/TabGaleria';
 import { TabGerarImagens } from '@/components/TabGerarImagens';
-import { saveWorld, listSaves, type WorldSave } from '@/lib/saves';
+import { saveWorld, type WorldSave } from '@/lib/saves';
 import { toast } from 'sonner';
 import type { AppState, TabType, MethodType, GalleryImage } from '@/lib/data';
 
@@ -29,7 +28,6 @@ const createNewState = (): AppState => ({
 
 const Index = () => {
   const [state, setState] = useState<AppState>(createNewState);
-  const [worldsOpen, setWorldsOpen] = useState(false);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const setActiveTab = useCallback((tab: TabType) => setState(s => ({ ...s, activeTab: tab })), []);
@@ -51,13 +49,11 @@ const Index = () => {
     setState(s => ({ ...s, gallery: [...s.gallery, img] }));
   }, []);
 
-  // Auto-save: debounce 2s after any state change if world has been created
+  // Auto-save
   useEffect(() => {
     if (!state.currentSaveId) return;
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
-    autoSaveTimer.current = setTimeout(() => {
-      saveWorld(state);
-    }, 2000);
+    autoSaveTimer.current = setTimeout(() => { saveWorld(state); }, 2000);
     return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
   }, [state.worldName, state.db, state.method, state.gallery, state.currentSaveId]);
 
@@ -69,103 +65,50 @@ const Index = () => {
     });
   }, []);
 
-  const handleSaveWorld = useCallback(() => {
-    setState(s => {
-      const saved = saveWorld(s);
-      toast.success(`"${saved.name}" salvo com sucesso!`);
-      return { ...s, currentSaveId: saved.id };
-    });
-  }, []);
-
   const handleLoadWorld = useCallback((save: WorldSave) => {
     setState(prev => {
-      if (prev.currentSaveId && (prev.worldName || Object.keys(prev.db).length > 0)) {
-        saveWorld(prev);
-      }
-      return {
-        ...prev,
-        worldName: save.name,
-        db: save.db,
-        method: save.method,
-        gallery: save.gallery,
-        currentFruit: 0,
-        currentSaveId: save.id,
-        generatedPrompt: '',
-        activeTab: 'construir',
-      };
+      if (prev.currentSaveId && (prev.worldName || Object.keys(prev.db).length > 0)) saveWorld(prev);
+      return { ...prev, worldName: save.name, db: save.db, method: save.method, gallery: save.gallery, currentFruit: 0, currentSaveId: save.id, generatedPrompt: '', activeTab: 'construir' };
     });
     toast.success(`"${save.name}" carregado!`);
   }, []);
 
   const handleNewWorld = useCallback(() => {
     setState(prev => {
-      if (prev.currentSaveId && (prev.worldName || Object.keys(prev.db).length > 0)) {
-        saveWorld(prev);
-      }
+      if (prev.currentSaveId && (prev.worldName || Object.keys(prev.db).length > 0)) saveWorld(prev);
       return { ...createNewState(), apiKey: prev.apiKey };
     });
-    setWorldsOpen(false);
     toast.info('Novo mundo criado!');
   }, []);
 
-  const worldCount = listSaves().length;
-
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Ambient gradient overlays */}
-      <div className="fixed inset-0 pointer-events-none z-0" style={{
-        background: 'radial-gradient(ellipse 100% 80% at 50% 0%, rgba(4,8,15,0.2) 0%, rgba(4,8,15,0.75) 60%, rgba(4,8,15,0.97) 100%)',
-      }} />
-
-      {/* Abstract blurred background shape */}
+      <div className="fixed inset-0 pointer-events-none z-0" style={{ background: 'radial-gradient(ellipse 100% 80% at 50% 0%, rgba(4,8,15,0.2) 0%, rgba(4,8,15,0.75) 60%, rgba(4,8,15,0.97) 100%)' }} />
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-[300px] left-1/2 -translate-x-1/2 w-[140%] h-[600px]" style={{
-          background: 'radial-gradient(ellipse 80% 100% at 50% 0%, rgba(43,74,108,0.12) 0%, rgba(4,12,17,0.08) 60%, transparent 100%)',
-          filter: 'blur(80px)',
-        }} />
+        <div className="absolute top-[300px] left-1/2 -translate-x-1/2 w-[140%] h-[600px]" style={{ background: 'radial-gradient(ellipse 80% 100% at 50% 0%, rgba(43,74,108,0.12) 0%, rgba(4,12,17,0.08) 60%, transparent 100%)', filter: 'blur(80px)' }} />
       </div>
 
       <div className="relative z-10">
-        <AppHeader
-          onOpenWorlds={() => setWorldsOpen(!worldsOpen)}
-          onNewWorld={handleNewWorld}
-          worldCount={worldCount}
-        />
+        <AppHeader />
 
-        {/* Worlds dropdown list */}
-        <WorldSelector
-          currentSaveId={state.currentSaveId}
-          onNewWorld={handleNewWorld}
-          onLoadWorld={handleLoadWorld}
-          onSaveWorld={handleSaveWorld}
-          open={worldsOpen}
-          setOpen={setWorldsOpen}
-        />
-
-        {/* World name */}
         <WorldNameInput
           worldName={state.worldName}
           setWorldName={setWorldName}
           hasBeenCreated={!!state.currentSaveId}
           onCreateWorld={handleCreateWorld}
+          onLoadWorld={handleLoadWorld}
+          onNewWorld={handleNewWorld}
+          currentSaveId={state.currentSaveId}
         />
 
         <OnboardingBanner />
         <TabNav activeTab={state.activeTab} setActiveTab={setActiveTab} />
 
         <main>
-          {state.activeTab === 'construir' && (
-            <TabConstruir state={state} updateField={updateField} setCurrentFruit={setCurrentFruit} setMethod={setMethod} />
-          )}
-          {state.activeTab === 'visao-geral' && (
-            <TabVisaoGeral state={state} setActiveTab={setActiveTab} setCurrentFruit={setCurrentFruit} />
-          )}
-          {state.activeTab === 'galeria' && (
-            <TabGaleria gallery={state.gallery} setGallery={setGallery} />
-          )}
-          {state.activeTab === 'gerar-imagens' && (
-            <TabGerarImagens state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />
-          )}
+          {state.activeTab === 'construir' && <TabConstruir state={state} updateField={updateField} setCurrentFruit={setCurrentFruit} setMethod={setMethod} />}
+          {state.activeTab === 'visao-geral' && <TabVisaoGeral state={state} setActiveTab={setActiveTab} setCurrentFruit={setCurrentFruit} />}
+          {state.activeTab === 'galeria' && <TabGaleria gallery={state.gallery} setGallery={setGallery} />}
+          {state.activeTab === 'gerar-imagens' && <TabGerarImagens state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />}
         </main>
 
         <DailyLimitBanner />
