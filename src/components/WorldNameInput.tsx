@@ -33,14 +33,14 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName }) => 
       {worldName && !focused ? (
         <div
           onClick={() => setFocused(true)}
-          className="cursor-text w-full max-w-2xl mx-auto text-center text-[clamp(1.4rem,4vw,2.6rem)] font-cinzel font-bold text-foreground leading-tight transition-all duration-500"
+          className="cursor-text w-full max-w-2xl mx-auto text-center text-[clamp(1.6rem,4.5vw,2.8rem)] font-cinzel font-bold text-foreground leading-tight transition-all duration-500"
           style={{
             textShadow: glowing
               ? '0 0 40px hsl(207 90% 61% / 0.7), 0 0 80px hsl(207 90% 61% / 0.4), 0 0 120px hsl(207 90% 61% / 0.2), 0 2px 4px rgba(0,0,0,0.5)'
               : '0 0 30px hsl(207 90% 61% / 0.25), 0 2px 4px rgba(0,0,0,0.5)',
           }}
         >
-          ◆ {worldName} ◆
+          {worldName}
         </div>
       ) : (
         <input
@@ -51,7 +51,7 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName }) => 
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           placeholder="Nome do seu Projeto…"
-          className="w-full max-w-2xl mx-auto bg-transparent border-0 text-center text-[clamp(1.4rem,4vw,2.6rem)] font-cinzel font-bold text-foreground placeholder:text-text-dim/40 placeholder:text-[clamp(1.1rem,3vw,1.8rem)] placeholder:font-normal focus:outline-none leading-tight transition-all duration-500"
+          className="w-full max-w-2xl mx-auto bg-transparent border-0 text-center text-[clamp(1.6rem,4.5vw,2.8rem)] font-cinzel font-bold text-foreground placeholder:text-text-dim/40 placeholder:text-[clamp(1.1rem,3vw,1.8rem)] placeholder:font-normal focus:outline-none leading-tight transition-all duration-500"
           style={{
             textShadow: glowing
               ? '0 0 40px hsl(207 90% 61% / 0.7), 0 0 80px hsl(207 90% 61% / 0.4), 0 0 120px hsl(207 90% 61% / 0.2), 0 2px 4px rgba(0,0,0,0.5)'
