@@ -9,8 +9,8 @@ export const UserMenu: React.FC = () => {
   if (!user) return null;
 
   return (
-    <div className="flex justify-center px-4 mb-0">
-      <div className="inline-flex items-center justify-center gap-3 py-1.5 px-5 rounded-full bg-white/[0.04] border border-white/[0.06] backdrop-blur-sm">
+    <div className="flex justify-center px-2 sm:px-4 mb-0">
+      <div className="inline-flex items-center justify-center gap-1.5 sm:gap-3 py-1 sm:py-1.5 px-3 sm:px-5 rounded-full bg-white/[0.04] border border-white/[0.06] backdrop-blur-sm">
         {isAdmin && (
           <button
             onClick={() => navigate('/admin')}
