@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FRUITS, getOrderedFruits, METHOD_DESCRIPTIONS, MethodType } from '@/lib/data';
+import { FRUITS, getOrderedFruits, METHOD_DESCRIPTIONS, MethodType, GalleryImage } from '@/lib/data';
 import { getFruitProgress, canUseAI, incrementUsage, callGPT, exportWorldMarkdown } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
 import { FruitGuideBlock } from '@/components/FruitGuideBlock';
@@ -193,6 +193,26 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
             {/* Guide block */}
             <FruitGuideBlock guide={fruit.guide} />
+
+            {/* Gallery images linked to this fruit */}
+            {(() => {
+              const fruitTag = `Fruto: ${fruit.name}`;
+              const fruitImages = state.gallery.filter(img => img.cat === fruitTag);
+              if (fruitImages.length === 0) return null;
+              return (
+                <div className="mb-6">
+                  <h3 className="font-montserrat font-bold text-xs uppercase tracking-wider text-gold mb-2">🖼 Referências deste Fruto</h3>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                    {fruitImages.map(img => (
+                      <div key={img.id} className="rounded-lg overflow-hidden border border-gold/20 hover:border-gold/50 transition-colors">
+                        <img src={img.src} alt={img.name} className="w-full h-[80px] sm:h-[100px] object-cover" />
+                        <p className="text-[9px] text-text-dim font-montserrat p-1 truncate">{img.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">

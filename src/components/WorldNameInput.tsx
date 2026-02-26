@@ -25,9 +25,11 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName }) => 
 
   return (
     <div className="mx-auto max-w-[1060px] px-4 mb-6 mt-8 text-center">
-      <label className="font-cinzel text-[10px] uppercase tracking-[0.25em] text-gold/60 mb-3 block">
-        ✦ Nome do seu Projeto ✦
-      </label>
+      <span className="inline-block px-4 py-1 rounded-full bg-gold/20 border border-gold/40 mb-3">
+        <span className="font-cinzel text-[10px] uppercase tracking-[0.25em] text-gold">
+          ✦ Nome do seu Projeto ✦
+        </span>
+      </span>
 
       {/* Display styled name with diamonds when has value and not focused */}
       {worldName && !focused ? (

@@ -47,8 +47,8 @@ export interface AppState {
   currentSaveId: string;
 }
 
-export const CATEGORIES = [
-  'Todos', 'Geral', 'Mapa do Mundo', 'Personagens', 'Criaturas',
+export const GALLERY_CATEGORIES = [
+  'Geral', 'Mapa do Mundo', 'Personagens', 'Criaturas',
   'Arquitetura', 'Paisagens', 'Artefatos', 'Cultura'
 ];
 
@@ -325,6 +325,13 @@ export const FRUITS: Fruit[] = [
       closing: 'Ao tomar deste fruto, a sua voz ecoará por mundos que agora possuem vida própria.',
     },
   },
+];
+
+// Fruit names for gallery cataloging
+export const FRUIT_CATEGORIES = FRUITS.map(f => `Fruto: ${f.name}`);
+
+export const CATEGORIES = [
+  'Todos', ...GALLERY_CATEGORIES, ...FRUIT_CATEGORIES
 ];
 
 // Top-down: world → details → characters (default order)
