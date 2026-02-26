@@ -35,7 +35,7 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide }) => {
           className="font-montserrat font-bold uppercase text-[0.6rem] tracking-[0.12em]"
           style={{ color: '#c8922a' }}
         >
-          📖 Orientação do Livro — Mínimo Mundo Viável + Estudo de Caso
+          📖 Orientação | Mínimo Mundo Viável + Estudo de Caso
         </span>
       </button>
 
