@@ -3,6 +3,7 @@ import { lovable } from '@/integrations/lovable';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import treeWallpaper from '@/assets/tree-wallpaper.webp';
 
 const Particles: React.FC = () => {
@@ -74,6 +75,7 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState(accessDenied ? 'Acesso negado. Seu e-mail não está autorizado.' : '');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
 
@@ -213,9 +215,25 @@ const LoginPage: React.FC = () => {
                   <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                     placeholder="E-mail" required
                     className="w-full px-4 py-3 rounded-lg bg-foreground/[0.06] border border-blue-bright/15 text-foreground placeholder:text-text-dim font-montserrat text-sm focus:outline-none focus:border-blue-bright/40 transition-colors" />
-                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Senha" required minLength={6}
-                    className="w-full px-4 py-3 rounded-lg bg-foreground/[0.06] border border-blue-bright/15 text-foreground placeholder:text-text-dim font-montserrat text-sm focus:outline-none focus:border-blue-bright/40 transition-colors" />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Senha"
+                      required
+                      minLength={6}
+                      className="w-full px-4 py-3 pr-12 rounded-lg bg-foreground/[0.06] border border-blue-bright/15 text-foreground placeholder:text-text-dim font-montserrat text-sm focus:outline-none focus:border-blue-bright/40 transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                      className="absolute inset-y-0 right-0 flex items-center px-3 text-text-dim hover:text-blue-light transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
                   <button type="submit" disabled={loading}
                     className="w-full px-6 py-3 rounded-lg bg-primary/80 hover:bg-primary transition-colors text-primary-foreground font-montserrat font-semibold text-sm disabled:opacity-50">
                     {loading ? 'Entrando…' : 'Entrar'}

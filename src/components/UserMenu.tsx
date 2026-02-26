@@ -24,8 +24,11 @@ export const UserMenu: React.FC = () => {
         </span>
         <button
           onClick={async () => {
-            await signOut();
-            navigate('/login');
+            try {
+              await signOut();
+            } finally {
+              navigate('/login', { replace: true });
+            }
           }}
           className="px-3 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-blue-bright/20 text-text-dim hover:text-foreground hover:border-blue-bright/30 transition-colors"
         >

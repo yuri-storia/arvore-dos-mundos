@@ -30,8 +30,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [accessDenied, setAccessDenied] = useState(false);
 
   const checkAdmin = async (userId: string) => {
-    const { data } = await supabase.rpc('is_admin', { _user_id: userId });
-    setIsAdmin(!!data);
+    const { data, error } = await supabase.rpc('is_admin', { _user_id: userId });
+    setIsAdmin(!error && !!data);
   };
 
   const checkAccess = async (accessToken: string) => {
@@ -49,44 +49,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setAccessDenied(false);
       return true;
     } catch {
-      // If edge function fails, allow access (graceful degradation)
+      // If backend function fails, allow access (graceful degradation)
       return true;
     }
   };
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+  const processSession = async (nextSession: Session | null, shouldValidateAccess: boolean) => {
+    setSession(nextSession);
+    setUser(nextSession?.user ?? null);
 
-      if (session?.user && event === 'SIGNED_IN') {
-        // Check access for new sign-ins
-        const allowed = await checkAccess(session.access_token);
-        if (allowed) {
-          setTimeout(() => checkAdmin(session.user.id), 0);
-        }
-      } else if (session?.user) {
-        setTimeout(() => checkAdmin(session.user.id), 0);
-      } else {
-        setIsAdmin(false);
-      }
+    if (!nextSession?.user) {
+      setIsAdmin(false);
+      setAccessDenied(false);
       setLoading(false);
+      return;
+    }
+
+    if (shouldValidateAccess) {
+      const allowed = await checkAccess(nextSession.access_token);
+      if (!allowed) {
+        setLoading(false);
+        return;
+      }
+    }
+
+    await checkAdmin(nextSession.user.id);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      const shouldValidateAccess =
+        event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION';
+
+      void processSession(nextSession, shouldValidateAccess);
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        checkAdmin(session.user.id);
-      }
-      setLoading(false);
+    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
+      void processSession(initialSession, true);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: 'local' });
     setUser(null);
     setSession(null);
     setIsAdmin(false);
