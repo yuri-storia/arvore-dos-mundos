@@ -99,7 +99,6 @@ const Index = () => {
       <div className="relative z-10">
         <AppHeader />
         <DailyLimitBanner />
-        <ApiKeyBar apiKey={state.apiKey} setApiKey={setApiKey} />
         <WorldSelector
           currentSaveId={state.currentSaveId}
           onNewWorld={handleNewWorld}
@@ -123,6 +122,8 @@ const Index = () => {
             <TabGerarImagens state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />
           )}
         </main>
+
+        <ApiKeyBar apiKey={state.apiKey} setApiKey={setApiKey} />
 
         <footer className="text-center py-8 opacity-40">
           <p className="text-[10px] text-text-dim font-montserrat uppercase tracking-[0.2em]">
