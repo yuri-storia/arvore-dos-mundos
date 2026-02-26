@@ -103,5 +103,11 @@ export const AppHeader: React.FC = () => (
       {/* Decorative line */}
       <div className="mx-auto w-[60px] h-[2px] bg-gradient-to-r from-transparent via-blue-bright to-transparent" />
     </div>
+
+    {/* Glowing blue divider at end of header */}
+    <div className="absolute bottom-0 left-0 right-0 z-10 h-[2px]">
+      <div className="w-full h-full bg-gradient-to-r from-transparent via-blue-bright to-transparent opacity-70" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-bright to-transparent blur-[6px] opacity-50" />
+    </div>
   </header>
 );
