@@ -23,7 +23,10 @@ export const UserMenu: React.FC = () => {
           {user.email}
         </span>
         <button
-          onClick={signOut}
+          onClick={async () => {
+            await signOut();
+            navigate('/login');
+          }}
           className="px-3 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-blue-bright/20 text-text-dim hover:text-foreground hover:border-blue-bright/30 transition-colors"
         >
           Sair
