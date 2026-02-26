@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Sparkles } from 'lucide-react';
 
 interface Props {
   worldName: string;
   setWorldName: (n: string) => void;
+  hasBeenCreated: boolean;
+  onCreateWorld: () => void;
 }
 
-export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName }) => {
+export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName, hasBeenCreated, onCreateWorld }) => {
   const [glowing, setGlowing] = useState(false);
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -22,6 +25,8 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName }) => 
       inputRef.current.focus();
     }
   }, [focused]);
+
+  const showCreateButton = worldName.trim().length > 0 && !hasBeenCreated;
 
   return (
     <div className="mx-auto max-w-[1060px] px-4 mb-6 mt-8 flex flex-col items-center text-center">
@@ -62,6 +67,16 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName }) => 
       )}
 
       <div className="mt-3 w-[80px] h-[2px] bg-gradient-to-r from-transparent via-gold to-transparent" />
+
+      {showCreateButton && (
+        <button
+          onClick={onCreateWorld}
+          className="mt-4 inline-flex items-center gap-2 px-5 py-2 rounded-full font-montserrat font-bold text-xs uppercase tracking-wider border border-gold/40 bg-gold/[0.12] hover:bg-gold/[0.22] text-gold-light hover:text-gold-light transition-all backdrop-blur-sm shadow-[0_0_20px_rgba(200,146,42,0.15)] hover:shadow-[0_0_30px_rgba(200,146,42,0.25)] animate-fadeUp"
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          Criar Mundo
+        </button>
+      )}
     </div>
   );
 };
