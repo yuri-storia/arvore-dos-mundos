@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const STEPS = [
-  { icon: '✦', title: 'Dê um nome ao seu mundo', desc: 'Comece pelo campo acima — esse é o coração da sua criação.' },
+  { icon: '✦', title: 'Dê um nome ao seu mundo', desc: 'Comece pelo campo acima e clique em "Criar Mundo" — esse é o coração da sua criação.' },
+  { icon: '🧭', title: 'Escolha seu método de criação', desc: 'Cima para Baixo: comece pela visão geral do mundo e desça aos detalhes. Baixo para Cima: comece pelos personagens e construa o mundo ao redor deles.' },
   { icon: '🌿', title: 'Escolha um Fruto para começar', desc: 'Você não precisa ir em ordem. Comece pelo pilar que mais te destrava: Mapa, Cultura, Magia, Personagens…' },
   { icon: '✍️', title: 'Preencha os campos e peça sugestões à IA', desc: 'Use os chips de sugestão ou escreva livremente. A IA vai expandir suas ideias.' },
   { icon: '🖼️', title: 'Gere imagens e monte sua galeria', desc: 'Crie referências visuais para seu mundo na aba "Gerar Imagens" e organize na "Galeria".' },
-  { icon: '💾', title: 'Salve e continue quando quiser', desc: 'Seus mundos ficam salvos localmente. Crie quantos quiser e alterne entre eles.' },
+  { icon: '💾', title: 'Tudo é salvo automaticamente', desc: 'Após criar seu mundo, todas as alterações são salvas automaticamente. Crie quantos mundos quiser e alterne entre eles.' },
 ];
 
 export const OnboardingBanner: React.FC = () => {
