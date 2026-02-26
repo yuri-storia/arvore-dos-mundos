@@ -3,8 +3,8 @@ import { TabType } from '@/lib/data';
 
 const TABS: { id: TabType; label: string; icon: string }[] = [
   { id: 'construir', label: 'Construir', icon: '🌿' },
-  { id: 'visao-geral', label: 'Visão Geral', icon: '🗺' },
-  { id: 'galeria', label: 'Galeria', icon: '🖼' },
+  { id: 'visao-geral', label: 'Visão Geral', icon: '🌍' },
+  { id: 'galeria', label: 'Galeria', icon: '🎨' },
   { id: 'gerar-imagens', label: 'Gerar Imagens', icon: '✨' },
 ];
 
