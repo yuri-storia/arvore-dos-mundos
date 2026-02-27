@@ -61,13 +61,13 @@ export const OnboardingBanner: React.FC = () => {
               <span className="text-xl shrink-0 mt-0.5">👑</span>
               <div>
                 <h3 className="font-montserrat font-bold text-sm text-gold-light">
-                  Sobre os Planos
+                  Sobre os Créditos
                 </h3>
                 <p className="font-merriweather text-text-secondary text-xs leading-relaxed mt-1">
-                  A IA de texto e imagens funciona com base no seu plano ativo (<strong className="text-gold-light">Básico</strong> ou <strong className="text-gold-light">Pro</strong>). Cada plano tem uma cota mensal de gerações.
+                  Seu plano inclui <strong className="text-gold-light">100 créditos mensais</strong> de IA. Textos custam <strong className="text-gold-light">1 crédito</strong> e imagens custam <strong className="text-gold-light">5 créditos</strong>. Você decide como gastar!
                 </p>
                 <p className="mt-2 text-[11px] text-text-dim font-merriweather italic">
-                  💡 Você pode acompanhar seu uso restante no topo da página, no banner dourado do plano.
+                  💡 Acompanhe seus créditos restantes no banner dourado no topo da página.
                 </p>
               </div>
             </div>

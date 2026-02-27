@@ -26,8 +26,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState('Todos');
 
-  const imgsLeft = sub.imageLimit - sub.imageUsed;
-  const textsLeft = sub.textLimit - sub.textUsed;
+  const creditsLeft = sub.creditLimit - sub.creditsUsed;
 
   const buildContext = () => {
     const parts: string[] = [];
@@ -42,7 +41,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   };
 
   const handleCreatePrompt = async () => {
-    if (!sub.plan) { setError('Você precisa de um plano ativo para usar a IA.'); return; }
+    if (!sub.active) { setError('Você precisa de um plano ativo para usar a IA.'); return; }
     if (!desc.trim()) { setError('Descreva a imagem desejada.'); return; }
     setError('');
     setLoading1(true);
@@ -63,7 +62,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   };
 
   const handleGenerate = async () => {
-    if (!sub.plan) { setError('Você precisa de um plano ativo para gerar imagens.'); return; }
+    if (!sub.active) { setError('Você precisa de um plano ativo para gerar imagens.'); return; }
     if (!generatedPrompt) return;
     setError('');
     setLoading2(true);
@@ -110,10 +109,10 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
       {/* Plan/usage info */}
       <div className="card-glass rounded-lg p-3 mb-5 border-l-[3px] border-l-blue-bright">
         <div className="flex items-center justify-between flex-wrap gap-2">
-          {sub.plan ? (
+          {sub.active ? (
             <>
               <span className="text-sm text-foreground font-montserrat">
-                Plano <strong className="uppercase">{sub.plan}</strong> · <strong>{imgsLeft}</strong> imagens restantes · <strong>{textsLeft}</strong> textos restantes
+                <strong className="text-amber-400">{creditsLeft}</strong> créditos restantes · Imagem custa <strong>5</strong> créditos · Texto custa <strong>1</strong>
               </span>
               <span className="text-xs text-text-dim font-merriweather italic">
                 Você também pode copiar o prompt e usar no Midjourney, Leonardo AI ou Bing Image Creator.
@@ -178,14 +177,14 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
         <div className="flex flex-wrap items-center gap-3 mt-5">
           <button
             onClick={handleCreatePrompt}
-            disabled={loading1 || !sub.plan}
+            disabled={loading1 || !sub.active}
             className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-blue-bright text-blue-bright hover:bg-blue-main/20 disabled:opacity-40 transition-all"
           >
             {loading1 ? '⏳ Criando…' : '✦ 1. Criar Prompt com IA'}
           </button>
           <button
             onClick={handleGenerate}
-            disabled={loading2 || !generatedPrompt || !sub.plan}
+            disabled={loading2 || !generatedPrompt || !sub.active}
             className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-all"
           >
             {loading2 ? '⏳ Gerando…' : '🎨 2. Gerar Imagem'}
