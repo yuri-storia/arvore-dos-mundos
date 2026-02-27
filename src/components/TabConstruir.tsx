@@ -206,8 +206,10 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
         <div key={currentFruit} className="animate-fadeUp card-glass rounded-lg overflow-hidden">
           {/* Hero */}
           <div className="relative h-[140px] sm:h-[200px]">
-            {FRUIT_IMAGES[fruit.id] ? (
-              <img src={FRUIT_IMAGES[fruit.id]} alt={fruit.name} className="absolute inset-0 w-full h-full object-cover opacity-50" />
+            {FRUIT_BANNER_IMAGES[fruit.id] ? (
+              <img src={FRUIT_BANNER_IMAGES[fruit.id]} alt={fruit.name} className="absolute inset-0 w-full h-full object-cover object-center opacity-60" />
+            ) : FRUIT_IMAGES[fruit.id] ? (
+              <img src={FRUIT_IMAGES[fruit.id]} alt={fruit.name} className="absolute inset-0 w-full h-full object-cover object-center opacity-50" />
             ) : (
               <div className={`absolute inset-0 bg-gradient-to-br ${fruit.gradient}`}>
                 <div className="absolute inset-0 flex items-center justify-center text-8xl opacity-20">{fruit.icon}</div>
