@@ -106,25 +106,13 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
         IA cria o prompt perfeito · Gera a imagem · Tudo incluso no seu plano
       </p>
 
-      {/* Plan/usage info */}
-      <div className="card-glass rounded-lg p-3 mb-5 border-l-[3px] border-l-blue-bright">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          {sub.active ? (
-            <>
-              <span className="text-sm text-foreground font-montserrat">
-                <strong className="text-amber-400">{creditsLeft}</strong> créditos restantes
-              </span>
-              <span className="text-xs text-text-dim font-merriweather italic">
-                Você também pode copiar o prompt e usar no Midjourney, Leonardo AI ou Bing Image Creator.
-              </span>
-            </>
-          ) : (
-            <span className="text-sm text-gold-light font-montserrat">
-              ⚠️ Você precisa de um plano ativo para usar a geração de imagens.
-            </span>
-          )}
+      {!sub.active && (
+        <div className="card-glass rounded-lg p-3 mb-5 border-l-[3px] border-l-blue-bright">
+          <span className="text-sm text-gold-light font-montserrat">
+            ⚠️ Você precisa de um plano ativo para usar a geração de imagens.
+          </span>
         </div>
-      </div>
+      )}
 
       {/* Form */}
       <div className="card-glass rounded-lg p-5 mb-5">
