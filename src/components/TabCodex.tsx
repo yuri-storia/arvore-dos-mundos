@@ -78,7 +78,7 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
           {entries.length > 0 && (
             <button
               onClick={() => { setShowExport(!showExport); setExportSelectedFruitIds([]); }}
-              className="px-3 py-2 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:via-teal-300 hover:to-cyan-400 text-white rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_16px_rgba(16,185,129,0.4)] hover:shadow-[0_0_24px_rgba(16,185,129,0.6)] animate-pulse"
+              className="px-3 py-2 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:via-teal-300 hover:to-cyan-400 text-white rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_16px_rgba(16,185,129,0.4)] hover:shadow-[0_0_24px_rgba(16,185,129,0.6)]"
             >
               📄 Exportar PDF
             </button>
