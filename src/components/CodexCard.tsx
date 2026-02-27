@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { FRUITS, CODEX_ENTRY_TYPES, type GalleryImage } from '@/lib/data';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { callAIImage } from '@/lib/helpers';
+import { exportSingleEntry } from '@/lib/codexPdfExport';
 import { toast } from 'sonner';
 
 interface Props {
@@ -201,6 +202,12 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 ✏️ Editar
               </button>
             )}
+            <button
+              onClick={e => { e.stopPropagation(); exportSingleEntry(entry); }}
+              className="px-4 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors"
+            >
+              📄 PDF
+            </button>
             <button
               onClick={e => { e.stopPropagation(); if (confirm('Excluir esta ficha?')) onDelete(entry.id); }}
               className="ml-auto px-4 py-1.5 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors"
