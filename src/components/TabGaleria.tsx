@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { CATEGORIES, GALLERY_CATEGORIES, FRUIT_CATEGORIES, GalleryImage } from '@/lib/data';
+import { FRUITS, GalleryImage } from '@/lib/data';
 import { ImageLightbox } from '@/components/ImageLightbox';
 
 interface Props {
@@ -23,7 +23,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
     const queue = items.map(f => ({
       file: f,
       name: f.name.replace(/\.[^.]+$/, ''),
-      cat: 'Geral',
+      cat: FRUITS[0].name,
     }));
     processQueue(queue);
   };
@@ -80,18 +80,28 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2 overflow-x-auto pb-2 mb-5 scrollbar-none">
-        {CATEGORIES.map(cat => (
+      <div className="flex flex-wrap gap-1.5 mb-5">
+        <button
+          onClick={() => setFilter('Todos')}
+          className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${
+            filter === 'Todos'
+              ? 'bg-accent/20 text-accent-foreground border border-accent/40'
+              : 'text-text-dim border border-transparent hover:border-accent/20'
+          }`}
+        >
+          Todos
+        </button>
+        {FRUITS.map(f => (
           <button
-            key={cat}
-            onClick={() => setFilter(cat)}
-            className={`px-3 py-1.5 rounded-full text-xs font-montserrat whitespace-nowrap transition-all ${
-              filter === cat
-                ? 'border border-blue-bright text-blue-light bg-blue-bright/[0.07]'
-                : 'border border-blue-bright/15 text-text-dim hover:text-text-secondary'
+            key={f.id}
+            onClick={() => setFilter(f.name)}
+            className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${
+              filter === f.name
+                ? 'bg-accent/20 text-accent-foreground border border-accent/40'
+                : 'text-text-dim border border-transparent hover:border-accent/20'
             }`}
           >
-            {cat}
+            {f.icon} {f.name}
           </button>
         ))}
       </div>
@@ -148,12 +158,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
               onChange={e => setCurrentUpload({ ...currentUpload, cat: e.target.value })}
               className="w-full bg-background/60 border border-blue-bright/20 rounded-md px-3 py-2 text-sm text-foreground mb-4 focus:outline-none focus:border-blue-bright/50"
             >
-              <optgroup label="Categorias">
-                {GALLERY_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </optgroup>
-              <optgroup label="Vincular a Fruto">
-                {FRUIT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </optgroup>
+              {FRUITS.map(f => <option key={f.id} value={f.name}>{f.icon} {f.name}</option>)}
             </select>
             <div className="flex gap-2 justify-end">
               <button
