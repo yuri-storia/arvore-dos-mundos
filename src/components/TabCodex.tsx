@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { FRUITS, CODEX_ENTRY_TYPES, type GalleryImage } from '@/lib/data';
+import { FRUITS, type GalleryImage } from '@/lib/data';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
 import { ImageLightbox } from '@/components/ImageLightbox';
@@ -26,7 +26,6 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
   // Create form state
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
-  const [newType, setNewType] = useState<string>('personagem');
   const [newFruit, setNewFruit] = useState<number | null>(null);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -53,21 +52,21 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
   };
 
   const handleCreate = async () => {
-    if (!newTitle.trim()) return;
+    if (!newTitle.trim() || newFruit === null) return;
     await createEntry({
       title: newTitle,
       content: newContent,
       image_url: newImageUrl || undefined,
-      entry_type: newType,
+      entry_type: 'geral',
       fruit_id: newFruit,
     });
-    setNewTitle(''); setNewContent(''); setNewImageUrl(''); setNewType('personagem'); setNewFruit(null);
+    setNewTitle(''); setNewContent(''); setNewImageUrl(''); setNewFruit(null);
     setShowCreate(false);
   };
 
   const resetCreate = () => {
     setShowCreate(false);
-    setNewTitle(''); setNewContent(''); setNewImageUrl(''); setNewType('personagem'); setNewFruit(null);
+    setNewTitle(''); setNewContent(''); setNewImageUrl(''); setNewFruit(null);
   };
 
   return (
@@ -174,18 +173,12 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
               <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Nome da ficha…" className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-ring/50" />
             </div>
             <div>
-              <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Tipo</label>
-              <select value={newType} onChange={e => setNewType(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-ring/50">
-                {CODEX_ENTRY_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.label}</option>)}
+              <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Fruto</label>
+              <select value={newFruit ?? ''} onChange={e => setNewFruit(e.target.value ? Number(e.target.value) : null)} className={`w-full bg-[rgba(4,12,24,0.6)] border rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-ring/50 ${newFruit === null ? 'border-destructive/40' : 'border-blue-bright/15'}`}>
+                <option value="">Selecione um fruto…</option>
+                {FRUITS.map(f => <option key={f.id} value={f.id}>{f.icon} {f.name}</option>)}
               </select>
             </div>
-          </div>
-          <div className="mb-3">
-            <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Fruto (opcional)</label>
-            <select value={newFruit ?? ''} onChange={e => setNewFruit(e.target.value ? Number(e.target.value) : null)} className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-ring/50">
-              <option value="">Nenhum</option>
-              {FRUITS.map(f => <option key={f.id} value={f.id}>{f.icon} {f.name}</option>)}
-            </select>
           </div>
 
           {/* Image */}
@@ -212,7 +205,7 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
           </div>
 
           <div className="flex gap-2">
-            <button onClick={handleCreate} disabled={!newTitle.trim()} className="px-4 py-2 bg-primary hover:bg-ring text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors">
+            <button onClick={handleCreate} disabled={!newTitle.trim() || newFruit === null} className="px-4 py-2 bg-primary hover:bg-ring text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors">
               Criar Ficha
             </button>
             <button onClick={resetCreate} className="px-4 py-2 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FRUITS, CODEX_ENTRY_TYPES } from '@/lib/data';
+import { FRUITS } from '@/lib/data';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -15,7 +15,7 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
   const { entries, createEntry, updateEntry } = useCodexEntries();
   const [showMenu, setShowMenu] = useState(false);
   const [showAddTo, setShowAddTo] = useState(false);
-  const [selectedType, setSelectedType] = useState('personagem');
+  
 
   const hasValue = !!fieldValue?.trim();
 
@@ -47,15 +47,10 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
           {!showAddTo ? (
             <>
               <h4 className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-blue-light mb-2">Salvar como nova ficha no Codex</h4>
-              <div className="mb-2">
-                <select value={selectedType} onChange={e => setSelectedType(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-2 py-1 text-xs text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50">
-                  {CODEX_ENTRY_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.label}</option>)}
-                </select>
-              </div>
               <div className="flex gap-2">
                 <button
                   onClick={async () => {
-                    await createEntry({ title: fieldLabel, content: fieldValue, entry_type: selectedType, fruit_id: fruitId });
+                    await createEntry({ title: fieldLabel, content: fieldValue, entry_type: 'geral', fruit_id: fruitId });
                     setShowMenu(false);
                   }}
                   className="px-3 py-1.5 bg-blue-main hover:bg-blue-bright text-foreground rounded text-[10px] font-montserrat font-bold uppercase transition-colors"
@@ -75,7 +70,7 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
               ) : (
                 <div className="max-h-[200px] overflow-y-auto space-y-1">
                   {entries.map(e => {
-                    const typeInfo = CODEX_ENTRY_TYPES.find(t => t.id === e.entry_type);
+                    const fruitInfo = FRUITS.find(f => f.id === e.fruit_id);
                     return (
                       <button
                         key={e.id}
@@ -87,7 +82,7 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
                         }}
                         className="w-full text-left px-2 py-1.5 rounded hover:bg-blue-bright/10 transition-colors"
                       >
-                        <span className="text-xs text-foreground font-montserrat font-bold block">{typeInfo?.icon} {e.title}</span>
+                        <span className="text-xs text-foreground font-montserrat font-bold block">{fruitInfo?.icon} {e.title}</span>
                       </button>
                     );
                   })}
