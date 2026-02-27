@@ -4,6 +4,7 @@ import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { CodexCard } from '@/components/CodexCard';
+import { exportSingleEntry, exportFruitEntries, exportSelectedFruits, exportAllEntries } from '@/lib/codexPdfExport';
 
 const FRUIT_ALL = -1;
 
@@ -19,6 +20,8 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+  const [showExport, setShowExport] = useState(false);
+  const [exportSelectedFruitIds, setExportSelectedFruitIds] = useState<number[]>([]);
 
   // Create form state
   const [newTitle, setNewTitle] = useState('');
@@ -71,14 +74,83 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
     <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-6">
       <div className="flex items-center justify-between mb-1">
         <h1 className="font-cinzel font-bold text-xl sm:text-2xl md:text-3xl text-foreground">📖 Codex</h1>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="px-4 py-2 bg-primary hover:bg-ring text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
-        >
-          + Nova Ficha
-        </button>
+        <div className="flex gap-2">
+          {entries.length > 0 && (
+            <button
+              onClick={() => { setShowExport(!showExport); setExportSelectedFruitIds([]); }}
+              className="px-3 py-2 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+            >
+              📄 Exportar PDF
+            </button>
+          )}
+          <button
+            onClick={() => setShowCreate(true)}
+            className="px-4 py-2 bg-primary hover:bg-ring text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+          >
+            + Nova Ficha
+          </button>
+        </div>
       </div>
       <p className="font-merriweather italic text-text-dim text-sm mb-5">Suas fichas de personagens, lugares, itens e mais</p>
+
+      {/* Export panel */}
+      {showExport && (
+        <div className="card-glass rounded-lg p-4 mb-5 animate-fadeUp">
+          <h3 className="font-cinzel font-bold text-sm text-blue-light mb-3">📄 Exportar Fichas em PDF</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+            <button
+              onClick={() => { exportAllEntries(entries); setShowExport(false); }}
+              className="px-4 py-2.5 bg-primary/20 hover:bg-primary/30 text-blue-light rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider transition-colors border border-ring/20 text-left"
+            >
+              📚 Exportar todas as fichas ({entries.length})
+            </button>
+            {filterFruit !== FRUIT_ALL && (
+              <button
+                onClick={() => { exportFruitEntries(filterFruit, entries); setShowExport(false); }}
+                className="px-4 py-2.5 bg-accent/15 hover:bg-accent/25 text-accent-foreground rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider transition-colors border border-accent/20 text-left"
+              >
+                🍎 Exportar fichas de "{FRUITS.find(f => f.id === filterFruit)?.name}" ({entries.filter(e => e.fruit_id === filterFruit).length})
+              </button>
+            )}
+          </div>
+
+          <div className="border-t border-border pt-3">
+            <p className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat font-bold mb-2">Selecionar frutos para exportar:</p>
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {FRUITS.map(f => {
+                const count = entries.filter(e => e.fruit_id === f.id).length;
+                if (count === 0) return null;
+                const selected = exportSelectedFruitIds.includes(f.id);
+                return (
+                  <button
+                    key={f.id}
+                    onClick={() => setExportSelectedFruitIds(prev => selected ? prev.filter(id => id !== f.id) : [...prev, f.id])}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${
+                      selected
+                        ? 'bg-accent/20 text-accent-foreground border border-accent/40'
+                        : 'text-text-dim border border-border hover:border-accent/20'
+                    }`}
+                  >
+                    {f.icon} {f.name} ({count})
+                  </button>
+                );
+              })}
+            </div>
+            {exportSelectedFruitIds.length > 0 && (
+              <button
+                onClick={() => { exportSelectedFruits(exportSelectedFruitIds, entries); setShowExport(false); }}
+                className="px-4 py-2 bg-accent/80 hover:bg-accent text-accent-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors"
+              >
+                📄 Exportar {exportSelectedFruitIds.length} fruto(s) selecionado(s)
+              </button>
+            )}
+          </div>
+
+          <div className="flex justify-end mt-3">
+            <button onClick={() => setShowExport(false)} className="text-[10px] text-text-dim font-montserrat hover:text-foreground transition-colors">Fechar</button>
+          </div>
+        </div>
+      )}
 
       {/* Filters by fruit */}
       <div className="flex flex-wrap gap-1.5 mb-6">
