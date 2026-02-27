@@ -23,6 +23,8 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   const [generatedImage, setGeneratedImage] = useState('');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [saveCat, setSaveCat] = useState('Todos');
 
   const imgsLeft = sub.imageLimit - sub.imageUsed;
   const textsLeft = sub.textLimit - sub.textUsed;
@@ -81,14 +83,21 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const saveToGallery = () => {
+  const openSaveModal = () => {
+    if (!generatedImage) return;
+    setSaveCat('Todos');
+    setShowSaveModal(true);
+  };
+
+  const confirmSave = () => {
     if (!generatedImage) return;
     addToGallery({
       id: Date.now().toString(),
       src: generatedImage,
       name: desc.slice(0, 40) || 'Imagem gerada',
-      cat: 'Geral',
+      cat: saveCat === 'Todos' ? 'Geral' : saveCat,
     });
+    setShowSaveModal(false);
   };
 
   return (
@@ -222,12 +231,55 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
         <div className="animate-fadeUp card-glass rounded-lg p-5">
           <img src={generatedImage} alt="Imagem gerada" className="w-full max-w-[512px] mx-auto rounded-lg mb-4" />
           <div className="flex flex-wrap gap-2 justify-center">
-            <button onClick={saveToGallery} className="px-4 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold transition-colors">
+            <button onClick={openSaveModal} className="px-4 py-2 bg-primary hover:bg-ring text-foreground rounded-md text-xs font-montserrat font-bold transition-colors">
               💾 Salvar na Galeria
             </button>
             <a href={generatedImage} download target="_blank" rel="noopener" className="px-4 py-2 rounded-md text-xs font-montserrat border border-blue-bright/30 text-text-secondary hover:text-foreground transition-colors">
               ⬇ Baixar
             </a>
+          </div>
+        </div>
+      )}
+
+      {/* Save to gallery modal */}
+      {showSaveModal && (
+        <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-3 sm:p-4">
+          <div className="card-glass rounded-lg w-full max-w-sm p-5 animate-fadeUp">
+            <h3 className="font-cinzel font-bold text-foreground mb-1">Salvar na Galeria</h3>
+            <p className="font-merriweather text-xs text-text-dim italic mb-4">Em qual parte da galeria deseja salvar?</p>
+            <div className="flex flex-wrap gap-1.5 mb-4">
+              <button
+                onClick={() => setSaveCat('Todos')}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${
+                  saveCat === 'Todos'
+                    ? 'bg-accent/20 text-accent-foreground border border-accent/40'
+                    : 'text-text-dim border border-transparent hover:border-accent/20'
+                }`}
+              >
+                Geral
+              </button>
+              {FRUITS.map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setSaveCat(f.name)}
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${
+                    saveCat === f.name
+                      ? 'bg-accent/20 text-accent-foreground border border-accent/40'
+                      : 'text-text-dim border border-transparent hover:border-accent/20'
+                  }`}
+                >
+                  {f.icon} {f.name}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setShowSaveModal(false)} className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-border hover:text-foreground transition-colors">
+                Cancelar
+              </button>
+              <button onClick={confirmSave} className="px-4 py-2 bg-primary hover:bg-ring text-foreground rounded-md text-xs font-montserrat font-bold transition-colors">
+                💾 Salvar
+              </button>
+            </div>
           </div>
         </div>
       )}
