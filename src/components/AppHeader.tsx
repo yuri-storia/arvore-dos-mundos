@@ -76,8 +76,8 @@ export const AppHeader: React.FC = () => (
           alt=""
           className="w-full h-full object-cover object-[center_25%] md:object-[center_35%] opacity-75"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent from-30% via-[#02060c]/60 via-70% to-[#02060c]" />
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-[#02060c]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent from-30% via-[#02070d]/60 via-70% to-[#02070d]" />
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-[#02070d]" />
       </div>
       <Particles />
     </div>
