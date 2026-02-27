@@ -148,7 +148,12 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName, hasBe
         />
       )}
 
-      <div className="mt-3 w-[80px] h-[2px] bg-gradient-to-r from-transparent via-gold to-transparent" />
+      {/* Glowing blue line under world name */}
+      <div className="relative mt-4 w-full max-w-md h-[2px]">
+        <div className="w-full h-full bg-gradient-to-r from-transparent via-[hsl(207,90%,61%)] to-transparent opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[hsl(207,90%,61%)] to-transparent blur-[6px] opacity-70" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[hsl(207,90%,61%)] to-transparent blur-[14px] opacity-40" />
+      </div>
 
       {showCreateButton && (
         <button
