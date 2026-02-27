@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { AppHeader } from '@/components/AppHeader';
-import { DailyLimitBanner } from '@/components/DailyLimitBanner';
+import { SubscriptionBanner } from '@/components/SubscriptionBanner';
 import { OnboardingBanner } from '@/components/OnboardingBanner';
-import { ApiKeyBar } from '@/components/ApiKeyBar';
 
 import { WorldNameInput } from '@/components/WorldNameInput';
 import { TabNav } from '@/components/TabNav';
@@ -14,12 +13,7 @@ import { saveWorld, loadSave, type WorldSave } from '@/lib/saves';
 import { toast } from 'sonner';
 import type { AppState, TabType, MethodType, GalleryImage } from '@/lib/data';
 
-const API_KEY_STORAGE = 'adm_openai_key';
 const LAST_WORLD_STORAGE = 'adm_last_world';
-
-const getStoredApiKey = () => {
-  try { return localStorage.getItem(API_KEY_STORAGE) || ''; } catch { return ''; }
-};
 
 const createNewState = (): AppState => ({
   worldName: '',
@@ -28,7 +22,7 @@ const createNewState = (): AppState => ({
   method: 'top-down',
   gallery: [],
   activeTab: 'construir',
-  apiKey: getStoredApiKey(),
+  apiKey: '',
   generatedPrompt: '',
   currentSaveId: '',
 });
@@ -36,7 +30,6 @@ const createNewState = (): AppState => ({
 const Index = () => {
   const [state, setState] = useState<AppState>(() => {
     const base = createNewState();
-    // Restore last opened world
     try {
       const lastId = localStorage.getItem(LAST_WORLD_STORAGE);
       if (lastId) {
@@ -51,10 +44,6 @@ const Index = () => {
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const setActiveTab = useCallback((tab: TabType) => setState(s => ({ ...s, activeTab: tab })), []);
-  const setApiKey = useCallback((apiKey: string) => {
-    try { localStorage.setItem(API_KEY_STORAGE, apiKey); } catch {}
-    setState(s => ({ ...s, apiKey }));
-  }, []);
   const setWorldName = useCallback((worldName: string) => setState(s => ({ ...s, worldName })), []);
   const setCurrentFruit = useCallback((currentFruit: number) => setState(s => ({ ...s, currentFruit })), []);
   const setMethod = useCallback((method: MethodType) => setState(s => ({ ...s, method })), []);
@@ -72,7 +61,6 @@ const Index = () => {
     setState(s => ({ ...s, gallery: [...s.gallery, img] }));
   }, []);
 
-  // Track last opened world
   useEffect(() => {
     try {
       if (state.currentSaveId) localStorage.setItem(LAST_WORLD_STORAGE, state.currentSaveId);
@@ -80,7 +68,6 @@ const Index = () => {
     } catch {}
   }, [state.currentSaveId]);
 
-  // Auto-save
   useEffect(() => {
     if (!state.currentSaveId) return;
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
@@ -107,7 +94,7 @@ const Index = () => {
   const handleNewWorld = useCallback(() => {
     setState(prev => {
       if (prev.currentSaveId && (prev.worldName || Object.keys(prev.db).length > 0)) saveWorld(prev);
-      return { ...createNewState(), apiKey: prev.apiKey };
+      return createNewState();
     });
     toast.info('Novo mundo criado!');
   }, []);
@@ -133,6 +120,7 @@ const Index = () => {
         />
 
         <OnboardingBanner />
+        <SubscriptionBanner />
         <TabNav activeTab={state.activeTab} setActiveTab={setActiveTab} />
 
         <main>
@@ -141,9 +129,6 @@ const Index = () => {
           {state.activeTab === 'galeria' && <TabGaleria gallery={state.gallery} setGallery={setGallery} />}
           {state.activeTab === 'gerar-imagens' && <TabGerarImagens state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />}
         </main>
-
-        <DailyLimitBanner />
-        <ApiKeyBar apiKey={state.apiKey} setApiKey={setApiKey} />
 
         <footer className="text-center py-8 pb-24 opacity-40">
           <p className="text-[10px] text-text-dim font-montserrat uppercase tracking-[0.2em]">
