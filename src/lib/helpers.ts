@@ -1,33 +1,6 @@
 import { AppState, FRUITS } from './data';
+import { supabase } from '@/integrations/supabase/client';
 import jsPDF from 'jspdf';
-
-// ... keep existing code (daily limits + fruit progress helpers lines 4-57)
-
-// Daily limits
-const getLimitKey = () => {
-  const d = new Date();
-  return `adm_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-};
-
-export function getDailyUsage(): { text: number; img: number } {
-  try {
-    const raw = localStorage.getItem(getLimitKey());
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return { text: 0, img: 0 };
-}
-
-export function incrementUsage(type: 'text' | 'img') {
-  const usage = getDailyUsage();
-  usage[type]++;
-  localStorage.setItem(getLimitKey(), JSON.stringify(usage));
-  return usage;
-}
-
-export function canUseAI(type: 'text' | 'img'): boolean {
-  const u = getDailyUsage();
-  return type === 'text' ? u.text < 15 : u.img < 3;
-}
 
 // Fruit progress helpers
 export function getFruitProgress(db: AppState['db'], fruitId: number) {
@@ -59,6 +32,25 @@ export function getFruitsComplete(db: AppState['db']) {
   }).length;
 }
 
+// AI helpers via edge functions
+export async function callAIText(messages: { role: string; content: string }[], systemPrompt?: string) {
+  const { data, error } = await supabase.functions.invoke('ai-text', {
+    body: { messages, systemPrompt },
+  });
+  if (error) throw new Error(error.message || 'Erro ao chamar IA');
+  if (data?.error) throw new Error(data.error);
+  return data?.content || '';
+}
+
+export async function callAIImage(prompt: string) {
+  const { data, error } = await supabase.functions.invoke('ai-image', {
+    body: { prompt },
+  });
+  if (error) throw new Error(error.message || 'Erro ao gerar imagem');
+  if (data?.error) throw new Error(data.error);
+  return data?.imageUrl || '';
+}
+
 // Export PDF
 export function exportWorldMarkdown(worldName: string, method: string, db: AppState['db']) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -81,30 +73,25 @@ export function exportWorldMarkdown(worldName: string, method: string, db: AppSt
     }
   };
 
-  // Background
   addPageBg();
 
-  // Title
   doc.setTextColor(220, 230, 245);
   doc.setFontSize(22);
   doc.setFont('helvetica', 'bold');
   doc.text(worldName || 'Mundo Sem Nome', pageW / 2, y, { align: 'center' });
   y += 10;
 
-  // Subtitle
   doc.setFontSize(10);
   doc.setTextColor(140, 160, 190);
   doc.setFont('helvetica', 'italic');
   doc.text(`Metodologia: ${method === 'top-down' ? 'Cima para Baixo' : 'Baixo para Cima'}`, pageW / 2, y, { align: 'center' });
   y += 4;
 
-  // Decorative line
   doc.setDrawColor(33, 150, 243);
   doc.setLineWidth(0.5);
   doc.line(pageW / 2 - 20, y, pageW / 2 + 20, y);
   y += 10;
 
-  // Fruits
   FRUITS.forEach(fruit => {
     const data = db[fruit.id] || {};
     const filledFields = fruit.fields.filter(f => (data[f.id] || '').trim());
@@ -118,7 +105,6 @@ export function exportWorldMarkdown(worldName: string, method: string, db: AppSt
     doc.text(`${fruit.num}: ${fruit.name}`, margin, y);
     y += 2;
 
-    // Underline
     doc.setDrawColor(33, 150, 243);
     doc.setLineWidth(0.3);
     doc.line(margin, y, margin + 50, y);
@@ -128,14 +114,12 @@ export function exportWorldMarkdown(worldName: string, method: string, db: AppSt
       const val = data[field.id] || '';
       checkPage(15);
 
-      // Field label
       doc.setFontSize(9);
       doc.setTextColor(200, 146, 42);
       doc.setFont('helvetica', 'bold');
       doc.text(field.label.toUpperCase(), margin, y);
       y += 4;
 
-      // Field value - wrap text
       doc.setFontSize(10);
       doc.setTextColor(200, 210, 225);
       doc.setFont('helvetica', 'normal');
@@ -151,33 +135,9 @@ export function exportWorldMarkdown(worldName: string, method: string, db: AppSt
     y += 4;
   });
 
-  // Footer on last page
   doc.setFontSize(7);
   doc.setTextColor(100, 120, 150);
   doc.text('A Árvore dos Mundos · Universo STORIA', pageW / 2, pageH - 10, { align: 'center' });
 
   doc.save(`${(worldName || 'mundo').toLowerCase().replace(/\s+/g, '-')}-worldbuilding.pdf`);
-}
-
-// OpenAI helpers
-export async function callGPT(apiKey: string, messages: { role: string; content: string }[]) {
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model: 'gpt-4o-mini', messages, max_tokens: 900 }),
-  });
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content || '';
-}
-
-export async function callDALLE(apiKey: string, prompt: string) {
-  const res = await fetch('https://api.openai.com/v1/images/generations', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model: 'dall-e-3', prompt, size: '1024x1024', quality: 'standard', n: 1 }),
-  });
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
-  const data = await res.json();
-  return data.data?.[0]?.url || '';
 }

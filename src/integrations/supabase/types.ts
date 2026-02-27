@@ -32,6 +32,36 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_usage: {
+        Row: {
+          created_at: string
+          id: string
+          image_count: number
+          month: string
+          text_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_count?: number
+          month: string
+          text_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_count?: number
+          month?: string
+          text_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       allowed_emails: {
         Row: {
           added_by: string | null
@@ -77,16 +107,73 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          eduzz_subscription_id: string | null
+          eduzz_transaction_id: string | null
+          expires_at: string | null
+          id: string
+          plan: Database["public"]["Enums"]["plan_type"]
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          eduzz_subscription_id?: string | null
+          eduzz_transaction_id?: string | null
+          expires_at?: string | null
+          id?: string
+          plan?: Database["public"]["Enums"]["plan_type"]
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          eduzz_subscription_id?: string | null
+          eduzz_transaction_id?: string | null
+          expires_at?: string | null
+          id?: string
+          plan?: Database["public"]["Enums"]["plan_type"]
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      check_ai_quota: {
+        Args: { _type: string; _user_id: string }
+        Returns: Json
+      }
+      get_plan_limits: {
+        Args: { _plan: Database["public"]["Enums"]["plan_type"] }
+        Returns: {
+          image_limit: number
+          text_limit: number
+        }[]
+      }
+      increment_ai_usage: {
+        Args: { _type: string; _user_id: string }
+        Returns: undefined
+      }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_email_allowed: { Args: { _email: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      plan_type: "basico" | "pro"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -213,6 +300,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      plan_type: ["basico", "pro"],
+    },
   },
 } as const

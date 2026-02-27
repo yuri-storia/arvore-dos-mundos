@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { STYLE_OPTIONS, IMAGE_TYPE_OPTIONS, TONE_OPTIONS, FRUITS, GalleryImage } from '@/lib/data';
-import { canUseAI, incrementUsage, callGPT, callDALLE, getDailyUsage } from '@/lib/helpers';
+import { callAIText, callAIImage } from '@/lib/helpers';
+import { useSubscription } from '@/hooks/useSubscription';
 import type { AppState } from '@/lib/data';
 
 interface Props {
@@ -10,7 +11,8 @@ interface Props {
 }
 
 export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, addToGallery }) => {
-  const { apiKey, worldName, db, generatedPrompt } = state;
+  const { worldName, db, generatedPrompt } = state;
+  const sub = useSubscription();
   const [desc, setDesc] = useState('');
   const [style, setStyle] = useState(STYLE_OPTIONS[0]);
   const [imgType, setImgType] = useState(IMAGE_TYPE_OPTIONS[0]);
@@ -21,10 +23,9 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   const [generatedImage, setGeneratedImage] = useState('');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
-  const [refreshKey, setRefreshKey] = useState(0);
 
-  const usage = getDailyUsage();
-  const imgsLeft = 3 - usage.img;
+  const imgsLeft = sub.imageLimit - sub.imageUsed;
+  const textsLeft = sub.textLimit - sub.textUsed;
 
   const buildContext = () => {
     const parts: string[] = [];
@@ -39,22 +40,19 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   };
 
   const handleCreatePrompt = async () => {
-    if (!apiKey.startsWith('sk-')) { setError('Configure sua chave OpenAI acima.'); return; }
-    if (!canUseAI('text')) { setError('Limite diário de textos atingido.'); return; }
+    if (!sub.plan) { setError('Você precisa de um plano ativo para usar a IA.'); return; }
     if (!desc.trim()) { setError('Descreva a imagem desejada.'); return; }
     setError('');
     setLoading1(true);
     try {
       const ctx = buildContext();
-      const systemPrompt = 'You are an expert at writing image generation prompts for DALL-E 3 and Midjourney. Respond ONLY with the prompt in English. Be specific about visual details, lighting, composition, and artistic style.';
+      const systemPrompt = 'You are an expert at writing image generation prompts. Respond ONLY with the prompt in English. Be specific about visual details, lighting, composition, and artistic style.';
       const userMsg = `World context:\n${ctx}\n\nDescription: ${desc}\nVisual style: ${style}\nImage type: ${imgType}\nTone/Lighting: ${tone}\n${extras ? `Extra details: ${extras}` : ''}`;
-      const result = await callGPT(apiKey, [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMsg },
-      ]);
-      incrementUsage('text');
+      const result = await callAIText(
+        [{ role: 'user', content: userMsg }],
+        systemPrompt
+      );
       setGeneratedPrompt(result);
-      setRefreshKey(k => k + 1);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -63,16 +61,13 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   };
 
   const handleGenerate = async () => {
-    if (!apiKey.startsWith('sk-')) { setError('Configure sua chave OpenAI acima.'); return; }
-    if (!canUseAI('img')) { setError('Limite diário de imagens atingido (3/dia).'); return; }
+    if (!sub.plan) { setError('Você precisa de um plano ativo para gerar imagens.'); return; }
     if (!generatedPrompt) return;
     setError('');
     setLoading2(true);
     try {
-      const url = await callDALLE(apiKey, generatedPrompt);
-      incrementUsage('img');
+      const url = await callAIImage(generatedPrompt);
       setGeneratedImage(url);
-      setRefreshKey(k => k + 1);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -100,18 +95,26 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
     <div className="animate-fadeUp mx-auto max-w-[1060px] px-4 py-6">
       <h1 className="font-cinzel font-bold text-2xl text-foreground mb-1">✨ Gerar Imagens</h1>
       <p className="font-merriweather italic text-text-dim text-sm mb-5">
-        GPT-4o mini cria o prompt perfeito · DALL-E 3 gera a imagem · Uma só chave OpenAI
+        IA cria o prompt perfeito · Gera a imagem · Tudo incluso no seu plano
       </p>
 
-      {/* Limit box */}
+      {/* Plan/usage info */}
       <div className="card-glass rounded-lg p-3 mb-5 border-l-[3px] border-l-blue-bright">
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <span className="text-sm text-foreground font-montserrat">
-            <strong>{imgsLeft}</strong> imagens restantes hoje
-          </span>
-          <span className="text-xs text-text-dim font-merriweather italic">
-            Você também pode copiar o prompt e usar no Midjourney, Leonardo AI ou Bing Image Creator.
-          </span>
+          {sub.plan ? (
+            <>
+              <span className="text-sm text-foreground font-montserrat">
+                Plano <strong className="uppercase">{sub.plan}</strong> · <strong>{imgsLeft}</strong> imagens restantes · <strong>{textsLeft}</strong> textos restantes
+              </span>
+              <span className="text-xs text-text-dim font-merriweather italic">
+                Você também pode copiar o prompt e usar no Midjourney, Leonardo AI ou Bing Image Creator.
+              </span>
+            </>
+          ) : (
+            <span className="text-sm text-gold-light font-montserrat">
+              ⚠️ Você precisa de um plano ativo para usar a geração de imagens.
+            </span>
+          )}
         </div>
       </div>
 
@@ -166,33 +169,29 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
         <div className="flex flex-wrap items-center gap-3 mt-5">
           <button
             onClick={handleCreatePrompt}
-            disabled={loading1}
+            disabled={loading1 || !sub.plan}
             className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-blue-bright text-blue-bright hover:bg-blue-main/20 disabled:opacity-40 transition-all"
           >
-            {loading1 ? '⏳ Criando…' : '✦ 1. Criar Prompt com GPT'}
+            {loading1 ? '⏳ Criando…' : '✦ 1. Criar Prompt com IA'}
           </button>
           <button
             onClick={handleGenerate}
-            disabled={loading2 || !generatedPrompt}
+            disabled={loading2 || !generatedPrompt || !sub.plan}
             className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-all"
           >
-            {loading2 ? '⏳ Gerando…' : '🎨 2. Gerar com DALL-E 3'}
+            {loading2 ? '⏳ Gerando…' : '🎨 2. Gerar Imagem'}
           </button>
-          <span className="text-[11px] text-text-dim font-merriweather italic">
-            GPT-4o mini (texto) · DALL-E 3 (imagem)
-          </span>
         </div>
 
         {error && <p className="text-red-alert text-sm mt-3">{error}</p>}
 
-        {/* Loading dots */}
         {(loading1 || loading2) && (
           <div className="flex items-center gap-1 mt-4 text-text-dim text-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce" />
             <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce-2" />
             <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce-3" />
             <span className="ml-2 font-merriweather italic text-xs">
-              {loading1 ? 'Criando prompt com GPT-4o mini…' : 'Gerando imagem com DALL-E 3…'}
+              {loading1 ? 'Criando prompt…' : 'Gerando imagem…'}
             </span>
           </div>
         )}
@@ -201,7 +200,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
       {/* Generated prompt */}
       {generatedPrompt && !loading1 && (
         <div className="animate-fadeUp card-glass rounded-lg p-5 mb-5">
-          <span className="font-cinzel text-[10px] text-blue-light block mb-2">✦ Prompt criado pelo GPT-4o mini</span>
+          <span className="font-cinzel text-[10px] text-blue-light block mb-2">✦ Prompt criado pela IA</span>
           <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed mb-4">{generatedPrompt}</p>
           <div className="flex flex-wrap gap-2">
             <button onClick={copyPrompt} className="px-3 py-1.5 rounded-md text-xs font-montserrat border border-blue-bright/30 text-text-secondary hover:text-foreground transition-colors">
@@ -212,7 +211,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
               disabled={loading2}
               className="px-3 py-1.5 rounded-md text-xs font-montserrat bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-colors"
             >
-              🎨 Gerar com DALL-E 3
+              🎨 Gerar Imagem
             </button>
           </div>
         </div>

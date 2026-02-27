@@ -1,1 +1,13 @@
 project_id = "jrioksaacinogvknvkpu"
+
+[functions.check-access]
+verify_jwt = false
+
+[functions.ai-text]
+verify_jwt = false
+
+[functions.ai-image]
+verify_jwt = false
+
+[functions.eduzz-webhook]
+verify_jwt = false

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FRUITS, getOrderedFruits, METHOD_DESCRIPTIONS, MethodType, GalleryImage } from '@/lib/data';
-import { getFruitProgress, canUseAI, incrementUsage, callGPT, exportWorldMarkdown } from '@/lib/helpers';
+import { getFruitProgress, callAIText, exportWorldMarkdown } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
 import { FruitGuideBlock } from '@/components/FruitGuideBlock';
 import { ImageLightbox } from '@/components/ImageLightbox';
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFruit, setMethod }) => {
-  const { db, currentFruit, method, apiKey, worldName } = state;
+  const { db, currentFruit, method, worldName } = state;
   const [aiQuestion, setAiQuestion] = useState('');
   const [aiResponse, setAiResponse] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
@@ -36,14 +36,6 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   const currentOrderIndex = orderedFruits.findIndex(f => f.id === currentFruit);
 
   const handleConsult = async () => {
-    if (!apiKey.startsWith('sk-')) {
-      setAiResponse('❌ Configure sua chave OpenAI acima (deve começar com sk-).');
-      return;
-    }
-    if (!canUseAI('text')) {
-      setAiResponse('⚠️ Limite diário de textos atingido (15/dia). Tente novamente amanhã.');
-      return;
-    }
     setAiLoading(true);
     setAiResponse('');
     try {
@@ -51,29 +43,20 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       const context = fruit.fields.map(f => `${f.label}: ${fruitData[f.id] || '(vazio)'}`).join('\n');
       const systemPrompt = `Você é um especialista em worldbuilding criativo, metodologia 'A Árvore dos Mundos' do Universo STORIA. Mundo: '${worldName || 'Sem nome'}'. Fruto atual: ${fruit.num} — ${fruit.name}. Metodologia: ${method === 'top-down' ? 'Cima para Baixo' : 'Baixo para Cima'}. Responda em português brasileiro. Seja específico, criativo e direto.`;
       const userMsg = `Contexto atual do Fruto:\n${context}\n\nPergunta: ${aiQuestion}`;
-      const response = await callGPT(apiKey, [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMsg },
-      ]);
-      incrementUsage('text');
+      const response = await callAIText(
+        [{ role: 'user', content: userMsg }],
+        systemPrompt
+      );
       setAiResponse(response);
       setRefreshKey(k => k + 1);
     } catch (e: any) {
-      setAiResponse(`❌ Erro: ${e.message}`);
+      setAiResponse(`❌ ${e.message}`);
     } finally {
       setAiLoading(false);
     }
   };
 
   const handleFieldAiHelp = async (fieldLabel: string) => {
-    if (!apiKey.startsWith('sk-')) {
-      setAiHelpResponse('❌ Configure sua chave OpenAI acima (deve começar com sk-).');
-      return;
-    }
-    if (!canUseAI('text')) {
-      setAiHelpResponse('⚠️ Limite diário de textos atingido (15/dia). Tente novamente amanhã.');
-      return;
-    }
     setAiHelpLoading(true);
     setAiHelpResponse('');
     try {
@@ -83,15 +66,14 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       const userMsg = aiHelpQuestion.trim()
         ? `Contexto do Fruto:\n${context}\n\nCampo: ${fieldLabel}\nPergunta: ${aiHelpQuestion}`
         : `Contexto do Fruto:\n${context}\n\nMe ajude a preencher o campo "${fieldLabel}" com sugestões criativas e detalhadas.`;
-      const response = await callGPT(apiKey, [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMsg },
-      ]);
-      incrementUsage('text');
+      const response = await callAIText(
+        [{ role: 'user', content: userMsg }],
+        systemPrompt
+      );
       setAiHelpResponse(response);
       setRefreshKey(k => k + 1);
     } catch (e: any) {
-      setAiHelpResponse(`❌ Erro: ${e.message}`);
+      setAiHelpResponse(`❌ ${e.message}`);
     } finally {
       setAiHelpLoading(false);
     }
@@ -185,7 +167,6 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                   : 'border border-transparent hover:border-blue-bright/30'
               }`}
             >
-              {/* Cover image or gradient fallback */}
               {coverImage ? (
                 <img
                   src={coverImage}
@@ -198,13 +179,10 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               {!coverImage && (
                 <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-30">{f.icon}</div>
               )}
-              {/* Dark overlay bottom */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              {/* Step number badge */}
               <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/50 text-[9px] text-blue-light font-montserrat font-bold">
                 {idx + 1}º
               </div>
-              {/* Content */}
               <div className="absolute bottom-0 left-0 right-0 p-2">
                 <span className="font-cinzel text-[9px] sm:text-[10px] text-blue-light block">{f.num}</span>
                 <span className="font-montserrat font-bold text-[10px] sm:text-[11px] text-foreground uppercase leading-tight block">{f.name}</span>
@@ -212,11 +190,9 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                   <span className="text-[9px] sm:text-[10px] text-gold-light">{fp.filled}/{fp.total} campos</span>
                 )}
               </div>
-              {/* Complete badge */}
               {isComplete && (
                 <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center text-[10px] text-white">✓</div>
               )}
-              {/* Active border bottom */}
               <div className={`absolute bottom-0 left-0 right-0 h-[2px] bg-blue-bright transition-transform origin-left ${isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
             </button>
           );
@@ -239,15 +215,13 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
           </div>
 
           <div className="p-4 sm:p-5 md:p-7">
-            {/* Header */}
             <span className="font-cinzel text-xs text-blue-light">✦ {fruit.num}</span>
             <h2 className="font-cinzel font-bold text-xl sm:text-2xl text-foreground mt-1 mb-1">{fruit.name}</h2>
             <p className="font-merriweather italic text-text-dim text-sm mb-6">{fruit.desc}</p>
 
-            {/* Guide block */}
             <FruitGuideBlock guide={fruit.guide} />
 
-            {/* Gallery images linked to this fruit */}
+            {/* Gallery images */}
             {(() => {
               const fruitTag = `Fruto: ${fruit.name}`;
               const fruitImages = state.gallery.filter(img => img.cat === fruitTag);
@@ -362,7 +336,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
             <div className="border-t border-blue-bright/15 pt-6">
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-2 h-2 rounded-full bg-blue-bright animate-blink" />
-                <span className="font-montserrat font-bold text-xs text-foreground">GPT-4o mini — Assistente de Worldbuilding</span>
+                <span className="font-montserrat font-bold text-xs text-foreground">Assistente de Worldbuilding</span>
               </div>
 
               {/* Chips */}
@@ -401,20 +375,18 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 </button>
               </div>
 
-              {/* Loading */}
               {aiLoading && (
                 <div className="flex items-center gap-1 text-text-dim text-sm mb-4">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce" />
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce-2" />
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce-3" />
-                  <span className="ml-2 font-merriweather italic text-xs">Consultando GPT-4o mini…</span>
+                  <span className="ml-2 font-merriweather italic text-xs">Consultando IA…</span>
                 </div>
               )}
 
-              {/* Response */}
               {aiResponse && !aiLoading && (
                 <div className="animate-fadeUp border-l-[3px] border-blue-bright pl-4 py-3 bg-blue-bright/5 rounded-r-md">
-                  <span className="font-cinzel text-[10px] text-blue-light block mb-2">✦ Resposta do GPT-4o mini</span>
+                  <span className="font-cinzel text-[10px] text-blue-light block mb-2">✦ Resposta da IA</span>
                   <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed">{aiResponse}</p>
                 </div>
               )}
@@ -449,7 +421,6 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
         </div>
       )}
 
-      {/* Lightbox */}
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
     </div>
   );
