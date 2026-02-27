@@ -78,7 +78,7 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
           {entries.length > 0 && (
             <button
               onClick={() => { setShowExport(!showExport); setExportSelectedFruitIds([]); }}
-              className="px-3 py-2 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+              className="px-3 py-2 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:via-teal-300 hover:to-cyan-400 text-white rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_16px_rgba(16,185,129,0.4)] hover:shadow-[0_0_24px_rgba(16,185,129,0.6)] animate-pulse"
             >
               📄 Exportar PDF
             </button>
@@ -95,8 +95,8 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
 
       {/* Export panel */}
       {showExport && (
-        <div className="card-glass rounded-lg p-4 mb-5 animate-fadeUp">
-          <h3 className="font-cinzel font-bold text-sm text-blue-light mb-3">📄 Exportar Fichas em PDF</h3>
+        <div className="rounded-lg p-4 mb-5 animate-fadeUp border border-emerald-500/20" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(6,182,212,0.12) 50%, rgba(59,130,246,0.12) 100%)', backdropFilter: 'blur(20px)' }}>
+          <h3 className="font-cinzel font-bold text-sm mb-3 bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">📄 Exportar Fichas em PDF</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
             <button
               onClick={() => { exportAllEntries(entries); setShowExport(false); }}
