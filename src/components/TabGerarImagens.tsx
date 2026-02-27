@@ -112,7 +112,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
           {sub.active ? (
             <>
               <span className="text-sm text-foreground font-montserrat">
-                <strong className="text-amber-400">{creditsLeft}</strong> créditos restantes · Imagem custa <strong>5</strong> créditos · Texto custa <strong>1</strong>
+                <strong className="text-amber-400">{creditsLeft}</strong> créditos restantes
               </span>
               <span className="text-xs text-text-dim font-merriweather italic">
                 Você também pode copiar o prompt e usar no Midjourney, Leonardo AI ou Bing Image Creator.
