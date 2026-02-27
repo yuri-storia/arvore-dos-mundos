@@ -51,6 +51,37 @@ export const OnboardingBanner: React.FC = () => {
               </div>
             ))}
           </div>
+
+          {/* API Key highlight */}
+          <div className="mt-5 rounded-lg p-4 border border-blue-bright/30 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, hsl(211 76% 42% / 0.2) 0%, hsl(214 60% 8% / 0.85) 100%)' }}>
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-blue-bright/60 to-transparent" />
+            <div className="flex gap-3 items-start">
+              <span className="text-xl shrink-0 mt-0.5">🔑</span>
+              <div>
+                <h3 className="font-montserrat font-bold text-sm text-blue-light">
+                  Como adicionar sua Chave OpenAI
+                </h3>
+                <p className="font-merriweather text-text-secondary text-xs leading-relaxed mt-1">
+                  Para usar a IA (sugestões de texto e geração de imagens), você precisa de uma chave da OpenAI.
+                </p>
+                <ol className="mt-2 space-y-1.5 text-xs font-merriweather text-text-secondary leading-relaxed list-decimal list-inside">
+                  <li>
+                    Acesse{' '}
+                    <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" className="text-blue-light hover:underline font-montserrat font-semibold">
+                      platform.openai.com/api-keys
+                    </a>
+                    {' '}e faça login (ou crie uma conta gratuita).
+                  </li>
+                  <li>Clique em <span className="font-montserrat font-semibold text-foreground">"Create new secret key"</span> e copie a chave gerada (começa com <code className="text-blue-light bg-blue-bright/10 px-1 rounded">sk-…</code>).</li>
+                  <li>Cole a chave no campo <span className="font-montserrat font-semibold text-gold-light">"🔑 Chave OpenAI"</span> no rodapé desta página.</li>
+                  <li>Pronto! A chave fica salva no seu navegador e funciona em todos os seus mundos.</li>
+                </ol>
+                <p className="mt-2 text-[11px] text-text-dim font-merriweather italic">
+                  💡 Sua chave nunca é enviada a servidores externos — ela é usada apenas localmente no seu navegador.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

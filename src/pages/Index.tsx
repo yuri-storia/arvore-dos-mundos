@@ -10,9 +10,16 @@ import { TabConstruir } from '@/components/TabConstruir';
 import { TabVisaoGeral } from '@/components/TabVisaoGeral';
 import { TabGaleria } from '@/components/TabGaleria';
 import { TabGerarImagens } from '@/components/TabGerarImagens';
-import { saveWorld, type WorldSave } from '@/lib/saves';
+import { saveWorld, loadSave, type WorldSave } from '@/lib/saves';
 import { toast } from 'sonner';
 import type { AppState, TabType, MethodType, GalleryImage } from '@/lib/data';
+
+const API_KEY_STORAGE = 'adm_openai_key';
+const LAST_WORLD_STORAGE = 'adm_last_world';
+
+const getStoredApiKey = () => {
+  try { return localStorage.getItem(API_KEY_STORAGE) || ''; } catch { return ''; }
+};
 
 const createNewState = (): AppState => ({
   worldName: '',
@@ -21,17 +28,33 @@ const createNewState = (): AppState => ({
   method: 'top-down',
   gallery: [],
   activeTab: 'construir',
-  apiKey: '',
+  apiKey: getStoredApiKey(),
   generatedPrompt: '',
   currentSaveId: '',
 });
 
 const Index = () => {
-  const [state, setState] = useState<AppState>(createNewState);
+  const [state, setState] = useState<AppState>(() => {
+    const base = createNewState();
+    // Restore last opened world
+    try {
+      const lastId = localStorage.getItem(LAST_WORLD_STORAGE);
+      if (lastId) {
+        const save = loadSave(lastId);
+        if (save) {
+          return { ...base, worldName: save.name, db: save.db, method: save.method, gallery: save.gallery, currentSaveId: save.id };
+        }
+      }
+    } catch {}
+    return base;
+  });
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const setActiveTab = useCallback((tab: TabType) => setState(s => ({ ...s, activeTab: tab })), []);
-  const setApiKey = useCallback((apiKey: string) => setState(s => ({ ...s, apiKey })), []);
+  const setApiKey = useCallback((apiKey: string) => {
+    try { localStorage.setItem(API_KEY_STORAGE, apiKey); } catch {}
+    setState(s => ({ ...s, apiKey }));
+  }, []);
   const setWorldName = useCallback((worldName: string) => setState(s => ({ ...s, worldName })), []);
   const setCurrentFruit = useCallback((currentFruit: number) => setState(s => ({ ...s, currentFruit })), []);
   const setMethod = useCallback((method: MethodType) => setState(s => ({ ...s, method })), []);
@@ -48,6 +71,14 @@ const Index = () => {
   const addToGallery = useCallback((img: GalleryImage) => {
     setState(s => ({ ...s, gallery: [...s.gallery, img] }));
   }, []);
+
+  // Track last opened world
+  useEffect(() => {
+    try {
+      if (state.currentSaveId) localStorage.setItem(LAST_WORLD_STORAGE, state.currentSaveId);
+      else localStorage.removeItem(LAST_WORLD_STORAGE);
+    } catch {}
+  }, [state.currentSaveId]);
 
   // Auto-save
   useEffect(() => {
