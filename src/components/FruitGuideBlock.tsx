@@ -35,23 +35,39 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide }) => {
           className="font-montserrat font-bold uppercase text-[0.6rem] tracking-[0.12em]"
           style={{ color: '#c8922a' }}
         >
-          📖 Orientação | Mínimo Mundo Viável + Estudo de Caso
+          📖 ORIENTAÇÃO PARA CRIAÇÃO & ESTUDO DE CASO
         </span>
       </button>
 
       {open && (
         <div className="animate-fadeUp px-4 pb-4">
-          {/* Mínimo Mundo Viável */}
+          {/* Orientação Geral */}
           <p
-            className="font-merriweather leading-[1.7]"
+            className="font-merriweather leading-[1.7] whitespace-pre-line"
             style={{ color: '#64b5f6', fontSize: '0.72rem' }}
           >
             {guide.min}
           </p>
 
+          {/* Estudo de Caso */}
+          <div className="my-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} />
+          <span
+            className="font-montserrat font-bold uppercase text-[0.58rem] tracking-[0.1em] block mb-2"
+            style={{ color: '#c8922a' }}
+          >
+            📖 Estudo de Caso
+          </span>
+          <p
+            className="font-merriweather italic leading-[1.7] whitespace-pre-line"
+            style={{ color: '#b0c8e4', fontSize: '0.72rem' }}
+          >
+            {guide.ref}
+          </p>
+
           {/* Passo a Passo */}
           {guide.steps && guide.steps.length > 0 && (
             <div className="mt-3">
+              <div className="my-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} />
               <span
                 className="font-montserrat font-bold uppercase text-[0.58rem] tracking-[0.1em] block mb-2"
                 style={{ color: '#c8922a' }}
@@ -78,17 +94,6 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide }) => {
               </ol>
             </div>
           )}
-
-          {/* Separator */}
-          <div className="my-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} />
-
-          {/* Estudo de Caso */}
-          <p
-            className="font-merriweather italic leading-[1.7] whitespace-pre-line"
-            style={{ color: '#b0c8e4', fontSize: '0.72rem' }}
-          >
-            {guide.ref}
-          </p>
 
           {/* Closing quote */}
           {guide.closing && (
