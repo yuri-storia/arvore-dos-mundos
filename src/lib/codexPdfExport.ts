@@ -55,13 +55,13 @@ function renderEntry(ctx: ReturnType<typeof createDoc>, entry: CodexEntry) {
   doc.line(MARGIN, y, MARGIN + 40, y);
   y += 5;
 
-  // Type badge
+  // Fruit badge
   doc.setFontSize(8);
   doc.setTextColor(...LABEL_COLOR);
   doc.setFont('helvetica', 'bold');
   const fruitInfo = entry.fruit_id !== null ? FRUITS.find(f => f.id === entry.fruit_id) : null;
-  const badge = [entry.entry_type.toUpperCase(), fruitInfo ? fruitInfo.name : ''].filter(Boolean).join(' · ');
-  doc.text(badge, MARGIN, y);
+  const badge = fruitInfo ? fruitInfo.name : '';
+  if (badge) doc.text(badge, MARGIN, y);
   y += 5;
 
   // Content

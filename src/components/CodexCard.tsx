@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { FRUITS, CODEX_ENTRY_TYPES, type GalleryImage } from '@/lib/data';
+import { FRUITS, type GalleryImage } from '@/lib/data';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { callAIImage } from '@/lib/helpers';
 import { exportSingleEntry } from '@/lib/codexPdfExport';
@@ -27,7 +27,6 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   const [generatingAi, setGeneratingAi] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const typeInfo = CODEX_ENTRY_TYPES.find(t => t.id === entry.entry_type);
   const fruitInfo = entry.fruit_id !== null ? FRUITS.find(f => f.id === entry.fruit_id) : null;
 
   const handleSave = async () => {
@@ -84,19 +83,16 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             <img src={entry.image_url} alt={entry.title} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-5xl opacity-20">{typeInfo?.icon || '📄'}</span>
+              <span className="text-5xl opacity-20">{fruitInfo?.icon || '📄'}</span>
             </div>
           )}
-          <div className="absolute top-2 left-2 flex gap-1">
-            <span className="px-1.5 py-0.5 rounded-full bg-primary/20 text-blue-light text-[9px] font-montserrat font-bold">
-              {typeInfo?.icon} {typeInfo?.label}
-            </span>
-            {fruitInfo && (
+          {fruitInfo && (
+            <div className="absolute top-2 left-2">
               <span className="px-1.5 py-0.5 rounded-full bg-accent/20 text-accent-foreground text-[9px] font-montserrat font-bold">
                 {fruitInfo.icon} {fruitInfo.name}
               </span>
-            )}
-          </div>
+            </div>
+          )}
         </div>
         <div className="p-3">
           <h3 className="font-cinzel font-bold text-sm text-foreground mb-1">{entry.title}</h3>
@@ -123,7 +119,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center min-h-[200px]">
-              <span className="text-6xl opacity-15">{typeInfo?.icon || '📄'}</span>
+              <span className="text-6xl opacity-15">{fruitInfo?.icon || '📄'}</span>
             </div>
           )}
           {/* Image action button */}
@@ -135,16 +131,13 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
           </button>
 
           {/* Badges */}
-          <div className="absolute top-2 left-2 flex gap-1">
-            <span className="px-1.5 py-0.5 rounded-full bg-primary/20 text-blue-light text-[9px] font-montserrat font-bold backdrop-blur-sm">
-              {typeInfo?.icon} {typeInfo?.label}
-            </span>
-            {fruitInfo && (
+          {fruitInfo && (
+            <div className="absolute top-2 left-2">
               <span className="px-1.5 py-0.5 rounded-full bg-accent/20 text-accent-foreground text-[9px] font-montserrat font-bold backdrop-blur-sm">
                 {fruitInfo.icon} {fruitInfo.name}
               </span>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Content section */}
