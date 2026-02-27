@@ -33,7 +33,18 @@ export interface GalleryImage {
 }
 
 export type MethodType = 'top-down' | 'bottom-up';
-export type TabType = 'construir' | 'visao-geral' | 'galeria' | 'gerar-imagens';
+export type TabType = 'construir' | 'codex' | 'galeria' | 'gerar-imagens';
+
+export const CODEX_ENTRY_TYPES = [
+  { id: 'personagem', label: 'Personagem', icon: '👤' },
+  { id: 'lugar', label: 'Lugar', icon: '🏰' },
+  { id: 'item', label: 'Item', icon: '⚔️' },
+  { id: 'criatura', label: 'Criatura', icon: '🐉' },
+  { id: 'evento', label: 'Evento', icon: '📜' },
+  { id: 'cultura', label: 'Cultura', icon: '🎭' },
+] as const;
+
+export type CodexEntryType = typeof CODEX_ENTRY_TYPES[number]['id'];
 
 export interface AppState {
   worldName: string;
