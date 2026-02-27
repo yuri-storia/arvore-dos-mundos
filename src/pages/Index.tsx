@@ -6,7 +6,7 @@ import { OnboardingBanner } from '@/components/OnboardingBanner';
 import { WorldNameInput } from '@/components/WorldNameInput';
 import { TabNav } from '@/components/TabNav';
 import { TabConstruir } from '@/components/TabConstruir';
-import { TabVisaoGeral } from '@/components/TabVisaoGeral';
+import { TabCodex } from '@/components/TabCodex';
 import { TabGaleria } from '@/components/TabGaleria';
 import { TabGerarImagens } from '@/components/TabGerarImagens';
 import { saveWorld, loadSave, type WorldSave } from '@/lib/saves';
@@ -125,7 +125,7 @@ const Index = () => {
 
         <main>
           {state.activeTab === 'construir' && <TabConstruir state={state} updateField={updateField} setCurrentFruit={setCurrentFruit} setMethod={setMethod} />}
-          {state.activeTab === 'visao-geral' && <TabVisaoGeral state={state} setActiveTab={setActiveTab} setCurrentFruit={setCurrentFruit} />}
+          {state.activeTab === 'codex' && <TabCodex />}
           {state.activeTab === 'galeria' && <TabGaleria gallery={state.gallery} setGallery={setGallery} />}
           {state.activeTab === 'gerar-imagens' && <TabGerarImagens state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />}
         </main>

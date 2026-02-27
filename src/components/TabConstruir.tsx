@@ -4,6 +4,7 @@ import { getFruitProgress, callAIText, exportWorldMarkdown } from '@/lib/helpers
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
 import { FruitGuideBlock } from '@/components/FruitGuideBlock';
 import { ImageLightbox } from '@/components/ImageLightbox';
+import { CreateFichaButton } from '@/components/CreateFichaButton';
 import type { AppState } from '@/lib/data';
 
 interface Props {
@@ -328,6 +329,11 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                       )}
                     </div>
                   )}
+                  <CreateFichaButton
+                    fieldValue={db[currentFruit]?.[field.id] || ''}
+                    fieldLabel={field.label}
+                    fruitId={currentFruit}
+                  />
                 </div>
               ))}
             </div>
