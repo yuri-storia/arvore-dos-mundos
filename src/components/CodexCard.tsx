@@ -20,6 +20,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(entry.title);
   const [content, setContent] = useState(entry.content);
+  const [editFruit, setEditFruit] = useState<number | null>(entry.fruit_id);
   const [uploading, setUploading] = useState(false);
   const [showImageMenu, setShowImageMenu] = useState(false);
   const [showGalleryPicker, setShowGalleryPicker] = useState(false);
@@ -30,7 +31,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   const fruitInfo = entry.fruit_id !== null ? FRUITS.find(f => f.id === entry.fruit_id) : null;
 
   const handleSave = async () => {
-    await onUpdate(entry.id, { title, content });
+    await onUpdate(entry.id, { title, content, fruit_id: editFruit });
     setEditing(false);
   };
 
@@ -162,13 +163,27 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
           </div>
 
           {editing ? (
-            <textarea
-              value={content}
-              onChange={e => setContent(e.target.value)}
-              rows={8}
-              className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather mb-3 focus:outline-none focus:border-ring/50 resize-y"
-              onClick={e => e.stopPropagation()}
-            />
+            <>
+              <div className="mb-3">
+                <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Fruto</label>
+                <select
+                  value={editFruit ?? ''}
+                  onChange={e => setEditFruit(e.target.value ? Number(e.target.value) : null)}
+                  onClick={e => e.stopPropagation()}
+                  className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-1.5 text-sm text-foreground font-merriweather focus:outline-none focus:border-ring/50"
+                >
+                  <option value="">Nenhum</option>
+                  {FRUITS.map(f => <option key={f.id} value={f.id}>{f.icon} {f.name}</option>)}
+                </select>
+              </div>
+              <textarea
+                value={content}
+                onChange={e => setContent(e.target.value)}
+                rows={8}
+                className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather mb-3 focus:outline-none focus:border-ring/50 resize-y"
+                onClick={e => e.stopPropagation()}
+              />
+            </>
           ) : (
             <div className="mb-4 max-h-[400px] overflow-y-auto">
               {entry.content ? (
@@ -186,7 +201,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 <button onClick={handleSave} className="px-4 py-1.5 bg-primary hover:bg-ring text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
                   Salvar
                 </button>
-                <button onClick={() => { setEditing(false); setTitle(entry.title); setContent(entry.content); }} className="px-4 py-1.5 bg-secondary text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
+                <button onClick={() => { setEditing(false); setTitle(entry.title); setContent(entry.content); setEditFruit(entry.fruit_id); }} className="px-4 py-1.5 bg-secondary text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
                   Cancelar
                 </button>
               </>
