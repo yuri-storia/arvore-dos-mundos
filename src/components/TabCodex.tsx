@@ -5,7 +5,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { CodexCard } from '@/components/CodexCard';
 
-const TYPE_ALL = 'all';
 const FRUIT_ALL = -1;
 
 interface Props {
@@ -15,7 +14,7 @@ interface Props {
 export const TabCodex: React.FC<Props> = ({ gallery }) => {
   const { user } = useAuth();
   const { entries, loading, createEntry, updateEntry, deleteEntry, uploadImage } = useCodexEntries();
-  const [filterType, setFilterType] = useState(TYPE_ALL);
+  
   const [filterFruit, setFilterFruit] = useState(FRUIT_ALL);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -39,7 +38,6 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
   }
 
   const filtered = entries.filter(e => {
-    if (filterType !== TYPE_ALL && e.entry_type !== filterType) return false;
     if (filterFruit !== FRUIT_ALL && e.fruit_id !== filterFruit) return false;
     return true;
   });
@@ -82,20 +80,10 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
       </div>
       <p className="font-merriweather italic text-text-dim text-sm mb-5">Suas fichas de personagens, lugares, itens e mais</p>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-1.5 mb-4">
-        <button onClick={() => setFilterType(TYPE_ALL)} className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${filterType === TYPE_ALL ? 'bg-primary/20 text-blue-light border border-ring/40' : 'text-text-dim border border-transparent hover:border-ring/20'}`}>
-          Todos
-        </button>
-        {CODEX_ENTRY_TYPES.map(t => (
-          <button key={t.id} onClick={() => setFilterType(t.id)} className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${filterType === t.id ? 'bg-primary/20 text-blue-light border border-ring/40' : 'text-text-dim border border-transparent hover:border-ring/20'}`}>
-            {t.icon} {t.label}
-          </button>
-        ))}
-      </div>
+      {/* Filters by fruit */}
       <div className="flex flex-wrap gap-1.5 mb-6">
         <button onClick={() => setFilterFruit(FRUIT_ALL)} className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${filterFruit === FRUIT_ALL ? 'bg-accent/20 text-accent-foreground border border-accent/40' : 'text-text-dim border border-transparent hover:border-accent/20'}`}>
-          Todos Frutos
+          Todos
         </button>
         {FRUITS.map(f => (
           <button key={f.id} onClick={() => setFilterFruit(f.id)} className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${filterFruit === f.id ? 'bg-accent/20 text-accent-foreground border border-accent/40' : 'text-text-dim border border-transparent hover:border-accent/20'}`}>
