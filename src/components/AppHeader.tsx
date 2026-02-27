@@ -76,8 +76,7 @@ export const AppHeader: React.FC = () => (
           alt=""
           className="w-full h-full object-cover object-[center_25%] md:object-[center_35%] opacity-75"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent from-20% via-[#02060c]/50 via-60% to-[#02060c]" />
-        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-b from-transparent to-[#02060c]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent from-40% to-[#02060c]/80" />
       </div>
       <Particles />
     </div>
@@ -111,10 +110,10 @@ export const AppHeader: React.FC = () => (
     </div>
 
     {/* Glowing blue divider at end of header — z-[1] so it never covers the UserMenu dropdown */}
-    <div className="absolute bottom-0 left-0 right-0 z-[30] h-[1px]">
-      <div className="w-full h-full bg-gradient-to-r from-transparent via-blue-bright to-transparent opacity-60" />
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-bright to-transparent blur-[4px] opacity-40" />
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-bright to-transparent blur-[10px] opacity-20" />
+    <div className="absolute bottom-0 left-0 right-0 z-[30] h-[2px]">
+      <div className="w-full h-full bg-gradient-to-r from-transparent via-blue-bright to-transparent opacity-80" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-bright to-transparent blur-[6px] opacity-50" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-bright to-transparent blur-[14px] opacity-30" />
     </div>
   </header>
 );
