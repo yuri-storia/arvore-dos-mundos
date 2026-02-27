@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FRUITS, getOrderedFruits, METHOD_DESCRIPTIONS, MethodType, GalleryImage } from '@/lib/data';
 import { getFruitProgress, callAIText, exportWorldMarkdown } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
+import { FRUIT_BANNER_IMAGES } from '@/assets/fruitBannerImages';
 import { FruitGuideBlock } from '@/components/FruitGuideBlock';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { CreateFichaButton } from '@/components/CreateFichaButton';
