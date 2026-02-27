@@ -83,7 +83,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
-      <div className="fixed inset-0 pointer-events-none z-0" style={{ background: 'radial-gradient(ellipse 100% 80% at 50% 0%, rgba(4,8,15,0.2) 0%, rgba(4,8,15,0.75) 60%, rgba(4,8,15,0.97) 100%)' }} />
+      <div className="fixed inset-0 pointer-events-none z-0" style={{ background: '#02060c' }} />
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute top-[300px] left-1/2 -translate-x-1/2 w-[140%] h-[600px]" style={{ background: 'radial-gradient(ellipse 80% 100% at 50% 0%, rgba(43,74,108,0.12) 0%, rgba(4,12,17,0.08) 60%, transparent 100%)', filter: 'blur(80px)' }} />
       </div>
