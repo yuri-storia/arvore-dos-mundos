@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const STEPS = [
-  { icon: '✦', title: 'Dê um nome ao seu mundo', desc: 'Comece pelo campo acima e clique em "Criar Mundo" — esse é o coração da sua criação.' },
+  { icon: '✦', title: 'Crie sua conta e faça login', desc: 'Para salvar seu progresso, fichas e imagens, entre com seu e-mail. Tudo fica salvo na nuvem automaticamente.' },
+  { icon: '🌳', title: 'Dê um nome ao seu mundo', desc: 'Comece pelo campo acima e clique em "Criar Mundo" — esse é o ponto de partida da sua criação.' },
   { icon: '🧭', title: 'Escolha seu método de criação', desc: 'Cima para Baixo: comece pela visão geral do mundo e desça aos detalhes. Baixo para Cima: comece pelos personagens e construa o mundo ao redor deles.' },
-  { icon: '🌿', title: 'Escolha um Fruto para começar', desc: 'Você não precisa ir em ordem. Comece pelo pilar que mais te destrava: Mapa, Cultura, Magia, Personagens…' },
-  { icon: '✍️', title: 'Preencha os campos e peça sugestões à IA', desc: 'Use os chips de sugestão ou escreva livremente. A IA vai expandir suas ideias.' },
-  { icon: '🖼️', title: 'Gere imagens e monte sua galeria', desc: 'Crie referências visuais para seu mundo na aba "Gerar Imagens" e organize na "Galeria".' },
-  { icon: '💾', title: 'Tudo é salvo automaticamente', desc: 'Após criar seu mundo, todas as alterações são salvas automaticamente. Crie quantos mundos quiser e alterne entre eles.' },
+  { icon: '🌿', title: 'Explore os 11 Frutos', desc: 'Cada Fruto representa um pilar do worldbuilding (Mapa, Cultura, Magia, Personagens…). Não precisa ir em ordem — comece pelo que mais te inspira!' },
+  { icon: '✍️', title: 'Preencha os campos e peça ajuda à IA', desc: 'Use o botão 💡 Modo Ajuda AI para receber sugestões contextualizadas. A IA já está integrada — basta ter um plano ativo.' },
+  { icon: '📖', title: 'Salve fichas no Codex', desc: 'Use o botão "Salvar Informação" nos campos para criar fichas organizadas por Fruto. Exporte fichas individuais ou em lote como PDF.' },
+  { icon: '🖼️', title: 'Gere imagens e monte sua galeria', desc: 'Na aba "Gerar Imagens", crie referências visuais com IA. Ao salvar, escolha em qual Fruto a imagem será organizada na Galeria.' },
+  { icon: '💾', title: 'Tudo salva automaticamente', desc: 'Após criar seu mundo, cada alteração é salva na nuvem. Crie quantos mundos quiser e alterne entre eles nas configurações.' },
 ];
 
 export const OnboardingBanner: React.FC = () => {
@@ -52,32 +54,20 @@ export const OnboardingBanner: React.FC = () => {
             ))}
           </div>
 
-          {/* API Key highlight */}
-          <div className="mt-5 rounded-lg p-4 border border-blue-bright/30 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, hsl(211 76% 42% / 0.2) 0%, hsl(214 60% 8% / 0.85) 100%)' }}>
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-blue-bright/60 to-transparent" />
+          {/* Subscription info */}
+          <div className="mt-5 rounded-lg p-4 border border-amber-500/30 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(180,130,20,0.15) 0%, rgba(218,165,32,0.08) 100%)' }}>
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
             <div className="flex gap-3 items-start">
-              <span className="text-xl shrink-0 mt-0.5">🔑</span>
+              <span className="text-xl shrink-0 mt-0.5">👑</span>
               <div>
-                <h3 className="font-montserrat font-bold text-sm text-blue-light">
-                  Como adicionar sua Chave OpenAI
+                <h3 className="font-montserrat font-bold text-sm text-gold-light">
+                  Sobre os Planos
                 </h3>
                 <p className="font-merriweather text-text-secondary text-xs leading-relaxed mt-1">
-                  Para usar a IA (sugestões de texto e geração de imagens), você precisa de uma chave da OpenAI.
+                  A IA de texto e imagens funciona com base no seu plano ativo (<strong className="text-gold-light">Básico</strong> ou <strong className="text-gold-light">Pro</strong>). Cada plano tem uma cota mensal de gerações.
                 </p>
-                <ol className="mt-2 space-y-1.5 text-xs font-merriweather text-text-secondary leading-relaxed list-decimal list-inside">
-                  <li>
-                    Acesse{' '}
-                    <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" className="text-blue-light hover:underline font-montserrat font-semibold">
-                      platform.openai.com/api-keys
-                    </a>
-                    {' '}e faça login (ou crie uma conta gratuita).
-                  </li>
-                  <li>Clique em <span className="font-montserrat font-semibold text-foreground">"Create new secret key"</span> e copie a chave gerada (começa com <code className="text-blue-light bg-blue-bright/10 px-1 rounded">sk-…</code>).</li>
-                  <li>Cole a chave no campo <span className="font-montserrat font-semibold text-gold-light">"🔑 Chave OpenAI"</span> no rodapé desta página.</li>
-                  <li>Pronto! A chave fica salva no seu navegador e funciona em todos os seus mundos.</li>
-                </ol>
                 <p className="mt-2 text-[11px] text-text-dim font-merriweather italic">
-                  💡 Sua chave nunca é enviada a servidores externos — ela é usada apenas localmente no seu navegador.
+                  💡 Você pode acompanhar seu uso restante no topo da página, no banner dourado do plano.
                 </p>
               </div>
             </div>
