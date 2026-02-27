@@ -3,37 +3,28 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 export interface SubscriptionInfo {
-  plan: 'basico' | 'pro' | null;
-  status: string | null;
-  textUsed: number;
-  textLimit: number;
-  imageUsed: number;
-  imageLimit: number;
+  active: boolean;
+  creditsUsed: number;
+  creditLimit: number;
   loading: boolean;
 }
 
-const PLAN_LIMITS = {
-  basico: { text: 50, image: 10 },
-  pro: { text: 200, image: 40 },
-};
+const CREDIT_LIMIT = 100;
+const IMAGE_CREDIT_COST = 5;
 
 export function useSubscription(): SubscriptionInfo {
   const { user } = useAuth();
   const [info, setInfo] = useState<SubscriptionInfo>({
-    plan: null, status: null,
-    textUsed: 0, textLimit: 0,
-    imageUsed: 0, imageLimit: 0,
-    loading: true,
+    active: false, creditsUsed: 0, creditLimit: CREDIT_LIMIT, loading: true,
   });
 
   useEffect(() => {
     if (!user) {
-      setInfo(prev => ({ ...prev, plan: null, status: null, loading: false }));
+      setInfo({ active: false, creditsUsed: 0, creditLimit: CREDIT_LIMIT, loading: false });
       return;
     }
 
     const fetch = async () => {
-      // Get subscription
       const { data: sub } = await supabase
         .from('subscriptions')
         .select('plan, status')
@@ -41,10 +32,8 @@ export function useSubscription(): SubscriptionInfo {
         .eq('status', 'active')
         .maybeSingle();
 
-      const plan = (sub?.plan as 'basico' | 'pro') || null;
-      const limits = plan ? PLAN_LIMITS[plan] : { text: 0, image: 0 };
+      const active = !!sub;
 
-      // Get current month usage
       const month = new Date().toISOString().slice(0, 7);
       const { data: usage } = await supabase
         .from('ai_usage')
@@ -53,15 +42,11 @@ export function useSubscription(): SubscriptionInfo {
         .eq('month', month)
         .maybeSingle();
 
-      setInfo({
-        plan,
-        status: sub?.status || null,
-        textUsed: usage?.text_count || 0,
-        textLimit: limits.text,
-        imageUsed: usage?.image_count || 0,
-        imageLimit: limits.image,
-        loading: false,
-      });
+      const textCount = usage?.text_count || 0;
+      const imageCount = usage?.image_count || 0;
+      const creditsUsed = textCount + (imageCount * IMAGE_CREDIT_COST);
+
+      setInfo({ active, creditsUsed, creditLimit: CREDIT_LIMIT, loading: false });
     };
 
     fetch();

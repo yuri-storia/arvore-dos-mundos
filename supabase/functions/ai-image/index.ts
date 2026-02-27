@@ -43,7 +43,7 @@ serve(async (req) => {
       const reason = quota?.reason || "unknown";
       const messages: Record<string, string> = {
         no_subscription: "Você precisa de um plano ativo para gerar imagens.",
-        image_limit_reached: `Limite de imagens atingido (${quota?.used}/${quota?.limit}). Faça upgrade do seu plano.`,
+        credit_limit_reached: `Créditos esgotados (${quota?.used}/${quota?.limit}). Aguarde o próximo mês.`,
       };
       return new Response(JSON.stringify({ error: messages[reason] || "Quota exceeded", quota }), {
         status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },

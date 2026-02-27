@@ -6,7 +6,7 @@ export const SubscriptionBanner: React.FC = () => {
 
   if (sub.loading) return null;
 
-  if (!sub.plan) {
+  if (!sub.active) {
     return (
       <div className="mx-auto max-w-[1060px] px-4 mb-4">
         <div className="card-glass rounded-lg p-3 border-l-[3px] border-l-gold">
@@ -22,10 +22,8 @@ export const SubscriptionBanner: React.FC = () => {
     );
   }
 
-  const textsLeft = sub.textLimit - sub.textUsed;
-  const imgsLeft = sub.imageLimit - sub.imageUsed;
-  const textColor = textsLeft <= 0 ? 'text-red-alert' : textsLeft <= 5 ? 'text-gold-light' : 'text-blue-light';
-  const imgColor = imgsLeft <= 0 ? 'text-red-alert' : imgsLeft <= 2 ? 'text-gold-light' : 'text-blue-light';
+  const creditsLeft = sub.creditLimit - sub.creditsUsed;
+  const creditColor = creditsLeft <= 0 ? 'text-red-alert' : creditsLeft <= 10 ? 'text-red-alert' : 'text-amber-400';
 
   return (
     <div className="mx-auto max-w-[1060px] px-4 mb-4">
@@ -33,21 +31,15 @@ export const SubscriptionBanner: React.FC = () => {
         <div className="flex items-center gap-2">
           <span className="text-lg">👑</span>
           <div>
-            <span className="font-montserrat font-bold text-sm bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent" style={{ textShadow: 'none' }}>
-              Plano <span className="uppercase">{sub.plan}</span>
+            <span className="font-montserrat font-bold text-sm text-amber-400" style={{ textShadow: 'none' }}>
+              Créditos de IA
             </span>
-            <span className="block text-xs text-amber-400/70">Uso mensal de IA</span>
+            <span className="block text-xs text-amber-400/70">Uso mensal</span>
           </div>
         </div>
-        <div className="flex items-center gap-5">
-          <div className="text-center">
-            <span className="text-xs text-text-dim block">Textos</span>
-            <span className={`font-montserrat font-bold text-sm ${textColor}`}>{textsLeft}/{sub.textLimit}</span>
-          </div>
-          <div className="text-center">
-            <span className="text-xs text-text-dim block">Imagens</span>
-            <span className={`font-montserrat font-bold text-sm ${imgColor}`}>{imgsLeft}/{sub.imageLimit}</span>
-          </div>
+        <div className="text-center">
+          <span className={`font-montserrat font-bold text-sm ${creditColor}`}>{creditsLeft}/{sub.creditLimit}</span>
+          <span className="block text-[10px] text-amber-400/60">restantes</span>
         </div>
       </div>
     </div>
