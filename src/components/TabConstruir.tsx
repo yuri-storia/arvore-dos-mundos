@@ -267,32 +267,30 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                       Modo Ajuda AI
                     </button>
                   </div>
-                  {field.type === 'select' ? (
-                    <select
-                      value={db[currentFruit]?.[field.id] || ''}
-                      onChange={e => updateField(currentFruit, field.id, e.target.value)}
-                      className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-blue-bright/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50"
-                    >
-                      <option value="">Selecione…</option>
-                      {field.opts?.map(o => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                  ) : field.type === 'textarea' ? (
-                    <textarea
-                      value={db[currentFruit]?.[field.id] || ''}
-                      onChange={e => updateField(currentFruit, field.id, e.target.value)}
-                      placeholder={field.ph}
-                      rows={4}
-                      className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-blue-bright/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-blue-bright/50 resize-y"
-                    />
-                  ) : (
-                    <input
-                      type="text"
-                      value={db[currentFruit]?.[field.id] || ''}
-                      onChange={e => updateField(currentFruit, field.id, e.target.value)}
-                      placeholder={field.ph}
-                      className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-blue-bright/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-blue-bright/50"
-                    />
-                  )}
+                  <CreateFichaButton
+                    fieldValue={db[currentFruit]?.[field.id] || ''}
+                    fieldLabel={field.label}
+                    fruitId={currentFruit}
+                  >
+                    {field.type === 'select' ? (
+                      <select
+                        value={db[currentFruit]?.[field.id] || ''}
+                        onChange={e => updateField(currentFruit, field.id, e.target.value)}
+                        className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-0 rounded-t-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50"
+                      >
+                        <option value="">Selecione…</option>
+                        {field.opts?.map(o => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                    ) : (
+                      <textarea
+                        value={db[currentFruit]?.[field.id] || ''}
+                        onChange={e => updateField(currentFruit, field.id, e.target.value)}
+                        placeholder={field.ph}
+                        rows={4}
+                        className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-0 rounded-t-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-blue-bright/50 resize-y"
+                      />
+                    )}
+                  </CreateFichaButton>
                   {/* AI Help panel for this field */}
                   {aiHelpField === field.id && (
                     <div className="animate-fadeUp mt-2 p-3 rounded-lg border border-gold/20 bg-gold/[0.04]">
@@ -329,11 +327,6 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                       )}
                     </div>
                   )}
-                  <CreateFichaButton
-                    fieldValue={db[currentFruit]?.[field.id] || ''}
-                    fieldLabel={field.label}
-                    fruitId={currentFruit}
-                  />
                 </div>
               ))}
             </div>
