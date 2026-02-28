@@ -1,25 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, ChevronDown, ChevronUp, FolderOpen, Plus } from 'lucide-react';
-import { listSaves, deleteSave, type WorldSave } from '@/lib/saves';
+import type { WorldRecord } from '@/hooks/useWorlds';
 
 interface Props {
   worldName: string;
   setWorldName: (n: string) => void;
   hasBeenCreated: boolean;
   onCreateWorld: () => void;
-  onLoadWorld: (save: WorldSave) => void;
+  onLoadWorld: (world: WorldRecord) => void;
   onNewWorld: () => void;
+  onDeleteWorld: (id: string) => void;
   currentSaveId: string;
+  worlds: WorldRecord[];
 }
 
-export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName, hasBeenCreated, onCreateWorld, onLoadWorld, onNewWorld, currentSaveId }) => {
+export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName, hasBeenCreated, onCreateWorld, onLoadWorld, onNewWorld, onDeleteWorld, currentSaveId, worlds }) => {
   const [glowing, setGlowing] = useState(false);
   const [focused, setFocused] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const saves = listSaves().sort((a, b) => b.updatedAt - a.updatedAt);
 
   useEffect(() => {
     if (!worldName) return;
@@ -33,12 +33,11 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName, hasBe
   }, [focused]);
 
   const handleDelete = (id: string) => {
-    deleteSave(id);
+    onDeleteWorld(id);
     setConfirmDelete(null);
-    if (id === currentSaveId) onNewWorld();
   };
 
-  const formatDate = (ts: number) => {
+  const formatDate = (ts: string) => {
     const d = new Date(ts);
     return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
   };
@@ -54,7 +53,7 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName, hasBe
       >
         <FolderOpen className="w-3 h-3 text-gold/70 group-hover:text-gold-light transition-colors" />
         <span className="font-cinzel text-[9px] uppercase tracking-[0.2em] text-gold group-hover:text-gold-light transition-colors">
-          Meus Projetos {saves.length > 0 && `(${saves.length})`}
+          Meus Projetos {worlds.length > 0 && `(${worlds.length})`}
         </span>
         {menuOpen
           ? <ChevronUp className="w-3 h-3 text-gold/60" />
@@ -75,13 +74,13 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName, hasBe
           </button>
 
           {/* Saved worlds list */}
-          {saves.length === 0 ? (
+          {worlds.length === 0 ? (
             <p className="text-[10px] text-text-dim font-merriweather italic py-3 text-center">
               Nenhum projeto salvo ainda.
             </p>
           ) : (
             <div className="max-h-[200px] overflow-y-auto">
-              {saves.map(s => (
+              {worlds.map(s => (
                 <div
                   key={s.id}
                   className={`flex items-center justify-between gap-2 px-3 py-2 cursor-pointer transition-all text-xs border-b border-gold/5 last:border-0 ${
@@ -97,7 +96,7 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName, hasBe
                       {s.id === currentSaveId && <span className="text-blue-light text-[9px] ml-1.5">● ativo</span>}
                     </span>
                     <span className="text-[9px] text-text-dim font-montserrat">
-                      {s.method === 'top-down' ? 'Cima→Baixo' : 'Baixo→Cima'} · {formatDate(s.updatedAt)}
+                      {s.method === 'top-down' ? 'Cima→Baixo' : 'Baixo→Cima'} · {formatDate(s.updated_at)}
                     </span>
                   </div>
                   <div onClick={e => e.stopPropagation()}>

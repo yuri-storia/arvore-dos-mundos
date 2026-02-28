@@ -9,7 +9,8 @@ import { TabConstruir } from '@/components/TabConstruir';
 import { TabCodex } from '@/components/TabCodex';
 import { TabGaleria } from '@/components/TabGaleria';
 import { TabGerarImagens } from '@/components/TabGerarImagens';
-import { saveWorld, loadSave, type WorldSave } from '@/lib/saves';
+import { useWorlds, type WorldRecord } from '@/hooks/useWorlds';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import type { AppState, TabType, MethodType, GalleryImage } from '@/lib/data';
 
@@ -28,20 +29,32 @@ const createNewState = (): AppState => ({
 });
 
 const Index = () => {
-  const [state, setState] = useState<AppState>(() => {
-    const base = createNewState();
+  const { user } = useAuth();
+  const { worlds, createWorld, updateWorld, deleteWorld } = useWorlds();
+  const [state, setState] = useState<AppState>(createNewState);
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const initialLoadDone = useRef(false);
+
+  // When worlds load, restore the last active world
+  useEffect(() => {
+    if (initialLoadDone.current || !user || worlds.length === 0) return;
+    initialLoadDone.current = true;
     try {
       const lastId = localStorage.getItem(LAST_WORLD_STORAGE);
-      if (lastId) {
-        const save = loadSave(lastId);
-        if (save) {
-          return { ...base, worldName: save.name, db: save.db, method: save.method, gallery: save.gallery, currentSaveId: save.id };
-        }
+      const target = lastId ? worlds.find(w => w.id === lastId) : worlds[0];
+      if (target) {
+        setState(prev => ({
+          ...prev,
+          worldName: target.name,
+          db: target.db,
+          method: target.method,
+          gallery: target.gallery,
+          currentSaveId: target.id,
+          currentFruit: 0,
+        }));
       }
     } catch {}
-    return base;
-  });
-  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  }, [worlds, user]);
 
   const setActiveTab = useCallback((tab: TabType) => setState(s => ({ ...s, activeTab: tab })), []);
   const setWorldName = useCallback((worldName: string) => setState(s => ({ ...s, worldName })), []);
@@ -68,36 +81,54 @@ const Index = () => {
     } catch {}
   }, [state.currentSaveId]);
 
+  // Auto-save to database
   useEffect(() => {
-    if (!state.currentSaveId) return;
+    if (!state.currentSaveId || !user) return;
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
-    autoSaveTimer.current = setTimeout(() => { saveWorld(state); }, 2000);
+    autoSaveTimer.current = setTimeout(() => {
+      updateWorld(state.currentSaveId, {
+        name: state.worldName || 'Mundo Sem Nome',
+        method: state.method,
+        db: state.db,
+        gallery: state.gallery,
+      });
+    }, 2000);
     return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
-  }, [state.worldName, state.db, state.method, state.gallery, state.currentSaveId]);
+  }, [state.worldName, state.db, state.method, state.gallery, state.currentSaveId, user, updateWorld]);
 
-  const handleCreateWorld = useCallback(() => {
-    setState(s => {
-      const saved = saveWorld({ ...s, worldName: s.worldName || 'Mundo Sem Nome' });
-      toast.success(`"${saved.name}" criado com sucesso!`);
-      return { ...s, currentSaveId: saved.id };
-    });
-  }, []);
+  const handleCreateWorld = useCallback(async () => {
+    if (!user) { toast.error('Faça login para criar um mundo'); return; }
+    const record = await createWorld({ ...state, worldName: state.worldName || 'Mundo Sem Nome' } as AppState);
+    if (record) {
+      setState(s => ({ ...s, currentSaveId: record.id }));
+      toast.success(`"${record.name}" criado com sucesso!`);
+    }
+  }, [user, state, createWorld]);
 
-  const handleLoadWorld = useCallback((save: WorldSave) => {
-    setState(prev => {
-      if (prev.currentSaveId && (prev.worldName || Object.keys(prev.db).length > 0)) saveWorld(prev);
-      return { ...prev, worldName: save.name, db: save.db, method: save.method, gallery: save.gallery, currentFruit: 0, currentSaveId: save.id, generatedPrompt: '', activeTab: 'construir' };
-    });
-    toast.success(`"${save.name}" carregado!`);
+  const handleLoadWorld = useCallback((world: WorldRecord) => {
+    setState(prev => ({
+      ...prev,
+      worldName: world.name,
+      db: world.db,
+      method: world.method,
+      gallery: world.gallery,
+      currentFruit: 0,
+      currentSaveId: world.id,
+      generatedPrompt: '',
+      activeTab: 'construir',
+    }));
+    toast.success(`"${world.name}" carregado!`);
   }, []);
 
   const handleNewWorld = useCallback(() => {
-    setState(prev => {
-      if (prev.currentSaveId && (prev.worldName || Object.keys(prev.db).length > 0)) saveWorld(prev);
-      return createNewState();
-    });
+    setState(createNewState());
     toast.info('Novo mundo criado!');
   }, []);
+
+  const handleDeleteWorld = useCallback(async (id: string) => {
+    await deleteWorld(id);
+    if (state.currentSaveId === id) setState(createNewState());
+  }, [deleteWorld, state.currentSaveId]);
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -116,7 +147,9 @@ const Index = () => {
           onCreateWorld={handleCreateWorld}
           onLoadWorld={handleLoadWorld}
           onNewWorld={handleNewWorld}
+          onDeleteWorld={handleDeleteWorld}
           currentSaveId={state.currentSaveId}
+          worlds={worlds}
         />
 
         <OnboardingBanner />

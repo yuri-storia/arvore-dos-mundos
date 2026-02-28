@@ -8,6 +8,8 @@ import { exportSingleEntry, exportFruitEntries, exportSelectedFruits, exportAllE
 
 const FRUIT_ALL = -1;
 
+type EntryKind = 'ficha' | 'artigo';
+
 interface Props {
   gallery: GalleryImage[];
 }
@@ -19,6 +21,7 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
   const [filterFruit, setFilterFruit] = useState(FRUIT_ALL);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [createKind, setCreateKind] = useState<EntryKind | null>(null);
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const [showExport, setShowExport] = useState(false);
   const [exportSelectedFruitIds, setExportSelectedFruitIds] = useState<number[]>([]);
@@ -56,17 +59,22 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
     await createEntry({
       title: newTitle,
       content: newContent,
-      image_url: newImageUrl || undefined,
-      entry_type: 'geral',
+      image_url: createKind === 'ficha' ? (newImageUrl || undefined) : undefined,
+      entry_type: createKind || 'geral',
       fruit_id: newFruit,
     });
-    setNewTitle(''); setNewContent(''); setNewImageUrl(''); setNewFruit(null);
-    setShowCreate(false);
+    resetCreate();
   };
 
   const resetCreate = () => {
     setShowCreate(false);
+    setCreateKind(null);
     setNewTitle(''); setNewContent(''); setNewImageUrl(''); setNewFruit(null);
+  };
+
+  const openCreate = (kind: EntryKind) => {
+    setCreateKind(kind);
+    setShowCreate(true);
   };
 
   return (
@@ -82,33 +90,56 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
               📄 Exportar PDF
             </button>
           )}
-          <button
-            onClick={() => setShowCreate(true)}
-            className="px-4 py-2 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 hover:from-yellow-400 hover:via-amber-300 hover:to-yellow-400 text-black rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_12px_rgba(218,165,32,0.3)]"
-          >
-            + Nova Ficha
-          </button>
+          {/* Nova Entrada dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowCreate(!showCreate)}
+              className="px-4 py-2 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 hover:from-yellow-400 hover:via-amber-300 hover:to-yellow-400 text-black rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_12px_rgba(218,165,32,0.3)]"
+            >
+              + Nova Entrada
+            </button>
+            {showCreate && !createKind && (
+              <div className="absolute right-0 top-full mt-1 z-50 w-[220px] card-glass rounded-lg p-3 shadow-lg border border-blue-bright/30 animate-fadeUp">
+                <h4 className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-blue-light mb-2">Tipo de entrada</h4>
+                <button
+                  onClick={() => openCreate('ficha')}
+                  className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors mb-1"
+                >
+                  <span className="font-montserrat font-bold text-xs text-foreground block">📋 Ficha</span>
+                  <span className="text-[10px] text-text-dim font-merriweather">Com imagem, estruturada</span>
+                </button>
+                <button
+                  onClick={() => openCreate('artigo')}
+                  className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors"
+                >
+                  <span className="font-montserrat font-bold text-xs text-foreground block">📝 Artigo</span>
+                  <span className="text-[10px] text-text-dim font-merriweather">Texto livre, explicativo</span>
+                </button>
+                <button onClick={resetCreate} className="absolute top-1 right-1 w-5 h-5 rounded-full text-text-dim hover:text-foreground text-xs flex items-center justify-center">✕</button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-      <p className="font-merriweather italic text-text-dim text-sm mb-5">Suas fichas de personagens, lugares, itens e mais</p>
+      <p className="font-merriweather italic text-text-dim text-sm mb-5">Suas fichas, artigos e anotações organizados por fruto</p>
 
       {/* Export panel */}
       {showExport && (
         <div className="rounded-lg p-4 mb-5 animate-fadeUp border border-emerald-500/20" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(6,182,212,0.12) 50%, rgba(59,130,246,0.12) 100%)', backdropFilter: 'blur(20px)' }}>
-          <h3 className="font-cinzel font-bold text-sm mb-3 bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">📄 Exportar Fichas em PDF</h3>
+          <h3 className="font-cinzel font-bold text-sm mb-3 bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">📄 Exportar Entradas em PDF</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
             <button
               onClick={() => { exportAllEntries(entries); setShowExport(false); }}
               className="px-4 py-2.5 bg-primary/20 hover:bg-primary/30 text-blue-light rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider transition-colors border border-ring/20 text-left"
             >
-              📚 Exportar todas as fichas ({entries.length})
+              📚 Exportar todas as entradas ({entries.length})
             </button>
             {filterFruit !== FRUIT_ALL && (
               <button
                 onClick={() => { exportFruitEntries(filterFruit, entries); setShowExport(false); }}
                 className="px-4 py-2.5 bg-accent/15 hover:bg-accent/25 text-accent-foreground rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider transition-colors border border-accent/20 text-left"
               >
-                🍎 Exportar fichas de "{FRUITS.find(f => f.id === filterFruit)?.name}" ({entries.filter(e => e.fruit_id === filterFruit).length})
+                🍎 Exportar de "{FRUITS.find(f => f.id === filterFruit)?.name}" ({entries.filter(e => e.fruit_id === filterFruit).length})
               </button>
             )}
           </div>
@@ -163,14 +194,16 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
         ))}
       </div>
 
-      {/* Create modal */}
-      {showCreate && (
+      {/* Create form (after choosing kind) */}
+      {showCreate && createKind && (
         <div className="card-glass rounded-lg p-4 sm:p-5 mb-6 animate-fadeUp">
-          <h3 className="font-cinzel font-bold text-sm text-blue-light mb-3">Nova Ficha</h3>
+          <h3 className="font-cinzel font-bold text-sm text-blue-light mb-3">
+            {createKind === 'ficha' ? '📋 Nova Ficha' : '📝 Novo Artigo'}
+          </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <div>
               <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Título</label>
-              <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Nome da ficha…" className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-ring/50" />
+              <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder={createKind === 'ficha' ? 'Nome da ficha…' : 'Título do artigo…'} className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-ring/50" />
             </div>
             <div>
               <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Fruto</label>
@@ -181,32 +214,34 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
             </div>
           </div>
 
-          {/* Image */}
-          <div className="mb-3">
-            <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Imagem</label>
-            {newImageUrl ? (
-              <div className="relative w-full max-w-[300px] rounded-lg overflow-hidden border border-blue-bright/20">
-                <img src={newImageUrl} alt="" className="w-full h-[180px] object-cover" />
-                <button onClick={() => setNewImageUrl('')} className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-foreground text-xs flex items-center justify-center hover:bg-destructive/80">✕</button>
-              </div>
-            ) : (
-              <div className="flex gap-2">
-                <input type="file" ref={fileRef} accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, setNewImageUrl); }} />
-                <button onClick={() => fileRef.current?.click()} disabled={uploading} className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors">
-                  {uploading ? '⏳ Enviando…' : '📁 Upload'}
-                </button>
-              </div>
-            )}
-          </div>
+          {/* Image — only for ficha */}
+          {createKind === 'ficha' && (
+            <div className="mb-3">
+              <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Imagem</label>
+              {newImageUrl ? (
+                <div className="relative w-full max-w-[300px] rounded-lg overflow-hidden border border-blue-bright/20">
+                  <img src={newImageUrl} alt="" className="w-full h-[180px] object-cover" />
+                  <button onClick={() => setNewImageUrl('')} className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-foreground text-xs flex items-center justify-center hover:bg-destructive/80">✕</button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input type="file" ref={fileRef} accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, setNewImageUrl); }} />
+                  <button onClick={() => fileRef.current?.click()} disabled={uploading} className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors">
+                    {uploading ? '⏳ Enviando…' : '📁 Upload'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="mb-3">
             <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Conteúdo</label>
-            <textarea value={newContent} onChange={e => setNewContent(e.target.value)} placeholder="Descreva livremente…" rows={5} className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-ring/50 resize-y" />
+            <textarea value={newContent} onChange={e => setNewContent(e.target.value)} placeholder={createKind === 'artigo' ? 'Escreva livremente seu artigo…' : 'Descreva livremente…'} rows={createKind === 'artigo' ? 8 : 5} className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-ring/50 resize-y" />
           </div>
 
           <div className="flex gap-2">
             <button onClick={handleCreate} disabled={!newTitle.trim() || newFruit === null} className="px-4 py-2 bg-primary hover:bg-ring text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors">
-              Criar Ficha
+              {createKind === 'ficha' ? 'Criar Ficha' : 'Criar Artigo'}
             </button>
             <button onClick={resetCreate} className="px-4 py-2 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors">
               Cancelar
@@ -227,7 +262,7 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
       ) : filtered.length === 0 ? (
         <div className="text-center py-12">
           <p className="font-merriweather italic text-text-dim text-sm">
-            {entries.length === 0 ? 'Nenhuma ficha criada ainda. Comece pelo botão acima ou crie direto ao preencher um campo na aba Construir!' : 'Nenhuma ficha encontrada com esses filtros.'}
+            {entries.length === 0 ? 'Nenhuma entrada criada ainda. Comece pelo botão acima ou crie direto ao preencher um campo na aba Construir!' : 'Nenhuma entrada encontrada com esses filtros.'}
           </p>
         </div>
       ) : (

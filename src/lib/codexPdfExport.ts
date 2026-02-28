@@ -149,9 +149,10 @@ function savePdf(ctx: ReturnType<typeof createDoc>, filename: string) {
 /** Export a single codex entry */
 export function exportSingleEntry(entry: CodexEntry) {
   const ctx = createDoc();
-  addHeader(ctx, entry.title, 'Ficha do Codex');
+  const label = entry.entry_type === 'artigo' ? 'Artigo do Codex' : 'Ficha do Codex';
+  addHeader(ctx, entry.title, label);
   renderEntry(ctx, entry);
-  savePdf(ctx, `ficha-${entry.title.toLowerCase().replace(/\s+/g, '-')}`);
+  savePdf(ctx, `entrada-${entry.title.toLowerCase().replace(/\s+/g, '-')}`);
 }
 
 /** Export all entries of a single fruit */
@@ -162,7 +163,7 @@ export function exportFruitEntries(fruitId: number, entries: CodexEntry[]) {
   if (fruitEntries.length === 0) return;
 
   const ctx = createDoc();
-  addHeader(ctx, fruit.name, `${fruit.num} · ${fruitEntries.length} fichas`);
+  addHeader(ctx, fruit.name, `${fruit.num} · ${fruitEntries.length} entradas`);
   fruitEntries.forEach(entry => renderEntry(ctx, entry));
   savePdf(ctx, `codex-${fruit.name.toLowerCase().replace(/\s+/g, '-')}`);
 }
@@ -184,7 +185,7 @@ export function exportSelectedFruits(fruitIds: number[], entries: CodexEntry[]) 
 /** Export all entries */
 export function exportAllEntries(entries: CodexEntry[]) {
   const ctx = createDoc();
-  addHeader(ctx, 'Codex Completo', `${entries.length} fichas`);
+  addHeader(ctx, 'Codex Completo', `${entries.length} entradas`);
 
   // Group by fruit
   const grouped = new Map<number | null, CodexEntry[]>();
