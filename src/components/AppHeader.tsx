@@ -110,11 +110,5 @@ export const AppHeader: React.FC = () => (
       <UserMenu />
     </div>
 
-    {/* Glowing blue divider at end of header — z-[1] so it never covers the UserMenu dropdown */}
-    <div className="absolute bottom-0 left-0 right-0 z-[30] h-[2px]">
-      <div className="w-full h-full bg-gradient-to-r from-transparent via-blue-bright to-transparent opacity-80" />
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-bright to-transparent blur-[6px] opacity-50" />
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-bright to-transparent blur-[14px] opacity-30" />
-    </div>
   </header>
 );

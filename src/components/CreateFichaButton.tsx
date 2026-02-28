@@ -26,7 +26,7 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
 
       {/* Bottom bar with save button */}
       {user && (
-        <div className="flex items-center justify-end px-2 py-1.5 rounded-b-md bg-[rgba(4,12,24,0.4)] border border-t-0 border-blue-bright/15">
+        <div className="flex items-center justify-end px-2 py-1.5 rounded-b-md bg-[rgba(15,30,55,0.6)] border border-t-0 border-blue-bright/20">
           <button
             onClick={() => hasValue && setShowMenu(!showMenu)}
             disabled={!hasValue}

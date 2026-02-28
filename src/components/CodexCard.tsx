@@ -72,6 +72,8 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
     setShowImageMenu(false);
   };
 
+  const isArticle = entry.entry_type === 'artigo';
+
   // Collapsed card
   if (!expanded) {
     return (
@@ -79,23 +81,35 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
         onClick={onToggle}
         className="card-glass rounded-lg overflow-hidden cursor-pointer group hover:border-ring/30 transition-all"
       >
-        <div className="relative h-[140px] bg-secondary/30">
-          {entry.image_url ? (
-            <img src={entry.image_url} alt={entry.title} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <span className="text-5xl opacity-20">{fruitInfo?.icon || '📄'}</span>
-            </div>
-          )}
-          {fruitInfo && (
-            <div className="absolute top-2 left-2">
+        {!isArticle && (
+          <div className="relative h-[140px] bg-secondary/30">
+            {entry.image_url ? (
+              <img src={entry.image_url} alt={entry.title} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="text-5xl opacity-20">{fruitInfo?.icon || '📄'}</span>
+              </div>
+            )}
+            {fruitInfo && (
+              <div className="absolute top-2 left-2">
+                <span className="px-1.5 py-0.5 rounded-full bg-accent/20 text-accent-foreground text-[9px] font-montserrat font-bold">
+                  {fruitInfo.icon} {fruitInfo.name}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+        <div className="p-3">
+          <div className="flex items-center gap-1.5 mb-1">
+            {isArticle && fruitInfo && (
               <span className="px-1.5 py-0.5 rounded-full bg-accent/20 text-accent-foreground text-[9px] font-montserrat font-bold">
                 {fruitInfo.icon} {fruitInfo.name}
               </span>
-            </div>
-          )}
-        </div>
-        <div className="p-3">
+            )}
+            <span className="px-1.5 py-0.5 rounded-full bg-secondary/50 text-text-dim text-[9px] font-montserrat font-bold uppercase">
+              {isArticle ? '📝 Artigo' : '📋 Ficha'}
+            </span>
+          </div>
           <h3 className="font-cinzel font-bold text-sm text-foreground mb-1">{entry.title}</h3>
           {entry.content && (
             <p className="font-merriweather text-xs text-muted-foreground line-clamp-3 whitespace-pre-wrap">{entry.content}</p>
