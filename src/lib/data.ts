@@ -175,6 +175,7 @@ export const FRUITS: Fruit[] = [
       { id: 'magicrules', label: 'Crie uma Regra de Magia', type: 'textarea', ph: 'Descreva uma regra do seu sistema mágico: o custo, o limite e o risco. O que se perde ao usá-la — energia, vida, sanidade, fé? Ex: "Cada feitiço consome uma memória — quanto mais poderoso, mais preciosa a lembrança perdida."' },
       { id: 'tech', label: 'Crie uma Tecnologia', type: 'textarea', ph: 'Descreva uma tecnologia ou invenção do seu mundo. Qual o equivalente histórico? Usa magia como combustível ou a substitui? Ex: "Balistas movidas a vapor que caçam magos desertores."' },
       { id: 'magictech', label: 'Crie uma Tensão entre Magia e Tecnologia', type: 'textarea', ph: 'Descreva como magia e tecnologia colidem ou se fundem. Existe grupo que rejeita uma em favor da outra? Quem se beneficia se a magia sumir?' },
+      { id: 'magicitems', label: 'Crie um Item Mágico ou Tecnológico', type: 'textarea', ph: 'Descreva um item notável do seu mundo: arma encantada, artefato antigo, dispositivo tecnológico ou híbrido. Qual seu poder, origem, custo de uso e quem o possui? Ex: "A Lâmina de Cinzas — forjada em fogo de dragão, corta qualquer metal mas consome a vitalidade de quem a empunha."' },
     ],
     chips: ['Definir o custo e limite de um feitiço', 'Criar um item híbrido (tecnologia + magia)', 'Gerar conflito político sobre a magia', 'Desenvolver grupo que rejeita a magia'],
     guide: {
