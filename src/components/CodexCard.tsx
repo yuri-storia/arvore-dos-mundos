@@ -74,12 +74,19 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
   const isArticle = entry.entry_type === 'artigo';
 
+  // Filter out __magictype__ marker from displayed content
+  const displayContent = entry.content?.replace(/^__magictype__\n?/, '').trim() || '';
+
   // Collapsed card
   if (!expanded) {
     return (
       <div
         onClick={onToggle}
-        className="card-glass rounded-lg overflow-hidden cursor-pointer group hover:border-ring/30 transition-all"
+        className={`rounded-lg overflow-hidden cursor-pointer group transition-all ${
+          isArticle
+            ? 'card-glass-gold hover:border-gold/40'
+            : 'card-glass hover:border-ring/30'
+        }`}
       >
         {!isArticle && (
           <div className="relative h-[140px] bg-secondary/30">
@@ -111,8 +118,8 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             </span>
           </div>
           <h3 className="font-cinzel font-bold text-sm text-foreground mb-1">{entry.title}</h3>
-          {entry.content && (
-            <p className="font-merriweather text-xs text-muted-foreground line-clamp-3 whitespace-pre-wrap">{entry.content}</p>
+          {displayContent && (
+            <p className="font-merriweather text-xs text-muted-foreground line-clamp-3 whitespace-pre-wrap">{displayContent}</p>
           )}
         </div>
       </div>
@@ -121,7 +128,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
   // Expanded card
   return (
-    <div className="card-glass rounded-lg overflow-hidden col-span-1 sm:col-span-2 lg:col-span-3 animate-fadeUp">
+    <div className={`rounded-lg overflow-hidden col-span-1 sm:col-span-2 lg:col-span-3 animate-fadeUp ${isArticle ? 'card-glass-gold' : 'card-glass'}`}>
       <div className="flex flex-col md:flex-row">
         {/* Image section */}
         <div className="relative w-full md:w-[320px] h-[240px] md:h-auto bg-secondary/30 flex-shrink-0">
@@ -200,8 +207,8 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             </>
           ) : (
             <div className="mb-4 max-h-[400px] overflow-y-auto">
-              {entry.content ? (
-                <p className="font-merriweather text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">{entry.content}</p>
+              {displayContent ? (
+                <p className="font-merriweather text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">{displayContent}</p>
               ) : (
                 <p className="font-merriweather text-sm text-text-dim italic">Sem conteúdo ainda. Clique em editar para adicionar.</p>
               )}
