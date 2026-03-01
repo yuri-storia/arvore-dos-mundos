@@ -3,7 +3,7 @@ import { FRUITS } from '@/lib/data';
 import { callAIText } from '@/lib/helpers';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { useSubscription } from '@/hooks/useSubscription';
-import { useAuth } from '@/contexts/AuthContext';
+
 import ReactMarkdown from 'react-markdown';
 import { Progress } from '@/components/ui/progress';
 
@@ -18,7 +18,6 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
   const [analysis, setAnalysis] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { user } = useAuth();
   const sub = useSubscription();
 
   const creditsRemaining = sub.creditLimit - sub.creditsUsed;
@@ -80,8 +79,6 @@ Liste 3 a 5 ações prioritárias que o criador deveria fazer a seguir para fort
 Seja construtivo, encorajador mas honesto. Use exemplos concretos das entradas quando possível.`;
 
     try {
-      const userId = user?.id || '';
-
       const content = await callAIText(
         [{ role: 'user', content: `Aqui estão todas as entradas do meu Codex:\n\n${buildPrompt()}` }],
         systemPrompt
