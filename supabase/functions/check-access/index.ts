@@ -44,16 +44,18 @@ serve(async (req) => {
 
     const allowed = !!data;
 
-    // If not allowed, delete the user
+    // If not allowed, suspend the user instead of deleting (preserves data)
     if (!allowed) {
-      await supabase.auth.admin.deleteUser(user.id);
+      await supabase.auth.admin.updateUserById(user.id, {
+        ban_duration: "876000h", // ~100 years, effectively permanent but reversible
+      });
     }
 
     return new Response(JSON.stringify({ allowed }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    return new Response(JSON.stringify({ allowed: false, error: e.message }), {
+    return new Response(JSON.stringify({ allowed: false, error: "Internal error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
