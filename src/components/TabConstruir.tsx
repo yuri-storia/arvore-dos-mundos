@@ -6,6 +6,10 @@ import { FruitGuideBlock } from '@/components/FruitGuideBlock';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { CreateFichaButton } from '@/components/CreateFichaButton';
 import { useCodexEntries } from '@/hooks/useCodexEntries';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import type { AppState } from '@/lib/data';
 
 interface Props {
@@ -13,9 +17,10 @@ interface Props {
   updateField: (fruitId: number, fieldId: string, value: string) => void;
   setCurrentFruit: (id: number) => void;
   setMethod: (m: MethodType) => void;
+  onNavigateCodex?: () => void;
 }
 
-export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFruit, setMethod }) => {
+export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFruit, setMethod, onNavigateCodex }) => {
   const { db, currentFruit, method, worldName } = state;
   const { entries, createEntry, updateEntry } = useCodexEntries();
   const [aiQuestion, setAiQuestion] = useState('');
@@ -29,6 +34,9 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   const [aiHelpResponse, setAiHelpResponse] = useState('');
   const [aiHelpLoading, setAiHelpLoading] = useState(false);
   const magictypeArticleRef = useRef<string | null>(null);
+  const [showMagictypeCreated, setShowMagictypeCreated] = useState(false);
+  const [showMagictypeUpdate, setShowMagictypeUpdate] = useState(false);
+  const [pendingMagictypeValue, setPendingMagictypeValue] = useState('');
 
   // Fruits that generate fichas
   const FICHA_FRUITS = [0, 5, 9]; // Mapa do Mundo, Seres Fantásticos, Personagens
@@ -42,8 +50,10 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
   // Handle magictype auto-article creation/update
   const handleMagictypeChange = async (value: string) => {
-    updateField(4, 'magictype', value);
-    if (!value) return;
+    if (!value) {
+      updateField(4, 'magictype', value);
+      return;
+    }
     
     // Find existing magictype article
     const existing = entries.find(e => 
@@ -51,17 +61,39 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
     );
     
     if (existing) {
-      // Just update the title
-      await updateEntry(existing.id, { title: value });
-    } else if (value) {
-      // Create a new article once
+      // Ask user if they want to update
+      setPendingMagictypeValue(value);
+      setShowMagictypeUpdate(true);
+    } else {
+      // First time — create and show success
+      updateField(4, 'magictype', value);
       await createEntry({
         title: value,
         content: `__magictype__\n\nTipo de sistema mágico selecionado: ${value}`,
         entry_type: 'artigo',
         fruit_id: 4,
       });
+      setShowMagictypeCreated(true);
     }
+  };
+
+  const handleConfirmMagictypeUpdate = async () => {
+    updateField(4, 'magictype', pendingMagictypeValue);
+    const existing = entries.find(e => 
+      e.fruit_id === 4 && e.entry_type === 'artigo' && e.content?.startsWith('__magictype__')
+    );
+    if (existing) {
+      await updateEntry(existing.id, { 
+        title: pendingMagictypeValue,
+        content: `__magictype__\n\nTipo de sistema mágico selecionado: ${pendingMagictypeValue}`,
+      });
+    }
+    setShowMagictypeUpdate(false);
+  };
+
+  const handleSkipMagictypeUpdate = () => {
+    updateField(4, 'magictype', pendingMagictypeValue);
+    setShowMagictypeUpdate(false);
   };
 
   const orderedFruits = getOrderedFruits(method);
@@ -326,6 +358,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                         fieldLabel={field.label}
                         fruitId={currentFruit}
                         entryType={entryType}
+                        onCreated={(action) => action === 'codex' && onNavigateCodex?.()}
                       >
                         {field.type === 'select' ? (
                           <select
@@ -478,6 +511,64 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       )}
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
+
+      {/* Magictype first-time creation dialog */}
+      <Dialog open={showMagictypeCreated} onOpenChange={setShowMagictypeCreated}>
+        <DialogContent className="card-glass-gold border-gold/30 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-cinzel text-gold-light">
+              ✨ Artigo Criado!
+            </DialogTitle>
+            <DialogDescription className="text-text-secondary font-merriweather text-sm">
+              Um artigo sobre o sistema de magia <strong>"{db[4]?.magictype}"</strong> foi criado automaticamente no Codex.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button 
+              variant="outline"
+              onClick={() => { setShowMagictypeCreated(false); onNavigateCodex?.(); }}
+              className="border-gold/30 text-gold-light hover:bg-gold/20"
+            >
+              📖 Ver Codex
+            </Button>
+            <Button 
+              onClick={() => setShowMagictypeCreated(false)}
+              className="bg-gold/80 hover:bg-gold text-background"
+            >
+              ✍️ Continuar a Criar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Magictype update confirmation dialog */}
+      <Dialog open={showMagictypeUpdate} onOpenChange={(open) => { if (!open) handleSkipMagictypeUpdate(); }}>
+        <DialogContent className="card-glass-gold border-gold/30 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-cinzel text-gold-light">
+              🔄 Atualizar Artigo?
+            </DialogTitle>
+            <DialogDescription className="text-text-secondary font-merriweather text-sm">
+              Você já possui um artigo sobre o sistema de magia no Codex. Deseja atualizá-lo para <strong>"{pendingMagictypeValue}"</strong>?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button 
+              variant="outline"
+              onClick={handleSkipMagictypeUpdate}
+              className="border-gold/30 text-gold-light hover:bg-gold/20"
+            >
+              Não, manter o artigo atual
+            </Button>
+            <Button 
+              onClick={handleConfirmMagictypeUpdate}
+              className="bg-gold/80 hover:bg-gold text-background"
+            >
+              Sim, atualizar artigo
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

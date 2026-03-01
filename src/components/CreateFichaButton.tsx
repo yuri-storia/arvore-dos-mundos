@@ -2,28 +2,62 @@ import React, { useState } from 'react';
 import { FRUITS } from '@/lib/data';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   fieldValue: string;
   fieldLabel: string;
   fruitId: number;
   entryType?: 'ficha' | 'artigo';
+  onCreated?: (action: 'codex' | 'continue') => void;
   children: React.ReactNode;
 }
 
-export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fruitId, entryType = 'ficha', children }) => {
+export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fruitId, entryType = 'ficha', onCreated, children }) => {
   const { user } = useAuth();
   const { entries, createEntry, updateEntry } = useCodexEntries();
   const [showMenu, setShowMenu] = useState(false);
   const [showAddTo, setShowAddTo] = useState(false);
+  const [showTitleDialog, setShowTitleDialog] = useState(false);
+  const [customTitle, setCustomTitle] = useState('');
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [createdEntryName, setCreatedEntryName] = useState('');
 
   const hasValue = !!fieldValue?.trim();
   const isFicha = entryType === 'ficha';
 
-  // Filter entries for "Inserir em existente" to show only matching type
   const matchingEntries = entries.filter(e => 
     isFicha ? e.entry_type !== 'artigo' : e.entry_type === 'artigo'
   );
+
+  const handleCreateClick = () => {
+    setCustomTitle(fieldLabel);
+    setShowTitleDialog(true);
+  };
+
+  const handleConfirmCreate = async () => {
+    const title = customTitle.trim() || fieldLabel;
+    const entry = await createEntry({ 
+      title, 
+      content: fieldValue, 
+      entry_type: isFicha ? 'ficha' : 'artigo', 
+      fruit_id: fruitId 
+    });
+    setShowTitleDialog(false);
+    setShowMenu(false);
+    if (entry) {
+      setCreatedEntryName(title);
+      setShowSuccessDialog(true);
+    }
+  };
+
+  const handleSuccessAction = (action: 'codex' | 'continue') => {
+    setShowSuccessDialog(false);
+    onCreated?.(action);
+  };
 
   return (
     <div className="relative">
@@ -54,15 +88,7 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
               </h4>
               <div className="flex gap-2">
                 <button
-                  onClick={async () => {
-                    await createEntry({ 
-                      title: fieldLabel, 
-                      content: fieldValue, 
-                      entry_type: isFicha ? 'ficha' : 'artigo', 
-                      fruit_id: fruitId 
-                    });
-                    setShowMenu(false);
-                  }}
+                  onClick={handleCreateClick}
                   className="px-3 py-1.5 bg-blue-main hover:bg-blue-bright text-foreground rounded text-[10px] font-montserrat font-bold uppercase transition-colors"
                 >
                   {isFicha ? 'Criar Ficha' : 'Criar Artigo'}
@@ -108,6 +134,66 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
           <button onClick={() => setShowMenu(false)} className="absolute top-1 right-1 w-5 h-5 rounded-full text-text-dim hover:text-foreground text-xs flex items-center justify-center">✕</button>
         </div>
       )}
+
+      {/* Title input dialog */}
+      <Dialog open={showTitleDialog} onOpenChange={setShowTitleDialog}>
+        <DialogContent className="card-glass border-blue-bright/30 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-cinzel text-blue-light">
+              {isFicha ? '📋 Nova Ficha' : '📝 Novo Artigo'}
+            </DialogTitle>
+            <DialogDescription className="text-text-dim font-merriweather text-sm">
+              Escolha um título para {isFicha ? 'sua ficha' : 'seu artigo'}:
+            </DialogDescription>
+          </DialogHeader>
+          <input
+            type="text"
+            value={customTitle}
+            onChange={e => setCustomTitle(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleConfirmCreate()}
+            placeholder="Digite o título…"
+            autoFocus
+            className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50"
+          />
+          <DialogFooter className="gap-2">
+            <Button variant="ghost" onClick={() => setShowTitleDialog(false)} className="text-text-dim">
+              Cancelar
+            </Button>
+            <Button onClick={handleConfirmCreate} className="bg-blue-main hover:bg-blue-bright text-foreground">
+              Criar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Success dialog */}
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent className={`max-w-md ${isFicha ? 'card-glass border-blue-bright/30' : 'card-glass-gold border-gold/30'}`}>
+          <DialogHeader>
+            <DialogTitle className={`font-cinzel ${isFicha ? 'text-blue-light' : 'text-gold-light'}`}>
+              ✨ {isFicha ? 'Ficha Criada!' : 'Artigo Criado!'}
+            </DialogTitle>
+            <DialogDescription className="text-text-secondary font-merriweather text-sm">
+              <strong>"{createdEntryName}"</strong> foi salvo no Codex com sucesso.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button 
+              variant="outline"
+              onClick={() => handleSuccessAction('codex')} 
+              className={`${isFicha ? 'border-blue-bright/30 text-blue-light hover:bg-blue-main/20' : 'border-gold/30 text-gold-light hover:bg-gold/20'}`}
+            >
+              📖 Ver Codex
+            </Button>
+            <Button 
+              onClick={() => handleSuccessAction('continue')} 
+              className={`${isFicha ? 'bg-blue-main hover:bg-blue-bright' : 'bg-gold/80 hover:bg-gold'} text-foreground`}
+            >
+              ✍️ Continuar a Criar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
