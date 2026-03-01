@@ -85,20 +85,12 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
         <h1 className="font-cinzel font-bold text-xl sm:text-2xl md:text-3xl text-foreground">📖 Codex</h1>
         <div className="flex gap-2">
           {entries.length > 0 && (
-            <>
               <button
-                onClick={() => { setShowAnalysis(!showAnalysis); setShowExport(false); }}
-                className="px-3 py-2 bg-gradient-to-r from-violet-600 via-blue-500 to-emerald-500 hover:from-violet-500 hover:via-blue-400 hover:to-emerald-400 text-white rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_16px_rgba(139,92,246,0.4)] hover:shadow-[0_0_24px_rgba(139,92,246,0.6)]"
-              >
-                🔮 Analisar
-              </button>
-              <button
-                onClick={() => { setShowExport(!showExport); setExportSelectedFruitIds([]); setShowAnalysis(false); }}
+                onClick={() => { setShowExport(!showExport); setExportSelectedFruitIds([]); }}
                 className="px-3 py-2 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:via-teal-300 hover:to-cyan-400 text-white rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_16px_rgba(16,185,129,0.4)] hover:shadow-[0_0_24px_rgba(16,185,129,0.6)]"
               >
                 📄 Exportar PDF
               </button>
-            </>
           )}
           {/* Nova Entrada dropdown */}
           <div className="relative">
@@ -133,10 +125,6 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
       </div>
       <p className="font-merriweather italic text-text-dim text-sm mb-5">Suas fichas, artigos e anotações organizados por fruto</p>
 
-      {/* Analysis panel */}
-      {showAnalysis && (
-        <CodexAnalysis entries={entries} onClose={() => setShowAnalysis(false)} />
-      )}
 
       {/* Export panel */}
       {showExport && (
@@ -334,6 +322,31 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
             </div>
           )}
         </>
+      )}
+
+      {/* Analyze World — bottom CTA */}
+      {entries.length > 0 && (
+        <div className="mt-10 mb-4">
+          {!showAnalysis ? (
+            <button
+              onClick={() => setShowAnalysis(true)}
+              className="w-full py-5 rounded-xl text-center font-cinzel font-bold text-base sm:text-lg uppercase tracking-wider transition-all
+                bg-gradient-to-r from-violet-600/20 via-blue-500/20 to-emerald-500/20
+                hover:from-violet-600/30 hover:via-blue-500/30 hover:to-emerald-500/30
+                border border-violet-500/30 hover:border-violet-400/50
+                shadow-[0_0_30px_rgba(139,92,246,0.15)] hover:shadow-[0_0_50px_rgba(139,92,246,0.3)]"
+            >
+              <span className="bg-gradient-to-r from-violet-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">
+                🔮 Analisar meu Mundo
+              </span>
+              <p className="font-merriweather italic text-text-dim text-xs mt-1 normal-case tracking-normal">
+                Peça para a IA avaliar suas entradas e sugerir melhorias
+              </p>
+            </button>
+          ) : (
+            <CodexAnalysis entries={entries} onClose={() => setShowAnalysis(false)} />
+          )}
+        </div>
       )}
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
