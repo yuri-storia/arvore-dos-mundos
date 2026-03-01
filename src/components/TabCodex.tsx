@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { CodexCard } from '@/components/CodexCard';
 import { exportSingleEntry, exportFruitEntries, exportSelectedFruits, exportAllEntries } from '@/lib/codexPdfExport';
+import { CodexAnalysis } from '@/components/CodexAnalysis';
 
 const FRUIT_ALL = -1;
 
@@ -25,6 +26,7 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const [showExport, setShowExport] = useState(false);
   const [exportSelectedFruitIds, setExportSelectedFruitIds] = useState<number[]>([]);
+  const [showAnalysis, setShowAnalysis] = useState(false);
 
   // Create form state
   const [newTitle, setNewTitle] = useState('');
@@ -83,12 +85,20 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
         <h1 className="font-cinzel font-bold text-xl sm:text-2xl md:text-3xl text-foreground">📖 Codex</h1>
         <div className="flex gap-2">
           {entries.length > 0 && (
-            <button
-              onClick={() => { setShowExport(!showExport); setExportSelectedFruitIds([]); }}
-              className="px-3 py-2 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:via-teal-300 hover:to-cyan-400 text-white rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_16px_rgba(16,185,129,0.4)] hover:shadow-[0_0_24px_rgba(16,185,129,0.6)]"
-            >
-              📄 Exportar PDF
-            </button>
+            <>
+              <button
+                onClick={() => { setShowAnalysis(!showAnalysis); setShowExport(false); }}
+                className="px-3 py-2 bg-gradient-to-r from-violet-600 via-blue-500 to-emerald-500 hover:from-violet-500 hover:via-blue-400 hover:to-emerald-400 text-white rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_16px_rgba(139,92,246,0.4)] hover:shadow-[0_0_24px_rgba(139,92,246,0.6)]"
+              >
+                🔮 Analisar
+              </button>
+              <button
+                onClick={() => { setShowExport(!showExport); setExportSelectedFruitIds([]); setShowAnalysis(false); }}
+                className="px-3 py-2 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:via-teal-300 hover:to-cyan-400 text-white rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_16px_rgba(16,185,129,0.4)] hover:shadow-[0_0_24px_rgba(16,185,129,0.6)]"
+              >
+                📄 Exportar PDF
+              </button>
+            </>
           )}
           {/* Nova Entrada dropdown */}
           <div className="relative">
@@ -122,6 +132,11 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
         </div>
       </div>
       <p className="font-merriweather italic text-text-dim text-sm mb-5">Suas fichas, artigos e anotações organizados por fruto</p>
+
+      {/* Analysis panel */}
+      {showAnalysis && (
+        <CodexAnalysis entries={entries} onClose={() => setShowAnalysis(false)} />
+      )}
 
       {/* Export panel */}
       {showExport && (
