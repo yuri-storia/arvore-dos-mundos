@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FRUITS, getOrderedFruits, METHOD_DESCRIPTIONS, MethodType, GalleryImage } from '@/lib/data';
 import { getFruitProgress, callAIText, exportWorldMarkdown } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
 import { FruitGuideBlock } from '@/components/FruitGuideBlock';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { CreateFichaButton } from '@/components/CreateFichaButton';
+import { useCodexEntries } from '@/hooks/useCodexEntries';
 import type { AppState } from '@/lib/data';
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
 
 export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFruit, setMethod }) => {
   const { db, currentFruit, method, worldName } = state;
+  const { entries, createEntry, updateEntry } = useCodexEntries();
   const [aiQuestion, setAiQuestion] = useState('');
   const [aiResponse, setAiResponse] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
@@ -26,6 +28,41 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   const [aiHelpQuestion, setAiHelpQuestion] = useState('');
   const [aiHelpResponse, setAiHelpResponse] = useState('');
   const [aiHelpLoading, setAiHelpLoading] = useState(false);
+  const magictypeArticleRef = useRef<string | null>(null);
+
+  // Fruits that generate fichas
+  const FICHA_FRUITS = [0, 5, 9]; // Mapa do Mundo, Seres Fantásticos, Personagens
+  // Cultura (3) generates artigos except for 'items' field which generates fichas
+
+  const getEntryTypeForField = (fruitId: number, fieldId: string): 'ficha' | 'artigo' => {
+    if (FICHA_FRUITS.includes(fruitId)) return 'ficha';
+    if (fruitId === 3 && fieldId === 'items') return 'ficha';
+    return 'artigo';
+  };
+
+  // Handle magictype auto-article creation/update
+  const handleMagictypeChange = async (value: string) => {
+    updateField(4, 'magictype', value);
+    if (!value) return;
+    
+    // Find existing magictype article
+    const existing = entries.find(e => 
+      e.fruit_id === 4 && e.entry_type === 'artigo' && e.content?.startsWith('__magictype__')
+    );
+    
+    if (existing) {
+      // Just update the title
+      await updateEntry(existing.id, { title: value });
+    } else if (value) {
+      // Create a new article once
+      await createEntry({
+        title: value,
+        content: `__magictype__\n\nTipo de sistema mágico selecionado: ${value}`,
+        entry_type: 'artigo',
+        fruit_id: 4,
+      });
+    }
+  };
 
   const orderedFruits = getOrderedFruits(method);
   const fruitsStarted = FRUITS.filter(f => getFruitProgress(db, f.id).filled > 0).length;
@@ -249,86 +286,106 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
             {/* Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              {fruit.fields.map(field => (
-                <div key={field.id} className={field.type === 'textarea' ? 'md:col-span-2' : ''}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold">
-                      {field.label}
-                    </label>
-                    <button
-                      onClick={() => toggleAiHelp(field.id)}
-                      className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-montserrat font-bold transition-all ${
-                        aiHelpField === field.id
-                          ? 'bg-gold/20 text-gold border border-gold/40 shadow-[0_0_8px_rgba(200,146,42,0.3)]'
-                          : 'text-gold/60 hover:text-gold hover:bg-gold/10 border border-transparent hover:border-gold/20'
-                      }`}
-                    >
-                      <span className={`text-sm ${aiHelpField === field.id ? 'animate-pulse' : ''}`} style={{ filter: aiHelpField === field.id ? 'drop-shadow(0 0 4px rgba(232,184,75,0.8))' : 'drop-shadow(0 0 2px rgba(232,184,75,0.4))' }}>💡</span>
-                      Modo Ajuda AI
-                    </button>
-                  </div>
-                  <CreateFichaButton
-                    fieldValue={db[currentFruit]?.[field.id] || ''}
-                    fieldLabel={field.label}
-                    fruitId={currentFruit}
-                  >
-                    {field.type === 'select' ? (
+              {fruit.fields.map(field => {
+                const isMagictype = currentFruit === 4 && field.id === 'magictype';
+                const entryType = getEntryTypeForField(currentFruit, field.id);
+
+                return (
+                  <div key={field.id} className={field.type === 'textarea' ? 'md:col-span-2' : ''}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold">
+                        {field.label}
+                      </label>
+                      {!isMagictype && (
+                        <button
+                          onClick={() => toggleAiHelp(field.id)}
+                          className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-montserrat font-bold transition-all ${
+                            aiHelpField === field.id
+                              ? 'bg-gold/20 text-gold border border-gold/40 shadow-[0_0_8px_rgba(200,146,42,0.3)]'
+                              : 'text-gold/60 hover:text-gold hover:bg-gold/10 border border-transparent hover:border-gold/20'
+                          }`}
+                        >
+                          <span className={`text-sm ${aiHelpField === field.id ? 'animate-pulse' : ''}`} style={{ filter: aiHelpField === field.id ? 'drop-shadow(0 0 4px rgba(232,184,75,0.8))' : 'drop-shadow(0 0 2px rgba(232,184,75,0.4))' }}>💡</span>
+                          Modo Ajuda AI
+                        </button>
+                      )}
+                    </div>
+
+                    {isMagictype ? (
                       <select
                         value={db[currentFruit]?.[field.id] || ''}
-                        onChange={e => updateField(currentFruit, field.id, e.target.value)}
-                        className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-0 rounded-t-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50"
+                        onChange={e => handleMagictypeChange(e.target.value)}
+                        className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50"
                       >
                         <option value="">Selecione…</option>
                         {field.opts?.map(o => <option key={o} value={o}>{o}</option>)}
                       </select>
                     ) : (
-                      <textarea
-                        value={db[currentFruit]?.[field.id] || ''}
-                        onChange={e => updateField(currentFruit, field.id, e.target.value)}
-                        placeholder={field.ph}
-                        rows={4}
-                        className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-0 rounded-t-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-blue-bright/50 resize-y"
-                      />
+                      <CreateFichaButton
+                        fieldValue={db[currentFruit]?.[field.id] || ''}
+                        fieldLabel={field.label}
+                        fruitId={currentFruit}
+                        entryType={entryType}
+                      >
+                        {field.type === 'select' ? (
+                          <select
+                            value={db[currentFruit]?.[field.id] || ''}
+                            onChange={e => updateField(currentFruit, field.id, e.target.value)}
+                            className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-0 rounded-t-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50"
+                          >
+                            <option value="">Selecione…</option>
+                            {field.opts?.map(o => <option key={o} value={o}>{o}</option>)}
+                          </select>
+                        ) : (
+                          <textarea
+                            value={db[currentFruit]?.[field.id] || ''}
+                            onChange={e => updateField(currentFruit, field.id, e.target.value)}
+                            placeholder={field.ph}
+                            rows={4}
+                            className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-0 rounded-t-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-blue-bright/50 resize-y"
+                          />
+                        )}
+                      </CreateFichaButton>
                     )}
-                  </CreateFichaButton>
-                  {/* AI Help panel for this field */}
-                  {aiHelpField === field.id && (
-                    <div className="animate-fadeUp mt-2 p-3 rounded-lg border border-gold/20 bg-gold/[0.04]">
-                      <div className="flex flex-col sm:flex-row gap-2 mb-2">
-                        <input
-                          type="text"
-                          value={aiHelpQuestion}
-                          onChange={e => setAiHelpQuestion(e.target.value)}
-                          onKeyDown={e => e.key === 'Enter' && handleFieldAiHelp(field.label)}
-                          placeholder={`Pergunte algo sobre "${field.label}" ou clique para sugestão automática…`}
-                          className="flex-1 bg-[rgba(4,12,24,0.6)] border border-gold/20 rounded-md px-3 py-1.5 text-xs text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/60 focus:outline-none focus:border-gold/40"
-                        />
-                        <button
-                          onClick={() => handleFieldAiHelp(field.label)}
-                          disabled={aiHelpLoading}
-                          className="px-3 py-1.5 bg-gold/80 hover:bg-gold text-background rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
-                        >
-                          💡 {aiHelpQuestion.trim() ? 'Perguntar' : 'Sugerir'}
-                        </button>
+
+                    {aiHelpField === field.id && (
+                      <div className="animate-fadeUp mt-2 p-3 rounded-lg border border-gold/20 bg-gold/[0.04]">
+                        <div className="flex flex-col sm:flex-row gap-2 mb-2">
+                          <input
+                            type="text"
+                            value={aiHelpQuestion}
+                            onChange={e => setAiHelpQuestion(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handleFieldAiHelp(field.label)}
+                            placeholder={`Pergunte algo sobre "${field.label}" ou clique para sugestão automática…`}
+                            className="flex-1 bg-[rgba(4,12,24,0.6)] border border-gold/20 rounded-md px-3 py-1.5 text-xs text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/60 focus:outline-none focus:border-gold/40"
+                          />
+                          <button
+                            onClick={() => handleFieldAiHelp(field.label)}
+                            disabled={aiHelpLoading}
+                            className="px-3 py-1.5 bg-gold/80 hover:bg-gold text-background rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
+                          >
+                            💡 {aiHelpQuestion.trim() ? 'Perguntar' : 'Sugerir'}
+                          </button>
+                        </div>
+                        {aiHelpLoading && (
+                          <div className="flex items-center gap-1 text-gold/70 text-xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-2" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-3" />
+                            <span className="ml-2 font-merriweather italic text-[10px]">Consultando IA…</span>
+                          </div>
+                        )}
+                        {aiHelpResponse && !aiHelpLoading && (
+                          <div className="border-l-2 border-gold/40 pl-3 py-2 bg-gold/[0.03] rounded-r-md">
+                            <span className="font-cinzel text-[9px] text-gold block mb-1">💡 Sugestão da IA</span>
+                            <p className="font-merriweather text-xs text-foreground whitespace-pre-wrap leading-relaxed">{aiHelpResponse}</p>
+                          </div>
+                        )}
                       </div>
-                      {aiHelpLoading && (
-                        <div className="flex items-center gap-1 text-gold/70 text-xs">
-                          <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce" />
-                          <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-2" />
-                          <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-3" />
-                          <span className="ml-2 font-merriweather italic text-[10px]">Consultando IA…</span>
-                        </div>
-                      )}
-                      {aiHelpResponse && !aiHelpLoading && (
-                        <div className="border-l-2 border-gold/40 pl-3 py-2 bg-gold/[0.03] rounded-r-md">
-                          <span className="font-cinzel text-[9px] text-gold block mb-1">💡 Sugestão da IA</span>
-                          <p className="font-merriweather text-xs text-foreground whitespace-pre-wrap leading-relaxed">{aiHelpResponse}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             {/* AI Assistant */}

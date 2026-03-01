@@ -148,6 +148,7 @@ export const FRUITS: Fruit[] = [
       { id: 'arts', label: 'Crie um Ritual', type: 'textarea', ph: 'Descreva um ritual — pode ser público (reforça identidade coletiva) ou íntimo (revela o que a cultura esconde). Ex: "Festival da Primeira Neve (público) — três dias de combates cerimoniais e banquetes nas ruas."' },
       { id: 'customs', label: 'Crie um Tabu', type: 'textarea', ph: 'Descreva algo que esse povo simplesmente não faz — e que revela muito sobre quem eles são. O que acontece com quem viola? Ex: "Nunca se menciona o nome de um morto por 40 dias. Quem viola traz o luto de volta."' },
       { id: 'food', label: 'Crie um Detalhe Cotidiano', type: 'textarea', ph: 'Descreva como essa cultura aparece no dia a dia: vestuário, cumprimento, forma de comer, de tratar estranhos. Se você consegue ver e ouvir esse povo, a cultura está viva.' },
+      { id: 'items', label: 'Crie um Item Cultural', type: 'textarea', ph: 'Descreva um item marcante dessa cultura: vestimenta cerimonial, arma tradicional, instrumento musical ou artefato do cotidiano. Ex: "A Lâmina do Juramento — adaga cerimonial que todo jovem recebe ao completar 16 anos."' },
     ],
     chips: ['Criar um valor com contradição oculta', 'Desenvolver um ritual com significado profundo', 'Criar um tabu e suas consequências', 'Gerar uma cena que mostra a cultura em ação'],
     guide: {
