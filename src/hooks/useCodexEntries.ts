@@ -46,6 +46,11 @@ export function useCodexEntries() {
   }, [user]);
 
   const updateEntry = useCallback(async (id: string, updates: Partial<Pick<CodexEntry, 'title' | 'content' | 'image_url' | 'entry_type' | 'fruit_id'>>) => {
+    // Prevent saving blob URLs — they are temporary and won't persist
+    if (updates.image_url && updates.image_url.startsWith('blob:')) {
+      toast.error('Imagem temporária detectada. Faça upload novamente.');
+      return;
+    }
     const { error } = await supabase.from('codex_entries').update(updates).eq('id', id);
     if (error) { toast.error('Erro ao atualizar ficha'); return; }
     setEntries(prev => prev.map(e => e.id === id ? { ...e, ...updates, updated_at: new Date().toISOString() } : e));
