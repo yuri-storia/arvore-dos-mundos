@@ -7,26 +7,30 @@ interface Props {
   fieldValue: string;
   fieldLabel: string;
   fruitId: number;
+  entryType?: 'ficha' | 'artigo';
   children: React.ReactNode;
 }
 
-export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fruitId, children }) => {
+export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fruitId, entryType = 'ficha', children }) => {
   const { user } = useAuth();
   const { entries, createEntry, updateEntry } = useCodexEntries();
   const [showMenu, setShowMenu] = useState(false);
   const [showAddTo, setShowAddTo] = useState(false);
-  
 
   const hasValue = !!fieldValue?.trim();
+  const isFicha = entryType === 'ficha';
+
+  // Filter entries for "Inserir em existente" to show only matching type
+  const matchingEntries = entries.filter(e => 
+    isFicha ? e.entry_type !== 'artigo' : e.entry_type === 'artigo'
+  );
 
   return (
     <div className="relative">
-      {/* The field content */}
       {children}
 
-      {/* Bottom bar with save button */}
       {user && (
-        <div className="flex items-center justify-end px-2 py-1.5 rounded-b-md bg-[rgba(15,30,55,0.6)] border border-t-0 border-blue-bright/20">
+        <div className="flex items-center justify-end px-2 py-1.5 rounded-b-md bg-[hsl(var(--blue-main)/0.12)] border border-t-0 border-blue-bright/20">
           <button
             onClick={() => hasValue && setShowMenu(!showMenu)}
             disabled={!hasValue}
@@ -41,35 +45,45 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
         </div>
       )}
 
-      {/* Dropdown menu */}
       {showMenu && (
         <div className="animate-fadeUp absolute right-0 bottom-full mb-1 z-50 w-[280px] card-glass rounded-lg p-3 shadow-lg border border-blue-bright/30">
           {!showAddTo ? (
             <>
-              <h4 className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-blue-light mb-2">Salvar como nova ficha no Codex</h4>
+              <h4 className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-blue-light mb-2">
+                {isFicha ? 'Salvar como nova ficha no Codex' : 'Salvar como novo artigo no Codex'}
+              </h4>
               <div className="flex gap-2">
                 <button
                   onClick={async () => {
-                    await createEntry({ title: fieldLabel, content: fieldValue, entry_type: 'geral', fruit_id: fruitId });
+                    await createEntry({ 
+                      title: fieldLabel, 
+                      content: fieldValue, 
+                      entry_type: isFicha ? 'ficha' : 'artigo', 
+                      fruit_id: fruitId 
+                    });
                     setShowMenu(false);
                   }}
                   className="px-3 py-1.5 bg-blue-main hover:bg-blue-bright text-foreground rounded text-[10px] font-montserrat font-bold uppercase transition-colors"
                 >
-                  Criar nova ficha
+                  {isFicha ? 'Criar Ficha' : 'Criar Artigo'}
                 </button>
                 <button onClick={() => setShowAddTo(true)} className="px-3 py-1.5 bg-gold/20 hover:bg-gold/30 text-gold-light rounded text-[10px] font-montserrat font-bold uppercase transition-colors">
-                  Adicionar em existente
+                  {isFicha ? 'Inserir em Ficha Existente' : 'Inserir em Artigo Existente'}
                 </button>
               </div>
             </>
           ) : (
             <>
-              <h4 className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-gold-light mb-2">Adicionar em ficha existente</h4>
-              {entries.length === 0 ? (
-                <p className="text-[10px] text-text-dim font-merriweather italic">Nenhuma ficha existente.</p>
+              <h4 className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-gold-light mb-2">
+                {isFicha ? 'Inserir em ficha existente' : 'Inserir em artigo existente'}
+              </h4>
+              {matchingEntries.length === 0 ? (
+                <p className="text-[10px] text-text-dim font-merriweather italic">
+                  {isFicha ? 'Nenhuma ficha existente.' : 'Nenhum artigo existente.'}
+                </p>
               ) : (
                 <div className="max-h-[200px] overflow-y-auto space-y-1">
-                  {entries.map(e => {
+                  {matchingEntries.map(e => {
                     const fruitInfo = FRUITS.find(f => f.id === e.fruit_id);
                     return (
                       <button

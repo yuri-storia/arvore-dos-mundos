@@ -135,6 +135,12 @@ const Index = () => {
       <div className="fixed inset-0 pointer-events-none z-0" style={{ background: '#02070d' }} />
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute top-[300px] left-1/2 -translate-x-1/2 w-[140%] h-[600px]" style={{ background: 'radial-gradient(ellipse 80% 100% at 50% 0%, rgba(43,74,108,0.08) 0%, transparent 60%)', filter: 'blur(80px)' }} />
+        {/* Bottom rising particles */}
+        <div className="particle-bottom" style={{ left: '12%', animationDelay: '0s', animationDuration: '18s' }} />
+        <div className="particle-bottom" style={{ left: '35%', animationDelay: '4s', animationDuration: '22s' }} />
+        <div className="particle-bottom" style={{ left: '58%', animationDelay: '8s', animationDuration: '20s' }} />
+        <div className="particle-bottom" style={{ left: '78%', animationDelay: '2s', animationDuration: '24s' }} />
+        <div className="particle-bottom" style={{ left: '90%', animationDelay: '10s', animationDuration: '19s' }} />
       </div>
 
       <div className="relative z-10">
