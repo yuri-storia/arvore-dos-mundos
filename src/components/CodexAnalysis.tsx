@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FRUITS } from '@/lib/data';
 import { callAIText } from '@/lib/helpers';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
+import { useSubscription } from '@/hooks/useSubscription';
 import ReactMarkdown from 'react-markdown';
 import { Progress } from '@/components/ui/progress';
 
@@ -10,15 +11,19 @@ interface Props {
   onClose: () => void;
 }
 
+const ANALYSIS_COST = 1;
+
 export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
   const [analysis, setAnalysis] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const sub = useSubscription();
+
+  const creditsRemaining = sub.creditLimit - sub.creditsUsed;
+  const canAnalyze = sub.active && creditsRemaining >= ANALYSIS_COST;
 
   const buildPrompt = () => {
     const lines: string[] = [];
-
-    // Group entries by fruit
     FRUITS.forEach(fruit => {
       const fruitEntries = entries.filter(e => e.fruit_id === fruit.id);
       if (fruitEntries.length === 0) {
@@ -34,8 +39,6 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
         lines.push('');
       });
     });
-
-    // Entries without fruit
     const orphans = entries.filter(e => e.fruit_id === null);
     if (orphans.length > 0) {
       lines.push(`## ❓ Sem fruto associado (${orphans.length})`);
@@ -43,12 +46,11 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
         lines.push(`- ${e.title}: ${(e.content || '').slice(0, 200)}`);
       });
     }
-
     return lines.join('\n');
   };
 
   const handleAnalyze = async () => {
-    if (entries.length === 0) return;
+    if (entries.length === 0 || !canAnalyze) return;
     setLoading(true);
     setError('');
     setAnalysis('');
@@ -92,6 +94,10 @@ Seja construtivo, encorajador mas honesto. Use exemplos concretos das entradas q
   const artigos = entries.filter(e => e.entry_type === 'artigo').length;
   const coveredFruits = FRUITS.filter(f => entries.some(e => e.fruit_id === f.id)).length;
 
+  const creditPct = sub.creditLimit > 0 ? (sub.creditsUsed / sub.creditLimit) * 100 : 0;
+  const isLow = creditsRemaining <= 10;
+  const isOut = creditsRemaining < ANALYSIS_COST;
+
   return (
     <div className="rounded-lg p-4 sm:p-5 mb-6 animate-fadeUp border border-accent/20" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.10) 0%, rgba(59,130,246,0.10) 50%, rgba(16,185,129,0.08) 100%)', backdropFilter: 'blur(20px)' }}>
       <div className="flex items-start justify-between mb-4">
@@ -131,6 +137,38 @@ Seja construtivo, encorajador mas honesto. Use exemplos concretos das entradas q
         <Progress value={(coveredFruits / 11) * 100} className="h-1.5 bg-border" />
       </div>
 
+      {/* Credit info */}
+      {!sub.loading && sub.active && (
+        <div className={`rounded-md px-3 py-2 mb-4 border ${isOut ? 'border-destructive/30 bg-destructive/5' : isLow ? 'border-amber-500/30 bg-amber-500/5' : 'border-border bg-background/30'}`}>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[9px] uppercase tracking-wider font-montserrat font-bold text-text-dim">
+              {isOut ? '🚫' : isLow ? '⚠️' : '✨'} Créditos de IA
+            </span>
+            <span className={`text-[10px] font-montserrat font-bold ${isOut ? 'text-destructive' : isLow ? 'text-amber-400' : 'text-foreground'}`}>
+              {creditsRemaining}/{sub.creditLimit}
+            </span>
+          </div>
+          <Progress
+            value={creditPct}
+            className={`h-1 ${isOut ? 'bg-destructive/20' : isLow ? 'bg-amber-500/20' : 'bg-border'}`}
+          />
+          {isOut && (
+            <p className="text-[10px] text-destructive font-merriweather mt-1">Créditos esgotados. Aguarde o próximo mês.</p>
+          )}
+          {isLow && !isOut && (
+            <p className="text-[10px] text-amber-400 font-merriweather mt-1">Poucos créditos restantes.</p>
+          )}
+        </div>
+      )}
+
+      {!sub.loading && !sub.active && (
+        <div className="rounded-md px-3 py-2 mb-4 border border-destructive/30 bg-destructive/5">
+          <p className="text-[10px] text-destructive font-merriweather">
+            🚫 Você precisa de um plano ativo para usar a IA.
+          </p>
+        </div>
+      )}
+
       {!analysis && !loading && (
         <div className="text-center">
           {entries.length === 0 ? (
@@ -140,12 +178,15 @@ Seja construtivo, encorajador mas honesto. Use exemplos concretos das entradas q
           ) : (
             <button
               onClick={handleAnalyze}
-              className="px-5 py-2.5 bg-gradient-to-r from-violet-600 via-blue-500 to-emerald-500 hover:from-violet-500 hover:via-blue-400 hover:to-emerald-400 text-white rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)]"
+              disabled={!canAnalyze || sub.loading}
+              className="px-5 py-2.5 bg-gradient-to-r from-violet-600 via-blue-500 to-emerald-500 hover:from-violet-500 hover:via-blue-400 hover:to-emerald-400 text-white rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
             >
               🔮 Analisar {entries.length} entrada{entries.length !== 1 ? 's' : ''}
             </button>
           )}
-          <p className="text-[10px] text-text-dim mt-2 font-montserrat">Consome 1 crédito de IA</p>
+          <p className="text-[10px] text-text-dim mt-2 font-montserrat">
+            Consome {ANALYSIS_COST} crédito{ANALYSIS_COST !== 1 ? 's' : ''} de IA
+          </p>
         </div>
       )}
 
@@ -186,7 +227,8 @@ Seja construtivo, encorajador mas honesto. Use exemplos concretos das entradas q
           <div className="flex gap-2 mt-3 justify-end">
             <button
               onClick={handleAnalyze}
-              className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors"
+              disabled={!canAnalyze}
+              className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors disabled:opacity-40"
             >
               🔄 Analisar novamente
             </button>
