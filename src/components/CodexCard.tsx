@@ -1,4 +1,5 @@
 import React, { useState, useRef, useMemo, useCallback } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { callAIImage } from '@/lib/helpers';
@@ -77,33 +78,35 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   // Filter out __magictype__ marker from displayed content
   const displayContent = entry.content?.replace(/^__magictype__\n?/, '').trim() || '';
 
-  // Parse sections from content for wiki TOC (must be before early returns)
+  // Parse sections from content for wiki TOC using ## headings
   const sections = useMemo(() => {
     if (!displayContent) return [];
-    const blocks = displayContent.split(/\n{2,}/);
+    // Split by ## headings
+    const parts = displayContent.split(/^(##\s+.+)$/m);
     const result: { id: string; title: string; content: string }[] = [];
     let sectionIndex = 0;
 
-    for (const block of blocks) {
-      const trimmed = block.trim();
-      if (!trimmed) continue;
+    // If content starts before any ##, capture as intro
+    let i = 0;
+    if (parts.length > 0 && !parts[0].startsWith('## ')) {
+      const intro = parts[0].trim();
+      if (intro) {
+        result.push({ id: `section-${sectionIndex++}`, title: '', content: intro });
+      }
+      i = 1;
+    }
 
-      const lines = trimmed.split('\n');
-      const firstLine = lines[0].trim();
-
-      const isHeading = (firstLine.length <= 80 && !firstLine.endsWith('.') && !firstLine.endsWith('!') && !firstLine.endsWith('?')) || firstLine.endsWith(':');
-
-      if (isHeading && lines.length === 1) {
-        result.push({ id: `section-${sectionIndex++}`, title: firstLine.replace(/:$/, ''), content: '' });
-      } else if (isHeading && lines.length > 1) {
-        result.push({ id: `section-${sectionIndex++}`, title: firstLine.replace(/:$/, ''), content: lines.slice(1).join('\n').trim() });
+    for (; i < parts.length; i++) {
+      const part = parts[i].trim();
+      if (!part) continue;
+      if (part.startsWith('## ')) {
+        const heading = part.replace(/^##\s+/, '');
+        result.push({ id: `section-${sectionIndex++}`, title: heading, content: '' });
       } else {
-        if (result.length > 0 && !result[result.length - 1].content) {
-          result[result.length - 1].content = trimmed;
-        } else if (result.length > 0) {
-          result[result.length - 1].content += '\n\n' + trimmed;
+        if (result.length > 0) {
+          result[result.length - 1].content += (result[result.length - 1].content ? '\n\n' : '') + part;
         } else {
-          result.push({ id: `section-${sectionIndex++}`, title: '', content: trimmed });
+          result.push({ id: `section-${sectionIndex++}`, title: '', content: part });
         }
       }
     }
@@ -284,7 +287,31 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                         </h3>
                       )}
                       {s.content && (
-                        <p className="font-merriweather text-sm text-muted-foreground whitespace-pre-wrap leading-[1.85]">{s.content}</p>
+                        <div className="codex-markdown font-merriweather text-sm text-muted-foreground leading-[1.85]">
+                          <ReactMarkdown
+                            components={{
+                              h1: ({ children }) => <h1 className="font-cinzel font-bold text-lg text-foreground mt-4 mb-2">{children}</h1>,
+                              h2: ({ children }) => <h2 className="font-cinzel font-bold text-base text-foreground mt-3 mb-2">{children}</h2>,
+                              h3: ({ children }) => <h3 className="font-cinzel font-bold text-sm text-foreground mt-2 mb-1">{children}</h3>,
+                              p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
+                              strong: ({ children }) => <strong className="font-bold text-foreground">{children}</strong>,
+                              em: ({ children }) => <em className="italic text-accent/80">{children}</em>,
+                              ul: ({ children }) => <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>,
+                              ol: ({ children }) => <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>,
+                              li: ({ children }) => <li>{children}</li>,
+                              blockquote: ({ children }) => <blockquote className="border-l-2 border-accent/30 pl-3 italic text-accent/70 my-3">{children}</blockquote>,
+                              hr: () => <hr className="border-accent/15 my-4" />,
+                              code: ({ children, className }) => {
+                                const isBlock = className?.includes('language-');
+                                return isBlock
+                                  ? <pre className="bg-secondary/50 rounded-md p-3 overflow-x-auto my-3"><code className="text-xs font-mono text-foreground">{children}</code></pre>
+                                  : <code className="bg-secondary/40 rounded px-1 py-0.5 text-xs font-mono text-accent">{children}</code>;
+                              },
+                            }}
+                          >
+                            {s.content}
+                          </ReactMarkdown>
+                        </div>
                       )}
                     </div>
                   ))
