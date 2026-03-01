@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo, useCallback } from 'react';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { callAIImage } from '@/lib/helpers';
@@ -76,6 +76,48 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
   // Filter out __magictype__ marker from displayed content
   const displayContent = entry.content?.replace(/^__magictype__\n?/, '').trim() || '';
+
+  // Parse sections from content for wiki TOC (must be before early returns)
+  const sections = useMemo(() => {
+    if (!displayContent) return [];
+    const blocks = displayContent.split(/\n{2,}/);
+    const result: { id: string; title: string; content: string }[] = [];
+    let sectionIndex = 0;
+
+    for (const block of blocks) {
+      const trimmed = block.trim();
+      if (!trimmed) continue;
+
+      const lines = trimmed.split('\n');
+      const firstLine = lines[0].trim();
+
+      const isHeading = (firstLine.length <= 80 && !firstLine.endsWith('.') && !firstLine.endsWith('!') && !firstLine.endsWith('?')) || firstLine.endsWith(':');
+
+      if (isHeading && lines.length === 1) {
+        result.push({ id: `section-${sectionIndex++}`, title: firstLine.replace(/:$/, ''), content: '' });
+      } else if (isHeading && lines.length > 1) {
+        result.push({ id: `section-${sectionIndex++}`, title: firstLine.replace(/:$/, ''), content: lines.slice(1).join('\n').trim() });
+      } else {
+        if (result.length > 0 && !result[result.length - 1].content) {
+          result[result.length - 1].content = trimmed;
+        } else if (result.length > 0) {
+          result[result.length - 1].content += '\n\n' + trimmed;
+        } else {
+          result.push({ id: `section-${sectionIndex++}`, title: '', content: trimmed });
+        }
+      }
+    }
+    return result;
+  }, [displayContent]);
+
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const scrollToSection = useCallback((sectionId: string) => {
+    const el = contentRef.current?.querySelector(`[data-section="${sectionId}"]`);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
+  const hasToc = sections.filter(s => s.title).length >= 2;
 
   // Collapsed card
   if (!expanded) {
@@ -207,12 +249,49 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               />
             </>
           ) : (
-            <div className="mb-4 max-h-[500px] overflow-y-auto pr-2">
-              {displayContent ? (
-                <p className="font-merriweather text-sm text-muted-foreground whitespace-pre-wrap leading-[1.85]">{displayContent}</p>
-              ) : (
-                <p className="font-merriweather text-sm text-text-dim italic">Sem conteúdo ainda. Clique em editar para adicionar.</p>
+            <div className="flex gap-5">
+              {/* Wiki TOC sidebar */}
+              {hasToc && (
+                <nav className="hidden sm:block w-[180px] flex-shrink-0 sticky top-0 self-start">
+                  <div className="border border-accent/20 rounded-md bg-accent/5 p-3">
+                    <h4 className="font-montserrat font-bold text-[9px] uppercase tracking-wider text-accent mb-2 pb-1.5 border-b border-accent/15">
+                      📑 Índice
+                    </h4>
+                    <ul className="space-y-1">
+                      {sections.filter(s => s.title).map((s, i) => (
+                        <li key={s.id}>
+                          <button
+                            onClick={e => { e.stopPropagation(); scrollToSection(s.id); }}
+                            className="text-left w-full text-[11px] font-merriweather text-muted-foreground hover:text-accent transition-colors leading-snug py-0.5 pl-2 border-l-2 border-transparent hover:border-accent/50"
+                          >
+                            {i + 1}. {s.title}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </nav>
               )}
+
+              {/* Article body with sections */}
+              <div ref={contentRef} className="flex-1 mb-4 max-h-[500px] overflow-y-auto pr-2">
+                {sections.length > 0 ? (
+                  sections.map(s => (
+                    <div key={s.id} data-section={s.id} className="mb-5">
+                      {s.title && (
+                        <h3 className="font-cinzel font-bold text-base text-foreground mb-2 pb-1 border-b border-accent/15">
+                          {s.title}
+                        </h3>
+                      )}
+                      {s.content && (
+                        <p className="font-merriweather text-sm text-muted-foreground whitespace-pre-wrap leading-[1.85]">{s.content}</p>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="font-merriweather text-sm text-text-dim italic">Sem conteúdo ainda. Clique em editar para adicionar.</p>
+                )}
+              </div>
             </div>
           )}
 
