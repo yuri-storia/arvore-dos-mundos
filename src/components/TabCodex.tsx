@@ -266,21 +266,59 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {filtered.map(entry => (
-            <CodexCard
-              key={entry.id}
-              entry={entry}
-              expanded={expandedId === entry.id}
-              onToggle={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
-              onUpdate={updateEntry}
-              onDelete={deleteEntry}
-              onImageUpload={uploadImage}
-              onLightbox={setLightbox}
-              gallery={gallery}
-            />
-          ))}
-        </div>
+        <>
+          {/* Fichas section */}
+          {filtered.some(e => e.entry_type === 'ficha') && (
+            <div className="mb-8">
+              <h2 className="font-cinzel font-bold text-base text-blue-light mb-3 flex items-center gap-2">
+                <span className="w-8 h-[2px] bg-gradient-to-r from-ring to-transparent" />
+                📋 Fichas
+                <span className="text-[10px] font-montserrat font-bold text-text-dim uppercase">({filtered.filter(e => e.entry_type === 'ficha').length})</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {filtered.filter(e => e.entry_type === 'ficha').map(entry => (
+                  <CodexCard
+                    key={entry.id}
+                    entry={entry}
+                    expanded={expandedId === entry.id}
+                    onToggle={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
+                    onUpdate={updateEntry}
+                    onDelete={deleteEntry}
+                    onImageUpload={uploadImage}
+                    onLightbox={setLightbox}
+                    gallery={gallery}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Artigos section */}
+          {filtered.some(e => e.entry_type === 'artigo') && (
+            <div className="mb-8">
+              <h2 className="font-cinzel font-bold text-base text-gold mb-3 flex items-center gap-2">
+                <span className="w-8 h-[2px] bg-gradient-to-r from-gold to-transparent" />
+                📝 Artigos
+                <span className="text-[10px] font-montserrat font-bold text-text-dim uppercase">({filtered.filter(e => e.entry_type === 'artigo').length})</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {filtered.filter(e => e.entry_type === 'artigo').map(entry => (
+                  <CodexCard
+                    key={entry.id}
+                    entry={entry}
+                    expanded={expandedId === entry.id}
+                    onToggle={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
+                    onUpdate={updateEntry}
+                    onDelete={deleteEntry}
+                    onImageUpload={uploadImage}
+                    onLightbox={setLightbox}
+                    gallery={gallery}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
