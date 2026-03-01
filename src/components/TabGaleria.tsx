@@ -1,6 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { FRUITS, GalleryImage } from '@/lib/data';
 import { ImageLightbox } from '@/components/ImageLightbox';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 interface Props {
   gallery: GalleryImage[];
@@ -8,10 +11,12 @@ interface Props {
 }
 
 export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
+  const { user } = useAuth();
   const [filter, setFilter] = useState('Todos');
   const [uploadQueue, setUploadQueue] = useState<{ file: File; name: string; cat: string }[]>([]);
   const [currentUpload, setCurrentUpload] = useState<{ file: File; name: string; cat: string; preview: string } | null>(null);
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+  const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const filtered = filter === 'Todos' ? gallery : gallery.filter(img => img.cat === filter);
@@ -37,16 +42,31 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
     setCurrentUpload({ ...item, preview });
   };
 
-  const saveUpload = () => {
-    if (!currentUpload) return;
-    const newImg: GalleryImage = {
-      id: Date.now().toString(),
-      src: currentUpload.preview,
-      name: currentUpload.name,
-      cat: currentUpload.cat,
-    };
-    setGallery([...gallery, newImg]);
-    processQueue(uploadQueue);
+  const saveUpload = async () => {
+    if (!currentUpload || !user) return;
+    setSaving(true);
+    try {
+      // Upload file to storage
+      const ext = currentUpload.file.name.split('.').pop() || 'webp';
+      const path = `${user.id}/gallery-${crypto.randomUUID()}.${ext}`;
+      const { error } = await supabase.storage.from('codex-images').upload(path, currentUpload.file);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from('codex-images').getPublicUrl(path);
+
+      const newImg: GalleryImage = {
+        id: Date.now().toString(),
+        src: publicUrl,
+        name: currentUpload.name,
+        cat: currentUpload.cat,
+      };
+      URL.revokeObjectURL(currentUpload.preview);
+      setGallery([...gallery, newImg]);
+      processQueue(uploadQueue);
+    } catch (err: any) {
+      toast.error('Erro ao enviar imagem: ' + (err.message || 'Tente novamente'));
+    } finally {
+      setSaving(false);
+    }
   };
 
   const removeImage = (id: string) => setGallery(gallery.filter(img => img.id !== id));
@@ -169,9 +189,10 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
               </button>
               <button
                 onClick={saveUpload}
-                className="px-4 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold transition-colors"
+                disabled={saving}
+                className="px-4 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold transition-colors disabled:opacity-50"
               >
-                Salvar
+                {saving ? '⏳ Enviando…' : 'Salvar'}
               </button>
             </div>
           </div>
