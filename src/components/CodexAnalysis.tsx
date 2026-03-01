@@ -3,6 +3,8 @@ import { FRUITS } from '@/lib/data';
 import { callAIText } from '@/lib/helpers';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import ReactMarkdown from 'react-markdown';
 import { Progress } from '@/components/ui/progress';
 
@@ -11,12 +13,13 @@ interface Props {
   onClose: () => void;
 }
 
-const ANALYSIS_COST = 1;
+const ANALYSIS_COST = 2;
 
 export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
   const [analysis, setAnalysis] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { user } = useAuth();
   const sub = useSubscription();
 
   const creditsRemaining = sub.creditLimit - sub.creditsUsed;
@@ -78,10 +81,14 @@ Liste 3 a 5 ações prioritárias que o criador deveria fazer a seguir para fort
 Seja construtivo, encorajador mas honesto. Use exemplos concretos das entradas quando possível.`;
 
     try {
+      const userId = user?.id || '';
+
       const content = await callAIText(
         [{ role: 'user', content: `Aqui estão todas as entradas do meu Codex:\n\n${buildPrompt()}` }],
         systemPrompt
       );
+      // ai-text already increments 1 credit; add 1 more for total cost of 2
+      await supabase.rpc('increment_ai_usage', { _user_id: userId, _type: 'text' });
       setAnalysis(content);
     } catch (e: any) {
       setError(e.message || 'Erro ao analisar.');
@@ -185,7 +192,7 @@ Seja construtivo, encorajador mas honesto. Use exemplos concretos das entradas q
             </button>
           )}
           <p className="text-[10px] text-text-dim mt-2 font-montserrat">
-            Consome {ANALYSIS_COST} crédito{ANALYSIS_COST !== 1 ? 's' : ''} de IA
+            Consome {ANALYSIS_COST} créditos de IA
           </p>
         </div>
       )}
