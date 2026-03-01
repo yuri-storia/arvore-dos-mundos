@@ -4,7 +4,6 @@ import { callAIText } from '@/lib/helpers';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import ReactMarkdown from 'react-markdown';
 import { Progress } from '@/components/ui/progress';
 
@@ -87,8 +86,13 @@ Seja construtivo, encorajador mas honesto. Use exemplos concretos das entradas q
         [{ role: 'user', content: `Aqui estão todas as entradas do meu Codex:\n\n${buildPrompt()}` }],
         systemPrompt
       );
-      // ai-text already increments 1 credit; add 1 more for total cost of 2
-      await supabase.rpc('increment_ai_usage', { _user_id: userId, _type: 'text' });
+      // ai-text edge function already increments 1 credit server-side;
+      // call ai-text again with a no-op to increment the second credit server-side
+      // This avoids exposing increment_ai_usage RPC to the client
+      await callAIText(
+        [{ role: 'user', content: 'ok' }],
+        'Respond with just the word "ok".'
+      );
       setAnalysis(content);
     } catch (e: any) {
       setError(e.message || 'Erro ao analisar.');
