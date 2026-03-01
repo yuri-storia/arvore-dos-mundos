@@ -2,161 +2,307 @@ import jsPDF from 'jspdf';
 import { FRUITS } from '@/lib/data';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 
-const MARGIN = 20;
-const BG_COLOR: [number, number, number] = [4, 12, 17];
-const TITLE_COLOR: [number, number, number] = [220, 230, 245];
-const HEADING_COLOR: [number, number, number] = [100, 181, 246];
-const LABEL_COLOR: [number, number, number] = [200, 146, 42];
-const BODY_COLOR: [number, number, number] = [200, 210, 225];
-const DIM_COLOR: [number, number, number] = [100, 120, 150];
-const ACCENT_LINE: [number, number, number] = [33, 150, 243];
+// ─── Colors ──────────────────────────────────────
+const BG: [number, number, number] = [4, 12, 17];
+const TITLE_CLR: [number, number, number] = [220, 230, 245];
+const HEADING_CLR: [number, number, number] = [100, 181, 246];
+const LABEL_CLR: [number, number, number] = [200, 146, 42];
+const BODY_CLR: [number, number, number] = [200, 210, 225];
+const DIM_CLR: [number, number, number] = [100, 120, 150];
+const ACCENT_CLR: [number, number, number] = [33, 150, 243];
+const DIVIDER_CLR: [number, number, number] = [33, 80, 130];
 
-function createDoc() {
+const MARGIN = 20;
+const LINE_H = 5.2; // line height for body text (10pt)
+const SMALL_LINE_H = 4; // line height for small text (8pt)
+
+// ─── Context ─────────────────────────────────────
+interface PdfCtx {
+  doc: jsPDF;
+  pageW: number;
+  pageH: number;
+  maxW: number;
+  y: number;
+}
+
+function createDoc(): PdfCtx {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
-  const maxW = pageW - MARGIN * 2;
-  let y = MARGIN;
-
-  const addPageBg = () => {
-    doc.setFillColor(...BG_COLOR);
-    doc.rect(0, 0, pageW, pageH, 'F');
-  };
-
-  const checkPage = (needed: number) => {
-    if (y + needed > pageH - MARGIN) {
-      doc.addPage();
-      addPageBg();
-      y = MARGIN;
-    }
-  };
-
-  addPageBg();
-
-  return { doc, pageW, pageH, maxW, y, setY: (val: number) => { y = val; }, getY: () => y, addPageBg, checkPage };
+  const ctx: PdfCtx = { doc, pageW, pageH, maxW: pageW - MARGIN * 2, y: MARGIN };
+  paintBg(ctx);
+  return ctx;
 }
 
-function renderEntry(ctx: ReturnType<typeof createDoc>, entry: CodexEntry) {
-  const { doc, maxW, checkPage, getY, setY } = ctx;
-  let y = getY();
+function paintBg(ctx: PdfCtx) {
+  ctx.doc.setFillColor(...BG);
+  ctx.doc.rect(0, 0, ctx.pageW, ctx.pageH, 'F');
+}
 
-  checkPage(20);
-  y = getY();
+function addFooter(ctx: PdfCtx) {
+  ctx.doc.setFontSize(7);
+  ctx.doc.setTextColor(...DIM_CLR);
+  ctx.doc.setFont('helvetica', 'italic');
+  ctx.doc.text('A Árvore dos Mundos · Universo STORIA', ctx.pageW / 2, ctx.pageH - 8, { align: 'center' });
+}
 
-  // Entry title
-  doc.setFontSize(12);
-  doc.setTextColor(...HEADING_COLOR);
-  doc.setFont('helvetica', 'bold');
-  doc.text(entry.title, MARGIN, y);
-  y += 2;
+function newPage(ctx: PdfCtx) {
+  addFooter(ctx);
+  ctx.doc.addPage();
+  paintBg(ctx);
+  ctx.y = MARGIN;
+}
 
-  doc.setDrawColor(...ACCENT_LINE);
-  doc.setLineWidth(0.3);
-  doc.line(MARGIN, y, MARGIN + 40, y);
-  y += 5;
+function ensureSpace(ctx: PdfCtx, needed: number) {
+  if (ctx.y + needed > ctx.pageH - MARGIN - 10) {
+    newPage(ctx);
+  }
+}
 
-  // Fruit badge
-  doc.setFontSize(8);
-  doc.setTextColor(...LABEL_COLOR);
-  doc.setFont('helvetica', 'bold');
-  const fruitInfo = entry.fruit_id !== null ? FRUITS.find(f => f.id === entry.fruit_id) : null;
-  const badge = fruitInfo ? fruitInfo.name : '';
-  if (badge) doc.text(badge, MARGIN, y);
-  y += 5;
+// ─── Strip markdown for plain text rendering ────
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/^__magictype__\n?/, '')
+    .replace(/^#{1,6}\s+/gm, '') // strip heading markers
+    .replace(/\*\*(.+?)\*\*/g, '$1') // bold
+    .replace(/\*(.+?)\*/g, '$1') // italic
+    .replace(/_(.+?)_/g, '$1') // italic alt
+    .replace(/`(.+?)`/g, '$1') // inline code
+    .replace(/^>\s?/gm, '  ') // blockquote
+    .replace(/^[-*]\s+/gm, '• ') // unordered list
+    .replace(/^\d+\.\s+/gm, (m) => m) // keep numbered lists
+    .replace(/---+/g, '────────────────────')
+    .trim();
+}
 
-  // Content
-  if (entry.content) {
-    doc.setFontSize(10);
-    doc.setTextColor(...BODY_COLOR);
-    doc.setFont('helvetica', 'normal');
-    const lines = doc.splitTextToSize(entry.content, maxW);
-    lines.forEach((line: string) => {
-      ctx.checkPage(6);
-      y = ctx.getY();
-      doc.text(line, MARGIN, y);
-      y += 5;
-      ctx.setY(y);
+// ─── Text helpers ────────────────────────────────
+function writeLines(ctx: PdfCtx, text: string, fontSize: number, color: [number, number, number], style: string, lineH: number, indent = 0) {
+  ctx.doc.setFontSize(fontSize);
+  ctx.doc.setTextColor(...color);
+  ctx.doc.setFont('helvetica', style);
+  const lines = ctx.doc.splitTextToSize(text, ctx.maxW - indent);
+  for (const line of lines) {
+    ensureSpace(ctx, lineH + 1);
+    ctx.doc.text(line, MARGIN + indent, ctx.y);
+    ctx.y += lineH;
+  }
+}
+
+// ─── Image embedding ────────────────────────────
+async function embedImage(ctx: PdfCtx, url: string, maxImgW: number, maxImgH: number): Promise<void> {
+  try {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = () => reject(new Error('img load fail'));
+      img.src = url;
     });
+
+    // Calculate aspect-fit dimensions
+    const ratio = img.naturalWidth / img.naturalHeight;
+    let w = maxImgW;
+    let h = w / ratio;
+    if (h > maxImgH) {
+      h = maxImgH;
+      w = h * ratio;
+    }
+
+    // Draw to canvas to get data URL
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const c2d = canvas.getContext('2d')!;
+    c2d.drawImage(img, 0, 0);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+    ensureSpace(ctx, h + 4);
+
+    // Center image
+    const x = MARGIN + (ctx.maxW - w) / 2;
+
+    // Subtle border around image
+    ctx.doc.setDrawColor(...DIVIDER_CLR);
+    ctx.doc.setLineWidth(0.3);
+    ctx.doc.roundedRect(x - 1, ctx.y - 1, w + 2, h + 2, 1, 1, 'S');
+
+    ctx.doc.addImage(dataUrl, 'JPEG', x, ctx.y, w, h);
+    ctx.y += h + 6;
+  } catch {
+    // Silently skip if image fails to load
+  }
+}
+
+// ─── Render a single entry ──────────────────────
+async function renderEntry(ctx: PdfCtx, entry: CodexEntry, includeImage = true) {
+  ensureSpace(ctx, 22);
+
+  // ── Entry type badge ──
+  const isArticle = entry.entry_type === 'artigo';
+  ctx.doc.setFontSize(7);
+  ctx.doc.setTextColor(...(isArticle ? LABEL_CLR : DIM_CLR));
+  ctx.doc.setFont('helvetica', 'bold');
+  ctx.doc.text(isArticle ? '📝 ARTIGO' : '📋 FICHA', MARGIN, ctx.y);
+  ctx.y += 4;
+
+  // ── Title ──
+  ctx.doc.setFontSize(13);
+  ctx.doc.setTextColor(...TITLE_CLR);
+  ctx.doc.setFont('helvetica', 'bold');
+  const titleLines = ctx.doc.splitTextToSize(entry.title, ctx.maxW);
+  for (const line of titleLines) {
+    ctx.doc.text(line, MARGIN, ctx.y);
+    ctx.y += 6.5;
   }
 
-  y += 6;
-  ctx.setY(y);
+  // ── Accent line ──
+  ctx.doc.setDrawColor(...ACCENT_CLR);
+  ctx.doc.setLineWidth(0.4);
+  ctx.doc.line(MARGIN, ctx.y, MARGIN + Math.min(ctx.maxW * 0.4, 60), ctx.y);
+  ctx.y += 4;
+
+  // ── Fruit badge ──
+  const fruitInfo = entry.fruit_id !== null ? FRUITS.find(f => f.id === entry.fruit_id) : null;
+  if (fruitInfo) {
+    ctx.doc.setFontSize(8);
+    ctx.doc.setTextColor(...LABEL_CLR);
+    ctx.doc.setFont('helvetica', 'bold');
+    ctx.doc.text(`${fruitInfo.icon} ${fruitInfo.name}`, MARGIN, ctx.y);
+    ctx.y += 6;
+  }
+
+  // ── Image (for fichas) ──
+  if (includeImage && entry.image_url && !isArticle) {
+    await embedImage(ctx, entry.image_url, Math.min(ctx.maxW * 0.7, 100), 70);
+  }
+
+  // ── Content ──
+  if (entry.content) {
+    const clean = stripMarkdown(entry.content);
+    if (clean) {
+      // Split into paragraphs for breathing room
+      const paragraphs = clean.split(/\n{2,}/);
+      for (const para of paragraphs) {
+        const trimmed = para.trim();
+        if (!trimmed) continue;
+
+        // Check if this is a divider line
+        if (trimmed.startsWith('──')) {
+          ensureSpace(ctx, 6);
+          ctx.doc.setDrawColor(...DIVIDER_CLR);
+          ctx.doc.setLineWidth(0.2);
+          ctx.doc.line(MARGIN, ctx.y, MARGIN + ctx.maxW, ctx.y);
+          ctx.y += 5;
+          continue;
+        }
+
+        // Check if it looks like a section heading (short, no ending punctuation)
+        const isHeadingLine = trimmed.length <= 80
+          && !trimmed.endsWith('.')
+          && !trimmed.endsWith('!')
+          && !trimmed.endsWith('?')
+          && !trimmed.startsWith('•')
+          && !trimmed.match(/^\d+\./);
+
+        if (isHeadingLine) {
+          ensureSpace(ctx, 10);
+          ctx.y += 2;
+          writeLines(ctx, trimmed, 11, HEADING_CLR, 'bold', 5.5);
+          // Small underline
+          ctx.doc.setDrawColor(...DIVIDER_CLR);
+          ctx.doc.setLineWidth(0.2);
+          ctx.doc.line(MARGIN, ctx.y, MARGIN + 35, ctx.y);
+          ctx.y += 3;
+        } else {
+          // Regular body text — handle line by line for lists
+          const subLines = trimmed.split('\n');
+          for (const sub of subLines) {
+            const s = sub.trim();
+            if (!s) continue;
+            if (s.startsWith('•')) {
+              writeLines(ctx, s, 9.5, BODY_CLR, 'normal', LINE_H, 3);
+            } else {
+              writeLines(ctx, s, 9.5, BODY_CLR, 'normal', LINE_H);
+            }
+          }
+          ctx.y += 2; // paragraph gap
+        }
+      }
+    }
+  }
+
+  // ── Separator between entries ──
+  ctx.y += 4;
+  ctx.doc.setDrawColor(...DIVIDER_CLR);
+  ctx.doc.setLineWidth(0.15);
+  ctx.doc.line(MARGIN + 10, ctx.y, ctx.pageW - MARGIN - 10, ctx.y);
+  ctx.y += 8;
 }
 
-function addHeader(ctx: ReturnType<typeof createDoc>, title: string, subtitle?: string) {
-  const { doc, pageW } = ctx;
-  let y = ctx.getY();
+// ─── Section header (fruit group) ───────────────
+function addFruitSection(ctx: PdfCtx, fruitId: number) {
+  const fruit = FRUITS.find(f => f.id === fruitId);
+  if (!fruit) return;
 
-  doc.setTextColor(...TITLE_COLOR);
-  doc.setFontSize(22);
-  doc.setFont('helvetica', 'bold');
-  doc.text(title, pageW / 2, y, { align: 'center' });
-  y += 10;
+  ensureSpace(ctx, 20);
+
+  // Fruit section heading
+  ctx.doc.setFontSize(15);
+  ctx.doc.setTextColor(...HEADING_CLR);
+  ctx.doc.setFont('helvetica', 'bold');
+  ctx.doc.text(`${fruit.icon}  ${fruit.num}: ${fruit.name}`, MARGIN, ctx.y);
+  ctx.y += 3;
+
+  ctx.doc.setDrawColor(...ACCENT_CLR);
+  ctx.doc.setLineWidth(0.5);
+  ctx.doc.line(MARGIN, ctx.y, MARGIN + 60, ctx.y);
+  ctx.y += 10;
+}
+
+// ─── Document header ────────────────────────────
+function addHeader(ctx: PdfCtx, title: string, subtitle?: string) {
+  ctx.y += 8;
+
+  ctx.doc.setTextColor(...TITLE_CLR);
+  ctx.doc.setFontSize(24);
+  ctx.doc.setFont('helvetica', 'bold');
+  const titleLines = ctx.doc.splitTextToSize(title, ctx.maxW);
+  for (const line of titleLines) {
+    ctx.doc.text(line, ctx.pageW / 2, ctx.y, { align: 'center' });
+    ctx.y += 10;
+  }
 
   if (subtitle) {
-    doc.setFontSize(10);
-    doc.setTextColor(...DIM_COLOR);
-    doc.setFont('helvetica', 'italic');
-    doc.text(subtitle, pageW / 2, y, { align: 'center' });
-    y += 4;
+    ctx.y += 1;
+    ctx.doc.setFontSize(10);
+    ctx.doc.setTextColor(...DIM_CLR);
+    ctx.doc.setFont('helvetica', 'italic');
+    ctx.doc.text(subtitle, ctx.pageW / 2, ctx.y, { align: 'center' });
+    ctx.y += 6;
   }
 
-  doc.setDrawColor(...ACCENT_LINE);
-  doc.setLineWidth(0.5);
-  doc.line(pageW / 2 - 20, y, pageW / 2 + 20, y);
-  y += 10;
-
-  ctx.setY(y);
+  // Decorative line
+  ctx.doc.setDrawColor(...ACCENT_CLR);
+  ctx.doc.setLineWidth(0.6);
+  const lineW = 30;
+  ctx.doc.line(ctx.pageW / 2 - lineW, ctx.y, ctx.pageW / 2 + lineW, ctx.y);
+  ctx.y += 12;
 }
 
-function addFruitSection(ctx: ReturnType<typeof createDoc>, fruitId: number, entries: CodexEntry[]) {
-  const fruit = FRUITS.find(f => f.id === fruitId);
-  if (!fruit || entries.length === 0) return;
-
-  const { doc } = ctx;
-  ctx.checkPage(18);
-  let y = ctx.getY();
-
-  doc.setFontSize(14);
-  doc.setTextColor(...HEADING_COLOR);
-  doc.setFont('helvetica', 'bold');
-  doc.text(`${fruit.icon} ${fruit.num}: ${fruit.name}`, MARGIN, y);
-  y += 2;
-
-  doc.setDrawColor(...ACCENT_LINE);
-  doc.setLineWidth(0.4);
-  doc.line(MARGIN, y, MARGIN + 55, y);
-  y += 8;
-  ctx.setY(y);
-
-  entries.forEach(entry => renderEntry(ctx, entry));
-}
-
-function addFooter(ctx: ReturnType<typeof createDoc>) {
-  const { doc, pageW, pageH } = ctx;
-  doc.setFontSize(7);
-  doc.setTextColor(...DIM_COLOR);
-  doc.text('A Árvore dos Mundos · Universo STORIA', pageW / 2, pageH - 10, { align: 'center' });
-}
-
-function savePdf(ctx: ReturnType<typeof createDoc>, filename: string) {
-  addFooter(ctx);
-  ctx.doc.save(`${filename}.pdf`);
-}
-
-// ---- Public API ----
+// ─── Public API ─────────────────────────────────
 
 /** Export a single codex entry */
-export function exportSingleEntry(entry: CodexEntry) {
+export async function exportSingleEntry(entry: CodexEntry) {
   const ctx = createDoc();
   const label = entry.entry_type === 'artigo' ? 'Artigo do Codex' : 'Ficha do Codex';
   addHeader(ctx, entry.title, label);
-  renderEntry(ctx, entry);
-  savePdf(ctx, `entrada-${entry.title.toLowerCase().replace(/\s+/g, '-')}`);
+  await renderEntry(ctx, entry);
+  addFooter(ctx);
+  ctx.doc.save(`entrada-${entry.title.toLowerCase().replace(/\s+/g, '-')}.pdf`);
 }
 
 /** Export all entries of a single fruit */
-export function exportFruitEntries(fruitId: number, entries: CodexEntry[]) {
+export async function exportFruitEntries(fruitId: number, entries: CodexEntry[]) {
   const fruit = FRUITS.find(f => f.id === fruitId);
   if (!fruit) return;
   const fruitEntries = entries.filter(e => e.fruit_id === fruitId);
@@ -164,26 +310,34 @@ export function exportFruitEntries(fruitId: number, entries: CodexEntry[]) {
 
   const ctx = createDoc();
   addHeader(ctx, fruit.name, `${fruit.num} · ${fruitEntries.length} entradas`);
-  fruitEntries.forEach(entry => renderEntry(ctx, entry));
-  savePdf(ctx, `codex-${fruit.name.toLowerCase().replace(/\s+/g, '-')}`);
+  for (const entry of fruitEntries) {
+    await renderEntry(ctx, entry);
+  }
+  addFooter(ctx);
+  ctx.doc.save(`codex-${fruit.name.toLowerCase().replace(/\s+/g, '-')}.pdf`);
 }
 
 /** Export entries from selected fruits */
-export function exportSelectedFruits(fruitIds: number[], entries: CodexEntry[]) {
+export async function exportSelectedFruits(fruitIds: number[], entries: CodexEntry[]) {
   const ctx = createDoc();
   const names = fruitIds.map(id => FRUITS.find(f => f.id === id)?.name).filter(Boolean);
   addHeader(ctx, 'Codex — Frutos Selecionados', names.join(', '));
 
-  fruitIds.forEach(fruitId => {
+  for (const fruitId of fruitIds) {
     const fruitEntries = entries.filter(e => e.fruit_id === fruitId);
-    addFruitSection(ctx, fruitId, fruitEntries);
-  });
+    if (fruitEntries.length === 0) continue;
+    addFruitSection(ctx, fruitId);
+    for (const entry of fruitEntries) {
+      await renderEntry(ctx, entry);
+    }
+  }
 
-  savePdf(ctx, 'codex-frutos-selecionados');
+  addFooter(ctx);
+  ctx.doc.save('codex-frutos-selecionados.pdf');
 }
 
 /** Export all entries */
-export function exportAllEntries(entries: CodexEntry[]) {
+export async function exportAllEntries(entries: CodexEntry[]) {
   const ctx = createDoc();
   addHeader(ctx, 'Codex Completo', `${entries.length} entradas`);
 
@@ -196,27 +350,30 @@ export function exportAllEntries(entries: CodexEntry[]) {
   });
 
   // Render fruits in order
-  FRUITS.forEach(fruit => {
+  for (const fruit of FRUITS) {
     const group = grouped.get(fruit.id);
     if (group && group.length > 0) {
-      addFruitSection(ctx, fruit.id, group);
+      addFruitSection(ctx, fruit.id);
+      for (const entry of group) {
+        await renderEntry(ctx, entry);
+      }
     }
-  });
+  }
 
   // Entries without fruit
   const noFruit = grouped.get(null);
   if (noFruit && noFruit.length > 0) {
-    ctx.checkPage(18);
-    const { doc } = ctx;
-    let y = ctx.getY();
-    doc.setFontSize(14);
-    doc.setTextColor(...HEADING_COLOR);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Sem Fruto Associado', MARGIN, y);
-    y += 8;
-    ctx.setY(y);
-    noFruit.forEach(entry => renderEntry(ctx, entry));
+    ensureSpace(ctx, 18);
+    ctx.doc.setFontSize(15);
+    ctx.doc.setTextColor(...HEADING_CLR);
+    ctx.doc.setFont('helvetica', 'bold');
+    ctx.doc.text('Sem Fruto Associado', MARGIN, ctx.y);
+    ctx.y += 10;
+    for (const entry of noFruit) {
+      await renderEntry(ctx, entry);
+    }
   }
 
-  savePdf(ctx, 'codex-completo');
+  addFooter(ctx);
+  ctx.doc.save('codex-completo.pdf');
 }
