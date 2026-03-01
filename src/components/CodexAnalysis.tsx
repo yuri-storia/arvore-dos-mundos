@@ -147,24 +147,39 @@ Seja construtivo, encorajador mas honesto. Use exemplos concretos das entradas q
 
       {/* Credit info */}
       {!sub.loading && sub.active && (
-        <div className={`rounded-md px-3 py-2 mb-4 border ${isOut ? 'border-destructive/30 bg-destructive/5' : isLow ? 'border-amber-500/30 bg-amber-500/5' : 'border-border bg-background/30'}`}>
+        <div
+          className={`rounded-md px-3 py-2 mb-4 border ${isOut ? 'border-destructive/30' : isLow ? 'border-orange-500/30' : 'border-transparent'}`}
+          style={{
+            background: isOut
+              ? 'linear-gradient(135deg, rgba(220,38,38,0.18) 0%, rgba(220,38,38,0.10) 100%)'
+              : isLow
+                ? 'linear-gradient(135deg, rgba(220,120,20,0.18) 0%, rgba(220,80,20,0.10) 100%)'
+                : 'linear-gradient(135deg, #DFBD69 0%, #926F34 100%)',
+          }}
+        >
           <div className="flex items-center justify-between mb-1">
-            <span className="text-[9px] uppercase tracking-wider font-montserrat font-bold text-text-dim">
+            <span
+              className={`text-[9px] uppercase tracking-wider font-montserrat font-bold ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : ''}`}
+              style={!isOut && !isLow ? { color: '#2A1A00' } : undefined}
+            >
               {isOut ? '🚫' : isLow ? '⚠️' : '✨'} Créditos de IA
             </span>
-            <span className={`text-[10px] font-montserrat font-bold ${isOut ? 'text-destructive' : isLow ? 'text-amber-400' : 'text-foreground'}`}>
+            <span
+              className={`text-[10px] font-montserrat font-bold ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : ''}`}
+              style={!isOut && !isLow ? { color: '#1E1000' } : undefined}
+            >
               {creditsRemaining}/{sub.creditLimit}
             </span>
           </div>
           <Progress
             value={creditPct}
-            className={`h-1 ${isOut ? 'bg-destructive/20' : isLow ? 'bg-amber-500/20' : 'bg-border'}`}
+            className={`h-1 ${isOut ? 'bg-destructive/20' : isLow ? 'bg-amber-500/20' : 'bg-[#7A5A20]/30'}`}
           />
           {isOut && (
             <p className="text-[10px] text-destructive font-merriweather mt-1">Créditos esgotados. Aguarde o próximo mês.</p>
           )}
           {isLow && !isOut && (
-            <p className="text-[10px] text-amber-400 font-merriweather mt-1">Poucos créditos restantes.</p>
+            <p className="text-[10px] text-orange-400 font-merriweather mt-1">Poucos créditos restantes.</p>
           )}
         </div>
       )}
