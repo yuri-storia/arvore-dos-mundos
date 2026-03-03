@@ -32,6 +32,7 @@ const SettingsPage: React.FC = () => {
 
   const handleSaveName = async () => {
     if (!user) return;
+    if (displayName.trim().length > 100) { toast.error('Nome muito longo (máximo 100 caracteres)'); return; }
     setLoading(true);
     const { error } = await supabase
       .from('profiles')
@@ -86,6 +87,7 @@ const SettingsPage: React.FC = () => {
             type="text"
             value={displayName}
             onChange={e => setDisplayName(e.target.value)}
+            maxLength={100}
             placeholder="Seu nome..."
             disabled={loadingProfile}
             className="w-full bg-secondary/50 border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-montserrat placeholder:text-text-dim/40 focus:outline-none focus:border-blue-bright/40 transition-colors mb-3"
