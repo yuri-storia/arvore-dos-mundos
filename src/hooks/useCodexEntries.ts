@@ -34,6 +34,8 @@ export function useCodexEntries() {
 
   const createEntry = useCallback(async (entry: { title: string; content: string; image_url?: string; entry_type: string; fruit_id?: number | null }) => {
     if (!user) return null;
+    if (entry.title && entry.title.length > 200) { toast.error('Título muito longo (máximo 200 caracteres)'); return null; }
+    if (entry.content && entry.content.length > 50000) { toast.error('Conteúdo muito longo (máximo 50.000 caracteres)'); return null; }
     const { data, error } = await supabase
       .from('codex_entries')
       .insert({ ...entry, user_id: user.id })
@@ -46,6 +48,8 @@ export function useCodexEntries() {
   }, [user]);
 
   const updateEntry = useCallback(async (id: string, updates: Partial<Pick<CodexEntry, 'title' | 'content' | 'image_url' | 'entry_type' | 'fruit_id'>>) => {
+    if (updates.title && updates.title.length > 200) { toast.error('Título muito longo (máximo 200 caracteres)'); return; }
+    if (updates.content && updates.content.length > 50000) { toast.error('Conteúdo muito longo (máximo 50.000 caracteres)'); return; }
     // Prevent saving blob URLs — they are temporary and won't persist
     if (updates.image_url && updates.image_url.startsWith('blob:')) {
       toast.error('Imagem temporária detectada. Faça upload novamente.');

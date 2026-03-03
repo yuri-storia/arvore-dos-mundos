@@ -40,6 +40,8 @@ export function useWorlds() {
 
   const createWorld = useCallback(async (state: AppState): Promise<WorldRecord | null> => {
     if (!user) return null;
+    const name = state.worldName || 'Mundo Sem Nome';
+    if (name.length > 200) { toast.error('Nome do mundo muito longo (máximo 200 caracteres)'); return null; }
     const { data, error } = await supabase
       .from('worlds')
       .insert({
@@ -65,6 +67,7 @@ export function useWorlds() {
   }, [user]);
 
   const updateWorld = useCallback(async (id: string, updates: Partial<Pick<WorldRecord, 'name' | 'method' | 'db' | 'gallery'>>) => {
+    if (updates.name && updates.name.length > 200) { toast.error('Nome do mundo muito longo (máximo 200 caracteres)'); return; }
     const { error } = await supabase
       .from('worlds')
       .update(updates as any)
