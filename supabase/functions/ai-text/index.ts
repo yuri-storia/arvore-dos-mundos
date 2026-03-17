@@ -50,10 +50,33 @@ serve(async (req) => {
       });
     }
 
-    // Get request body
-    const { messages, systemPrompt } = await req.json();
-    if (!messages || !Array.isArray(messages)) {
-      return new Response(JSON.stringify({ error: "messages array required" }), { status: 400, headers: corsHeaders });
+    // Get and validate request body
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid JSON body" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return new Response(JSON.stringify({ error: "Invalid request body" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    const { messages, systemPrompt } = body as Record<string, unknown>;
+
+    if (!messages || !Array.isArray(messages) || messages.length === 0 || messages.length > 50) {
+      return new Response(JSON.stringify({ error: "messages must be an array with 1-50 items" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    const validRoles = new Set(["user", "assistant", "system"]);
+    for (const msg of messages) {
+      if (!msg || typeof msg !== "object" || typeof msg.role !== "string" || !validRoles.has(msg.role) || typeof msg.content !== "string" || msg.content.length > 10000) {
+        return new Response(JSON.stringify({ error: "Each message must have a valid role (user/assistant/system) and content (string, max 10000 chars)" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+    }
+
+    if (systemPrompt !== undefined && (typeof systemPrompt !== "string" || systemPrompt.length > 5000)) {
+      return new Response(JSON.stringify({ error: "systemPrompt must be a string with max 5000 chars" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // Call Lovable AI
