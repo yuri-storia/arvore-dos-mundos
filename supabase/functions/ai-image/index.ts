@@ -50,9 +50,20 @@ serve(async (req) => {
       });
     }
 
-    const { prompt } = await req.json();
-    if (!prompt) {
-      return new Response(JSON.stringify({ error: "prompt required" }), { status: 400, headers: corsHeaders });
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid JSON body" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return new Response(JSON.stringify({ error: "Invalid request body" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    const { prompt } = body as Record<string, unknown>;
+    if (!prompt || typeof prompt !== "string" || prompt.length === 0 || prompt.length > 2000) {
+      return new Response(JSON.stringify({ error: "prompt must be a string with 1-2000 chars" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // Call Lovable AI image generation
