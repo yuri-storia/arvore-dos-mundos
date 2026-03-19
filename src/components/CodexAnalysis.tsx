@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import ReactMarkdown from 'react-markdown';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import idrielAvatar from '@/assets/idriel-avatar.png';
 
 interface Props {
   entries: CodexEntry[];
