@@ -177,7 +177,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
               value={currentUpload.name}
               onChange={e => setCurrentUpload({ ...currentUpload, name: e.target.value })}
               placeholder="Nome da imagem"
-              className="w-full bg-background/60 border border-blue-bright/20 rounded-md px-3 py-2 text-sm text-foreground mb-3 focus:outline-none focus:border-blue-bright/50"
+              className="w-full bg-background/60 border border-gold/20 rounded-md px-3 py-2 text-sm text-foreground mb-3 focus:outline-none focus:border-gold/50"
             />
             <select
               value={currentUpload.cat}
