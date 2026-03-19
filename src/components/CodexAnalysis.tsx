@@ -360,7 +360,7 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
             </button>
           )}
           <p className="text-[10px] text-text-dim mt-2 font-montserrat">
-            Consome {ANALYSIS_COST} créditos de IA · Análises anteriores podem ser revisitadas gratuitamente
+            Consome {ANALYSIS_COST} gotas de Seiva · Análises anteriores podem ser revisitadas gratuitamente
           </p>
         </div>
       )}
