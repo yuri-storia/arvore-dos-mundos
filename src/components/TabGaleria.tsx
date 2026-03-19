@@ -140,7 +140,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
           {filtered.map(img => (
             <div
               key={img.id}
-              className="group relative rounded-lg overflow-hidden border border-blue-bright/15 hover:border-blue-bright/40 hover:-translate-y-0.5 hover:shadow-lg transition-all"
+              className="group relative rounded-lg overflow-hidden border border-gold/15 hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(218,165,32,0.15)] transition-all"
             >
               <img
                 src={img.src}
