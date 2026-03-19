@@ -382,35 +382,35 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                     )}
 
                     {aiHelpField === field.id && (
-                      <div className="animate-fadeUp mt-2 p-3 rounded-lg border border-gold/20 bg-gold/[0.04]">
+                      <div className="animate-fadeUp mt-2 p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/[0.04]">
                         <div className="flex flex-col sm:flex-row gap-2 mb-2">
                           <input
                             type="text"
                             value={aiHelpQuestion}
                             onChange={e => setAiHelpQuestion(e.target.value)}
                             onKeyDown={e => e.key === 'Enter' && handleFieldAiHelp(field.label)}
-                            placeholder={`Pergunte algo sobre "${field.label}" ou clique para sugestão automática…`}
-                            className="flex-1 bg-[rgba(4,12,24,0.6)] border border-gold/20 rounded-md px-3 py-1.5 text-xs text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/60 focus:outline-none focus:border-gold/40"
+                            placeholder={`Pergunte algo a Idriel sobre "${field.label}"…`}
+                            className="flex-1 bg-[rgba(4,12,24,0.6)] border border-emerald-500/20 rounded-md px-3 py-1.5 text-xs text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/60 focus:outline-none focus:border-emerald-400/40"
                           />
                           <button
                             onClick={() => handleFieldAiHelp(field.label)}
                             disabled={aiHelpLoading}
-                            className="px-3 py-1.5 bg-gold/80 hover:bg-gold text-background rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
+                            className="px-3 py-1.5 bg-emerald-600/80 hover:bg-emerald-500 text-white rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
                           >
-                            💡 {aiHelpQuestion.trim() ? 'Perguntar' : 'Sugerir'}
+                            🌿 {aiHelpQuestion.trim() ? 'Perguntar' : 'Sugerir'}
                           </button>
                         </div>
                         {aiHelpLoading && (
-                          <div className="flex items-center gap-1 text-gold/70 text-xs">
-                            <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce" />
-                            <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-2" />
-                            <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-3" />
-                            <span className="ml-2 font-merriweather italic text-[10px]">Consultando IA…</span>
+                          <div className="flex items-center gap-1 text-emerald-400/70 text-xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-bounce" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-bounce-2" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-bounce-3" />
+                            <span className="ml-2 font-merriweather italic text-[10px]">Idriel está refletindo…</span>
                           </div>
                         )}
                         {aiHelpResponse && !aiHelpLoading && (
-                          <div className="border-l-2 border-gold/40 pl-3 py-2 bg-gold/[0.03] rounded-r-md">
-                            <span className="font-cinzel text-[9px] text-gold block mb-1">💡 Sugestão da IA</span>
+                          <div className="border-l-2 border-emerald-500/40 pl-3 py-2 bg-emerald-500/[0.03] rounded-r-md">
+                            <span className="font-cinzel text-[9px] text-emerald-400 block mb-1">🌿 Idriel sussurra</span>
                             <p className="font-merriweather text-xs text-foreground whitespace-pre-wrap leading-relaxed">{aiHelpResponse}</p>
                           </div>
                         )}
