@@ -76,15 +76,20 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
     <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
-        <div>
-          <h1 className="font-cinzel font-bold text-xl sm:text-2xl text-foreground mb-1">🖼 Galeria de Referências</h1>
-          <p className="font-merriweather italic text-text-dim text-sm">Imagens de referência para o seu mundo</p>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-gold/50 shadow-[0_0_12px_rgba(218,165,32,0.3)] shrink-0">
+            <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+          </div>
+          <div>
+            <h1 className="font-cinzel font-bold text-xl sm:text-2xl text-foreground mb-0.5">🌿 Galeria de Visões</h1>
+            <p className="font-merriweather italic text-gold-light/70 text-sm">Visões materializadas por Idriel através da Seiva Dourada</p>
+          </div>
         </div>
         <button
           onClick={() => fileRef.current?.click()}
-          className="px-4 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+          className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
         >
-          + Adicionar
+          + Adicionar Visão
         </button>
       </div>
 
@@ -93,11 +98,11 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
       {/* Upload zone */}
       <div
         onClick={() => fileRef.current?.click()}
-        className="border-2 border-dashed border-blue-bright/25 rounded-lg p-6 sm:p-8 text-center mb-5 cursor-pointer hover:border-blue-bright/50 transition-colors"
+        className="border-2 border-dashed border-gold/20 rounded-lg p-6 sm:p-8 text-center mb-5 cursor-pointer hover:border-gold/40 transition-colors"
       >
-        <span className="text-3xl mb-2 block">🖼</span>
-        <p className="text-sm text-text-secondary font-montserrat">Clique para adicionar imagens</p>
-        <p className="text-xs text-text-dim">PNG, JPG, WEBP — múltiplos arquivos</p>
+        <span className="text-3xl mb-2 block">🌿</span>
+        <p className="text-sm text-gold-light font-montserrat">Clique para adicionar visões de referência</p>
+        <p className="text-xs text-text-dim font-merriweather italic">PNG, JPG, WEBP — múltiplos arquivos</p>
       </div>
 
       {/* Filters */}
