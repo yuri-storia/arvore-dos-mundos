@@ -5,7 +5,7 @@ const STEPS = [
   { icon: '🌳', title: 'Crie seu mundo', desc: 'Faça login, nomeie seu mundo no campo acima e clique em "Criar Mundo". Tudo salva na nuvem automaticamente.' },
   { icon: '🧭', title: 'Escolha o método', desc: 'Cima para Baixo: do panorama aos detalhes. Baixo para Cima: dos personagens ao mundo. Escolha na aba Construir.' },
   { icon: '🌿', title: 'Explore os 11 Frutos', desc: 'Cada Fruto é um pilar do worldbuilding (Mapa, Cultura, Magia…). Vá em qualquer ordem — comece pelo que te inspira!' },
-  { icon: '✍️', title: 'Escreva com ajuda da IA', desc: 'Use 💡 Modo Ajuda AI nos campos para sugestões. Clique "Salvar Informação" para guardar fichas no Codex e exporte como PDF.' },
+  { icon: '✍️', title: 'Escreva com ajuda de Idriel', desc: 'Use 🌿 Solicitar Ajuda de Idriel nos campos para sugestões. Clique "Salvar Informação" para guardar fichas no Codex e exporte como PDF.' },
   { icon: '🖼️', title: 'Gere imagens', desc: 'Crie referências visuais na aba "Gerar Imagens" e organize-as na Galeria por Fruto.' },
 ];
 
