@@ -3,6 +3,7 @@ import { STYLE_OPTIONS, IMAGE_TYPE_OPTIONS, TONE_OPTIONS, FRUITS, GalleryImage }
 import { callAIText, callAIImage } from '@/lib/helpers';
 import { useSubscription } from '@/hooks/useSubscription';
 import type { AppState } from '@/lib/data';
+import idrielAvatar from '@/assets/idriel-avatar.png';
 
 interface Props {
   state: AppState;
@@ -41,8 +42,8 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   };
 
   const handleCreatePrompt = async () => {
-    if (!sub.active) { setError('Você precisa de um plano ativo para usar a IA.'); return; }
-    if (!desc.trim()) { setError('Descreva a imagem desejada.'); return; }
+    if (!sub.active) { setError('🌿 Idriel precisa de um plano ativo para canalizar a Seiva Dourada.'); return; }
+    if (!desc.trim()) { setError('Descreva a visão que deseja materializar.'); return; }
     setError('');
     setLoading1(true);
     try {
@@ -62,7 +63,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   };
 
   const handleGenerate = async () => {
-    if (!sub.active) { setError('Você precisa de um plano ativo para gerar imagens.'); return; }
+    if (!sub.active) { setError('🌿 Idriel precisa de um plano ativo para materializar visões.'); return; }
     if (!generatedPrompt) return;
     setError('');
     setLoading2(true);
@@ -93,7 +94,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
     addToGallery({
       id: Date.now().toString(),
       src: generatedImage,
-      name: desc.slice(0, 40) || 'Imagem gerada',
+      name: desc.slice(0, 40) || 'Visão de Idriel',
       cat: saveCat === 'Todos' ? 'Geral' : saveCat,
     });
     setShowSaveModal(false);
@@ -101,15 +102,15 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
 
   return (
     <div className="animate-fadeUp mx-auto max-w-[1060px] px-4 py-6">
-      <h1 className="font-cinzel font-bold text-2xl text-foreground mb-1">✨ Gerar Imagens</h1>
+      <h1 className="font-cinzel font-bold text-2xl text-foreground mb-1">🌿 Visões de Idriel</h1>
       <p className="font-merriweather italic text-text-dim text-sm mb-5">
-        IA cria o prompt perfeito · Gera a imagem · Tudo incluso no seu plano
+        Idriel canaliza a Seiva Dourada da Árvore para materializar as visões do seu mundo · Descreva e ela dará forma
       </p>
 
       {!sub.active && (
-        <div className="card-glass rounded-lg p-3 mb-5 border-l-[3px] border-l-blue-bright">
+        <div className="card-glass rounded-lg p-3 mb-5 border-l-[3px] border-l-gold/60">
           <span className="text-sm text-gold-light font-montserrat">
-            ⚠️ Você precisa de um plano ativo para usar a geração de imagens.
+            🌿 Idriel precisa de um plano ativo para canalizar a Seiva Dourada e criar visões do seu mundo.
           </span>
         </div>
       )}
@@ -118,45 +119,45 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
       <div className="card-glass rounded-lg p-5 mb-5">
         <div className="space-y-4">
           <div>
-            <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">Descreva em português</label>
+            <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Descreva sua visão em português</label>
             <textarea
               value={desc}
               onChange={e => setDesc(e.target.value)}
-              placeholder="Ex: A capital do meu reino élfico ao entardecer, com torres de cristal…"
+              placeholder="Ex: A capital do meu reino élfico ao entardecer, com torres de cristal brilhando sob a luz dourada…"
               rows={3}
-              className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-blue-bright/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-blue-bright/50 resize-y"
+              className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50 resize-y"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">Estilo Visual</label>
-              <select value={style} onChange={e => setStyle(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-blue-bright/30 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-blue-bright/50">
+              <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Estilo Visual</label>
+              <select value={style} onChange={e => setStyle(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-gold/50">
                 {STYLE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">Tipo de Imagem</label>
-              <select value={imgType} onChange={e => setImgType(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-blue-bright/30 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-blue-bright/50">
+              <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Tipo de Imagem</label>
+              <select value={imgType} onChange={e => setImgType(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-gold/50">
                 {IMAGE_TYPE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">Tom / Iluminação</label>
-              <select value={tone} onChange={e => setTone(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-blue-bright/30 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-blue-bright/50">
+              <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Tom / Iluminação</label>
+              <select value={tone} onChange={e => setTone(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-gold/50">
                 {TONE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">Detalhes extras (opcional)</label>
+            <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Detalhes extras (opcional)</label>
             <input
               type="text"
               value={extras}
               onChange={e => setExtras(e.target.value)}
-              placeholder="Cores, elementos obrigatórios…"
-              className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-blue-bright/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-blue-bright/50"
+              placeholder="Cores, elementos obrigatórios, atmosfera…"
+              className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50"
             />
           </div>
         </div>
@@ -166,40 +167,45 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
           <button
             onClick={handleCreatePrompt}
             disabled={loading1 || !sub.active}
-            className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-blue-bright text-blue-bright hover:bg-blue-main/20 disabled:opacity-40 transition-all"
+            className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold text-gold-light hover:bg-gold/10 disabled:opacity-40 transition-all"
           >
-            {loading1 ? '⏳ Criando…' : '✦ 1. Criar Prompt com IA'}
+            {loading1 ? '🌿 Idriel está tecendo…' : '🌿 1. Pedir Visão a Idriel'}
           </button>
           <button
             onClick={handleGenerate}
             disabled={loading2 || !generatedPrompt || !sub.active}
             className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-all"
           >
-            {loading2 ? '⏳ Gerando…' : '🎨 2. Gerar Imagem'}
+            {loading2 ? '✨ Materializando…' : '✨ 2. Materializar Visão'}
           </button>
         </div>
 
         {error && <p className="text-red-alert text-sm mt-3">{error}</p>}
 
         {(loading1 || loading2) && (
-          <div className="flex items-center gap-1 mt-4 text-text-dim text-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce" />
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce-2" />
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce-3" />
-            <span className="ml-2 font-merriweather italic text-xs">
-              {loading1 ? 'Criando prompt…' : 'Gerando imagem…'}
-            </span>
+          <div className="flex items-center gap-3 mt-4">
+            <div className="w-8 h-8 rounded-full overflow-hidden border border-gold/40 shadow-[0_0_12px_rgba(218,165,32,0.3)] shrink-0">
+              <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce" />
+              <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-2" />
+              <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-3" />
+              <span className="ml-2 font-merriweather italic text-xs text-gold-light">
+                {loading1 ? 'Idriel está tecendo a essência da sua visão…' : 'A Seiva Dourada flui… sua visão está tomando forma…'}
+              </span>
+            </div>
           </div>
         )}
       </div>
 
       {/* Generated prompt */}
       {generatedPrompt && !loading1 && (
-        <div className="animate-fadeUp card-glass rounded-lg p-5 mb-5">
-          <span className="font-cinzel text-[10px] text-blue-light block mb-2">✦ Prompt criado pela IA</span>
+        <div className="animate-fadeUp card-glass rounded-lg p-5 mb-5 border border-gold/20">
+          <span className="font-cinzel text-[10px] text-gold-light block mb-2">🌿 Visão tecida por Idriel</span>
           <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed mb-4">{generatedPrompt}</p>
           <div className="flex flex-wrap gap-2">
-            <button onClick={copyPrompt} className="px-3 py-1.5 rounded-md text-xs font-montserrat border border-blue-bright/30 text-text-secondary hover:text-foreground transition-colors">
+            <button onClick={copyPrompt} className="px-3 py-1.5 rounded-md text-xs font-montserrat border border-gold/30 text-text-secondary hover:text-foreground transition-colors">
               {copied ? '✓ Copiado!' : '📋 Copiar para Midjourney / Leonardo'}
             </button>
             <button
@@ -207,7 +213,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
               disabled={loading2}
               className="px-3 py-1.5 rounded-md text-xs font-montserrat bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-colors"
             >
-              🎨 Gerar Imagem
+              ✨ Materializar Visão
             </button>
           </div>
         </div>
@@ -215,13 +221,14 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
 
       {/* Generated image */}
       {generatedImage && !loading2 && (
-        <div className="animate-fadeUp card-glass rounded-lg p-5">
-          <img src={generatedImage} alt="Imagem gerada" className="w-full max-w-[512px] mx-auto rounded-lg mb-4" />
+        <div className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20">
+          <span className="font-cinzel text-[10px] text-gold-light block mb-3">✨ Visão materializada pela Seiva Dourada</span>
+          <img src={generatedImage} alt="Visão de Idriel" className="w-full max-w-[512px] mx-auto rounded-lg mb-4" />
           <div className="flex flex-wrap gap-2 justify-center">
-            <button onClick={openSaveModal} className="px-4 py-2 bg-primary hover:bg-ring text-foreground rounded-md text-xs font-montserrat font-bold transition-colors">
-              💾 Salvar na Galeria
+            <button onClick={openSaveModal} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors">
+              💾 Guardar na Galeria
             </button>
-            <a href={generatedImage} download target="_blank" rel="noopener" className="px-4 py-2 rounded-md text-xs font-montserrat border border-blue-bright/30 text-text-secondary hover:text-foreground transition-colors">
+            <a href={generatedImage} download target="_blank" rel="noopener" className="px-4 py-2 rounded-md text-xs font-montserrat border border-gold/30 text-text-secondary hover:text-foreground transition-colors">
               ⬇ Baixar
             </a>
           </div>
@@ -231,16 +238,16 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
       {/* Save to gallery modal */}
       {showSaveModal && (
         <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-3 sm:p-4">
-          <div className="card-glass rounded-lg w-full max-w-sm p-5 animate-fadeUp">
-            <h3 className="font-cinzel font-bold text-foreground mb-1">Salvar na Galeria</h3>
-            <p className="font-merriweather text-xs text-text-dim italic mb-4">Em qual parte da galeria deseja salvar?</p>
+          <div className="card-glass rounded-lg w-full max-w-sm p-5 animate-fadeUp border border-gold/20">
+            <h3 className="font-cinzel font-bold text-foreground mb-1">Guardar Visão na Galeria</h3>
+            <p className="font-merriweather text-xs text-text-dim italic mb-4">Em qual parte da galeria deseja guardar esta visão de Idriel?</p>
             <div className="flex flex-wrap gap-1.5 mb-4">
               <button
                 onClick={() => setSaveCat('Todos')}
                 className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${
                   saveCat === 'Todos'
-                    ? 'bg-accent/20 text-accent-foreground border border-accent/40'
-                    : 'text-text-dim border border-transparent hover:border-accent/20'
+                    ? 'bg-gold/20 text-gold-light border border-gold/40'
+                    : 'text-text-dim border border-transparent hover:border-gold/20'
                 }`}
               >
                 Geral
@@ -251,8 +258,8 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
                   onClick={() => setSaveCat(f.name)}
                   className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${
                     saveCat === f.name
-                      ? 'bg-accent/20 text-accent-foreground border border-accent/40'
-                      : 'text-text-dim border border-transparent hover:border-accent/20'
+                      ? 'bg-gold/20 text-gold-light border border-gold/40'
+                      : 'text-text-dim border border-transparent hover:border-gold/20'
                   }`}
                 >
                   {f.icon} {f.name}
@@ -263,8 +270,8 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
               <button onClick={() => setShowSaveModal(false)} className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-border hover:text-foreground transition-colors">
                 Cancelar
               </button>
-              <button onClick={confirmSave} className="px-4 py-2 bg-primary hover:bg-ring text-foreground rounded-md text-xs font-montserrat font-bold transition-colors">
-                💾 Salvar
+              <button onClick={confirmSave} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors">
+                💾 Guardar
               </button>
             </div>
           </div>
