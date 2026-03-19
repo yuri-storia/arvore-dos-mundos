@@ -337,10 +337,10 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
                 shadow-[0_0_30px_rgba(139,92,246,0.15)] hover:shadow-[0_0_50px_rgba(139,92,246,0.3)]"
             >
               <span className="bg-gradient-to-r from-violet-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">
-                🔮 Analisar meu Mundo
+                🌳 Consultar Idriel — Guardiã da Árvore
               </span>
               <p className="font-merriweather italic text-text-dim text-xs mt-1 normal-case tracking-normal">
-                Peça para a IA avaliar suas entradas e sugerir melhorias
+                Peça à sábia guardiã para avaliar suas entradas e guiar seu worldbuilding
               </p>
             </button>
           ) : (
