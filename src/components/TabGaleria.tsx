@@ -182,7 +182,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
             <select
               value={currentUpload.cat}
               onChange={e => setCurrentUpload({ ...currentUpload, cat: e.target.value })}
-              className="w-full bg-background/60 border border-blue-bright/20 rounded-md px-3 py-2 text-sm text-foreground mb-4 focus:outline-none focus:border-blue-bright/50"
+              className="w-full bg-background/60 border border-gold/20 rounded-md px-3 py-2 text-sm text-foreground mb-4 focus:outline-none focus:border-gold/50"
             >
               {FRUITS.map(f => <option key={f.id} value={f.name}>{f.icon} {f.name}</option>)}
             </select>
