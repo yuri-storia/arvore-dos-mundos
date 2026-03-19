@@ -337,8 +337,8 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                               : 'text-gold/60 hover:text-gold hover:bg-gold/10 border border-transparent hover:border-gold/20'
                           }`}
                         >
-                          <span className={`text-sm ${aiHelpField === field.id ? 'animate-pulse' : ''}`} style={{ filter: aiHelpField === field.id ? 'drop-shadow(0 0 4px rgba(232,184,75,0.8))' : 'drop-shadow(0 0 2px rgba(232,184,75,0.4))' }}>💡</span>
-                          Modo Ajuda AI
+                          <span className={`text-sm ${aiHelpField === field.id ? 'animate-pulse' : ''}`} style={{ filter: aiHelpField === field.id ? 'drop-shadow(0 0 4px rgba(16,185,129,0.8))' : 'drop-shadow(0 0 2px rgba(16,185,129,0.4))' }}>🌿</span>
+                          Solicitar Ajuda de Idriel
                         </button>
                       )}
                     </div>
