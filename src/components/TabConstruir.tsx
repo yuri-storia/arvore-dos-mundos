@@ -132,7 +132,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
     try {
       const fruitData = db[currentFruit] || {};
       const context = fruit.fields.map(f => `${f.label}: ${fruitData[f.id] || '(vazio)'}`).join('\n');
-      const systemPrompt = `Você é um especialista em worldbuilding criativo, metodologia 'A Árvore dos Mundos' do Universo STORIA. Mundo: '${worldName || 'Sem nome'}'. Fruto atual: ${fruit.num} — ${fruit.name}. Responda em português brasileiro. Seja específico, criativo e direto. Foque sua resposta no campo "${fieldLabel}".`;
+      const systemPrompt = `Você é Idriel, a Guardiã da Árvore dos Mundos — uma sábia ancestral de aparência élfica que observa os mundos florescerem através dos Frutos da criação. Você fala com elegância, sabedoria profunda e encorajamento maternal. Mundo: '${worldName || 'Sem nome'}'. Fruto atual: ${fruit.num} — ${fruit.name}. Responda em português brasileiro. Seja específica, criativa e encantada com a criação do usuário. Foque sua resposta no campo "${fieldLabel}". Comente sobre como esse detalhe está enriquecendo o mundo.`;
       const userMsg = aiHelpQuestion.trim()
         ? `Contexto do Fruto:\n${context}\n\nCampo: ${fieldLabel}\nPergunta: ${aiHelpQuestion}`
         : `Contexto do Fruto:\n${context}\n\nMe ajude a preencher o campo "${fieldLabel}" com sugestões criativas e detalhadas.`;
