@@ -297,7 +297,7 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
         </div>
       )}
 
-      {/* Credit info */}
+      {/* Credit info — Seiva Dourada */}
       {!sub.loading && sub.active && (
         <div
           className={`rounded-md px-3 py-2 mb-4 border ${isOut ? 'border-destructive/30' : isLow ? 'border-orange-500/30' : 'border-transparent'}`}
@@ -314,13 +314,13 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
               className={`text-[9px] uppercase tracking-wider font-montserrat font-bold ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : ''}`}
               style={!isOut && !isLow ? { color: '#2A1A00' } : undefined}
             >
-              {isOut ? '🚫' : isLow ? '⚠️' : '✨'} Créditos de IA
+              {isOut ? '🥀 Seiva esgotada' : isLow ? '🍂 Poucas gotas' : '✨ Seiva Dourada'}
             </span>
             <span
               className={`text-[10px] font-montserrat font-bold ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : ''}`}
               style={!isOut && !isLow ? { color: '#1E1000' } : undefined}
             >
-              {creditsRemaining}/{sub.creditLimit}
+              {creditsRemaining} gotas
             </span>
           </div>
           <Progress
@@ -328,10 +328,10 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
             className={`h-1 ${isOut ? 'bg-destructive/20' : isLow ? 'bg-amber-500/20' : 'bg-[#7A5A20]/30'}`}
           />
           {isOut && (
-            <p className="text-[10px] text-destructive font-merriweather mt-1">Créditos esgotados. Aguarde o próximo mês.</p>
+            <p className="text-[10px] text-destructive font-merriweather mt-1">Idriel aguarda a próxima lua nova para renovar sua energia.</p>
           )}
           {isLow && !isOut && (
-            <p className="text-[10px] text-orange-400 font-merriweather mt-1">Poucos créditos restantes.</p>
+            <p className="text-[10px] text-orange-400 font-merriweather mt-1">A Árvore sente suas raízes enfraquecerem…</p>
           )}
         </div>
       )}
@@ -339,7 +339,7 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
       {!sub.loading && !sub.active && (
         <div className="rounded-md px-3 py-2 mb-4 border border-destructive/30 bg-destructive/5">
           <p className="text-[10px] text-destructive font-merriweather">
-            🚫 Você precisa de um plano ativo para solicitar novas análises. Mas você ainda pode revisitar análises anteriores no histórico!
+            🥀 Idriel precisa de Seiva Dourada para novas análises. Mas você ainda pode revisitar análises anteriores no histórico!
           </p>
         </div>
       )}
@@ -360,7 +360,7 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
             </button>
           )}
           <p className="text-[10px] text-text-dim mt-2 font-montserrat">
-            Consome {ANALYSIS_COST} créditos de IA · Análises anteriores podem ser revisitadas gratuitamente
+            Consome {ANALYSIS_COST} gotas de Seiva · Análises anteriores podem ser revisitadas gratuitamente
           </p>
         </div>
       )}
