@@ -134,7 +134,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
 
       {/* Grid */}
       {filtered.length === 0 ? (
-        <p className="text-center text-text-dim text-sm py-10">Nenhuma imagem na galeria ainda.</p>
+        <p className="text-center text-gold-light/50 text-sm py-10 font-merriweather italic">Nenhuma visão na galeria ainda. Idriel aguarda suas referências…</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
           {filtered.map(img => (
