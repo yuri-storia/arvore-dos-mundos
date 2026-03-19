@@ -4,6 +4,7 @@ import { ImageLightbox } from '@/components/ImageLightbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import idrielAvatar from '@/assets/idriel-avatar.png';
 
 interface Props {
   gallery: GalleryImage[];
@@ -75,15 +76,20 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
     <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
-        <div>
-          <h1 className="font-cinzel font-bold text-xl sm:text-2xl text-foreground mb-1">🖼 Galeria de Referências</h1>
-          <p className="font-merriweather italic text-text-dim text-sm">Imagens de referência para o seu mundo</p>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-gold/50 shadow-[0_0_12px_rgba(218,165,32,0.3)] shrink-0">
+            <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+          </div>
+          <div>
+            <h1 className="font-cinzel font-bold text-xl sm:text-2xl text-foreground mb-0.5">🌿 Galeria de Visões</h1>
+            <p className="font-merriweather italic text-gold-light/70 text-sm">Visões materializadas por Idriel através da Seiva Dourada</p>
+          </div>
         </div>
         <button
           onClick={() => fileRef.current?.click()}
-          className="px-4 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+          className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
         >
-          + Adicionar
+          + Adicionar Visão
         </button>
       </div>
 
@@ -92,11 +98,11 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
       {/* Upload zone */}
       <div
         onClick={() => fileRef.current?.click()}
-        className="border-2 border-dashed border-blue-bright/25 rounded-lg p-6 sm:p-8 text-center mb-5 cursor-pointer hover:border-blue-bright/50 transition-colors"
+        className="border-2 border-dashed border-gold/20 rounded-lg p-6 sm:p-8 text-center mb-5 cursor-pointer hover:border-gold/40 transition-colors"
       >
-        <span className="text-3xl mb-2 block">🖼</span>
-        <p className="text-sm text-text-secondary font-montserrat">Clique para adicionar imagens</p>
-        <p className="text-xs text-text-dim">PNG, JPG, WEBP — múltiplos arquivos</p>
+        <span className="text-3xl mb-2 block">🌿</span>
+        <p className="text-sm text-gold-light font-montserrat">Clique para adicionar visões de referência</p>
+        <p className="text-xs text-text-dim font-merriweather italic">PNG, JPG, WEBP — múltiplos arquivos</p>
       </div>
 
       {/* Filters */}
@@ -128,13 +134,13 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
 
       {/* Grid */}
       {filtered.length === 0 ? (
-        <p className="text-center text-text-dim text-sm py-10">Nenhuma imagem na galeria ainda.</p>
+        <p className="text-center text-gold-light/50 text-sm py-10 font-merriweather italic">Nenhuma visão na galeria ainda. Idriel aguarda suas referências…</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
           {filtered.map(img => (
             <div
               key={img.id}
-              className="group relative rounded-lg overflow-hidden border border-blue-bright/15 hover:border-blue-bright/40 hover:-translate-y-0.5 hover:shadow-lg transition-all"
+              className="group relative rounded-lg overflow-hidden border border-gold/15 hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(218,165,32,0.15)] transition-all"
             >
               <img
                 src={img.src}
@@ -164,35 +170,35 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
       {currentUpload && (
         <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-3 sm:p-4">
           <div className="card-glass rounded-lg w-full max-w-sm sm:max-w-md p-4 sm:p-5 animate-fadeUp">
-            <h3 className="font-cinzel font-bold text-foreground mb-3">Salvar Imagem</h3>
+            <h3 className="font-cinzel font-bold text-foreground mb-3">🌿 Guardar Visão</h3>
             <img src={currentUpload.preview} alt="Preview" className="w-full h-[120px] sm:h-[155px] object-cover rounded-md mb-3" />
             <input
               type="text"
               value={currentUpload.name}
               onChange={e => setCurrentUpload({ ...currentUpload, name: e.target.value })}
               placeholder="Nome da imagem"
-              className="w-full bg-background/60 border border-blue-bright/20 rounded-md px-3 py-2 text-sm text-foreground mb-3 focus:outline-none focus:border-blue-bright/50"
+              className="w-full bg-background/60 border border-gold/20 rounded-md px-3 py-2 text-sm text-foreground mb-3 focus:outline-none focus:border-gold/50"
             />
             <select
               value={currentUpload.cat}
               onChange={e => setCurrentUpload({ ...currentUpload, cat: e.target.value })}
-              className="w-full bg-background/60 border border-blue-bright/20 rounded-md px-3 py-2 text-sm text-foreground mb-4 focus:outline-none focus:border-blue-bright/50"
+              className="w-full bg-background/60 border border-gold/20 rounded-md px-3 py-2 text-sm text-foreground mb-4 focus:outline-none focus:border-gold/50"
             >
               {FRUITS.map(f => <option key={f.id} value={f.name}>{f.icon} {f.name}</option>)}
             </select>
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => { setCurrentUpload(null); setUploadQueue([]); }}
-                className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-blue-bright/15 hover:text-foreground transition-colors"
+                className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-gold/15 hover:text-foreground transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={saveUpload}
                 disabled={saving}
-                className="px-4 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold transition-colors disabled:opacity-50"
+                className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors disabled:opacity-50"
               >
-                {saving ? '⏳ Enviando…' : 'Salvar'}
+                {saving ? '🌿 Guardando…' : '🌿 Guardar'}
               </button>
             </div>
           </div>

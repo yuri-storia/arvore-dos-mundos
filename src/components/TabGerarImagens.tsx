@@ -182,10 +182,27 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
 
         {error && <p className="text-red-alert text-sm mt-3">{error}</p>}
 
-        {(loading1 || loading2) && (
+      {(loading1 || loading2) && (
           <div className="flex items-center gap-3 mt-4">
-            <div className="w-8 h-8 rounded-full overflow-hidden border border-gold/40 shadow-[0_0_12px_rgba(218,165,32,0.3)] shrink-0">
-              <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+            <div className="relative shrink-0">
+              {[...Array(8)].map((_, i) => (
+                <span
+                  key={i}
+                  className="absolute w-1.5 h-1.5 rounded-full bg-gold animate-[riseParticle_2s_ease-in-out_infinite]"
+                  style={{
+                    top: '50%',
+                    left: '50%',
+                    animationDelay: `${i * 0.25}s`,
+                    transform: `rotate(${i * 45}deg) translateY(-18px)`,
+                    opacity: 0.7,
+                    filter: 'blur(0.5px)',
+                    boxShadow: '0 0 6px hsl(var(--gold))',
+                  }}
+                />
+              ))}
+              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gold/60 shadow-[0_0_16px_rgba(218,165,32,0.4)]">
+                <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+              </div>
             </div>
             <div className="flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce" />
