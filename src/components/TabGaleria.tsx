@@ -196,9 +196,9 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
               <button
                 onClick={saveUpload}
                 disabled={saving}
-                className="px-4 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold transition-colors disabled:opacity-50"
+                className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors disabled:opacity-50"
               >
-                {saving ? '⏳ Enviando…' : 'Salvar'}
+                {saving ? '🌿 Guardando…' : '🌿 Guardar'}
               </button>
             </div>
           </div>
