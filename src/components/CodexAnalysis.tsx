@@ -1,27 +1,82 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FRUITS } from '@/lib/data';
 import { callAIText } from '@/lib/helpers';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 import ReactMarkdown from 'react-markdown';
 import { Progress } from '@/components/ui/progress';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Props {
   entries: CodexEntry[];
   onClose: () => void;
 }
 
+interface AnalysisRecord {
+  id: string;
+  analysis_text: string;
+  entry_count: number;
+  ficha_count: number;
+  artigo_count: number;
+  covered_fruits: number;
+  created_at: string;
+}
+
 const ANALYSIS_COST = 2;
+
+const IDRIEL_NAME = 'Idriel';
+const IDRIEL_TITLE = 'Guardiã da Árvore dos Mundos';
+
+const LOADING_STEPS = [
+  { message: '🌿 Abrindo os galhos da Árvore para enxergar seu mundo…', delay: 0 },
+  { message: '📋 Analisando suas fichas de personagens, criaturas e lugares…', delay: 3000 },
+  { message: '📝 Agora, vou percorrer seus artigos e anotações…', delay: 7000 },
+  { message: '🍎 Verificando a cobertura de cada Fruto do worldbuilding…', delay: 11000 },
+  { message: '🔮 Quase lá… estou reunindo minhas considerações finais…', delay: 16000 },
+  { message: '✨ Tecendo a sabedoria dos Frutos em minha avaliação…', delay: 21000 },
+];
 
 export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
   const [analysis, setAnalysis] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [currentStep, setCurrentStep] = useState(0);
+  const [history, setHistory] = useState<AnalysisRecord[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [viewingHistoryId, setViewingHistoryId] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+
   const sub = useSubscription();
+  const { user } = useAuth();
 
   const creditsRemaining = sub.creditLimit - sub.creditsUsed;
   const canAnalyze = sub.active && creditsRemaining >= ANALYSIS_COST;
+
+  // Fetch history on mount
+  const fetchHistory = useCallback(async () => {
+    if (!user) return;
+    const { data, error: err } = await supabase
+      .from('world_analyses')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+    if (!err && data) setHistory(data as AnalysisRecord[]);
+    setHistoryLoading(false);
+  }, [user]);
+
+  useEffect(() => { fetchHistory(); }, [fetchHistory]);
+
+  // Animated loading steps
+  useEffect(() => {
+    if (!loading) { setCurrentStep(0); return; }
+    const timers = LOADING_STEPS.map((step, i) =>
+      setTimeout(() => setCurrentStep(i), step.delay)
+    );
+    return () => timers.forEach(clearTimeout);
+  }, [loading]);
 
   const buildPrompt = () => {
     const lines: string[] = [];
@@ -51,15 +106,22 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
   };
 
   const handleAnalyze = async () => {
-    if (entries.length === 0 || !canAnalyze) return;
+    if (entries.length === 0 || !canAnalyze || !user) return;
     setLoading(true);
     setError('');
     setAnalysis('');
+    setViewingHistoryId(null);
+    setShowHistory(false);
 
-    const systemPrompt = `Você é um consultor de worldbuilding especializado na metodologia "Árvore dos Mundos", que organiza a construção de mundos fictícios em 11 pilares (chamados "Frutos"):
+    const systemPrompt = `Você é ${IDRIEL_NAME}, a ${IDRIEL_TITLE} — uma sábia ancestral de aparência élfica, guardiã milenar que observa os mundos florescerem através dos Frutos da criação. Você fala com elegância, sabedoria profunda e encorajamento maternal. Use uma linguagem poética mas acessível, como uma mentora élfica falaria com um jovem criador.
+
+A metodologia "Árvore dos Mundos" organiza a construção de mundos fictícios em 11 pilares (chamados "Frutos"):
 ${FRUITS.map(f => `- ${f.icon} ${f.name}: ${f.desc}`).join('\n')}
 
 O criador vai te enviar todas as entradas do Codex dele. Analise e responda em português brasileiro, usando Markdown, com as seguintes seções:
+
+## 🌿 Saudação de Idriel
+Uma breve saudação personalizada e poética, mencionando o estado geral do mundo.
 
 ## 🔍 Visão Geral
 Um resumo rápido do estado do mundo (quantos frutos cobertos, impressão geral).
@@ -73,29 +135,59 @@ Os artigos estão ricos e bem desenvolvidos? Quais temas precisam ser aprofundad
 ## 🌳 Cobertura dos Frutos
 Quais frutos estão bem definidos? Quais estão fracos ou ausentes? Liste cada fruto e dê uma nota de 1 a 5 (⭐).
 
-## 💡 Recomendações
-Liste 3 a 5 ações prioritárias que o criador deveria fazer a seguir para fortalecer o mundo.
+## 💡 Recomendações de Idriel
+Liste 3 a 5 ações prioritárias que o criador deveria fazer a seguir para fortalecer o mundo. Fale como uma mentora sábia dando conselhos.
 
-Seja construtivo, encorajador mas honesto. Use exemplos concretos das entradas quando possível.`;
+Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas quando possível. Assine ao final com "— Idriel, ${IDRIEL_TITLE}".`;
 
     try {
       const content = await callAIText(
         [{ role: 'user', content: `Aqui estão todas as entradas do meu Codex:\n\n${buildPrompt()}` }],
         systemPrompt
       );
-      // ai-text edge function already increments 1 credit server-side;
-      // call ai-text again with a no-op to increment the second credit server-side
-      // This avoids exposing increment_ai_usage RPC to the client
+      // Second credit
       await callAIText(
         [{ role: 'user', content: 'ok' }],
         'Respond with just the word "ok".'
       );
+
+      // Save to history
+      const fichas = entries.filter(e => e.entry_type === 'ficha').length;
+      const artigos = entries.filter(e => e.entry_type === 'artigo').length;
+      const coveredFruits = FRUITS.filter(f => entries.some(e => e.fruit_id === f.id)).length;
+
+      await supabase.from('world_analyses').insert({
+        user_id: user.id,
+        analysis_text: content,
+        entry_count: entries.length,
+        ficha_count: fichas,
+        artigo_count: artigos,
+        covered_fruits: coveredFruits,
+      });
+
       setAnalysis(content);
+      fetchHistory(); // refresh history
     } catch (e: any) {
       setError(e.message || 'Erro ao analisar.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDeleteAnalysis = async (id: string) => {
+    await supabase.from('world_analyses').delete().eq('id', id);
+    setHistory(prev => prev.filter(a => a.id !== id));
+    if (viewingHistoryId === id) {
+      setViewingHistoryId(null);
+      setAnalysis('');
+    }
+  };
+
+  const viewHistoryItem = (item: AnalysisRecord) => {
+    setAnalysis(item.analysis_text);
+    setViewingHistoryId(item.id);
+    setShowHistory(false);
+    setError('');
   };
 
   const fichas = entries.filter(e => e.entry_type === 'ficha').length;
@@ -106,15 +198,17 @@ Seja construtivo, encorajador mas honesto. Use exemplos concretos das entradas q
   const isLow = creditsRemaining <= 10;
   const isOut = creditsRemaining < ANALYSIS_COST;
 
+  const displayedAnalysis = analysis;
+
   return (
     <div className="rounded-lg p-4 sm:p-5 mb-6 animate-fadeUp border border-accent/20" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.10) 0%, rgba(59,130,246,0.10) 50%, rgba(16,185,129,0.08) 100%)', backdropFilter: 'blur(20px)' }}>
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="font-cinzel font-bold text-base sm:text-lg bg-gradient-to-r from-violet-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">
-            🔮 Analisar meu Mundo
+            🌳 {IDRIEL_NAME} — {IDRIEL_TITLE}
           </h3>
           <p className="font-merriweather italic text-text-dim text-xs mt-1">
-            A IA vai avaliar todas as suas entradas e sugerir melhorias
+            A sábia guardiã irá avaliar todas as suas entradas e sugerir melhorias
           </p>
         </div>
         <button onClick={onClose} className="w-6 h-6 rounded-full text-text-dim hover:text-foreground text-sm flex items-center justify-center transition-colors">✕</button>
@@ -144,6 +238,63 @@ Seja construtivo, encorajador mas honesto. Use exemplos concretos das entradas q
         </div>
         <Progress value={(coveredFruits / 11) * 100} className="h-1.5 bg-border" />
       </div>
+
+      {/* History button */}
+      {!historyLoading && history.length > 0 && (
+        <button
+          onClick={() => setShowHistory(!showHistory)}
+          className="w-full mb-4 px-3 py-2 rounded-md border border-accent/20 bg-accent/5 hover:bg-accent/10 transition-colors text-left flex items-center justify-between"
+        >
+          <span className="text-[10px] uppercase tracking-wider font-montserrat font-bold text-accent-foreground">
+            📜 Histórico de Análises ({history.length})
+          </span>
+          <span className="text-text-dim text-xs">{showHistory ? '▲' : '▼'}</span>
+        </button>
+      )}
+
+      {/* History list */}
+      {showHistory && (
+        <div className="mb-4 animate-fadeUp">
+          <ScrollArea className="max-h-[240px]">
+            <div className="space-y-2 pr-2">
+              {history.map(item => (
+                <div
+                  key={item.id}
+                  className={`rounded-md p-3 border transition-colors cursor-pointer group ${
+                    viewingHistoryId === item.id
+                      ? 'border-accent/40 bg-accent/10'
+                      : 'border-border bg-background/30 hover:border-accent/20 hover:bg-accent/5'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={() => viewHistoryItem(item)}
+                      className="flex-1 text-left"
+                    >
+                      <p className="text-xs font-montserrat font-bold text-foreground">
+                        {new Date(item.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                        <span className="text-text-dim font-normal ml-2">
+                          {new Date(item.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </p>
+                      <p className="text-[10px] text-text-dim font-montserrat mt-0.5">
+                        {item.ficha_count} fichas · {item.artigo_count} artigos · {item.covered_fruits}/11 frutos
+                      </p>
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDeleteAnalysis(item.id); }}
+                      className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded-full text-destructive hover:bg-destructive/10 text-xs flex items-center justify-center transition-all"
+                      title="Excluir análise"
+                    >
+                      🗑
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
+      )}
 
       {/* Credit info */}
       {!sub.loading && sub.active && (
@@ -187,16 +338,16 @@ Seja construtivo, encorajador mas honesto. Use exemplos concretos das entradas q
       {!sub.loading && !sub.active && (
         <div className="rounded-md px-3 py-2 mb-4 border border-destructive/30 bg-destructive/5">
           <p className="text-[10px] text-destructive font-merriweather">
-            🚫 Você precisa de um plano ativo para usar a IA.
+            🚫 Você precisa de um plano ativo para solicitar novas análises. Mas você ainda pode revisitar análises anteriores no histórico!
           </p>
         </div>
       )}
 
-      {!analysis && !loading && (
+      {!displayedAnalysis && !loading && (
         <div className="text-center">
           {entries.length === 0 ? (
             <p className="text-text-dim font-merriweather italic text-sm py-4">
-              Crie pelo menos uma entrada no Codex antes de analisar.
+              Crie pelo menos uma entrada no Codex antes de consultar {IDRIEL_NAME}.
             </p>
           ) : (
             <button
@@ -204,23 +355,53 @@ Seja construtivo, encorajador mas honesto. Use exemplos concretos das entradas q
               disabled={!canAnalyze || sub.loading}
               className="px-5 py-2.5 bg-gradient-to-r from-violet-600 via-blue-500 to-emerald-500 hover:from-violet-500 hover:via-blue-400 hover:to-emerald-400 text-white rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
             >
-              🔮 Analisar {entries.length} entrada{entries.length !== 1 ? 's' : ''}
+              🌳 Consultar {IDRIEL_NAME} sobre {entries.length} entrada{entries.length !== 1 ? 's' : ''}
             </button>
           )}
           <p className="text-[10px] text-text-dim mt-2 font-montserrat">
-            Consome {ANALYSIS_COST} créditos de IA
+            Consome {ANALYSIS_COST} créditos de IA · Análises anteriores podem ser revisitadas gratuitamente
           </p>
         </div>
       )}
 
+      {/* Loading with animated steps */}
       {loading && (
-        <div className="text-center py-8">
-          <div className="flex items-center justify-center gap-1 mb-3">
-            <span className="w-2 h-2 rounded-full bg-violet-400 dot-bounce" />
-            <span className="w-2 h-2 rounded-full bg-blue-400 dot-bounce-2" />
-            <span className="w-2 h-2 rounded-full bg-emerald-400 dot-bounce-3" />
+        <div className="py-6">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500/30 via-blue-500/20 to-emerald-500/30 border border-accent/30 flex items-center justify-center text-lg animate-pulse">
+              🌳
+            </div>
+            <div>
+              <p className="font-cinzel font-bold text-sm text-foreground">{IDRIEL_NAME}</p>
+              <p className="text-[10px] text-text-dim font-montserrat italic">está analisando seu mundo…</p>
+            </div>
           </div>
-          <p className="font-merriweather italic text-text-dim text-sm">Analisando seu mundo…</p>
+
+          <div className="space-y-2 max-w-md mx-auto">
+            {LOADING_STEPS.map((step, i) => (
+              <div
+                key={i}
+                className={`flex items-start gap-2 transition-all duration-500 ${
+                  i <= currentStep ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+                }`}
+              >
+                <span className={`mt-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] flex-shrink-0 transition-colors duration-300 ${
+                  i < currentStep
+                    ? 'bg-emerald-500/30 text-emerald-400'
+                    : i === currentStep
+                      ? 'bg-violet-500/30 text-violet-400 animate-pulse'
+                      : 'bg-border text-text-dim'
+                }`}>
+                  {i < currentStep ? '✓' : '●'}
+                </span>
+                <p className={`font-merriweather italic text-sm transition-colors duration-300 ${
+                  i === currentStep ? 'text-foreground' : 'text-text-dim'
+                }`}>
+                  {step.message}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -230,8 +411,20 @@ Seja construtivo, encorajador mas honesto. Use exemplos concretos das entradas q
         </div>
       )}
 
-      {analysis && (
+      {displayedAnalysis && !loading && (
         <div className="mt-4">
+          {viewingHistoryId && (
+            <div className="mb-3 px-3 py-1.5 rounded-md bg-accent/10 border border-accent/20 flex items-center gap-2">
+              <span className="text-[10px] text-accent-foreground font-montserrat">📜 Visualizando análise do histórico</span>
+              <button
+                onClick={() => { setViewingHistoryId(null); setAnalysis(''); }}
+                className="text-[10px] text-text-dim hover:text-foreground font-montserrat underline ml-auto"
+              >
+                Voltar
+              </button>
+            </div>
+          )}
+
           <div className="rounded-lg p-4 sm:p-5 border border-accent/15 bg-background/30" style={{ backdropFilter: 'blur(10px)' }}>
             <div className="prose prose-sm prose-invert max-w-none
               [&_h2]:font-cinzel [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-5 [&_h2]:mb-2 [&_h2]:text-blue-light
@@ -243,23 +436,28 @@ Seja construtivo, encorajador mas honesto. Use exemplos concretos das entradas q
               [&_strong]:text-accent-foreground
               [&_blockquote]:border-l-2 [&_blockquote]:border-accent/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-text-dim
             ">
-              <ReactMarkdown>{analysis}</ReactMarkdown>
+              <ReactMarkdown>{displayedAnalysis}</ReactMarkdown>
             </div>
           </div>
 
           <div className="flex gap-2 mt-3 justify-end">
+            {!viewingHistoryId && (
+              <button
+                onClick={handleAnalyze}
+                disabled={!canAnalyze}
+                className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors disabled:opacity-40"
+              >
+                🔄 Nova análise
+              </button>
+            )}
             <button
-              onClick={handleAnalyze}
-              disabled={!canAnalyze}
-              className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors disabled:opacity-40"
-            >
-              🔄 Analisar novamente
-            </button>
-            <button
-              onClick={onClose}
+              onClick={() => {
+                if (viewingHistoryId) { setViewingHistoryId(null); setAnalysis(''); }
+                else onClose();
+              }}
               className="px-3 py-1.5 text-text-dim hover:text-foreground text-[10px] font-montserrat uppercase tracking-wider transition-colors"
             >
-              Fechar
+              {viewingHistoryId ? 'Voltar' : 'Fechar'}
             </button>
           </div>
         </div>
