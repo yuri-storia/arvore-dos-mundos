@@ -333,8 +333,8 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                           onClick={() => toggleAiHelp(field.id)}
                           className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-montserrat font-bold transition-all ${
                             aiHelpField === field.id
-                              ? 'bg-gold/20 text-gold border border-gold/40 shadow-[0_0_8px_rgba(200,146,42,0.3)]'
-                              : 'text-gold/60 hover:text-gold hover:bg-gold/10 border border-transparent hover:border-gold/20'
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 shadow-[0_0_8px_rgba(16,185,129,0.3)]'
+                              : 'text-emerald-400/60 hover:text-emerald-300 hover:bg-emerald-500/10 border border-transparent hover:border-emerald-400/20'
                           }`}
                         >
                           <span className={`text-sm ${aiHelpField === field.id ? 'animate-pulse' : ''}`} style={{ filter: aiHelpField === field.id ? 'drop-shadow(0 0 4px rgba(16,185,129,0.8))' : 'drop-shadow(0 0 2px rgba(16,185,129,0.4))' }}>🌿</span>
