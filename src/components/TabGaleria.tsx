@@ -170,7 +170,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
       {currentUpload && (
         <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-3 sm:p-4">
           <div className="card-glass rounded-lg w-full max-w-sm sm:max-w-md p-4 sm:p-5 animate-fadeUp">
-            <h3 className="font-cinzel font-bold text-foreground mb-3">Salvar Imagem</h3>
+            <h3 className="font-cinzel font-bold text-foreground mb-3">🌿 Guardar Visão</h3>
             <img src={currentUpload.preview} alt="Preview" className="w-full h-[120px] sm:h-[155px] object-cover rounded-md mb-3" />
             <input
               type="text"
