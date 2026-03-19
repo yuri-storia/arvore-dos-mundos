@@ -4,6 +4,7 @@ import { ImageLightbox } from '@/components/ImageLightbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import idrielAvatar from '@/assets/idriel-avatar.png';
 
 interface Props {
   gallery: GalleryImage[];
