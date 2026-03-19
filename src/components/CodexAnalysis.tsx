@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import ReactMarkdown from 'react-markdown';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import idrielAvatar from '@/assets/idriel-avatar.png';
 
 interface Props {
   entries: CodexEntry[];
@@ -367,13 +368,16 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
       {/* Loading with animated steps */}
       {loading && (
         <div className="py-6">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500/30 via-blue-500/20 to-emerald-500/30 border border-accent/30 flex items-center justify-center text-lg animate-pulse">
-              🌳
+          <div className="flex flex-col items-center gap-4 mb-6">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-emerald-400/40 shadow-[0_0_30px_rgba(16,185,129,0.3)] animate-pulse">
+                <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500/30 border border-emerald-400/50 flex items-center justify-center text-xs animate-pulse">🌳</div>
             </div>
-            <div>
+            <div className="text-center">
               <p className="font-cinzel font-bold text-sm text-foreground">{IDRIEL_NAME}</p>
-              <p className="text-[10px] text-text-dim font-montserrat italic">está analisando seu mundo…</p>
+              <p className="text-[10px] text-emerald-400/80 font-montserrat italic">está analisando seu mundo…</p>
             </div>
           </div>
 

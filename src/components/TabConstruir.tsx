@@ -111,7 +111,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
     try {
       const fruitData = db[currentFruit] || {};
       const context = fruit.fields.map(f => `${f.label}: ${fruitData[f.id] || '(vazio)'}`).join('\n');
-      const systemPrompt = `Você é um especialista em worldbuilding criativo, metodologia 'A Árvore dos Mundos' do Universo STORIA. Mundo: '${worldName || 'Sem nome'}'. Fruto atual: ${fruit.num} — ${fruit.name}. Metodologia: ${method === 'top-down' ? 'Cima para Baixo' : 'Baixo para Cima'}. Responda em português brasileiro. Seja específico, criativo e direto.`;
+      const systemPrompt = `Você é Idriel, a Guardiã da Árvore dos Mundos — uma sábia ancestral de aparência élfica que observa os mundos florescerem através dos Frutos da criação. Você fala com elegância, sabedoria profunda e encorajamento maternal. Mundo: '${worldName || 'Sem nome'}'. Fruto atual: ${fruit.num} — ${fruit.name}. Metodologia: ${method === 'top-down' ? 'Cima para Baixo' : 'Baixo para Cima'}. Responda em português brasileiro. Seja específica, criativa e encantada com a criação do usuário. Sempre demonstre que está impressionada com o potencial do mundo que está nascendo.`;
       const userMsg = `Contexto atual do Fruto:\n${context}\n\nPergunta: ${aiQuestion}`;
       const response = await callAIText(
         [{ role: 'user', content: userMsg }],
@@ -132,7 +132,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
     try {
       const fruitData = db[currentFruit] || {};
       const context = fruit.fields.map(f => `${f.label}: ${fruitData[f.id] || '(vazio)'}`).join('\n');
-      const systemPrompt = `Você é um especialista em worldbuilding criativo, metodologia 'A Árvore dos Mundos' do Universo STORIA. Mundo: '${worldName || 'Sem nome'}'. Fruto atual: ${fruit.num} — ${fruit.name}. Responda em português brasileiro. Seja específico, criativo e direto. Foque sua resposta no campo "${fieldLabel}".`;
+      const systemPrompt = `Você é Idriel, a Guardiã da Árvore dos Mundos — uma sábia ancestral de aparência élfica que observa os mundos florescerem através dos Frutos da criação. Você fala com elegância, sabedoria profunda e encorajamento maternal. Mundo: '${worldName || 'Sem nome'}'. Fruto atual: ${fruit.num} — ${fruit.name}. Responda em português brasileiro. Seja específica, criativa e encantada com a criação do usuário. Foque sua resposta no campo "${fieldLabel}". Comente sobre como esse detalhe está enriquecendo o mundo.`;
       const userMsg = aiHelpQuestion.trim()
         ? `Contexto do Fruto:\n${context}\n\nCampo: ${fieldLabel}\nPergunta: ${aiHelpQuestion}`
         : `Contexto do Fruto:\n${context}\n\nMe ajude a preencher o campo "${fieldLabel}" com sugestões criativas e detalhadas.`;
@@ -333,12 +333,12 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                           onClick={() => toggleAiHelp(field.id)}
                           className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-montserrat font-bold transition-all ${
                             aiHelpField === field.id
-                              ? 'bg-gold/20 text-gold border border-gold/40 shadow-[0_0_8px_rgba(200,146,42,0.3)]'
-                              : 'text-gold/60 hover:text-gold hover:bg-gold/10 border border-transparent hover:border-gold/20'
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 shadow-[0_0_8px_rgba(16,185,129,0.3)]'
+                              : 'text-emerald-400/60 hover:text-emerald-300 hover:bg-emerald-500/10 border border-transparent hover:border-emerald-400/20'
                           }`}
                         >
-                          <span className={`text-sm ${aiHelpField === field.id ? 'animate-pulse' : ''}`} style={{ filter: aiHelpField === field.id ? 'drop-shadow(0 0 4px rgba(232,184,75,0.8))' : 'drop-shadow(0 0 2px rgba(232,184,75,0.4))' }}>💡</span>
-                          Modo Ajuda AI
+                          <span className={`text-sm ${aiHelpField === field.id ? 'animate-pulse' : ''}`} style={{ filter: aiHelpField === field.id ? 'drop-shadow(0 0 4px rgba(16,185,129,0.8))' : 'drop-shadow(0 0 2px rgba(16,185,129,0.4))' }}>🌿</span>
+                          Solicitar Ajuda de Idriel
                         </button>
                       )}
                     </div>
@@ -382,35 +382,35 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                     )}
 
                     {aiHelpField === field.id && (
-                      <div className="animate-fadeUp mt-2 p-3 rounded-lg border border-gold/20 bg-gold/[0.04]">
+                      <div className="animate-fadeUp mt-2 p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/[0.04]">
                         <div className="flex flex-col sm:flex-row gap-2 mb-2">
                           <input
                             type="text"
                             value={aiHelpQuestion}
                             onChange={e => setAiHelpQuestion(e.target.value)}
                             onKeyDown={e => e.key === 'Enter' && handleFieldAiHelp(field.label)}
-                            placeholder={`Pergunte algo sobre "${field.label}" ou clique para sugestão automática…`}
-                            className="flex-1 bg-[rgba(4,12,24,0.6)] border border-gold/20 rounded-md px-3 py-1.5 text-xs text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/60 focus:outline-none focus:border-gold/40"
+                            placeholder={`Pergunte algo a Idriel sobre "${field.label}"…`}
+                            className="flex-1 bg-[rgba(4,12,24,0.6)] border border-emerald-500/20 rounded-md px-3 py-1.5 text-xs text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/60 focus:outline-none focus:border-emerald-400/40"
                           />
                           <button
                             onClick={() => handleFieldAiHelp(field.label)}
                             disabled={aiHelpLoading}
-                            className="px-3 py-1.5 bg-gold/80 hover:bg-gold text-background rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
+                            className="px-3 py-1.5 bg-emerald-600/80 hover:bg-emerald-500 text-white rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
                           >
-                            💡 {aiHelpQuestion.trim() ? 'Perguntar' : 'Sugerir'}
+                            🌿 {aiHelpQuestion.trim() ? 'Perguntar' : 'Sugerir'}
                           </button>
                         </div>
                         {aiHelpLoading && (
-                          <div className="flex items-center gap-1 text-gold/70 text-xs">
-                            <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce" />
-                            <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-2" />
-                            <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-3" />
-                            <span className="ml-2 font-merriweather italic text-[10px]">Consultando IA…</span>
+                          <div className="flex items-center gap-1 text-emerald-400/70 text-xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-bounce" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-bounce-2" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-bounce-3" />
+                            <span className="ml-2 font-merriweather italic text-[10px]">Idriel está refletindo…</span>
                           </div>
                         )}
                         {aiHelpResponse && !aiHelpLoading && (
-                          <div className="border-l-2 border-gold/40 pl-3 py-2 bg-gold/[0.03] rounded-r-md">
-                            <span className="font-cinzel text-[9px] text-gold block mb-1">💡 Sugestão da IA</span>
+                          <div className="border-l-2 border-emerald-500/40 pl-3 py-2 bg-emerald-500/[0.03] rounded-r-md">
+                            <span className="font-cinzel text-[9px] text-emerald-400 block mb-1">🌿 Idriel sussurra</span>
                             <p className="font-merriweather text-xs text-foreground whitespace-pre-wrap leading-relaxed">{aiHelpResponse}</p>
                           </div>
                         )}
@@ -421,11 +421,12 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               })}
             </div>
 
-            {/* AI Assistant */}
-            <div className="border-t border-blue-bright/15 pt-6">
+            {/* AI Assistant — Idriel */}
+            <div className="border-t border-emerald-500/15 pt-6">
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-2 h-2 rounded-full bg-blue-bright animate-blink" />
-                <span className="font-montserrat font-bold text-xs text-foreground">Assistente de Worldbuilding</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-blink" />
+                <span className="font-cinzel font-bold text-xs text-emerald-300">🌳 Consultar Idriel</span>
+                <span className="font-merriweather italic text-[10px] text-text-dim">— Guardiã da Árvore dos Mundos</span>
               </div>
 
               {/* Chips */}
@@ -436,8 +437,8 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                     onClick={() => { setAiQuestion(chip); setActiveChip(chip); }}
                     className={`px-3 py-1 rounded-full text-xs font-montserrat transition-all ${
                       activeChip === chip
-                        ? 'border border-blue-bright text-blue-bright bg-blue-main/15'
-                        : 'border border-blue-bright/20 text-text-dim hover:text-text-secondary hover:border-blue-bright/30'
+                        ? 'border border-emerald-400 text-emerald-300 bg-emerald-500/15'
+                        : 'border border-emerald-500/20 text-text-dim hover:text-text-secondary hover:border-emerald-400/30'
                     }`}
                   >
                     {chip}
@@ -452,30 +453,30 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                   value={aiQuestion}
                   onChange={e => setAiQuestion(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && aiQuestion.trim() && handleConsult()}
-                  placeholder="Faça uma pergunta ao assistente…"
-                  className="flex-1 bg-[rgba(4,12,24,0.6)] border border-blue-bright/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-blue-bright/50"
+                  placeholder="Faça uma pergunta a Idriel…"
+                  className="flex-1 bg-[rgba(4,12,24,0.6)] border border-emerald-500/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-emerald-400/50"
                 />
                 <button
                   onClick={handleConsult}
                   disabled={!aiQuestion.trim() || aiLoading}
-                  className="px-4 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
+                  className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
                 >
-                  ✦ Consultar
+                  🌿 Consultar Idriel
                 </button>
               </div>
 
               {aiLoading && (
                 <div className="flex items-center gap-1 text-text-dim text-sm mb-4">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce-2" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-light dot-bounce-3" />
-                  <span className="ml-2 font-merriweather italic text-xs">Consultando IA…</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-bounce" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-bounce-2" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-bounce-3" />
+                  <span className="ml-2 font-merriweather italic text-xs">Idriel contempla os galhos da Árvore…</span>
                 </div>
               )}
 
               {aiResponse && !aiLoading && (
-                <div className="animate-fadeUp border-l-[3px] border-blue-bright pl-4 py-3 bg-blue-bright/5 rounded-r-md">
-                  <span className="font-cinzel text-[10px] text-blue-light block mb-2">✦ Resposta da IA</span>
+                <div className="animate-fadeUp border-l-[3px] border-emerald-400 pl-4 py-3 bg-emerald-500/5 rounded-r-md">
+                  <span className="font-cinzel text-[10px] text-emerald-300 block mb-2">🌿 Idriel responde</span>
                   <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed">{aiResponse}</p>
                 </div>
               )}
