@@ -185,6 +185,39 @@ export type Database = {
         }
         Relationships: []
       }
+      world_analyses: {
+        Row: {
+          analysis_text: string
+          artigo_count: number
+          covered_fruits: number
+          created_at: string
+          entry_count: number
+          ficha_count: number
+          id: string
+          user_id: string
+        }
+        Insert: {
+          analysis_text: string
+          artigo_count?: number
+          covered_fruits?: number
+          created_at?: string
+          entry_count?: number
+          ficha_count?: number
+          id?: string
+          user_id: string
+        }
+        Update: {
+          analysis_text?: string
+          artigo_count?: number
+          covered_fruits?: number
+          created_at?: string
+          entry_count?: number
+          ficha_count?: number
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       worlds: {
         Row: {
           created_at: string
