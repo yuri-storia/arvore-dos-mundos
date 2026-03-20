@@ -54,7 +54,7 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
   const { user } = useAuth();
 
   const creditsRemaining = sub.creditLimit - sub.creditsUsed;
-  const canAnalyze = sub.active && creditsRemaining >= ANALYSIS_COST;
+  const canAnalyze = sub.hasIdriel && creditsRemaining >= ANALYSIS_COST;
 
   // Fetch history on mount
   const fetchHistory = useCallback(async () => {
