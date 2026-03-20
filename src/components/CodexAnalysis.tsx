@@ -54,7 +54,7 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
   const { user } = useAuth();
 
   const creditsRemaining = sub.creditLimit - sub.creditsUsed;
-  const canAnalyze = sub.active && creditsRemaining >= ANALYSIS_COST;
+  const canAnalyze = sub.hasIdriel && creditsRemaining >= ANALYSIS_COST;
 
   // Fetch history on mount
   const fetchHistory = useCallback(async () => {
@@ -298,7 +298,7 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
       )}
 
       {/* Credit info — Seiva Dourada */}
-      {!sub.loading && sub.active && (
+      {!sub.loading && sub.hasIdriel && (
         <div
           className={`rounded-md px-3 py-2 mb-4 border ${isOut ? 'border-destructive/30' : isLow ? 'border-orange-500/30' : 'border-transparent'}`}
           style={{
@@ -336,7 +336,7 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
         </div>
       )}
 
-      {!sub.loading && !sub.active && (
+      {!sub.loading && !sub.hasIdriel && (
         <div className="rounded-md px-3 py-2 mb-4 border border-destructive/30 bg-destructive/5">
           <p className="text-[10px] text-destructive font-merriweather">
             🥀 Idriel precisa de Seiva Dourada para novas análises. Mas você ainda pode revisitar análises anteriores no histórico!

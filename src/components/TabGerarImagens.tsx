@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Lock } from 'lucide-react';
 import { STYLE_OPTIONS, IMAGE_TYPE_OPTIONS, TONE_OPTIONS, FRUITS, GalleryImage } from '@/lib/data';
 import { callAIText, callAIImage } from '@/lib/helpers';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -42,7 +43,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   };
 
   const handleCreatePrompt = async () => {
-    if (!sub.active) { setError('🌿 Idriel precisa de um plano ativo para canalizar a Seiva Dourada.'); return; }
+    if (!sub.hasIdriel) { setError('🌿 Idriel precisa do plano mensal para canalizar a Seiva Dourada. Faça o upgrade!'); return; }
     if (!desc.trim()) { setError('Descreva a visão que deseja materializar.'); return; }
     setError('');
     setLoading1(true);
@@ -63,7 +64,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   };
 
   const handleGenerate = async () => {
-    if (!sub.active) { setError('🌿 Idriel precisa de um plano ativo para materializar visões.'); return; }
+    if (!sub.hasIdriel) { setError('🌿 Idriel precisa do plano mensal para materializar visões. Faça o upgrade!'); return; }
     if (!generatedPrompt) return;
     setError('');
     setLoading2(true);
@@ -107,11 +108,21 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
         Idriel canaliza a Seiva Dourada da Árvore para materializar as visões do seu mundo · Descreva e ela dará forma
       </p>
 
-      {!sub.active && (
-        <div className="card-glass rounded-lg p-3 mb-5 border-l-[3px] border-l-gold/60">
-          <span className="text-sm text-gold-light font-montserrat">
-            🌿 Idriel precisa de um plano ativo para canalizar a Seiva Dourada e criar visões do seu mundo.
+      {!sub.hasIdriel && (
+        <div className="card-glass rounded-lg p-4 mb-5 border-l-[3px] border-l-gold/60">
+          <div className="flex items-center gap-2 mb-2">
+            <Lock className="w-4 h-4 text-gold-light" />
+            <span className="text-sm text-gold-light font-montserrat font-bold">Recurso exclusivo do plano Idriel</span>
+          </div>
+          <span className="text-xs text-text-dim font-merriweather block mb-2">
+            A geração de imagens e assistência de IA requerem o plano mensal com Seiva Dourada.
           </span>
+          <button
+            onClick={async () => { const { openCheckout, STRIPE_PLANS } = await import('@/hooks/useSubscription'); openCheckout(STRIPE_PLANS.idriel_mensal.price_id); }}
+            className="px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/[0.12] transition-all"
+          >
+            ✨ Desbloquear Idriel — R$ 29,90/mês
+          </button>
         </div>
       )}
 
@@ -166,14 +177,14 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
         <div className="flex flex-wrap items-center gap-3 mt-5">
           <button
             onClick={handleCreatePrompt}
-            disabled={loading1 || !sub.active}
+            disabled={loading1 || !sub.hasIdriel}
             className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold text-gold-light hover:bg-gold/10 disabled:opacity-40 transition-all"
           >
             {loading1 ? '🌿 Idriel está tecendo…' : '🌿 1. Pedir Visão a Idriel'}
           </button>
           <button
             onClick={handleGenerate}
-            disabled={loading2 || !generatedPrompt || !sub.active}
+            disabled={loading2 || !generatedPrompt || !sub.hasIdriel}
             className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-all"
           >
             {loading2 ? '✨ Materializando…' : '✨ 2. Materializar Visão'}
