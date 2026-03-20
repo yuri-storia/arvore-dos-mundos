@@ -107,11 +107,21 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
         Idriel canaliza a Seiva Dourada da Árvore para materializar as visões do seu mundo · Descreva e ela dará forma
       </p>
 
-      {!sub.active && (
-        <div className="card-glass rounded-lg p-3 mb-5 border-l-[3px] border-l-gold/60">
-          <span className="text-sm text-gold-light font-montserrat">
-            🌿 Idriel precisa de um plano ativo para canalizar a Seiva Dourada e criar visões do seu mundo.
+      {!sub.hasIdriel && (
+        <div className="card-glass rounded-lg p-4 mb-5 border-l-[3px] border-l-gold/60">
+          <div className="flex items-center gap-2 mb-2">
+            <Lock className="w-4 h-4 text-gold-light" />
+            <span className="text-sm text-gold-light font-montserrat font-bold">Recurso exclusivo do plano Idriel</span>
+          </div>
+          <span className="text-xs text-text-dim font-merriweather block mb-2">
+            A geração de imagens e assistência de IA requerem o plano mensal com Seiva Dourada.
           </span>
+          <button
+            onClick={async () => { const { openCheckout, STRIPE_PLANS } = await import('@/hooks/useSubscription'); openCheckout(STRIPE_PLANS.idriel_mensal.price_id); }}
+            className="px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/[0.12] transition-all"
+          >
+            ✨ Desbloquear Idriel — R$ 29,90/mês
+          </button>
         </div>
       )}
 
