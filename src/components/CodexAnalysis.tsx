@@ -298,7 +298,7 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
       )}
 
       {/* Credit info — Seiva Dourada */}
-      {!sub.loading && sub.active && (
+      {!sub.loading && sub.hasIdriel && (
         <div
           className={`rounded-md px-3 py-2 mb-4 border ${isOut ? 'border-destructive/30' : isLow ? 'border-orange-500/30' : 'border-transparent'}`}
           style={{
