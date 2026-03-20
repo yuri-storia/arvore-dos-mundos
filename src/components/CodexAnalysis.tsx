@@ -336,7 +336,7 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
         </div>
       )}
 
-      {!sub.loading && !sub.active && (
+      {!sub.loading && !sub.hasIdriel && (
         <div className="rounded-md px-3 py-2 mb-4 border border-destructive/30 bg-destructive/5">
           <p className="text-[10px] text-destructive font-merriweather">
             🥀 Idriel precisa de Seiva Dourada para novas análises. Mas você ainda pode revisitar análises anteriores no histórico!
