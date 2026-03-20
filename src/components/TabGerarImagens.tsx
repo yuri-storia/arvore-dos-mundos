@@ -63,7 +63,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   };
 
   const handleGenerate = async () => {
-    if (!sub.active) { setError('🌿 Idriel precisa de um plano ativo para materializar visões.'); return; }
+    if (!sub.hasIdriel) { setError('🌿 Idriel precisa do plano mensal para materializar visões. Faça o upgrade!'); return; }
     if (!generatedPrompt) return;
     setError('');
     setLoading2(true);
