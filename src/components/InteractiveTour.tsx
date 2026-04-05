@@ -244,8 +244,8 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     if (nextStep.setFruit !== undefined && setCurrentFruit) {
       setCurrentFruit(nextStep.setFruit);
     }
-    // Switch method if current step requires it
-    if (TOUR_STEPS[step].setMethod && setMethod) {
+    // Switch method if current step requires it (for non-click steps)
+    if (TOUR_STEPS[step].setMethod && setMethod && TOUR_STEPS[step].type !== 'click') {
       setMethod(TOUR_STEPS[step].setMethod!);
     }
     setAnimating(true);
