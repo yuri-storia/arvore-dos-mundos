@@ -109,7 +109,6 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
     await importEntries(selected);
     resetCreate();
   };
-  };
 
   const openCreate = (kind: EntryKind) => {
     setCreateKind(kind);
@@ -505,3 +504,4 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
     </div>
   );
 };
+
