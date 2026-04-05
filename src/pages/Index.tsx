@@ -190,9 +190,9 @@ const Index = () => {
           <div className="fixed inset-0 z-[9990] flex items-center justify-center bg-background/60 backdrop-blur-[3px]" onClick={() => setShowTourPrompt(false)}>
             <div className="card-glass-idriel rounded-2xl p-6 w-[92vw] max-w-[400px] text-center" onClick={e => e.stopPropagation()}>
               <span className="text-4xl block mb-3">🌳</span>
-              <h3 className="font-cinzel font-bold text-lg text-foreground mb-2">Mundo criado!</h3>
+              <h3 className="font-cinzel font-bold text-lg text-foreground mb-2">Mundo criado, viajante!</h3>
               <p className="font-merriweather italic text-sm text-text-secondary mb-5 leading-relaxed">
-                Deseja refazer o tour com Idriel para relembrar as ferramentas?
+                Deseja que eu, Idriel, lhe mostre os caminhos desta Árvore? Posso guiá-lo(a) pelas ferramentas com graciosidade.
               </p>
               <div className="flex gap-3 justify-center">
                 <button onClick={() => setShowTourPrompt(false)}
