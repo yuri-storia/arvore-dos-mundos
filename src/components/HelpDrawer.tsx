@@ -160,8 +160,8 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
                   <div className="flex items-start gap-3">
                     <span className="text-lg shrink-0 mt-0.5">{tip.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-montserrat font-bold text-[13px] text-foreground mb-1">{tip.title}</h4>
-                      <p className="font-merriweather text-xs text-text-dim leading-relaxed">{tip.desc}</p>
+                      <h4 className="font-montserrat font-bold text-sm text-foreground mb-1">{tip.title}</h4>
+                      <p className="font-merriweather text-[13px] text-text-secondary leading-relaxed">{tip.desc}</p>
                     </div>
                   </div>
                 </div>
