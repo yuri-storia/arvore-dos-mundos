@@ -313,8 +313,8 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
         </div>
       </div>
 
-      {/* ── KANBAN MODE ── */}
-      {writeMode === 'kanban' && (
+      {/* ── MURAL DE CENAS MODE ── */}
+      {writeMode === 'mural' && (
         <div className="h-[calc(100vh-220px)] min-h-[400px] bg-white/[0.02] rounded-lg border border-blue-bright/10">
           <KanbanBoard
             chapters={chapters}
