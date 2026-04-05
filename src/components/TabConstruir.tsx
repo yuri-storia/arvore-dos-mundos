@@ -341,7 +341,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
             {currentFruit === 0 ? (
               <MapGenerator worldName={worldName} db={db} />
             ) : (
-              <div className="border-t border-idriel/15 pt-6">
+              <div data-tour="consult-idriel" className="border-t border-idriel/15 pt-6">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-2 h-2 rounded-full bg-idriel-light animate-blink" />
                   <span className="font-cinzel font-bold text-xs text-idriel-light">🌳 Consultar Idriel</span>

@@ -253,7 +253,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
         </p>
 
 
-        <Button onClick={() => setShowNamePrompt(true)} className="bg-blue-bright/20 text-blue-light border border-blue-bright/30 hover:bg-blue-bright/30">
+        <Button data-tour="create-manuscript" onClick={() => setShowNamePrompt(true)} className="bg-blue-bright/20 text-blue-light border border-blue-bright/30 hover:bg-blue-bright/30">
           <Plus className="w-4 h-4 mr-1" /> Criar Manuscrito
         </Button>
 

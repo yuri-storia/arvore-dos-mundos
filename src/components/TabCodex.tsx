@@ -129,7 +129,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
               </button>
           )}
           {/* Nova Entrada dropdown */}
-          <div className="relative">
+          <div data-tour="codex-new-entry" className="relative">
             <button
               onClick={() => setShowCreate(!showCreate)}
               className="px-4 py-2 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 hover:from-yellow-400 hover:via-amber-300 hover:to-yellow-400 text-black rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_12px_rgba(218,165,32,0.3)]"

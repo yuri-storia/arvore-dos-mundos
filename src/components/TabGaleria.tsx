@@ -265,6 +265,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
           <button
+            data-tour="visoes-idriel"
             onClick={() => setShowGenerator(!showGenerator)}
             className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gold/30 bg-gold/[0.06] hover:bg-gold/[0.12] transition-all group"
           >
