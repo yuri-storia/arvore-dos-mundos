@@ -10,6 +10,7 @@ import { TabConstruir } from '@/components/TabConstruir';
 import { TabCodex } from '@/components/TabCodex';
 import { TabGaleria } from '@/components/TabGaleria';
 import { TabGerarImagens } from '@/components/TabGerarImagens';
+import { TabEscrever } from '@/components/TabEscrever';
 import { useWorlds, type WorldRecord } from '@/hooks/useWorlds';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
