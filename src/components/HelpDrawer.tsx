@@ -170,7 +170,7 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
               {/* Divider for chat */}
               <div className="flex items-center gap-2 pt-2">
                 <div className="h-px flex-1 bg-idriel/15" />
-                <span className="text-[9px] font-montserrat uppercase tracking-widest text-idriel/60">
+                <span className="text-[10px] font-montserrat uppercase tracking-widest text-idriel/60">
                   💬 Pergunte à Idriel
                 </span>
                 <div className="h-px flex-1 bg-idriel/15" />
