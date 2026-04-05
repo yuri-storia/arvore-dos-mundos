@@ -389,11 +389,11 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           )}
 
           {/* CENTER: Editor */}
-          <div className={`flex-1 min-w-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && !activeSceneId ? 'hidden' : ''}`}>
+          <div className={`flex-1 min-w-0 flex flex-col rounded-lg border transition-all duration-300 ${zenMode ? 'bg-background border-transparent shadow-2xl' : 'bg-white/[0.02] border-blue-bright/10'} ${isMobile && !activeSceneId ? 'hidden' : ''}`}>
             {activeScene ? (
               <>
                 {/* Breadcrumb */}
-                {activeChapter && (
+                {activeChapter && !zenMode && (
                   <div className="px-3 pt-2 flex items-center gap-1 text-[10px] font-montserrat text-text-dim/60">
                     <span className="hover:text-foreground cursor-default">{activeManuscript.title}</span>
                     <ChevronRight className="w-2.5 h-2.5" />
