@@ -1,0 +1,220 @@
+import React, { useState } from 'react';
+import { Map, Compass, Mountain, Anchor, Building2, Globe, Sparkles } from 'lucide-react';
+import { callAIText, callAIImage } from '@/lib/helpers';
+import { FRUITS, GalleryImage, GALLERY_CATEGORIES } from '@/lib/data';
+import { useSubscription } from '@/hooks/useSubscription';
+import idrielAvatar from '@/assets/idriel-avatar.png';
+
+const MAP_STYLES = [
+  { id: 'political', label: 'Político', icon: Globe, desc: 'Fronteiras, reinos e territórios com cores distintas', prompt: 'political map style, colored territories, labeled borders, kingdoms and regions' },
+  { id: 'geographic', label: 'Geográfico', icon: Mountain, desc: 'Relevo, rios, montanhas e biomas naturais', prompt: 'geographic topographic map, mountains, rivers, forests, deserts, elevation shading' },
+  { id: 'nautical', label: 'Náutico', icon: Anchor, desc: 'Rotas marítimas, portos e monstros nos mares', prompt: 'nautical sea chart, compass rose, sea routes, port cities, sea monsters, vintage cartography' },
+  { id: 'explorer', label: 'Explorador', icon: Compass, desc: 'Pergaminho antigo com anotações à mão', prompt: 'hand-drawn explorer map on aged parchment, ink annotations, compass rose, dotted travel routes' },
+  { id: 'city', label: 'Cidade', icon: Building2, desc: 'Planta urbana com distritos e pontos de interesse', prompt: 'fantasy city map, bird eye view, districts, walls, castle, market, docks, labeled landmarks' },
+  { id: 'custom', label: 'Personalizado', icon: Sparkles, desc: 'Descreva exatamente o que imagina', prompt: '' },
+] as const;
+
+interface Props {
+  worldName: string;
+  db: Record<number, Record<string, string>>;
+}
+
+export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
+  const sub = useSubscription();
+  const [selectedStyle, setSelectedStyle] = useState<string>('explorer');
+  const [customDesc, setCustomDesc] = useState('');
+  const [generatedPrompt, setGeneratedPrompt] = useState('');
+  const [generatedImage, setGeneratedImage] = useState('');
+  const [loadingPrompt, setLoadingPrompt] = useState(false);
+  const [loadingImage, setLoadingImage] = useState(false);
+  const [error, setError] = useState('');
+
+  const styleObj = MAP_STYLES.find(s => s.id === selectedStyle)!;
+
+  const buildWorldContext = () => {
+    const parts: string[] = [];
+    if (worldName) parts.push(`World: ${worldName}`);
+    // Pull map-specific data from fruit 0
+    const mapData = db[0];
+    if (mapData) {
+      const mapFruit = FRUITS[0];
+      mapFruit.fields.forEach(f => {
+        if (mapData[f.id]?.trim()) parts.push(`${f.label}: ${mapData[f.id]}`);
+      });
+    }
+    // Also pull geography-relevant data from other fruits
+    [1, 6].forEach(fId => {
+      const data = db[fId];
+      if (!data) return;
+      const fruit = FRUITS[fId];
+      const vals = fruit.fields.map(f => data[f.id]).filter(Boolean);
+      if (vals.length) parts.push(`${fruit.name}: ${vals.join('; ')}`);
+    });
+    return parts.join('\n');
+  };
+
+  const handleGeneratePrompt = async () => {
+    if (!sub.hasIdriel) { setError('🌿 Idriel precisa do plano ativo para canalizar a Seiva Dourada.'); return; }
+    setError('');
+    setLoadingPrompt(true);
+    setGeneratedPrompt('');
+    setGeneratedImage('');
+    try {
+      const ctx = buildWorldContext();
+      const stylePrompt = styleObj.id === 'custom' ? customDesc : `${styleObj.label}: ${styleObj.desc}. Style keywords: ${styleObj.prompt}`;
+      const systemPrompt = 'You are an expert at writing detailed image generation prompts for fantasy world maps. Respond ONLY with the prompt in English. Be very specific about visual details, cartographic elements, labels, terrain features, colors, and artistic style. The map should look professional and immersive.';
+      const userMsg = `Generate a detailed map image prompt for this fantasy world.\n\nWorld context:\n${ctx}\n\nMap style requested: ${stylePrompt}\n${customDesc && styleObj.id !== 'custom' ? `Additional details: ${customDesc}` : ''}`;
+      const result = await callAIText(
+        [{ role: 'user', content: userMsg }],
+        systemPrompt
+      );
+      setGeneratedPrompt(result);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoadingPrompt(false);
+    }
+  };
+
+  const handleGenerateImage = async () => {
+    if (!generatedPrompt) return;
+    setError('');
+    setLoadingImage(true);
+    try {
+      const imageUrl = await callAIImage(generatedPrompt);
+      setGeneratedImage(imageUrl);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoadingImage(false);
+    }
+  };
+
+  return (
+    <div className="border-t border-cyan-500/15 pt-6">
+      <div className="flex items-center gap-2 mb-1">
+        <Map className="w-4 h-4 text-cyan-400" />
+        <span className="font-cinzel font-bold text-sm text-cyan-300">🗺 Forjar Mapa do Mundo</span>
+      </div>
+      <p className="font-merriweather italic text-[11px] text-text-dim mb-4">
+        Idriel materializa o mapa do seu mundo usando a Seiva Dourada e o contexto dos seus Frutos.
+      </p>
+
+      {/* Style grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
+        {MAP_STYLES.map(s => {
+          const Icon = s.icon;
+          const isActive = selectedStyle === s.id;
+          return (
+            <button
+              key={s.id}
+              onClick={() => setSelectedStyle(s.id)}
+              className={`flex items-start gap-2 p-3 rounded-lg text-left transition-all ${
+                isActive
+                  ? 'border border-cyan-400/40 bg-cyan-500/10'
+                  : 'border border-blue-bright/10 bg-blue-bright/[0.02] hover:border-cyan-400/20'
+              }`}
+            >
+              <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${isActive ? 'text-cyan-400' : 'text-text-dim'}`} />
+              <div>
+                <span className={`font-montserrat font-bold text-[11px] uppercase block ${isActive ? 'text-cyan-300' : 'text-text-secondary'}`}>
+                  {s.label}
+                </span>
+                <span className="font-merriweather text-[10px] text-text-dim leading-tight block">{s.desc}</span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Custom description / additional notes */}
+      <textarea
+        value={customDesc}
+        onChange={e => setCustomDesc(e.target.value)}
+        placeholder={styleObj.id === 'custom'
+          ? 'Descreva o mapa que imagina em detalhes: regiões, elementos, atmosfera…'
+          : 'Detalhes adicionais (opcional): "incluir um vulcão ao norte", "mar congelado ao sul"…'}
+        rows={2}
+        className="w-full bg-[rgba(4,12,24,0.6)] border border-cyan-500/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-cyan-400/50 resize-y mb-3"
+      />
+
+      {/* Generate prompt button */}
+      <button
+        onClick={handleGeneratePrompt}
+        disabled={loadingPrompt || (styleObj.id === 'custom' && !customDesc.trim())}
+        className="w-full sm:w-auto px-5 py-2.5 bg-cyan-800 hover:bg-cyan-700 text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors mb-4"
+      >
+        {loadingPrompt ? '🌿 Canalizando a visão…' : '🗺 Gerar Visão do Mapa'}
+      </button>
+
+      {loadingPrompt && (
+        <div className="flex items-center gap-2 text-text-dim text-sm mb-4">
+          <img src={idrielAvatar} alt="Idriel" className="w-6 h-6 rounded-full border border-cyan-400/30" />
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 dot-bounce" />
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 dot-bounce-2" />
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 dot-bounce-3" />
+          <span className="font-merriweather italic text-xs">Idriel traça as linhas do firmamento…</span>
+        </div>
+      )}
+
+      {error && (
+        <div className="text-red-alert text-xs font-montserrat mb-3 p-2 rounded border border-red-alert/20 bg-red-alert/5">
+          {error}
+        </div>
+      )}
+
+      {/* Generated prompt */}
+      {generatedPrompt && !loadingPrompt && (
+        <div className="animate-fadeUp mb-4">
+          <div className="border-l-[3px] border-cyan-400 pl-4 py-3 bg-cyan-500/5 rounded-r-md">
+            <span className="font-cinzel text-[10px] text-cyan-300 block mb-2">🌿 Visão de Idriel — Prompt do Mapa</span>
+            <p className="font-merriweather text-xs text-text-secondary leading-relaxed mb-3">{generatedPrompt}</p>
+            <button
+              onClick={handleGenerateImage}
+              disabled={loadingImage}
+              className="px-4 py-2 bg-gold/80 hover:bg-gold text-background rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors"
+            >
+              {loadingImage ? '✨ Materializando…' : '✨ Materializar Mapa (5 gotas)'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {loadingImage && (
+        <div className="flex flex-col items-center gap-3 py-8">
+          <img src={idrielAvatar} alt="Idriel" className="w-12 h-12 rounded-full border-2 border-gold/40 animate-pulse" />
+          <span className="font-merriweather italic text-sm text-gold-light">A Seiva Dourada molda o território…</span>
+          <div className="flex gap-1">
+            <span className="w-2 h-2 rounded-full bg-gold dot-bounce" />
+            <span className="w-2 h-2 rounded-full bg-gold dot-bounce-2" />
+            <span className="w-2 h-2 rounded-full bg-gold dot-bounce-3" />
+          </div>
+        </div>
+      )}
+
+      {/* Generated map */}
+      {generatedImage && !loadingImage && (
+        <div className="animate-fadeUp">
+          <div className="rounded-lg overflow-hidden border border-gold/20 mb-3">
+            <img src={generatedImage} alt="Mapa gerado" className="w-full" />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <a
+              href={generatedImage}
+              download={`mapa-${worldName || 'mundo'}.png`}
+              className="px-3 py-1.5 border border-blue-bright/20 text-blue-light text-[10px] font-montserrat font-bold uppercase rounded hover:bg-blue-bright/10 transition-colors"
+            >
+              ⬇ Download
+            </a>
+            <button
+              onClick={() => { setGeneratedPrompt(''); setGeneratedImage(''); setCustomDesc(''); }}
+              className="px-3 py-1.5 border border-blue-bright/20 text-text-dim text-[10px] font-montserrat font-bold uppercase rounded hover:text-foreground transition-colors"
+            >
+              🔄 Gerar Outro
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
