@@ -78,9 +78,13 @@ export const SubscriptionBanner: React.FC = () => {
 
   // Template-only user: show upgrade CTA
   if (sub.plan === 'template' && !sub.hasIdriel) {
+    if (dismissed) return null;
     return (
       <div className="mx-auto max-w-[1060px] px-4 mb-4">
-        <div className="rounded-lg p-3 border border-blue-bright/20 bg-blue-bright/[0.06]">
+        <div className="rounded-lg p-3 border border-blue-bright/20 bg-blue-bright/[0.06] relative">
+          <button onClick={handleDismiss} className="absolute top-2 right-2 p-1 text-text-dim/50 hover:text-foreground transition-colors z-10" title="Fechar">
+            <X className="w-3.5 h-3.5" />
+          </button>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <span className="text-lg">🗺</span>
