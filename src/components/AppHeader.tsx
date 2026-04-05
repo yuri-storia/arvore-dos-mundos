@@ -1,11 +1,14 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import treeWallpaper from '@/assets/tree-wallpaper.webp';
 import { UserMenu } from '@/components/UserMenu';
 import { FRUITS } from '@/lib/data';
+import { Pencil } from 'lucide-react';
 import type { MethodType } from '@/lib/data';
 
 interface AppHeaderProps {
   worldName?: string;
+  setWorldName?: (name: string) => void;
+  onCreateWorld?: () => void;
   method?: MethodType;
   currentSaveId?: string;
   db?: Record<number, Record<string, string>>;
@@ -89,10 +92,16 @@ function calcProgress(db?: Record<number, Record<string, string>>): { filled: nu
   return { filled, total };
 }
 
-export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, method, currentSaveId, db }) => {
+export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, onCreateWorld, method, currentSaveId, db }) => {
   const hasWorld = !!currentSaveId;
   const progress = calcProgress(db);
   const pct = progress.total > 0 ? Math.round((progress.filled / progress.total) * 100) : 0;
+  const [editing, setEditing] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editing && inputRef.current) inputRef.current.focus();
+  }, [editing]);
 
   return (
     <header className="relative text-center pt-4 pb-3 px-4 min-h-[140px] mb-0">
@@ -119,22 +128,54 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, method, current
           </span>
         </div>
 
-        {/* World name — hero element */}
-        {hasWorld && worldName ? (
-          <h1
-            className="font-cinzel font-bold text-[clamp(1.3rem,4vw,2.2rem)] leading-tight text-foreground mt-1"
-            style={{ textShadow: '0 0 18px hsl(207 90% 61% / 0.5), 0 0 40px hsl(207 90% 61% / 0.2), 0 2px 4px rgba(0,0,0,0.5)' }}
-          >
-            {worldName}
-          </h1>
-        ) : (
-          <h1
-            className="font-cinzel font-bold text-[clamp(1.3rem,4vw,2.2rem)] leading-tight text-foreground mt-1 opacity-40"
-            style={{ textShadow: '0 0 18px hsl(207 90% 61% / 0.3), 0 2px 4px rgba(0,0,0,0.5)' }}
-          >
-            Nenhum mundo selecionado
-          </h1>
-        )}
+        {/* World name — editable inline */}
+        <div className="flex items-center justify-center gap-2 mt-1 w-full max-w-lg">
+          {editing ? (
+            <input
+              ref={inputRef}
+              type="text"
+              value={worldName || ''}
+              onChange={e => setWorldName?.(e.target.value)}
+              onBlur={() => setEditing(false)}
+              onKeyDown={e => { if (e.key === 'Enter') setEditing(false); }}
+              placeholder="Nome do seu mundo…"
+              className="bg-transparent border-b border-blue-bright/30 text-center font-cinzel font-bold text-[clamp(1.3rem,4vw,2.2rem)] leading-tight text-foreground placeholder:text-text-dim/30 focus:outline-none focus:border-blue-bright/60 w-full transition-colors"
+              style={{ textShadow: '0 0 18px hsl(207 90% 61% / 0.5), 0 2px 4px rgba(0,0,0,0.5)' }}
+            />
+          ) : hasWorld && worldName ? (
+            <button
+              onClick={() => setEditing(true)}
+              className="group flex items-center gap-2 cursor-pointer bg-transparent border-none"
+            >
+              <h1
+                className="font-cinzel font-bold text-[clamp(1.3rem,4vw,2.2rem)] leading-tight text-foreground"
+                style={{ textShadow: '0 0 18px hsl(207 90% 61% / 0.5), 0 0 40px hsl(207 90% 61% / 0.2), 0 2px 4px rgba(0,0,0,0.5)' }}
+              >
+                {worldName}
+              </h1>
+              <Pencil className="w-3.5 h-3.5 text-text-dim opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <input
+                type="text"
+                value={worldName || ''}
+                onChange={e => setWorldName?.(e.target.value)}
+                placeholder="Nome do seu mundo…"
+                className="bg-transparent border-b border-blue-bright/20 text-center font-cinzel font-bold text-[clamp(1.3rem,4vw,2.2rem)] leading-tight text-foreground placeholder:text-text-dim/30 focus:outline-none focus:border-blue-bright/50 w-full max-w-md transition-colors"
+                style={{ textShadow: '0 0 18px hsl(207 90% 61% / 0.3), 0 2px 4px rgba(0,0,0,0.5)' }}
+              />
+              {worldName && !currentSaveId && onCreateWorld && (
+                <button
+                  onClick={onCreateWorld}
+                  className="px-4 py-1.5 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light bg-gold/[0.08] hover:bg-gold/[0.18] transition-all"
+                >
+                  Criar Mundo
+                </button>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Context row: method + progress + user */}
         <div className="flex items-center justify-center gap-4 mt-1 flex-wrap">
