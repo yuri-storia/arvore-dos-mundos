@@ -429,11 +429,11 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               />
             </>
           ) : (
-            <div className="mb-4 max-h-[400px] overflow-y-auto">
+            <div className="mb-4 max-h-[400px] overflow-y-auto cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }} title="Clique para editar">
               {displayContent ? (
                 <p className="font-merriweather text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">{displayContent}</p>
               ) : (
-                <p className="font-merriweather text-sm text-text-dim italic">Sem conteúdo ainda. Clique em editar para adicionar.</p>
+                <p className="font-merriweather text-sm text-text-dim italic">Sem conteúdo ainda. Clique para adicionar.</p>
               )}
             </div>
           )}
