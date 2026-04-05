@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import idrielAvatar from '@/assets/idriel-avatar.png';
 import { FRUITS, getOrderedFruits, METHOD_DESCRIPTIONS, MethodType, GalleryImage } from '@/lib/data';
 import { getFruitProgress, callAIText, exportWorldMarkdown } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
