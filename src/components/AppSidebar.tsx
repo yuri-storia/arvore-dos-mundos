@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, LogOut, Shield, Map, BookOpen, Image, Sparkles, Plus, Trash2, ChevronRight, PenLine } from 'lucide-react';
+import { Settings, LogOut, Shield, Map, BookOpen, Image, Sparkles, Plus, Trash2, ChevronRight, ChevronDown, PenLine, FileText } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useManuscript, type Chapter, type Scene } from '@/hooks/useManuscript';
 import type { TabType } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import {
@@ -54,7 +55,7 @@ export const AppSidebar: React.FC<Props> = ({
   const collapsed = sidebarState === 'collapsed';
 
   const [displayName, setDisplayName] = React.useState<string | null>(null);
-  const [confirmDelete, setConfirmDelete] = React.useState<string | null>(null);
+  const [expandedWorlds, setExpandedWorlds] = React.useState<Set<string>>(new Set());
 
   React.useEffect(() => {
     if (!user) return;
@@ -68,14 +69,12 @@ export const AppSidebar: React.FC<Props> = ({
       });
   }, [user]);
 
-  const handleDelete = (id: string) => {
-    if (confirmDelete === id) {
-      onDeleteWorld(id);
-      setConfirmDelete(null);
-    } else {
-      setConfirmDelete(id);
-      setTimeout(() => setConfirmDelete(null), 3000);
-    }
+  const toggleWorld = (id: string) => {
+    setExpandedWorlds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
   };
 
   return (
@@ -97,7 +96,84 @@ export const AppSidebar: React.FC<Props> = ({
       </SidebarHeader>
 
       <SidebarContent>
-        {/* Navigation tabs */}
+        {/* Worlds — NOW ON TOP */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="font-montserrat text-[9px] uppercase tracking-widest text-text-dim">
+            {collapsed ? '📂' : 'Meus Mundos'}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={onNewWorld}
+                  tooltip="Novo Mundo"
+                  className="text-gold-light/70 hover:text-gold-light hover:bg-gold/[0.06] transition-all"
+                >
+                  <Plus className="w-4 h-4 shrink-0" />
+                  {!collapsed && (
+                    <span className="font-montserrat font-bold text-[10px] uppercase tracking-wider">
+                      Novo Mundo
+                    </span>
+                  )}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {!collapsed && worlds.map(world => (
+                <SidebarMenuItem key={world.id}>
+                  <div className="flex flex-col w-full">
+                    <div className="flex items-center w-full group">
+                      <button
+                        onClick={() => toggleWorld(world.id)}
+                        className="p-0.5 text-text-dim hover:text-foreground shrink-0"
+                      >
+                        {expandedWorlds.has(world.id) ? (
+                          <ChevronDown className="w-3 h-3" />
+                        ) : (
+                          <ChevronRight className="w-3 h-3" />
+                        )}
+                      </button>
+                      <SidebarMenuButton
+                        isActive={currentSaveId === world.id}
+                        onClick={() => onLoadWorld(world)}
+                        className={`flex-1 min-w-0 ${
+                          currentSaveId === world.id
+                            ? 'bg-gold/[0.08] text-gold-light'
+                            : 'text-text-dim hover:text-foreground hover:bg-white/[0.03]'
+                        }`}
+                      >
+                        <span className="font-merriweather text-xs truncate">{world.name}</span>
+                      </SidebarMenuButton>
+                      <ConfirmDialog
+                        trigger={
+                          <button
+                            onClick={(e) => e.stopPropagation()}
+                            className="shrink-0 w-6 h-6 flex items-center justify-center rounded transition-all text-transparent group-hover:text-text-dim/50 hover:!text-red-alert"
+                            title="Excluir"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        }
+                        title="Excluir mundo"
+                        description={`Tem certeza que deseja excluir "${world.name}"? Todos os dados deste mundo serão perdidos permanentemente.`}
+                        confirmLabel="Excluir"
+                        cancelLabel="Cancelar"
+                        onConfirm={() => onDeleteWorld(world.id)}
+                      />
+                    </div>
+                    {/* Expandable chapters/scenes */}
+                    {expandedWorlds.has(world.id) && currentSaveId === world.id && (
+                      <WorldChaptersTree worldId={world.id} setActiveTab={setActiveTab} />
+                    )}
+                  </div>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator className="bg-blue-bright/10" />
+
+        {/* Navigation tabs — NOW BELOW */}
         <SidebarGroup>
           <SidebarGroupLabel className="font-montserrat text-[9px] uppercase tracking-widest text-text-dim">
             Navegação
@@ -123,68 +199,6 @@ export const AppSidebar: React.FC<Props> = ({
                       </span>
                     )}
                   </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarSeparator className="bg-blue-bright/10" />
-
-        {/* Worlds */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="font-montserrat text-[9px] uppercase tracking-widest text-text-dim">
-            {collapsed ? '📂' : 'Meus Mundos'}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={onNewWorld}
-                  tooltip="Novo Mundo"
-                  className="text-gold-light/70 hover:text-gold-light hover:bg-gold/[0.06] transition-all"
-                >
-                  <Plus className="w-4 h-4 shrink-0" />
-                  {!collapsed && (
-                    <span className="font-montserrat font-bold text-[10px] uppercase tracking-wider">
-                      Novo Mundo
-                    </span>
-                  )}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              {!collapsed && worlds.map(world => (
-                <SidebarMenuItem key={world.id}>
-                  <div className="flex items-center w-full group">
-                    <SidebarMenuButton
-                      isActive={currentSaveId === world.id}
-                      onClick={() => onLoadWorld(world)}
-                      className={`flex-1 min-w-0 ${
-                        currentSaveId === world.id
-                          ? 'bg-gold/[0.08] text-gold-light'
-                          : 'text-text-dim hover:text-foreground hover:bg-white/[0.03]'
-                      }`}
-                    >
-                      <ChevronRight className={`w-3 h-3 shrink-0 transition-transform ${currentSaveId === world.id ? 'text-gold rotate-90' : ''}`} />
-                      <span className="font-merriweather text-xs truncate">{world.name}</span>
-                    </SidebarMenuButton>
-                    <ConfirmDialog
-                      trigger={
-                        <button
-                          onClick={(e) => e.stopPropagation()}
-                          className={`shrink-0 w-6 h-6 flex items-center justify-center rounded transition-all text-transparent group-hover:text-text-dim/50 hover:!text-red-alert`}
-                          title="Excluir"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      }
-                      title="Excluir mundo"
-                      description={`Tem certeza que deseja excluir "${world.name}"? Todos os dados deste mundo serão perdidos permanentemente.`}
-                      confirmLabel="Excluir"
-                      cancelLabel="Cancelar"
-                      onConfirm={() => onDeleteWorld(world.id)}
-                    />
-                  </div>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -244,5 +258,66 @@ export const AppSidebar: React.FC<Props> = ({
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
+  );
+};
+
+// ── Sub-component: chapters/scenes tree inside sidebar ──
+const WorldChaptersTree: React.FC<{ worldId: string; setActiveTab: (t: TabType) => void }> = ({ worldId, setActiveTab }) => {
+  const { chapters, scenes } = useManuscript(worldId);
+  const [expandedChapters, setExpandedChapters] = useState<Set<string>>(new Set());
+
+  const toggleChapter = (id: string) => {
+    setExpandedChapters(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  if (chapters.length === 0) {
+    return (
+      <div className="ml-6 py-1">
+        <p className="text-[9px] text-text-dim/40 font-montserrat italic">Nenhum capítulo ainda</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="ml-4 py-0.5 border-l border-blue-bright/10 pl-2 space-y-0.5">
+      {chapters.map(ch => {
+        const chScenes = scenes.filter(s => s.chapter_id === ch.id);
+        const expanded = expandedChapters.has(ch.id);
+        return (
+          <div key={ch.id}>
+            <button
+              onClick={() => toggleChapter(ch.id)}
+              className="flex items-center gap-1 w-full text-left py-0.5 text-[10px] text-text-dim hover:text-foreground transition-colors"
+            >
+              {expanded ? <ChevronDown className="w-2.5 h-2.5 shrink-0" /> : <ChevronRight className="w-2.5 h-2.5 shrink-0" />}
+              <BookOpen className="w-2.5 h-2.5 shrink-0 opacity-50" />
+              <span className="truncate font-montserrat font-semibold">{ch.title}</span>
+            </button>
+            {expanded && (
+              <div className="ml-4 space-y-px">
+                {chScenes.map(sc => (
+                  <button
+                    key={sc.id}
+                    onClick={() => setActiveTab('escrever')}
+                    className="flex items-center gap-1 w-full text-left py-0.5 text-[9px] text-text-dim/60 hover:text-blue-light transition-colors"
+                  >
+                    <FileText className="w-2 h-2 shrink-0 opacity-40" />
+                    <span className="truncate">{sc.title}</span>
+                    <span className="ml-auto text-[8px] text-text-dim/30">{sc.word_count}</span>
+                  </button>
+                ))}
+                {chScenes.length === 0 && (
+                  <p className="text-[8px] text-text-dim/30 ml-3 py-0.5">Sem cenas</p>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 };
