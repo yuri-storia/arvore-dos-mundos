@@ -379,10 +379,17 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                                 <FileText className="w-3 h-3 inline mr-1 opacity-50" />{sc.title}
                               </button>
                               <span className="text-[9px] text-text-dim/40 mr-1">{sc.word_count}</span>
-                              <button onClick={() => deleteScene(sc.id)}
-                                className="opacity-0 group-hover/scene:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all">
-                                <Trash2 className="w-2.5 h-2.5" />
-                              </button>
+                              <ConfirmDialog
+                                trigger={
+                                  <button className="opacity-0 group-hover/scene:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all">
+                                    <Trash2 className="w-2.5 h-2.5" />
+                                  </button>
+                                }
+                                title="Excluir cena"
+                                description={`Tem certeza que deseja excluir "${sc.title}"? O conteúdo será perdido permanentemente.`}
+                                confirmLabel="Excluir"
+                                onConfirm={() => deleteScene(sc.id)}
+                              />
                             </div>
                           ))}
                           {chScenes.length === 0 && (

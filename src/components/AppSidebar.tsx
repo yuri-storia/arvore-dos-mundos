@@ -222,16 +222,24 @@ export const AppSidebar: React.FC<Props> = ({
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={async () => {
+            <ConfirmDialog
+              trigger={
+                <SidebarMenuButton
+                  tooltip="Sair"
+                  className="text-red-alert/60 hover:text-red-alert hover:bg-red-alert/[0.08]"
+                >
+                  <LogOut className="w-4 h-4 shrink-0" />
+                  {!collapsed && <span className="font-montserrat text-[10px] uppercase tracking-wider">Sair</span>}
+                </SidebarMenuButton>
+              }
+              title="Sair da conta"
+              description="Tem certeza que deseja sair? Suas alterações recentes foram salvas automaticamente."
+              confirmLabel="Sim, sair"
+              cancelLabel="Cancelar"
+              onConfirm={async () => {
                 try { await signOut(); } finally { navigate('/login', { replace: true }); }
               }}
-              tooltip="Sair"
-              className="text-red-alert/60 hover:text-red-alert hover:bg-red-alert/[0.08]"
-            >
-              <LogOut className="w-4 h-4 shrink-0" />
-              {!collapsed && <span className="font-montserrat text-[10px] uppercase tracking-wider">Sair</span>}
-            </SidebarMenuButton>
+            />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

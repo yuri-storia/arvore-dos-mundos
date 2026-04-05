@@ -51,14 +51,20 @@ export const UserMenu: React.FC = () => {
           {displayName || user.email}
         </span>
 
-        <button
-          onClick={async () => {
+        <ConfirmDialog
+          trigger={
+            <button className="px-2 sm:px-3 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-red-alert/40 text-red-alert hover:text-destructive-foreground hover:bg-red-alert/20 hover:border-red-alert/60 transition-colors">
+              Sair
+            </button>
+          }
+          title="Sair da conta"
+          description="Tem certeza que deseja sair? Suas alterações recentes foram salvas automaticamente."
+          confirmLabel="Sim, sair"
+          cancelLabel="Cancelar"
+          onConfirm={async () => {
             try { await signOut(); } finally { navigate('/login', { replace: true }); }
           }}
-          className="px-2 sm:px-3 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-red-alert/40 text-red-alert hover:text-destructive-foreground hover:bg-red-alert/20 hover:border-red-alert/60 transition-colors"
-        >
-          Sair
-        </button>
+        />
       </div>
 
       {/* Admin dropdown */}
