@@ -117,6 +117,7 @@ const Index = () => {
     if (record) {
       setState(s => ({ ...s, currentSaveId: record.id }));
       toast.success(`"${record.name}" criado com sucesso!`);
+      setShowTourPrompt(true);
     }
   }, [user, state, createWorld]);
 
