@@ -198,6 +198,7 @@ const Index = () => {
         <OnboardingBanner />
         <SubscriptionBanner />
         <TabNav activeTab={state.activeTab} setActiveTab={setActiveTab} />
+        <OnboardingTips tab={state.activeTab} />
 
         <main>
           {state.activeTab === 'construir' && <TabConstruir state={state} updateField={updateField} setCurrentFruit={setCurrentFruit} setMethod={setMethod} onNavigateCodex={() => setActiveTab('codex')} />}
