@@ -182,6 +182,7 @@ export const AppSidebar: React.FC<Props> = ({
               {TABS.map(tab => (
                 <SidebarMenuItem key={tab.id}>
                   <SidebarMenuButton
+                    data-tour={`tab-${tab.id}`}
                     isActive={activeTab === tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     tooltip={tab.label}
