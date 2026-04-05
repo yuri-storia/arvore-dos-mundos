@@ -22,7 +22,7 @@ const TAB_TIPS: Record<string, Tip[]> = {
     { icon: '🔍', title: 'Filtros inteligentes', desc: 'Use os filtros para encontrar entradas por tipo ou por Fruto de origem. Cada categoria mostra quantos itens possui.' },
   ],
   escrever: [
-    { icon: '✍️', title: 'Hora de escrever!', desc: 'Escolha entre Manuscrito (capítulos organizados), Quadro (Kanban visual) ou Escrita Livre. Cada modo serve um estilo diferente.' },
+    { icon: '✍️', title: 'Hora de escrever!', desc: 'Escolha entre Manuscrito (capítulos organizados como um livro), Mural de Cenas (visualize e arraste cenas por status) ou Rascunhos (escrita livre, sem estrutura). Passe o mouse sobre cada modo para saber mais!' },
     { icon: '⏱️', title: 'Foco com Pomodoro', desc: 'Ative o timer para sessões focadas. Escreva com calma e faça pausas — as melhores ideias florescem quando descansamos.' },
   ],
   galeria: [
@@ -107,7 +107,7 @@ export const OnboardingTips: React.FC<Props> = ({ tab }) => {
                 alt="Idriel"
                 className="w-14 h-14 rounded-full object-cover border-2 border-idriel/50 animate-idriel-pulse"
               />
-              <div className="absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 rounded-full bg-idriel flex items-center justify-center text-[9px]">🌿</div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 rounded-full bg-idriel flex items-center justify-center text-[9px]">✨</div>
             </div>
             <div>
               <span className="font-cinzel font-bold text-base text-idriel-light block">Idriel</span>

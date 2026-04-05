@@ -27,7 +27,25 @@ interface Props {
   worlds: WorldRecord[];
 }
 
-type WriteMode = 'manuscrito' | 'kanban' | 'livre';
+type WriteMode = 'manuscrito' | 'mural' | 'livre';
+
+const WRITE_MODE_INFO: Record<WriteMode, { icon: typeof BookMarked; label: string; desc: string }> = {
+  manuscrito: {
+    icon: BookMarked,
+    label: 'Manuscrito',
+    desc: 'Organize sua história em capítulos e cenas, como um livro. Ideal para narrativas longas e estruturadas.',
+  },
+  mural: {
+    icon: LayoutGrid,
+    label: 'Mural de Cenas',
+    desc: 'Visualize todas as suas cenas em colunas por status (Ideia → Rascunho → Revisão → Pronto). Arraste para reorganizar.',
+  },
+  livre: {
+    icon: Feather,
+    label: 'Rascunhos',
+    desc: 'Escreva livremente sem estrutura. Ideal para anotações, brainstorming e trechos soltos.',
+  },
+};
 
 // ── Reference Panel (Codex sidebar) ──
 const ReferencePanel: React.FC<{ entries: CodexEntry[]; onInsertMention: (name: string) => void }> = ({ entries, onInsertMention }) => {
@@ -269,30 +287,34 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
             placeholder="Título do manuscrito" />
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          {/* Mode switcher */}
+          {/* Mode switcher with tooltips */}
           <div className="flex items-center bg-white/[0.03] rounded-md border border-blue-bright/10 p-0.5">
-            {[
-              { key: 'manuscrito' as WriteMode, icon: BookMarked, label: 'Manuscrito' },
-              { key: 'kanban' as WriteMode, icon: LayoutGrid, label: 'Quadro' },
-              { key: 'livre' as WriteMode, icon: Feather, label: 'Livre' },
-            ].map(m => (
-              <button key={m.key} onClick={() => setWriteMode(m.key)}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-montserrat uppercase tracking-wider transition-all ${
-                  writeMode === m.key ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'
-                }`}>
-                <m.icon className="w-3 h-3" />
-                {!isMobile && m.label}
-              </button>
+            {(Object.entries(WRITE_MODE_INFO) as [WriteMode, typeof WRITE_MODE_INFO[WriteMode]][]).map(([key, m]) => (
+              <div key={key} className="relative group">
+                <button onClick={() => setWriteMode(key)}
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded text-[11px] font-montserrat font-bold uppercase tracking-wider transition-all ${
+                    writeMode === key ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'
+                  }`}>
+                  <m.icon className="w-3.5 h-3.5" />
+                  {!isMobile && m.label}
+                </button>
+                {/* Tooltip */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 p-3 rounded-lg bg-[hsl(var(--bg-deep))] border border-blue-bright/20 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none">
+                  <p className="font-montserrat font-bold text-xs text-blue-light mb-1">{m.label}</p>
+                  <p className="font-merriweather text-[11px] text-text-secondary leading-relaxed">{m.desc}</p>
+                </div>
+              </div>
             ))}
           </div>
+          <PomodoroTimer className="ml-2" />
           <span className="text-[10px] font-mono text-text-dim bg-white/[0.03] px-2 py-1 rounded border border-blue-bright/10 ml-1">
             {totalWordCount.toLocaleString()} palavras
           </span>
         </div>
       </div>
 
-      {/* ── KANBAN MODE ── */}
-      {writeMode === 'kanban' && (
+      {/* ── MURAL DE CENAS MODE ── */}
+      {writeMode === 'mural' && (
         <div className="h-[calc(100vh-220px)] min-h-[400px] bg-white/[0.02] rounded-lg border border-blue-bright/10">
           <KanbanBoard
             chapters={chapters}
@@ -304,7 +326,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
         </div>
       )}
 
-      {/* ── FREE WRITING MODE ── */}
+      {/* ── RASCUNHOS (ESCRITA LIVRE) ── */}
       {writeMode === 'livre' && (
         <div className="h-[calc(100vh-220px)] min-h-[400px]">
           <FreeWritingView worldId={worldId} entries={entries} />
@@ -432,8 +454,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                   <input value={editingTitle} onChange={e => setEditingTitle(e.target.value)} onBlur={handleSceneTitleSave}
                     className="bg-transparent font-montserrat font-bold text-sm text-foreground border-none focus:outline-none flex-1"
                     placeholder="Título da cena" />
-                  <PomodoroTimer />
-                  <span className="text-[10px] font-mono text-text-dim">{sceneWordCount} palavras</span>
+                   <span className="text-[11px] font-mono text-text-dim bg-white/[0.04] px-2 py-0.5 rounded">{sceneWordCount} palavras</span>
                   <button onClick={() => setZenMode(!zenMode)}
                     className={`p-1.5 rounded hover:bg-white/[0.05] transition-colors ${zenMode ? 'text-blue-light' : 'text-text-dim hover:text-foreground'}`}
                     title={zenMode ? 'Sair do modo foco' : 'Modo foco'}>

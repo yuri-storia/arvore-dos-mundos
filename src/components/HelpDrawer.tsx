@@ -34,7 +34,7 @@ const TAB_TIPS: Record<string, { label: string; tips: Tip[] }> = {
   escrever: {
     label: 'Escrever',
     tips: [
-      { icon: '📖', title: 'Três modos de escrita', desc: 'Manuscrito (capítulos hierárquicos), Quadro (Kanban visual) ou Escrita Livre.' },
+      { icon: '📖', title: 'Três modos de escrita', desc: 'Manuscrito (capítulos organizados como um livro), Mural de Cenas (visualize por status e arraste para reorganizar) ou Rascunhos (escrita livre sem estrutura).' },
       { icon: '⏱️', title: 'Timer Pomodoro', desc: 'Ative sessões focadas de escrita com pausas programadas. Personalize os tempos.' },
       { icon: '@', title: 'Menções do Codex', desc: 'Digite @ no editor para referenciar fichas e artigos do seu mundo.' },
     ],
@@ -128,7 +128,7 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
                   alt="Idriel"
                   className="w-10 h-10 rounded-full object-cover border-2 border-idriel/40"
                 />
-                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-idriel flex items-center justify-center text-[7px]">🌿</div>
+                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-idriel flex items-center justify-center text-[7px]">✨</div>
               </div>
               <div>
                 <SheetTitle className="font-cinzel text-idriel-light text-lg">
@@ -178,7 +178,7 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
               </div>
 
               <p className="font-merriweather italic text-[13px] text-text-secondary leading-relaxed">
-                Tem alguma dúvida sobre a Árvore dos Mundos? Pergunte — você tem <span className="text-idriel-light font-bold not-italic">{DAILY_LIMIT} perguntas por dia</span> 🌿
+                Tem alguma dúvida sobre a Árvore dos Mundos? Pergunte — você tem <span className="text-idriel-light font-bold not-italic">{DAILY_LIMIT} perguntas por dia</span> ✨
               </p>
 
               {/* Answer area */}
