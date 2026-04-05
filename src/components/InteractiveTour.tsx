@@ -267,43 +267,66 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
   const hasNextButton = currentStep.type === 'intro' || currentStep.type === 'outro' || currentStep.type === 'highlight';
   const pad = 10;
 
-  // Calculate tooltip position
+  // Calculate tooltip position — fully responsive, never overflows
   const getTooltipStyle = (): React.CSSProperties => {
-    if (isCenter) {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const isMobileView = vw < 640;
+    const margin = isMobileView ? 8 : 16;
+
+    if (isCenter || !targetRect) {
       return { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' };
     }
-    if (!targetRect) {
-      return { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' };
+
+    // On mobile: always position below or above target, full width
+    if (isMobileView) {
+      const spaceBelow = vh - targetRect.bottom - margin;
+      const spaceAbove = targetRect.top - margin;
+      // Prefer below unless very little space
+      const top = spaceBelow > 200
+        ? targetRect.bottom + margin
+        : spaceAbove > 200
+          ? Math.max(margin, targetRect.top - 260)
+          : Math.max(margin, vh / 2 - 130);
+      return {
+        left: margin,
+        right: margin,
+        top: Math.min(top, vh - 280),
+      };
     }
+
+    // Desktop/tablet
     const pos = currentStep.tooltipPos || 'right';
-    const cardW = 380;
-    const cardH = 280;
+    const cardW = Math.min(360, vw - margin * 2);
+
+    const clampLeft = (l: number) => Math.max(margin, Math.min(l, vw - cardW - margin));
+    const clampTop = (t: number) => Math.max(margin, Math.min(t, vh - 200));
 
     switch (pos) {
       case 'right':
         return {
-          left: Math.min(targetRect.right + 20, window.innerWidth - cardW - 16),
-          top: Math.max(targetRect.top, 16),
+          left: clampLeft(targetRect.right + 20),
+          top: clampTop(targetRect.top),
         };
       case 'left':
         return {
-          left: Math.max(targetRect.left - cardW - 20, 16),
-          top: Math.max(targetRect.top, 16),
+          left: clampLeft(targetRect.left - cardW - 20),
+          top: clampTop(targetRect.top),
         };
       case 'bottom':
         return {
-          left: Math.max(Math.min(targetRect.left, window.innerWidth - cardW - 16), 16),
-          top: Math.min(targetRect.bottom + 16, window.innerHeight - cardH - 16),
+          left: clampLeft(targetRect.left),
+          top: clampTop(targetRect.bottom + margin),
         };
       case 'top':
         return {
-          left: Math.max(Math.min(targetRect.left, window.innerWidth - cardW - 16), 16),
-          top: Math.max(targetRect.top - cardH - 16, 16),
+          left: clampLeft(targetRect.left),
+          top: clampTop(targetRect.top - 280),
         };
       default:
         return {
-          left: Math.min(targetRect.right + 16, window.innerWidth - cardW - 16),
-          top: Math.max(targetRect.top - 20, 16),
+          left: clampLeft(targetRect.right + margin),
+          top: clampTop(targetRect.top - 20),
         };
     }
   };
