@@ -230,17 +230,21 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     if (TOUR_STEPS[step].tabToActivate) {
       setActiveTab(TOUR_STEPS[step].tabToActivate!);
     }
-    // Switch fruit if next step requires it
     const nextStep = TOUR_STEPS[step + 1];
+    // Switch fruit if next step requires it
     if (nextStep.setFruit !== undefined && setCurrentFruit) {
       setCurrentFruit(nextStep.setFruit);
+    }
+    // Switch method if current step requires it
+    if (TOUR_STEPS[step].setMethod && setMethod) {
+      setMethod(TOUR_STEPS[step].setMethod!);
     }
     setAnimating(true);
     setTimeout(() => {
       setStep(s => s + 1);
       setAnimating(false);
     }, 250);
-  }, [step, setActiveTab, setCurrentFruit]);
+  }, [step, setActiveTab, setCurrentFruit, setMethod]);
 
   const finish = () => {
     markTourDone();
