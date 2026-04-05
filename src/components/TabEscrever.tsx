@@ -212,7 +212,6 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
 
   if (!user) return <div className="text-center py-20 text-text-dim">Faça login para acessar.</div>;
   if (!worldId) return <div className="text-center py-20 text-text-dim">Selecione um mundo para começar a escrever.</div>;
-  };
 
   // No manuscript yet
   if (!activeManuscript) {
