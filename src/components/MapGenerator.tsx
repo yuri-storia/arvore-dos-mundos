@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Map, Compass, Mountain, Anchor, Building2, Globe, Sparkles } from 'lucide-react';
+import { Map, Compass, Mountain, Anchor, Building2, Globe, Sparkles, Lock } from 'lucide-react';
 import { callAIText, callAIImage } from '@/lib/helpers';
 import { FRUITS, GalleryImage, GALLERY_CATEGORIES } from '@/lib/data';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -100,52 +100,85 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
         Idriel materializa o mapa do seu mundo usando a Seiva Dourada e o contexto dos seus Frutos.
       </p>
 
-      {/* Style grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
-        {MAP_STYLES.map(s => {
-          const Icon = s.icon;
-          const isActive = selectedStyle === s.id;
-          return (
-            <button
-              key={s.id}
-              onClick={() => setSelectedStyle(s.id)}
-              className={`flex items-start gap-2 p-3 rounded-lg text-left transition-all ${
-                isActive
-                  ? 'border border-idriel-light/40 bg-idriel/10'
-                  : 'border border-blue-bright/10 bg-blue-bright/[0.02] hover:border-idriel/20'
-              }`}
-            >
-              <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${isActive ? 'text-idriel-light' : 'text-text-dim'}`} />
-              <div>
-                <span className={`font-montserrat font-bold text-[11px] uppercase block ${isActive ? 'text-idriel-light' : 'text-text-secondary'}`}>
-                  {s.label}
-                </span>
-                <span className="font-merriweather text-[10px] text-text-dim leading-tight block">{s.desc}</span>
+      {/* Fruto Dourado lock for map generation */}
+      {!sub.hasIdriel ? (
+        <div className="relative rounded-xl overflow-hidden border border-gold/20 mb-4">
+          <div className="absolute inset-0 bg-gradient-to-br from-gold/[0.04] via-background/80 to-gold/[0.02]" />
+          <div className="relative p-5 text-center">
+            <div className="relative w-16 h-16 mx-auto mb-3">
+              <div className="absolute inset-0 rounded-full bg-gold/10 animate-pulse" />
+              <div className="relative w-full h-full rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-2 border-gold/30 flex items-center justify-center shadow-[0_0_24px_rgba(218,165,32,0.15)]">
+                <div className="relative">
+                  <span className="text-3xl">🗺️</span>
+                  <Lock className="absolute -bottom-1 -right-1 w-4 h-4 text-gold-light drop-shadow-lg" />
+                </div>
               </div>
+            </div>
+            <h3 className="font-cinzel font-bold text-base text-gold-light mb-2">O Mapa aguarda a Seiva Dourada</h3>
+            <div className="flex items-start gap-2.5 text-left bg-gold/[0.04] rounded-lg p-2.5 border border-gold/10 max-w-sm mx-auto mb-4">
+              <img src={idrielAvatar} alt="Idriel" className="w-7 h-7 rounded-full border border-gold/30 shrink-0 mt-0.5" />
+              <p className="font-merriweather text-xs text-text-secondary leading-relaxed italic">
+                "Para traçar as linhas do seu mundo, preciso canalizar a Seiva Dourada. Colha o Fruto Dourado e juntos daremos forma ao seu mapa."
+              </p>
+            </div>
+            <button
+              onClick={async () => { const { openCheckout, STRIPE_PLANS } = await import('@/hooks/useSubscription'); openCheckout(STRIPE_PLANS.idriel_mensal.price_id); }}
+              className="px-5 py-2.5 rounded-full text-xs font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold to-gold-light text-background hover:shadow-[0_0_20px_rgba(218,165,32,0.3)] transition-all"
+            >
+              ✨ Colher o Fruto Dourado — R$ 29,90/mês
             </button>
-          );
-        })}
-      </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Style grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
+            {MAP_STYLES.map(s => {
+              const Icon = s.icon;
+              const isActive = selectedStyle === s.id;
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => setSelectedStyle(s.id)}
+                  className={`flex items-start gap-2 p-3 rounded-lg text-left transition-all ${
+                    isActive
+                      ? 'border border-idriel-light/40 bg-idriel/10'
+                      : 'border border-blue-bright/10 bg-blue-bright/[0.02] hover:border-idriel/20'
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${isActive ? 'text-idriel-light' : 'text-text-dim'}`} />
+                  <div>
+                    <span className={`font-montserrat font-bold text-[11px] uppercase block ${isActive ? 'text-idriel-light' : 'text-text-secondary'}`}>
+                      {s.label}
+                    </span>
+                    <span className="font-merriweather text-[10px] text-text-dim leading-tight block">{s.desc}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
 
-      {/* Custom description / additional notes */}
-      <textarea
-        value={customDesc}
-        onChange={e => setCustomDesc(e.target.value)}
-        placeholder={styleObj.id === 'custom'
-          ? 'Descreva o mapa que imagina em detalhes: regiões, elementos, atmosfera…'
-          : 'Detalhes adicionais (opcional): "incluir um vulcão ao norte", "mar congelado ao sul"…'}
-        rows={2}
-        className="w-full bg-idriel/[0.04] border border-idriel/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-idriel/50 resize-y mb-3"
-      />
+          {/* Custom description / additional notes */}
+          <textarea
+            value={customDesc}
+            onChange={e => setCustomDesc(e.target.value)}
+            placeholder={styleObj.id === 'custom'
+              ? 'Descreva o mapa que imagina em detalhes: regiões, elementos, atmosfera…'
+              : 'Detalhes adicionais (opcional): "incluir um vulcão ao norte", "mar congelado ao sul"…'}
+            rows={2}
+            className="w-full bg-idriel/[0.04] border border-idriel/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-idriel/50 resize-y mb-3"
+          />
 
-      {/* Generate prompt button */}
-      <button
-        onClick={handleGeneratePrompt}
-        disabled={loadingPrompt || (styleObj.id === 'custom' && !customDesc.trim())}
-        className="w-full sm:w-auto px-5 py-2.5 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors mb-4"
-      >
-        {loadingPrompt ? '🌿 Canalizando a visão…' : '🗺 Gerar Visão do Mapa'}
-      </button>
+          {/* Generate prompt button */}
+          <button
+            onClick={handleGeneratePrompt}
+            disabled={loadingPrompt || (styleObj.id === 'custom' && !customDesc.trim())}
+            className="w-full sm:w-auto px-5 py-2.5 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors mb-4"
+          >
+            {loadingPrompt ? '🌿 Canalizando a visão…' : '🗺 Gerar Visão do Mapa'}
+          </button>
+        </>
+      )}
 
       {loadingPrompt && (
         <div className="flex items-center gap-2 text-text-dim text-sm mb-4">
