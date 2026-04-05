@@ -110,19 +110,20 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
   }, [active, measureTarget]);
 
   // goNext needs to be defined before effects that use it
-  const goNextRef = useRef<() => void>(() => {});
-
-  const goNext = () => {
+  const goNext = useCallback(() => {
     if (step >= TOUR_STEPS.length - 1) {
       finish();
       return;
+    }
+    if (TOUR_STEPS[step].tabToActivate) {
+      setActiveTab(TOUR_STEPS[step].tabToActivate!);
     }
     setAnimating(true);
     setTimeout(() => {
       setStep(s => s + 1);
       setAnimating(false);
     }, 250);
-  };
+  }, [step, setActiveTab]);
 
   const finish = () => {
     markTourDone();
