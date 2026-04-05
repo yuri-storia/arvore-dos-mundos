@@ -5,6 +5,7 @@ import { FRUIT_IMAGES } from '@/assets/fruitImages';
 import { FruitGuideBlock } from '@/components/FruitGuideBlock';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { CreateFichaButton } from '@/components/CreateFichaButton';
+import { MapGenerator } from '@/components/MapGenerator';
 import { useCodexEntries } from '@/hooks/useCodexEntries';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
