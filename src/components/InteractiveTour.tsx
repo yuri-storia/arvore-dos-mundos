@@ -319,9 +319,10 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     // Desktop/tablet
     const pos = currentStep.tooltipPos || 'right';
     const cardW = Math.min(360, vw - margin * 2);
+    const cardH = 280; // estimated max card height
 
     const clampLeft = (l: number) => Math.max(margin, Math.min(l, vw - cardW - margin));
-    const clampTop = (t: number) => Math.max(margin, Math.min(t, vh - 200));
+    const clampTop = (t: number) => Math.max(margin, Math.min(t, vh - cardH - margin));
 
     switch (pos) {
       case 'right':
