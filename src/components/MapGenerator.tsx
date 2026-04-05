@@ -96,9 +96,17 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
         <Map className="w-4 h-4 text-idriel-light" />
         <span className="font-cinzel font-bold text-sm text-idriel-light">🗺 Forjar Mapa do Mundo</span>
       </div>
-      <p className="font-merriweather italic text-[11px] text-text-dim mb-4">
+      <p className="font-merriweather italic text-[11px] text-text-dim mb-1">
         Idriel materializa o mapa do seu mundo usando a Seiva Dourada e o contexto dos seus Frutos.
       </p>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
+        <span className="inline-flex items-center gap-1 text-[10px] font-montserrat font-semibold text-gold-light/80">
+          💧 Custo: 5 gotas por mapa
+        </span>
+        <span className="inline-flex items-center gap-1 text-[10px] font-montserrat text-text-dim">
+          ✦ Fruto Dourado = 100 gotas/mês
+        </span>
+      </div>
 
       {/* Fruto Dourado lock for map generation */}
       {!sub.hasIdriel ? (
