@@ -111,7 +111,7 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
       {/* Floating Idriel button */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-20 right-4 z-40 w-11 h-11 rounded-full flex items-center justify-center border-2 border-idriel/40 bg-idriel/[0.08] backdrop-blur-sm hover:bg-idriel/[0.20] hover:scale-110 transition-all shadow-lg shadow-idriel/10 animate-idriel-pulse overflow-hidden"
+        className="fixed bottom-20 right-4 z-40 w-12 h-12 rounded-full flex items-center justify-center border-[2.5px] border-gold/50 bg-gold/[0.08] backdrop-blur-sm hover:bg-gold/[0.20] hover:scale-110 transition-all shadow-[0_0_16px_rgba(218,165,32,0.25),0_0_32px_rgba(218,165,32,0.1)] animate-idriel-pulse overflow-hidden"
         aria-label="Ajuda de Idriel"
       >
         <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover rounded-full" />

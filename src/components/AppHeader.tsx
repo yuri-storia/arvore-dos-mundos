@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import treeWallpaper from '@/assets/tree-wallpaper.webp';
+import headerTag from '@/assets/header-tag-styled.png';
 import { UserMenu } from '@/components/UserMenu';
 import { FRUITS } from '@/lib/data';
 import { Pencil } from 'lucide-react';
@@ -78,7 +79,6 @@ const Particles: React.FC = () => {
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-[1]" />;
 };
 
-/** Calculate how many fruits have at least one field filled */
 function calcProgress(db?: Record<number, Record<string, string>>): { filled: number; total: number } {
   const total = FRUITS.length;
   if (!db) return { filled: 0, total };
@@ -104,7 +104,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
   }, [editing]);
 
   return (
-    <header className="relative text-center pt-6 pb-4 px-4 min-h-[230px] mb-0">
+    <header className="relative text-center pt-8 pb-5 px-4 min-h-[250px] mb-0">
       {/* Background */}
       <div className="absolute inset-0 overflow-hidden z-0">
         <div className="absolute inset-0">
@@ -120,16 +120,16 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center gap-1">
-        {/* Brand badge */}
-        <div className="inline-block px-3 py-1 rounded-full border border-blue-bright/15 bg-blue-bright/[0.04] backdrop-blur-sm">
-          <span className="font-cinzel text-[9px] tracking-[0.18em] text-blue-light/60 uppercase">
-            ✦ A Árvore dos Mundos ✦
-          </span>
-        </div>
+      <div className="relative z-10 flex flex-col items-center gap-2">
+        {/* Brand tag — styled image */}
+        <img
+          src={headerTag}
+          alt="A Árvore dos Mundos"
+          className="h-7 sm:h-8 object-contain opacity-80 mt-2"
+        />
 
         {/* World name — editable inline */}
-        <div className="flex items-center justify-center gap-2 mt-1 w-full max-w-lg">
+        <div className="flex items-center justify-center gap-2 mt-2 w-full max-w-lg">
           {editing ? (
             <input
               ref={inputRef}
@@ -182,7 +182,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
           {hasWorld && (
             <>
               <span className="text-[10px] font-montserrat uppercase tracking-wider text-text-dim">
-                {method === 'top-down' ? '⬇ Top-Down' : '⬆ Bottom-Up'}
+                {method === 'top-down' ? '⬇ De Cima para Baixo' : '⬆ De Baixo para Cima'}
               </span>
               <div className="flex items-center gap-2">
                 <div className="w-24 h-1.5 rounded-full bg-secondary overflow-hidden">
