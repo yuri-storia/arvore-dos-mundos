@@ -311,6 +311,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           <span className="text-[10px] font-mono text-text-dim bg-white/[0.03] px-2 py-1 rounded border border-blue-bright/10 ml-1">
             {totalWordCount.toLocaleString()} palavras
           </span>
+          <ManuscriptExportMenu manuscript={activeManuscript} chapters={chapters} scenes={scenes} />
         </div>
       </div>
 
