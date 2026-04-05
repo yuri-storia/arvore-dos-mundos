@@ -86,67 +86,71 @@ export const OnboardingTips: React.FC<Props> = ({ tab }) => {
   const tip = tips[step];
 
   return (
-    <div className="mx-auto max-w-[1060px] px-4 mb-3">
+    <>
       {/* Backdrop overlay */}
-      <div className="fixed inset-0 bg-background/40 backdrop-blur-[2px] z-40 animate-fadeUp" onClick={dismiss} />
+      <div className="fixed inset-0 bg-background/60 backdrop-blur-[3px] z-40 animate-fadeUp" onClick={dismiss} />
 
       {/* Popup card */}
-      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[90vw] max-w-[440px] animate-slideUp">
-        <div className="card-glass-idriel rounded-xl p-5 relative overflow-hidden">
+      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[92vw] max-w-[480px] animate-slideUp">
+        <div className="card-glass-idriel rounded-2xl p-6 relative overflow-hidden">
           {/* Close */}
-          <button onClick={dismiss} className="absolute top-3 right-3 p-1.5 text-text-dim hover:text-foreground transition-colors z-10">
-            <X className="w-4 h-4" />
+          <button onClick={dismiss} className="absolute top-4 right-4 p-1.5 text-text-dim hover:text-foreground transition-colors z-10">
+            <X className="w-5 h-5" />
           </button>
 
           {/* Idriel avatar + label */}
-          <div className="flex items-center gap-3 mb-4">
-            <div className="relative">
+          <div className="flex items-center gap-3.5 mb-5">
+            <div className="relative shrink-0">
               <img
                 src={idrielAvatar}
                 alt="Idriel"
-                className="w-12 h-12 rounded-full object-cover border-2 border-idriel/40 animate-idriel-pulse"
+                className="w-14 h-14 rounded-full object-cover border-2 border-idriel/50 animate-idriel-pulse"
               />
-              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-idriel flex items-center justify-center text-[8px]">🌿</div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 rounded-full bg-idriel flex items-center justify-center text-[9px]">🌿</div>
             </div>
             <div>
-              <span className="font-cinzel font-bold text-sm text-idriel-light block">Idriel</span>
-              <span className="font-montserrat text-[9px] text-text-dim uppercase tracking-widest">Guardiã da Árvore dos Mundos</span>
+              <span className="font-cinzel font-bold text-base text-idriel-light block">Idriel</span>
+              <span className="font-montserrat text-[10px] text-text-secondary uppercase tracking-widest">Guardiã da Árvore dos Mundos</span>
             </div>
+            {/* Step indicator — beside the name, not overlapping */}
+            <span className="ml-auto mr-8 text-[10px] font-montserrat uppercase tracking-wider text-idriel/60 shrink-0">
+              {step + 1}/{tips.length}
+            </span>
           </div>
 
           {/* Tip content with animation */}
           <div className={`transition-all duration-200 ${animating ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'}`}>
-            <div className="flex items-start gap-3 mb-4">
+            <div className="flex items-start gap-3.5 mb-5">
               <span className="text-2xl shrink-0 mt-0.5">{tip.icon}</span>
               <div className="flex-1 min-w-0">
-                <h4 className="font-montserrat font-bold text-[15px] text-foreground mb-1">{tip.title}</h4>
-                <p className="font-merriweather italic text-sm text-text-secondary leading-relaxed">{tip.desc}</p>
+                <h4 className="font-montserrat font-bold text-base text-foreground mb-1.5">{tip.title}</h4>
+                <p className="font-merriweather italic text-[15px] text-text-secondary leading-relaxed">{tip.desc}</p>
               </div>
             </div>
           </div>
 
           {/* Progress + navigation */}
-          <div className="flex items-center justify-between mt-2 pt-3 border-t border-idriel/10">
+          <div className="flex items-center justify-between mt-1 pt-4 border-t border-idriel/15">
             {/* Progress dots */}
-            <div className="flex gap-2">
+            <div className="flex gap-2.5">
               {tips.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => goToStep(i)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                     i === step
-                      ? 'bg-idriel-light scale-125 shadow-[0_0_8px_hsl(var(--idriel-glow)/0.5)]'
+                      ? 'bg-idriel-light scale-125 shadow-[0_0_10px_hsl(var(--idriel-glow)/0.6)]'
                       : i < step
-                        ? 'bg-idriel/40'
+                        ? 'bg-idriel/50'
                         : 'bg-idriel/15'
                   }`}
                 />
               ))}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               {/* Skip */}
-              <button onClick={dismiss} className="text-[10px] font-montserrat text-text-dim hover:text-foreground transition-colors px-2 py-1">
+              <button onClick={dismiss} className="text-xs font-montserrat text-text-dim hover:text-foreground transition-colors px-2 py-1">
                 Pular
               </button>
 
@@ -154,9 +158,9 @@ export const OnboardingTips: React.FC<Props> = ({ tab }) => {
               {step > 0 && (
                 <button
                   onClick={() => goToStep(step - 1)}
-                  className="flex items-center gap-0.5 px-2.5 py-1.5 rounded-md text-[11px] font-montserrat font-bold text-idriel-light border border-idriel/20 hover:border-idriel/40 hover:bg-idriel/5 transition-all"
+                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-montserrat font-bold text-idriel-light border border-idriel/25 hover:border-idriel/50 hover:bg-idriel/8 transition-all"
                 >
-                  <ChevronLeft className="w-3 h-3" /> Anterior
+                  <ChevronLeft className="w-3.5 h-3.5" /> Anterior
                 </button>
               )}
 
@@ -164,29 +168,22 @@ export const OnboardingTips: React.FC<Props> = ({ tab }) => {
               {step < tips.length - 1 ? (
                 <button
                   onClick={() => goToStep(step + 1)}
-                  className="flex items-center gap-0.5 px-3 py-1.5 rounded-md text-[11px] font-montserrat font-bold text-background bg-idriel-light hover:bg-idriel-glow transition-all"
+                  className="flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-montserrat font-bold text-background bg-idriel-light hover:bg-idriel-glow transition-all shadow-md shadow-idriel/20"
                 >
-                  Próxima <ChevronRight className="w-3 h-3" />
+                  Próxima <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               ) : (
                 <button
                   onClick={dismiss}
-                  className="px-3 py-1.5 rounded-md text-[11px] font-montserrat font-bold text-background bg-idriel-light hover:bg-idriel-glow transition-all"
+                  className="px-4 py-2 rounded-lg text-xs font-montserrat font-bold text-background bg-idriel-light hover:bg-idriel-glow transition-all shadow-md shadow-idriel/20"
                 >
                   ✨ Começar!
                 </button>
               )}
             </div>
           </div>
-
-          {/* Step indicator */}
-          <div className="absolute top-3 left-3">
-            <span className="text-[9px] font-montserrat uppercase tracking-widest text-idriel/50">
-              {step + 1} de {tips.length}
-            </span>
-          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
