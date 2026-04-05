@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Plus, ChevronRight, ChevronDown, Trash2, FileText, BookOpen,
   PanelRightOpen, PanelRightClose, StickyNote, Search, BookMarked, PenLine,
-  LayoutGrid, Feather, Maximize, Minimize
+  LayoutGrid, Feather, Maximize, Minimize, Info
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
