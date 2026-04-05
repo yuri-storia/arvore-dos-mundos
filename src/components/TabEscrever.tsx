@@ -251,9 +251,9 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   }
 
   return (
-    <div className="mx-auto max-w-[1400px] px-2 sm:px-4 py-4">
+    <div className={`mx-auto px-2 sm:px-4 py-4 transition-all duration-300 ${zenMode ? 'max-w-[900px]' : 'max-w-[1400px]'}`}>
       {/* Top bar */}
-      <div className="flex items-center gap-3 mb-4 flex-wrap">
+      <div className={`flex items-center gap-3 mb-4 flex-wrap transition-opacity duration-300 ${zenMode ? 'opacity-0 hover:opacity-100 h-0 overflow-hidden hover:h-auto hover:overflow-visible' : ''}`}>
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <PenLine className="w-4 h-4 text-blue-light shrink-0" />
           <input value={activeManuscript.title}
