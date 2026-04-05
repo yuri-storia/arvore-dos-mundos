@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Plus, ChevronRight, ChevronDown, Trash2, FileText, BookOpen,
   PanelRightOpen, PanelRightClose, StickyNote, Search, BookMarked, PenLine,
-  LayoutGrid, Feather
+  LayoutGrid, Feather, Maximize, Minimize
 } from 'lucide-react';
 import { FRUITS } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
@@ -137,6 +137,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const [mentionState, setMentionState] = useState<{ active: boolean; query: string; pos: { top: number; left: number } }>({ active: false, query: '', pos: { top: 0, left: 0 } });
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [newManuscriptName, setNewManuscriptName] = useState('');
+  const [zenMode, setZenMode] = useState(false);
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -152,6 +153,12 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
       setEditingTitle(activeScene.title);
     }
   }, [activeSceneId]); // eslint-disable-line
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && zenMode) setZenMode(false); };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [zenMode]);
 
   const debouncedSave = useCallback((id: string, content: string) => {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
@@ -250,9 +257,9 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   }
 
   return (
-    <div className="mx-auto max-w-[1400px] px-2 sm:px-4 py-4">
+    <div className={`mx-auto px-2 sm:px-4 py-4 transition-all duration-300 ${zenMode ? 'max-w-[900px]' : 'max-w-[1400px]'}`}>
       {/* Top bar */}
-      <div className="flex items-center gap-3 mb-4 flex-wrap">
+      <div className={`flex items-center gap-3 mb-4 flex-wrap transition-opacity duration-300 ${zenMode ? 'opacity-0 hover:opacity-100 h-0 overflow-hidden hover:h-auto hover:overflow-visible' : ''}`}>
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <PenLine className="w-4 h-4 text-blue-light shrink-0" />
           <input value={activeManuscript.title}
@@ -305,8 +312,9 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
 
       {/* ── MANUSCRIPT MODE ── */}
       {writeMode === 'manuscrito' && (
-        <div className="flex gap-3 h-[calc(100vh-220px)] min-h-[400px]">
+        <div className={`flex gap-3 min-h-[400px] transition-all duration-300 ${zenMode ? 'h-[calc(100vh-100px)]' : 'h-[calc(100vh-220px)]'}`}>
           {/* LEFT: Chapter/Scene tree */}
+          {!zenMode && (
           <div className={`${isMobile ? 'w-full' : 'w-[220px]'} shrink-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && activeSceneId ? 'hidden' : ''}`}>
             <div className="p-2 border-b border-blue-bright/10 flex items-center justify-between">
               <span className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Capítulos</span>
@@ -384,13 +392,14 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
               </div>
             </ScrollArea>
           </div>
+          )}
 
           {/* CENTER: Editor */}
-          <div className={`flex-1 min-w-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && !activeSceneId ? 'hidden' : ''}`}>
+          <div className={`flex-1 min-w-0 flex flex-col rounded-lg border transition-all duration-300 ${zenMode ? 'bg-background border-transparent shadow-2xl' : 'bg-white/[0.02] border-blue-bright/10'} ${isMobile && !activeSceneId ? 'hidden' : ''}`}>
             {activeScene ? (
               <>
                 {/* Breadcrumb */}
-                {activeChapter && (
+                {activeChapter && !zenMode && (
                   <div className="px-3 pt-2 flex items-center gap-1 text-[10px] font-montserrat text-text-dim/60">
                     <span className="hover:text-foreground cursor-default">{activeManuscript.title}</span>
                     <ChevronRight className="w-2.5 h-2.5" />
@@ -410,11 +419,18 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                     placeholder="Título da cena" />
                   <PomodoroTimer />
                   <span className="text-[10px] font-mono text-text-dim">{sceneWordCount} palavras</span>
+                  <button onClick={() => setZenMode(!zenMode)}
+                    className={`p-1.5 rounded hover:bg-white/[0.05] transition-colors ${zenMode ? 'text-blue-light' : 'text-text-dim hover:text-foreground'}`}
+                    title={zenMode ? 'Sair do modo foco' : 'Modo foco'}>
+                    {zenMode ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                  </button>
+                  {!zenMode && (
                   <button onClick={() => setShowRefPanel(!showRefPanel)}
                     className="p-1.5 rounded hover:bg-white/[0.05] text-text-dim hover:text-foreground transition-colors"
                     title={showRefPanel ? 'Fechar referências' : 'Abrir referências'}>
                     {showRefPanel ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
                   </button>
+                  )}
                 </div>
                 <div className="flex-1 relative">
                   <textarea ref={editorRef} value={editingContent} onChange={e => handleContentChange(e.target.value)}
@@ -439,7 +455,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           </div>
 
           {/* RIGHT: Reference Panel */}
-          {showRefPanel && !isMobile && (
+          {showRefPanel && !isMobile && !zenMode && (
             <div className="w-[240px] shrink-0 bg-white/[0.02] rounded-lg border border-blue-bright/10">
               <ReferencePanel entries={entries} onInsertMention={handleInsertMentionFromPanel} />
             </div>
