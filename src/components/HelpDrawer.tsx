@@ -145,7 +145,7 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
               {/* Section label */}
               <div className="flex items-center gap-2">
                 <div className="h-px flex-1 bg-idriel/10" />
-                <span className="text-[9px] font-montserrat uppercase tracking-widest text-idriel/50">
+                <span className="text-[10px] font-montserrat uppercase tracking-widest text-idriel/60">
                   📜 Guia — {data.label}
                 </span>
                 <div className="h-px flex-1 bg-idriel/10" />
