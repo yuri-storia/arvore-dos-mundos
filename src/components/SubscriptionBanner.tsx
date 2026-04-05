@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
 import { useSubscription, openCheckout, STRIPE_PLANS, openCustomerPortal } from '@/hooks/useSubscription';
 import { Progress } from '@/components/ui/progress';
-import { Lock, Sparkles, CreditCard } from 'lucide-react';
+import { Lock, Sparkles, CreditCard, X } from 'lucide-react';
+
+const DISMISS_KEY = 'adm_sub_banner_dismissed';
 
 export const SubscriptionBanner: React.FC = () => {
   const sub = useSubscription();
   const [loading, setLoading] = useState<string | null>(null);
+  const [dismissed, setDismissed] = useState(() => {
+    try { return sessionStorage.getItem(DISMISS_KEY) === '1'; } catch { return false; }
+  });
 
   if (sub.loading) return null;
+
+  const handleDismiss = () => {
+    setDismissed(true);
+    try { sessionStorage.setItem(DISMISS_KEY, '1'); } catch {}
+  };
 
   const handleCheckout = async (plan: keyof typeof STRIPE_PLANS, mode: 'subscription' | 'payment' = 'subscription') => {
     setLoading(plan);
