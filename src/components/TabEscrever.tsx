@@ -413,11 +413,18 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                     placeholder="Título da cena" />
                   <PomodoroTimer />
                   <span className="text-[10px] font-mono text-text-dim">{sceneWordCount} palavras</span>
+                  <button onClick={() => setZenMode(!zenMode)}
+                    className={`p-1.5 rounded hover:bg-white/[0.05] transition-colors ${zenMode ? 'text-blue-light' : 'text-text-dim hover:text-foreground'}`}
+                    title={zenMode ? 'Sair do modo foco' : 'Modo foco'}>
+                    {zenMode ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                  </button>
+                  {!zenMode && (
                   <button onClick={() => setShowRefPanel(!showRefPanel)}
                     className="p-1.5 rounded hover:bg-white/[0.05] text-text-dim hover:text-foreground transition-colors"
                     title={showRefPanel ? 'Fechar referências' : 'Abrir referências'}>
                     {showRefPanel ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
                   </button>
+                  )}
                 </div>
                 <div className="flex-1 relative">
                   <textarea ref={editorRef} value={editingContent} onChange={e => handleContentChange(e.target.value)}
