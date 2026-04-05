@@ -172,7 +172,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
       <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={e => handleFiles(e.target.files)} />
 
       {/* Upload zone */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5">
+      <div data-tour="gallery-upload" className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5">
         <div
           onClick={() => !batchUploading && fileRef.current?.click()}
           className={`flex-1 border-2 border-dashed border-gold/20 rounded-lg p-5 text-center cursor-pointer hover:border-gold/40 transition-colors ${batchUploading ? 'opacity-50 pointer-events-none' : ''}`}
@@ -265,6 +265,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
           <button
+            data-tour="visoes-idriel"
             onClick={() => setShowGenerator(!showGenerator)}
             className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gold/30 bg-gold/[0.06] hover:bg-gold/[0.12] transition-all group"
           >
