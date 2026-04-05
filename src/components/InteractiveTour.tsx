@@ -111,7 +111,7 @@ const TOUR_STEPS: TourStep[] = [
     title: 'Criar Manuscrito',
     desc: 'Comece criando um manuscrito, viajante. Dentro dele, você organiza Capítulos e Cenas — como um livro de verdade. Depois pode exportar em PDF, Word ou HTML para e-book!',
     icon: '📕',
-    tooltipPos: 'bottom',
+    tooltipPos: 'right',
     delay: 400,
   },
 
