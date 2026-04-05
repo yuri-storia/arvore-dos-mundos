@@ -505,3 +505,4 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
     </div>
   );
 };
+
