@@ -396,7 +396,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 onClick={e => e.stopPropagation()}
               />
             ) : (
-              <h2 className="font-cinzel font-bold text-lg text-foreground">{entry.title}</h2>
+              <h2 onClick={e => { e.stopPropagation(); setEditing(true); }} className="font-cinzel font-bold text-lg text-foreground cursor-text hover:text-blue-light transition-colors" title="Clique para editar">{entry.title}</h2>
             )}
             <button
               onClick={e => { e.stopPropagation(); onToggle(); }}
