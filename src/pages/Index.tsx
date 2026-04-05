@@ -4,6 +4,7 @@ import { SubscriptionBanner } from '@/components/SubscriptionBanner';
 import { OnboardingTips } from '@/components/OnboardingTips';
 import { HelpDrawer } from '@/components/HelpDrawer';
 import { AppSidebar } from '@/components/AppSidebar';
+import { InteractiveTour, hasDoneTour, TOUR_STORAGE_KEY } from '@/components/InteractiveTour';
 
 import { WorldNameInput } from '@/components/WorldNameInput';
 import { TabNav } from '@/components/TabNav';
