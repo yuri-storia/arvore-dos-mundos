@@ -58,6 +58,12 @@
     --border-subtle: 211 76% 42% / 0.18;
     --border-active: 210 84% 69% / 0.35;
     --red-alert: 4 82% 56%;
+
+    /* Idriel — mystical green-teal */
+    --idriel: 160 55% 40%;
+    --idriel-light: 158 60% 55%;
+    --idriel-glow: 155 65% 65%;
+    --idriel-dim: 162 40% 25%;
   }
 }
 
@@ -124,6 +130,24 @@
   backdrop-filter: blur(20px);
   border: 1px solid hsl(var(--gold) / 0.35);
 }
+
+.card-glass-idriel {
+  background: linear-gradient(135deg, hsl(var(--idriel) / 0.12) 0%, hsl(214 60% 3% / 0.9) 100%);
+  backdrop-filter: blur(16px);
+  border: 1px solid hsl(var(--idriel) / 0.25);
+}
+
+@keyframes idriel-pulse {
+  0%, 100% { box-shadow: 0 0 8px hsl(var(--idriel-glow) / 0.3); }
+  50% { box-shadow: 0 0 20px hsl(var(--idriel-glow) / 0.6); }
+}
+.animate-idriel-pulse { animation: idriel-pulse 3s ease-in-out infinite; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-slideUp { animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) both; }
 
 /* Bottom rising particles */
 @keyframes riseParticle {

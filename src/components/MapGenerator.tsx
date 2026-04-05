@@ -91,10 +91,10 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
   };
 
   return (
-    <div className="border-t border-cyan-500/15 pt-6">
+    <div className="border-t border-idriel/15 pt-6">
       <div className="flex items-center gap-2 mb-1">
-        <Map className="w-4 h-4 text-cyan-400" />
-        <span className="font-cinzel font-bold text-sm text-cyan-300">🗺 Forjar Mapa do Mundo</span>
+        <Map className="w-4 h-4 text-idriel-light" />
+        <span className="font-cinzel font-bold text-sm text-idriel-light">🗺 Forjar Mapa do Mundo</span>
       </div>
       <p className="font-merriweather italic text-[11px] text-text-dim mb-4">
         Idriel materializa o mapa do seu mundo usando a Seiva Dourada e o contexto dos seus Frutos.
@@ -111,13 +111,13 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
               onClick={() => setSelectedStyle(s.id)}
               className={`flex items-start gap-2 p-3 rounded-lg text-left transition-all ${
                 isActive
-                  ? 'border border-cyan-400/40 bg-cyan-500/10'
-                  : 'border border-blue-bright/10 bg-blue-bright/[0.02] hover:border-cyan-400/20'
+                  ? 'border border-idriel-light/40 bg-idriel/10'
+                  : 'border border-blue-bright/10 bg-blue-bright/[0.02] hover:border-idriel/20'
               }`}
             >
-              <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${isActive ? 'text-cyan-400' : 'text-text-dim'}`} />
+              <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${isActive ? 'text-idriel-light' : 'text-text-dim'}`} />
               <div>
-                <span className={`font-montserrat font-bold text-[11px] uppercase block ${isActive ? 'text-cyan-300' : 'text-text-secondary'}`}>
+                <span className={`font-montserrat font-bold text-[11px] uppercase block ${isActive ? 'text-idriel-light' : 'text-text-secondary'}`}>
                   {s.label}
                 </span>
                 <span className="font-merriweather text-[10px] text-text-dim leading-tight block">{s.desc}</span>
@@ -135,24 +135,24 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
           ? 'Descreva o mapa que imagina em detalhes: regiões, elementos, atmosfera…'
           : 'Detalhes adicionais (opcional): "incluir um vulcão ao norte", "mar congelado ao sul"…'}
         rows={2}
-        className="w-full bg-[rgba(4,12,24,0.6)] border border-cyan-500/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-cyan-400/50 resize-y mb-3"
+        className="w-full bg-idriel/[0.04] border border-idriel/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-idriel/50 resize-y mb-3"
       />
 
       {/* Generate prompt button */}
       <button
         onClick={handleGeneratePrompt}
         disabled={loadingPrompt || (styleObj.id === 'custom' && !customDesc.trim())}
-        className="w-full sm:w-auto px-5 py-2.5 bg-cyan-800 hover:bg-cyan-700 text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors mb-4"
+        className="w-full sm:w-auto px-5 py-2.5 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors mb-4"
       >
         {loadingPrompt ? '🌿 Canalizando a visão…' : '🗺 Gerar Visão do Mapa'}
       </button>
 
       {loadingPrompt && (
         <div className="flex items-center gap-2 text-text-dim text-sm mb-4">
-          <img src={idrielAvatar} alt="Idriel" className="w-6 h-6 rounded-full border border-cyan-400/30" />
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 dot-bounce" />
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 dot-bounce-2" />
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 dot-bounce-3" />
+          <img src={idrielAvatar} alt="Idriel" className="w-6 h-6 rounded-full border border-idriel/30" />
+          <span className="w-1.5 h-1.5 rounded-full bg-idriel-light dot-bounce" />
+          <span className="w-1.5 h-1.5 rounded-full bg-idriel-light dot-bounce-2" />
+          <span className="w-1.5 h-1.5 rounded-full bg-idriel-light dot-bounce-3" />
           <span className="font-merriweather italic text-xs">Idriel traça as linhas do firmamento…</span>
         </div>
       )}
@@ -166,8 +166,8 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
       {/* Generated prompt */}
       {generatedPrompt && !loadingPrompt && (
         <div className="animate-fadeUp mb-4">
-          <div className="border-l-[3px] border-cyan-400 pl-4 py-3 bg-cyan-500/5 rounded-r-md">
-            <span className="font-cinzel text-[10px] text-cyan-300 block mb-2">🌿 Visão de Idriel — Prompt do Mapa</span>
+          <div className="border-l-[3px] border-idriel-light pl-4 py-3 bg-idriel/[0.04] rounded-r-md">
+            <span className="font-cinzel text-[10px] text-idriel-light block mb-2">🌿 Visão de Idriel — Prompt do Mapa</span>
             <p className="font-merriweather text-xs text-text-secondary leading-relaxed mb-3">{generatedPrompt}</p>
             <button
               onClick={handleGenerateImage}

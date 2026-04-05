@@ -206,7 +206,7 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
     <div className="rounded-lg p-4 sm:p-5 mb-6 animate-fadeUp border border-accent/20" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.10) 0%, rgba(59,130,246,0.10) 50%, rgba(16,185,129,0.08) 100%)', backdropFilter: 'blur(20px)' }}>
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="font-cinzel font-bold text-base sm:text-lg bg-gradient-to-r from-violet-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">
+          <h3 className="font-cinzel font-bold text-base sm:text-lg text-idriel-light">
             🌳 {IDRIEL_NAME} — {IDRIEL_TITLE}
           </h3>
           <p className="font-merriweather italic text-text-dim text-xs mt-1">
@@ -363,7 +363,7 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
             <button
               onClick={handleAnalyze}
               disabled={!canAnalyze || sub.loading}
-              className="px-5 py-2.5 bg-gradient-to-r from-violet-600 via-blue-500 to-emerald-500 hover:from-violet-500 hover:via-blue-400 hover:to-emerald-400 text-white rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+              className="px-5 py-2.5 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_hsl(var(--idriel)/0.3)] hover:shadow-[0_0_30px_hsl(var(--idriel)/0.5)] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
             >
               🌳 Consultar {IDRIEL_NAME} sobre {entries.length} entrada{entries.length !== 1 ? 's' : ''}
             </button>
@@ -379,14 +379,14 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
         <div className="py-6">
           <div className="flex flex-col items-center gap-4 mb-6">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-emerald-400/40 shadow-[0_0_30px_rgba(16,185,129,0.3)] animate-pulse">
+              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-idriel/40 shadow-[0_0_30px_hsl(var(--idriel-glow)/0.3)] animate-pulse">
                 <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
               </div>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500/30 border border-emerald-400/50 flex items-center justify-center text-xs animate-pulse">🌳</div>
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-idriel/30 border border-idriel-light/50 flex items-center justify-center text-xs animate-pulse">🌳</div>
             </div>
             <div className="text-center">
               <p className="font-cinzel font-bold text-sm text-foreground">{IDRIEL_NAME}</p>
-              <p className="text-[10px] text-emerald-400/80 font-montserrat italic">está analisando seu mundo…</p>
+              <p className="text-[10px] text-idriel-light/80 font-montserrat italic">está analisando seu mundo…</p>
             </div>
           </div>
 
@@ -400,7 +400,7 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
               >
                 <span className={`mt-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] flex-shrink-0 transition-colors duration-300 ${
                   i < currentStep
-                    ? 'bg-emerald-500/30 text-emerald-400'
+                    ? 'bg-idriel/30 text-idriel-light'
                     : i === currentStep
                       ? 'bg-violet-500/30 text-violet-400 animate-pulse'
                       : 'bg-border text-text-dim'

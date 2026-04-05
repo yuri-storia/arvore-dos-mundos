@@ -123,7 +123,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
           {entries.length > 0 && (
               <button
                 onClick={() => { setShowExport(!showExport); setExportSelectedFruitIds([]); }}
-                className="px-3 py-2 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:via-teal-300 hover:to-cyan-400 text-white rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_16px_rgba(16,185,129,0.4)] hover:shadow-[0_0_24px_rgba(16,185,129,0.6)]"
+                className="px-3 py-2 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_16px_hsl(var(--idriel)/0.4)] hover:shadow-[0_0_24px_hsl(var(--idriel)/0.6)]"
               >
                 📄 Exportar PDF
               </button>
@@ -265,8 +265,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
 
       {/* Export panel */}
       {showExport && (
-        <div className="rounded-lg p-4 mb-5 animate-fadeUp border border-emerald-500/20" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(6,182,212,0.12) 50%, rgba(59,130,246,0.12) 100%)', backdropFilter: 'blur(20px)' }}>
-          <h3 className="font-cinzel font-bold text-sm mb-3 bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">📄 Exportar Entradas em PDF</h3>
+        <div className="card-glass-idriel rounded-lg p-4 mb-5 animate-fadeUp">
+          <h3 className="font-cinzel font-bold text-sm mb-3 text-idriel-light">📄 Exportar Entradas em PDF</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
             <button
               onClick={() => { exportAllEntries(entries); setShowExport(false); }}
@@ -505,12 +505,11 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
             <button
               onClick={() => setShowAnalysis(true)}
               className="w-full py-5 rounded-xl text-center font-cinzel font-bold text-base sm:text-lg uppercase tracking-wider transition-all
-                bg-gradient-to-r from-violet-600/20 via-blue-500/20 to-emerald-500/20
-                hover:from-violet-600/30 hover:via-blue-500/30 hover:to-emerald-500/30
-                border border-violet-500/30 hover:border-violet-400/50
-                shadow-[0_0_30px_rgba(139,92,246,0.15)] hover:shadow-[0_0_50px_rgba(139,92,246,0.3)]"
+                bg-idriel/[0.08] hover:bg-idriel/[0.15]
+                border border-idriel/30 hover:border-idriel-light/50
+                shadow-[0_0_30px_hsl(var(--idriel)/0.15)] hover:shadow-[0_0_50px_hsl(var(--idriel)/0.3)]"
             >
-              <span className="bg-gradient-to-r from-violet-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">
+              <span className="text-idriel-light">
                 🌳 Consultar Idriel — Guardiã da Árvore
               </span>
               <p className="font-merriweather italic text-text-dim text-xs mt-1 normal-case tracking-normal">

@@ -327,10 +327,10 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
             {currentFruit === 0 ? (
               <MapGenerator worldName={worldName} db={db} />
             ) : (
-              <div className="border-t border-emerald-500/15 pt-6">
+              <div className="border-t border-idriel/15 pt-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-blink" />
-                  <span className="font-cinzel font-bold text-xs text-emerald-300">🌳 Consultar Idriel</span>
+                  <span className="w-2 h-2 rounded-full bg-idriel-light animate-blink" />
+                  <span className="font-cinzel font-bold text-xs text-idriel-light">🌳 Consultar Idriel</span>
                   <span className="font-merriweather italic text-[10px] text-text-dim">— Guardiã da Árvore dos Mundos</span>
                 </div>
 
@@ -342,8 +342,8 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                       onClick={() => { setAiQuestion(chip); setActiveChip(chip); }}
                       className={`px-3 py-1 rounded-full text-xs font-montserrat transition-all ${
                         activeChip === chip
-                          ? 'border border-emerald-400 text-emerald-300 bg-emerald-500/15'
-                          : 'border border-emerald-500/20 text-text-dim hover:text-text-secondary hover:border-emerald-400/30'
+                          ? 'border border-idriel-light text-idriel-light bg-idriel/15'
+                          : 'border border-idriel/20 text-text-dim hover:text-text-secondary hover:border-idriel/30'
                       }`}
                     >
                       {chip}
@@ -359,12 +359,12 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                     onChange={e => setAiQuestion(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && aiQuestion.trim() && handleConsult()}
                     placeholder="Faça uma pergunta a Idriel sobre este fruto…"
-                    className="flex-1 bg-[rgba(4,12,24,0.6)] border border-emerald-500/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-emerald-400/50"
+                    className="flex-1 bg-idriel/[0.04] border border-idriel/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-idriel/50"
                   />
                   <button
                     onClick={handleConsult}
                     disabled={!aiQuestion.trim() || aiLoading}
-                    className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
+                    className="px-4 py-2 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
                   >
                     🌿 Consultar Idriel
                   </button>
@@ -372,16 +372,16 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
                 {aiLoading && (
                   <div className="flex items-center gap-1 text-text-dim text-sm mb-4">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-bounce" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-bounce-2" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-bounce-3" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-idriel-light dot-bounce" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-idriel-light dot-bounce-2" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-idriel-light dot-bounce-3" />
                     <span className="ml-2 font-merriweather italic text-xs">Idriel contempla os galhos da Árvore…</span>
                   </div>
                 )}
 
                 {aiResponse && !aiLoading && (
-                  <div className="animate-fadeUp border-l-[3px] border-emerald-400 pl-4 py-3 bg-emerald-500/5 rounded-r-md">
-                    <span className="font-cinzel text-[10px] text-emerald-300 block mb-2">🌿 Idriel responde</span>
+                  <div className="animate-fadeUp border-l-[3px] border-idriel-light pl-4 py-3 bg-idriel/[0.04] rounded-r-md">
+                    <span className="font-cinzel text-[10px] text-idriel-light block mb-2">🌿 Idriel responde</span>
                     <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed">{aiResponse}</p>
                   </div>
                 )}
