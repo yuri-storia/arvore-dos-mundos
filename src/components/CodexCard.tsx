@@ -277,7 +277,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               )}
 
               {/* Article body with sections */}
-              <div ref={contentRef} className="flex-1 mb-4 max-h-[500px] overflow-y-auto pr-2">
+              <div ref={contentRef} className="flex-1 mb-4 max-h-[500px] overflow-y-auto pr-2 cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }} title="Clique para editar">
                 {sections.length > 0 ? (
                   sections.map(s => (
                     <div key={s.id} data-section={s.id} className="mb-5">
