@@ -1,0 +1,1 @@
+ALTER TABLE public.codex_entries ADD COLUMN world_id uuid REFERENCES public.worlds(id) ON DELETE CASCADE;
