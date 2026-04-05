@@ -27,7 +27,7 @@ const TAB_TIPS: Record<string, Tip[]> = {
   ],
   galeria: [
     { icon: '🖼️', title: 'Referências visuais', desc: 'Traga as imagens que inspiram seu mundo — concept arts, mapas, paisagens. Categorize por Fruto para encontrar facilmente.' },
-    { icon: '✨', title: 'Visões de Idriel', desc: 'Logo abaixo da galeria, abra "Visões de Idriel" para gerar imagens com IA. Descreva o que imagina e Idriel materializa — cada visão custa 5 gotas de Seiva Dourada.' },
+    { icon: '✨', title: 'Visões de Idriel (plano completo)', desc: 'Logo abaixo da galeria, abra "Visões de Idriel" para gerar imagens com IA. Descreva o que imagina e Idriel materializa — cada visão custa 5 gotas de Seiva Dourada. Recurso exclusivo do plano Template + Idriel.' },
   ],
 };
 
