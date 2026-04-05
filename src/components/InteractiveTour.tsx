@@ -183,14 +183,17 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
 
   const currentStep = TOUR_STEPS[step];
 
-  // Lock body scroll during tour
+  // Lock user scroll during tour but allow programmatic scrolling
   useEffect(() => {
-    if (active) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => { document.body.style.overflow = ''; };
+    if (!active) return;
+    const preventDefault = (e: Event) => { e.preventDefault(); };
+    const opts: AddEventListenerOptions = { passive: false };
+    window.addEventListener('wheel', preventDefault, opts);
+    window.addEventListener('touchmove', preventDefault, opts);
+    return () => {
+      window.removeEventListener('wheel', preventDefault, opts as EventListenerOptions);
+      window.removeEventListener('touchmove', preventDefault, opts as EventListenerOptions);
+    };
   }, [active]);
 
   // Handle delay for steps that need it (after tab switch)
@@ -230,12 +233,11 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     return () => cancelAnimationFrame(rafRef.current);
   }, [active, measureTarget, delayWaiting]);
 
-  // Scroll target into view
+  // Scroll target into view (programmatic scroll still works)
   useEffect(() => {
     if (!active || delayWaiting || !currentStep.target) return;
     const el = document.querySelector(`[data-tour="${currentStep.target}"]`);
     if (el) {
-      // Use 'nearest' to avoid unnecessary scrolling; add block margin for bottom nav
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, [active, step, delayWaiting, currentStep.target]);
@@ -317,9 +319,10 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     // Desktop/tablet
     const pos = currentStep.tooltipPos || 'right';
     const cardW = Math.min(360, vw - margin * 2);
+    const cardH = 280; // estimated max card height
 
     const clampLeft = (l: number) => Math.max(margin, Math.min(l, vw - cardW - margin));
-    const clampTop = (t: number) => Math.max(margin, Math.min(t, vh - 200));
+    const clampTop = (t: number) => Math.max(margin, Math.min(t, vh - cardH - margin));
 
     switch (pos) {
       case 'right':
