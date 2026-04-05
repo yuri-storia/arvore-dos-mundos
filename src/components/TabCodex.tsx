@@ -265,8 +265,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
 
       {/* Export panel */}
       {showExport && (
-        <div className="rounded-lg p-4 mb-5 animate-fadeUp border border-emerald-500/20" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(6,182,212,0.12) 50%, rgba(59,130,246,0.12) 100%)', backdropFilter: 'blur(20px)' }}>
-          <h3 className="font-cinzel font-bold text-sm mb-3 bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">📄 Exportar Entradas em PDF</h3>
+        <div className="card-glass-idriel rounded-lg p-4 mb-5 animate-fadeUp">
+          <h3 className="font-cinzel font-bold text-sm mb-3 text-idriel-light">📄 Exportar Entradas em PDF</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
             <button
               onClick={() => { exportAllEntries(entries); setShowExport(false); }}
