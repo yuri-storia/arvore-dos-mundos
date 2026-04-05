@@ -26,6 +26,7 @@ export const TabNav: React.FC<Props> = ({ activeTab, setActiveTab }) => {
         {TABS.map(tab => (
           <button
             key={tab.id}
+            data-tour={`tab-${tab.id}`}
             onClick={() => setActiveTab(tab.id)}
             className={`flex-1 min-w-0 py-2.5 px-1 text-center font-montserrat font-bold text-[10px] sm:text-xs uppercase tracking-[0.1em] transition-colors ${
               activeTab === tab.id
