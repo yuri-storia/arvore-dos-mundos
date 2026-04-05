@@ -379,10 +379,10 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
         <div className="py-6">
           <div className="flex flex-col items-center gap-4 mb-6">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-emerald-400/40 shadow-[0_0_30px_rgba(16,185,129,0.3)] animate-pulse">
+              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-idriel/40 shadow-[0_0_30px_hsl(var(--idriel-glow)/0.3)] animate-pulse">
                 <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
               </div>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500/30 border border-emerald-400/50 flex items-center justify-center text-xs animate-pulse">🌳</div>
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-idriel/30 border border-idriel-light/50 flex items-center justify-center text-xs animate-pulse">🌳</div>
             </div>
             <div className="text-center">
               <p className="font-cinzel font-bold text-sm text-foreground">{IDRIEL_NAME}</p>
