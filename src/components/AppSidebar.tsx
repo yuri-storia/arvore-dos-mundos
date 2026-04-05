@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, LogOut, Shield, Map, BookOpen, Image, Sparkles, Plus, Trash2, ChevronRight } from 'lucide-react';
+import { Settings, LogOut, Shield, Map, BookOpen, Image, Sparkles, Plus, Trash2, ChevronRight, PenLine } from 'lucide-react';
 import type { TabType } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import {
