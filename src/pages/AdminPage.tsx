@@ -98,12 +98,20 @@ const AdminPage: React.FC = () => {
             >
               ← Voltar
             </button>
-            <button
-              onClick={signOut}
-              className="px-3 py-1.5 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors"
-            >
-              Sair
-            </button>
+            <ConfirmDialog
+              trigger={
+                <button className="px-3 py-1.5 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors">
+                  Sair
+                </button>
+              }
+              title="Sair da conta"
+              description="Tem certeza que deseja sair do painel administrativo?"
+              confirmLabel="Sim, sair"
+              onConfirm={async () => {
+                await signOut();
+                navigate('/login', { replace: true });
+              }}
+            />
           </div>
         </div>
 
