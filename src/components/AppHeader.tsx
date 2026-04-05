@@ -1,11 +1,14 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import treeWallpaper from '@/assets/tree-wallpaper.webp';
 import { UserMenu } from '@/components/UserMenu';
 import { FRUITS } from '@/lib/data';
+import { Pencil } from 'lucide-react';
 import type { MethodType } from '@/lib/data';
 
 interface AppHeaderProps {
   worldName?: string;
+  setWorldName?: (name: string) => void;
+  onCreateWorld?: () => void;
   method?: MethodType;
   currentSaveId?: string;
   db?: Record<number, Record<string, string>>;
