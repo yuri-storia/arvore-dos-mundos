@@ -7,6 +7,7 @@ import { CodexCard } from '@/components/CodexCard';
 import { exportSingleEntry, exportFruitEntries, exportSelectedFruits, exportAllEntries } from '@/lib/codexPdfExport';
 import { CodexAnalysis } from '@/components/CodexAnalysis';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { WorldRecord } from '@/hooks/useWorlds';
 
 const FRUIT_ALL = -1;
 
@@ -14,11 +15,13 @@ type EntryKind = 'ficha' | 'artigo';
 
 interface Props {
   gallery: GalleryImage[];
+  worldId: string;
+  worlds: WorldRecord[];
 }
 
-export const TabCodex: React.FC<Props> = ({ gallery }) => {
+export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   const { user } = useAuth();
-  const { entries, loading, createEntry, updateEntry, deleteEntry, uploadImage } = useCodexEntries();
+  const { entries, loading, createEntry, updateEntry, deleteEntry, uploadImage, fetchEntriesFromWorld, importEntries } = useCodexEntries(worldId || undefined);
   
   const [filterFruit, setFilterFruit] = useState(FRUIT_ALL);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -28,6 +31,11 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
   const [showExport, setShowExport] = useState(false);
   const [exportSelectedFruitIds, setExportSelectedFruitIds] = useState<number[]>([]);
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [importWorldId, setImportWorldId] = useState<string>('');
+  const [importEntryList, setImportEntryList] = useState<CodexEntry[]>([]);
+  const [importSelectedIds, setImportSelectedIds] = useState<string[]>([]);
+  const [importLoading, setImportLoading] = useState(false);
 
   // Create form state
   const [newTitle, setNewTitle] = useState('');
@@ -41,6 +49,14 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
     return (
       <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-12 text-center">
         <p className="font-merriweather text-text-dim">Faça login para acessar seu Codex.</p>
+      </div>
+    );
+  }
+
+  if (!worldId) {
+    return (
+      <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-12 text-center">
+        <p className="font-merriweather text-text-dim">Crie ou selecione um Mundo para acessar seu Codex.</p>
       </div>
     );
   }
@@ -73,6 +89,26 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
     setShowCreate(false);
     setCreateKind(null);
     setNewTitle(''); setNewContent(''); setNewImageUrl(''); setNewFruit(null);
+    setShowImport(false);
+    setImportWorldId('');
+    setImportEntryList([]);
+    setImportSelectedIds([]);
+  };
+
+  const handleSelectImportWorld = async (wId: string) => {
+    setImportWorldId(wId);
+    setImportLoading(true);
+    const items = await fetchEntriesFromWorld(wId);
+    setImportEntryList(items);
+    setImportLoading(false);
+  };
+
+  const handleImport = async () => {
+    const selected = importEntryList.filter(e => importSelectedIds.includes(e.id));
+    if (selected.length === 0) return;
+    await importEntries(selected);
+    resetCreate();
+  };
   };
 
   const openCreate = (kind: EntryKind) => {
@@ -101,8 +137,8 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
             >
               + Nova Entrada
             </button>
-            {showCreate && !createKind && (
-              <div className="absolute right-0 top-full mt-1 z-50 w-[220px] card-glass rounded-lg p-3 shadow-lg border border-blue-bright/30 animate-fadeUp">
+            {showCreate && !createKind && !showImport && (
+              <div className="absolute right-0 top-full mt-1 z-50 w-[240px] card-glass rounded-lg p-3 shadow-lg border border-blue-bright/30 animate-fadeUp">
                 <h4 className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-blue-light mb-2">Tipo de entrada</h4>
                 <button
                   onClick={() => openCreate('ficha')}
@@ -113,11 +149,23 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
                 </button>
                 <button
                   onClick={() => openCreate('artigo')}
-                  className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors"
+                  className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors mb-1"
                 >
                   <span className="font-montserrat font-bold text-xs text-foreground block">📝 Artigo</span>
                   <span className="text-[10px] text-text-dim font-merriweather">Texto livre, explicativo</span>
                 </button>
+                {worlds.filter(w => w.id !== worldId).length > 0 && (
+                  <>
+                    <div className="border-t border-blue-bright/15 my-2" />
+                    <button
+                      onClick={() => { setShowImport(true); }}
+                      className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors"
+                    >
+                      <span className="font-montserrat font-bold text-xs text-foreground block">📥 Importar de outro Mundo</span>
+                      <span className="text-[10px] text-text-dim font-merriweather">Copiar fichas ou artigos</span>
+                    </button>
+                  </>
+                )}
                 <button onClick={resetCreate} className="absolute top-1 right-1 w-5 h-5 rounded-full text-text-dim hover:text-foreground text-xs flex items-center justify-center">✕</button>
               </div>
             )}
@@ -126,6 +174,95 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
       </div>
       <p className="font-merriweather italic text-text-dim text-sm mb-5">Suas fichas, artigos e anotações organizados por fruto</p>
 
+      {/* Import panel */}
+      {showImport && (
+        <div className="card-glass rounded-lg p-4 sm:p-5 mb-6 animate-fadeUp border border-blue-bright/20">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-cinzel font-bold text-sm text-blue-light">📥 Importar de outro Mundo</h3>
+            <button onClick={resetCreate} className="text-[10px] text-text-dim font-montserrat hover:text-foreground">✕ Fechar</button>
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Selecione o Mundo de origem</label>
+            <Select value={importWorldId} onValueChange={handleSelectImportWorld}>
+              <SelectTrigger className="w-full bg-background/60 border-blue-bright/20 text-sm font-merriweather">
+                <SelectValue placeholder="Escolha um mundo…" />
+              </SelectTrigger>
+              <SelectContent>
+                {worlds.filter(w => w.id !== worldId).map(w => (
+                  <SelectItem key={w.id} value={w.id}>🌍 {w.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {importLoading && (
+            <div className="text-center py-4">
+              <div className="flex items-center justify-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-ring dot-bounce" />
+                <span className="w-2 h-2 rounded-full bg-ring dot-bounce-2" />
+                <span className="w-2 h-2 rounded-full bg-ring dot-bounce-3" />
+              </div>
+            </div>
+          )}
+
+          {importWorldId && !importLoading && importEntryList.length === 0 && (
+            <p className="font-merriweather text-sm text-text-dim italic text-center py-4">Nenhuma entrada encontrada nesse mundo.</p>
+          )}
+
+          {importEntryList.length > 0 && (
+            <>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat font-bold">
+                  {importEntryList.length} entrada(s) disponíveis
+                </span>
+                <button
+                  onClick={() => setImportSelectedIds(importSelectedIds.length === importEntryList.length ? [] : importEntryList.map(e => e.id))}
+                  className="text-[10px] text-blue-light font-montserrat font-bold hover:underline"
+                >
+                  {importSelectedIds.length === importEntryList.length ? 'Desmarcar tudo' : 'Selecionar tudo'}
+                </button>
+              </div>
+              <div className="max-h-[250px] overflow-y-auto space-y-1.5 mb-4 pr-1">
+                {importEntryList.map(e => {
+                  const fruit = e.fruit_id !== null ? FRUITS.find(f => f.id === e.fruit_id) : null;
+                  const selected = importSelectedIds.includes(e.id);
+                  return (
+                    <button
+                      key={e.id}
+                      onClick={() => setImportSelectedIds(prev => selected ? prev.filter(id => id !== e.id) : [...prev, e.id])}
+                      className={`w-full text-left px-3 py-2 rounded-md border transition-colors flex items-center gap-2 ${
+                        selected
+                          ? 'border-ring/40 bg-primary/10'
+                          : 'border-border hover:border-blue-bright/20'
+                      }`}
+                    >
+                      <span className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center text-[10px] ${
+                        selected ? 'bg-primary border-ring text-foreground' : 'border-border'
+                      }`}>
+                        {selected && '✓'}
+                      </span>
+                      <span className="text-[10px] font-montserrat font-bold uppercase text-text-dim">
+                        {e.entry_type === 'ficha' ? '📋' : '📝'}
+                      </span>
+                      {fruit && <span className="text-[10px]">{fruit.icon}</span>}
+                      <span className="font-merriweather text-sm text-foreground truncate">{e.title}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              {importSelectedIds.length > 0 && (
+                <button
+                  onClick={handleImport}
+                  className="px-4 py-2 bg-primary hover:bg-ring text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+                >
+                  📥 Importar {importSelectedIds.length} entrada(s)
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      )}
 
       {/* Export panel */}
       {showExport && (

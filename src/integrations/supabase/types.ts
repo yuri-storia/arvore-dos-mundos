@@ -94,6 +94,7 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          world_id: string | null
         }
         Insert: {
           content?: string | null
@@ -105,6 +106,7 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id: string
+          world_id?: string | null
         }
         Update: {
           content?: string | null
@@ -116,8 +118,17 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          world_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "codex_entries_world_id_fkey"
+            columns: ["world_id"]
+            isOneToOne: false
+            referencedRelation: "worlds"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
