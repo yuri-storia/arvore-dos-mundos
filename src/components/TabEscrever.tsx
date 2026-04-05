@@ -27,7 +27,25 @@ interface Props {
   worlds: WorldRecord[];
 }
 
-type WriteMode = 'manuscrito' | 'kanban' | 'livre';
+type WriteMode = 'manuscrito' | 'mural' | 'livre';
+
+const WRITE_MODE_INFO: Record<WriteMode, { icon: typeof BookMarked; label: string; desc: string }> = {
+  manuscrito: {
+    icon: BookMarked,
+    label: 'Manuscrito',
+    desc: 'Organize sua história em capítulos e cenas, como um livro. Ideal para narrativas longas e estruturadas.',
+  },
+  mural: {
+    icon: LayoutGrid,
+    label: 'Mural de Cenas',
+    desc: 'Visualize todas as suas cenas em colunas por status (Ideia → Rascunho → Revisão → Pronto). Arraste para reorganizar.',
+  },
+  livre: {
+    icon: Feather,
+    label: 'Rascunhos',
+    desc: 'Escreva livremente sem estrutura. Ideal para anotações, brainstorming e trechos soltos.',
+  },
+};
 
 // ── Reference Panel (Codex sidebar) ──
 const ReferencePanel: React.FC<{ entries: CodexEntry[]; onInsertMention: (name: string) => void }> = ({ entries, onInsertMention }) => {
