@@ -34,7 +34,7 @@ const TAB_TIPS: Record<string, { label: string; tips: Tip[] }> = {
   escrever: {
     label: 'Escrever',
     tips: [
-      { icon: '📖', title: 'Três modos de escrita', desc: 'Manuscrito (capítulos hierárquicos), Quadro (Kanban visual) ou Escrita Livre.' },
+      { icon: '📖', title: 'Três modos de escrita', desc: 'Manuscrito (capítulos organizados como um livro), Mural de Cenas (visualize por status e arraste para reorganizar) ou Rascunhos (escrita livre sem estrutura).' },
       { icon: '⏱️', title: 'Timer Pomodoro', desc: 'Ative sessões focadas de escrita com pausas programadas. Personalize os tempos.' },
       { icon: '@', title: 'Menções do Codex', desc: 'Digite @ no editor para referenciar fichas e artigos do seu mundo.' },
     ],
