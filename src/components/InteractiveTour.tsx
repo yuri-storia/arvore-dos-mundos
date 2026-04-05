@@ -109,37 +109,8 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     return () => cancelAnimationFrame(rafRef.current);
   }, [active, measureTarget]);
 
-  // For click steps, elevate the target element above overlay
-  useEffect(() => {
-    if (!active || currentStep.type !== 'click' || !currentStep.target) return;
-    const el = document.querySelector(`[data-tour="${currentStep.target}"]`) as HTMLElement | null;
-    if (el) {
-      el.style.position = 'relative';
-      el.style.zIndex = '10000';
-    }
-    return () => {
-      if (el) {
-        el.style.position = '';
-        el.style.zIndex = '';
-      }
-    };
-  }, [active, step, currentStep]);
-
-  // Listen for clicks on target elements
-  useEffect(() => {
-    if (!active || currentStep.type !== 'click' || !currentStep.target) return;
-    const handler = (e: MouseEvent) => {
-      const target = document.querySelector(`[data-tour="${currentStep.target}"]`);
-      if (target && (target === e.target || target.contains(e.target as Node))) {
-        if (currentStep.tabToActivate) {
-          setActiveTab(currentStep.tabToActivate);
-        }
-        goNext();
-      }
-    };
-    document.addEventListener('click', handler, true);
-    return () => document.removeEventListener('click', handler, true);
-  }, [active, step, currentStep]);
+  // goNext needs to be defined before effects that use it
+  const goNextRef = useRef<() => void>(() => {});
 
   const goNext = () => {
     if (step >= TOUR_STEPS.length - 1) {
