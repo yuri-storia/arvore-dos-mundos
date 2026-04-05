@@ -505,12 +505,11 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
             <button
               onClick={() => setShowAnalysis(true)}
               className="w-full py-5 rounded-xl text-center font-cinzel font-bold text-base sm:text-lg uppercase tracking-wider transition-all
-                bg-gradient-to-r from-violet-600/20 via-blue-500/20 to-emerald-500/20
-                hover:from-violet-600/30 hover:via-blue-500/30 hover:to-emerald-500/30
-                border border-violet-500/30 hover:border-violet-400/50
-                shadow-[0_0_30px_rgba(139,92,246,0.15)] hover:shadow-[0_0_50px_rgba(139,92,246,0.3)]"
+                bg-idriel/[0.08] hover:bg-idriel/[0.15]
+                border border-idriel/30 hover:border-idriel-light/50
+                shadow-[0_0_30px_hsl(var(--idriel)/0.15)] hover:shadow-[0_0_50px_hsl(var(--idriel)/0.3)]"
             >
-              <span className="bg-gradient-to-r from-violet-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">
+              <span className="text-idriel-light">
                 🌳 Consultar Idriel — Guardiã da Árvore
               </span>
               <p className="font-merriweather italic text-text-dim text-xs mt-1 normal-case tracking-normal">
