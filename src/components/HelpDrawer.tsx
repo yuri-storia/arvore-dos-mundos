@@ -44,15 +44,8 @@ const TAB_TIPS: Record<string, { label: string; tips: Tip[] }> = {
     tips: [
       { icon: '🖼️', title: 'Referências visuais', desc: 'Faça upload de imagens de inspiração — concept arts, mapas, paisagens, personagens.' },
       { icon: '🏷️', title: 'Organize por Fruto', desc: 'Categorize suas imagens por Fruto para encontrá-las rapidamente.' },
+      { icon: '✨', title: 'Visões de Idriel', desc: 'Abra "Visões de Idriel" abaixo da galeria para gerar imagens com IA. Descreva e Idriel materializa — cada visão custa 5 gotas.' },
       { icon: '🔎', title: 'Visualização ampliada', desc: 'Clique em qualquer imagem para ver em tela cheia.' },
-    ],
-  },
-  'gerar-imagens': {
-    label: 'Visões de Idriel',
-    tips: [
-      { icon: '🌿', title: 'Criação em dois passos', desc: 'Primeiro refino seu prompt com sabedoria criativa, depois materializo a visão em imagem.' },
-      { icon: '🎨', title: 'Estilos e tons', desc: 'Escolha estilo visual, tipo de imagem e tom emocional para guiar a geração.' },
-      { icon: '💧', title: 'Custo de 5 gotas', desc: 'Cada imagem consome 5 gotas de Seiva Dourada. Salve suas favoritas na Galeria!' },
     ],
   },
 };

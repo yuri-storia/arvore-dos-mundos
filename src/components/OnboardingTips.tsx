@@ -27,10 +27,7 @@ const TAB_TIPS: Record<string, Tip[]> = {
   ],
   galeria: [
     { icon: '🖼️', title: 'Referências visuais', desc: 'Traga as imagens que inspiram seu mundo — concept arts, mapas, paisagens. Categorize por Fruto para encontrar facilmente.' },
-  ],
-  'gerar-imagens': [
-    { icon: '🌿', title: 'Visões de Idriel', desc: 'Descreva o que imagina e eu materializo em uma imagem. Escolha estilo, tipo e tom — cada visão custa 5 gotas de Seiva Dourada.' },
-    { icon: '💾', title: 'Salve suas visões', desc: 'Após gerar uma imagem, salve-a na Galeria como referência. Suas visões são sementes do mundo que está criando.' },
+    { icon: '✨', title: 'Visões de Idriel', desc: 'Logo abaixo da galeria, abra "Visões de Idriel" para gerar imagens com IA. Descreva o que imagina e Idriel materializa — cada visão custa 5 gotas de Seiva Dourada.' },
   ],
 };
 
