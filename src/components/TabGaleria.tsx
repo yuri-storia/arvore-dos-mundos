@@ -112,31 +112,23 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-1.5 mb-5">
-        <button
-          onClick={() => setFilter('Todos')}
-          className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${
-            filter === 'Todos'
-              ? 'bg-accent/20 text-accent-foreground border border-accent/40'
-              : 'text-text-dim border border-transparent hover:border-accent/20'
-          }`}
-        >
-          Todos
-        </button>
-        {FRUITS.map(f => (
-          <button
-            key={f.id}
-            onClick={() => setFilter(f.name)}
-            className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${
-              filter === f.name
-                ? 'bg-accent/20 text-accent-foreground border border-accent/40'
-                : 'text-text-dim border border-transparent hover:border-accent/20'
-            }`}
-          >
-            {f.icon} {f.name}
-          </button>
-        ))}
+      {/* Filters — dropdown */}
+      <div className="flex items-center gap-3 mb-5">
+        <span className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat font-bold">Filtrar:</span>
+        <Select value={filter} onValueChange={setFilter}>
+          <SelectTrigger className="w-[180px] bg-background/60 border-gold/20 text-sm font-merriweather">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Todos">🌳 Todos</SelectItem>
+            {FRUITS.map(f => (
+              <SelectItem key={f.id} value={f.name}>{f.icon} {f.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {filter !== 'Todos' && (
+          <button onClick={() => setFilter('Todos')} className="text-[10px] text-text-dim hover:text-foreground font-montserrat transition-colors">✕ Limpar</button>
+        )}
       </div>
 
       {/* Grid */}
