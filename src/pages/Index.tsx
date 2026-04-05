@@ -43,6 +43,13 @@ const Index = () => {
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const initialLoadDone = useRef(false);
 
+  // First-time tour trigger
+  useEffect(() => {
+    if (user && !hasDoneTour()) {
+      setTourActive(true);
+    }
+  }, [user]);
+
   // When worlds load, restore the last active world
   useEffect(() => {
     if (initialLoadDone.current || !user || worlds.length === 0) return;
