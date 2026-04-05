@@ -85,14 +85,31 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
 
       <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={e => handleFiles(e.target.files)} />
 
-      {/* Upload zone */}
-      <div
-        onClick={() => fileRef.current?.click()}
-        className="border-2 border-dashed border-gold/20 rounded-lg p-6 sm:p-8 text-center mb-5 cursor-pointer hover:border-gold/40 transition-colors"
-      >
-        <span className="text-3xl mb-2 block">🌿</span>
-        <p className="text-sm text-gold-light font-montserrat">Clique para adicionar visões de referência</p>
-        <p className="text-xs text-text-dim font-merriweather italic">PNG, JPG, WEBP — múltiplos arquivos</p>
+      {/* Upload zone with batch category selector */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5">
+        <div
+          onClick={() => !batchUploading && fileRef.current?.click()}
+          className={`flex-1 border-2 border-dashed border-gold/20 rounded-lg p-5 text-center cursor-pointer hover:border-gold/40 transition-colors ${batchUploading ? 'opacity-50 pointer-events-none' : ''}`}
+        >
+          <span className="text-2xl mb-1 block">🌿</span>
+          <p className="text-sm text-gold-light font-montserrat">
+            {batchUploading ? `Enviando ${batchProgress.done}/${batchProgress.total}…` : 'Clique ou arraste para adicionar visões'}
+          </p>
+          <p className="text-xs text-text-dim font-merriweather italic">PNG, JPG, WEBP — múltiplos arquivos (upload direto)</p>
+        </div>
+        <div className="sm:w-[180px]">
+          <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat font-bold mb-1">Categoria do upload</label>
+          <Select value={batchCat} onValueChange={setBatchCat}>
+            <SelectTrigger className="bg-background/60 border-gold/20 text-sm font-merriweather">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FRUITS.map(f => (
+                <SelectItem key={f.id} value={f.name}>{f.icon} {f.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Filters */}
