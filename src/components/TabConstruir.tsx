@@ -238,9 +238,22 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
           </div>
 
           <div className="p-4 sm:p-5 md:p-7">
-            <span className="font-cinzel text-xs text-blue-light">✦ {fruit.num}</span>
-            <h2 className="font-cinzel font-bold text-xl sm:text-2xl text-foreground mt-1 mb-1">{fruit.name}</h2>
-            <p className="font-merriweather italic text-text-dim text-sm mb-6">{fruit.desc}</p>
+            <span className="font-cinzel text-sm text-blue-light">✦ {fruit.num}</span>
+            <h2 className="font-cinzel font-bold text-2xl sm:text-3xl text-foreground mt-1 mb-1">{fruit.name}</h2>
+            <p className="font-merriweather italic text-text-dim text-[15px] leading-relaxed mb-4">{fruit.desc}</p>
+
+            {/* Idriel methodology note */}
+            <div className="mb-5 flex items-start gap-3 p-3.5 rounded-lg bg-idriel/[0.04] border border-idriel/15">
+              <img src={idrielAvatar} alt="Idriel" className="w-7 h-7 rounded-full object-cover border border-idriel/30 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="font-merriweather italic text-sm text-text-secondary leading-relaxed">
+                  {method === 'top-down'
+                    ? `Este é o ${orderedFruits.findIndex(f => f.id === currentFruit) + 1}º passo na abordagem "De Cima para Baixo" — construímos do panorama geral aos detalhes. Se preferir começar pelos personagens e expandir, experimente "De Baixo para Cima".`
+                    : `Este é o ${orderedFruits.findIndex(f => f.id === currentFruit) + 1}º passo na abordagem "De Baixo para Cima" — partimos dos personagens e expandimos o mundo conforme a história pede. Se preferir começar pela visão geral, experimente "De Cima para Baixo".`
+                  }
+                </p>
+              </div>
+            </div>
 
             <FruitGuideBlock guide={fruit.guide} />
 
