@@ -154,9 +154,10 @@ interface Props {
   active: boolean;
   onFinish: () => void;
   setActiveTab: (t: TabType) => void;
+  setCurrentFruit?: (id: number) => void;
 }
 
-export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTab }) => {
+export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTab, setCurrentFruit }) => {
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [animating, setAnimating] = useState(false);
