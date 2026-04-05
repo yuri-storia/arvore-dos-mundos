@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { AppHeader } from '@/components/AppHeader';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
 import { OnboardingBanner } from '@/components/OnboardingBanner';
+import { AppSidebar } from '@/components/AppSidebar';
 
 import { WorldNameInput } from '@/components/WorldNameInput';
 import { TabNav } from '@/components/TabNav';
@@ -11,7 +12,9 @@ import { TabGaleria } from '@/components/TabGaleria';
 import { TabGerarImagens } from '@/components/TabGerarImagens';
 import { useWorlds, type WorldRecord } from '@/hooks/useWorlds';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import type { AppState, TabType, MethodType, GalleryImage } from '@/lib/data';
 
 const LAST_WORLD_STORAGE = 'adm_last_world';
@@ -30,6 +33,7 @@ const createNewState = (): AppState => ({
 
 const Index = () => {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const { worlds, createWorld, updateWorld, deleteWorld } = useWorlds();
   const [state, setState] = useState<AppState>(createNewState);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -130,12 +134,11 @@ const Index = () => {
     if (state.currentSaveId === id) setState(createNewState());
   }, [deleteWorld, state.currentSaveId]);
 
-  return (
-    <div className="min-h-screen bg-background relative">
+  const mainContent = (
+    <>
       <div className="fixed inset-0 pointer-events-none z-0" style={{ background: '#02070d' }} />
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute top-[300px] left-1/2 -translate-x-1/2 w-[140%] h-[600px]" style={{ background: 'radial-gradient(ellipse 80% 100% at 50% 0%, rgba(43,74,108,0.08) 0%, transparent 60%)', filter: 'blur(80px)' }} />
-        {/* Bottom rising particles */}
         <div className="particle-bottom" style={{ left: '12%', animationDelay: '0s', animationDuration: '18s' }} />
         <div className="particle-bottom" style={{ left: '35%', animationDelay: '4s', animationDuration: '22s' }} />
         <div className="particle-bottom" style={{ left: '58%', animationDelay: '8s', animationDuration: '20s' }} />
@@ -146,17 +149,49 @@ const Index = () => {
       <div className="relative z-10">
         <AppHeader />
 
-        <WorldNameInput
-          worldName={state.worldName}
-          setWorldName={setWorldName}
-          hasBeenCreated={!!state.currentSaveId}
-          onCreateWorld={handleCreateWorld}
-          onLoadWorld={handleLoadWorld}
-          onNewWorld={handleNewWorld}
-          onDeleteWorld={handleDeleteWorld}
-          currentSaveId={state.currentSaveId}
-          worlds={worlds}
-        />
+        {/* Mobile: show WorldNameInput inline */}
+        {isMobile && (
+          <WorldNameInput
+            worldName={state.worldName}
+            setWorldName={setWorldName}
+            hasBeenCreated={!!state.currentSaveId}
+            onCreateWorld={handleCreateWorld}
+            onLoadWorld={handleLoadWorld}
+            onNewWorld={handleNewWorld}
+            onDeleteWorld={handleDeleteWorld}
+            currentSaveId={state.currentSaveId}
+            worlds={worlds}
+          />
+        )}
+
+        {/* Desktop: world name display (no dropdown, managed by sidebar) */}
+        {!isMobile && (
+          <div className="mx-auto max-w-[1060px] px-3 sm:px-4 py-3">
+            <div className="flex items-center justify-center gap-3">
+              <span className="text-[10px] font-cinzel uppercase tracking-[0.2em] text-blue-light/40">✦ Seu Projeto ✦</span>
+            </div>
+            <div className="flex items-center justify-center mt-1">
+              <input
+                type="text"
+                value={state.worldName}
+                onChange={e => setWorldName(e.target.value)}
+                placeholder="Nome do seu mundo…"
+                className="bg-transparent border-none text-center font-cinzel font-bold text-xl sm:text-2xl text-foreground placeholder:text-text-dim/30 focus:outline-none w-full max-w-md"
+                style={{ textShadow: state.worldName ? '0 0 20px hsl(207 90% 61% / 0.4)' : 'none' }}
+              />
+            </div>
+            {state.worldName && !state.currentSaveId && (
+              <div className="flex justify-center mt-2">
+                <button
+                  onClick={handleCreateWorld}
+                  className="px-4 py-1.5 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light bg-gold/[0.08] hover:bg-gold/[0.18] transition-all"
+                >
+                  Criar Mundo
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         <OnboardingBanner />
         <SubscriptionBanner />
@@ -169,13 +204,53 @@ const Index = () => {
           {state.activeTab === 'gerar-imagens' && <TabGerarImagens state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />}
         </main>
 
-        <footer className="text-center py-8 pb-24 opacity-40">
+        <footer className={`text-center py-8 opacity-40 ${isMobile ? 'pb-24' : 'pb-8'}`}>
           <p className="text-[10px] text-text-dim font-montserrat uppercase tracking-[0.2em]">
             A Árvore dos Mundos · Template com IA · Universo STORIA
           </p>
         </footer>
       </div>
-    </div>
+    </>
+  );
+
+  // Mobile: no sidebar, just bottom bar
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background relative">
+        {mainContent}
+      </div>
+    );
+  }
+
+  // Desktop: sidebar layout
+  return (
+    <SidebarProvider defaultOpen={true}>
+      <div className="min-h-screen flex w-full bg-background relative">
+        <AppSidebar
+          activeTab={state.activeTab}
+          setActiveTab={setActiveTab}
+          worlds={worlds}
+          currentSaveId={state.currentSaveId}
+          onLoadWorld={handleLoadWorld}
+          onNewWorld={handleNewWorld}
+          onDeleteWorld={handleDeleteWorld}
+        />
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Sidebar trigger */}
+          <div className="sticky top-0 z-[50] flex items-center h-10 px-2 bg-[#02070d]/80 backdrop-blur-sm border-b border-blue-bright/5">
+            <SidebarTrigger className="text-text-dim hover:text-foreground" />
+            {state.currentSaveId && (
+              <span className="ml-3 font-cinzel text-xs text-blue-light/50 truncate">
+                {state.worldName || 'Mundo Sem Nome'}
+              </span>
+            )}
+          </div>
+          <div className="flex-1 overflow-auto">
+            {mainContent}
+          </div>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
