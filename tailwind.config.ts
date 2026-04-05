@@ -39,6 +39,10 @@ export default {
         "text-secondary": "hsl(var(--text-secondary))",
         "text-dim": "hsl(var(--text-dim))",
         "red-alert": "hsl(var(--red-alert))",
+        "idriel": "hsl(var(--idriel))",
+        "idriel-light": "hsl(var(--idriel-light))",
+        "idriel-glow": "hsl(var(--idriel-glow))",
+        "idriel-dim": "hsl(var(--idriel-dim))",
       },
       borderRadius: {
         lg: "var(--radius)",

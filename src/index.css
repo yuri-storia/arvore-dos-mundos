@@ -58,6 +58,12 @@
     --border-subtle: 211 76% 42% / 0.18;
     --border-active: 210 84% 69% / 0.35;
     --red-alert: 4 82% 56%;
+
+    /* Idriel — mystical green-teal */
+    --idriel: 160 55% 40%;
+    --idriel-light: 158 60% 55%;
+    --idriel-glow: 155 65% 65%;
+    --idriel-dim: 162 40% 25%;
   }
 }
 
