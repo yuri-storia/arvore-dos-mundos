@@ -165,21 +165,6 @@ const Index = () => {
           />
         )}
 
-        {/* Mobile: show WorldNameInput inline */}
-        {isMobile && (
-          <WorldNameInput
-            worldName={state.worldName}
-            setWorldName={setWorldName}
-            hasBeenCreated={!!state.currentSaveId}
-            onCreateWorld={handleCreateWorld}
-            onLoadWorld={handleLoadWorld}
-            onNewWorld={handleNewWorld}
-            onDeleteWorld={handleDeleteWorld}
-            currentSaveId={state.currentSaveId}
-            worlds={worlds}
-          />
-        )}
-
 
 
         <SubscriptionBanner />
