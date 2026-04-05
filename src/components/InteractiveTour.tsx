@@ -217,17 +217,21 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
       finish();
       return;
     }
-    // Activate tab for the NEXT step if it's a tab-switching step
-    const nextStep = TOUR_STEPS[step + 1];
+    // Activate tab for the current click step
     if (TOUR_STEPS[step].tabToActivate) {
       setActiveTab(TOUR_STEPS[step].tabToActivate!);
+    }
+    // Switch fruit if next step requires it
+    const nextStep = TOUR_STEPS[step + 1];
+    if (nextStep.setFruit !== undefined && setCurrentFruit) {
+      setCurrentFruit(nextStep.setFruit);
     }
     setAnimating(true);
     setTimeout(() => {
       setStep(s => s + 1);
       setAnimating(false);
     }, 250);
-  }, [step, setActiveTab]);
+  }, [step, setActiveTab, setCurrentFruit]);
 
   const finish = () => {
     markTourDone();
