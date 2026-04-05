@@ -15,10 +15,7 @@ interface Props {
 export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
   const { user } = useAuth();
   const [filter, setFilter] = useState('Todos');
-  const [uploadQueue, setUploadQueue] = useState<{ file: File; name: string; cat: string }[]>([]);
-  const [currentUpload, setCurrentUpload] = useState<{ file: File; name: string; cat: string; preview: string } | null>(null);
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
-  const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const filtered = filter === 'Todos' ? gallery : gallery.filter(img => img.cat === filter);
