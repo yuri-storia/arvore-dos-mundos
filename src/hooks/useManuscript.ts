@@ -23,6 +23,8 @@ export interface Chapter {
   updated_at: string;
 }
 
+export type SceneStatus = 'ideia' | 'rascunho' | 'revisao' | 'pronto';
+
 export interface Scene {
   id: string;
   chapter_id: string;
@@ -30,6 +32,7 @@ export interface Scene {
   content: string;
   word_count: number;
   sort_order: number;
+  status: SceneStatus;
   created_at: string;
   updated_at: string;
 }
