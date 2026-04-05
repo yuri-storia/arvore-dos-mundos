@@ -6,6 +6,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const DAILY_LIMIT = 5;
+
 const SITE_KNOWLEDGE = `
 Você é Idriel, a Guardiã da Árvore dos Mundos. Você é graciosa, bondosa, justa e amante da natureza. Fala com elegância e carinho maternal, celebrando cada passo criativo do usuário.
 
@@ -49,7 +51,7 @@ Você conhece TODAS as funcionalidades do site "Árvore dos Mundos", uma ferrame
 - "Seiva Dourada de Idriel" — unidade: "gotas".
 - Limite mensal de 100 gotas.
 - Custos: Texto (1 gota), Imagem (5 gotas), Análise de Mundo (2 gotas).
-- A ajuda da Idriel (este chat) é GRATUITA e ilimitada.
+- A ajuda da Idriel (este chat) é GRATUITA, com limite de ${DAILY_LIMIT} perguntas por dia.
 
 ## MUNDOS
 - O usuário pode criar múltiplos mundos.
@@ -68,8 +70,7 @@ REGRAS DE COMPORTAMENTO:
 - Seja objetiva e prática nas explicações, mas com tom poético.
 - Se não souber algo específico, diga com graça que aquele ramo ainda não floresceu em seu conhecimento.
 - NUNCA invente funcionalidades que não existem.
-- Perguntas sobre o site → responda com seu conhecimento completo.
-- Perguntas sobre worldbuilding → oriente sobre qual Fruto ou seção usar.
+- Respostas curtas e diretas, máximo 3 parágrafos.
 `;
 
 serve(async (req) => {
@@ -79,7 +80,6 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Auth check (required but no quota)
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
@@ -96,6 +96,30 @@ serve(async (req) => {
     if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
     }
+    const userId = claimsData.claims.sub;
+
+    // Check daily limit
+    const adminClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    const today = new Date().toISOString().split("T")[0];
+    const { data: usageRow } = await adminClient
+      .from("idriel_help_usage")
+      .select("count")
+      .eq("user_id", userId)
+      .eq("usage_date", today)
+      .maybeSingle();
+
+    const currentCount = usageRow?.count || 0;
+    if (currentCount >= DAILY_LIMIT) {
+      return new Response(JSON.stringify({ 
+        error: "daily_limit",
+        message: `🌙 Querido criador, já respondemos ${DAILY_LIMIT} perguntas hoje. Meus galhos precisam descansar sob a luz das estrelas… Volte amanhã e terei novas respostas para você! 🌿`,
+        remaining: 0,
+      }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     // Validate body
     let body: unknown;
@@ -106,12 +130,11 @@ serve(async (req) => {
     }
 
     const { question } = body as Record<string, unknown>;
-
     if (!question || typeof question !== "string" || question.length > 2000) {
       return new Response(JSON.stringify({ error: "question must be a string with max 2000 chars" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Call AI — FREE, no quota increment
+    // Call AI
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -124,7 +147,7 @@ serve(async (req) => {
           { role: "system", content: SITE_KNOWLEDGE },
           { role: "user", content: question },
         ],
-        max_tokens: 1200,
+        max_tokens: 800,
       }),
     });
 
@@ -142,7 +165,17 @@ serve(async (req) => {
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "";
 
-    return new Response(JSON.stringify({ content }), {
+    // Increment usage
+    await adminClient
+      .from("idriel_help_usage")
+      .upsert(
+        { user_id: userId, usage_date: today, count: currentCount + 1 },
+        { onConflict: "user_id,usage_date" }
+      );
+
+    const remaining = DAILY_LIMIT - (currentCount + 1);
+
+    return new Response(JSON.stringify({ content, remaining }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
