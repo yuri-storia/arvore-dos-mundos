@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import idrielAvatar from '@/assets/idriel-avatar.png';
 import { FRUITS, getOrderedFruits, METHOD_DESCRIPTIONS, MethodType, GalleryImage } from '@/lib/data';
 import { getFruitProgress, callAIText, exportWorldMarkdown } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
@@ -153,8 +154,8 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       </div>
 
       {/* Method description */}
-      <div className="mb-5 p-3 rounded-md bg-blue-bright/[0.04] border border-blue-bright/10">
-        <p className="font-merriweather italic text-text-secondary text-xs leading-relaxed">
+      <div className="mb-5 p-3.5 rounded-md bg-blue-bright/[0.04] border border-blue-bright/10">
+        <p className="font-merriweather italic text-text-secondary text-sm leading-relaxed">
           {methodInfo.desc}
         </p>
       </div>
@@ -207,8 +208,8 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 {idx + 1}º
               </div>
               <div className="absolute bottom-0 left-0 right-0 p-2">
-                <span className="font-cinzel text-[9px] sm:text-[10px] text-blue-light block">{f.num}</span>
-                <span className="font-montserrat font-bold text-[10px] sm:text-[11px] text-foreground uppercase leading-tight block">{f.name}</span>
+                <span className="font-cinzel text-[10px] sm:text-xs text-blue-light block">{f.num}</span>
+                <span className="font-montserrat font-bold text-[11px] sm:text-xs text-foreground uppercase leading-tight block">{f.name}</span>
                 {fp.filled > 0 && !isComplete && (
                   <span className="text-[9px] sm:text-[10px] text-gold-light">{fp.filled}/{fp.total} campos</span>
                 )}
@@ -238,9 +239,22 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
           </div>
 
           <div className="p-4 sm:p-5 md:p-7">
-            <span className="font-cinzel text-xs text-blue-light">✦ {fruit.num}</span>
-            <h2 className="font-cinzel font-bold text-xl sm:text-2xl text-foreground mt-1 mb-1">{fruit.name}</h2>
-            <p className="font-merriweather italic text-text-dim text-sm mb-6">{fruit.desc}</p>
+            <span className="font-cinzel text-sm text-blue-light">✦ {fruit.num}</span>
+            <h2 className="font-cinzel font-bold text-2xl sm:text-3xl text-foreground mt-1 mb-1">{fruit.name}</h2>
+            <p className="font-merriweather italic text-text-dim text-[15px] leading-relaxed mb-4">{fruit.desc}</p>
+
+            {/* Idriel methodology note */}
+            <div className="mb-5 flex items-start gap-3 p-3.5 rounded-lg bg-idriel/[0.04] border border-idriel/15">
+              <img src={idrielAvatar} alt="Idriel" className="w-7 h-7 rounded-full object-cover border border-idriel/30 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="font-merriweather italic text-sm text-text-secondary leading-relaxed">
+                  {method === 'top-down'
+                    ? `Este é o ${orderedFruits.findIndex(f => f.id === currentFruit) + 1}º passo na abordagem "De Cima para Baixo" — construímos do panorama geral aos detalhes. Se preferir começar pelos personagens e expandir, experimente "De Baixo para Cima".`
+                    : `Este é o ${orderedFruits.findIndex(f => f.id === currentFruit) + 1}º passo na abordagem "De Baixo para Cima" — partimos dos personagens e expandimos o mundo conforme a história pede. Se preferir começar pela visão geral, experimente "De Cima para Baixo".`
+                  }
+                </p>
+              </div>
+            </div>
 
             <FruitGuideBlock guide={fruit.guide} />
 
@@ -277,7 +291,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
                 return (
                   <div key={field.id}>
-                    <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">
+                    <label className="block text-xs uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">
                       {field.label}
                     </label>
 

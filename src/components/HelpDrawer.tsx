@@ -18,6 +18,7 @@ const TAB_TIPS: Record<string, { label: string; tips: Tip[] }> = {
     tips: [
       { icon: '🌿', title: 'Cada Fruto é um pilar', desc: 'Escolha qualquer um dos 11 Frutos para começar a dar forma ao seu mundo. Não há ordem errada — siga sua inspiração!' },
       { icon: '🗺️', title: 'Mapa do Mundo', desc: 'No primeiro Fruto, gere mapas em diferentes estilos cartográficos usando a Seiva Dourada.' },
+      { icon: '📖', title: 'Orientação & Estudo de Caso', desc: 'Dentro de cada Fruto há uma sanfona com minha orientação detalhada, estudo de caso literário e passo a passo. Abra para consultar!' },
       { icon: '🌳', title: 'Consultar Idriel', desc: 'Nos demais Frutos, peça ajuda criativa usando os chips de sugestão ou digitando sua pergunta.' },
       { icon: '💾', title: 'Salvamento automático', desc: 'Tudo que você escreve é salvo na nuvem a cada 2 segundos. Relaxe e crie!' },
     ],
