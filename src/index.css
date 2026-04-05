@@ -34,6 +34,16 @@
 
     --radius: 0.5rem;
 
+    /* Sidebar tokens */
+    --sidebar-background: 214 60% 4%;
+    --sidebar-foreground: 204 80% 94%;
+    --sidebar-primary: 207 90% 61%;
+    --sidebar-primary-foreground: 204 80% 94%;
+    --sidebar-accent: 211 76% 42% / 0.15;
+    --sidebar-accent-foreground: 204 80% 94%;
+    --sidebar-border: 211 76% 42% / 0.1;
+    --sidebar-ring: 207 90% 61%;
+
     /* Custom tokens */
     --bg-deep: 214 60% 3%;
     --blue-main: 211 76% 42%;
