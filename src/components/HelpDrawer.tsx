@@ -130,10 +130,10 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
                 <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-idriel flex items-center justify-center text-[7px]">🌿</div>
               </div>
               <div>
-                <SheetTitle className="font-cinzel text-idriel-light text-base">
+                <SheetTitle className="font-cinzel text-idriel-light text-lg">
                   Idriel
                 </SheetTitle>
-                <SheetDescription className="font-merriweather italic text-[10px] text-text-dim">
+                <SheetDescription className="font-merriweather italic text-xs text-text-dim">
                   Guardiã da Árvore dos Mundos
                 </SheetDescription>
               </div>
