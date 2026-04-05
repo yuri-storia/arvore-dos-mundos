@@ -449,7 +449,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           </div>
 
           {/* RIGHT: Reference Panel */}
-          {showRefPanel && !isMobile && (
+          {showRefPanel && !isMobile && !zenMode && (
             <div className="w-[240px] shrink-0 bg-white/[0.02] rounded-lg border border-blue-bright/10">
               <ReferencePanel entries={entries} onInsertMention={handleInsertMentionFromPanel} />
             </div>
