@@ -23,52 +23,44 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
 
   const filtered = filter === 'Todos' ? gallery : gallery.filter(img => img.cat === filter);
 
-  const handleFiles = (files: FileList | null) => {
-    if (!files) return;
+  const [batchCat, setBatchCat] = useState(FRUITS[0].name);
+  const [batchUploading, setBatchUploading] = useState(false);
+  const [batchProgress, setBatchProgress] = useState({ done: 0, total: 0 });
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || !user) return;
     const items = Array.from(files).filter(f => /image\/(png|jpe?g|webp)/.test(f.type));
     if (items.length === 0) return;
-    const queue = items.map(f => ({
-      file: f,
-      name: f.name.replace(/\.[^.]+$/, ''),
-      cat: FRUITS[0].name,
-    }));
-    processQueue(queue);
-  };
 
-  const processQueue = (queue: { file: File; name: string; cat: string }[]) => {
-    if (queue.length === 0) { setCurrentUpload(null); return; }
-    const item = queue[0];
-    const remaining = queue.slice(1);
-    setUploadQueue(remaining);
-    const preview = URL.createObjectURL(item.file);
-    setCurrentUpload({ ...item, preview });
-  };
+    setBatchUploading(true);
+    setBatchProgress({ done: 0, total: items.length });
+    const newImages: GalleryImage[] = [];
 
-  const saveUpload = async () => {
-    if (!currentUpload || !user) return;
-    setSaving(true);
-    try {
-      // Upload file to storage
-      const ext = currentUpload.file.name.split('.').pop() || 'webp';
-      const path = `${user.id}/gallery-${crypto.randomUUID()}.${ext}`;
-      const { error } = await supabase.storage.from('codex-images').upload(path, currentUpload.file);
-      if (error) throw error;
-      const { data: { publicUrl } } = supabase.storage.from('codex-images').getPublicUrl(path);
-
-      const newImg: GalleryImage = {
-        id: Date.now().toString(),
-        src: publicUrl,
-        name: currentUpload.name,
-        cat: currentUpload.cat,
-      };
-      URL.revokeObjectURL(currentUpload.preview);
-      setGallery([...gallery, newImg]);
-      processQueue(uploadQueue);
-    } catch (err: any) {
-      toast.error('Erro ao enviar imagem: ' + (err.message || 'Tente novamente'));
-    } finally {
-      setSaving(false);
+    for (let i = 0; i < items.length; i++) {
+      const file = items[i];
+      try {
+        const ext = file.name.split('.').pop() || 'webp';
+        const path = `${user.id}/gallery-${crypto.randomUUID()}.${ext}`;
+        const { error } = await supabase.storage.from('codex-images').upload(path, file);
+        if (error) throw error;
+        const { data: { publicUrl } } = supabase.storage.from('codex-images').getPublicUrl(path);
+        newImages.push({
+          id: `${Date.now()}-${i}`,
+          src: publicUrl,
+          name: file.name.replace(/\.[^.]+$/, ''),
+          cat: batchCat,
+        });
+      } catch (err: any) {
+        toast.error(`Erro em "${file.name}": ${err.message || 'falha'}`);
+      }
+      setBatchProgress({ done: i + 1, total: items.length });
     }
+
+    if (newImages.length > 0) {
+      setGallery([...gallery, ...newImages]);
+      toast.success(`${newImages.length} visão(ões) adicionada(s)!`);
+    }
+    setBatchUploading(false);
   };
 
   const removeImage = (id: string) => setGallery(gallery.filter(img => img.id !== id));

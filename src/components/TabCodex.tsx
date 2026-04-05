@@ -186,16 +186,30 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
         </div>
       )}
 
-      {/* Filters by fruit */}
-      <div className="flex flex-wrap gap-1.5 mb-6">
-        <button onClick={() => setFilterFruit(FRUIT_ALL)} className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${filterFruit === FRUIT_ALL ? 'bg-accent/20 text-accent-foreground border border-accent/40' : 'text-text-dim border border-transparent hover:border-accent/20'}`}>
-          Todos
-        </button>
-        {FRUITS.map(f => (
-          <button key={f.id} onClick={() => setFilterFruit(f.id)} className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${filterFruit === f.id ? 'bg-accent/20 text-accent-foreground border border-accent/40' : 'text-text-dim border border-transparent hover:border-accent/20'}`}>
-            {f.icon} {f.name}
+      {/* Filters by fruit — dropdown */}
+      <div className="flex items-center gap-3 mb-6">
+        <span className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat font-bold">Filtrar por fruto:</span>
+        <Select value={String(filterFruit)} onValueChange={v => setFilterFruit(Number(v))}>
+          <SelectTrigger className="w-[200px] bg-background/60 border-blue-bright/20 text-sm font-merriweather">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={String(FRUIT_ALL)}>🌳 Todos os frutos</SelectItem>
+            {FRUITS.map(f => {
+              const count = entries.filter(e => e.fruit_id === f.id).length;
+              return (
+                <SelectItem key={f.id} value={String(f.id)}>
+                  {f.icon} {f.name} {count > 0 ? `(${count})` : ''}
+                </SelectItem>
+              );
+            })}
+          </SelectContent>
+        </Select>
+        {filterFruit !== FRUIT_ALL && (
+          <button onClick={() => setFilterFruit(FRUIT_ALL)} className="text-[10px] text-text-dim hover:text-foreground font-montserrat transition-colors">
+            ✕ Limpar
           </button>
-        ))}
+        )}
       </div>
 
       {/* Create form (after choosing kind) */}
