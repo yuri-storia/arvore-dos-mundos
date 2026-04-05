@@ -53,6 +53,14 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
     );
   }
 
+  if (!worldId) {
+    return (
+      <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-12 text-center">
+        <p className="font-merriweather text-text-dim">Crie ou selecione um Mundo para acessar seu Codex.</p>
+      </div>
+    );
+  }
+
   const filtered = entries.filter(e => {
     if (filterFruit !== FRUIT_ALL && e.fruit_id !== filterFruit) return false;
     return true;
