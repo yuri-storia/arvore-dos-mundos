@@ -7,7 +7,6 @@ const TABS: { id: TabType; label: string; icon: string }[] = [
   { id: 'codex', label: 'Codex', icon: '📖' },
   { id: 'escrever', label: 'Escrever', icon: '✍️' },
   { id: 'galeria', label: 'Galeria', icon: '🎨' },
-  { id: 'gerar-imagens', label: 'Imagens', icon: '✨' },
 ];
 
 interface Props {

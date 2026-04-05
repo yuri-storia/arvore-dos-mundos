@@ -27,7 +27,6 @@ const TABS: { id: TabType; label: string; icon: React.ElementType; emoji: string
   { id: 'codex', label: 'Codex', icon: BookOpen, emoji: '📖' },
   { id: 'escrever', label: 'Escrever', icon: PenLine, emoji: '✍️' },
   { id: 'galeria', label: 'Galeria', icon: Image, emoji: '🎨' },
-  { id: 'gerar-imagens', label: 'Gerar Imagens', icon: Sparkles, emoji: '✨' },
 ];
 
 interface Props {
