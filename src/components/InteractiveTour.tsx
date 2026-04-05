@@ -207,19 +207,6 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
         />
       )}
 
-      {/* Make target element clickable above overlay */}
-      {targetRect && currentStep.type === 'click' && (
-        <div
-          className="fixed z-[10000] rounded-xl"
-          style={{
-            left: targetRect.left - pad,
-            top: targetRect.top - pad,
-            width: targetRect.width + pad * 2,
-            height: targetRect.height + pad * 2,
-            pointerEvents: 'none', // let clicks pass through to actual element
-          }}
-        />
-      )}
 
       {/* Tooltip / Card */}
       <div
