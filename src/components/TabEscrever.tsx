@@ -386,6 +386,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
               </div>
             </ScrollArea>
           </div>
+          )}
 
           {/* CENTER: Editor */}
           <div className={`flex-1 min-w-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && !activeSceneId ? 'hidden' : ''}`}>
