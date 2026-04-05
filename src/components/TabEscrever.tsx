@@ -243,14 +243,28 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   // No manuscript yet
   if (!activeManuscript) {
     return (
-      <div className="mx-auto max-w-[600px] px-4 py-20 text-center">
+      <div className="mx-auto max-w-[650px] px-4 py-14 text-center">
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-bright/10 flex items-center justify-center">
           <BookMarked className="w-8 h-8 text-blue-light/60" />
         </div>
         <h2 className="font-cinzel font-bold text-xl text-foreground mb-2">Comece seu Manuscrito</h2>
-        <p className="text-sm text-text-dim mb-6 max-w-md mx-auto">
-          Organize sua história em capítulos e cenas, consulte fichas do Codex enquanto escreve, e acompanhe sua produtividade.
+        <p className="text-sm text-text-secondary mb-6 max-w-md mx-auto leading-relaxed">
+          O manuscrito é onde sua história ganha forma. Organize tudo em <strong>capítulos</strong> e <strong>cenas</strong>, como um livro de verdade.
         </p>
+
+        {/* Pedagogical guide */}
+        <div className="text-left bg-white/[0.02] border border-blue-bright/10 rounded-xl p-5 mb-6 space-y-3">
+          <p className="font-montserrat font-bold text-xs text-idriel-light flex items-center gap-1.5">
+            <Info className="w-3.5 h-3.5" /> Como funciona o Manuscrito?
+          </p>
+          <div className="space-y-2 text-[13px] text-text-secondary leading-relaxed">
+            <p>📖 <strong>Capítulos</strong> — Grandes divisões da sua história (ex: "Parte 1", "Cap. 1: A Partida").</p>
+            <p>🎬 <strong>Cenas</strong> — Cada capítulo tem cenas, que são as unidades de escrita. Cada cena tem título, conteúdo e um status (Ideia → Rascunho → Revisão → Pronto).</p>
+            <p>🔍 <strong>Referências</strong> — Enquanto escreve, consulte fichas do Codex no painel lateral ou digite <code className="bg-white/[0.06] px-1 rounded text-blue-light">@NomeDoPersonagem</code> para inserir menções.</p>
+            <p>📤 <strong>Exportação</strong> — Quando estiver pronto, exporte em PDF, Word (.docx) ou HTML para Kindle/e-book.</p>
+          </div>
+        </div>
+
         <Button onClick={() => setShowNamePrompt(true)} className="bg-blue-bright/20 text-blue-light border border-blue-bright/30 hover:bg-blue-bright/30">
           <Plus className="w-4 h-4 mr-1" /> Criar Manuscrito
         </Button>
