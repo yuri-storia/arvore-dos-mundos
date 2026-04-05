@@ -175,18 +175,6 @@ const AdminPage: React.FC = () => {
                     confirmLabel="Remover"
                     onConfirm={() => handleDelete(e.id, e.email)}
                   />
-                          Cancelar
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => setConfirmDelete(e.id)}
-                        className="px-2 py-1 rounded text-[10px] font-montserrat text-text-dim border border-blue-bright/15 hover:border-destructive/30 hover:text-destructive transition-colors"
-                      >
-                        🗑
-                      </button>
-                    )}
-                  </div>
                 </div>
               ))}
             </div>
