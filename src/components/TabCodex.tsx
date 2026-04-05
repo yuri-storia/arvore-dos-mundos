@@ -174,6 +174,95 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
       </div>
       <p className="font-merriweather italic text-text-dim text-sm mb-5">Suas fichas, artigos e anotações organizados por fruto</p>
 
+      {/* Import panel */}
+      {showImport && (
+        <div className="card-glass rounded-lg p-4 sm:p-5 mb-6 animate-fadeUp border border-blue-bright/20">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-cinzel font-bold text-sm text-blue-light">📥 Importar de outro Mundo</h3>
+            <button onClick={resetCreate} className="text-[10px] text-text-dim font-montserrat hover:text-foreground">✕ Fechar</button>
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Selecione o Mundo de origem</label>
+            <Select value={importWorldId} onValueChange={handleSelectImportWorld}>
+              <SelectTrigger className="w-full bg-background/60 border-blue-bright/20 text-sm font-merriweather">
+                <SelectValue placeholder="Escolha um mundo…" />
+              </SelectTrigger>
+              <SelectContent>
+                {worlds.filter(w => w.id !== worldId).map(w => (
+                  <SelectItem key={w.id} value={w.id}>🌍 {w.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {importLoading && (
+            <div className="text-center py-4">
+              <div className="flex items-center justify-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-ring dot-bounce" />
+                <span className="w-2 h-2 rounded-full bg-ring dot-bounce-2" />
+                <span className="w-2 h-2 rounded-full bg-ring dot-bounce-3" />
+              </div>
+            </div>
+          )}
+
+          {importWorldId && !importLoading && importEntryList.length === 0 && (
+            <p className="font-merriweather text-sm text-text-dim italic text-center py-4">Nenhuma entrada encontrada nesse mundo.</p>
+          )}
+
+          {importEntryList.length > 0 && (
+            <>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat font-bold">
+                  {importEntryList.length} entrada(s) disponíveis
+                </span>
+                <button
+                  onClick={() => setImportSelectedIds(importSelectedIds.length === importEntryList.length ? [] : importEntryList.map(e => e.id))}
+                  className="text-[10px] text-blue-light font-montserrat font-bold hover:underline"
+                >
+                  {importSelectedIds.length === importEntryList.length ? 'Desmarcar tudo' : 'Selecionar tudo'}
+                </button>
+              </div>
+              <div className="max-h-[250px] overflow-y-auto space-y-1.5 mb-4 pr-1">
+                {importEntryList.map(e => {
+                  const fruit = e.fruit_id !== null ? FRUITS.find(f => f.id === e.fruit_id) : null;
+                  const selected = importSelectedIds.includes(e.id);
+                  return (
+                    <button
+                      key={e.id}
+                      onClick={() => setImportSelectedIds(prev => selected ? prev.filter(id => id !== e.id) : [...prev, e.id])}
+                      className={`w-full text-left px-3 py-2 rounded-md border transition-colors flex items-center gap-2 ${
+                        selected
+                          ? 'border-ring/40 bg-primary/10'
+                          : 'border-border hover:border-blue-bright/20'
+                      }`}
+                    >
+                      <span className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center text-[10px] ${
+                        selected ? 'bg-primary border-ring text-foreground' : 'border-border'
+                      }`}>
+                        {selected && '✓'}
+                      </span>
+                      <span className="text-[10px] font-montserrat font-bold uppercase text-text-dim">
+                        {e.entry_type === 'ficha' ? '📋' : '📝'}
+                      </span>
+                      {fruit && <span className="text-[10px]">{fruit.icon}</span>}
+                      <span className="font-merriweather text-sm text-foreground truncate">{e.title}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              {importSelectedIds.length > 0 && (
+                <button
+                  onClick={handleImport}
+                  className="px-4 py-2 bg-primary hover:bg-ring text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+                >
+                  📥 Importar {importSelectedIds.length} entrada(s)
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      )}
 
       {/* Export panel */}
       {showExport && (
