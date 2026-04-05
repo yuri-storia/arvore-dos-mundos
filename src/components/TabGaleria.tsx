@@ -165,44 +165,6 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
       {/* Lightbox */}
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
 
-      {/* Upload modal */}
-      {currentUpload && (
-        <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-3 sm:p-4">
-          <div className="card-glass rounded-lg w-full max-w-sm sm:max-w-md p-4 sm:p-5 animate-fadeUp">
-            <h3 className="font-cinzel font-bold text-foreground mb-3">🌿 Guardar Visão</h3>
-            <img src={currentUpload.preview} alt="Preview" className="w-full h-[120px] sm:h-[155px] object-cover rounded-md mb-3" />
-            <input
-              type="text"
-              value={currentUpload.name}
-              onChange={e => setCurrentUpload({ ...currentUpload, name: e.target.value })}
-              placeholder="Nome da imagem"
-              className="w-full bg-background/60 border border-gold/20 rounded-md px-3 py-2 text-sm text-foreground mb-3 focus:outline-none focus:border-gold/50"
-            />
-            <select
-              value={currentUpload.cat}
-              onChange={e => setCurrentUpload({ ...currentUpload, cat: e.target.value })}
-              className="w-full bg-background/60 border border-gold/20 rounded-md px-3 py-2 text-sm text-foreground mb-4 focus:outline-none focus:border-gold/50"
-            >
-              {FRUITS.map(f => <option key={f.id} value={f.name}>{f.icon} {f.name}</option>)}
-            </select>
-            <div className="flex gap-2 justify-end">
-              <button
-                onClick={() => { setCurrentUpload(null); setUploadQueue([]); }}
-                className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-gold/15 hover:text-foreground transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={saveUpload}
-                disabled={saving}
-                className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors disabled:opacity-50"
-              >
-                {saving ? '🌿 Guardando…' : '🌿 Guardar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
