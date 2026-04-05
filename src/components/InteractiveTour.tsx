@@ -393,7 +393,7 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
         className={`fixed z-[10001] transition-all duration-300 ${animating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
         style={getTooltipStyle()}
       >
-        <div className={`card-glass-idriel rounded-2xl p-5 shadow-2xl border border-idriel/20 ${isCenter ? 'w-[92vw] max-w-[480px]' : 'w-[360px] max-w-[90vw]'}`}>
+        <div className={`card-glass-idriel rounded-2xl p-4 sm:p-5 shadow-2xl border border-idriel/20 ${isCenter ? 'w-[92vw] max-w-[480px]' : 'w-full sm:w-[360px] max-w-[90vw]'}`}>
           {/* Avatar + header */}
           <div className="flex items-center gap-3 mb-3">
             <div className="relative shrink-0">
