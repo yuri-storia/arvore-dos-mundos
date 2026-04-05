@@ -42,18 +42,26 @@ const TOUR_STEPS: TourStep[] = [
   {
     type: 'highlight',
     target: 'method-selector',
-    title: 'Escolha sua Abordagem',
-    desc: 'Viajante, existem dois caminhos para construir seu mundo. "De Cima para Baixo" parte do panorama geral — mapa, cosmologia — e desce aos detalhes. "De Baixo para Cima" nasce dos personagens e expande o mundo conforme a história pede. Vou selecionar "De Baixo para Cima" para você experimentar!',
+    title: 'Dois Caminhos, Viajante',
+    desc: 'Existem dois caminhos para cultivar seu mundo. "De Cima para Baixo" parte do panorama geral — mapa, cosmologia, história — e desce aos detalhes. "De Baixo para Cima" nasce dos personagens e expande o mundo conforme a história pede. Os modelos ajudam a organizar o raciocínio, mas se você já for um criador experimentado, sinta-se livre para trilhar seu próprio caminho entre os Frutos.',
     icon: '🧭',
     tooltipPos: 'bottom',
     delay: 400,
-    setMethod: 'bottom-up',
+  },
+  {
+    type: 'click',
+    target: 'method-bottom-up',
+    title: 'Experimente "De Baixo para Cima"',
+    desc: 'Para que sinta a diferença, viajante, clique em "De Baixo para Cima". Observe como a ordem dos Frutos se reorganiza, priorizando personagens e narrativa antes do panorama geral.',
+    icon: '🧭',
+    tooltipPos: 'bottom',
+    delay: 200,
   },
   {
     type: 'highlight',
     target: 'fruit-grid',
     title: 'Os 11 Frutos do Mundo',
-    desc: 'Cada card é um Fruto — um pilar do seu mundo, viajante. Mapa, história, culturas, magia, religiões… Clique em qualquer Fruto para abrir seus campos de preenchimento. Não precisa seguir ordem!',
+    desc: 'Cada card é um Fruto — um pilar do seu mundo, viajante. Mapa, história, culturas, magia, personagens… O modelo escolhido sugere uma ordem, mas você é livre para explorar qualquer Fruto quando a inspiração chamar.',
     icon: '🍎',
     tooltipPos: 'bottom',
     delay: 400,
@@ -236,8 +244,8 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     if (nextStep.setFruit !== undefined && setCurrentFruit) {
       setCurrentFruit(nextStep.setFruit);
     }
-    // Switch method if current step requires it
-    if (TOUR_STEPS[step].setMethod && setMethod) {
+    // Switch method if current step requires it (for non-click steps)
+    if (TOUR_STEPS[step].setMethod && setMethod && TOUR_STEPS[step].type !== 'click') {
       setMethod(TOUR_STEPS[step].setMethod!);
     }
     setAnimating(true);

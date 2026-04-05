@@ -141,6 +141,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
         {(['top-down', 'bottom-up'] as const).map(m => (
           <button
             key={m}
+            data-tour={m === 'bottom-up' ? 'method-bottom-up' : undefined}
             onClick={() => setMethod(m)}
             className={`px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all ${
               method === m
