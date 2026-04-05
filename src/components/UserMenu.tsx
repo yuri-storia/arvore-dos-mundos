@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Settings, ChevronDown, ChevronUp } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 export const UserMenu: React.FC = () => {
   const { user, isAdmin, signOut } = useAuth();
