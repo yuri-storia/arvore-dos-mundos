@@ -15,12 +15,10 @@ export interface TourStep {
   desc: string;
   icon: string;
   tabToActivate?: TabType;
-  /** For highlight steps: preferred tooltip position relative to target */
   tooltipPos?: 'right' | 'bottom' | 'left' | 'top' | 'center';
-  /** Delay before showing this step (ms) — useful after tab switch */
   delay?: number;
-  /** Switch to this fruit index before showing the step */
   setFruit?: number;
+  setMethod?: 'top-down' | 'bottom-up';
 }
 
 const TOUR_STEPS: TourStep[] = [
