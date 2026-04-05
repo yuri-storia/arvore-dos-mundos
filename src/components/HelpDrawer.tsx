@@ -66,6 +66,9 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
   const [loading, setLoading] = useState(false);
   const [remaining, setRemaining] = useState<number | null>(null);
 
+  const data = TAB_TIPS[tab];
+  if (!data) return null;
+
   const handleAsk = async () => {
     if (!question.trim() || loading) return;
     setLoading(true);
