@@ -168,17 +168,22 @@ export const AppSidebar: React.FC<Props> = ({
                       <ChevronRight className={`w-3 h-3 shrink-0 transition-transform ${currentSaveId === world.id ? 'text-gold rotate-90' : ''}`} />
                       <span className="font-merriweather text-xs truncate">{world.name}</span>
                     </SidebarMenuButton>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleDelete(world.id); }}
-                      className={`shrink-0 w-6 h-6 flex items-center justify-center rounded transition-all ${
-                        confirmDelete === world.id
-                          ? 'text-red-alert bg-red-alert/20'
-                          : 'text-transparent group-hover:text-text-dim/50 hover:!text-red-alert'
-                      }`}
-                      title={confirmDelete === world.id ? 'Clique novamente para confirmar' : 'Excluir'}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
+                    <ConfirmDialog
+                      trigger={
+                        <button
+                          onClick={(e) => e.stopPropagation()}
+                          className={`shrink-0 w-6 h-6 flex items-center justify-center rounded transition-all text-transparent group-hover:text-text-dim/50 hover:!text-red-alert`}
+                          title="Excluir"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      }
+                      title="Excluir mundo"
+                      description={`Tem certeza que deseja excluir "${world.name}"? Todos os dados deste mundo serão perdidos permanentemente.`}
+                      confirmLabel="Excluir"
+                      cancelLabel="Cancelar"
+                      onConfirm={() => onDeleteWorld(world.id)}
+                    />
                   </div>
                 </SidebarMenuItem>
               ))}
