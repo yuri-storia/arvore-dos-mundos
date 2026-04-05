@@ -208,8 +208,8 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 {idx + 1}º
               </div>
               <div className="absolute bottom-0 left-0 right-0 p-2">
-                <span className="font-cinzel text-[9px] sm:text-[10px] text-blue-light block">{f.num}</span>
-                <span className="font-montserrat font-bold text-[10px] sm:text-[11px] text-foreground uppercase leading-tight block">{f.name}</span>
+                <span className="font-cinzel text-[10px] sm:text-xs text-blue-light block">{f.num}</span>
+                <span className="font-montserrat font-bold text-[11px] sm:text-xs text-foreground uppercase leading-tight block">{f.name}</span>
                 {fp.filled > 0 && !isComplete && (
                   <span className="text-[9px] sm:text-[10px] text-gold-light">{fp.filled}/{fp.total} campos</span>
                 )}
