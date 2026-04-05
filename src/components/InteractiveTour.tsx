@@ -25,8 +25,8 @@ const TOUR_STEPS: TourStep[] = [
   // ── INTRO ──
   {
     type: 'intro',
-    title: 'Bem-vinda à Árvore dos Mundos!',
-    desc: 'Eu sou Idriel, sua guardiã ancestral. Vou te guiar por cada ferramenta desta árvore mágica. Preste atenção nos destaques dourados — eles mostram onde a magia acontece!',
+    title: 'Bem-vindo(a) à Árvore dos Mundos!',
+    desc: 'Saudações, viajante! Eu sou Idriel, guardiã ancestral desta árvore mágica. Será uma honra guiá-lo(a) por cada ferramenta deste lugar sagrado. Preste atenção nos destaques dourados — eles mostram onde a magia acontece!',
     icon: '🌳',
   },
 
@@ -36,23 +36,24 @@ const TOUR_STEPS: TourStep[] = [
     target: 'tab-construir',
     tabToActivate: 'construir',
     title: 'Aba Construir',
-    desc: 'Vamos começar pela fundação do seu mundo. Clique em Construir!',
+    desc: 'Vamos começar pela fundação do seu mundo, viajante. Clique em Construir!',
     icon: '🌿',
   },
   {
     type: 'highlight',
     target: 'fruit-grid',
     title: 'Os 11 Frutos do Mundo',
-    desc: 'Cada card é um Fruto — um pilar do seu mundo. Mapa, história, culturas, magia, religiões… Clique em qualquer Fruto para abrir seus campos de preenchimento. Não precisa seguir ordem!',
+    desc: 'Cada card é um Fruto — um pilar do seu mundo, viajante. Mapa, história, culturas, magia, religiões… Clique em qualquer Fruto para abrir seus campos de preenchimento. Não precisa seguir ordem!',
     icon: '🍎',
     tooltipPos: 'bottom',
     delay: 400,
+    setFruit: 1, // Switch away from fruit 0 (Mapa do Mundo) so Consultar Idriel appears
   },
   {
     type: 'highlight',
     target: 'consult-idriel',
     title: 'Consultar Idriel',
-    desc: 'Dentro de cada Fruto, você pode me consultar! Use os chips de sugestão ou escreva sua dúvida. Eu analiso o que você já criou e dou ideias personalizadas. Custa apenas 1 gota de Seiva.',
+    desc: 'Dentro de cada Fruto, viajante, você pode me consultar! Use os chips de sugestão ou escreva sua dúvida. Eu analiso o que você já criou e ofereço ideias personalizadas. Custa apenas 1 gota de Seiva.',
     icon: '🌿',
     tooltipPos: 'top',
     delay: 200,
@@ -64,7 +65,7 @@ const TOUR_STEPS: TourStep[] = [
     target: 'tab-codex',
     tabToActivate: 'codex',
     title: 'Aba Codex',
-    desc: 'Agora vamos ver onde tudo se organiza. Clique em Codex!',
+    desc: 'Agora vamos ver onde tudo se organiza, viajante. Clique em Codex!',
     icon: '📖',
   },
   {
@@ -83,14 +84,14 @@ const TOUR_STEPS: TourStep[] = [
     target: 'tab-escrever',
     tabToActivate: 'escrever',
     title: 'Aba Escrever',
-    desc: 'Hora de dar vida à sua história! Clique em Escrever!',
+    desc: 'Hora de dar vida à sua história, viajante! Clique em Escrever!',
     icon: '✍️',
   },
   {
     type: 'highlight',
     target: 'create-manuscript',
     title: 'Criar Manuscrito',
-    desc: 'Comece criando um manuscrito. Dentro dele, você organiza Capítulos e Cenas — como um livro de verdade. Depois pode exportar em PDF, Word ou HTML para e-book!',
+    desc: 'Comece criando um manuscrito, viajante. Dentro dele, você organiza Capítulos e Cenas — como um livro de verdade. Depois pode exportar em PDF, Word ou HTML para e-book!',
     icon: '📕',
     tooltipPos: 'bottom',
     delay: 400,
@@ -102,7 +103,7 @@ const TOUR_STEPS: TourStep[] = [
     target: 'tab-galeria',
     tabToActivate: 'galeria',
     title: 'Aba Galeria',
-    desc: 'Por último, as referências visuais! Clique em Galeria!',
+    desc: 'Por último, as referências visuais, viajante! Clique em Galeria!',
     icon: '🎨',
   },
   {
@@ -118,7 +119,7 @@ const TOUR_STEPS: TourStep[] = [
     type: 'highlight',
     target: 'visoes-idriel',
     title: 'Visões de Idriel — Geração de Imagens',
-    desc: 'Aqui eu materializo as visões do seu mundo! Descreva o que imagina, escolha estilo e tom, e eu gero a imagem com IA. Cada visão custa 5 gotas de Seiva Dourada.',
+    desc: 'Aqui eu materializo as visões do seu mundo, viajante! Descreva o que imagina, escolha estilo e tom, e eu gero a imagem com IA. Cada visão custa 5 gotas de Seiva Dourada.',
     icon: '✨',
     tooltipPos: 'top',
     delay: 200,
@@ -127,8 +128,8 @@ const TOUR_STEPS: TourStep[] = [
   // ── OUTRO ──
   {
     type: 'outro',
-    title: 'Pronta para criar!',
-    desc: 'Agora você conhece cada ferramenta da Árvore. Comece pelo Fruto que mais te inspira — não existe ordem certa. E lembre-se: clique no "?" dourado para me chamar a qualquer momento. Boa jornada, criadora de mundos! ✨',
+    title: 'A jornada começa agora!',
+    desc: 'Agora você conhece cada ferramenta da Árvore, viajante. Comece pelo Fruto que mais te inspira — não existe ordem certa. E lembre-se: clique no "?" dourado para me chamar a qualquer momento. Que a Árvore ilumine o seu caminho! ✨',
     icon: '🌟',
   },
 ];
