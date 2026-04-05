@@ -64,9 +64,7 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const data = TAB_TIPS[tab];
-  if (!data) return null;
+  const [remaining, setRemaining] = useState<number | null>(null);
 
   const handleAsk = async () => {
     if (!question.trim() || loading) return;
@@ -76,9 +74,27 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
       const { data: result, error } = await supabase.functions.invoke('idriel-help', {
         body: { question: question.trim() },
       });
-      if (error) throw error;
+      if (error) {
+        // Check if the response body has daily_limit info
+        if (result?.error === 'daily_limit') {
+          setAnswer(result.message);
+          setRemaining(0);
+          return;
+        }
+        throw error;
+      }
       setAnswer(result?.content || 'Idriel não conseguiu responder no momento.');
+      if (result?.remaining !== undefined) setRemaining(result.remaining);
     } catch (e: any) {
+      // Parse the error body if it's a FunctionsHttpError
+      try {
+        const body = e?.context?.body ? JSON.parse(e.context.body) : null;
+        if (body?.error === 'daily_limit') {
+          setAnswer(body.message);
+          setRemaining(0);
+          return;
+        }
+      } catch {}
       setAnswer(`🥀 ${e.message || 'Erro ao consultar Idriel. Tente novamente.'}`);
     } finally {
       setLoading(false);
