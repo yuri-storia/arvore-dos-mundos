@@ -109,49 +109,21 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     return () => cancelAnimationFrame(rafRef.current);
   }, [active, measureTarget]);
 
-  // For click steps, elevate the target element above overlay
-  useEffect(() => {
-    if (!active || currentStep.type !== 'click' || !currentStep.target) return;
-    const el = document.querySelector(`[data-tour="${currentStep.target}"]`) as HTMLElement | null;
-    if (el) {
-      el.style.position = 'relative';
-      el.style.zIndex = '10000';
-    }
-    return () => {
-      if (el) {
-        el.style.position = '';
-        el.style.zIndex = '';
-      }
-    };
-  }, [active, step, currentStep]);
-
-  // Listen for clicks on target elements
-  useEffect(() => {
-    if (!active || currentStep.type !== 'click' || !currentStep.target) return;
-    const handler = (e: MouseEvent) => {
-      const target = document.querySelector(`[data-tour="${currentStep.target}"]`);
-      if (target && (target === e.target || target.contains(e.target as Node))) {
-        if (currentStep.tabToActivate) {
-          setActiveTab(currentStep.tabToActivate);
-        }
-        goNext();
-      }
-    };
-    document.addEventListener('click', handler, true);
-    return () => document.removeEventListener('click', handler, true);
-  }, [active, step, currentStep]);
-
-  const goNext = () => {
+  // goNext needs to be defined before effects that use it
+  const goNext = useCallback(() => {
     if (step >= TOUR_STEPS.length - 1) {
       finish();
       return;
+    }
+    if (TOUR_STEPS[step].tabToActivate) {
+      setActiveTab(TOUR_STEPS[step].tabToActivate!);
     }
     setAnimating(true);
     setTimeout(() => {
       setStep(s => s + 1);
       setAnimating(false);
     }, 250);
-  };
+  }, [step, setActiveTab]);
 
   const finish = () => {
     markTourDone();
@@ -207,7 +179,19 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
         />
       )}
 
-
+      {/* Clickable area over target for click steps */}
+      {targetRect && currentStep.type === 'click' && (
+        <div
+          className="fixed z-[10000] rounded-xl cursor-pointer"
+          onClick={() => goNext()}
+          style={{
+            left: targetRect.left - pad,
+            top: targetRect.top - pad,
+            width: targetRect.width + pad * 2,
+            height: targetRect.height + pad * 2,
+          }}
+        />
+      )}
       {/* Tooltip / Card */}
       <div
         className={`fixed z-[10001] transition-all duration-300 ${animating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
