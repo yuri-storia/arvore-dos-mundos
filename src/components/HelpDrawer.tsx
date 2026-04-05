@@ -16,11 +16,11 @@ const TAB_TIPS: Record<string, { label: string; tips: Tip[] }> = {
   construir: {
     label: 'Construir',
     tips: [
-      { icon: '🌿', title: 'Cada Fruto é um pilar', desc: 'Escolha qualquer um dos 11 Frutos para começar a dar forma ao seu mundo. Não há ordem errada — siga sua inspiração!' },
-      { icon: '🗺️', title: 'Mapa do Mundo', desc: 'No primeiro Fruto, gere mapas em diferentes estilos cartográficos usando a Seiva Dourada.' },
-      { icon: '📖', title: 'Orientação & Estudo de Caso', desc: 'Dentro de cada Fruto há uma sanfona com minha orientação detalhada, estudo de caso literário e passo a passo. Abra para consultar!' },
-      { icon: '🌳', title: 'Consultar Idriel', desc: 'Nos demais Frutos, peça ajuda criativa usando os chips de sugestão ou digitando sua pergunta.' },
-      { icon: '💾', title: 'Salvamento automático', desc: 'Tudo que você escreve é salvo na nuvem a cada 2 segundos. Relaxe e crie!' },
+      { icon: '🌿', title: 'Cada Fruto é um pilar', desc: 'Escolha qualquer um dos 11 Frutos para começar a dar forma ao seu mundo, viajante. Não há ordem errada — siga sua inspiração!' },
+      { icon: '🗺️', title: 'Mapa do Mundo', desc: 'No primeiro Fruto, gere mapas em diferentes estilos cartográficos usando a Seiva Dourada (plano completo).' },
+      { icon: '📖', title: 'Orientação & Estudo de Caso', desc: 'Dentro de cada Fruto há uma sanfona com orientação detalhada, estudo de caso literário e passo a passo. Abra para consultar!' },
+      { icon: '🌳', title: 'Consultar Idriel (plano completo)', desc: 'Nos demais Frutos, peça ajuda criativa usando os chips de sugestão ou digitando sua pergunta. Recurso exclusivo do plano Template + Idriel.' },
+      { icon: '💾', title: 'Salvamento automático', desc: 'Tudo que você escreve é salvo na nuvem a cada 2 segundos. Relaxe e crie, viajante!' },
     ],
   },
   codex: {
@@ -28,7 +28,7 @@ const TAB_TIPS: Record<string, { label: string; tips: Tip[] }> = {
     tips: [
       { icon: '📝', title: 'Fichas e Artigos', desc: 'Crie Fichas para personagens e locais (com imagem!) ou Artigos estilo wiki para lore e história.' },
       { icon: '🔍', title: 'Filtros inteligentes', desc: 'Encontre entradas por tipo ou por Fruto de origem. Cada categoria mostra a contagem de itens.' },
-      { icon: '📊', title: 'Análise de Mundo', desc: 'Peça a Idriel uma análise completa — ela avalia coerência, lacunas e dá sugestões narrativas.' },
+      { icon: '📊', title: 'Análise de Mundo (plano completo)', desc: 'Peça a Idriel uma análise completa — ela avalia coerência, lacunas e dá sugestões narrativas. Recurso exclusivo do plano Template + Idriel.' },
     ],
   },
   escrever: {
@@ -44,7 +44,7 @@ const TAB_TIPS: Record<string, { label: string; tips: Tip[] }> = {
     tips: [
       { icon: '🖼️', title: 'Referências visuais', desc: 'Faça upload de imagens de inspiração — concept arts, mapas, paisagens, personagens.' },
       { icon: '🏷️', title: 'Organize por Fruto', desc: 'Categorize suas imagens por Fruto para encontrá-las rapidamente.' },
-      { icon: '✨', title: 'Visões de Idriel', desc: 'Abra "Visões de Idriel" abaixo da galeria para gerar imagens com IA. Descreva e Idriel materializa — cada visão custa 5 gotas.' },
+      { icon: '✨', title: 'Visões de Idriel (plano completo)', desc: 'Abra "Visões de Idriel" abaixo da galeria para gerar imagens com IA. Descreva e Idriel materializa — cada visão custa 5 gotas. Recurso exclusivo do plano Template + Idriel.' },
       { icon: '🔎', title: 'Visualização ampliada', desc: 'Clique em qualquer imagem para ver em tela cheia.' },
     ],
   },

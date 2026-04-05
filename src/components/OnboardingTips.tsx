@@ -10,11 +10,11 @@ interface Tip {
 
 const TAB_TIPS: Record<string, Tip[]> = {
   construir: [
-    { icon: '🌿', title: 'Bem-vindo à Árvore dos Mundos!', desc: 'Eu sou Idriel, sua guardiã. Aqui você vai cultivar 11 Frutos — cada um é um pilar do seu mundo. Escolha qualquer um para começar!' },
-    { icon: '🗺️', title: 'Crie mapas no primeiro Fruto', desc: 'No Fruto "Mapa do Mundo", você pode gerar mapas em estilos como político, geográfico ou explorador com a Seiva Dourada.' },
+    { icon: '🌿', title: 'Saudações, viajante!', desc: 'Eu sou Idriel, guardiã desta Árvore. Aqui você vai cultivar 11 Frutos — cada um é um pilar do seu mundo. Escolha qualquer um para começar!' },
+    { icon: '🗺️', title: 'Crie mapas no primeiro Fruto', desc: 'No Fruto "Mapa do Mundo", você pode gerar mapas em estilos como político, geográfico ou explorador com a Seiva Dourada (plano completo).' },
     { icon: '📖', title: 'Orientação em cada Fruto', desc: 'Dentro de cada Fruto você encontra minha "Orientação para Criação & Estudo de Caso" — uma sanfona com guia, exemplos literários e passo a passo. Consulte sempre que precisar!' },
-    { icon: '🌳', title: 'Me consulte sempre que precisar', desc: 'Nos demais Frutos, peça minha ajuda criativa usando os chips de sugestão ou digitando sua pergunta. Custa apenas 1 gota.' },
-    { icon: '💾', title: 'Relaxe, eu cuido de tudo', desc: 'Suas criações são salvas automaticamente a cada 2 segundos. Foque no que importa — dar vida ao seu mundo.' },
+    { icon: '🌳', title: 'Me consulte (plano completo)', desc: 'Nos demais Frutos, peça minha ajuda criativa usando os chips de sugestão ou digitando sua pergunta. Custa apenas 1 gota. Recurso exclusivo do plano Template + Idriel.' },
+    { icon: '💾', title: 'Relaxe, eu cuido de tudo', desc: 'Suas criações são salvas automaticamente a cada 2 segundos. Foque no que importa — dar vida ao seu mundo, viajante.' },
   ],
   codex: [
     { icon: '📖', title: 'Seu Codex pessoal', desc: 'Aqui você organiza tudo sobre seu mundo. Crie Fichas com imagens para personagens e locais, ou Artigos estilo wiki para lore.' },
@@ -22,12 +22,12 @@ const TAB_TIPS: Record<string, Tip[]> = {
     { icon: '🔍', title: 'Filtros inteligentes', desc: 'Use os filtros para encontrar entradas por tipo ou por Fruto de origem. Cada categoria mostra quantos itens possui.' },
   ],
   escrever: [
-    { icon: '✍️', title: 'Hora de escrever!', desc: 'Escolha entre Manuscrito (capítulos organizados como um livro), Mural de Cenas (visualize e arraste cenas por status) ou Rascunhos (escrita livre, sem estrutura). Passe o mouse sobre cada modo para saber mais!' },
+    { icon: '✍️', title: 'Hora de escrever, viajante!', desc: 'Escolha entre Manuscrito (capítulos organizados como um livro), Mural de Cenas (visualize e arraste cenas por status) ou Rascunhos (escrita livre, sem estrutura). Passe o mouse sobre cada modo para saber mais!' },
     { icon: '⏱️', title: 'Foco com Pomodoro', desc: 'Ative o timer para sessões focadas. Escreva com calma e faça pausas — as melhores ideias florescem quando descansamos.' },
   ],
   galeria: [
     { icon: '🖼️', title: 'Referências visuais', desc: 'Traga as imagens que inspiram seu mundo — concept arts, mapas, paisagens. Categorize por Fruto para encontrar facilmente.' },
-    { icon: '✨', title: 'Visões de Idriel', desc: 'Logo abaixo da galeria, abra "Visões de Idriel" para gerar imagens com IA. Descreva o que imagina e Idriel materializa — cada visão custa 5 gotas de Seiva Dourada.' },
+    { icon: '✨', title: 'Visões de Idriel (plano completo)', desc: 'Logo abaixo da galeria, abra "Visões de Idriel" para gerar imagens com IA. Descreva o que imagina e Idriel materializa — cada visão custa 5 gotas de Seiva Dourada. Recurso exclusivo do plano Template + Idriel.' },
   ],
 };
 

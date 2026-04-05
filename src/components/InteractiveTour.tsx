@@ -54,8 +54,8 @@ const TOUR_STEPS: TourStep[] = [
   {
     type: 'highlight',
     target: 'consult-idriel',
-    title: 'Consultar Idriel',
-    desc: 'Dentro de cada Fruto, viajante, você pode me consultar! Use os chips de sugestão ou escreva sua dúvida. Eu analiso o que você já criou e ofereço ideias personalizadas. Custa apenas 1 gota de Seiva.',
+    title: 'Consultar Idriel (Plano Completo)',
+    desc: 'Dentro de cada Fruto, viajante, você pode me consultar! Use os chips de sugestão ou escreva sua dúvida. Este recurso é exclusivo do plano Template + Idriel e custa apenas 1 gota de Seiva.',
     icon: '🌿',
     tooltipPos: 'top',
     delay: 200,
@@ -121,7 +121,7 @@ const TOUR_STEPS: TourStep[] = [
     type: 'highlight',
     target: 'visoes-idriel',
     title: 'Visões de Idriel — Geração de Imagens',
-    desc: 'Aqui eu materializo as visões do seu mundo, viajante! Descreva o que imagina, escolha estilo e tom, e eu gero a imagem com IA. Cada visão custa 5 gotas de Seiva Dourada.',
+    desc: 'Aqui eu materializo as visões do seu mundo, viajante! Descreva o que imagina, escolha estilo e tom, e eu gero a imagem com IA. Cada visão custa 5 gotas de Seiva Dourada. Este recurso é exclusivo do plano completo.',
     icon: '✨',
     tooltipPos: 'top',
     delay: 200,
@@ -131,7 +131,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     type: 'outro',
     title: 'A jornada começa agora!',
-    desc: 'Agora você conhece cada ferramenta da Árvore, viajante. Comece pelo Fruto que mais te inspira — não existe ordem certa. E lembre-se: clique no "?" dourado para me chamar a qualquer momento. Que a Árvore ilumine o seu caminho! ✨',
+    desc: 'Agora você conhece cada ferramenta da Árvore, viajante. Comece pelo Fruto que mais te inspira — não existe ordem certa. E lembre-se: clique na minha imagem no canto inferior direito para me chamar a qualquer momento. Que a Árvore ilumine o seu caminho! ✨',
     icon: '🌟',
   },
 ];
