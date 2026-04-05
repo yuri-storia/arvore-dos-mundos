@@ -28,7 +28,7 @@ const TAB_TIPS: Record<string, { label: string; tips: Tip[] }> = {
     tips: [
       { icon: '📝', title: 'Fichas e Artigos', desc: 'Crie Fichas para personagens e locais (com imagem!) ou Artigos estilo wiki para lore e história.' },
       { icon: '🔍', title: 'Filtros inteligentes', desc: 'Encontre entradas por tipo ou por Fruto de origem. Cada categoria mostra a contagem de itens.' },
-      { icon: '📊', title: 'Análise de Mundo', desc: 'Peça a Idriel uma análise completa — ela avalia coerência, lacunas e dá sugestões narrativas.' },
+      { icon: '📊', title: 'Análise de Mundo (plano completo)', desc: 'Peça a Idriel uma análise completa — ela avalia coerência, lacunas e dá sugestões narrativas. Recurso exclusivo do plano Template + Idriel.' },
     ],
   },
   escrever: {
