@@ -386,7 +386,7 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
             </div>
             <div className="text-center">
               <p className="font-cinzel font-bold text-sm text-foreground">{IDRIEL_NAME}</p>
-              <p className="text-[10px] text-emerald-400/80 font-montserrat italic">está analisando seu mundo…</p>
+              <p className="text-[10px] text-idriel-light/80 font-montserrat italic">está analisando seu mundo…</p>
             </div>
           </div>
 
