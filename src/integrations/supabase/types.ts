@@ -83,6 +83,47 @@ export type Database = {
         }
         Relationships: []
       }
+      chapters: {
+        Row: {
+          created_at: string
+          id: string
+          manuscript_id: string
+          notes: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          manuscript_id: string
+          notes?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          manuscript_id?: string
+          notes?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapters_manuscript_id_fkey"
+            columns: ["manuscript_id"]
+            isOneToOne: false
+            referencedRelation: "manuscripts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       codex_entries: {
         Row: {
           content: string | null
@@ -130,6 +171,47 @@ export type Database = {
           },
         ]
       }
+      manuscripts: {
+        Row: {
+          created_at: string
+          id: string
+          synopsis: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          word_count_goal: number | null
+          world_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          synopsis?: string | null
+          title?: string
+          updated_at?: string
+          user_id: string
+          word_count_goal?: number | null
+          world_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          synopsis?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          word_count_goal?: number | null
+          world_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manuscripts_world_id_fkey"
+            columns: ["world_id"]
+            isOneToOne: false
+            referencedRelation: "worlds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -153,6 +235,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      scenes: {
+        Row: {
+          chapter_id: string
+          content: string | null
+          created_at: string
+          id: string
+          sort_order: number
+          title: string
+          updated_at: string
+          user_id: string
+          word_count: number
+        }
+        Insert: {
+          chapter_id: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          user_id: string
+          word_count?: number
+        }
+        Update: {
+          chapter_id?: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+          word_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scenes_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscriptions: {
         Row: {
