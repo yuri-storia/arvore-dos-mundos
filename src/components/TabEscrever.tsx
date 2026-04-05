@@ -390,6 +390,16 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           <div className={`flex-1 min-w-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && !activeSceneId ? 'hidden' : ''}`}>
             {activeScene ? (
               <>
+                {/* Breadcrumb */}
+                {activeChapter && (
+                  <div className="px-3 pt-2 flex items-center gap-1 text-[10px] font-montserrat text-text-dim/60">
+                    <span className="hover:text-foreground cursor-default">{activeManuscript.title}</span>
+                    <ChevronRight className="w-2.5 h-2.5" />
+                    <span className="hover:text-foreground cursor-default">{activeChapter.title}</span>
+                    <ChevronRight className="w-2.5 h-2.5" />
+                    <span className="text-blue-light/80">{activeScene.title}</span>
+                  </div>
+                )}
                 <div className="p-3 border-b border-blue-bright/10 flex items-center gap-2">
                   {isMobile && (
                     <button onClick={() => setActiveSceneId(null)} className="p-1 text-text-dim hover:text-foreground">
@@ -399,6 +409,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                   <input value={editingTitle} onChange={e => setEditingTitle(e.target.value)} onBlur={handleSceneTitleSave}
                     className="bg-transparent font-montserrat font-bold text-sm text-foreground border-none focus:outline-none flex-1"
                     placeholder="Título da cena" />
+                  <PomodoroTimer />
                   <span className="text-[10px] font-mono text-text-dim">{sceneWordCount} palavras</span>
                   <button onClick={() => setShowRefPanel(!showRefPanel)}
                     className="p-1.5 rounded hover:bg-white/[0.05] text-text-dim hover:text-foreground transition-colors"
