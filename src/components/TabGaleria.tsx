@@ -33,7 +33,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const [batchProgress, setBatchProgress] = useState({ done: 0, total: 0 });
 
   // Image generation state
-  const [showGenerator, setShowGenerator] = useState(false);
+  const [showGenerator, setShowGenerator] = useState(true);
   const { worldName, db, generatedPrompt } = state;
   const [desc, setDesc] = useState('');
   const [style, setStyle] = useState(STYLE_OPTIONS[0]);
