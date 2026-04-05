@@ -206,7 +206,7 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
     <div className="rounded-lg p-4 sm:p-5 mb-6 animate-fadeUp border border-accent/20" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.10) 0%, rgba(59,130,246,0.10) 50%, rgba(16,185,129,0.08) 100%)', backdropFilter: 'blur(20px)' }}>
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="font-cinzel font-bold text-base sm:text-lg bg-gradient-to-r from-violet-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">
+          <h3 className="font-cinzel font-bold text-base sm:text-lg text-idriel-light">
             🌳 {IDRIEL_NAME} — {IDRIEL_TITLE}
           </h3>
           <p className="font-merriweather italic text-text-dim text-xs mt-1">
