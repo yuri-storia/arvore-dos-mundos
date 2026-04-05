@@ -6,6 +6,7 @@ import { ImageLightbox } from '@/components/ImageLightbox';
 import { CodexCard } from '@/components/CodexCard';
 import { exportSingleEntry, exportFruitEntries, exportSelectedFruits, exportAllEntries } from '@/lib/codexPdfExport';
 import { CodexAnalysis } from '@/components/CodexAnalysis';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const FRUIT_ALL = -1;
 
