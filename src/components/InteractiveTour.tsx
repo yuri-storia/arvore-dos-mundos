@@ -179,7 +179,19 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
         />
       )}
 
-
+      {/* Clickable area over target for click steps */}
+      {targetRect && currentStep.type === 'click' && (
+        <div
+          className="fixed z-[10000] rounded-xl cursor-pointer"
+          onClick={() => goNext()}
+          style={{
+            left: targetRect.left - pad,
+            top: targetRect.top - pad,
+            width: targetRect.width + pad * 2,
+            height: targetRect.height + pad * 2,
+          }}
+        />
+      )}
       {/* Tooltip / Card */}
       <div
         className={`fixed z-[10001] transition-all duration-300 ${animating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
