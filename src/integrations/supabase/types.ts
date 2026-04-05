@@ -215,6 +215,30 @@ export type Database = {
           },
         ]
       }
+      idriel_help_usage: {
+        Row: {
+          count: number
+          created_at: string
+          id: string
+          usage_date: string
+          user_id: string
+        }
+        Insert: {
+          count?: number
+          created_at?: string
+          id?: string
+          usage_date?: string
+          user_id: string
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          id?: string
+          usage_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       manuscripts: {
         Row: {
           created_at: string
