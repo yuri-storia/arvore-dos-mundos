@@ -326,7 +326,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
         </div>
       )}
 
-      {/* ── FREE WRITING MODE ── */}
+      {/* ── RASCUNHOS (ESCRITA LIVRE) ── */}
       {writeMode === 'livre' && (
         <div className="h-[calc(100vh-220px)] min-h-[400px]">
           <FreeWritingView worldId={worldId} entries={entries} />
