@@ -16,6 +16,10 @@ import { FRUITS } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import { KanbanBoard } from '@/components/escritor/KanbanBoard';
 import { FreeWritingView } from '@/components/escritor/FreeWritingView';
+import { PomodoroTimer } from '@/components/PomodoroTimer';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from '@/components/ui/dialog';
 
 interface Props {
   worldId: string;
