@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Map, Compass, Mountain, Anchor, Building2, Globe, Sparkles } from 'lucide-react';
+import { Map, Compass, Mountain, Anchor, Building2, Globe, Sparkles, Lock } from 'lucide-react';
 import { callAIText, callAIImage } from '@/lib/helpers';
 import { FRUITS, GalleryImage, GALLERY_CATEGORIES } from '@/lib/data';
 import { useSubscription } from '@/hooks/useSubscription';
