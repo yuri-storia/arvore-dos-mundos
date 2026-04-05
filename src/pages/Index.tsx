@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { AppHeader } from '@/components/AppHeader';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
-import { OnboardingBanner } from '@/components/OnboardingBanner';
 import { OnboardingTips } from '@/components/OnboardingTips';
+import { HelpDrawer } from '@/components/HelpDrawer';
 import { AppSidebar } from '@/components/AppSidebar';
 
 import { WorldNameInput } from '@/components/WorldNameInput';
