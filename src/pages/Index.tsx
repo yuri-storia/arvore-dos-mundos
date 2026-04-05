@@ -138,7 +138,6 @@ const Index = () => {
 
   const handleNewWorld = useCallback(() => {
     setState(createNewState());
-    toast.info('Novo mundo criado!');
   }, []);
 
   const handleDeleteWorld = useCallback(async (id: string) => {
@@ -184,25 +183,25 @@ const Index = () => {
         <HelpDrawer tab={state.activeTab} />
 
         {/* Interactive Tour */}
-        <InteractiveTour active={tourActive} onFinish={() => setTourActive(false)} setActiveTab={setActiveTab} />
+        <InteractiveTour active={tourActive} onFinish={() => setTourActive(false)} setActiveTab={setActiveTab} setCurrentFruit={setCurrentFruit} />
 
         {/* Tour prompt after creating world */}
         {showTourPrompt && !tourActive && (
           <div className="fixed inset-0 z-[9990] flex items-center justify-center bg-background/60 backdrop-blur-[3px]" onClick={() => setShowTourPrompt(false)}>
             <div className="card-glass-idriel rounded-2xl p-6 w-[92vw] max-w-[400px] text-center" onClick={e => e.stopPropagation()}>
               <span className="text-4xl block mb-3">🌳</span>
-              <h3 className="font-cinzel font-bold text-lg text-foreground mb-2">Mundo criado!</h3>
+              <h3 className="font-cinzel font-bold text-lg text-foreground mb-2">Mundo criado, viajante!</h3>
               <p className="font-merriweather italic text-sm text-text-secondary mb-5 leading-relaxed">
-                Deseja refazer o tour com Idriel para relembrar as ferramentas?
+                Deseja que eu, Idriel, lhe mostre os caminhos desta Árvore? Posso guiá-lo(a) pelas ferramentas com graciosidade.
               </p>
               <div className="flex gap-3 justify-center">
                 <button onClick={() => setShowTourPrompt(false)}
                   className="px-4 py-2 rounded-lg text-xs font-montserrat font-bold text-text-dim border border-blue-bright/15 hover:bg-white/[0.04] transition-all">
-                  Ir por conta própria
+                  Explorar por conta própria
                 </button>
                 <button onClick={() => { setShowTourPrompt(false); setTourActive(true); }}
                   className="px-4 py-2 rounded-lg text-xs font-montserrat font-bold text-background bg-idriel-light hover:bg-idriel-glow transition-all shadow-md shadow-idriel/20">
-                  ✨ Refazer Tour com Idriel
+                  ✨ Guie-me, Idriel!
                 </button>
               </div>
             </div>
