@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import headerTag from '@/assets/header-tag-styled.png';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -82,11 +81,15 @@ export const AppSidebar: React.FC<Props> = ({
       <SidebarHeader className="p-3">
         {!collapsed ? (
           <div className="flex items-center justify-center px-1">
-            <img src={headerTag} alt="A Árvore dos Mundos" className="h-6 object-contain opacity-80" />
+            <div className="inline-block px-3 py-1 rounded-full border border-blue-bright/15 bg-blue-bright/[0.04] backdrop-blur-sm">
+              <span className="font-cinzel text-[9px] tracking-[0.18em] text-blue-light/60 uppercase">
+                ✦ A Árvore dos Mundos ✦
+              </span>
+            </div>
           </div>
         ) : (
           <div className="flex justify-center">
-            <img src={headerTag} alt="A Árvore dos Mundos" className="h-5 object-contain opacity-70" />
+            <span className="font-cinzel text-[9px] text-blue-light/60">✦</span>
           </div>
         )}
       </SidebarHeader>
