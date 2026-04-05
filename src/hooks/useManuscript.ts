@@ -171,7 +171,7 @@ export function useManuscript(worldId?: string) {
     return sc;
   }, [user, scenes]);
 
-  const updateScene = useCallback(async (id: string, updates: Partial<Pick<Scene, 'title' | 'content' | 'sort_order'>>) => {
+  const updateScene = useCallback(async (id: string, updates: Partial<Pick<Scene, 'title' | 'content' | 'sort_order' | 'status'>>) => {
     const finalUpdates: any = { ...updates };
     if (updates.content !== undefined) {
       finalUpdates.word_count = countWords(updates.content);
