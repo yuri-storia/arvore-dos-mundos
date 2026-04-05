@@ -217,6 +217,7 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     if (!active || delayWaiting || !currentStep.target) return;
     const el = document.querySelector(`[data-tour="${currentStep.target}"]`);
     if (el) {
+      // Use 'nearest' to avoid unnecessary scrolling; add block margin for bottom nav
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, [active, step, delayWaiting, currentStep.target]);
