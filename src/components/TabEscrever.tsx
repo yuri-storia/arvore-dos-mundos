@@ -306,8 +306,9 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
 
       {/* ── MANUSCRIPT MODE ── */}
       {writeMode === 'manuscrito' && (
-        <div className="flex gap-3 h-[calc(100vh-220px)] min-h-[400px]">
+        <div className={`flex gap-3 min-h-[400px] transition-all duration-300 ${zenMode ? 'h-[calc(100vh-100px)]' : 'h-[calc(100vh-220px)]'}`}>
           {/* LEFT: Chapter/Scene tree */}
+          {!zenMode && (
           <div className={`${isMobile ? 'w-full' : 'w-[220px]'} shrink-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && activeSceneId ? 'hidden' : ''}`}>
             <div className="p-2 border-b border-blue-bright/10 flex items-center justify-between">
               <span className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Capítulos</span>
