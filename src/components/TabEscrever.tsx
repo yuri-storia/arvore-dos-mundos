@@ -135,6 +135,8 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const [editingContent, setEditingContent] = useState('');
   const [editingTitle, setEditingTitle] = useState('');
   const [mentionState, setMentionState] = useState<{ active: boolean; query: string; pos: { top: number; left: number } }>({ active: false, query: '', pos: { top: 0, left: 0 } });
+  const [showNamePrompt, setShowNamePrompt] = useState(false);
+  const [newManuscriptName, setNewManuscriptName] = useState('');
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -199,20 +201,17 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     if (activeSceneId && editingTitle.trim()) updateScene(activeSceneId, { title: editingTitle.trim() });
   };
 
-  const sceneWordCount = editingContent.trim() ? editingContent.trim().split(/\s+/).length : 0;
-
-  if (!user) return <div className="text-center py-20 text-text-dim">Faça login para acessar.</div>;
-  if (!worldId) return <div className="text-center py-20 text-text-dim">Selecione um mundo para começar a escrever.</div>;
-
-  // ── Manuscript name prompt state ──
-  const [showNamePrompt, setShowNamePrompt] = useState(false);
-  const [newManuscriptName, setNewManuscriptName] = useState('');
-
   const handleCreateManuscriptWithName = async () => {
     const name = newManuscriptName.trim() || 'Sem título';
     await createManuscript(name);
     setShowNamePrompt(false);
     setNewManuscriptName('');
+  };
+
+  const sceneWordCount = editingContent.trim() ? editingContent.trim().split(/\s+/).length : 0;
+
+  if (!user) return <div className="text-center py-20 text-text-dim">Faça login para acessar.</div>;
+  if (!worldId) return <div className="text-center py-20 text-text-dim">Selecione um mundo para começar a escrever.</div>;
   };
 
   // No manuscript yet
