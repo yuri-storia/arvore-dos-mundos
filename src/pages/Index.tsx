@@ -149,7 +149,7 @@ const Index = () => {
       </div>
 
       <div className="relative z-10">
-        <AppHeader />
+        <AppHeader worldName={state.worldName} method={state.method} currentSaveId={state.currentSaveId} db={state.db} />
 
         {/* Mobile: show WorldNameInput inline */}
         {isMobile && (
