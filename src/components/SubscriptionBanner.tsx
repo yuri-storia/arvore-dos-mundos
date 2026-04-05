@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
 import { useSubscription, openCheckout, STRIPE_PLANS, openCustomerPortal } from '@/hooks/useSubscription';
 import { Progress } from '@/components/ui/progress';
-import { Lock, Sparkles, CreditCard } from 'lucide-react';
+import { Lock, Sparkles, CreditCard, X } from 'lucide-react';
+
+const DISMISS_KEY = 'adm_sub_banner_dismissed';
 
 export const SubscriptionBanner: React.FC = () => {
   const sub = useSubscription();
   const [loading, setLoading] = useState<string | null>(null);
+  const [dismissed, setDismissed] = useState(() => {
+    try { return sessionStorage.getItem(DISMISS_KEY) === '1'; } catch { return false; }
+  });
 
   if (sub.loading) return null;
+
+  const handleDismiss = () => {
+    setDismissed(true);
+    try { sessionStorage.setItem(DISMISS_KEY, '1'); } catch {}
+  };
 
   const handleCheckout = async (plan: keyof typeof STRIPE_PLANS, mode: 'subscription' | 'payment' = 'subscription') => {
     setLoading(plan);
@@ -22,9 +32,13 @@ export const SubscriptionBanner: React.FC = () => {
 
   // Not subscribed at all
   if (!sub.subscribed) {
+    if (dismissed) return null;
     return (
       <div className="mx-auto max-w-[1060px] px-4 mb-4">
-        <div className="card-glass rounded-lg p-4 border border-gold/30">
+        <div className="card-glass rounded-lg p-4 border border-gold/30 relative">
+          <button onClick={handleDismiss} className="absolute top-2 right-2 p-1 text-text-dim/50 hover:text-foreground transition-colors z-10" title="Fechar">
+            <X className="w-3.5 h-3.5" />
+          </button>
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
               <span className="text-lg">🌳</span>
@@ -64,9 +78,13 @@ export const SubscriptionBanner: React.FC = () => {
 
   // Template-only user: show upgrade CTA
   if (sub.plan === 'template' && !sub.hasIdriel) {
+    if (dismissed) return null;
     return (
       <div className="mx-auto max-w-[1060px] px-4 mb-4">
-        <div className="rounded-lg p-3 border border-blue-bright/20 bg-blue-bright/[0.06]">
+        <div className="rounded-lg p-3 border border-blue-bright/20 bg-blue-bright/[0.06] relative">
+          <button onClick={handleDismiss} className="absolute top-2 right-2 p-1 text-text-dim/50 hover:text-foreground transition-colors z-10" title="Fechar">
+            <X className="w-3.5 h-3.5" />
+          </button>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <span className="text-lg">🗺</span>

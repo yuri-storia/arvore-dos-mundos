@@ -194,34 +194,50 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
         {error && <p className="text-red-alert text-sm mt-3">{error}</p>}
 
       {(loading1 || loading2) && (
-          <div className="flex items-center gap-3 mt-4">
-            <div className="relative shrink-0">
-              {[...Array(8)].map((_, i) => (
-                <span
-                  key={i}
-                  className="absolute w-1.5 h-1.5 rounded-full bg-gold animate-[riseParticle_2s_ease-in-out_infinite]"
-                  style={{
-                    top: '50%',
-                    left: '50%',
-                    animationDelay: `${i * 0.25}s`,
-                    transform: `rotate(${i * 45}deg) translateY(-18px)`,
-                    opacity: 0.7,
-                    filter: 'blur(0.5px)',
-                    boxShadow: '0 0 6px hsl(var(--gold))',
-                  }}
-                />
-              ))}
-              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gold/60 shadow-[0_0_16px_rgba(218,165,32,0.4)]">
-                <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+          <div className="mt-4 animate-fadeUp">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="relative shrink-0">
+                {[...Array(8)].map((_, i) => (
+                  <span
+                    key={i}
+                    className="absolute w-1.5 h-1.5 rounded-full bg-gold animate-[riseParticle_2s_ease-in-out_infinite]"
+                    style={{
+                      top: '50%', left: '50%',
+                      animationDelay: `${i * 0.25}s`,
+                      transform: `rotate(${i * 45}deg) translateY(-18px)`,
+                      opacity: 0.7, filter: 'blur(0.5px)',
+                      boxShadow: '0 0 6px hsl(var(--gold))',
+                    }}
+                  />
+                ))}
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gold/60 shadow-[0_0_16px_rgba(218,165,32,0.4)]">
+                  <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce" />
-              <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-2" />
-              <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-3" />
-              <span className="ml-2 font-merriweather italic text-xs text-gold-light">
-                {loading1 ? 'Idriel está tecendo a essência da sua visão…' : 'A Seiva Dourada flui… sua visão está tomando forma…'}
-              </span>
+              <div className="flex-1">
+                <div className="flex items-center gap-1 mb-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-2" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-3" />
+                  <span className="ml-2 font-merriweather italic text-xs text-gold-light">
+                    {loading1 ? 'Idriel está tecendo a essência da sua visão…' : 'A Seiva Dourada flui… sua visão está tomando forma…'}
+                  </span>
+                </div>
+                {/* Animated progress bar */}
+                <div className="w-full h-1.5 bg-gold/10 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-gold/60 via-gold to-gold/60 animate-[shimmer_2s_ease-in-out_infinite]"
+                    style={{
+                      width: loading1 ? '60%' : '80%',
+                      transition: 'width 3s ease-out',
+                      backgroundSize: '200% 100%',
+                    }}
+                  />
+                </div>
+                <p className="text-[9px] text-text-dim/50 mt-1 font-montserrat">
+                  {loading1 ? 'Etapa 1/2 — Criando prompt otimizado' : 'Etapa 2/2 — Gerando imagem (pode levar até 30s)'}
+                </p>
+              </div>
             </div>
           </div>
         )}

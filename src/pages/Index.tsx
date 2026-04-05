@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { AppHeader } from '@/components/AppHeader';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
 import { OnboardingBanner } from '@/components/OnboardingBanner';
+import { OnboardingTips } from '@/components/OnboardingTips';
 import { AppSidebar } from '@/components/AppSidebar';
 
 import { WorldNameInput } from '@/components/WorldNameInput';
@@ -197,6 +198,7 @@ const Index = () => {
         <OnboardingBanner />
         <SubscriptionBanner />
         <TabNav activeTab={state.activeTab} setActiveTab={setActiveTab} />
+        <OnboardingTips tab={state.activeTab} />
 
         <main>
           {state.activeTab === 'construir' && <TabConstruir state={state} updateField={updateField} setCurrentFruit={setCurrentFruit} setMethod={setMethod} onNavigateCodex={() => setActiveTab('codex')} />}

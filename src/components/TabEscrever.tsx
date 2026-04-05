@@ -16,6 +16,10 @@ import { FRUITS } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import { KanbanBoard } from '@/components/escritor/KanbanBoard';
 import { FreeWritingView } from '@/components/escritor/FreeWritingView';
+import { PomodoroTimer } from '@/components/PomodoroTimer';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from '@/components/ui/dialog';
 
 interface Props {
   worldId: string;
@@ -131,6 +135,8 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const [editingContent, setEditingContent] = useState('');
   const [editingTitle, setEditingTitle] = useState('');
   const [mentionState, setMentionState] = useState<{ active: boolean; query: string; pos: { top: number; left: number } }>({ active: false, query: '', pos: { top: 0, left: 0 } });
+  const [showNamePrompt, setShowNamePrompt] = useState(false);
+  const [newManuscriptName, setNewManuscriptName] = useState('');
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -195,21 +201,51 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     if (activeSceneId && editingTitle.trim()) updateScene(activeSceneId, { title: editingTitle.trim() });
   };
 
+  const handleCreateManuscriptWithName = async () => {
+    const name = newManuscriptName.trim() || 'Sem título';
+    await createManuscript(name);
+    setShowNamePrompt(false);
+    setNewManuscriptName('');
+  };
+
   const sceneWordCount = editingContent.trim() ? editingContent.trim().split(/\s+/).length : 0;
 
   if (!user) return <div className="text-center py-20 text-text-dim">Faça login para acessar.</div>;
   if (!worldId) return <div className="text-center py-20 text-text-dim">Selecione um mundo para começar a escrever.</div>;
+  };
 
   // No manuscript yet
   if (!activeManuscript) {
     return (
       <div className="mx-auto max-w-[600px] px-4 py-20 text-center">
-        <BookMarked className="w-12 h-12 mx-auto mb-4 text-blue-light/40" />
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-bright/10 flex items-center justify-center">
+          <BookMarked className="w-8 h-8 text-blue-light/60" />
+        </div>
         <h2 className="font-cinzel font-bold text-xl text-foreground mb-2">Comece seu Manuscrito</h2>
-        <p className="text-sm text-text-dim mb-6">Crie seu primeiro livro e organize capítulos e cenas.</p>
-        <Button onClick={() => createManuscript()} className="bg-blue-bright/20 text-blue-light border border-blue-bright/30 hover:bg-blue-bright/30">
+        <p className="text-sm text-text-dim mb-6 max-w-md mx-auto">
+          Organize sua história em capítulos e cenas, consulte fichas do Codex enquanto escreve, e acompanhe sua produtividade.
+        </p>
+        <Button onClick={() => setShowNamePrompt(true)} className="bg-blue-bright/20 text-blue-light border border-blue-bright/30 hover:bg-blue-bright/30">
           <Plus className="w-4 h-4 mr-1" /> Criar Manuscrito
         </Button>
+
+        <Dialog open={showNamePrompt} onOpenChange={setShowNamePrompt}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="font-cinzel">Novo Manuscrito</DialogTitle>
+            </DialogHeader>
+            <div className="py-3">
+              <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1.5">Nome do manuscrito</label>
+              <Input value={newManuscriptName} onChange={e => setNewManuscriptName(e.target.value)}
+                placeholder="Ex: Crônicas de Ellerya" autoFocus
+                onKeyDown={e => e.key === 'Enter' && handleCreateManuscriptWithName()} />
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setShowNamePrompt(false)}>Cancelar</Button>
+              <Button onClick={handleCreateManuscriptWithName} className="bg-blue-bright/20 text-blue-light border border-blue-bright/30">Criar</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -354,6 +390,16 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           <div className={`flex-1 min-w-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && !activeSceneId ? 'hidden' : ''}`}>
             {activeScene ? (
               <>
+                {/* Breadcrumb */}
+                {activeChapter && (
+                  <div className="px-3 pt-2 flex items-center gap-1 text-[10px] font-montserrat text-text-dim/60">
+                    <span className="hover:text-foreground cursor-default">{activeManuscript.title}</span>
+                    <ChevronRight className="w-2.5 h-2.5" />
+                    <span className="hover:text-foreground cursor-default">{activeChapter.title}</span>
+                    <ChevronRight className="w-2.5 h-2.5" />
+                    <span className="text-blue-light/80">{activeScene.title}</span>
+                  </div>
+                )}
                 <div className="p-3 border-b border-blue-bright/10 flex items-center gap-2">
                   {isMobile && (
                     <button onClick={() => setActiveSceneId(null)} className="p-1 text-text-dim hover:text-foreground">
@@ -363,6 +409,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                   <input value={editingTitle} onChange={e => setEditingTitle(e.target.value)} onBlur={handleSceneTitleSave}
                     className="bg-transparent font-montserrat font-bold text-sm text-foreground border-none focus:outline-none flex-1"
                     placeholder="Título da cena" />
+                  <PomodoroTimer />
                   <span className="text-[10px] font-mono text-text-dim">{sceneWordCount} palavras</span>
                   <button onClick={() => setShowRefPanel(!showRefPanel)}
                     className="p-1.5 rounded hover:bg-white/[0.05] text-text-dim hover:text-foreground transition-colors"

@@ -133,7 +133,25 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
 
       {/* Grid */}
       {filtered.length === 0 ? (
-        <p className="text-center text-gold-light/50 text-sm py-10 font-merriweather italic">Nenhuma visão na galeria ainda. Idriel aguarda suas referências…</p>
+        <div className="text-center py-16">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
+            <span className="text-3xl">🖼️</span>
+          </div>
+          <h3 className="font-cinzel font-bold text-lg text-foreground mb-2">
+            {gallery.length === 0 ? 'Sua galeria está vazia' : 'Nenhuma visão nesta categoria'}
+          </h3>
+          <p className="font-merriweather text-sm text-text-dim mb-4 max-w-md mx-auto">
+            {gallery.length === 0
+              ? 'Adicione referências visuais do seu mundo ou gere imagens com Idriel na aba "Gerar Imagens".'
+              : 'Tente um filtro diferente ou adicione novas imagens.'}
+          </p>
+          {gallery.length === 0 && (
+            <button onClick={() => fileRef.current?.click()}
+              className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold/30 text-gold-light bg-gold/[0.08] hover:bg-gold/[0.18] transition-all">
+              🌿 Adicionar primeira visão
+            </button>
+          )}
+        </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
           {filtered.map(img => (

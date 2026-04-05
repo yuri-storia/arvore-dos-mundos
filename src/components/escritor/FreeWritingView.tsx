@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-  Plus, Trash2, FileText, Search, Timer, TimerOff,
-  BookOpen, PanelRightOpen, PanelRightClose, Settings2
+  Plus, Trash2, FileText, Search,
+  BookOpen, PanelRightOpen, PanelRightClose
 } from 'lucide-react';
 import { FRUITS } from '@/lib/data';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { PomodoroTimer } from '@/components/PomodoroTimer';
 
 // ── Customizable Pomodoro ──
 const PomodoroTimer: React.FC = () => {
