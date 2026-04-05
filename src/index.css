@@ -59,11 +59,11 @@
     --border-active: 210 84% 69% / 0.35;
     --red-alert: 4 82% 56%;
 
-    /* Idriel — mystical green-teal */
-    --idriel: 160 55% 40%;
-    --idriel-light: 158 60% 55%;
-    --idriel-glow: 155 65% 65%;
-    --idriel-dim: 162 40% 25%;
+    /* Idriel — mystical gold */
+    --idriel: 38 60% 45%;
+    --idriel-light: 40 70% 58%;
+    --idriel-glow: 42 75% 68%;
+    --idriel-dim: 36 45% 28%;
   }
 }
 
