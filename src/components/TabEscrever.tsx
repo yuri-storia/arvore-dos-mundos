@@ -154,6 +154,12 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     }
   }, [activeSceneId]); // eslint-disable-line
 
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && zenMode) setZenMode(false); };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [zenMode]);
+
   const debouncedSave = useCallback((id: string, content: string) => {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => updateScene(id, { content }), 1500);
