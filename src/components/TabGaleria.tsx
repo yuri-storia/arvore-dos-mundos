@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import idrielAvatar from '@/assets/idriel-avatar.png';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Props {
   gallery: GalleryImage[];
@@ -14,60 +15,49 @@ interface Props {
 export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
   const { user } = useAuth();
   const [filter, setFilter] = useState('Todos');
-  const [uploadQueue, setUploadQueue] = useState<{ file: File; name: string; cat: string }[]>([]);
-  const [currentUpload, setCurrentUpload] = useState<{ file: File; name: string; cat: string; preview: string } | null>(null);
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
-  const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const filtered = filter === 'Todos' ? gallery : gallery.filter(img => img.cat === filter);
 
-  const handleFiles = (files: FileList | null) => {
-    if (!files) return;
+  const [batchCat, setBatchCat] = useState(FRUITS[0].name);
+  const [batchUploading, setBatchUploading] = useState(false);
+  const [batchProgress, setBatchProgress] = useState({ done: 0, total: 0 });
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || !user) return;
     const items = Array.from(files).filter(f => /image\/(png|jpe?g|webp)/.test(f.type));
     if (items.length === 0) return;
-    const queue = items.map(f => ({
-      file: f,
-      name: f.name.replace(/\.[^.]+$/, ''),
-      cat: FRUITS[0].name,
-    }));
-    processQueue(queue);
-  };
 
-  const processQueue = (queue: { file: File; name: string; cat: string }[]) => {
-    if (queue.length === 0) { setCurrentUpload(null); return; }
-    const item = queue[0];
-    const remaining = queue.slice(1);
-    setUploadQueue(remaining);
-    const preview = URL.createObjectURL(item.file);
-    setCurrentUpload({ ...item, preview });
-  };
+    setBatchUploading(true);
+    setBatchProgress({ done: 0, total: items.length });
+    const newImages: GalleryImage[] = [];
 
-  const saveUpload = async () => {
-    if (!currentUpload || !user) return;
-    setSaving(true);
-    try {
-      // Upload file to storage
-      const ext = currentUpload.file.name.split('.').pop() || 'webp';
-      const path = `${user.id}/gallery-${crypto.randomUUID()}.${ext}`;
-      const { error } = await supabase.storage.from('codex-images').upload(path, currentUpload.file);
-      if (error) throw error;
-      const { data: { publicUrl } } = supabase.storage.from('codex-images').getPublicUrl(path);
-
-      const newImg: GalleryImage = {
-        id: Date.now().toString(),
-        src: publicUrl,
-        name: currentUpload.name,
-        cat: currentUpload.cat,
-      };
-      URL.revokeObjectURL(currentUpload.preview);
-      setGallery([...gallery, newImg]);
-      processQueue(uploadQueue);
-    } catch (err: any) {
-      toast.error('Erro ao enviar imagem: ' + (err.message || 'Tente novamente'));
-    } finally {
-      setSaving(false);
+    for (let i = 0; i < items.length; i++) {
+      const file = items[i];
+      try {
+        const ext = file.name.split('.').pop() || 'webp';
+        const path = `${user.id}/gallery-${crypto.randomUUID()}.${ext}`;
+        const { error } = await supabase.storage.from('codex-images').upload(path, file);
+        if (error) throw error;
+        const { data: { publicUrl } } = supabase.storage.from('codex-images').getPublicUrl(path);
+        newImages.push({
+          id: `${Date.now()}-${i}`,
+          src: publicUrl,
+          name: file.name.replace(/\.[^.]+$/, ''),
+          cat: batchCat,
+        });
+      } catch (err: any) {
+        toast.error(`Erro em "${file.name}": ${err.message || 'falha'}`);
+      }
+      setBatchProgress({ done: i + 1, total: items.length });
     }
+
+    if (newImages.length > 0) {
+      setGallery([...gallery, ...newImages]);
+      toast.success(`${newImages.length} visão(ões) adicionada(s)!`);
+    }
+    setBatchUploading(false);
   };
 
   const removeImage = (id: string) => setGallery(gallery.filter(img => img.id !== id));
@@ -95,41 +85,50 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
 
       <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={e => handleFiles(e.target.files)} />
 
-      {/* Upload zone */}
-      <div
-        onClick={() => fileRef.current?.click()}
-        className="border-2 border-dashed border-gold/20 rounded-lg p-6 sm:p-8 text-center mb-5 cursor-pointer hover:border-gold/40 transition-colors"
-      >
-        <span className="text-3xl mb-2 block">🌿</span>
-        <p className="text-sm text-gold-light font-montserrat">Clique para adicionar visões de referência</p>
-        <p className="text-xs text-text-dim font-merriweather italic">PNG, JPG, WEBP — múltiplos arquivos</p>
+      {/* Upload zone with batch category selector */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5">
+        <div
+          onClick={() => !batchUploading && fileRef.current?.click()}
+          className={`flex-1 border-2 border-dashed border-gold/20 rounded-lg p-5 text-center cursor-pointer hover:border-gold/40 transition-colors ${batchUploading ? 'opacity-50 pointer-events-none' : ''}`}
+        >
+          <span className="text-2xl mb-1 block">🌿</span>
+          <p className="text-sm text-gold-light font-montserrat">
+            {batchUploading ? `Enviando ${batchProgress.done}/${batchProgress.total}…` : 'Clique ou arraste para adicionar visões'}
+          </p>
+          <p className="text-xs text-text-dim font-merriweather italic">PNG, JPG, WEBP — múltiplos arquivos (upload direto)</p>
+        </div>
+        <div className="sm:w-[180px]">
+          <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat font-bold mb-1">Categoria do upload</label>
+          <Select value={batchCat} onValueChange={setBatchCat}>
+            <SelectTrigger className="bg-background/60 border-gold/20 text-sm font-merriweather">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FRUITS.map(f => (
+                <SelectItem key={f.id} value={f.name}>{f.icon} {f.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-1.5 mb-5">
-        <button
-          onClick={() => setFilter('Todos')}
-          className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${
-            filter === 'Todos'
-              ? 'bg-accent/20 text-accent-foreground border border-accent/40'
-              : 'text-text-dim border border-transparent hover:border-accent/20'
-          }`}
-        >
-          Todos
-        </button>
-        {FRUITS.map(f => (
-          <button
-            key={f.id}
-            onClick={() => setFilter(f.name)}
-            className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${
-              filter === f.name
-                ? 'bg-accent/20 text-accent-foreground border border-accent/40'
-                : 'text-text-dim border border-transparent hover:border-accent/20'
-            }`}
-          >
-            {f.icon} {f.name}
-          </button>
-        ))}
+      {/* Filters — dropdown */}
+      <div className="flex items-center gap-3 mb-5">
+        <span className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat font-bold">Filtrar:</span>
+        <Select value={filter} onValueChange={setFilter}>
+          <SelectTrigger className="w-[180px] bg-background/60 border-gold/20 text-sm font-merriweather">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Todos">🌳 Todos</SelectItem>
+            {FRUITS.map(f => (
+              <SelectItem key={f.id} value={f.name}>{f.icon} {f.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {filter !== 'Todos' && (
+          <button onClick={() => setFilter('Todos')} className="text-[10px] text-text-dim hover:text-foreground font-montserrat transition-colors">✕ Limpar</button>
+        )}
       </div>
 
       {/* Grid */}
@@ -166,44 +165,6 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery }) => {
       {/* Lightbox */}
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
 
-      {/* Upload modal */}
-      {currentUpload && (
-        <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-3 sm:p-4">
-          <div className="card-glass rounded-lg w-full max-w-sm sm:max-w-md p-4 sm:p-5 animate-fadeUp">
-            <h3 className="font-cinzel font-bold text-foreground mb-3">🌿 Guardar Visão</h3>
-            <img src={currentUpload.preview} alt="Preview" className="w-full h-[120px] sm:h-[155px] object-cover rounded-md mb-3" />
-            <input
-              type="text"
-              value={currentUpload.name}
-              onChange={e => setCurrentUpload({ ...currentUpload, name: e.target.value })}
-              placeholder="Nome da imagem"
-              className="w-full bg-background/60 border border-gold/20 rounded-md px-3 py-2 text-sm text-foreground mb-3 focus:outline-none focus:border-gold/50"
-            />
-            <select
-              value={currentUpload.cat}
-              onChange={e => setCurrentUpload({ ...currentUpload, cat: e.target.value })}
-              className="w-full bg-background/60 border border-gold/20 rounded-md px-3 py-2 text-sm text-foreground mb-4 focus:outline-none focus:border-gold/50"
-            >
-              {FRUITS.map(f => <option key={f.id} value={f.name}>{f.icon} {f.name}</option>)}
-            </select>
-            <div className="flex gap-2 justify-end">
-              <button
-                onClick={() => { setCurrentUpload(null); setUploadQueue([]); }}
-                className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-gold/15 hover:text-foreground transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={saveUpload}
-                disabled={saving}
-                className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors disabled:opacity-50"
-              >
-                {saving ? '🌿 Guardando…' : '🌿 Guardar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
