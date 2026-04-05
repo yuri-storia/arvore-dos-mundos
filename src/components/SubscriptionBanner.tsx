@@ -32,9 +32,13 @@ export const SubscriptionBanner: React.FC = () => {
 
   // Not subscribed at all
   if (!sub.subscribed) {
+    if (dismissed) return null;
     return (
       <div className="mx-auto max-w-[1060px] px-4 mb-4">
-        <div className="card-glass rounded-lg p-4 border border-gold/30">
+        <div className="card-glass rounded-lg p-4 border border-gold/30 relative">
+          <button onClick={handleDismiss} className="absolute top-2 right-2 p-1 text-text-dim/50 hover:text-foreground transition-colors z-10" title="Fechar">
+            <X className="w-3.5 h-3.5" />
+          </button>
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
               <span className="text-lg">🌳</span>
