@@ -5,6 +5,7 @@ import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { callAIImage } from '@/lib/helpers';
 import { exportSingleEntry } from '@/lib/codexPdfExport';
 import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 interface Props {
   entry: CodexEntry;
