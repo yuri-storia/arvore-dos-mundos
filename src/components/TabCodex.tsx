@@ -414,10 +414,33 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
           </div>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="font-merriweather italic text-text-dim text-sm">
-            {entries.length === 0 ? 'Nenhuma entrada criada ainda. Comece pelo botão acima ou crie direto ao preencher um campo na aba Construir!' : 'Nenhuma entrada encontrada com esses filtros.'}
-          </p>
+        <div className="text-center py-16">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-bright/10 flex items-center justify-center">
+            <span className="text-3xl">{entries.length === 0 ? '📖' : '🔍'}</span>
+          </div>
+          {entries.length === 0 ? (
+            <>
+              <h3 className="font-cinzel font-bold text-lg text-foreground mb-2">Seu Codex está vazio</h3>
+              <p className="font-merriweather text-sm text-text-dim mb-4 max-w-md mx-auto">
+                Crie fichas de personagens, locais e artefatos, ou artigos de lore e história do seu mundo.
+              </p>
+              <div className="flex gap-3 justify-center">
+                <button onClick={() => openCreate('ficha')}
+                  className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-blue-bright/30 text-blue-light bg-blue-bright/[0.08] hover:bg-blue-bright/[0.18] transition-all">
+                  📋 Criar primeira Ficha
+                </button>
+                <button onClick={() => openCreate('artigo')}
+                  className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold/30 text-gold-light bg-gold/[0.08] hover:bg-gold/[0.18] transition-all">
+                  📝 Criar primeiro Artigo
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <h3 className="font-cinzel font-bold text-lg text-foreground mb-2">Nenhuma entrada encontrada</h3>
+              <p className="font-merriweather text-sm text-text-dim">Tente ajustar o filtro ou crie uma nova entrada.</p>
+            </>
+          )}
         </div>
       ) : (
         <>
