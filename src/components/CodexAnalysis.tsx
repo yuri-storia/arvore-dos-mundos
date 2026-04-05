@@ -400,7 +400,7 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
               >
                 <span className={`mt-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] flex-shrink-0 transition-colors duration-300 ${
                   i < currentStep
-                    ? 'bg-emerald-500/30 text-emerald-400'
+                    ? 'bg-idriel/30 text-idriel-light'
                     : i === currentStep
                       ? 'bg-violet-500/30 text-violet-400 animate-pulse'
                       : 'bg-border text-text-dim'
