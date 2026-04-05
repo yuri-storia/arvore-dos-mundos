@@ -204,16 +204,49 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   if (!user) return <div className="text-center py-20 text-text-dim">Faça login para acessar.</div>;
   if (!worldId) return <div className="text-center py-20 text-text-dim">Selecione um mundo para começar a escrever.</div>;
 
+  // ── Manuscript name prompt state ──
+  const [showNamePrompt, setShowNamePrompt] = useState(false);
+  const [newManuscriptName, setNewManuscriptName] = useState('');
+
+  const handleCreateManuscriptWithName = async () => {
+    const name = newManuscriptName.trim() || 'Sem título';
+    await createManuscript(name);
+    setShowNamePrompt(false);
+    setNewManuscriptName('');
+  };
+
   // No manuscript yet
   if (!activeManuscript) {
     return (
       <div className="mx-auto max-w-[600px] px-4 py-20 text-center">
-        <BookMarked className="w-12 h-12 mx-auto mb-4 text-blue-light/40" />
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-bright/10 flex items-center justify-center">
+          <BookMarked className="w-8 h-8 text-blue-light/60" />
+        </div>
         <h2 className="font-cinzel font-bold text-xl text-foreground mb-2">Comece seu Manuscrito</h2>
-        <p className="text-sm text-text-dim mb-6">Crie seu primeiro livro e organize capítulos e cenas.</p>
-        <Button onClick={() => createManuscript()} className="bg-blue-bright/20 text-blue-light border border-blue-bright/30 hover:bg-blue-bright/30">
+        <p className="text-sm text-text-dim mb-6 max-w-md mx-auto">
+          Organize sua história em capítulos e cenas, consulte fichas do Codex enquanto escreve, e acompanhe sua produtividade.
+        </p>
+        <Button onClick={() => setShowNamePrompt(true)} className="bg-blue-bright/20 text-blue-light border border-blue-bright/30 hover:bg-blue-bright/30">
           <Plus className="w-4 h-4 mr-1" /> Criar Manuscrito
         </Button>
+
+        <Dialog open={showNamePrompt} onOpenChange={setShowNamePrompt}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="font-cinzel">Novo Manuscrito</DialogTitle>
+            </DialogHeader>
+            <div className="py-3">
+              <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1.5">Nome do manuscrito</label>
+              <Input value={newManuscriptName} onChange={e => setNewManuscriptName(e.target.value)}
+                placeholder="Ex: Crônicas de Ellerya" autoFocus
+                onKeyDown={e => e.key === 'Enter' && handleCreateManuscriptWithName()} />
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setShowNamePrompt(false)}>Cancelar</Button>
+              <Button onClick={handleCreateManuscriptWithName} className="bg-blue-bright/20 text-blue-light border border-blue-bright/30">Criar</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
