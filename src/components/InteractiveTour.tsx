@@ -54,8 +54,8 @@ const TOUR_STEPS: TourStep[] = [
   {
     type: 'highlight',
     target: 'consult-idriel',
-    title: 'Consultar Idriel',
-    desc: 'Dentro de cada Fruto, viajante, você pode me consultar! Use os chips de sugestão ou escreva sua dúvida. Eu analiso o que você já criou e ofereço ideias personalizadas. Custa apenas 1 gota de Seiva.',
+    title: 'Consultar Idriel (Plano Completo)',
+    desc: 'Dentro de cada Fruto, viajante, você pode me consultar! Use os chips de sugestão ou escreva sua dúvida. Este recurso é exclusivo do plano Template + Idriel e custa apenas 1 gota de Seiva.',
     icon: '🌿',
     tooltipPos: 'top',
     delay: 200,
