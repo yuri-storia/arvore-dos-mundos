@@ -183,19 +183,6 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
 
   const currentStep = TOUR_STEPS[step];
 
-  // Lock user scroll during tour but allow programmatic scrolling
-  useEffect(() => {
-    if (!active) return;
-    const preventDefault = (e: Event) => { e.preventDefault(); };
-    const opts: AddEventListenerOptions = { passive: false };
-    window.addEventListener('wheel', preventDefault, opts);
-    window.addEventListener('touchmove', preventDefault, opts);
-    return () => {
-      window.removeEventListener('wheel', preventDefault, opts as EventListenerOptions);
-      window.removeEventListener('touchmove', preventDefault, opts as EventListenerOptions);
-    };
-  }, [active]);
-
   // Handle delay for steps that need it (after tab switch)
   useEffect(() => {
     if (!active) return;
