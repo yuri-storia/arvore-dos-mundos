@@ -137,8 +137,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
             >
               + Nova Entrada
             </button>
-            {showCreate && !createKind && (
-              <div className="absolute right-0 top-full mt-1 z-50 w-[220px] card-glass rounded-lg p-3 shadow-lg border border-blue-bright/30 animate-fadeUp">
+            {showCreate && !createKind && !showImport && (
+              <div className="absolute right-0 top-full mt-1 z-50 w-[240px] card-glass rounded-lg p-3 shadow-lg border border-blue-bright/30 animate-fadeUp">
                 <h4 className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-blue-light mb-2">Tipo de entrada</h4>
                 <button
                   onClick={() => openCreate('ficha')}
@@ -149,11 +149,23 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                 </button>
                 <button
                   onClick={() => openCreate('artigo')}
-                  className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors"
+                  className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors mb-1"
                 >
                   <span className="font-montserrat font-bold text-xs text-foreground block">📝 Artigo</span>
                   <span className="text-[10px] text-text-dim font-merriweather">Texto livre, explicativo</span>
                 </button>
+                {worlds.filter(w => w.id !== worldId).length > 0 && (
+                  <>
+                    <div className="border-t border-blue-bright/15 my-2" />
+                    <button
+                      onClick={() => { setShowImport(true); }}
+                      className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors"
+                    >
+                      <span className="font-montserrat font-bold text-xs text-foreground block">📥 Importar de outro Mundo</span>
+                      <span className="text-[10px] text-text-dim font-merriweather">Copiar fichas ou artigos</span>
+                    </button>
+                  </>
+                )}
                 <button onClick={resetCreate} className="absolute top-1 right-1 w-5 h-5 rounded-full text-text-dim hover:text-foreground text-xs flex items-center justify-center">✕</button>
               </div>
             )}
