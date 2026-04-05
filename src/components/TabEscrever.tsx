@@ -291,7 +291,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
         </div>
         <div className="flex items-center gap-1 shrink-0">
           {/* Mode switcher with tooltips */}
-          <div className="flex items-center bg-white/[0.03] rounded-md border border-blue-bright/10 p-0.5">
+          <div data-tour="write-modes" className="flex items-center bg-white/[0.03] rounded-md border border-blue-bright/10 p-0.5">
             {(Object.entries(WRITE_MODE_INFO) as [WriteMode, typeof WRITE_MODE_INFO[WriteMode]][]).map(([key, m]) => (
               <div key={key} className="relative group">
                 <button onClick={() => setWriteMode(key)}
