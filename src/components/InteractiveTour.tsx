@@ -179,7 +179,7 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [animating, setAnimating] = useState(false);
   const [delayWaiting, setDelayWaiting] = useState(false);
-  
+  const rafRef = useRef<number>(0);
 
   const currentStep = TOUR_STEPS[step];
 
@@ -196,32 +196,38 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     }
   }, [active, step]);
 
-  // Scroll target into view, then measure once and lock position
-  useEffect(() => {
-    if (!active || delayWaiting) {
-      setTargetRect(null);
-      return;
-    }
+  // Measure target element position
+  const measureTarget = useCallback(() => {
+    if (!active || delayWaiting) return;
     const s = TOUR_STEPS[step];
-    if (!s.target) {
+    if (s.target) {
+      const el = document.querySelector(`[data-tour="${s.target}"]`);
+      if (el) {
+        setTargetRect(el.getBoundingClientRect());
+      } else {
+        setTargetRect(null);
+      }
+    } else {
       setTargetRect(null);
-      return;
     }
-
-    const el = document.querySelector(`[data-tour="${s.target}"]`);
-    if (!el) { setTargetRect(null); return; }
-
-    // Scroll into view first
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-    // After scroll settles, measure once and lock
-    const timer = setTimeout(() => {
-      const rect = el.getBoundingClientRect();
-      setTargetRect(rect);
-    }, 500);
-
-    return () => clearTimeout(timer);
+    rafRef.current = requestAnimationFrame(measureTarget);
   }, [active, step, delayWaiting]);
+
+  useEffect(() => {
+    if (active && !delayWaiting) {
+      rafRef.current = requestAnimationFrame(measureTarget);
+    }
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [active, measureTarget, delayWaiting]);
+
+  // Scroll target into view (programmatic scroll still works)
+  useEffect(() => {
+    if (!active || delayWaiting || !currentStep.target) return;
+    const el = document.querySelector(`[data-tour="${currentStep.target}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [active, step, delayWaiting, currentStep.target]);
 
   const goNext = useCallback(() => {
     if (step >= TOUR_STEPS.length - 1) {
