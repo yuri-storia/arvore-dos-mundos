@@ -316,7 +316,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                     </div>
                   ))
                 ) : (
-                  <p className="font-merriweather text-sm text-text-dim italic">Sem conteúdo ainda. Clique em editar para adicionar.</p>
+                  <p className="font-merriweather text-sm text-text-dim italic cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }}>Sem conteúdo ainda. Clique para adicionar.</p>
                 )}
               </div>
             </div>
