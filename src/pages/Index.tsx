@@ -181,34 +181,7 @@ const Index = () => {
           />
         )}
 
-        {/* Desktop: world name display (no dropdown, managed by sidebar) */}
-        {!isMobile && (
-          <div className="mx-auto max-w-[1060px] px-3 sm:px-4 py-3">
-            <div className="flex items-center justify-center gap-3">
-              <span className="text-[10px] font-cinzel uppercase tracking-[0.2em] text-blue-light/40">✦ Seu Projeto ✦</span>
-            </div>
-            <div className="flex items-center justify-center mt-1">
-              <input
-                type="text"
-                value={state.worldName}
-                onChange={e => setWorldName(e.target.value)}
-                placeholder="Nome do seu mundo…"
-                className="bg-transparent border-none text-center font-cinzel font-bold text-xl sm:text-2xl text-foreground placeholder:text-text-dim/30 focus:outline-none w-full max-w-md"
-                style={{ textShadow: state.worldName ? '0 0 20px hsl(207 90% 61% / 0.4)' : 'none' }}
-              />
-            </div>
-            {state.worldName && !state.currentSaveId && (
-              <div className="flex justify-center mt-2">
-                <button
-                  onClick={handleCreateWorld}
-                  className="px-4 py-1.5 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light bg-gold/[0.08] hover:bg-gold/[0.18] transition-all"
-                >
-                  Criar Mundo
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+
 
         <OnboardingBanner />
         <SubscriptionBanner />
