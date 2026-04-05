@@ -138,7 +138,6 @@ const Index = () => {
 
   const handleNewWorld = useCallback(() => {
     setState(createNewState());
-    toast.info('Novo mundo criado!');
   }, []);
 
   const handleDeleteWorld = useCallback(async (id: string) => {
