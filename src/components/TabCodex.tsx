@@ -7,6 +7,7 @@ import { CodexCard } from '@/components/CodexCard';
 import { exportSingleEntry, exportFruitEntries, exportSelectedFruits, exportAllEntries } from '@/lib/codexPdfExport';
 import { CodexAnalysis } from '@/components/CodexAnalysis';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { WorldRecord } from '@/hooks/useWorlds';
 
 const FRUIT_ALL = -1;
 
@@ -14,11 +15,13 @@ type EntryKind = 'ficha' | 'artigo';
 
 interface Props {
   gallery: GalleryImage[];
+  worldId: string;
+  worlds: WorldRecord[];
 }
 
-export const TabCodex: React.FC<Props> = ({ gallery }) => {
+export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   const { user } = useAuth();
-  const { entries, loading, createEntry, updateEntry, deleteEntry, uploadImage } = useCodexEntries();
+  const { entries, loading, createEntry, updateEntry, deleteEntry, uploadImage, fetchEntriesFromWorld, importEntries } = useCodexEntries(worldId || undefined);
   
   const [filterFruit, setFilterFruit] = useState(FRUIT_ALL);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -28,6 +31,11 @@ export const TabCodex: React.FC<Props> = ({ gallery }) => {
   const [showExport, setShowExport] = useState(false);
   const [exportSelectedFruitIds, setExportSelectedFruitIds] = useState<number[]>([]);
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [importWorldId, setImportWorldId] = useState<string>('');
+  const [importEntryList, setImportEntryList] = useState<CodexEntry[]>([]);
+  const [importSelectedIds, setImportSelectedIds] = useState<string[]>([]);
+  const [importLoading, setImportLoading] = useState(false);
 
   // Create form state
   const [newTitle, setNewTitle] = useState('');
