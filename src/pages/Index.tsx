@@ -10,6 +10,7 @@ import { TabConstruir } from '@/components/TabConstruir';
 import { TabCodex } from '@/components/TabCodex';
 import { TabGaleria } from '@/components/TabGaleria';
 import { TabGerarImagens } from '@/components/TabGerarImagens';
+import { TabEscrever } from '@/components/TabEscrever';
 import { useWorlds, type WorldRecord } from '@/hooks/useWorlds';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -200,6 +201,7 @@ const Index = () => {
         <main>
           {state.activeTab === 'construir' && <TabConstruir state={state} updateField={updateField} setCurrentFruit={setCurrentFruit} setMethod={setMethod} onNavigateCodex={() => setActiveTab('codex')} />}
           {state.activeTab === 'codex' && <TabCodex gallery={state.gallery} worldId={state.currentSaveId} worlds={worlds} />}
+          {state.activeTab === 'escrever' && <TabEscrever worldId={state.currentSaveId} worlds={worlds} />}
           {state.activeTab === 'galeria' && <TabGaleria gallery={state.gallery} setGallery={setGallery} />}
           {state.activeTab === 'gerar-imagens' && <TabGerarImagens state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />}
         </main>

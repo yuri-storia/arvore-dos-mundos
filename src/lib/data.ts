@@ -33,7 +33,7 @@ export interface GalleryImage {
 }
 
 export type MethodType = 'top-down' | 'bottom-up';
-export type TabType = 'construir' | 'codex' | 'galeria' | 'gerar-imagens';
+export type TabType = 'construir' | 'codex' | 'galeria' | 'gerar-imagens' | 'escrever';
 
 export const CODEX_ENTRY_TYPES = [
   { id: 'personagem', label: 'Personagem', icon: '👤' },

@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, LogOut, Shield, Map, BookOpen, Image, Sparkles, Plus, Trash2, ChevronRight } from 'lucide-react';
+import { Settings, LogOut, Shield, Map, BookOpen, Image, Sparkles, Plus, Trash2, ChevronRight, PenLine } from 'lucide-react';
 import type { TabType } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import {
@@ -23,6 +23,7 @@ import {
 const TABS: { id: TabType; label: string; icon: React.ElementType; emoji: string }[] = [
   { id: 'construir', label: 'Construir', icon: Map, emoji: '🌿' },
   { id: 'codex', label: 'Codex', icon: BookOpen, emoji: '📖' },
+  { id: 'escrever', label: 'Escrever', icon: PenLine, emoji: '✍️' },
   { id: 'galeria', label: 'Galeria', icon: Image, emoji: '🎨' },
   { id: 'gerar-imagens', label: 'Gerar Imagens', icon: Sparkles, emoji: '✨' },
 ];
