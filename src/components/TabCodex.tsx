@@ -89,6 +89,26 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
     setShowCreate(false);
     setCreateKind(null);
     setNewTitle(''); setNewContent(''); setNewImageUrl(''); setNewFruit(null);
+    setShowImport(false);
+    setImportWorldId('');
+    setImportEntryList([]);
+    setImportSelectedIds([]);
+  };
+
+  const handleSelectImportWorld = async (wId: string) => {
+    setImportWorldId(wId);
+    setImportLoading(true);
+    const items = await fetchEntriesFromWorld(wId);
+    setImportEntryList(items);
+    setImportLoading(false);
+  };
+
+  const handleImport = async () => {
+    const selected = importEntryList.filter(e => importSelectedIds.includes(e.id));
+    if (selected.length === 0) return;
+    await importEntries(selected);
+    resetCreate();
+  };
   };
 
   const openCreate = (kind: EntryKind) => {
