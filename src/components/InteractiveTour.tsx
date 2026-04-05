@@ -41,13 +41,23 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     type: 'highlight',
+    target: 'method-selector',
+    title: 'Escolha sua Abordagem',
+    desc: 'Viajante, existem dois caminhos para construir seu mundo. "De Cima para Baixo" parte do panorama geral — mapa, cosmologia — e desce aos detalhes. "De Baixo para Cima" nasce dos personagens e expande o mundo conforme a história pede. Vou selecionar "De Baixo para Cima" para você experimentar!',
+    icon: '🧭',
+    tooltipPos: 'bottom',
+    delay: 400,
+    setMethod: 'bottom-up',
+  },
+  {
+    type: 'highlight',
     target: 'fruit-grid',
     title: 'Os 11 Frutos do Mundo',
     desc: 'Cada card é um Fruto — um pilar do seu mundo, viajante. Mapa, história, culturas, magia, religiões… Clique em qualquer Fruto para abrir seus campos de preenchimento. Não precisa seguir ordem!',
     icon: '🍎',
     tooltipPos: 'bottom',
     delay: 400,
-    setFruit: 1, // Switch away from fruit 0 (Mapa do Mundo) so Consultar Idriel appears
+    setFruit: 1,
   },
   {
     type: 'highlight',
