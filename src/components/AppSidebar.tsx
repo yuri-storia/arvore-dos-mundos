@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, LogOut, Shield, Map, BookOpen, Image, Sparkles, Plus, Trash2, ChevronRight, ChevronDown, PenLine, FileText } from 'lucide-react';
+import { Settings, LogOut, Shield, Map, BookOpen, Image, Plus, Trash2, ChevronRight, ChevronDown, PenLine, FileText } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useManuscript, type Chapter, type Scene } from '@/hooks/useManuscript';
 import type { TabType } from '@/lib/data';
@@ -27,7 +27,6 @@ const TABS: { id: TabType; label: string; icon: React.ElementType; emoji: string
   { id: 'codex', label: 'Codex', icon: BookOpen, emoji: '📖' },
   { id: 'escrever', label: 'Escrever', icon: PenLine, emoji: '✍️' },
   { id: 'galeria', label: 'Galeria', icon: Image, emoji: '🎨' },
-  { id: 'gerar-imagens', label: 'Gerar Imagens', icon: Sparkles, emoji: '✨' },
 ];
 
 interface Props {
