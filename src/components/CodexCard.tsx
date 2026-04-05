@@ -324,7 +324,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
           {/* Actions */}
           <div className="flex flex-wrap gap-2 pt-3 border-t border-accent/20">
-            {editing ? (
+            {editing && (
               <>
                 <button onClick={handleSave} className="px-4 py-1.5 bg-accent/80 hover:bg-accent text-accent-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
                   Salvar
@@ -333,16 +333,12 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                   Cancelar
                 </button>
               </>
-            ) : (
-              <button onClick={e => { e.stopPropagation(); setEditing(true); }} className="px-4 py-1.5 bg-accent/20 hover:bg-accent/30 text-accent rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors border border-accent/20">
-                ✏️ Editar
-              </button>
             )}
             <button
               onClick={e => { e.stopPropagation(); exportSingleEntry(entry); }}
               className="px-4 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors"
             >
-              📄 PDF
+              📄 Exportar PDF
             </button>
             <button
               onClick={e => { e.stopPropagation(); if (confirm('Excluir este artigo?')) onDelete(entry.id); }}
