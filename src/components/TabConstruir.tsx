@@ -290,7 +290,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
                 return (
                   <div key={field.id}>
-                    <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">
+                    <label className="block text-xs uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">
                       {field.label}
                     </label>
 
