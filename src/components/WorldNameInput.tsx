@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, ChevronDown, ChevronUp, FolderOpen, Plus } from 'lucide-react';
 import type { WorldRecord } from '@/hooks/useWorlds';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 interface Props {
   worldName: string;
