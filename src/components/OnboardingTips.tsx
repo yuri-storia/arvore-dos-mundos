@@ -12,6 +12,7 @@ const TAB_TIPS: Record<string, Tip[]> = {
   construir: [
     { icon: '🌿', title: 'Bem-vindo à Árvore dos Mundos!', desc: 'Eu sou Idriel, sua guardiã. Aqui você vai cultivar 11 Frutos — cada um é um pilar do seu mundo. Escolha qualquer um para começar!' },
     { icon: '🗺️', title: 'Crie mapas no primeiro Fruto', desc: 'No Fruto "Mapa do Mundo", você pode gerar mapas em estilos como político, geográfico ou explorador com a Seiva Dourada.' },
+    { icon: '📖', title: 'Orientação em cada Fruto', desc: 'Dentro de cada Fruto você encontra minha "Orientação para Criação & Estudo de Caso" — uma sanfona com guia, exemplos literários e passo a passo. Consulte sempre que precisar!' },
     { icon: '🌳', title: 'Me consulte sempre que precisar', desc: 'Nos demais Frutos, peça minha ajuda criativa usando os chips de sugestão ou digitando sua pergunta. Custa apenas 1 gota.' },
     { icon: '💾', title: 'Relaxe, eu cuido de tudo', desc: 'Suas criações são salvas automaticamente a cada 2 segundos. Foque no que importa — dar vida ao seu mundo.' },
   ],
