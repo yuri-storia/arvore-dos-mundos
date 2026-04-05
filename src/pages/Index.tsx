@@ -197,11 +197,11 @@ const Index = () => {
               <div className="flex gap-3 justify-center">
                 <button onClick={() => setShowTourPrompt(false)}
                   className="px-4 py-2 rounded-lg text-xs font-montserrat font-bold text-text-dim border border-blue-bright/15 hover:bg-white/[0.04] transition-all">
-                  Ir por conta própria
+                  Explorar por conta própria
                 </button>
                 <button onClick={() => { setShowTourPrompt(false); setTourActive(true); }}
                   className="px-4 py-2 rounded-lg text-xs font-montserrat font-bold text-background bg-idriel-light hover:bg-idriel-glow transition-all shadow-md shadow-idriel/20">
-                  ✨ Refazer Tour com Idriel
+                  ✨ Guie-me, Idriel!
                 </button>
               </div>
             </div>
