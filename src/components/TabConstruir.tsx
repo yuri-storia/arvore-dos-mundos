@@ -153,8 +153,8 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       </div>
 
       {/* Method description */}
-      <div className="mb-5 p-3 rounded-md bg-blue-bright/[0.04] border border-blue-bright/10">
-        <p className="font-merriweather italic text-text-secondary text-xs leading-relaxed">
+      <div className="mb-5 p-3.5 rounded-md bg-blue-bright/[0.04] border border-blue-bright/10">
+        <p className="font-merriweather italic text-text-secondary text-sm leading-relaxed">
           {methodInfo.desc}
         </p>
       </div>
