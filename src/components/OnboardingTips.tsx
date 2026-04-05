@@ -22,7 +22,7 @@ const TAB_TIPS: Record<string, Tip[]> = {
     { icon: '🔍', title: 'Filtros inteligentes', desc: 'Use os filtros para encontrar entradas por tipo ou por Fruto de origem. Cada categoria mostra quantos itens possui.' },
   ],
   escrever: [
-    { icon: '✍️', title: 'Hora de escrever!', desc: 'Escolha entre Manuscrito (capítulos organizados como um livro), Mural de Cenas (visualize e arraste cenas por status) ou Rascunhos (escrita livre, sem estrutura). Passe o mouse sobre cada modo para saber mais!' },
+    { icon: '✍️', title: 'Hora de escrever, viajante!', desc: 'Escolha entre Manuscrito (capítulos organizados como um livro), Mural de Cenas (visualize e arraste cenas por status) ou Rascunhos (escrita livre, sem estrutura). Passe o mouse sobre cada modo para saber mais!' },
     { icon: '⏱️', title: 'Foco com Pomodoro', desc: 'Ative o timer para sessões focadas. Escreva com calma e faça pausas — as melhores ideias florescem quando descansamos.' },
   ],
   galeria: [
