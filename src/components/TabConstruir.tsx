@@ -137,7 +137,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   return (
     <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-6">
       {/* Method toggle */}
-      <div className="flex flex-col sm:flex-row gap-2 mb-3">
+      <div data-tour="method-selector" className="flex flex-col sm:flex-row gap-2 mb-3">
         {(['top-down', 'bottom-up'] as const).map(m => (
           <button
             key={m}

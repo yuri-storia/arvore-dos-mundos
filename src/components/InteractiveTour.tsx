@@ -15,12 +15,10 @@ export interface TourStep {
   desc: string;
   icon: string;
   tabToActivate?: TabType;
-  /** For highlight steps: preferred tooltip position relative to target */
   tooltipPos?: 'right' | 'bottom' | 'left' | 'top' | 'center';
-  /** Delay before showing this step (ms) — useful after tab switch */
   delay?: number;
-  /** Switch to this fruit index before showing the step */
   setFruit?: number;
+  setMethod?: 'top-down' | 'bottom-up';
 }
 
 const TOUR_STEPS: TourStep[] = [
@@ -43,13 +41,23 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     type: 'highlight',
+    target: 'method-selector',
+    title: 'Escolha sua Abordagem',
+    desc: 'Viajante, existem dois caminhos para construir seu mundo. "De Cima para Baixo" parte do panorama geral — mapa, cosmologia — e desce aos detalhes. "De Baixo para Cima" nasce dos personagens e expande o mundo conforme a história pede. Vou selecionar "De Baixo para Cima" para você experimentar!',
+    icon: '🧭',
+    tooltipPos: 'bottom',
+    delay: 400,
+    setMethod: 'bottom-up',
+  },
+  {
+    type: 'highlight',
     target: 'fruit-grid',
     title: 'Os 11 Frutos do Mundo',
     desc: 'Cada card é um Fruto — um pilar do seu mundo, viajante. Mapa, história, culturas, magia, religiões… Clique em qualquer Fruto para abrir seus campos de preenchimento. Não precisa seguir ordem!',
     icon: '🍎',
     tooltipPos: 'bottom',
     delay: 400,
-    setFruit: 1, // Switch away from fruit 0 (Mapa do Mundo) so Consultar Idriel appears
+    setFruit: 1,
   },
   {
     type: 'highlight',
@@ -155,9 +163,10 @@ interface Props {
   onFinish: () => void;
   setActiveTab: (t: TabType) => void;
   setCurrentFruit?: (id: number) => void;
+  setMethod?: (m: 'top-down' | 'bottom-up') => void;
 }
 
-export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTab, setCurrentFruit }) => {
+export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTab, setCurrentFruit, setMethod }) => {
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [animating, setAnimating] = useState(false);
@@ -221,17 +230,21 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     if (TOUR_STEPS[step].tabToActivate) {
       setActiveTab(TOUR_STEPS[step].tabToActivate!);
     }
-    // Switch fruit if next step requires it
     const nextStep = TOUR_STEPS[step + 1];
+    // Switch fruit if next step requires it
     if (nextStep.setFruit !== undefined && setCurrentFruit) {
       setCurrentFruit(nextStep.setFruit);
+    }
+    // Switch method if current step requires it
+    if (TOUR_STEPS[step].setMethod && setMethod) {
+      setMethod(TOUR_STEPS[step].setMethod!);
     }
     setAnimating(true);
     setTimeout(() => {
       setStep(s => s + 1);
       setAnimating(false);
     }, 250);
-  }, [step, setActiveTab, setCurrentFruit]);
+  }, [step, setActiveTab, setCurrentFruit, setMethod]);
 
   const finish = () => {
     markTourDone();
