@@ -19,6 +19,8 @@ export interface TourStep {
   tooltipPos?: 'right' | 'bottom' | 'left' | 'top' | 'center';
   /** Delay before showing this step (ms) — useful after tab switch */
   delay?: number;
+  /** Switch to this fruit index before showing the step */
+  setFruit?: number;
 }
 
 const TOUR_STEPS: TourStep[] = [
