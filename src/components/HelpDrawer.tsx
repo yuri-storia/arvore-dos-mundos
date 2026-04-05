@@ -130,10 +130,10 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
                 <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-idriel flex items-center justify-center text-[7px]">🌿</div>
               </div>
               <div>
-                <SheetTitle className="font-cinzel text-idriel-light text-base">
+                <SheetTitle className="font-cinzel text-idriel-light text-lg">
                   Idriel
                 </SheetTitle>
-                <SheetDescription className="font-merriweather italic text-[10px] text-text-dim">
+                <SheetDescription className="font-merriweather italic text-xs text-text-dim">
                   Guardiã da Árvore dos Mundos
                 </SheetDescription>
               </div>
@@ -145,7 +145,7 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
               {/* Section label */}
               <div className="flex items-center gap-2">
                 <div className="h-px flex-1 bg-idriel/10" />
-                <span className="text-[9px] font-montserrat uppercase tracking-widest text-idriel/50">
+                <span className="text-[10px] font-montserrat uppercase tracking-widest text-idriel/60">
                   📜 Guia — {data.label}
                 </span>
                 <div className="h-px flex-1 bg-idriel/10" />
@@ -160,8 +160,8 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
                   <div className="flex items-start gap-3">
                     <span className="text-lg shrink-0 mt-0.5">{tip.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-montserrat font-bold text-[13px] text-foreground mb-1">{tip.title}</h4>
-                      <p className="font-merriweather text-xs text-text-dim leading-relaxed">{tip.desc}</p>
+                      <h4 className="font-montserrat font-bold text-sm text-foreground mb-1">{tip.title}</h4>
+                      <p className="font-merriweather text-[13px] text-text-secondary leading-relaxed">{tip.desc}</p>
                     </div>
                   </div>
                 </div>
@@ -170,13 +170,13 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
               {/* Divider for chat */}
               <div className="flex items-center gap-2 pt-2">
                 <div className="h-px flex-1 bg-idriel/15" />
-                <span className="text-[9px] font-montserrat uppercase tracking-widest text-idriel/60">
+                <span className="text-[10px] font-montserrat uppercase tracking-widest text-idriel/60">
                   💬 Pergunte à Idriel
                 </span>
                 <div className="h-px flex-1 bg-idriel/15" />
               </div>
 
-              <p className="font-merriweather italic text-[11px] text-text-dim leading-relaxed">
+              <p className="font-merriweather italic text-[13px] text-text-secondary leading-relaxed">
                 Tem alguma dúvida sobre a Árvore dos Mundos? Pergunte — você tem <span className="text-idriel-light font-bold not-italic">{DAILY_LIMIT} perguntas por dia</span> 🌿
               </p>
 
