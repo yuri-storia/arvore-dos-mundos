@@ -137,6 +137,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const [mentionState, setMentionState] = useState<{ active: boolean; query: string; pos: { top: number; left: number } }>({ active: false, query: '', pos: { top: 0, left: 0 } });
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [newManuscriptName, setNewManuscriptName] = useState('');
+  const [zenMode, setZenMode] = useState(false);
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
