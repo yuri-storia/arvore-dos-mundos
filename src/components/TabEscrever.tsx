@@ -12,6 +12,7 @@ import {
   PanelRightOpen, PanelRightClose, StickyNote, Search, BookMarked, PenLine,
   LayoutGrid, Feather, Maximize, Minimize
 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import { KanbanBoard } from '@/components/escritor/KanbanBoard';
