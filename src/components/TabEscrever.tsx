@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Plus, ChevronRight, ChevronDown, Trash2, FileText, BookOpen,
   PanelRightOpen, PanelRightClose, StickyNote, Search, BookMarked, PenLine,
-  LayoutGrid, Feather
+  LayoutGrid, Feather, Maximize, Minimize
 } from 'lucide-react';
 import { FRUITS } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
