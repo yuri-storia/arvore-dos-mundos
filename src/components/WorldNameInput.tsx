@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, ChevronDown, ChevronUp, FolderOpen, Plus } from 'lucide-react';
 import type { WorldRecord } from '@/hooks/useWorlds';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 interface Props {
   worldName: string;
@@ -100,14 +101,15 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName, hasBe
                     </span>
                   </div>
                   <div onClick={e => e.stopPropagation()}>
-                    {confirmDelete === s.id ? (
-                      <div className="flex gap-1">
-                        <button onClick={() => handleDelete(s.id)} className="px-1.5 py-0.5 rounded text-[9px] font-montserrat font-bold bg-destructive/20 text-destructive border border-destructive/30">Sim</button>
-                        <button onClick={() => setConfirmDelete(null)} className="px-1.5 py-0.5 rounded text-[9px] font-montserrat text-text-dim border border-blue-bright/15">Não</button>
-                      </div>
-                    ) : (
-                      <button onClick={() => setConfirmDelete(s.id)} className="px-1.5 py-0.5 rounded text-[9px] text-text-dim hover:text-destructive transition-colors">🗑</button>
-                    )}
+                    <ConfirmDialog
+                      trigger={
+                        <button className="px-1.5 py-0.5 rounded text-[9px] text-text-dim hover:text-destructive transition-colors">🗑</button>
+                      }
+                      title="Excluir mundo"
+                      description={`Tem certeza que deseja excluir "${s.name}"? Todos os dados serão perdidos permanentemente.`}
+                      confirmLabel="Excluir"
+                      onConfirm={() => { onDeleteWorld(s.id); setConfirmDelete(null); }}
+                    />
                   </div>
                 </div>
               ))}

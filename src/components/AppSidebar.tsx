@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Settings, LogOut, Shield, Map, BookOpen, Image, Sparkles, Plus, Trash2, ChevronRight, PenLine } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import type { TabType } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import {
@@ -167,17 +168,22 @@ export const AppSidebar: React.FC<Props> = ({
                       <ChevronRight className={`w-3 h-3 shrink-0 transition-transform ${currentSaveId === world.id ? 'text-gold rotate-90' : ''}`} />
                       <span className="font-merriweather text-xs truncate">{world.name}</span>
                     </SidebarMenuButton>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleDelete(world.id); }}
-                      className={`shrink-0 w-6 h-6 flex items-center justify-center rounded transition-all ${
-                        confirmDelete === world.id
-                          ? 'text-red-alert bg-red-alert/20'
-                          : 'text-transparent group-hover:text-text-dim/50 hover:!text-red-alert'
-                      }`}
-                      title={confirmDelete === world.id ? 'Clique novamente para confirmar' : 'Excluir'}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
+                    <ConfirmDialog
+                      trigger={
+                        <button
+                          onClick={(e) => e.stopPropagation()}
+                          className={`shrink-0 w-6 h-6 flex items-center justify-center rounded transition-all text-transparent group-hover:text-text-dim/50 hover:!text-red-alert`}
+                          title="Excluir"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      }
+                      title="Excluir mundo"
+                      description={`Tem certeza que deseja excluir "${world.name}"? Todos os dados deste mundo serão perdidos permanentemente.`}
+                      confirmLabel="Excluir"
+                      cancelLabel="Cancelar"
+                      onConfirm={() => onDeleteWorld(world.id)}
+                    />
                   </div>
                 </SidebarMenuItem>
               ))}
@@ -216,16 +222,24 @@ export const AppSidebar: React.FC<Props> = ({
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={async () => {
+            <ConfirmDialog
+              trigger={
+                <SidebarMenuButton
+                  tooltip="Sair"
+                  className="text-red-alert/60 hover:text-red-alert hover:bg-red-alert/[0.08]"
+                >
+                  <LogOut className="w-4 h-4 shrink-0" />
+                  {!collapsed && <span className="font-montserrat text-[10px] uppercase tracking-wider">Sair</span>}
+                </SidebarMenuButton>
+              }
+              title="Sair da conta"
+              description="Tem certeza que deseja sair? Suas alterações recentes foram salvas automaticamente."
+              confirmLabel="Sim, sair"
+              cancelLabel="Cancelar"
+              onConfirm={async () => {
                 try { await signOut(); } finally { navigate('/login', { replace: true }); }
               }}
-              tooltip="Sair"
-              className="text-red-alert/60 hover:text-red-alert hover:bg-red-alert/[0.08]"
-            >
-              <LogOut className="w-4 h-4 shrink-0" />
-              {!collapsed && <span className="font-montserrat text-[10px] uppercase tracking-wider">Sair</span>}
-            </SidebarMenuButton>
+            />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

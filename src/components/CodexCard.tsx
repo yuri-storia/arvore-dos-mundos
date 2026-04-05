@@ -5,6 +5,7 @@ import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { callAIImage } from '@/lib/helpers';
 import { exportSingleEntry } from '@/lib/codexPdfExport';
 import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 interface Props {
   entry: CodexEntry;
@@ -340,12 +341,17 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             >
               📄 Exportar PDF
             </button>
-            <button
-              onClick={e => { e.stopPropagation(); if (confirm('Excluir este artigo?')) onDelete(entry.id); }}
-              className="ml-auto px-4 py-1.5 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors"
-            >
-              🗑 Excluir
-            </button>
+            <ConfirmDialog
+              trigger={
+                <button onClick={e => e.stopPropagation()} className="ml-auto px-4 py-1.5 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
+                  🗑 Excluir
+                </button>
+              }
+              title="Excluir artigo"
+              description={`Tem certeza que deseja excluir "${entry.title}"? Esta ação não pode ser desfeita.`}
+              confirmLabel="Excluir"
+              onConfirm={() => onDelete(entry.id)}
+            />
           </div>
         </div>
       </div>
@@ -455,12 +461,17 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             >
               📄 Exportar PDF
             </button>
-            <button
-              onClick={e => { e.stopPropagation(); if (confirm('Excluir esta ficha?')) onDelete(entry.id); }}
-              className="ml-auto px-4 py-1.5 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors"
-            >
-              🗑 Excluir
-            </button>
+            <ConfirmDialog
+              trigger={
+                <button onClick={e => e.stopPropagation()} className="ml-auto px-4 py-1.5 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
+                  🗑 Excluir
+                </button>
+              }
+              title="Excluir ficha"
+              description={`Tem certeza que deseja excluir "${entry.title}"? Esta ação não pode ser desfeita.`}
+              confirmLabel="Excluir"
+              onConfirm={() => onDelete(entry.id)}
+            />
           </div>
         </div>
       </div>

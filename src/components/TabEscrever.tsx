@@ -12,6 +12,7 @@ import {
   PanelRightOpen, PanelRightClose, StickyNote, Search, BookMarked, PenLine,
   LayoutGrid, Feather, Maximize, Minimize
 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import { KanbanBoard } from '@/components/escritor/KanbanBoard';
@@ -348,10 +349,17 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                           className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-blue-light transition-all" title="Nova cena">
                           <Plus className="w-3 h-3" />
                         </button>
-                        <button onClick={() => deleteChapter(ch.id)}
-                          className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all" title="Excluir capítulo">
-                          <Trash2 className="w-3 h-3" />
-                        </button>
+                        <ConfirmDialog
+                          trigger={
+                            <button className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all" title="Excluir capítulo">
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          }
+                          title="Excluir capítulo"
+                          description={`Tem certeza que deseja excluir "${ch.title}"? Todas as cenas deste capítulo serão perdidas.`}
+                          confirmLabel="Excluir"
+                          onConfirm={() => deleteChapter(ch.id)}
+                        />
                       </div>
                       {showNotes === ch.id && (
                         <div className="ml-5 mb-1">
@@ -371,10 +379,17 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                                 <FileText className="w-3 h-3 inline mr-1 opacity-50" />{sc.title}
                               </button>
                               <span className="text-[9px] text-text-dim/40 mr-1">{sc.word_count}</span>
-                              <button onClick={() => deleteScene(sc.id)}
-                                className="opacity-0 group-hover/scene:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all">
-                                <Trash2 className="w-2.5 h-2.5" />
-                              </button>
+                              <ConfirmDialog
+                                trigger={
+                                  <button className="opacity-0 group-hover/scene:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all">
+                                    <Trash2 className="w-2.5 h-2.5" />
+                                  </button>
+                                }
+                                title="Excluir cena"
+                                description={`Tem certeza que deseja excluir "${sc.title}"? O conteúdo será perdido permanentemente.`}
+                                confirmLabel="Excluir"
+                                onConfirm={() => deleteScene(sc.id)}
+                              />
                             </div>
                           ))}
                           {chScenes.length === 0 && (

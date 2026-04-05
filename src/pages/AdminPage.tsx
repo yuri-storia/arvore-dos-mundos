@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 interface AllowedEmail {
   id: string;
@@ -97,12 +98,20 @@ const AdminPage: React.FC = () => {
             >
               ← Voltar
             </button>
-            <button
-              onClick={signOut}
-              className="px-3 py-1.5 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors"
-            >
-              Sair
-            </button>
+            <ConfirmDialog
+              trigger={
+                <button className="px-3 py-1.5 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors">
+                  Sair
+                </button>
+              }
+              title="Sair da conta"
+              description="Tem certeza que deseja sair do painel administrativo?"
+              confirmLabel="Sim, sair"
+              onConfirm={async () => {
+                await signOut();
+                navigate('/login', { replace: true });
+              }}
+            />
           </div>
         </div>
 
@@ -155,31 +164,17 @@ const AdminPage: React.FC = () => {
                       Adicionado em {new Date(e.created_at).toLocaleDateString('pt-BR')}
                     </span>
                   </div>
-                  <div onClick={ev => ev.stopPropagation()}>
-                    {confirmDelete === e.id ? (
-                      <div className="flex gap-1.5">
-                        <button
-                          onClick={() => handleDelete(e.id, e.email)}
-                          className="px-2 py-1 rounded text-[10px] font-montserrat font-bold bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30"
-                        >
-                          Confirmar
-                        </button>
-                        <button
-                          onClick={() => setConfirmDelete(null)}
-                          className="px-2 py-1 rounded text-[10px] font-montserrat text-text-dim border border-blue-bright/15"
-                        >
-                          Cancelar
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => setConfirmDelete(e.id)}
-                        className="px-2 py-1 rounded text-[10px] font-montserrat text-text-dim border border-blue-bright/15 hover:border-destructive/30 hover:text-destructive transition-colors"
-                      >
-                        🗑
+                  <ConfirmDialog
+                    trigger={
+                      <button className="px-2 py-1 rounded text-[10px] font-montserrat font-bold text-destructive border border-destructive/30 hover:bg-destructive/10 transition-colors">
+                        Remover
                       </button>
-                    )}
-                  </div>
+                    }
+                    title="Remover e-mail"
+                    description={`Tem certeza que deseja remover "${e.email}" da lista de autorizados?`}
+                    confirmLabel="Remover"
+                    onConfirm={() => handleDelete(e.id, e.email)}
+                  />
                 </div>
               ))}
             </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
 import { callAIText } from '@/lib/helpers';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
@@ -282,13 +283,21 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
                         {item.ficha_count} fichas · {item.artigo_count} artigos · {item.covered_fruits}/11 frutos
                       </p>
                     </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleDeleteAnalysis(item.id); }}
-                      className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded-full text-destructive hover:bg-destructive/10 text-xs flex items-center justify-center transition-all"
+                    <ConfirmDialog
+                      trigger={
+                        <button
+                          onClick={(e) => e.stopPropagation()}
+                          className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded-full text-destructive hover:bg-destructive/10 text-xs flex items-center justify-center transition-all"
+                          title="Excluir análise"
+                        >
+                          🗑
+                        </button>
+                      }
                       title="Excluir análise"
-                    >
-                      🗑
-                    </button>
+                      description="Tem certeza que deseja excluir esta análise? Ela não poderá ser recuperada."
+                      confirmLabel="Excluir"
+                      onConfirm={() => handleDeleteAnalysis(item.id)}
+                    />
                   </div>
                 </div>
               ))}
