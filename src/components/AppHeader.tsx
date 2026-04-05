@@ -104,7 +104,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
   }, [editing]);
 
   return (
-    <header className="relative text-center pt-4 pb-3 px-4 min-h-[140px] mb-0">
+    <header className="relative text-center pt-4 pb-3 px-4 min-h-[170px] mb-0">
       {/* Background */}
       <div className="absolute inset-0 overflow-hidden z-0">
         <div className="absolute inset-0">
