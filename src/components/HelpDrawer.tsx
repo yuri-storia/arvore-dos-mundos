@@ -64,6 +64,7 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
+  const [remaining, setRemaining] = useState<number | null>(null);
 
   const data = TAB_TIPS[tab];
   if (!data) return null;
@@ -76,9 +77,27 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
       const { data: result, error } = await supabase.functions.invoke('idriel-help', {
         body: { question: question.trim() },
       });
-      if (error) throw error;
+      if (error) {
+        // Check if the response body has daily_limit info
+        if (result?.error === 'daily_limit') {
+          setAnswer(result.message);
+          setRemaining(0);
+          return;
+        }
+        throw error;
+      }
       setAnswer(result?.content || 'Idriel não conseguiu responder no momento.');
+      if (result?.remaining !== undefined) setRemaining(result.remaining);
     } catch (e: any) {
+      // Parse the error body if it's a FunctionsHttpError
+      try {
+        const body = e?.context?.body ? JSON.parse(e.context.body) : null;
+        if (body?.error === 'daily_limit') {
+          setAnswer(body.message);
+          setRemaining(0);
+          return;
+        }
+      } catch {}
       setAnswer(`🥀 ${e.message || 'Erro ao consultar Idriel. Tente novamente.'}`);
     } finally {
       setLoading(false);
@@ -168,18 +187,27 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
 
           {/* Question input — fixed at bottom */}
           <div className="shrink-0 border-t border-emerald-500/15 p-3 bg-[#060c16]">
+            {remaining !== null && (
+              <p className="text-[10px] font-montserrat text-text-dim mb-2 text-center">
+                {remaining > 0 
+                  ? <span>🌿 <span className="text-emerald-300">{remaining}</span> perguntas restantes hoje</span>
+                  : <span className="text-gold/70">🌙 Idriel descansa até amanhã</span>
+                }
+              </p>
+            )}
             <div className="flex gap-2">
               <input
                 type="text"
                 value={question}
                 onChange={e => setQuestion(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleAsk()}
-                placeholder="Como funciona…?"
-                className="flex-1 bg-[rgba(4,12,24,0.6)] border border-emerald-500/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/60 focus:outline-none focus:border-emerald-400/50"
+                placeholder={remaining === 0 ? "Volte amanhã…" : "Como funciona…?"}
+                disabled={remaining === 0}
+                className="flex-1 bg-[rgba(4,12,24,0.6)] border border-emerald-500/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/60 focus:outline-none focus:border-emerald-400/50 disabled:opacity-40"
               />
               <button
                 onClick={handleAsk}
-                disabled={!question.trim() || loading}
+                disabled={!question.trim() || loading || remaining === 0}
                 className="px-3 py-2 bg-emerald-700 hover:bg-emerald-600 text-foreground rounded-md disabled:opacity-40 transition-colors"
               >
                 <Send className="w-4 h-4" />
