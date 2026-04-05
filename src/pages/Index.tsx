@@ -38,6 +38,8 @@ const Index = () => {
   const isMobile = useIsMobile();
   const { worlds, createWorld, updateWorld, deleteWorld } = useWorlds();
   const [state, setState] = useState<AppState>(createNewState);
+  const [tourActive, setTourActive] = useState(false);
+  const [showTourPrompt, setShowTourPrompt] = useState(false);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const initialLoadDone = useRef(false);
 
