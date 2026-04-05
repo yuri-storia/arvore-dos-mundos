@@ -61,7 +61,7 @@ const TOUR_STEPS: TourStep[] = [
     type: 'highlight',
     target: 'fruit-grid',
     title: 'Os 11 Frutos do Mundo',
-    desc: 'Cada card é um Fruto — um pilar do seu mundo, viajante. Mapa, história, culturas, magia, religiões… Clique em qualquer Fruto para abrir seus campos de preenchimento. Não precisa seguir ordem!',
+    desc: 'Cada card é um Fruto — um pilar do seu mundo, viajante. Mapa, história, culturas, magia, personagens… O modelo escolhido sugere uma ordem, mas você é livre para explorar qualquer Fruto quando a inspiração chamar.',
     icon: '🍎',
     tooltipPos: 'bottom',
     delay: 400,
