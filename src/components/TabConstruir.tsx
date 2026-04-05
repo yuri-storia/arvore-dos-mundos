@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { FRUITS, getOrderedFruits, METHOD_DESCRIPTIONS, MethodType, GalleryImage } from '@/lib/data';
 import { getFruitProgress, callAIText, exportWorldMarkdown } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
@@ -29,10 +29,6 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   const [activeChip, setActiveChip] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
-  const [aiHelpField, setAiHelpField] = useState<string | null>(null);
-  const [aiHelpQuestion, setAiHelpQuestion] = useState('');
-  const [aiHelpResponse, setAiHelpResponse] = useState('');
-  const [aiHelpLoading, setAiHelpLoading] = useState(false);
   const magictypeArticleRef = useRef<string | null>(null);
   const [showMagictypeCreated, setShowMagictypeCreated] = useState(false);
   const [showMagictypeUpdate, setShowMagictypeUpdate] = useState(false);
@@ -40,7 +36,6 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
   // Fruits that generate fichas
   const FICHA_FRUITS = [0, 5, 9]; // Mapa do Mundo, Seres Fantásticos, Personagens
-  // Cultura (3) generates artigos except for 'items' field which generates fichas
 
   const getEntryTypeForField = (fruitId: number, fieldId: string): 'ficha' | 'artigo' => {
     if (FICHA_FRUITS.includes(fruitId)) return 'ficha';
@@ -54,18 +49,13 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       updateField(4, 'magictype', value);
       return;
     }
-    
-    // Find existing magictype article
     const existing = entries.find(e => 
       e.fruit_id === 4 && e.entry_type === 'artigo' && e.content?.startsWith('__magictype__')
     );
-    
     if (existing) {
-      // Ask user if they want to update
       setPendingMagictypeValue(value);
       setShowMagictypeUpdate(true);
     } else {
-      // First time — create and show success
       updateField(4, 'magictype', value);
       await createEntry({
         title: value,
@@ -111,7 +101,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
     try {
       const fruitData = db[currentFruit] || {};
       const context = fruit.fields.map(f => `${f.label}: ${fruitData[f.id] || '(vazio)'}`).join('\n');
-      const systemPrompt = `Você é Idriel, a Guardiã da Árvore dos Mundos — uma sábia ancestral de aparência élfica que observa os mundos florescerem através dos Frutos da criação. Você fala com elegância, sabedoria profunda e encorajamento maternal. Mundo: '${worldName || 'Sem nome'}'. Fruto atual: ${fruit.num} — ${fruit.name}. Metodologia: ${method === 'top-down' ? 'Cima para Baixo' : 'Baixo para Cima'}. Responda em português brasileiro. Seja específica, criativa e encantada com a criação do usuário. Sempre demonstre que está impressionada com o potencial do mundo que está nascendo.`;
+      const systemPrompt = `Você é Idriel, a Guardiã da Árvore dos Mundos — uma sábia ancestral de aparência élfica que observa os mundos florescerem através dos Frutos da criação. Você fala com elegância, sabedoria profunda e encorajamento maternal. Mundo: '${worldName || 'Sem nome'}'. Fruto atual: ${fruit.num} — ${fruit.name}. Metodologia: ${method === 'top-down' ? 'Cima para Baixo' : 'Baixo para Cima'}. Responda em português brasileiro. Seja específica, criativa e encantada com a criação do usuário.`;
       const userMsg = `Contexto atual do Fruto:\n${context}\n\nPergunta: ${aiQuestion}`;
       const response = await callAIText(
         [{ role: 'user', content: userMsg }],
@@ -126,49 +116,11 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
     }
   };
 
-  const handleFieldAiHelp = async (fieldLabel: string) => {
-    setAiHelpLoading(true);
-    setAiHelpResponse('');
-    try {
-      const fruitData = db[currentFruit] || {};
-      const context = fruit.fields.map(f => `${f.label}: ${fruitData[f.id] || '(vazio)'}`).join('\n');
-      const systemPrompt = `Você é Idriel, a Guardiã da Árvore dos Mundos — uma sábia ancestral de aparência élfica que observa os mundos florescerem através dos Frutos da criação. Você fala com elegância, sabedoria profunda e encorajamento maternal. Mundo: '${worldName || 'Sem nome'}'. Fruto atual: ${fruit.num} — ${fruit.name}. Responda em português brasileiro. Seja específica, criativa e encantada com a criação do usuário. Foque sua resposta no campo "${fieldLabel}". Comente sobre como esse detalhe está enriquecendo o mundo.`;
-      const userMsg = aiHelpQuestion.trim()
-        ? `Contexto do Fruto:\n${context}\n\nCampo: ${fieldLabel}\nPergunta: ${aiHelpQuestion}`
-        : `Contexto do Fruto:\n${context}\n\nMe ajude a preencher o campo "${fieldLabel}" com sugestões criativas e detalhadas.`;
-      const response = await callAIText(
-        [{ role: 'user', content: userMsg }],
-        systemPrompt
-      );
-      setAiHelpResponse(response);
-      setRefreshKey(k => k + 1);
-    } catch (e: any) {
-      setAiHelpResponse(`❌ ${e.message}`);
-    } finally {
-      setAiHelpLoading(false);
-    }
-  };
-
-  const toggleAiHelp = (fieldId: string) => {
-    if (aiHelpField === fieldId) {
-      setAiHelpField(null);
-      setAiHelpQuestion('');
-      setAiHelpResponse('');
-    } else {
-      setAiHelpField(fieldId);
-      setAiHelpQuestion('');
-      setAiHelpResponse('');
-    }
-  };
-
   const selectFruit = (id: number) => {
     setCurrentFruit(id);
     setAiResponse('');
     setAiQuestion('');
     setActiveChip(null);
-    setAiHelpField(null);
-    setAiHelpQuestion('');
-    setAiHelpResponse('');
   };
 
   const navigateFruit = (dir: -1 | 1) => {
@@ -316,32 +268,17 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               );
             })()}
 
-            {/* Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            {/* Fields — simplified, no per-field AI buttons */}
+            <div className="space-y-4 mb-8">
               {fruit.fields.map(field => {
                 const isMagictype = currentFruit === 4 && field.id === 'magictype';
                 const entryType = getEntryTypeForField(currentFruit, field.id);
 
                 return (
-                  <div key={field.id} className={field.type === 'textarea' ? 'md:col-span-2' : ''}>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold">
-                        {field.label}
-                      </label>
-                      {!isMagictype && (
-                        <button
-                          onClick={() => toggleAiHelp(field.id)}
-                          className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-montserrat font-bold transition-all ${
-                            aiHelpField === field.id
-                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 shadow-[0_0_8px_rgba(16,185,129,0.3)]'
-                              : 'text-emerald-400/60 hover:text-emerald-300 hover:bg-emerald-500/10 border border-transparent hover:border-emerald-400/20'
-                          }`}
-                        >
-                          <span className={`text-sm ${aiHelpField === field.id ? 'animate-pulse' : ''}`} style={{ filter: aiHelpField === field.id ? 'drop-shadow(0 0 4px rgba(16,185,129,0.8))' : 'drop-shadow(0 0 2px rgba(16,185,129,0.4))' }}>🌿</span>
-                          Solicitar Ajuda de Idriel
-                        </button>
-                      )}
-                    </div>
+                  <div key={field.id}>
+                    <label className="block text-[11px] uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">
+                      {field.label}
+                    </label>
 
                     {isMagictype ? (
                       <select
@@ -374,54 +311,18 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                             value={db[currentFruit]?.[field.id] || ''}
                             onChange={e => updateField(currentFruit, field.id, e.target.value)}
                             placeholder={field.ph}
-                            rows={4}
+                            rows={3}
                             className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-0 rounded-t-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-blue-bright/50 resize-y"
                           />
                         )}
                       </CreateFichaButton>
-                    )}
-
-                    {aiHelpField === field.id && (
-                      <div className="animate-fadeUp mt-2 p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/[0.04]">
-                        <div className="flex flex-col sm:flex-row gap-2 mb-2">
-                          <input
-                            type="text"
-                            value={aiHelpQuestion}
-                            onChange={e => setAiHelpQuestion(e.target.value)}
-                            onKeyDown={e => e.key === 'Enter' && handleFieldAiHelp(field.label)}
-                            placeholder={`Pergunte algo a Idriel sobre "${field.label}"…`}
-                            className="flex-1 bg-[rgba(4,12,24,0.6)] border border-emerald-500/20 rounded-md px-3 py-1.5 text-xs text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/60 focus:outline-none focus:border-emerald-400/40"
-                          />
-                          <button
-                            onClick={() => handleFieldAiHelp(field.label)}
-                            disabled={aiHelpLoading}
-                            className="px-3 py-1.5 bg-emerald-600/80 hover:bg-emerald-500 text-white rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
-                          >
-                            🌿 {aiHelpQuestion.trim() ? 'Perguntar' : 'Sugerir'}
-                          </button>
-                        </div>
-                        {aiHelpLoading && (
-                          <div className="flex items-center gap-1 text-emerald-400/70 text-xs">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-bounce" />
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-bounce-2" />
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-bounce-3" />
-                            <span className="ml-2 font-merriweather italic text-[10px]">Idriel está refletindo…</span>
-                          </div>
-                        )}
-                        {aiHelpResponse && !aiHelpLoading && (
-                          <div className="border-l-2 border-emerald-500/40 pl-3 py-2 bg-emerald-500/[0.03] rounded-r-md">
-                            <span className="font-cinzel text-[9px] text-emerald-400 block mb-1">🌿 Idriel sussurra</span>
-                            <p className="font-merriweather text-xs text-foreground whitespace-pre-wrap leading-relaxed">{aiHelpResponse}</p>
-                          </div>
-                        )}
-                      </div>
                     )}
                   </div>
                 );
               })}
             </div>
 
-            {/* AI Assistant — Idriel */}
+            {/* Unified AI Assistant — Idriel */}
             <div className="border-t border-emerald-500/15 pt-6">
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-blink" />
@@ -453,7 +354,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                   value={aiQuestion}
                   onChange={e => setAiQuestion(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && aiQuestion.trim() && handleConsult()}
-                  placeholder="Faça uma pergunta a Idriel…"
+                  placeholder="Faça uma pergunta a Idriel sobre este fruto…"
                   className="flex-1 bg-[rgba(4,12,24,0.6)] border border-emerald-500/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-emerald-400/50"
                 />
                 <button
