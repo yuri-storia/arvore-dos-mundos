@@ -363,7 +363,7 @@ Seja construtiva, encorajadora mas honesta. Use exemplos concretos das entradas 
             <button
               onClick={handleAnalyze}
               disabled={!canAnalyze || sub.loading}
-              className="px-5 py-2.5 bg-gradient-to-r from-violet-600 via-blue-500 to-emerald-500 hover:from-violet-500 hover:via-blue-400 hover:to-emerald-400 text-white rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+              className="px-5 py-2.5 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_hsl(var(--idriel)/0.3)] hover:shadow-[0_0_30px_hsl(var(--idriel)/0.5)] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
             >
               🌳 Consultar {IDRIEL_NAME} sobre {entries.length} entrada{entries.length !== 1 ? 's' : ''}
             </button>
