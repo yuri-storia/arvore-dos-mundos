@@ -171,6 +171,50 @@ export type Database = {
           },
         ]
       }
+      free_writings: {
+        Row: {
+          chapter_id: string | null
+          content: string | null
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+          word_count: number
+          world_id: string
+        }
+        Insert: {
+          chapter_id?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+          word_count?: number
+          world_id: string
+        }
+        Update: {
+          chapter_id?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          word_count?: number
+          world_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "free_writings_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       manuscripts: {
         Row: {
           created_at: string
@@ -243,6 +287,7 @@ export type Database = {
           created_at: string
           id: string
           sort_order: number
+          status: string
           title: string
           updated_at: string
           user_id: string
@@ -254,6 +299,7 @@ export type Database = {
           created_at?: string
           id?: string
           sort_order?: number
+          status?: string
           title?: string
           updated_at?: string
           user_id: string
@@ -265,6 +311,7 @@ export type Database = {
           created_at?: string
           id?: string
           sort_order?: number
+          status?: string
           title?: string
           updated_at?: string
           user_id?: string

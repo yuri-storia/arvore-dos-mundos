@@ -23,6 +23,8 @@ export interface Chapter {
   updated_at: string;
 }
 
+export type SceneStatus = 'ideia' | 'rascunho' | 'revisao' | 'pronto';
+
 export interface Scene {
   id: string;
   chapter_id: string;
@@ -30,6 +32,7 @@ export interface Scene {
   content: string;
   word_count: number;
   sort_order: number;
+  status: SceneStatus;
   created_at: string;
   updated_at: string;
 }
@@ -168,7 +171,7 @@ export function useManuscript(worldId?: string) {
     return sc;
   }, [user, scenes]);
 
-  const updateScene = useCallback(async (id: string, updates: Partial<Pick<Scene, 'title' | 'content' | 'sort_order'>>) => {
+  const updateScene = useCallback(async (id: string, updates: Partial<Pick<Scene, 'title' | 'content' | 'sort_order' | 'status'>>) => {
     const finalUpdates: any = { ...updates };
     if (updates.content !== undefined) {
       finalUpdates.word_count = countWords(updates.content);
