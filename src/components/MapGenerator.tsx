@@ -166,8 +166,8 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
       {/* Generated prompt */}
       {generatedPrompt && !loadingPrompt && (
         <div className="animate-fadeUp mb-4">
-          <div className="border-l-[3px] border-cyan-400 pl-4 py-3 bg-cyan-500/5 rounded-r-md">
-            <span className="font-cinzel text-[10px] text-cyan-300 block mb-2">🌿 Visão de Idriel — Prompt do Mapa</span>
+          <div className="border-l-[3px] border-idriel-light pl-4 py-3 bg-idriel/[0.04] rounded-r-md">
+            <span className="font-cinzel text-[10px] text-idriel-light block mb-2">🌿 Visão de Idriel — Prompt do Mapa</span>
             <p className="font-merriweather text-xs text-text-secondary leading-relaxed mb-3">{generatedPrompt}</p>
             <button
               onClick={handleGenerateImage}
