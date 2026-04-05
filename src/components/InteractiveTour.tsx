@@ -183,6 +183,16 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
 
   const currentStep = TOUR_STEPS[step];
 
+  // Lock body scroll during tour
+  useEffect(() => {
+    if (active) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [active]);
+
   // Handle delay for steps that need it (after tab switch)
   useEffect(() => {
     if (!active) return;
