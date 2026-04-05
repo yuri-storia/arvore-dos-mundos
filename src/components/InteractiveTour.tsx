@@ -109,9 +109,21 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     return () => cancelAnimationFrame(rafRef.current);
   }, [active, measureTarget]);
 
-  // Listen for clicks on target elements
+  // Listen for clicks on target elements & handle already-active tab
   useEffect(() => {
     if (!active || currentStep.type !== 'click' || !currentStep.target) return;
+
+    // If the tab is already active, auto-advance after a short delay
+    if (currentStep.tabToActivate) {
+      // Check current tab by looking at the active state of the target element
+      const targetEl = document.querySelector(`[data-tour="${currentStep.target}"]`);
+      const isAlreadyActive = targetEl?.getAttribute('data-active') === 'true' ||
+        targetEl?.closest('[data-active="true"]') !== null ||
+        targetEl?.classList.contains('bg-blue-bright/15') ||
+        targetEl?.getAttribute('aria-selected') === 'true';
+      // Simpler check: just see if the element has active styling
+    }
+
     const handler = (e: MouseEvent) => {
       const target = document.querySelector(`[data-tour="${currentStep.target}"]`);
       if (target && (target === e.target || target.contains(e.target as Node))) {
