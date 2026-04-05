@@ -183,7 +183,7 @@ const Index = () => {
         <HelpDrawer tab={state.activeTab} />
 
         {/* Interactive Tour */}
-        <InteractiveTour active={tourActive} onFinish={() => setTourActive(false)} setActiveTab={setActiveTab} />
+        <InteractiveTour active={tourActive} onFinish={() => setTourActive(false)} setActiveTab={setActiveTab} setCurrentFruit={setCurrentFruit} />
 
         {/* Tour prompt after creating world */}
         {showTourPrompt && !tourActive && (
