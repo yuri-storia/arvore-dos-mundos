@@ -178,7 +178,7 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
               </div>
 
               <p className="font-merriweather italic text-[13px] text-text-secondary leading-relaxed">
-                Tem alguma dúvida sobre a Árvore dos Mundos? Pergunte — você tem <span className="text-idriel-light font-bold not-italic">{DAILY_LIMIT} perguntas por dia</span> 🌿
+                Tem alguma dúvida sobre a Árvore dos Mundos? Pergunte — você tem <span className="text-idriel-light font-bold not-italic">{DAILY_LIMIT} perguntas por dia</span> ✨
               </p>
 
               {/* Answer area */}

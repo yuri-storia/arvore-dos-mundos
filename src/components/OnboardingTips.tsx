@@ -107,7 +107,7 @@ export const OnboardingTips: React.FC<Props> = ({ tab }) => {
                 alt="Idriel"
                 className="w-14 h-14 rounded-full object-cover border-2 border-idriel/50 animate-idriel-pulse"
               />
-              <div className="absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 rounded-full bg-idriel flex items-center justify-center text-[9px]">🌿</div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 rounded-full bg-idriel flex items-center justify-center text-[9px]">✨</div>
             </div>
             <div>
               <span className="font-cinzel font-bold text-base text-idriel-light block">Idriel</span>
