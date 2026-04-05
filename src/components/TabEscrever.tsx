@@ -454,8 +454,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                   <input value={editingTitle} onChange={e => setEditingTitle(e.target.value)} onBlur={handleSceneTitleSave}
                     className="bg-transparent font-montserrat font-bold text-sm text-foreground border-none focus:outline-none flex-1"
                     placeholder="Título da cena" />
-                  <PomodoroTimer />
-                  <span className="text-[10px] font-mono text-text-dim">{sceneWordCount} palavras</span>
+                   <span className="text-[11px] font-mono text-text-dim bg-white/[0.04] px-2 py-0.5 rounded">{sceneWordCount} palavras</span>
                   <button onClick={() => setZenMode(!zenMode)}
                     className={`p-1.5 rounded hover:bg-white/[0.05] transition-colors ${zenMode ? 'text-blue-light' : 'text-text-dim hover:text-foreground'}`}
                     title={zenMode ? 'Sair do modo foco' : 'Modo foco'}>
