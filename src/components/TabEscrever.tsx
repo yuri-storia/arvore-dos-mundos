@@ -7,57 +7,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import {
   Plus, ChevronRight, ChevronDown, Trash2, FileText, BookOpen,
-  PanelRightOpen, PanelRightClose, Timer, TimerOff, StickyNote,
-  Search, X, BookMarked, PenLine
+  PanelRightOpen, PanelRightClose, StickyNote, Search, BookMarked, PenLine,
+  LayoutGrid, Feather
 } from 'lucide-react';
 import { FRUITS } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
+import { KanbanBoard } from '@/components/escritor/KanbanBoard';
+import { FreeWritingView } from '@/components/escritor/FreeWritingView';
 
 interface Props {
   worldId: string;
   worlds: WorldRecord[];
 }
 
-// ── Pomodoro Timer ──
-const PomodoroTimer: React.FC = () => {
-  const [running, setRunning] = useState(false);
-  const [seconds, setSeconds] = useState(25 * 60);
-  const [isBreak, setIsBreak] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    if (!running) { if (intervalRef.current) clearInterval(intervalRef.current); return; }
-    intervalRef.current = setInterval(() => {
-      setSeconds(prev => {
-        if (prev <= 1) {
-          setRunning(false);
-          setIsBreak(b => !b);
-          return isBreak ? 25 * 60 : 5 * 60;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [running, isBreak]);
-
-  const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
-  const ss = String(seconds % 60).padStart(2, '0');
-
-  return (
-    <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-white/[0.03] border border-blue-bright/10">
-      <button onClick={() => setRunning(!running)} className="text-blue-light hover:text-blue-bright transition-colors">
-        {running ? <TimerOff className="w-3.5 h-3.5" /> : <Timer className="w-3.5 h-3.5" />}
-      </button>
-      <span className={`font-mono text-xs tabular-nums ${isBreak ? 'text-green-400' : 'text-blue-light'}`}>
-        {mm}:{ss}
-      </span>
-      <span className="text-[9px] text-text-dim uppercase">{isBreak ? 'Pausa' : 'Foco'}</span>
-    </div>
-  );
-};
+type WriteMode = 'manuscrito' | 'kanban' | 'livre';
 
 // ── Reference Panel (Codex sidebar) ──
 const ReferencePanel: React.FC<{ entries: CodexEntry[]; onInsertMention: (name: string) => void }> = ({ entries, onInsertMention }) => {
@@ -67,7 +32,6 @@ const ReferencePanel: React.FC<{ entries: CodexEntry[]; onInsertMention: (name: 
     const q = search.toLowerCase();
     return entries.filter(e => e.title.toLowerCase().includes(q) || e.content?.toLowerCase().includes(q));
   }, [entries, search]);
-
   const fichas = filtered.filter(e => e.entry_type === 'ficha');
   const artigos = filtered.filter(e => e.entry_type === 'artigo');
 
@@ -79,12 +43,8 @@ const ReferencePanel: React.FC<{ entries: CodexEntry[]; onInsertMention: (name: 
         </h3>
         <div className="relative">
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-text-dim" />
-          <Input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Buscar fichas e artigos…"
-            className="h-7 pl-7 text-xs bg-white/[0.03] border-blue-bright/10"
-          />
+          <Input value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar fichas e artigos…" className="h-7 pl-7 text-xs bg-white/[0.03] border-blue-bright/10" />
         </div>
       </div>
       <ScrollArea className="flex-1">
@@ -95,11 +55,8 @@ const ReferencePanel: React.FC<{ entries: CodexEntry[]; onInsertMention: (name: 
               {fichas.map(e => {
                 const fruit = FRUITS.find(f => f.id === e.fruit_id);
                 return (
-                  <button
-                    key={e.id}
-                    onClick={() => onInsertMention(e.title)}
-                    className="w-full text-left px-2 py-1.5 rounded text-xs hover:bg-blue-bright/10 transition-colors group"
-                  >
+                  <button key={e.id} onClick={() => onInsertMention(e.title)}
+                    className="w-full text-left px-2 py-1.5 rounded text-xs hover:bg-blue-bright/10 transition-colors group">
                     <span className="text-blue-light group-hover:text-blue-bright">{e.title}</span>
                     {fruit && <span className="text-[9px] text-text-dim ml-1.5">{fruit.icon}</span>}
                   </button>
@@ -111,19 +68,14 @@ const ReferencePanel: React.FC<{ entries: CodexEntry[]; onInsertMention: (name: 
             <>
               <p className="text-[9px] font-montserrat uppercase tracking-widest text-text-dim px-2 pt-2">Artigos</p>
               {artigos.map(e => (
-                <button
-                  key={e.id}
-                  onClick={() => onInsertMention(e.title)}
-                  className="w-full text-left px-2 py-1.5 rounded text-xs hover:bg-gold/10 transition-colors group"
-                >
+                <button key={e.id} onClick={() => onInsertMention(e.title)}
+                  className="w-full text-left px-2 py-1.5 rounded text-xs hover:bg-gold/10 transition-colors group">
                   <span className="text-gold-light group-hover:text-gold">{e.title}</span>
                 </button>
               ))}
             </>
           )}
-          {filtered.length === 0 && (
-            <p className="text-xs text-text-dim text-center py-6">Nenhuma entrada encontrada.</p>
-          )}
+          {filtered.length === 0 && <p className="text-xs text-text-dim text-center py-6">Nenhuma entrada encontrada.</p>}
         </div>
       </ScrollArea>
     </div>
@@ -142,20 +94,14 @@ const MentionPopup: React.FC<{
     const q = query.toLowerCase();
     return entries.filter(e => e.title.toLowerCase().includes(q)).slice(0, 8);
   }, [entries, query]);
-
   if (filtered.length === 0) return null;
 
   return (
-    <div
-      className="absolute z-50 bg-[#0d1520] border border-blue-bright/20 rounded-lg shadow-xl py-1 min-w-[200px] max-w-[280px]"
-      style={{ top: position.top, left: position.left }}
-    >
+    <div className="absolute z-50 bg-[#0d1520] border border-blue-bright/20 rounded-lg shadow-xl py-1 min-w-[200px] max-w-[280px]"
+      style={{ top: position.top, left: position.left }}>
       {filtered.map(e => (
-        <button
-          key={e.id}
-          onClick={() => { onSelect(e.title); onClose(); }}
-          className="w-full text-left px-3 py-1.5 text-xs hover:bg-blue-bright/10 transition-colors flex items-center gap-2"
-        >
+        <button key={e.id} onClick={() => { onSelect(e.title); onClose(); }}
+          className="w-full text-left px-3 py-1.5 text-xs hover:bg-blue-bright/10 transition-colors flex items-center gap-2">
           <span className={e.entry_type === 'ficha' ? 'text-blue-light' : 'text-gold-light'}>{e.title}</span>
           <span className="text-[9px] text-text-dim">{e.entry_type}</span>
         </button>
@@ -177,6 +123,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   } = useManuscript(worldId);
   const { entries } = useCodexEntries(worldId);
 
+  const [writeMode, setWriteMode] = useState<WriteMode>('manuscrito');
   const [activeSceneId, setActiveSceneId] = useState<string | null>(null);
   const [expandedChapters, setExpandedChapters] = useState<Set<string>>(new Set());
   const [showRefPanel, setShowRefPanel] = useState(!isMobile);
@@ -193,7 +140,6 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     return chapters.find(c => c.id === activeScene.chapter_id);
   }, [activeScene, chapters]);
 
-  // Load scene content when selected
   useEffect(() => {
     if (activeScene) {
       setEditingContent(activeScene.content || '');
@@ -201,29 +147,21 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     }
   }, [activeSceneId]); // eslint-disable-line
 
-  // Auto-save with debounce
   const debouncedSave = useCallback((id: string, content: string) => {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => {
-      updateScene(id, { content });
-    }, 1500);
+    saveTimerRef.current = setTimeout(() => updateScene(id, { content }), 1500);
   }, [updateScene]);
 
   const handleContentChange = (value: string) => {
     setEditingContent(value);
     if (activeSceneId) debouncedSave(activeSceneId, value);
-
-    // Check for @mention
     const textarea = editorRef.current;
     if (!textarea) return;
     const cursor = textarea.selectionStart;
     const textBefore = value.substring(0, cursor);
     const atMatch = textBefore.match(/@(\w*)$/);
-    if (atMatch) {
-      setMentionState({ active: true, query: atMatch[1], pos: { top: 40, left: 20 } });
-    } else {
-      setMentionState(prev => ({ ...prev, active: false }));
-    }
+    if (atMatch) setMentionState({ active: true, query: atMatch[1], pos: { top: 40, left: 20 } });
+    else setMentionState(prev => ({ ...prev, active: false }));
   };
 
   const handleMentionSelect = (name: string) => {
@@ -236,11 +174,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     setEditingContent(newContent);
     if (activeSceneId) debouncedSave(activeSceneId, newContent);
     setMentionState(prev => ({ ...prev, active: false }));
-    setTimeout(() => {
-      textarea.focus();
-      const newPos = atIdx + name.length + 1;
-      textarea.setSelectionRange(newPos, newPos);
-    }, 0);
+    setTimeout(() => { textarea.focus(); const newPos = atIdx + name.length + 1; textarea.setSelectionRange(newPos, newPos); }, 0);
   };
 
   const handleInsertMentionFromPanel = (name: string) => {
@@ -254,17 +188,11 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   };
 
   const toggleChapter = (id: string) => {
-    setExpandedChapters(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+    setExpandedChapters(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
   };
 
   const handleSceneTitleSave = () => {
-    if (activeSceneId && editingTitle.trim()) {
-      updateScene(activeSceneId, { title: editingTitle.trim() });
-    }
+    if (activeSceneId && editingTitle.trim()) updateScene(activeSceneId, { title: editingTitle.trim() });
   };
 
   const sceneWordCount = editingContent.trim() ? editingContent.trim().split(/\s+/).length : 0;
@@ -272,7 +200,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   if (!user) return <div className="text-center py-20 text-text-dim">Faça login para acessar.</div>;
   if (!worldId) return <div className="text-center py-20 text-text-dim">Selecione um mundo para começar a escrever.</div>;
 
-  // ── No manuscript yet ──
+  // No manuscript yet
   if (!activeManuscript) {
     return (
       <div className="mx-auto max-w-[600px] px-4 py-20 text-center">
@@ -292,198 +220,186 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <PenLine className="w-4 h-4 text-blue-light shrink-0" />
-          <input
-            value={activeManuscript.title}
+          <input value={activeManuscript.title}
             onChange={e => updateManuscript(activeManuscript.id, { title: e.target.value })}
             className="bg-transparent font-cinzel font-bold text-lg text-foreground border-none focus:outline-none min-w-0 flex-1"
-            placeholder="Título do manuscrito"
-          />
+            placeholder="Título do manuscrito" />
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <PomodoroTimer />
-          <span className="text-[10px] font-mono text-text-dim bg-white/[0.03] px-2 py-1 rounded border border-blue-bright/10">
+        <div className="flex items-center gap-1 shrink-0">
+          {/* Mode switcher */}
+          <div className="flex items-center bg-white/[0.03] rounded-md border border-blue-bright/10 p-0.5">
+            {[
+              { key: 'manuscrito' as WriteMode, icon: BookMarked, label: 'Manuscrito' },
+              { key: 'kanban' as WriteMode, icon: LayoutGrid, label: 'Quadro' },
+              { key: 'livre' as WriteMode, icon: Feather, label: 'Livre' },
+            ].map(m => (
+              <button key={m.key} onClick={() => setWriteMode(m.key)}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-montserrat uppercase tracking-wider transition-all ${
+                  writeMode === m.key ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'
+                }`}>
+                <m.icon className="w-3 h-3" />
+                {!isMobile && m.label}
+              </button>
+            ))}
+          </div>
+          <span className="text-[10px] font-mono text-text-dim bg-white/[0.03] px-2 py-1 rounded border border-blue-bright/10 ml-1">
             {totalWordCount.toLocaleString()} palavras
           </span>
-          <button
-            onClick={() => setShowRefPanel(!showRefPanel)}
-            className="p-1.5 rounded hover:bg-white/[0.05] text-text-dim hover:text-foreground transition-colors"
-            title={showRefPanel ? 'Fechar referências' : 'Abrir referências'}
-          >
-            {showRefPanel ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
-          </button>
         </div>
       </div>
 
-      <div className="flex gap-3 h-[calc(100vh-220px)] min-h-[400px]">
-        {/* ── LEFT: Chapter/Scene tree ── */}
-        <div className={`${isMobile ? 'w-full' : 'w-[220px]'} shrink-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && activeSceneId ? 'hidden' : ''}`}>
-          <div className="p-2 border-b border-blue-bright/10 flex items-center justify-between">
-            <span className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Capítulos</span>
-            <button
-              onClick={async () => { const ch = await createChapter(); if (ch) toggleChapter(ch.id); }}
-              className="p-1 rounded hover:bg-blue-bright/10 text-blue-light"
-              title="Novo capítulo"
-            >
-              <Plus className="w-3.5 h-3.5" />
-            </button>
-          </div>
-          <ScrollArea className="flex-1">
-            <div className="p-1.5 space-y-0.5">
-              {chapters.map((ch, ci) => {
-                const chScenes = scenes.filter(s => s.chapter_id === ch.id);
-                const expanded = expandedChapters.has(ch.id);
-                const chapterWords = chScenes.reduce((sum, s) => sum + s.word_count, 0);
-                return (
-                  <div key={ch.id}>
-                    <div className="flex items-center group">
-                      <button
-                        onClick={() => toggleChapter(ch.id)}
-                        className="p-0.5 text-text-dim hover:text-foreground"
-                      >
-                        {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                      </button>
-                      <button
-                        onClick={() => toggleChapter(ch.id)}
-                        className="flex-1 min-w-0 text-left px-1 py-1 text-xs font-montserrat font-bold text-foreground/80 hover:text-foreground truncate"
-                      >
-                        {ch.title}
-                      </button>
-                      <span className="text-[9px] text-text-dim/50 mr-1">{chapterWords}</span>
-                      <button
-                        onClick={() => setShowNotes(showNotes === ch.id ? null : ch.id)}
-                        className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-gold-light transition-all"
-                        title="Notas"
-                      >
-                        <StickyNote className="w-3 h-3" />
-                      </button>
-                      <button
-                        onClick={async () => await createScene(ch.id)}
-                        className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-blue-light transition-all"
-                        title="Nova cena"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </button>
-                      <button
-                        onClick={() => deleteChapter(ch.id)}
-                        className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all"
-                        title="Excluir capítulo"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                    {/* Chapter notes */}
-                    {showNotes === ch.id && (
-                      <div className="ml-5 mb-1">
-                        <Textarea
-                          value={ch.notes || ''}
-                          onChange={e => updateChapter(ch.id, { notes: e.target.value })}
-                          placeholder="Notas do capítulo…"
-                          className="text-[10px] min-h-[50px] bg-gold/[0.04] border-gold/20 text-gold-light placeholder:text-gold/30 resize-none"
-                        />
-                      </div>
-                    )}
-                    {/* Scenes */}
-                    {expanded && (
-                      <div className="ml-4 space-y-px">
-                        {chScenes.map(sc => (
-                          <div key={sc.id} className="flex items-center group/scene">
-                            <button
-                              onClick={() => setActiveSceneId(sc.id)}
-                              className={`flex-1 min-w-0 text-left px-2 py-1 rounded text-[11px] truncate transition-colors ${
-                                activeSceneId === sc.id
-                                  ? 'bg-blue-bright/15 text-blue-light'
-                                  : 'text-text-dim hover:text-foreground hover:bg-white/[0.03]'
-                              }`}
-                            >
-                              <FileText className="w-3 h-3 inline mr-1 opacity-50" />
-                              {sc.title}
-                            </button>
-                            <span className="text-[9px] text-text-dim/40 mr-1">{sc.word_count}</span>
-                            <button
-                              onClick={() => deleteScene(sc.id)}
-                              className="opacity-0 group-hover/scene:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all"
-                            >
-                              <Trash2 className="w-2.5 h-2.5" />
-                            </button>
-                          </div>
-                        ))}
-                        {chScenes.length === 0 && (
-                          <button
-                            onClick={() => createScene(ch.id)}
-                            className="w-full text-left px-2 py-1 text-[10px] text-text-dim/40 hover:text-blue-light transition-colors"
-                          >
-                            + Adicionar cena
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-              {chapters.length === 0 && (
-                <p className="text-xs text-text-dim text-center py-6">Crie seu primeiro capítulo.</p>
-              )}
-            </div>
-          </ScrollArea>
+      {/* ── KANBAN MODE ── */}
+      {writeMode === 'kanban' && (
+        <div className="h-[calc(100vh-220px)] min-h-[400px] bg-white/[0.02] rounded-lg border border-blue-bright/10">
+          <KanbanBoard
+            chapters={chapters}
+            scenes={scenes}
+            onUpdateScene={updateScene}
+            onSelectScene={(id) => { setActiveSceneId(id); setWriteMode('manuscrito'); }}
+            onCreateScene={createScene}
+          />
         </div>
+      )}
 
-        {/* ── CENTER: Editor ── */}
-        <div className={`flex-1 min-w-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && !activeSceneId ? 'hidden' : ''}`}>
-          {activeScene ? (
-            <>
-              <div className="p-3 border-b border-blue-bright/10 flex items-center gap-2">
-                {isMobile && (
-                  <button onClick={() => setActiveSceneId(null)} className="p-1 text-text-dim hover:text-foreground">
-                    <ChevronRight className="w-4 h-4 rotate-180" />
+      {/* ── FREE WRITING MODE ── */}
+      {writeMode === 'livre' && (
+        <div className="h-[calc(100vh-220px)] min-h-[400px]">
+          <FreeWritingView worldId={worldId} entries={entries} />
+        </div>
+      )}
+
+      {/* ── MANUSCRIPT MODE ── */}
+      {writeMode === 'manuscrito' && (
+        <div className="flex gap-3 h-[calc(100vh-220px)] min-h-[400px]">
+          {/* LEFT: Chapter/Scene tree */}
+          <div className={`${isMobile ? 'w-full' : 'w-[220px]'} shrink-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && activeSceneId ? 'hidden' : ''}`}>
+            <div className="p-2 border-b border-blue-bright/10 flex items-center justify-between">
+              <span className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Capítulos</span>
+              <button onClick={async () => { const ch = await createChapter(); if (ch) toggleChapter(ch.id); }}
+                className="p-1 rounded hover:bg-blue-bright/10 text-blue-light" title="Novo capítulo">
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <ScrollArea className="flex-1">
+              <div className="p-1.5 space-y-0.5">
+                {chapters.map((ch) => {
+                  const chScenes = scenes.filter(s => s.chapter_id === ch.id);
+                  const expanded = expandedChapters.has(ch.id);
+                  const chapterWords = chScenes.reduce((sum, s) => sum + s.word_count, 0);
+                  return (
+                    <div key={ch.id}>
+                      <div className="flex items-center group">
+                        <button onClick={() => toggleChapter(ch.id)} className="p-0.5 text-text-dim hover:text-foreground">
+                          {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                        </button>
+                        <button onClick={() => toggleChapter(ch.id)}
+                          className="flex-1 min-w-0 text-left px-1 py-1 text-xs font-montserrat font-bold text-foreground/80 hover:text-foreground truncate">
+                          {ch.title}
+                        </button>
+                        <span className="text-[9px] text-text-dim/50 mr-1">{chapterWords}</span>
+                        <button onClick={() => setShowNotes(showNotes === ch.id ? null : ch.id)}
+                          className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-gold-light transition-all" title="Notas">
+                          <StickyNote className="w-3 h-3" />
+                        </button>
+                        <button onClick={async () => await createScene(ch.id)}
+                          className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-blue-light transition-all" title="Nova cena">
+                          <Plus className="w-3 h-3" />
+                        </button>
+                        <button onClick={() => deleteChapter(ch.id)}
+                          className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all" title="Excluir capítulo">
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                      {showNotes === ch.id && (
+                        <div className="ml-5 mb-1">
+                          <Textarea value={ch.notes || ''} onChange={e => updateChapter(ch.id, { notes: e.target.value })}
+                            placeholder="Notas do capítulo…"
+                            className="text-[10px] min-h-[50px] bg-gold/[0.04] border-gold/20 text-gold-light placeholder:text-gold/30 resize-none" />
+                        </div>
+                      )}
+                      {expanded && (
+                        <div className="ml-4 space-y-px">
+                          {chScenes.map(sc => (
+                            <div key={sc.id} className="flex items-center group/scene">
+                              <button onClick={() => setActiveSceneId(sc.id)}
+                                className={`flex-1 min-w-0 text-left px-2 py-1 rounded text-[11px] truncate transition-colors ${
+                                  activeSceneId === sc.id ? 'bg-blue-bright/15 text-blue-light' : 'text-text-dim hover:text-foreground hover:bg-white/[0.03]'
+                                }`}>
+                                <FileText className="w-3 h-3 inline mr-1 opacity-50" />{sc.title}
+                              </button>
+                              <span className="text-[9px] text-text-dim/40 mr-1">{sc.word_count}</span>
+                              <button onClick={() => deleteScene(sc.id)}
+                                className="opacity-0 group-hover/scene:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all">
+                                <Trash2 className="w-2.5 h-2.5" />
+                              </button>
+                            </div>
+                          ))}
+                          {chScenes.length === 0 && (
+                            <button onClick={() => createScene(ch.id)}
+                              className="w-full text-left px-2 py-1 text-[10px] text-text-dim/40 hover:text-blue-light transition-colors">
+                              + Adicionar cena
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                {chapters.length === 0 && <p className="text-xs text-text-dim text-center py-6">Crie seu primeiro capítulo.</p>}
+              </div>
+            </ScrollArea>
+          </div>
+
+          {/* CENTER: Editor */}
+          <div className={`flex-1 min-w-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && !activeSceneId ? 'hidden' : ''}`}>
+            {activeScene ? (
+              <>
+                <div className="p-3 border-b border-blue-bright/10 flex items-center gap-2">
+                  {isMobile && (
+                    <button onClick={() => setActiveSceneId(null)} className="p-1 text-text-dim hover:text-foreground">
+                      <ChevronRight className="w-4 h-4 rotate-180" />
+                    </button>
+                  )}
+                  <input value={editingTitle} onChange={e => setEditingTitle(e.target.value)} onBlur={handleSceneTitleSave}
+                    className="bg-transparent font-montserrat font-bold text-sm text-foreground border-none focus:outline-none flex-1"
+                    placeholder="Título da cena" />
+                  <span className="text-[10px] font-mono text-text-dim">{sceneWordCount} palavras</span>
+                  <button onClick={() => setShowRefPanel(!showRefPanel)}
+                    className="p-1.5 rounded hover:bg-white/[0.05] text-text-dim hover:text-foreground transition-colors"
+                    title={showRefPanel ? 'Fechar referências' : 'Abrir referências'}>
+                    {showRefPanel ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
                   </button>
-                )}
-                <input
-                  value={editingTitle}
-                  onChange={e => setEditingTitle(e.target.value)}
-                  onBlur={handleSceneTitleSave}
-                  className="bg-transparent font-montserrat font-bold text-sm text-foreground border-none focus:outline-none flex-1"
-                  placeholder="Título da cena"
-                />
-                <span className="text-[10px] font-mono text-text-dim">{sceneWordCount} palavras</span>
+                </div>
+                <div className="flex-1 relative">
+                  <textarea ref={editorRef} value={editingContent} onChange={e => handleContentChange(e.target.value)}
+                    placeholder="Comece a escrever sua história aqui…&#10;&#10;Use @NomeDoPersonagem para inserir referências do Codex."
+                    className="w-full h-full resize-none bg-transparent text-foreground/90 font-merriweather text-sm leading-relaxed p-4 focus:outline-none placeholder:text-text-dim/30"
+                    style={{ minHeight: '100%' }} />
+                  {mentionState.active && (
+                    <MentionPopup entries={entries} query={mentionState.query} position={mentionState.pos}
+                      onSelect={handleMentionSelect} onClose={() => setMentionState(prev => ({ ...prev, active: false }))} />
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-center p-8">
+                <div>
+                  <FileText className="w-10 h-10 mx-auto mb-3 text-text-dim/30" />
+                  <p className="text-sm text-text-dim">Selecione uma cena para começar a escrever.</p>
+                  <p className="text-xs text-text-dim/50 mt-1">Ou crie um capítulo e adicione cenas.</p>
+                </div>
               </div>
-              <div className="flex-1 relative">
-                <textarea
-                  ref={editorRef}
-                  value={editingContent}
-                  onChange={e => handleContentChange(e.target.value)}
-                  placeholder="Comece a escrever sua história aqui…&#10;&#10;Use @NomeDoPersonagem para inserir referências do Codex."
-                  className="w-full h-full resize-none bg-transparent text-foreground/90 font-merriweather text-sm leading-relaxed p-4 focus:outline-none placeholder:text-text-dim/30"
-                  style={{ minHeight: '100%' }}
-                />
-                {mentionState.active && (
-                  <MentionPopup
-                    entries={entries}
-                    query={mentionState.query}
-                    position={mentionState.pos}
-                    onSelect={handleMentionSelect}
-                    onClose={() => setMentionState(prev => ({ ...prev, active: false }))}
-                  />
-                )}
-              </div>
-            </>
-          ) : (
-            <div className="flex-1 flex items-center justify-center text-center p-8">
-              <div>
-                <FileText className="w-10 h-10 mx-auto mb-3 text-text-dim/30" />
-                <p className="text-sm text-text-dim">Selecione uma cena para começar a escrever.</p>
-                <p className="text-xs text-text-dim/50 mt-1">Ou crie um capítulo e adicione cenas.</p>
-              </div>
+            )}
+          </div>
+
+          {/* RIGHT: Reference Panel */}
+          {showRefPanel && !isMobile && (
+            <div className="w-[240px] shrink-0 bg-white/[0.02] rounded-lg border border-blue-bright/10">
+              <ReferencePanel entries={entries} onInsertMention={handleInsertMentionFromPanel} />
             </div>
           )}
         </div>
-
-        {/* ── RIGHT: Reference Panel ── */}
-        {showRefPanel && !isMobile && (
-          <div className="w-[240px] shrink-0 bg-white/[0.02] rounded-lg border border-blue-bright/10">
-            <ReferencePanel entries={entries} onInsertMention={handleInsertMentionFromPanel} />
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 };
