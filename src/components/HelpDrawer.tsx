@@ -44,7 +44,7 @@ const TAB_TIPS: Record<string, { label: string; tips: Tip[] }> = {
     tips: [
       { icon: '🖼️', title: 'Referências visuais', desc: 'Faça upload de imagens de inspiração — concept arts, mapas, paisagens, personagens.' },
       { icon: '🏷️', title: 'Organize por Fruto', desc: 'Categorize suas imagens por Fruto para encontrá-las rapidamente.' },
-      { icon: '✨', title: 'Visões de Idriel', desc: 'Abra "Visões de Idriel" abaixo da galeria para gerar imagens com IA. Descreva e Idriel materializa — cada visão custa 5 gotas.' },
+      { icon: '✨', title: 'Visões de Idriel (plano completo)', desc: 'Abra "Visões de Idriel" abaixo da galeria para gerar imagens com IA. Descreva e Idriel materializa — cada visão custa 5 gotas. Recurso exclusivo do plano Template + Idriel.' },
       { icon: '🔎', title: 'Visualização ampliada', desc: 'Clique em qualquer imagem para ver em tela cheia.' },
     ],
   },
