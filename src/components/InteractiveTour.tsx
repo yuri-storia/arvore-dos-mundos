@@ -131,7 +131,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     type: 'outro',
     title: 'A jornada começa agora!',
-    desc: 'Agora você conhece cada ferramenta da Árvore, viajante. Comece pelo Fruto que mais te inspira — não existe ordem certa. E lembre-se: clique no "?" dourado para me chamar a qualquer momento. Que a Árvore ilumine o seu caminho! ✨',
+    desc: 'Agora você conhece cada ferramenta da Árvore, viajante. Comece pelo Fruto que mais te inspira — não existe ordem certa. E lembre-se: clique na minha imagem no canto inferior direito para me chamar a qualquer momento. Que a Árvore ilumine o seu caminho! ✨',
     icon: '🌟',
   },
 ];
