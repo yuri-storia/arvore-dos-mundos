@@ -158,8 +158,23 @@ export function useSubscription(): SubscriptionInfo {
   return info;
 }
 
-export async function openCheckout(priceId: string, mode: 'subscription' | 'payment' = 'subscription') {
-  const { data, error } = await supabase.functions.invoke('create-checkout', {
+// Placeholder — will be replaced by Asaas integration
+export async function openCheckout(planId: string) {
+  console.log('Checkout will be handled by Asaas. Plan:', planId);
+  // TODO: Implement Asaas checkout
+}
+
+export async function openCustomerPortal() {
+  console.log('Customer portal will be handled by Asaas');
+  // TODO: Implement Asaas portal
+}
+
+// Legacy compat alias
+export const STRIPE_PLANS = {
+  idriel_mensal: { price_id: PLANS.idriel_mensal.id },
+  template_anual: { price_id: PLANS.raiz_anual.id },
+  recarga_seiva: { price_id: PLANS.recarga_seiva.id },
+};
     body: { priceId, mode },
   });
   if (error) throw new Error(error.message);
