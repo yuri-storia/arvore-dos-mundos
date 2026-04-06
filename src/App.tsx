@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import LoginPage from "./pages/LoginPage";
+import LandingPage from "./pages/LandingPage";
 import AdminPage from "./pages/AdminPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
