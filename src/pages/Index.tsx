@@ -18,6 +18,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import type { AppState, TabType, MethodType, GalleryImage } from '@/lib/data';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 
 const LAST_WORLD_STORAGE = 'adm_last_world';
 
