@@ -79,6 +79,21 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
 
   const handleCreate = async () => {
     if (!newTitle.trim() || newFruit === null) return;
+    
+    // Check plan limits
+    const fichaCount = entries.filter(e => e.entry_type !== 'artigo').length;
+    const artigoCount = entries.filter(e => e.entry_type === 'artigo').length;
+    const isFicha = createKind !== 'artigo';
+    
+    if (isFicha && fichaCount >= planLimits.maxFichas) {
+      toast.error(`O plano ${planLimits.planLabel} permite apenas ${planLimits.maxFichas} fichas. Faça upgrade para criar mais!`);
+      return;
+    }
+    if (!isFicha && artigoCount >= planLimits.maxArtigos) {
+      toast.error(`O plano ${planLimits.planLabel} permite apenas ${planLimits.maxArtigos} artigo. Faça upgrade para criar mais!`);
+      return;
+    }
+    
     await createEntry({
       title: newTitle,
       content: newContent,
