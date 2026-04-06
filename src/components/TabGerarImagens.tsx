@@ -3,6 +3,7 @@ import { Lock } from 'lucide-react';
 import { STYLE_OPTIONS, IMAGE_TYPE_OPTIONS, TONE_OPTIONS, FRUITS, GalleryImage } from '@/lib/data';
 import { callAIText, callAIImage } from '@/lib/helpers';
 import { useSubscription } from '@/hooks/useSubscription';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 import type { AppState } from '@/lib/data';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 
