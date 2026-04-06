@@ -171,7 +171,7 @@ export const SubscriptionBanner: React.FC = () => {
             <div className="flex items-center gap-3">
               {(isEmpty || isLow) && (
                 <button
-                  onClick={() => handleCheckout('recarga_seiva', 'payment')}
+                  onClick={() => handleCheckout('recarga_seiva')}
                   disabled={!!loading}
                   className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light bg-gold/[0.08] hover:bg-gold/[0.18] transition-all"
                 >
