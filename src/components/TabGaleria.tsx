@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { callAIText, callAIImage } from '@/lib/helpers';
 import { useSubscription } from '@/hooks/useSubscription';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sparkles, Lock, ChevronDown, ChevronUp } from 'lucide-react';
@@ -22,6 +23,7 @@ interface Props {
 export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGeneratedPrompt, addToGallery }) => {
   const { user } = useAuth();
   const sub = useSubscription();
+  const planLimits = usePlanLimits();
   const [filter, setFilter] = useState('Todos');
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -100,7 +102,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   };
 
   const handleCreatePrompt = async () => {
-    if (!sub.hasIdriel) return;
+    if (!planLimits.canUseAI) return;
     if (!desc.trim()) { setError('Descreva a visão que deseja materializar.'); return; }
     setError('');
     setLoading1(true);
@@ -118,7 +120,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   };
 
   const handleGenerate = async () => {
-    if (!sub.hasIdriel || !generatedPrompt) return;
+    if (!planLimits.canUseAI || !generatedPrompt) return;
     setError('');
     setLoading2(true);
     try {
@@ -283,7 +285,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
       {showGenerator && (
         <div className="animate-fadeUp">
           {/* Idriel lock CTA — Fruto Dourado Trancado */}
-          {!sub.hasIdriel ? (
+          {!planLimits.canUseAI ? (
             <div className="relative rounded-xl overflow-hidden border border-gold/20 mb-6">
               {/* Blurred preview background */}
               <div className="absolute inset-0 bg-gradient-to-br from-gold/[0.04] via-background/80 to-gold/[0.02]" />
@@ -431,7 +433,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
           )}
 
           {/* Generated prompt */}
-          {generatedPrompt && !loading1 && sub.hasIdriel && (
+          {generatedPrompt && !loading1 && planLimits.canUseAI && (
             <div className="animate-fadeUp card-glass rounded-lg p-5 mb-5 border border-gold/20">
               <span className="font-cinzel text-[10px] text-gold-light block mb-2">🌿 Visão tecida por Idriel</span>
               <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed mb-4">{generatedPrompt}</p>

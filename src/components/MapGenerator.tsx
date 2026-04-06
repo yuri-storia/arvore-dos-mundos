@@ -3,6 +3,7 @@ import { Map, Compass, Mountain, Anchor, Building2, Globe, Sparkles, Lock } from
 import { callAIText, callAIImage } from '@/lib/helpers';
 import { FRUITS, GalleryImage, GALLERY_CATEGORIES } from '@/lib/data';
 import { useSubscription } from '@/hooks/useSubscription';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 
 const MAP_STYLES = [
@@ -21,6 +22,7 @@ interface Props {
 
 export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
   const sub = useSubscription();
+  const planLimits = usePlanLimits();
   const [selectedStyle, setSelectedStyle] = useState<string>('explorer');
   const [customDesc, setCustomDesc] = useState('');
   const [generatedPrompt, setGeneratedPrompt] = useState('');
@@ -54,7 +56,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
   };
 
   const handleGeneratePrompt = async () => {
-    if (!sub.hasIdriel) { setError('🌿 Idriel precisa do plano ativo para canalizar a Seiva Dourada.'); return; }
+    if (!planLimits.canUseAI) { setError('🌿 Idriel precisa do plano ativo para canalizar a Seiva Dourada.'); return; }
     setError('');
     setLoadingPrompt(true);
     setGeneratedPrompt('');
@@ -109,7 +111,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
       </div>
 
       {/* Fruto Dourado lock for map generation */}
-      {!sub.hasIdriel ? (
+      {!planLimits.canUseAI ? (
         <div className="relative rounded-xl overflow-hidden border border-gold/20 mb-4">
           <div className="absolute inset-0 bg-gradient-to-br from-gold/[0.04] via-background/80 to-gold/[0.02]" />
           <div className="relative p-5 text-center">

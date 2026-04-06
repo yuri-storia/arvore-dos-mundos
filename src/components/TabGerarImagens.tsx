@@ -3,6 +3,7 @@ import { Lock } from 'lucide-react';
 import { STYLE_OPTIONS, IMAGE_TYPE_OPTIONS, TONE_OPTIONS, FRUITS, GalleryImage } from '@/lib/data';
 import { callAIText, callAIImage } from '@/lib/helpers';
 import { useSubscription } from '@/hooks/useSubscription';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 import type { AppState } from '@/lib/data';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 
@@ -15,6 +16,7 @@ interface Props {
 export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, addToGallery }) => {
   const { worldName, db, generatedPrompt } = state;
   const sub = useSubscription();
+  const planLimits = usePlanLimits();
   const [desc, setDesc] = useState('');
   const [style, setStyle] = useState(STYLE_OPTIONS[0]);
   const [imgType, setImgType] = useState(IMAGE_TYPE_OPTIONS[0]);
@@ -43,7 +45,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   };
 
   const handleCreatePrompt = async () => {
-    if (!sub.hasIdriel) { setError('🌿 Idriel precisa do plano mensal para canalizar a Seiva Dourada. Faça o upgrade!'); return; }
+    if (!planLimits.canUseAI) { setError('🌿 Idriel precisa do plano mensal para canalizar a Seiva Dourada. Faça o upgrade!'); return; }
     if (!desc.trim()) { setError('Descreva a visão que deseja materializar.'); return; }
     setError('');
     setLoading1(true);
@@ -64,7 +66,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   };
 
   const handleGenerate = async () => {
-    if (!sub.hasIdriel) { setError('🌿 Idriel precisa do plano mensal para materializar visões. Faça o upgrade!'); return; }
+    if (!planLimits.canUseAI) { setError('🌿 Idriel precisa do plano mensal para materializar visões. Faça o upgrade!'); return; }
     if (!generatedPrompt) return;
     setError('');
     setLoading2(true);
@@ -108,7 +110,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
         Idriel canaliza a Seiva Dourada da Árvore para materializar as visões do seu mundo · Descreva e ela dará forma
       </p>
 
-      {!sub.hasIdriel && (
+      {!planLimits.canUseAI && (
         <div className="card-glass rounded-lg p-4 mb-5 border-l-[3px] border-l-gold/60">
           <div className="flex items-center gap-2 mb-2">
             <Lock className="w-4 h-4 text-gold-light" />
@@ -177,14 +179,14 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
         <div className="flex flex-wrap items-center gap-3 mt-5">
           <button
             onClick={handleCreatePrompt}
-            disabled={loading1 || !sub.hasIdriel}
+            disabled={loading1 || !planLimits.canUseAI}
             className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold text-gold-light hover:bg-gold/10 disabled:opacity-40 transition-all"
           >
             {loading1 ? '🌿 Idriel está tecendo…' : '🌿 1. Pedir Visão a Idriel'}
           </button>
           <button
             onClick={handleGenerate}
-            disabled={loading2 || !generatedPrompt || !sub.hasIdriel}
+            disabled={loading2 || !generatedPrompt || !planLimits.canUseAI}
             className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-all"
           >
             {loading2 ? '✨ Materializando…' : '✨ 2. Materializar Visão'}
