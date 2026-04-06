@@ -3,6 +3,7 @@ import { Map, Compass, Mountain, Anchor, Building2, Globe, Sparkles, Lock } from
 import { callAIText, callAIImage } from '@/lib/helpers';
 import { FRUITS, GalleryImage, GALLERY_CATEGORIES } from '@/lib/data';
 import { useSubscription } from '@/hooks/useSubscription';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 
 const MAP_STYLES = [
