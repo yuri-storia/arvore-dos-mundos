@@ -405,8 +405,23 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                   </div>
                 )}
               </div>
+            ) : (
+              <div className="border-t border-idriel/15 pt-6">
+                <div className="rounded-xl border border-gold/20 bg-gold/[0.04] p-5 text-center">
+                  <span className="text-2xl block mb-2">🌳</span>
+                  <h4 className="font-cinzel font-bold text-sm text-gold-light mb-1">Consultar Idriel</h4>
+                  <p className="font-merriweather italic text-text-dim text-xs mb-3">
+                    A Guardiã da Árvore aguarda seu chamado — disponível no plano Idriel.
+                  </p>
+                  <button
+                    onClick={() => navigate('/planos')}
+                    className="px-5 py-2 rounded-lg bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] text-[#1a0f00] font-montserrat font-bold text-xs uppercase tracking-wider hover:shadow-[0_0_20px_rgba(218,165,32,0.3)] transition-all"
+                  >
+                    ✨ Conhecer planos
+                  </button>
+                </div>
+              </div>
             )}
-
             {/* Navigation */}
             <div className="flex justify-between items-center mt-8 pt-5 border-t border-blue-bright/15">
               <button
