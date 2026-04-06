@@ -139,12 +139,21 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
       <div className="flex items-center justify-between mb-1">
         <h1 className="font-cinzel font-bold text-xl sm:text-2xl md:text-3xl text-foreground">📖 Codex</h1>
         <div className="flex gap-2">
-          {entries.length > 0 && (
+          {entries.length > 0 && planLimits.canExport && (
               <button
                 onClick={() => { setShowExport(!showExport); setExportSelectedFruitIds([]); }}
                 className="px-3 py-2 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_16px_hsl(var(--idriel)/0.4)] hover:shadow-[0_0_24px_hsl(var(--idriel)/0.6)]"
               >
                 📄 Exportar PDF
+              </button>
+          )}
+          {entries.length > 0 && !planLimits.canExport && (
+              <button
+                disabled
+                className="px-3 py-2 bg-muted/30 text-muted-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all cursor-not-allowed flex items-center gap-1.5"
+                title="Exportação disponível a partir do plano Raiz"
+              >
+                <Lock className="w-3 h-3" /> Exportar PDF
               </button>
           )}
           {/* Nova Entrada dropdown */}
