@@ -179,7 +179,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
         <div className="flex flex-wrap items-center gap-3 mt-5">
           <button
             onClick={handleCreatePrompt}
-            disabled={loading1 || !sub.hasIdriel}
+            disabled={loading1 || !planLimits.canUseAI}
             className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold text-gold-light hover:bg-gold/10 disabled:opacity-40 transition-all"
           >
             {loading1 ? '🌿 Idriel está tecendo…' : '🌿 1. Pedir Visão a Idriel'}
