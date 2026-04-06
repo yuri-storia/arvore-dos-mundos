@@ -18,6 +18,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import type { AppState, TabType, MethodType, GalleryImage } from '@/lib/data';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 
 const LAST_WORLD_STORAGE = 'adm_last_world';
 
@@ -37,6 +38,7 @@ const Index = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const { worlds, createWorld, updateWorld, deleteWorld } = useWorlds();
+  const planLimits = usePlanLimits();
   const [state, setState] = useState<AppState>(createNewState);
   const [tourActive, setTourActive] = useState(false);
   const [showTourPrompt, setShowTourPrompt] = useState(false);
@@ -113,13 +115,17 @@ const Index = () => {
 
   const handleCreateWorld = useCallback(async () => {
     if (!user) { toast.error('Faça login para criar um mundo'); return; }
+    if (worlds.length >= planLimits.maxWorlds) {
+      toast.error(`O plano ${planLimits.planLabel} permite apenas ${planLimits.maxWorlds} mundo. Faça upgrade para criar mais!`);
+      return;
+    }
     const record = await createWorld({ ...state, worldName: state.worldName || 'Mundo Sem Nome' } as AppState);
     if (record) {
       setState(s => ({ ...s, currentSaveId: record.id }));
       toast.success(`"${record.name}" criado com sucesso!`);
       setShowTourPrompt(true);
     }
-  }, [user, state, createWorld]);
+  }, [user, state, createWorld, worlds.length, planLimits]);
 
   const handleLoadWorld = useCallback((world: WorldRecord) => {
     setState(prev => ({

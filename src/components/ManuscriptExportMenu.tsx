@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Download, FileText, FileType, BookOpen, HelpCircle, X } from 'lucide-react';
+import { Download, FileText, FileType, BookOpen, HelpCircle, X, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { exportManuscriptPDF, exportManuscriptDOCX, exportManuscriptEPUB } from '@/lib/manuscriptExport';
 import type { Manuscript, Chapter, Scene } from '@/hooks/useManuscript';
 import { toast } from 'sonner';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 
 interface Props {
   manuscript: Manuscript;
@@ -35,6 +36,17 @@ const EXPORT_OPTIONS = [
 export const ManuscriptExportMenu: React.FC<Props> = ({ manuscript, chapters, scenes }) => {
   const [open, setOpen] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const planLimits = usePlanLimits();
+
+  if (!planLimits.canExport) {
+    return (
+      <Button variant="ghost" size="sm" disabled
+        className="text-muted-foreground gap-1.5 text-[11px] cursor-not-allowed" title="Exportação disponível a partir do plano Raiz">
+        <Lock className="w-3.5 h-3.5" />
+        <span className="hidden sm:inline">Exportar</span>
+      </Button>
+    );
+  }
 
   const handleExport = async (format: 'pdf' | 'docx' | 'kindle') => {
     try {

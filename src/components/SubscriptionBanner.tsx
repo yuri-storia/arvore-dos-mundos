@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSubscription, openCheckout, STRIPE_PLANS, openCustomerPortal } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
 import { Progress } from '@/components/ui/progress';
 import { Lock, Sparkles, CreditCard, X } from 'lucide-react';
 
@@ -7,12 +8,15 @@ const DISMISS_KEY = 'adm_sub_banner_dismissed';
 
 export const SubscriptionBanner: React.FC = () => {
   const sub = useSubscription();
+  const { isAdmin } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
   const [dismissed, setDismissed] = useState(() => {
     try { return sessionStorage.getItem(DISMISS_KEY) === '1'; } catch { return false; }
   });
 
   if (sub.loading) return null;
+  // Admins don't need the banner
+  if (isAdmin) return null;
 
   const handleDismiss = () => {
     setDismissed(true);
@@ -30,7 +34,7 @@ export const SubscriptionBanner: React.FC = () => {
     }
   };
 
-  // Not subscribed at all
+  // Not subscribed at all — Semente (free) user
   if (!sub.subscribed) {
     if (dismissed) return null;
     return (
@@ -41,21 +45,21 @@ export const SubscriptionBanner: React.FC = () => {
           </button>
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-lg">🌳</span>
+              <span className="text-lg">🌱</span>
               <div>
-                <span className="font-montserrat font-bold text-sm text-foreground">Bem-vindo à Árvore dos Mundos</span>
-                <span className="block text-xs text-text-dim">Escolha seu caminho para começar a criar mundos</span>
+                <span className="font-montserrat font-bold text-sm text-foreground">Plano Semente — Gratuito</span>
+                <span className="block text-xs text-text-dim">1 mundo · 5 fichas · 1 artigo · sem exportação · sem IA</span>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {/* Template Annual */}
+              {/* Raiz Annual */}
               <button
                 onClick={() => handleCheckout('template_anual')}
                 disabled={!!loading}
                 className="flex flex-col items-start gap-1.5 p-3 rounded-lg border border-blue-bright/20 bg-blue-bright/[0.06] hover:bg-blue-bright/[0.12] transition-all text-left"
               >
-                <span className="font-montserrat font-bold text-xs text-blue-light">🗺 Template de Worldbuilding</span>
-                <span className="text-[10px] text-text-dim">11 frutos, exportação PDF, galeria de referências</span>
+                <span className="font-montserrat font-bold text-xs text-blue-light">🌿 Raiz — Worldbuilding Completo</span>
+                <span className="text-[10px] text-text-dim">Mundos ilimitados, fichas e artigos ilimitados, exportação PDF/DOCX</span>
                 <span className="font-montserrat font-bold text-sm text-blue-light">R$ 87/ano</span>
               </button>
               {/* Idriel Monthly */}
@@ -65,8 +69,8 @@ export const SubscriptionBanner: React.FC = () => {
                 className="flex flex-col items-start gap-1.5 p-3 rounded-lg border border-gold/30 hover:border-gold/50 transition-all text-left"
                 style={{ background: 'linear-gradient(135deg, rgba(200,146,42,0.10) 0%, rgba(200,146,42,0.04) 100%)' }}
               >
-                <span className="font-montserrat font-bold text-xs text-gold-light">✨ Template + Idriel (IA)</span>
-                <span className="text-[10px] text-text-dim">Tudo do template + assistente de IA + geração de imagens</span>
+                <span className="font-montserrat font-bold text-xs text-gold-light">✨ Idriel — Tudo + IA</span>
+                <span className="text-[10px] text-text-dim">Tudo do Raiz + assistente de IA + geração de imagens</span>
                 <span className="font-montserrat font-bold text-sm text-gold-light">R$ 29,90/mês</span>
               </button>
             </div>
@@ -76,7 +80,7 @@ export const SubscriptionBanner: React.FC = () => {
     );
   }
 
-  // Template-only user: show upgrade CTA
+  // Template-only user (Raiz): show upgrade CTA
   if (sub.plan === 'template' && !sub.hasIdriel) {
     if (dismissed) return null;
     return (
@@ -87,9 +91,9 @@ export const SubscriptionBanner: React.FC = () => {
           </button>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <span className="text-lg">🗺</span>
+              <span className="text-lg">🌿</span>
               <div className="min-w-0">
-                <span className="font-montserrat font-bold text-sm text-blue-light block">Plano Template Ativo</span>
+                <span className="font-montserrat font-bold text-sm text-blue-light block">Plano Raiz Ativo</span>
                 <span className="block text-[10px] text-text-dim">Acesso completo ao worldbuilding. Desbloqueie Idriel para potencializar sua criação!</span>
               </div>
             </div>

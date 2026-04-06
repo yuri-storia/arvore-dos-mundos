@@ -2,12 +2,15 @@ import React, { useState, useRef } from 'react';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { CodexCard } from '@/components/CodexCard';
 import { exportSingleEntry, exportFruitEntries, exportSelectedFruits, exportAllEntries } from '@/lib/codexPdfExport';
 import { CodexAnalysis } from '@/components/CodexAnalysis';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { WorldRecord } from '@/hooks/useWorlds';
+import { Lock } from 'lucide-react';
+import { toast } from 'sonner';
 
 const FRUIT_ALL = -1;
 
@@ -21,6 +24,7 @@ interface Props {
 
 export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   const { user } = useAuth();
+  const planLimits = usePlanLimits();
   const { entries, loading, createEntry, updateEntry, deleteEntry, uploadImage, fetchEntriesFromWorld, importEntries } = useCodexEntries(worldId || undefined);
   
   const [filterFruit, setFilterFruit] = useState(FRUIT_ALL);
@@ -75,6 +79,21 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
 
   const handleCreate = async () => {
     if (!newTitle.trim() || newFruit === null) return;
+    
+    // Check plan limits
+    const fichaCount = entries.filter(e => e.entry_type !== 'artigo').length;
+    const artigoCount = entries.filter(e => e.entry_type === 'artigo').length;
+    const isFicha = createKind !== 'artigo';
+    
+    if (isFicha && fichaCount >= planLimits.maxFichas) {
+      toast.error(`O plano ${planLimits.planLabel} permite apenas ${planLimits.maxFichas} fichas. Faça upgrade para criar mais!`);
+      return;
+    }
+    if (!isFicha && artigoCount >= planLimits.maxArtigos) {
+      toast.error(`O plano ${planLimits.planLabel} permite apenas ${planLimits.maxArtigos} artigo. Faça upgrade para criar mais!`);
+      return;
+    }
+    
     await createEntry({
       title: newTitle,
       content: newContent,
@@ -120,12 +139,21 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
       <div className="flex items-center justify-between mb-1">
         <h1 className="font-cinzel font-bold text-xl sm:text-2xl md:text-3xl text-foreground">📖 Codex</h1>
         <div className="flex gap-2">
-          {entries.length > 0 && (
+          {entries.length > 0 && planLimits.canExport && (
               <button
                 onClick={() => { setShowExport(!showExport); setExportSelectedFruitIds([]); }}
                 className="px-3 py-2 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_16px_hsl(var(--idriel)/0.4)] hover:shadow-[0_0_24px_hsl(var(--idriel)/0.6)]"
               >
                 📄 Exportar PDF
+              </button>
+          )}
+          {entries.length > 0 && !planLimits.canExport && (
+              <button
+                disabled
+                className="px-3 py-2 bg-muted/30 text-muted-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all cursor-not-allowed flex items-center gap-1.5"
+                title="Exportação disponível a partir do plano Raiz"
+              >
+                <Lock className="w-3 h-3" /> Exportar PDF
               </button>
           )}
           {/* Nova Entrada dropdown */}
@@ -139,20 +167,44 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
             {showCreate && !createKind && !showImport && (
               <div className="absolute right-0 top-full mt-1 z-50 w-[240px] card-glass rounded-lg p-3 shadow-lg border border-blue-bright/30 animate-fadeUp">
                 <h4 className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-blue-light mb-2">Tipo de entrada</h4>
-                <button
-                  onClick={() => openCreate('ficha')}
-                  className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors mb-1"
-                >
-                  <span className="font-montserrat font-bold text-xs text-foreground block">📋 Ficha</span>
-                  <span className="text-[10px] text-text-dim font-merriweather">Com imagem, estruturada</span>
-                </button>
-                <button
-                  onClick={() => openCreate('artigo')}
-                  className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors mb-1"
-                >
-                  <span className="font-montserrat font-bold text-xs text-foreground block">📝 Artigo</span>
-                  <span className="text-[10px] text-text-dim font-merriweather">Texto livre, explicativo</span>
-                </button>
+                {(() => {
+                  const fichaCount = entries.filter(e => e.entry_type !== 'artigo').length;
+                  const artigoCount = entries.filter(e => e.entry_type === 'artigo').length;
+                  const fichaLimitReached = fichaCount >= planLimits.maxFichas;
+                  const artigoLimitReached = artigoCount >= planLimits.maxArtigos;
+                  return (
+                    <>
+                      <button
+                        onClick={() => !fichaLimitReached && openCreate('ficha')}
+                        disabled={fichaLimitReached}
+                        className={`w-full text-left px-3 py-2 rounded-md transition-colors mb-1 ${fichaLimitReached ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-bright/10'}`}
+                      >
+                        <span className="font-montserrat font-bold text-xs text-foreground block">📋 Ficha</span>
+                        <span className="text-[10px] text-text-dim font-merriweather">
+                          {fichaLimitReached 
+                            ? `Limite atingido (${fichaCount}/${planLimits.maxFichas}) — faça upgrade` 
+                            : planLimits.maxFichas < Infinity 
+                              ? `Com imagem, estruturada (${fichaCount}/${planLimits.maxFichas})`
+                              : 'Com imagem, estruturada'}
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => !artigoLimitReached && openCreate('artigo')}
+                        disabled={artigoLimitReached}
+                        className={`w-full text-left px-3 py-2 rounded-md transition-colors mb-1 ${artigoLimitReached ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-bright/10'}`}
+                      >
+                        <span className="font-montserrat font-bold text-xs text-foreground block">📝 Artigo</span>
+                        <span className="text-[10px] text-text-dim font-merriweather">
+                          {artigoLimitReached 
+                            ? `Limite atingido (${artigoCount}/${planLimits.maxArtigos}) — faça upgrade` 
+                            : planLimits.maxArtigos < Infinity 
+                              ? `Texto livre, explicativo (${artigoCount}/${planLimits.maxArtigos})`
+                              : 'Texto livre, explicativo'}
+                        </span>
+                      </button>
+                    </>
+                  );
+                })()}
                 {worlds.filter(w => w.id !== worldId).length > 0 && (
                   <>
                     <div className="border-t border-blue-bright/15 my-2" />
