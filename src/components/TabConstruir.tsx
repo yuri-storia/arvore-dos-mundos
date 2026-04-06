@@ -27,6 +27,8 @@ interface Props {
 export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFruit, setMethod, onNavigateCodex }) => {
   const { db, currentFruit, method, worldName } = state;
   const { entries, createEntry, updateEntry } = useCodexEntries();
+  const planLimits = usePlanLimits();
+  const navigate = useNavigate();
   const [aiQuestion, setAiQuestion] = useState('');
   const [aiResponse, setAiResponse] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
