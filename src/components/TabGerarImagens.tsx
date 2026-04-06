@@ -45,7 +45,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   };
 
   const handleCreatePrompt = async () => {
-    if (!sub.hasIdriel) { setError('🌿 Idriel precisa do plano mensal para canalizar a Seiva Dourada. Faça o upgrade!'); return; }
+    if (!planLimits.canUseAI) { setError('🌿 Idriel precisa do plano mensal para canalizar a Seiva Dourada. Faça o upgrade!'); return; }
     if (!desc.trim()) { setError('Descreva a visão que deseja materializar.'); return; }
     setError('');
     setLoading1(true);
