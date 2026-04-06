@@ -146,7 +146,7 @@ const LandingPage: React.FC = () => {
           <motion.h1
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.7, delay: 0.15, ease }}
             className="font-cinzel font-bold text-4xl sm:text-5xl md:text-6xl text-foreground mb-4 leading-tight"
           >
             Construa mundos<br />
