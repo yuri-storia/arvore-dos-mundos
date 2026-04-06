@@ -186,7 +186,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
           </button>
           <button
             onClick={handleGenerate}
-            disabled={loading2 || !generatedPrompt || !sub.hasIdriel}
+            disabled={loading2 || !generatedPrompt || !planLimits.canUseAI}
             className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-all"
           >
             {loading2 ? '✨ Materializando…' : '✨ 2. Materializar Visão'}
