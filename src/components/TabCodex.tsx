@@ -167,20 +167,44 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
             {showCreate && !createKind && !showImport && (
               <div className="absolute right-0 top-full mt-1 z-50 w-[240px] card-glass rounded-lg p-3 shadow-lg border border-blue-bright/30 animate-fadeUp">
                 <h4 className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-blue-light mb-2">Tipo de entrada</h4>
-                <button
-                  onClick={() => openCreate('ficha')}
-                  className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors mb-1"
-                >
-                  <span className="font-montserrat font-bold text-xs text-foreground block">📋 Ficha</span>
-                  <span className="text-[10px] text-text-dim font-merriweather">Com imagem, estruturada</span>
-                </button>
-                <button
-                  onClick={() => openCreate('artigo')}
-                  className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors mb-1"
-                >
-                  <span className="font-montserrat font-bold text-xs text-foreground block">📝 Artigo</span>
-                  <span className="text-[10px] text-text-dim font-merriweather">Texto livre, explicativo</span>
-                </button>
+                {(() => {
+                  const fichaCount = entries.filter(e => e.entry_type !== 'artigo').length;
+                  const artigoCount = entries.filter(e => e.entry_type === 'artigo').length;
+                  const fichaLimitReached = fichaCount >= planLimits.maxFichas;
+                  const artigoLimitReached = artigoCount >= planLimits.maxArtigos;
+                  return (
+                    <>
+                      <button
+                        onClick={() => !fichaLimitReached && openCreate('ficha')}
+                        disabled={fichaLimitReached}
+                        className={`w-full text-left px-3 py-2 rounded-md transition-colors mb-1 ${fichaLimitReached ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-bright/10'}`}
+                      >
+                        <span className="font-montserrat font-bold text-xs text-foreground block">📋 Ficha</span>
+                        <span className="text-[10px] text-text-dim font-merriweather">
+                          {fichaLimitReached 
+                            ? `Limite atingido (${fichaCount}/${planLimits.maxFichas}) — faça upgrade` 
+                            : planLimits.maxFichas < Infinity 
+                              ? `Com imagem, estruturada (${fichaCount}/${planLimits.maxFichas})`
+                              : 'Com imagem, estruturada'}
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => !artigoLimitReached && openCreate('artigo')}
+                        disabled={artigoLimitReached}
+                        className={`w-full text-left px-3 py-2 rounded-md transition-colors mb-1 ${artigoLimitReached ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-bright/10'}`}
+                      >
+                        <span className="font-montserrat font-bold text-xs text-foreground block">📝 Artigo</span>
+                        <span className="text-[10px] text-text-dim font-merriweather">
+                          {artigoLimitReached 
+                            ? `Limite atingido (${artigoCount}/${planLimits.maxArtigos}) — faça upgrade` 
+                            : planLimits.maxArtigos < Infinity 
+                              ? `Texto livre, explicativo (${artigoCount}/${planLimits.maxArtigos})`
+                              : 'Texto livre, explicativo'}
+                        </span>
+                      </button>
+                    </>
+                  );
+                })()}
                 {worlds.filter(w => w.id !== worldId).length > 0 && (
                   <>
                     <div className="border-t border-blue-bright/15 my-2" />
