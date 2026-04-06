@@ -19,10 +19,10 @@ export const SubscriptionBanner: React.FC = () => {
     try { sessionStorage.setItem(DISMISS_KEY, '1'); } catch {}
   };
 
-  const handleCheckout = async (plan: keyof typeof STRIPE_PLANS, mode: 'subscription' | 'payment' = 'subscription') => {
+  const handleCheckout = async (plan: keyof typeof STRIPE_PLANS) => {
     setLoading(plan);
     try {
-      await openCheckout(STRIPE_PLANS[plan].price_id, mode);
+      await openCheckout(STRIPE_PLANS[plan].price_id);
     } catch (e) {
       console.error(e);
     } finally {
