@@ -175,18 +175,3 @@ export const STRIPE_PLANS = {
   template_anual: { price_id: PLANS.raiz_anual.id },
   recarga_seiva: { price_id: PLANS.recarga_seiva.id },
 };
-    body: { priceId, mode },
-  });
-  if (error) throw new Error(error.message);
-  if (data?.url) {
-    window.open(data.url, '_blank');
-  }
-}
-
-export async function openCustomerPortal() {
-  const { data, error } = await supabase.functions.invoke('customer-portal');
-  if (error) throw new Error(error.message);
-  if (data?.url) {
-    window.open(data.url, '_blank');
-  }
-}
