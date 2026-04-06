@@ -56,7 +56,7 @@ export const SubscriptionBanner: React.FC = () => {
               >
                 <span className="font-montserrat font-bold text-xs text-blue-light">🗺 Template de Worldbuilding</span>
                 <span className="text-[10px] text-text-dim">11 frutos, exportação PDF, galeria de referências</span>
-                <span className="font-montserrat font-bold text-sm text-blue-light">R$ 97/ano</span>
+                <span className="font-montserrat font-bold text-sm text-blue-light">R$ 87/ano</span>
               </button>
               {/* Idriel Monthly */}
               <button
