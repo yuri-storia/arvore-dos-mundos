@@ -36,6 +36,17 @@ const EXPORT_OPTIONS = [
 export const ManuscriptExportMenu: React.FC<Props> = ({ manuscript, chapters, scenes }) => {
   const [open, setOpen] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const planLimits = usePlanLimits();
+
+  if (!planLimits.canExport) {
+    return (
+      <Button variant="ghost" size="sm" disabled
+        className="text-muted-foreground gap-1.5 text-[11px] cursor-not-allowed" title="Exportação disponível a partir do plano Raiz">
+        <Lock className="w-3.5 h-3.5" />
+        <span className="hidden sm:inline">Exportar</span>
+      </Button>
+    );
+  }
 
   const handleExport = async (format: 'pdf' | 'docx' | 'kindle') => {
     try {
