@@ -24,6 +24,7 @@ interface Props {
 
 export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   const { user } = useAuth();
+  const planLimits = usePlanLimits();
   const { entries, loading, createEntry, updateEntry, deleteEntry, uploadImage, fetchEntriesFromWorld, importEntries } = useCodexEntries(worldId || undefined);
   
   const [filterFruit, setFilterFruit] = useState(FRUIT_ALL);
