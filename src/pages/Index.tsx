@@ -38,6 +38,7 @@ const Index = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const { worlds, createWorld, updateWorld, deleteWorld } = useWorlds();
+  const planLimits = usePlanLimits();
   const [state, setState] = useState<AppState>(createNewState);
   const [tourActive, setTourActive] = useState(false);
   const [showTourPrompt, setShowTourPrompt] = useState(false);
