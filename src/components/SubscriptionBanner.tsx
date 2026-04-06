@@ -19,10 +19,10 @@ export const SubscriptionBanner: React.FC = () => {
     try { sessionStorage.setItem(DISMISS_KEY, '1'); } catch {}
   };
 
-  const handleCheckout = async (plan: keyof typeof STRIPE_PLANS, mode: 'subscription' | 'payment' = 'subscription') => {
+  const handleCheckout = async (plan: keyof typeof STRIPE_PLANS) => {
     setLoading(plan);
     try {
-      await openCheckout(STRIPE_PLANS[plan].price_id, mode);
+      await openCheckout(STRIPE_PLANS[plan].price_id);
     } catch (e) {
       console.error(e);
     } finally {
@@ -56,7 +56,7 @@ export const SubscriptionBanner: React.FC = () => {
               >
                 <span className="font-montserrat font-bold text-xs text-blue-light">🗺 Template de Worldbuilding</span>
                 <span className="text-[10px] text-text-dim">11 frutos, exportação PDF, galeria de referências</span>
-                <span className="font-montserrat font-bold text-sm text-blue-light">R$ 97/ano</span>
+                <span className="font-montserrat font-bold text-sm text-blue-light">R$ 87/ano</span>
               </button>
               {/* Idriel Monthly */}
               <button
@@ -171,12 +171,12 @@ export const SubscriptionBanner: React.FC = () => {
             <div className="flex items-center gap-3">
               {(isEmpty || isLow) && (
                 <button
-                  onClick={() => handleCheckout('recarga_seiva', 'payment')}
+                  onClick={() => handleCheckout('recarga_seiva')}
                   disabled={!!loading}
                   className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light bg-gold/[0.08] hover:bg-gold/[0.18] transition-all"
                 >
                   <Sparkles className="w-2.5 h-2.5" />
-                  +100 gotas — R$20
+                  +100 gotas — R$15
                 </button>
               )}
               <div className="hidden sm:block w-24">

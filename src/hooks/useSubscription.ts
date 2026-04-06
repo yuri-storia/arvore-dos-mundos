@@ -3,24 +3,39 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 // Stripe product/price IDs
-export const STRIPE_PLANS = {
-  template_anual: {
-    product_id: "prod_UBGQ3cdHdsbX3V",
-    price_id: "price_1TCttHPqftrc5bEYNGsQkrc9",
-    name: "Template Anual",
-    price: "R$ 97/ano",
+// Pricing plans (gateway: Asaas — IDs will be set after integration)
+export const PLANS = {
+  raiz_anual: {
+    id: "raiz_anual",
+    name: "🌱 Raiz",
+    price: "R$ 87/ano",
+    priceValue: 87,
+    period: "anual",
+    hasIdriel: false,
   },
   idriel_mensal: {
-    product_id: "prod_UBGQ0z9sDQdUuz",
-    price_id: "price_1TCtu5Pqftrc5bEY91NYowsY",
-    name: "Idriel Mensal",
+    id: "idriel_mensal",
+    name: "✨ Idriel",
     price: "R$ 29,90/mês",
+    priceValue: 29.90,
+    period: "mensal",
+    hasIdriel: true,
+  },
+  idriel_anual: {
+    id: "idriel_anual",
+    name: "✨ Idriel Anual",
+    price: "R$ 279/ano",
+    priceValue: 279,
+    period: "anual",
+    hasIdriel: true,
   },
   recarga_seiva: {
-    product_id: "prod_UBGTxy9YxbOG12",
-    price_id: "price_1TCtwEPqftrc5bEYrRPIGKcQ",
-    name: "Recarga de Seiva",
-    price: "R$ 20,00",
+    id: "recarga_seiva",
+    name: "🧪 Recarga de Seiva",
+    price: "R$ 15,00",
+    priceValue: 15,
+    period: "avulso",
+    hasIdriel: false,
   },
 } as const;
 
@@ -143,20 +158,20 @@ export function useSubscription(): SubscriptionInfo {
   return info;
 }
 
-export async function openCheckout(priceId: string, mode: 'subscription' | 'payment' = 'subscription') {
-  const { data, error } = await supabase.functions.invoke('create-checkout', {
-    body: { priceId, mode },
-  });
-  if (error) throw new Error(error.message);
-  if (data?.url) {
-    window.open(data.url, '_blank');
-  }
+// Placeholder — will be replaced by Asaas integration
+export async function openCheckout(planId: string) {
+  console.log('Checkout will be handled by Asaas. Plan:', planId);
+  // TODO: Implement Asaas checkout
 }
 
 export async function openCustomerPortal() {
-  const { data, error } = await supabase.functions.invoke('customer-portal');
-  if (error) throw new Error(error.message);
-  if (data?.url) {
-    window.open(data.url, '_blank');
-  }
+  console.log('Customer portal will be handled by Asaas');
+  // TODO: Implement Asaas portal
 }
+
+// Legacy compat alias
+export const STRIPE_PLANS = {
+  idriel_mensal: { price_id: PLANS.idriel_mensal.id },
+  template_anual: { price_id: PLANS.raiz_anual.id },
+  recarga_seiva: { price_id: PLANS.recarga_seiva.id },
+};
