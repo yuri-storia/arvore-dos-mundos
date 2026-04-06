@@ -110,7 +110,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
         Idriel canaliza a Seiva Dourada da Árvore para materializar as visões do seu mundo · Descreva e ela dará forma
       </p>
 
-      {!sub.hasIdriel && (
+      {!planLimits.canUseAI && (
         <div className="card-glass rounded-lg p-4 mb-5 border-l-[3px] border-l-gold/60">
           <div className="flex items-center gap-2 mb-2">
             <Lock className="w-4 h-4 text-gold-light" />
