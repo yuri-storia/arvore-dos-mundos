@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Download, FileText, FileType, BookOpen, HelpCircle, X } from 'lucide-react';
+import { Download, FileText, FileType, BookOpen, HelpCircle, X, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { exportManuscriptPDF, exportManuscriptDOCX, exportManuscriptEPUB } from '@/lib/manuscriptExport';
 import type { Manuscript, Chapter, Scene } from '@/hooks/useManuscript';
 import { toast } from 'sonner';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 
 interface Props {
   manuscript: Manuscript;
