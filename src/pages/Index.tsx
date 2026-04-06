@@ -125,7 +125,7 @@ const Index = () => {
       toast.success(`"${record.name}" criado com sucesso!`);
       setShowTourPrompt(true);
     }
-  }, [user, state, createWorld]);
+  }, [user, state, createWorld, worlds.length, planLimits]);
 
   const handleLoadWorld = useCallback((world: WorldRecord) => {
     setState(prev => ({
