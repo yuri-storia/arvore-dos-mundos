@@ -75,6 +75,9 @@ export const SubscriptionBanner: React.FC = () => {
                 <span className="font-montserrat font-bold text-sm text-gold-light">R$ 29,90/mês</span>
               </button>
             </div>
+            <Link to="/planos" className="block text-center mt-3 text-[10px] font-montserrat font-bold text-text-dim hover:text-foreground transition-colors uppercase tracking-wider">
+              📋 Comparar todos os planos →
+            </Link>
           </div>
         </div>
       </div>
