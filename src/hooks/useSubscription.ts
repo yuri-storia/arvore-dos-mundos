@@ -5,9 +5,17 @@ import { useAuth } from '@/contexts/AuthContext';
 // Stripe product/price IDs
 // Pricing plans (gateway: Asaas — IDs will be set after integration)
 export const PLANS = {
+  semente: {
+    id: "semente",
+    name: "🌱 Semente",
+    price: "Grátis",
+    priceValue: 0,
+    period: "gratuito",
+    hasIdriel: false,
+  },
   raiz_anual: {
     id: "raiz_anual",
-    name: "🌱 Raiz",
+    name: "🌿 Raiz",
     price: "R$ 87/ano",
     priceValue: 87,
     period: "anual",

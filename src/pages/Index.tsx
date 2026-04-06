@@ -115,6 +115,10 @@ const Index = () => {
 
   const handleCreateWorld = useCallback(async () => {
     if (!user) { toast.error('Faça login para criar um mundo'); return; }
+    if (worlds.length >= planLimits.maxWorlds) {
+      toast.error(`O plano ${planLimits.planLabel} permite apenas ${planLimits.maxWorlds} mundo. Faça upgrade para criar mais!`);
+      return;
+    }
     const record = await createWorld({ ...state, worldName: state.worldName || 'Mundo Sem Nome' } as AppState);
     if (record) {
       setState(s => ({ ...s, currentSaveId: record.id }));
