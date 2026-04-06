@@ -52,6 +52,7 @@
     "docx": "^9.5.0",
     "embla-carousel-react": "^8.6.0",
     "file-saver": "^2.0.5",
+    "framer-motion": "^12.38.0",
     "input-otp": "^1.4.2",
     "jspdf": "^4.2.0",
     "lucide-react": "^0.462.0",
