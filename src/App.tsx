@@ -28,6 +28,7 @@ const App = () => (
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            <Route path="/planos" element={<PricingPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
