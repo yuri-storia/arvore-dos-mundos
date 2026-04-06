@@ -176,7 +176,7 @@ export const SubscriptionBanner: React.FC = () => {
                   className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light bg-gold/[0.08] hover:bg-gold/[0.18] transition-all"
                 >
                   <Sparkles className="w-2.5 h-2.5" />
-                  +100 gotas — R$20
+                  +100 gotas — R$15
                 </button>
               )}
               <div className="hidden sm:block w-24">
