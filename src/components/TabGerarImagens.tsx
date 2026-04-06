@@ -16,6 +16,7 @@ interface Props {
 export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, addToGallery }) => {
   const { worldName, db, generatedPrompt } = state;
   const sub = useSubscription();
+  const planLimits = usePlanLimits();
   const [desc, setDesc] = useState('');
   const [style, setStyle] = useState(STYLE_OPTIONS[0]);
   const [imgType, setImgType] = useState(IMAGE_TYPE_OPTIONS[0]);
