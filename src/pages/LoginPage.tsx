@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { lovable } from '@/integrations/lovable';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import treeWallpaper from '@/assets/tree-wallpaper.webp';
 
@@ -69,13 +69,18 @@ const Particles: React.FC = () => {
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-[1]" />;
 };
 
+type AuthMode = 'login' | 'signup';
+
 const LoginPage: React.FC = () => {
   const { user, loading: authLoading, accessDenied } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(accessDenied ? 'Acesso negado. Seu e-mail não está autorizado.' : '');
+  const [error, setError] = useState(accessDenied ? 'Acesso negado.' : '');
+  const [success, setSuccess] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [mode, setMode] = useState<AuthMode>('login');
   const [forgotMode, setForgotMode] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
 
@@ -104,12 +109,44 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccess('');
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         setError(error.message === 'Invalid login credentials'
           ? 'E-mail ou senha incorretos.'
-          : error.message);
+          : error.message === 'Email not confirmed'
+            ? 'Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada.'
+            : error.message);
+      }
+    } catch (e: any) {
+      setError(e.message || 'Erro inesperado.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password.length < 6) {
+      setError('A senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    setSuccess('');
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: window.location.origin },
+      });
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccess('Conta criada! Verifique seu e-mail para confirmar o cadastro.');
+        setMode('login');
+        setPassword('');
       }
     } catch (e: any) {
       setError(e.message || 'Erro inesperado.');
@@ -210,8 +247,32 @@ const LoginPage: React.FC = () => {
               )
             ) : (
               <>
-                {/* Email/Password */}
-                <form onSubmit={handleEmailLogin} className="space-y-3">
+                {/* Mode toggle */}
+                <div className="flex items-center justify-center gap-1 mb-6 p-1 rounded-lg bg-foreground/[0.04] border border-blue-bright/10">
+                  <button
+                    onClick={() => { setMode('login'); setError(''); setSuccess(''); }}
+                    className={`flex-1 px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all ${
+                      mode === 'login'
+                        ? 'bg-primary/80 text-primary-foreground'
+                        : 'text-text-dim hover:text-foreground'
+                    }`}
+                  >
+                    Entrar
+                  </button>
+                  <button
+                    onClick={() => { setMode('signup'); setError(''); setSuccess(''); }}
+                    className={`flex-1 px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all ${
+                      mode === 'signup'
+                        ? 'bg-primary/80 text-primary-foreground'
+                        : 'text-text-dim hover:text-foreground'
+                    }`}
+                  >
+                    Criar Conta
+                  </button>
+                </div>
+
+                {/* Email/Password form */}
+                <form onSubmit={mode === 'login' ? handleEmailLogin : handleSignup} className="space-y-3">
                   <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                     placeholder="E-mail" required
                     className="w-full px-4 py-3 rounded-lg bg-foreground/[0.06] border border-blue-bright/15 text-foreground placeholder:text-text-dim font-montserrat text-sm focus:outline-none focus:border-blue-bright/40 transition-colors" />
@@ -236,14 +297,16 @@ const LoginPage: React.FC = () => {
                   </div>
                   <button type="submit" disabled={loading}
                     className="w-full px-6 py-3 rounded-lg bg-primary/80 hover:bg-primary transition-colors text-primary-foreground font-montserrat font-semibold text-sm disabled:opacity-50">
-                    {loading ? 'Entrando…' : 'Entrar'}
+                    {loading ? (mode === 'login' ? 'Entrando…' : 'Criando conta…') : (mode === 'login' ? 'Entrar' : 'Criar Conta')}
                   </button>
                 </form>
 
-                <button onClick={() => { setForgotMode(true); setError(''); }}
-                  className="mt-3 text-text-dim text-xs font-montserrat hover:text-blue-light hover:underline transition-colors">
-                  Esqueci minha senha
-                </button>
+                {mode === 'login' && (
+                  <button onClick={() => { setForgotMode(true); setError(''); }}
+                    className="mt-3 text-text-dim text-xs font-montserrat hover:text-blue-light hover:underline transition-colors">
+                    Esqueci minha senha
+                  </button>
+                )}
 
                 {/* Divider */}
                 <div className="flex items-center gap-3 my-6">
@@ -261,18 +324,26 @@ const LoginPage: React.FC = () => {
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                   </svg>
-                  {loading ? 'Entrando…' : 'Entrar com Google'}
+                  {mode === 'login' ? 'Entrar com Google' : 'Criar conta com Google'}
+                </button>
+
+                {/* Link to landing page */}
+                <button
+                  onClick={() => navigate('/inicio')}
+                  className="mt-4 text-text-dim text-[11px] font-montserrat hover:text-blue-light hover:underline transition-colors"
+                >
+                  Conheça a Árvore dos Mundos →
                 </button>
               </>
+            )}
+
+            {success && (
+              <p className="mt-4 text-emerald-400 text-sm font-merriweather">{success}</p>
             )}
 
             {error && (
               <p className="mt-4 text-red-alert text-sm font-merriweather">{error}</p>
             )}
-
-            <p className="mt-6 text-text-dim text-[11px] font-montserrat">
-              Acesso restrito a contas autorizadas
-            </p>
           </div>
         </div>
       </div>
