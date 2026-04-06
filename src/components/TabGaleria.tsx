@@ -23,6 +23,7 @@ interface Props {
 export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGeneratedPrompt, addToGallery }) => {
   const { user } = useAuth();
   const sub = useSubscription();
+  const planLimits = usePlanLimits();
   const [filter, setFilter] = useState('Todos');
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);

@@ -53,6 +53,7 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
   const [showHistory, setShowHistory] = useState(false);
 
   const sub = useSubscription();
+  const planLimits = usePlanLimits();
   const { user } = useAuth();
 
   const creditsRemaining = sub.creditLimit - sub.creditsUsed;

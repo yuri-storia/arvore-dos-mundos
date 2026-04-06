@@ -22,6 +22,7 @@ interface Props {
 
 export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
   const sub = useSubscription();
+  const planLimits = usePlanLimits();
   const [selectedStyle, setSelectedStyle] = useState<string>('explorer');
   const [customDesc, setCustomDesc] = useState('');
   const [generatedPrompt, setGeneratedPrompt] = useState('');
