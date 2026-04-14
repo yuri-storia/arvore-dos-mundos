@@ -115,7 +115,18 @@ serve(async (req) => {
       throw new Error(`AI error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const responseText = await response.text();
+    if (!responseText) {
+      console.error("AI gateway returned empty response");
+      throw new Error("A IA não retornou uma resposta. Tente novamente.");
+    }
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      console.error("AI gateway returned invalid JSON:", responseText.slice(0, 200));
+      throw new Error("Resposta inválida da IA. Tente novamente.");
+    }
     const content = data.choices?.[0]?.message?.content || "";
 
     // Increment usage
