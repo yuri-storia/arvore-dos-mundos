@@ -164,22 +164,8 @@ const Index = () => {
       </div>
 
       <div className="relative z-10">
-        <AppHeader worldName={state.worldName} setWorldName={setWorldName} onCreateWorld={handleCreateWorld} method={state.method} currentSaveId={state.currentSaveId} db={state.db} />
+        <AppHeader worldName={state.worldName} setWorldName={setWorldName} onCreateWorld={handleCreateWorld} method={state.method} currentSaveId={state.currentSaveId} db={state.db} worlds={worlds} onLoadWorld={handleLoadWorld} onNewWorld={handleNewWorld} onDeleteWorld={handleDeleteWorld} />
 
-        {/* Mobile: show WorldNameInput inline */}
-        {isMobile && (
-          <WorldNameInput
-            worldName={state.worldName}
-            setWorldName={setWorldName}
-            hasBeenCreated={!!state.currentSaveId}
-            onCreateWorld={handleCreateWorld}
-            onLoadWorld={handleLoadWorld}
-            onNewWorld={handleNewWorld}
-            onDeleteWorld={handleDeleteWorld}
-            currentSaveId={state.currentSaveId}
-            worlds={worlds}
-          />
-        )}
 
 
 
