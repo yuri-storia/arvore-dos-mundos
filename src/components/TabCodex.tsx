@@ -13,6 +13,7 @@ import { Lock } from 'lucide-react';
 import { toast } from 'sonner';
 
 const FRUIT_ALL = -1;
+const FRUIT_NONE = -2; // sentinel for "no fruit" filter
 
 type EntryKind = 'ficha' | 'artigo';
 
@@ -27,7 +28,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   const planLimits = usePlanLimits();
   const { entries, loading, createEntry, updateEntry, deleteEntry, uploadImage, fetchEntriesFromWorld, importEntries } = useCodexEntries(worldId || undefined);
   
-  const [filterFruit, setFilterFruit] = useState(FRUIT_ALL);
+  const [filterFruits, setFilterFruits] = useState<number[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [createKind, setCreateKind] = useState<EntryKind | null>(null);
@@ -66,8 +67,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   }
 
   const filtered = entries.filter(e => {
-    if (filterFruit !== FRUIT_ALL && e.fruit_id !== filterFruit) return false;
-    return true;
+    if (filterFruits.length === 0) return true;
+    return filterFruits.includes(e.fruit_id ?? FRUIT_NONE);
   });
 
   const handleImageUpload = async (file: File, onUrl: (url: string) => void) => {
