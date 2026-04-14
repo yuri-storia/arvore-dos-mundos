@@ -189,7 +189,14 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
           return (
             <button
               key={f.id}
-              onClick={() => selectFruit(f.id)}
+              onClick={() => {
+                selectFruit(f.id);
+                if (isMobile) {
+                  setTimeout(() => {
+                    document.getElementById('orientacoes-idriel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }, 150);
+                }
+              }}
               className={`relative aspect-[3/4] rounded-lg overflow-hidden transition-all group ${
                 isActive
                   ? 'border border-blue-bright shadow-[0_0_20px_rgba(33,150,243,0.3),inset_0_0_30px_rgba(33,150,243,0.1)]'
@@ -261,7 +268,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               </div>
             </div>
 
-            <FruitGuideBlock guide={fruit.guide} />
+            <FruitGuideBlock guide={fruit.guide} id="orientacoes-idriel" />
 
             {/* Gallery images */}
             {(() => {
