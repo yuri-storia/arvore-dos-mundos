@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface Props {
   src: string;
@@ -101,19 +102,30 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
     return () => window.removeEventListener('keydown', handler);
   }, [onCancel]);
 
-  return (
-    <div className="fixed inset-0 z-[300] bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-4" onClick={onCancel}>
-      <div className="w-full max-w-[700px] flex flex-col gap-3" onClick={e => e.stopPropagation()}>
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h3 className="font-cinzel font-bold text-base text-white">Reposicionar imagem</h3>
-          <span className="text-xs text-white/60 font-montserrat">Arraste a imagem para ajustar</span>
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
+
+  const content = (
+    <div className="fixed inset-0 z-[300] bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={onCancel}>
+      <div className="w-full max-w-[760px] rounded-2xl border border-border bg-card/95 shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-start justify-between gap-4 border-b border-border px-4 py-4 sm:px-5">
+          <div>
+            <h3 className="font-cinzel font-bold text-base text-foreground">Ajustar prévia da imagem</h3>
+            <p className="mt-1 text-xs text-muted-foreground font-montserrat">Isso altera apenas a miniatura da ficha antes da expansão.</p>
+          </div>
+          <span className="rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-[10px] font-montserrat font-bold uppercase tracking-wider text-muted-foreground">
+            Arraste verticalmente
+          </span>
         </div>
 
-        {/* Image viewport */}
         <div
           ref={containerRef}
-          className={`relative w-full h-[300px] sm:h-[360px] rounded-lg overflow-hidden border-2 ${dragging ? 'border-primary cursor-grabbing' : 'border-white/20 cursor-grab'} transition-colors select-none`}
+          className={`relative m-4 h-[300px] sm:m-5 sm:h-[380px] rounded-xl overflow-hidden border-2 bg-secondary/30 ${dragging ? 'border-primary cursor-grabbing' : 'border-border cursor-grab'} transition-colors select-none`}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -122,12 +134,11 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          {/* Guide lines */}
           <div className="absolute inset-0 pointer-events-none z-10">
-            <div className="absolute top-0 left-0 right-0 h-px bg-white/10" />
-            <div className="absolute bottom-0 left-0 right-0 h-px bg-white/10" />
-            <div className="absolute top-1/3 left-0 right-0 h-px bg-white/5 border-dashed" />
-            <div className="absolute top-2/3 left-0 right-0 h-px bg-white/5 border-dashed" />
+            <div className="absolute top-0 left-0 right-0 h-px bg-border" />
+            <div className="absolute bottom-0 left-0 right-0 h-px bg-border" />
+            <div className="absolute top-1/3 left-0 right-0 h-px border-t border-dashed border-border/70" />
+            <div className="absolute top-2/3 left-0 right-0 h-px border-t border-dashed border-border/70" />
           </div>
 
           <img
@@ -143,33 +154,33 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
             draggable={false}
           />
 
-          {/* Drag hint overlay */}
           {!dragging && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="px-4 py-2 rounded-full bg-black/50 text-white text-sm font-montserrat font-bold backdrop-blur-sm flex items-center gap-2">
+              <span className="px-4 py-2 rounded-full border border-border bg-card/85 text-foreground text-sm font-montserrat font-bold backdrop-blur-sm flex items-center gap-2 shadow-lg">
                 <span className="text-lg">↕</span> Arraste para reposicionar
               </span>
             </div>
           )}
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-4 sm:px-5">
           <button
             onClick={onCancel}
-            className="px-5 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+            className="px-5 py-2.5 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
           >
-            ✕ Cancelar
+            Cancelar
           </button>
           <button
             onClick={handleSave}
-            className="px-6 py-2.5 rounded-lg bg-primary hover:bg-ring text-white text-sm font-montserrat font-bold uppercase tracking-wider transition-all shadow-lg shadow-primary/30 hover:shadow-primary/50 flex items-center gap-2"
+            className="px-6 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-montserrat font-bold uppercase tracking-wider transition-all shadow-lg flex items-center gap-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-            Confirmar posição
+            Confirmar prévia
           </button>
         </div>
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(content, document.body) : content;
 };
