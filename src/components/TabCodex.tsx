@@ -578,7 +578,6 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
             );
           })()}
         </>
-        </>
       )}
 
       {/* Analyze World — bottom CTA */}
