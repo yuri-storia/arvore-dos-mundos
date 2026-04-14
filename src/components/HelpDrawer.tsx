@@ -1,56 +1,62 @@
-import React, { useState } from 'react';
-import { HelpCircle, Send, Loader2 } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Send, Loader2 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 import ReactMarkdown from 'react-markdown';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 
-interface Tip {
-  icon: string;
-  title: string;
-  desc: string;
+interface ChatMessage {
+  role: 'user' | 'assistant' | 'greeting';
+  content: string;
 }
 
-const TAB_TIPS: Record<string, { label: string; tips: Tip[] }> = {
+const PRESETS: Record<string, { label: string; questions: string[] }> = {
   construir: {
     label: 'Construir',
-    tips: [
-      { icon: '🌿', title: 'Cada Fruto é um pilar', desc: 'Escolha qualquer um dos 11 Frutos para começar a dar forma ao seu mundo, viajante. Não há ordem errada — siga sua inspiração!' },
-      { icon: '🗺️', title: 'Mapa do Mundo', desc: 'No primeiro Fruto, gere mapas em diferentes estilos cartográficos usando a Seiva Dourada (plano completo).' },
-      { icon: '📖', title: 'Orientação & Estudo de Caso', desc: 'Dentro de cada Fruto há uma sanfona com orientação detalhada, estudo de caso literário e passo a passo. Abra para consultar!' },
-      { icon: '🌳', title: 'Consultar Idriel (plano completo)', desc: 'Nos demais Frutos, peça ajuda criativa usando os chips de sugestão ou digitando sua pergunta. Recurso exclusivo do plano Template + Idriel.' },
-      { icon: '💾', title: 'Salvamento automático', desc: 'Tudo que você escreve é salvo na nuvem a cada 2 segundos. Relaxe e crie, viajante!' },
+    questions: [
+      'Como funcionam os 11 Frutos?',
+      'Qual a diferença entre Cima pra Baixo e Baixo pra Cima?',
+      'Como gerar um mapa do mundo?',
+      'O que é a Seiva Dourada?',
+      'O que é Consultar Idriel?',
+      'Como funciona o salvamento automático?',
     ],
   },
   codex: {
     label: 'Codex',
-    tips: [
-      { icon: '📝', title: 'Fichas e Artigos', desc: 'Crie Fichas para personagens e locais (com imagem!) ou Artigos estilo wiki para lore e história.' },
-      { icon: '🔍', title: 'Filtros inteligentes', desc: 'Encontre entradas por tipo ou por Fruto de origem. Cada categoria mostra a contagem de itens.' },
-      { icon: '📊', title: 'Análise de Mundo (plano completo)', desc: 'Peça a Idriel uma análise completa — ela avalia coerência, lacunas e dá sugestões narrativas. Recurso exclusivo do plano Template + Idriel.' },
+    questions: [
+      'Qual a diferença entre Ficha e Artigo?',
+      'Como filtrar entradas por Fruto?',
+      'Como exportar meu Codex em PDF?',
+      'O que é a Análise de Mundo?',
+      'Posso adicionar imagem nas fichas?',
     ],
   },
   escrever: {
     label: 'Escrever',
-    tips: [
-      { icon: '📖', title: 'Três modos de escrita', desc: 'Manuscrito (capítulos organizados como um livro), Mural de Cenas (visualize por status e arraste para reorganizar) ou Rascunhos (escrita livre sem estrutura).' },
-      { icon: '⏱️', title: 'Timer Pomodoro', desc: 'Ative sessões focadas de escrita com pausas programadas. Personalize os tempos.' },
-      { icon: '@', title: 'Menções do Codex', desc: 'Digite @ no editor para referenciar fichas e artigos do seu mundo.' },
+    questions: [
+      'Quais são os modos de escrita?',
+      'Como usar o Timer Pomodoro?',
+      'Como mencionar fichas do Codex com @?',
+      'Como funciona o Manuscrito?',
+      'O que é o Mural de Cenas?',
     ],
   },
   galeria: {
     label: 'Galeria',
-    tips: [
-      { icon: '🖼️', title: 'Referências visuais', desc: 'Faça upload de imagens de inspiração — concept arts, mapas, paisagens, personagens.' },
-      { icon: '🏷️', title: 'Organize por Fruto', desc: 'Categorize suas imagens por Fruto para encontrá-las rapidamente.' },
-      { icon: '✨', title: 'Visões de Idriel (plano completo)', desc: 'Abra "Visões de Idriel" abaixo da galeria para gerar imagens com IA. Descreva e Idriel materializa — cada visão custa 5 gotas. Recurso exclusivo do plano Template + Idriel.' },
-      { icon: '🔎', title: 'Visualização ampliada', desc: 'Clique em qualquer imagem para ver em tela cheia.' },
+    questions: [
+      'Como fazer upload de imagens?',
+      'Como organizar imagens por Fruto?',
+      'O que são as Visões de Idriel?',
+      'Quanto custa gerar uma imagem?',
     ],
   },
 };
 
 const DAILY_LIMIT = 5;
+
+const GREETING = `Olá, viajante! 🌿 Sou Idriel, Guardiã da Árvore dos Mundos. Estou aqui para guiá-lo pela plataforma. Escolha uma pergunta abaixo ou digite a sua — você tem **${DAILY_LIMIT} perguntas gratuitas por dia**.`;
 
 interface Props {
   tab: string;
@@ -59,45 +65,74 @@ interface Props {
 export const HelpDrawer: React.FC<Props> = ({ tab }) => {
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState('');
-  const [answer, setAnswer] = useState('');
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [remaining, setRemaining] = useState<number | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const data = TAB_TIPS[tab];
-  if (!data) return null;
+  const data = PRESETS[tab];
 
-  const handleAsk = async () => {
-    if (!question.trim() || loading || remaining === 0) return;
+  // Reset chat when tab changes
+  useEffect(() => {
+    setMessages([{ role: 'greeting', content: GREETING }]);
+  }, [tab]);
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    if (scrollRef.current) {
+      const el = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (el) el.scrollTop = el.scrollHeight;
+    }
+  }, [messages, loading]);
+
+  const handleAsk = async (q?: string) => {
+    const text = (q || question).trim();
+    if (!text || loading || remaining === 0) return;
+
+    setMessages(prev => [...prev, { role: 'user', content: text }]);
+    setQuestion('');
     setLoading(true);
-    setAnswer('');
+
     try {
       const { data: result, error } = await supabase.functions.invoke('idriel-help', {
-        body: { question: question.trim() },
+        body: { question: text },
       });
       if (error) {
         if (result?.error === 'daily_limit') {
-          setAnswer(result.message);
+          setMessages(prev => [...prev, { role: 'assistant', content: result.message }]);
           setRemaining(0);
           return;
         }
         throw error;
       }
-      setAnswer(result?.content || 'Não consegui formular uma resposta no momento.');
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: result?.content || 'Não consegui formular uma resposta no momento.',
+      }]);
       if (result?.remaining !== undefined) setRemaining(result.remaining);
     } catch (e: any) {
       try {
         const body = e?.context?.body ? JSON.parse(e.context.body) : null;
         if (body?.error === 'daily_limit') {
-          setAnswer(body.message);
+          setMessages(prev => [...prev, { role: 'assistant', content: body.message }]);
           setRemaining(0);
           return;
         }
       } catch {}
-      setAnswer(`🥀 ${e.message || 'Erro ao consultar. Tente novamente.'}`);
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `🥀 ${e.message || 'Erro ao consultar. Tente novamente.'}`,
+      }]);
     } finally {
       setLoading(false);
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
   };
+
+  if (!data) return null;
+
+  const showPresets = messages.length <= 1 && !loading;
 
   return (
     <>
@@ -111,22 +146,16 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
       </button>
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="right" className="bg-[hsl(var(--bg-deep))] border-l border-idriel/15 w-[340px] sm:w-[380px] p-0 flex flex-col">
-          {/* Header with Idriel */}
-          <SheetHeader className="p-5 pb-4 border-b border-idriel/10 shrink-0">
+        <SheetContent side="right" className="bg-[hsl(var(--bg-deep))] border-l border-idriel/15 w-[340px] sm:w-[400px] p-0 flex flex-col">
+          {/* Header */}
+          <SheetHeader className="p-4 pb-3 border-b border-idriel/10 shrink-0">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <img
-                  src={idrielAvatar}
-                  alt="Idriel"
-                  className="w-10 h-10 rounded-full object-cover border-2 border-idriel/40"
-                />
+                <img src={idrielAvatar} alt="Idriel" className="w-10 h-10 rounded-full object-cover border-2 border-idriel/40" />
                 <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-idriel flex items-center justify-center text-[7px]">✨</div>
               </div>
               <div>
-                <SheetTitle className="font-cinzel text-idriel-light text-lg">
-                  Idriel
-                </SheetTitle>
+                <SheetTitle className="font-cinzel text-idriel-light text-lg">Idriel</SheetTitle>
                 <SheetDescription className="font-merriweather italic text-xs text-text-dim">
                   Guardiã da Árvore dos Mundos
                 </SheetDescription>
@@ -134,92 +163,70 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
             </div>
           </SheetHeader>
 
-          <ScrollArea className="flex-1 min-h-0">
-            <div className="p-4 space-y-4">
-              {/* Section label */}
-              <div className="flex items-center gap-2">
-                <div className="h-px flex-1 bg-idriel/10" />
-                <span className="text-[10px] font-montserrat uppercase tracking-widest text-idriel/60">
-                  📜 Guia — {data.label}
-                </span>
-                <div className="h-px flex-1 bg-idriel/10" />
-              </div>
-
-              {/* Static tips */}
-              {data.tips.map((tip, i) => (
-                <div
-                  key={i}
-                  className="rounded-lg p-3.5 border border-idriel/10 bg-idriel/[0.03] hover:bg-idriel/[0.06] transition-colors"
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="text-lg shrink-0 mt-0.5">{tip.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-montserrat font-bold text-sm text-foreground mb-1">{tip.title}</h4>
-                      <p className="font-merriweather text-[13px] text-text-secondary leading-relaxed">{tip.desc}</p>
-                    </div>
-                  </div>
-                </div>
+          {/* Chat area */}
+          <ScrollArea className="flex-1 min-h-0" ref={scrollRef}>
+            <div className="p-4 space-y-3">
+              {messages.map((msg, i) => (
+                <ChatBubble key={i} message={msg} />
               ))}
 
-              {/* Divider for chat */}
-              <div className="flex items-center gap-2 pt-2">
-                <div className="h-px flex-1 bg-idriel/15" />
-                <span className="text-[10px] font-montserrat uppercase tracking-widest text-idriel/60">
-                  💬 Pergunte à Idriel
-                </span>
-                <div className="h-px flex-1 bg-idriel/15" />
-              </div>
-
-              <p className="font-merriweather italic text-[13px] text-text-secondary leading-relaxed">
-                Tem alguma dúvida sobre a Árvore dos Mundos? Pergunte — você tem <span className="text-idriel-light font-bold not-italic">{DAILY_LIMIT} perguntas por dia</span> ✨
-              </p>
-
-              {/* Answer area */}
-              {answer && (
-                <div className="animate-fadeUp border-l-[3px] border-idriel-light pl-3 py-2.5 bg-idriel/[0.04] rounded-r-md">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <img src={idrielAvatar} alt="Idriel" className="w-5 h-5 rounded-full object-cover border border-idriel/30" />
-                    <span className="font-cinzel text-[10px] text-idriel-light">Idriel responde</span>
-                  </div>
-                  <div className="font-merriweather text-xs text-foreground leading-relaxed prose prose-invert prose-xs max-w-none">
-                    <ReactMarkdown>{answer}</ReactMarkdown>
+              {loading && (
+                <div className="flex items-start gap-2.5">
+                  <img src={idrielAvatar} alt="Idriel" className="w-7 h-7 rounded-full object-cover border border-idriel/30 mt-0.5 shrink-0" />
+                  <div className="bg-idriel/[0.06] border border-idriel/10 rounded-2xl rounded-tl-sm px-3.5 py-2.5 flex items-center gap-2">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-idriel-light" />
+                    <span className="font-merriweather italic text-xs text-text-dim">Contemplando…</span>
                   </div>
                 </div>
               )}
 
-              {loading && (
-                <div className="flex items-center gap-2 text-text-dim text-xs py-2">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-idriel-light" />
-                  <span className="font-merriweather italic">Idriel contempla sua pergunta…</span>
+              {/* Preset questions */}
+              {showPresets && (
+                <div className="pt-1 space-y-2">
+                  <p className="text-[10px] font-montserrat uppercase tracking-widest text-idriel/50 text-center">
+                    📜 {data.label} — Perguntas frequentes
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {data.questions.map((q, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleAsk(q)}
+                        disabled={remaining === 0}
+                        className="text-left text-xs font-merriweather px-3 py-2 rounded-xl border border-idriel/15 bg-idriel/[0.04] hover:bg-idriel/[0.10] hover:border-idriel/30 text-text-secondary hover:text-foreground transition-all disabled:opacity-40"
+                      >
+                        {q}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
           </ScrollArea>
 
-          {/* Question input — fixed at bottom */}
+          {/* Input */}
           <div className="shrink-0 border-t border-idriel/15 p-3 bg-[hsl(var(--bg-deep))]">
             {remaining !== null && (
               <p className="text-[10px] font-montserrat text-text-dim mb-2 text-center">
                 {remaining > 0
                   ? <span>🌿 <span className="text-idriel-light">{remaining}</span> perguntas restantes hoje</span>
-                  : <span className="text-gold/70">🌙 Idriel descansa até amanhã</span>
-                }
+                  : <span className="text-gold/70">🌙 Idriel descansa até amanhã</span>}
               </p>
             )}
             <div className="flex gap-2">
               <input
+                ref={inputRef}
                 type="text"
                 value={question}
                 onChange={e => setQuestion(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleAsk()}
                 placeholder={remaining === 0 ? 'Volte amanhã…' : 'Como funciona…?'}
                 disabled={remaining === 0}
-                className="flex-1 bg-idriel/[0.04] border border-idriel/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/60 focus:outline-none focus:border-idriel/50 disabled:opacity-40"
+                className="flex-1 bg-idriel/[0.04] border border-idriel/20 rounded-full px-4 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/60 focus:outline-none focus:border-idriel/50 disabled:opacity-40"
               />
               <button
-                onClick={handleAsk}
+                onClick={() => handleAsk()}
                 disabled={!question.trim() || loading || remaining === 0}
-                className="px-3 py-2 bg-idriel-dim hover:bg-idriel text-foreground rounded-md disabled:opacity-40 transition-colors"
+                className="w-9 h-9 flex items-center justify-center bg-idriel-dim hover:bg-idriel text-foreground rounded-full disabled:opacity-40 transition-colors shrink-0"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -228,5 +235,29 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
         </SheetContent>
       </Sheet>
     </>
+  );
+};
+
+/* ─── Chat Bubble ─── */
+const ChatBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
+  if (message.role === 'user') {
+    return (
+      <div className="flex justify-end">
+        <div className="bg-idriel/15 border border-idriel/20 rounded-2xl rounded-tr-sm px-3.5 py-2.5 max-w-[85%]">
+          <p className="font-merriweather text-sm text-foreground">{message.content}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-start gap-2.5">
+      <img src={idrielAvatar} alt="Idriel" className="w-7 h-7 rounded-full object-cover border border-idriel/30 mt-0.5 shrink-0" />
+      <div className="bg-idriel/[0.06] border border-idriel/10 rounded-2xl rounded-tl-sm px-3.5 py-2.5 max-w-[85%]">
+        <div className="font-merriweather text-sm text-foreground leading-relaxed prose prose-invert prose-sm max-w-none [&_p]:mb-1.5 [&_p:last-child]:mb-0">
+          <ReactMarkdown>{message.content}</ReactMarkdown>
+        </div>
+      </div>
+    </div>
   );
 };
