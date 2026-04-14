@@ -85,6 +85,7 @@ export type Database = {
       }
       chapters: {
         Row: {
+          content: string | null
           created_at: string
           id: string
           manuscript_id: string
@@ -93,8 +94,10 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          word_count: number | null
         }
         Insert: {
+          content?: string | null
           created_at?: string
           id?: string
           manuscript_id: string
@@ -103,8 +106,10 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id: string
+          word_count?: number | null
         }
         Update: {
+          content?: string | null
           created_at?: string
           id?: string
           manuscript_id?: string
@@ -113,6 +118,7 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          word_count?: number | null
         }
         Relationships: [
           {
