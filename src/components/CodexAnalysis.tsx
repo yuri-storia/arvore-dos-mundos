@@ -28,7 +28,7 @@ interface AnalysisRecord {
   created_at: string;
 }
 
-const ANALYSIS_COST = 2;
+const ANALYSIS_COST = 1;
 
 const IDRIEL_NAME = 'Idriel';
 const IDRIEL_TITLE = 'Guardiã da Árvore dos Mundos';
