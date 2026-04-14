@@ -197,7 +197,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
     // Wiki-style expanded article — no images, text-focused
     return (
       <div className="rounded-lg overflow-hidden animate-fadeUp card-glass-gold">
-        <div className="p-5 sm:p-7">
+        <div className="flex flex-col h-[70vh] max-h-[600px] p-5 sm:p-7">
           {/* Header */}
           <div className="flex items-start justify-between mb-1">
             {editing ? (
@@ -219,7 +219,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
           </div>
 
           {/* Wiki meta line */}
-          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-accent/20">
+          <div className="flex items-center gap-2 mb-3 pb-3 border-b border-accent/20 flex-shrink-0">
             {fruitInfo && (
               <span className="px-1.5 py-0.5 rounded-full bg-accent/20 text-accent-foreground text-[9px] font-montserrat font-bold">
                 {fruitInfo.icon} {fruitInfo.name}
