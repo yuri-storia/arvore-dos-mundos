@@ -85,6 +85,35 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
     return () => timers.forEach(clearTimeout);
   }, [loading]);
 
+  // Typewriter reveal effect
+  useEffect(() => {
+    if (!isRevealing || !analysis) return;
+    const totalLen = analysis.length;
+    const charsPerTick = Math.max(3, Math.ceil(totalLen / 300)); // reveal in ~300 ticks (~6s)
+    revealTimerRef.current = setInterval(() => {
+      setRevealedChars(prev => {
+        const next = prev + charsPerTick;
+        if (next >= totalLen) {
+          if (revealTimerRef.current) clearInterval(revealTimerRef.current);
+          setIsRevealing(false);
+          return totalLen;
+        }
+        return next;
+      });
+    }, 20);
+    return () => { if (revealTimerRef.current) clearInterval(revealTimerRef.current); };
+  }, [isRevealing, analysis]);
+
+  // Compute visible text (snap to last complete line to avoid broken markdown)
+  const displayedAnalysis = useMemo(() => {
+    if (!analysis) return '';
+    if (!isRevealing && revealedChars >= analysis.length) return analysis;
+    if (viewingHistoryId) return analysis; // history = instant
+    const slice = analysis.slice(0, revealedChars);
+    const lastNewline = slice.lastIndexOf('\n');
+    return lastNewline > 0 ? slice.slice(0, lastNewline) : slice;
+  }, [analysis, revealedChars, isRevealing, viewingHistoryId]);
+
   const buildPrompt = () => {
     const lines: string[] = [];
     FRUITS.forEach(fruit => {
