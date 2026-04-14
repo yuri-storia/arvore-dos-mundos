@@ -127,6 +127,11 @@ Analise as entradas do Codex e responda em português brasileiro, usando Markdow
 ## 🌿 Saudação
 Uma ÚNICA frase poética de boas-vindas (máximo 2 linhas).
 
+## 🌳 Avaliação dos Frutos
+Para CADA um dos 11 Frutos, dê uma nota de 1 a 5 estrelas (⭐) e um comentário de UMA linha. Use este formato exato para cada fruto:
+- **${FRUITS.map(f => `${f.icon} ${f.name}**: ⭐⭐⭐ — [comentário breve]`).join('\n- **')}
+Se o fruto não tem entradas, dê ⭐ e diga que precisa ser desenvolvido.
+
 ## 🕳️ Furos de Enredo
 Identifique contradições, lacunas lógicas ou informações que se contradizem entre fichas/artigos. Se não houver, diga brevemente.
 
@@ -140,9 +145,9 @@ Sugira 3-5 áreas promissoras onde o mundo pode crescer, baseando-se no que já 
 Destaque o que está bem construído e merece reconhecimento. Cite entradas específicas.
 
 ## 🧭 Por Onde Continuar
-Liste 3 ações concretas e prioritárias que o criador deveria fazer a seguir, ordenadas por importância.
+Liste 3 ações concretas e prioritárias que o criador deveria fazer a seguir, ordenadas por importância. Priorize os frutos com notas mais baixas.
 
-Seja construtiva, honesta e SUCINTA. Cada seção deve ter no máximo 4-6 linhas. Assine ao final com "— Idriel, ${IDRIEL_TITLE}".`;
+Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_TITLE}".`;
 
     try {
       const content = await callAIText(
