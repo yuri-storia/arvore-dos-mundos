@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
 import { callAIText } from '@/lib/helpers';
@@ -51,6 +51,9 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
   const [historyLoading, setHistoryLoading] = useState(true);
   const [viewingHistoryId, setViewingHistoryId] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [revealedChars, setRevealedChars] = useState(0);
+  const [isRevealing, setIsRevealing] = useState(false);
+  const revealTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const sub = useSubscription();
   const planLimits = usePlanLimits();
