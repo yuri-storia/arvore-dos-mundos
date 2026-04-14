@@ -261,18 +261,9 @@ export const AppSidebar: React.FC<Props> = ({
   );
 };
 
-// ── Sub-component: chapters/scenes tree inside sidebar ──
+// ── Sub-component: chapters tree inside sidebar ──
 const WorldChaptersTree: React.FC<{ worldId: string; setActiveTab: (t: TabType) => void }> = ({ worldId, setActiveTab }) => {
-  const { chapters, scenes } = useManuscript(worldId);
-  const [expandedChapters, setExpandedChapters] = useState<Set<string>>(new Set());
-
-  const toggleChapter = (id: string) => {
-    setExpandedChapters(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
+  const { chapters } = useManuscript(worldId);
 
   if (chapters.length === 0) {
     return (
