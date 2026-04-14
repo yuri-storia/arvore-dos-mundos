@@ -40,7 +40,7 @@ export function useCodexEntries(worldId?: string) {
 
     const { data, error } = await query;
     if (error) { toast.error('Erro ao carregar fichas'); console.error(error); }
-    else setEntries(data as CodexEntry[]);
+    else setEntries(data as unknown as unknown as CodexEntry[]);
     setLoading(false);
   }, [user, worldId]);
 
@@ -56,9 +56,9 @@ export function useCodexEntries(worldId?: string) {
       .select()
       .single();
     if (error) { toast.error('Erro ao criar ficha'); console.error(error); return null; }
-    setEntries(prev => [data as CodexEntry, ...prev]);
+    setEntries(prev => [data as unknown as CodexEntry, ...prev]);
     toast.success('Ficha criada!');
-    return data as CodexEntry;
+    return data as unknown as CodexEntry;
   }, [user, worldId]);
 
   const updateEntry = useCallback(async (id: string, updates: Partial<Pick<CodexEntry, 'title' | 'content' | 'image_url' | 'entry_type' | 'fruit_id' | 'image_position'>>) => {
@@ -106,7 +106,7 @@ export function useCodexEntries(worldId?: string) {
       .eq('world_id', otherWorldId)
       .order('updated_at', { ascending: false });
     if (error) { console.error(error); return []; }
-    return (data || []) as CodexEntry[];
+    return (data || []) as unknown as unknown as CodexEntry[];
   }, [user]);
 
   /** Import entries into current world */
@@ -126,7 +126,7 @@ export function useCodexEntries(worldId?: string) {
       .insert(inserts)
       .select();
     if (error) { toast.error('Erro ao importar entradas'); console.error(error); return; }
-    setEntries(prev => [...(data as CodexEntry[]), ...prev]);
+    setEntries(prev => [...(data as unknown as unknown as CodexEntry[]), ...prev]);
     toast.success(`${entriesToImport.length} entrada(s) importada(s)!`);
   }, [user, worldId]);
 
