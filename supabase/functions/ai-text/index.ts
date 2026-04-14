@@ -95,7 +95,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-2.5-pro",
         messages: aiMessages,
-        max_tokens: 900,
+        max_tokens: 4096,
       }),
     });
 
