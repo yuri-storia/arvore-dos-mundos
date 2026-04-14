@@ -327,12 +327,12 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
             >
               📚 Exportar todas as entradas ({entries.length})
             </button>
-            {filterFruit !== FRUIT_ALL && (
+            {filterFruits.length === 1 && (
               <button
-                onClick={() => { exportFruitEntries(filterFruit, entries); setShowExport(false); }}
+                onClick={() => { exportFruitEntries(filterFruits[0], entries); setShowExport(false); }}
                 className="px-4 py-2.5 bg-accent/15 hover:bg-accent/25 text-accent-foreground rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider transition-colors border border-accent/20 text-left"
               >
-                🍎 Exportar de "{FRUITS.find(f => f.id === filterFruit)?.name}" ({entries.filter(e => e.fruit_id === filterFruit).length})
+                🍎 Exportar de "{FRUITS.find(f => f.id === filterFruits[0])?.name}" ({entries.filter(e => e.fruit_id === filterFruits[0]).length})
               </button>
             )}
           </div>
