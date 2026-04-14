@@ -68,24 +68,9 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide, id }) => {
 
                 {sectionOpen && (
                   <div className="animate-fadeUp px-4 pb-4">
-                    {section.key === 'passos' ? (
-                      <ol className="space-y-2 pl-1">
-                        {guide.steps.map((step, i) => (
-                          <li key={i} className="flex gap-2.5 items-start">
-                            <span className="font-montserrat font-bold text-xs mt-0.5 shrink-0 w-6 h-6 rounded-full flex items-center justify-center bg-idriel/15 text-idriel-light">
-                              {i + 1}
-                            </span>
-                            <span className="font-merriweather text-[14px] leading-relaxed text-text-secondary">
-                              {step}
-                            </span>
-                          </li>
-                        ))}
-                      </ol>
-                    ) : (
-                      <p className="font-merriweather text-[14px] leading-[1.75] whitespace-pre-line text-text-secondary">
-                        {section.content}
-                      </p>
-                    )}
+                    <p className="font-merriweather text-[14px] leading-[1.75] whitespace-pre-line text-text-secondary">
+                      {section.content}
+                    </p>
                   </div>
                 )}
               </div>
