@@ -366,17 +366,74 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
     <div className="rounded-lg overflow-hidden col-span-1 sm:col-span-2 lg:col-span-3 animate-fadeUp card-glass">
       <div className="flex flex-col md:flex-row">
         {/* Image section */}
-        <div className="relative w-full md:w-[320px] h-[240px] md:h-auto bg-secondary/30 flex-shrink-0">
+        <div
+          className={`relative w-full md:w-[320px] h-[240px] md:h-auto bg-secondary/30 flex-shrink-0 ${repositioning ? 'cursor-ns-resize' : ''}`}
+          onMouseDown={repositioning ? (e) => {
+            e.preventDefault();
+            setDragStart({ y: e.clientY, startPos: imgPos.y });
+          } : undefined}
+          onMouseMove={repositioning && dragStart ? (e) => {
+            const delta = dragStart.y - e.clientY;
+            const newY = Math.max(0, Math.min(100, dragStart.startPos + delta * 0.3));
+            setImgPos(prev => ({ ...prev, y: Math.round(newY) }));
+          } : undefined}
+          onMouseUp={repositioning && dragStart ? () => setDragStart(null) : undefined}
+          onMouseLeave={repositioning && dragStart ? () => setDragStart(null) : undefined}
+          onTouchStart={repositioning ? (e) => {
+            const touch = e.touches[0];
+            setDragStart({ y: touch.clientY, startPos: imgPos.y });
+          } : undefined}
+          onTouchMove={repositioning && dragStart ? (e) => {
+            const touch = e.touches[0];
+            const delta = dragStart.y - touch.clientY;
+            const newY = Math.max(0, Math.min(100, dragStart.startPos + delta * 0.3));
+            setImgPos(prev => ({ ...prev, y: Math.round(newY) }));
+          } : undefined}
+          onTouchEnd={repositioning && dragStart ? () => setDragStart(null) : undefined}
+        >
           {entry.image_url ? (
             <img
               src={entry.image_url}
               alt={entry.title}
-              className="w-full h-full object-cover cursor-zoom-in"
-              onClick={e => { e.stopPropagation(); onLightbox({ src: entry.image_url!, alt: entry.title }); }}
+              className={`w-full h-full object-cover ${repositioning ? 'pointer-events-none' : 'cursor-zoom-in'}`}
+              style={{ objectPosition: `${imgPos.x}% ${imgPos.y}%` }}
+              onClick={!repositioning ? (e) => { e.stopPropagation(); onLightbox({ src: entry.image_url!, alt: entry.title }); } : undefined}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center min-h-[200px]">
               <span className="text-6xl opacity-15">{fruitInfo?.icon || '📄'}</span>
+            </div>
+          )}
+          {repositioning && (
+            <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center gap-2 pointer-events-none">
+              <span className="text-white text-xs font-montserrat font-bold bg-black/50 px-3 py-1 rounded-full">
+                ↕ Arraste para reposicionar
+              </span>
+            </div>
+          )}
+          {entry.image_url && !repositioning && (
+            <button
+              onClick={e => { e.stopPropagation(); setRepositioning(true); }}
+              className="absolute top-2 right-2 px-2 py-1 bg-card/80 hover:bg-card text-foreground rounded-md text-[9px] font-montserrat font-bold uppercase tracking-wider border border-border transition-colors backdrop-blur-sm"
+              title="Reposicionar imagem"
+            >
+              ↕ Posição
+            </button>
+          )}
+          {repositioning && (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+              <button
+                onClick={async (e) => { e.stopPropagation(); setRepositioning(false); await onUpdate(entry.id, { image_position: imgPos }); toast.success('Posição salva!'); }}
+                className="px-3 py-1.5 bg-primary hover:bg-ring text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors"
+              >
+                ✓ Salvar
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setRepositioning(false); setImgPos(entry.image_position || { x: 50, y: 50 }); }}
+                className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors"
+              >
+                Cancelar
+              </button>
             </div>
           )}
           <button
