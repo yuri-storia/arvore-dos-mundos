@@ -236,7 +236,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
   const isLow = creditsRemaining <= 10;
   const isOut = creditsRemaining < ANALYSIS_COST;
 
-  const displayedAnalysis = analysis;
+  
 
   return (
     <div className="rounded-lg p-4 sm:p-5 mb-6 animate-fadeUp border border-accent/20" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.10) 0%, rgba(59,130,246,0.10) 50%, rgba(16,185,129,0.08) 100%)', backdropFilter: 'blur(20px)' }}>
