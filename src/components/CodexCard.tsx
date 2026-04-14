@@ -163,7 +163,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
       >
         <div className="relative h-[140px] bg-secondary/30">
           {entry.image_url ? (
-            <img src={entry.image_url} alt={entry.title} className="w-full h-full object-cover" />
+            <img src={entry.image_url} alt={entry.title} className="w-full h-full object-cover" style={{ objectPosition: `${imgPos.x}% ${imgPos.y}%` }} />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <span className="text-5xl opacity-20">{fruitInfo?.icon || '📄'}</span>
