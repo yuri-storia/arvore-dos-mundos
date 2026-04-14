@@ -6,6 +6,7 @@ import { callAIImage } from '@/lib/helpers';
 import { exportSingleEntry } from '@/lib/codexPdfExport';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { ImageRepositioner } from '@/components/ImageRepositioner';
 
 interface Props {
   entry: CodexEntry;
@@ -28,8 +29,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   const [showGalleryPicker, setShowGalleryPicker] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
   const [generatingAi, setGeneratingAi] = useState(false);
-  const [repositioning, setRepositioning] = useState(false);
-  const [dragStart, setDragStart] = useState<{ y: number; startPos: number } | null>(null);
+  const [showRepositioner, setShowRepositioner] = useState(false);
   const [imgPos, setImgPos] = useState<{ x: number; y: number }>(entry.image_position || { x: 50, y: 50 });
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -366,75 +366,28 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
     <div className="rounded-lg overflow-hidden col-span-1 sm:col-span-2 lg:col-span-3 animate-fadeUp card-glass">
       <div className="flex flex-col md:flex-row">
         {/* Image section */}
-        <div
-          className={`relative w-full md:w-[320px] h-[240px] md:h-auto bg-secondary/30 flex-shrink-0 ${repositioning ? 'cursor-ns-resize' : ''}`}
-          onMouseDown={repositioning ? (e) => {
-            e.preventDefault();
-            setDragStart({ y: e.clientY, startPos: imgPos.y });
-          } : undefined}
-          onMouseMove={repositioning && dragStart ? (e) => {
-            const delta = dragStart.y - e.clientY;
-            const newY = Math.max(0, Math.min(100, dragStart.startPos + delta * 0.3));
-            setImgPos(prev => ({ ...prev, y: Math.round(newY) }));
-          } : undefined}
-          onMouseUp={repositioning && dragStart ? () => setDragStart(null) : undefined}
-          onMouseLeave={repositioning && dragStart ? () => setDragStart(null) : undefined}
-          onTouchStart={repositioning ? (e) => {
-            const touch = e.touches[0];
-            setDragStart({ y: touch.clientY, startPos: imgPos.y });
-          } : undefined}
-          onTouchMove={repositioning && dragStart ? (e) => {
-            const touch = e.touches[0];
-            const delta = dragStart.y - touch.clientY;
-            const newY = Math.max(0, Math.min(100, dragStart.startPos + delta * 0.3));
-            setImgPos(prev => ({ ...prev, y: Math.round(newY) }));
-          } : undefined}
-          onTouchEnd={repositioning && dragStart ? () => setDragStart(null) : undefined}
-        >
+        <div className="relative w-full md:w-[320px] h-[240px] md:h-auto bg-secondary/30 flex-shrink-0">
           {entry.image_url ? (
             <img
               src={entry.image_url}
               alt={entry.title}
-              className={`w-full h-full object-cover ${repositioning ? 'pointer-events-none' : 'cursor-zoom-in'}`}
+              className="w-full h-full object-cover cursor-zoom-in"
               style={{ objectPosition: `${imgPos.x}% ${imgPos.y}%` }}
-              onClick={!repositioning ? (e) => { e.stopPropagation(); onLightbox({ src: entry.image_url!, alt: entry.title }); } : undefined}
+              onClick={e => { e.stopPropagation(); onLightbox({ src: entry.image_url!, alt: entry.title }); }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center min-h-[200px]">
               <span className="text-6xl opacity-15">{fruitInfo?.icon || '📄'}</span>
             </div>
           )}
-          {repositioning && (
-            <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center gap-2 pointer-events-none">
-              <span className="text-white text-xs font-montserrat font-bold bg-black/50 px-3 py-1 rounded-full">
-                ↕ Arraste para reposicionar
-              </span>
-            </div>
-          )}
-          {entry.image_url && !repositioning && (
+          {entry.image_url && (
             <button
-              onClick={e => { e.stopPropagation(); setRepositioning(true); }}
+              onClick={e => { e.stopPropagation(); setShowRepositioner(true); }}
               className="absolute top-2 right-2 px-2 py-1 bg-card/80 hover:bg-card text-foreground rounded-md text-[9px] font-montserrat font-bold uppercase tracking-wider border border-border transition-colors backdrop-blur-sm"
               title="Reposicionar imagem"
             >
               ↕ Posição
             </button>
-          )}
-          {repositioning && (
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-              <button
-                onClick={async (e) => { e.stopPropagation(); setRepositioning(false); await onUpdate(entry.id, { image_position: imgPos }); toast.success('Posição salva!'); }}
-                className="px-3 py-1.5 bg-primary hover:bg-ring text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors"
-              >
-                ✓ Salvar
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); setRepositioning(false); setImgPos(entry.image_position || { x: 50, y: 50 }); }}
-                className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors"
-              >
-                Cancelar
-              </button>
-            </div>
           )}
           <button
             onClick={e => { e.stopPropagation(); setShowImageMenu(!showImageMenu); }}
@@ -450,6 +403,22 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             </div>
           )}
         </div>
+
+        {/* Repositioner modal */}
+        {showRepositioner && entry.image_url && (
+          <ImageRepositioner
+            src={entry.image_url}
+            alt={entry.title}
+            initialPosition={imgPos}
+            onSave={async (pos) => {
+              setImgPos(pos);
+              setShowRepositioner(false);
+              await onUpdate(entry.id, { image_position: pos });
+              toast.success('Posição salva!');
+            }}
+            onCancel={() => setShowRepositioner(false)}
+          />
+        )}
 
         {/* Content section */}
         <div className="flex-1 p-4 sm:p-5">
