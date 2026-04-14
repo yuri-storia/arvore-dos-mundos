@@ -11,7 +11,7 @@ interface Props {
   entry: CodexEntry;
   expanded: boolean;
   onToggle: () => void;
-  onUpdate: (id: string, updates: Partial<Pick<CodexEntry, 'title' | 'content' | 'image_url' | 'entry_type' | 'fruit_id'>>) => Promise<void>;
+  onUpdate: (id: string, updates: Partial<Pick<CodexEntry, 'title' | 'content' | 'image_url' | 'entry_type' | 'fruit_id' | 'image_position'>>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
   onImageUpload: (file: File) => Promise<string | null>;
   onLightbox: (v: { src: string; alt: string }) => void;
@@ -28,6 +28,9 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   const [showGalleryPicker, setShowGalleryPicker] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
   const [generatingAi, setGeneratingAi] = useState(false);
+  const [repositioning, setRepositioning] = useState(false);
+  const [dragStart, setDragStart] = useState<{ y: number; startPos: number } | null>(null);
+  const [imgPos, setImgPos] = useState<{ x: number; y: number }>(entry.image_position || { x: 50, y: 50 });
   const fileRef = useRef<HTMLInputElement>(null);
 
   const fruitInfo = entry.fruit_id !== null ? FRUITS.find(f => f.id === entry.fruit_id) : null;
