@@ -366,7 +366,7 @@ Seja construtiva, honesta e SUCINTA. Cada seção deve ter no máximo 4-6 linhas
             </button>
           )}
           <p className="text-[10px] text-text-dim mt-2 font-montserrat">
-            Consome {ANALYSIS_COST} gotas de Seiva · Análises anteriores podem ser revisitadas gratuitamente
+            💧 Custo: <span className="font-bold text-idriel-light">{ANALYSIS_COST} gota</span> de Seiva · Você tem <span className="font-bold text-idriel-light">{creditsRemaining} gotas</span> · Análises anteriores são gratuitas
           </p>
         </div>
       )}
