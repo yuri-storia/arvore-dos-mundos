@@ -511,8 +511,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                   <CodexCard
                     key={entry.id}
                     entry={entry}
-                    expanded={expandedId === entry.id}
-                    onToggle={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
+                    expanded={false}
+                    onToggle={() => setExpandedId(entry.id)}
                     onUpdate={updateEntry}
                     onDelete={deleteEntry}
                     onImageUpload={uploadImage}
@@ -537,8 +537,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                   <CodexCard
                     key={entry.id}
                     entry={entry}
-                    expanded={expandedId === entry.id}
-                    onToggle={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
+                    expanded={false}
+                    onToggle={() => setExpandedId(entry.id)}
                     onUpdate={updateEntry}
                     onDelete={deleteEntry}
                     onImageUpload={uploadImage}
@@ -549,6 +549,35 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
               </div>
             </div>
           )}
+
+          {/* Expanded card modal overlay */}
+          {expandedId && (() => {
+            const expandedEntry = entries.find(e => e.id === expandedId);
+            if (!expandedEntry) return null;
+            return (
+              <div
+                className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-start justify-center overflow-y-auto py-8 px-3 sm:px-6"
+                onClick={() => setExpandedId(null)}
+              >
+                <div
+                  className="w-full max-w-[900px] animate-fadeUp"
+                  onClick={e => e.stopPropagation()}
+                >
+                  <CodexCard
+                    entry={expandedEntry}
+                    expanded={true}
+                    onToggle={() => setExpandedId(null)}
+                    onUpdate={updateEntry}
+                    onDelete={async (id) => { await deleteEntry(id); setExpandedId(null); }}
+                    onImageUpload={uploadImage}
+                    onLightbox={setLightbox}
+                    gallery={gallery}
+                  />
+                </div>
+              </div>
+            );
+          })()}
+        </>
         </>
       )}
 
