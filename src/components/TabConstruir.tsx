@@ -195,7 +195,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 selectFruit(f.id);
                 if (isMobile) {
                   setTimeout(() => {
-                    document.getElementById('orientacoes-idriel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.getElementById('fruit-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }, 150);
                 }
               }}
@@ -239,7 +239,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
       {/* Fruit panel */}
       {fruit && (
-        <div key={currentFruit} className="animate-fadeUp card-glass rounded-lg overflow-hidden">
+        <div id="fruit-panel" key={currentFruit} className="animate-fadeUp card-glass rounded-lg overflow-hidden">
           {/* Hero */}
           <div className="relative h-[140px] sm:h-[200px]">
             {FRUIT_IMAGES[fruit.id] ? (
