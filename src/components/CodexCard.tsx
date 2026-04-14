@@ -6,6 +6,7 @@ import { callAIImage } from '@/lib/helpers';
 import { exportSingleEntry } from '@/lib/codexPdfExport';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { ImageRepositioner } from '@/components/ImageRepositioner';
 
 interface Props {
   entry: CodexEntry;
@@ -28,8 +29,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   const [showGalleryPicker, setShowGalleryPicker] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
   const [generatingAi, setGeneratingAi] = useState(false);
-  const [repositioning, setRepositioning] = useState(false);
-  const [dragStart, setDragStart] = useState<{ y: number; startPos: number } | null>(null);
+  const [showRepositioner, setShowRepositioner] = useState(false);
   const [imgPos, setImgPos] = useState<{ x: number; y: number }>(entry.image_position || { x: 50, y: 50 });
   const fileRef = useRef<HTMLInputElement>(null);
 
