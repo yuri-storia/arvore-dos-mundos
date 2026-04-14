@@ -16,9 +16,8 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide, id }) => {
     setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
 
   const sections = [
-    { key: 'orientacao', icon: '🌿', title: 'Orientação de Idriel', content: guide.min },
+    { key: 'orientacao', icon: '🌿', title: 'Sobre este Fruto', content: guide.min },
     { key: 'estudo', icon: '📖', title: 'Estudo de Caso', content: guide.ref },
-    ...(guide.steps?.length ? [{ key: 'passos', icon: '🗺', title: 'Passo a Passo', content: null as string | null }] : []),
   ];
 
   return (
