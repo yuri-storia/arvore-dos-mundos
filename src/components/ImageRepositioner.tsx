@@ -154,18 +154,19 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-2">
+        <div className="flex items-center justify-between">
           <button
             onClick={onCancel}
-            className="px-5 py-2 rounded-md bg-white/10 hover:bg-white/20 text-white text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+            className="px-5 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
           >
-            Cancelar
+            ✕ Cancelar
           </button>
           <button
             onClick={handleSave}
-            className="px-5 py-2 rounded-md bg-primary hover:bg-ring text-white text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+            className="px-6 py-2.5 rounded-lg bg-primary hover:bg-ring text-white text-sm font-montserrat font-bold uppercase tracking-wider transition-all shadow-lg shadow-primary/30 hover:shadow-primary/50 flex items-center gap-2"
           >
-            ✓ Salvar posição
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+            Confirmar posição
           </button>
         </div>
       </div>
