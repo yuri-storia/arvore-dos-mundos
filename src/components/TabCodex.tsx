@@ -556,11 +556,11 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
             if (!expandedEntry) return null;
             return (
               <div
-                className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-start justify-center overflow-y-auto py-8 px-3 sm:px-6"
+                className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
                 onClick={() => setExpandedId(null)}
               >
                 <div
-                  className="w-full max-w-[900px] animate-fadeUp"
+                  className="w-full max-w-[900px] max-h-[90vh] overflow-y-auto animate-fadeUp rounded-lg"
                   onClick={e => e.stopPropagation()}
                 >
                   <CodexCard
