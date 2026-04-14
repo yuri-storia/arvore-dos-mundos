@@ -17,7 +17,9 @@ export interface Chapter {
   id: string;
   manuscript_id: string;
   title: string;
+  content: string;
   notes: string | null;
+  word_count: number;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -142,10 +144,14 @@ export function useManuscript(worldId?: string) {
     return ch;
   }, [user, activeManuscript, chapters.length]);
 
-  const updateChapter = useCallback(async (id: string, updates: Partial<Pick<Chapter, 'title' | 'notes' | 'sort_order'>>) => {
-    const { error } = await supabase.from('chapters').update(updates).eq('id', id);
+  const updateChapter = useCallback(async (id: string, updates: Partial<Pick<Chapter, 'title' | 'notes' | 'sort_order' | 'content'>>) => {
+    const finalUpdates: any = { ...updates };
+    if (updates.content !== undefined) {
+      finalUpdates.word_count = countWords(updates.content);
+    }
+    const { error } = await supabase.from('chapters').update(finalUpdates).eq('id', id);
     if (error) { toast.error('Erro ao atualizar capítulo'); return; }
-    setChapters(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
+    setChapters(prev => prev.map(c => c.id === id ? { ...c, ...finalUpdates } : c));
   }, []);
 
   const deleteChapter = useCallback(async (id: string) => {
@@ -162,10 +168,10 @@ export function useManuscript(worldId?: string) {
     const nextOrder = chapterScenes.length;
     const { data, error } = await supabase
       .from('scenes')
-      .insert({ user_id: user.id, chapter_id: chapterId, title: title || `Cena ${nextOrder + 1}`, sort_order: nextOrder })
+      .insert({ user_id: user.id, chapter_id: chapterId, title: title || `Arco ${nextOrder + 1}`, sort_order: nextOrder })
       .select()
       .single();
-    if (error) { toast.error('Erro ao criar cena'); return null; }
+    if (error) { toast.error('Erro ao criar arco'); return null; }
     const sc = data as Scene;
     setScenes(prev => [...prev, sc]);
     return sc;
@@ -177,17 +183,17 @@ export function useManuscript(worldId?: string) {
       finalUpdates.word_count = countWords(updates.content);
     }
     const { error } = await supabase.from('scenes').update(finalUpdates).eq('id', id);
-    if (error) { toast.error('Erro ao salvar cena'); return; }
+    if (error) { toast.error('Erro ao salvar arco'); return; }
     setScenes(prev => prev.map(s => s.id === id ? { ...s, ...finalUpdates } : s));
   }, []);
 
   const deleteScene = useCallback(async (id: string) => {
     const { error } = await supabase.from('scenes').delete().eq('id', id);
-    if (error) { toast.error('Erro ao excluir cena'); return; }
+    if (error) { toast.error('Erro ao excluir arco'); return; }
     setScenes(prev => prev.filter(s => s.id !== id));
   }, []);
 
-  const totalWordCount = scenes.reduce((sum, s) => sum + (s.word_count || 0), 0);
+  const totalWordCount = chapters.reduce((sum, c) => sum + (c.word_count || 0), 0);
 
   return {
     manuscripts, activeManuscript, setActiveManuscript,

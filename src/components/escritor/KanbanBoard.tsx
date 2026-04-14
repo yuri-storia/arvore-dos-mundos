@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { type Scene, type SceneStatus, type Chapter } from '@/hooks/useManuscript';
-import { type CodexEntry } from '@/hooks/useCodexEntries';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { FileText, GripVertical, Plus, Filter } from 'lucide-react';
 import {
@@ -61,7 +60,7 @@ export const KanbanBoard: React.FC<Props> = ({ chapters, scenes, onUpdateScene, 
             ))}
           </SelectContent>
         </Select>
-        <span className="text-[10px] text-text-dim ml-auto">{filteredScenes.length} cenas</span>
+        <span className="text-[10px] text-text-dim ml-auto">{filteredScenes.length} arcos</span>
       </div>
 
       {/* Columns */}
@@ -114,7 +113,7 @@ export const KanbanBoard: React.FC<Props> = ({ chapters, scenes, onUpdateScene, 
                     })}
                     {colScenes.length === 0 && (
                       <div className="text-center py-6 text-[10px] text-text-dim/30">
-                        Arraste cenas aqui
+                        Arraste arcos aqui
                       </div>
                     )}
                   </div>

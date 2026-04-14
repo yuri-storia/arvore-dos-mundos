@@ -8,15 +8,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-  Plus, ChevronRight, ChevronDown, Trash2, FileText, BookOpen,
+  Plus, Trash2, FileText, BookOpen,
   PanelRightOpen, PanelRightClose, StickyNote, Search, BookMarked, PenLine,
-  LayoutGrid, Feather, Maximize, Minimize, Info
+  LayoutGrid, Maximize, Minimize, ChevronRight
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import { KanbanBoard } from '@/components/escritor/KanbanBoard';
-import { FreeWritingView } from '@/components/escritor/FreeWritingView';
 import { PomodoroTimer } from '@/components/PomodoroTimer';
 import { ManuscriptExportMenu } from '@/components/ManuscriptExportMenu';
 import {
@@ -28,23 +27,18 @@ interface Props {
   worlds: WorldRecord[];
 }
 
-type WriteMode = 'manuscrito' | 'mural' | 'livre';
+type WriteMode = 'manuscrito' | 'mural';
 
 const WRITE_MODE_INFO: Record<WriteMode, { icon: typeof BookMarked; label: string; desc: string }> = {
   manuscrito: {
     icon: BookMarked,
     label: 'Manuscrito',
-    desc: 'Organize sua história em capítulos e cenas, como um livro. Ideal para narrativas longas e estruturadas.',
+    desc: 'Organize sua história em capítulos. Ideal para narrativas longas e estruturadas.',
   },
   mural: {
     icon: LayoutGrid,
-    label: 'Mural de Cenas',
-    desc: 'Visualize todas as suas cenas em colunas por status (Ideia → Rascunho → Revisão → Pronto). Arraste para reorganizar.',
-  },
-  livre: {
-    icon: Feather,
-    label: 'Rascunhos',
-    desc: 'Escreva livremente sem estrutura. Ideal para anotações, brainstorming e trechos soltos.',
+    label: 'Mural de Arcos',
+    desc: 'Visualize seus arcos narrativos em colunas por status (Ideia → Rascunho → Revisão → Pronto). Arraste para reorganizar.',
   },
 };
 
@@ -148,8 +142,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const { entries } = useCodexEntries(worldId);
 
   const [writeMode, setWriteMode] = useState<WriteMode>('manuscrito');
-  const [activeSceneId, setActiveSceneId] = useState<string | null>(null);
-  const [expandedChapters, setExpandedChapters] = useState<Set<string>>(new Set());
+  const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
   const [showRefPanel, setShowRefPanel] = useState(!isMobile);
   const [showNotes, setShowNotes] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState('');
@@ -161,18 +154,14 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const activeScene = useMemo(() => scenes.find(s => s.id === activeSceneId), [scenes, activeSceneId]);
-  const activeChapter = useMemo(() => {
-    if (!activeScene) return null;
-    return chapters.find(c => c.id === activeScene.chapter_id);
-  }, [activeScene, chapters]);
+  const activeChapter = useMemo(() => chapters.find(c => c.id === activeChapterId), [chapters, activeChapterId]);
 
   useEffect(() => {
-    if (activeScene) {
-      setEditingContent(activeScene.content || '');
-      setEditingTitle(activeScene.title);
+    if (activeChapter) {
+      setEditingContent(activeChapter.content || '');
+      setEditingTitle(activeChapter.title);
     }
-  }, [activeSceneId]); // eslint-disable-line
+  }, [activeChapterId]); // eslint-disable-line
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && zenMode) setZenMode(false); };
@@ -182,12 +171,12 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
 
   const debouncedSave = useCallback((id: string, content: string) => {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => updateScene(id, { content }), 1500);
-  }, [updateScene]);
+    saveTimerRef.current = setTimeout(() => updateChapter(id, { content }), 1500);
+  }, [updateChapter]);
 
   const handleContentChange = (value: string) => {
     setEditingContent(value);
-    if (activeSceneId) debouncedSave(activeSceneId, value);
+    if (activeChapterId) debouncedSave(activeChapterId, value);
     const textarea = editorRef.current;
     if (!textarea) return;
     const cursor = textarea.selectionStart;
@@ -205,27 +194,23 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     const atIdx = textBefore.lastIndexOf('@');
     const newContent = editingContent.substring(0, atIdx) + `@${name}` + editingContent.substring(cursor);
     setEditingContent(newContent);
-    if (activeSceneId) debouncedSave(activeSceneId, newContent);
+    if (activeChapterId) debouncedSave(activeChapterId, newContent);
     setMentionState(prev => ({ ...prev, active: false }));
     setTimeout(() => { textarea.focus(); const newPos = atIdx + name.length + 1; textarea.setSelectionRange(newPos, newPos); }, 0);
   };
 
   const handleInsertMentionFromPanel = (name: string) => {
-    if (!editorRef.current || !activeSceneId) return;
+    if (!editorRef.current || !activeChapterId) return;
     const textarea = editorRef.current;
     const cursor = textarea.selectionStart;
     const newContent = editingContent.substring(0, cursor) + `@${name} ` + editingContent.substring(cursor);
     setEditingContent(newContent);
-    debouncedSave(activeSceneId, newContent);
+    debouncedSave(activeChapterId, newContent);
     setTimeout(() => textarea.focus(), 0);
   };
 
-  const toggleChapter = (id: string) => {
-    setExpandedChapters(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
-  };
-
-  const handleSceneTitleSave = () => {
-    if (activeSceneId && editingTitle.trim()) updateScene(activeSceneId, { title: editingTitle.trim() });
+  const handleChapterTitleSave = () => {
+    if (activeChapterId && editingTitle.trim()) updateChapter(activeChapterId, { title: editingTitle.trim() });
   };
 
   const handleCreateManuscriptWithName = async () => {
@@ -235,7 +220,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     setNewManuscriptName('');
   };
 
-  const sceneWordCount = editingContent.trim() ? editingContent.trim().split(/\s+/).length : 0;
+  const chapterWordCount = editingContent.trim() ? editingContent.trim().split(/\s+/).length : 0;
 
   if (!user) return <div className="text-center py-20 text-text-dim">Faça login para acessar.</div>;
   if (!worldId) return <div className="text-center py-20 text-text-dim">Selecione um mundo para começar a escrever.</div>;
@@ -249,9 +234,8 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
         </div>
         <h2 className="font-cinzel font-bold text-xl text-foreground mb-2">Comece seu Manuscrito</h2>
         <p className="text-sm text-text-secondary mb-6 max-w-md mx-auto leading-relaxed">
-          O manuscrito é onde sua história ganha forma. Organize tudo em <strong>capítulos</strong> e <strong>cenas</strong>, como um livro de verdade.
+          O manuscrito é onde sua história ganha forma. Organize tudo em <strong>capítulos</strong>, como um livro de verdade.
         </p>
-
 
         <Button data-tour="create-manuscript" onClick={() => setShowNamePrompt(true)} className="bg-blue-bright/20 text-blue-light border border-blue-bright/30 hover:bg-blue-bright/30">
           <Plus className="w-4 h-4 mr-1" /> Criar Manuscrito
@@ -290,7 +274,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
             placeholder="Título do manuscrito" />
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          {/* Mode switcher with tooltips */}
+          {/* Mode switcher */}
           <div data-tour="write-modes" className="flex items-center bg-white/[0.03] rounded-md border border-blue-bright/10 p-0.5">
             {(Object.entries(WRITE_MODE_INFO) as [WriteMode, typeof WRITE_MODE_INFO[WriteMode]][]).map(([key, m]) => (
               <div key={key} className="relative group">
@@ -317,118 +301,78 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
         </div>
       </div>
 
-      {/* ── MURAL DE CENAS MODE ── */}
+      {/* ── MURAL DE ARCOS MODE ── */}
       {writeMode === 'mural' && (
         <div className="h-[calc(100vh-220px)] min-h-[400px] bg-white/[0.02] rounded-lg border border-blue-bright/10">
           <KanbanBoard
             chapters={chapters}
             scenes={scenes}
             onUpdateScene={updateScene}
-            onSelectScene={(id) => { setActiveSceneId(id); setWriteMode('manuscrito'); }}
+            onSelectScene={(id) => {
+              // Find the scene's chapter and navigate there
+              const scene = scenes.find(s => s.id === id);
+              if (scene) {
+                setActiveChapterId(scene.chapter_id);
+                setWriteMode('manuscrito');
+              }
+            }}
             onCreateScene={createScene}
           />
-        </div>
-      )}
-
-      {/* ── RASCUNHOS (ESCRITA LIVRE) ── */}
-      {writeMode === 'livre' && (
-        <div className="h-[calc(100vh-220px)] min-h-[400px]">
-          <FreeWritingView worldId={worldId} entries={entries} />
         </div>
       )}
 
       {/* ── MANUSCRIPT MODE ── */}
       {writeMode === 'manuscrito' && (
         <div className={`flex gap-3 min-h-[400px] transition-all duration-300 ${zenMode ? 'h-[calc(100vh-100px)]' : 'h-[calc(100vh-220px)]'}`}>
-          {/* LEFT: Chapter/Scene tree */}
+          {/* LEFT: Chapter list */}
           {!zenMode && (
-          <div className={`${isMobile ? 'w-full' : 'w-[220px]'} shrink-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && activeSceneId ? 'hidden' : ''}`}>
+          <div className={`${isMobile ? 'w-full' : 'w-[220px]'} shrink-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && activeChapterId ? 'hidden' : ''}`}>
             <div className="p-2 border-b border-blue-bright/10 flex items-center justify-between">
               <span className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Capítulos</span>
-              <button onClick={async () => { const ch = await createChapter(); if (ch) toggleChapter(ch.id); }}
+              <button onClick={async () => { const ch = await createChapter(); if (ch) setActiveChapterId(ch.id); }}
                 className="p-1 rounded hover:bg-blue-bright/10 text-blue-light" title="Novo capítulo">
                 <Plus className="w-3.5 h-3.5" />
               </button>
             </div>
             <ScrollArea className="flex-1">
               <div className="p-1.5 space-y-0.5">
-                {chapters.map((ch) => {
-                  const chScenes = scenes.filter(s => s.chapter_id === ch.id);
-                  const expanded = expandedChapters.has(ch.id);
-                  const chapterWords = chScenes.reduce((sum, s) => sum + s.word_count, 0);
+                {chapters.map((ch) => (
+                  <div key={ch.id} className="flex items-center group">
+                    <button onClick={() => setActiveChapterId(ch.id)}
+                      className={`flex-1 min-w-0 text-left px-2 py-1.5 rounded text-xs font-montserrat font-bold truncate transition-colors ${
+                        activeChapterId === ch.id ? 'bg-blue-bright/15 text-blue-light' : 'text-foreground/80 hover:text-foreground hover:bg-white/[0.03]'
+                      }`}>
+                      <FileText className="w-3 h-3 inline mr-1.5 opacity-50" />{ch.title}
+                    </button>
+                    <span className="text-[9px] text-text-dim/50 mr-1">{ch.word_count || 0}</span>
+                    <button onClick={() => setShowNotes(showNotes === ch.id ? null : ch.id)}
+                      className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-gold-light transition-all" title="Notas">
+                      <StickyNote className="w-3 h-3" />
+                    </button>
+                    <ConfirmDialog
+                      trigger={
+                        <button className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all" title="Excluir capítulo">
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      }
+                      title="Excluir capítulo"
+                      description={`Tem certeza que deseja excluir "${ch.title}"? O conteúdo será perdido permanentemente.`}
+                      confirmLabel="Excluir"
+                      onConfirm={() => { deleteChapter(ch.id); if (activeChapterId === ch.id) setActiveChapterId(null); }}
+                    />
+                  </div>
+                ))}
+                {showNotes && (() => {
+                  const ch = chapters.find(c => c.id === showNotes);
+                  if (!ch) return null;
                   return (
-                    <div key={ch.id}>
-                      <div className="flex items-center group">
-                        <button onClick={() => toggleChapter(ch.id)} className="p-0.5 text-text-dim hover:text-foreground">
-                          {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                        </button>
-                        <button onClick={() => toggleChapter(ch.id)}
-                          className="flex-1 min-w-0 text-left px-1 py-1 text-xs font-montserrat font-bold text-foreground/80 hover:text-foreground truncate">
-                          {ch.title}
-                        </button>
-                        <span className="text-[9px] text-text-dim/50 mr-1">{chapterWords}</span>
-                        <button onClick={() => setShowNotes(showNotes === ch.id ? null : ch.id)}
-                          className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-gold-light transition-all" title="Notas">
-                          <StickyNote className="w-3 h-3" />
-                        </button>
-                        <button onClick={async () => await createScene(ch.id)}
-                          className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-blue-light transition-all" title="Nova cena">
-                          <Plus className="w-3 h-3" />
-                        </button>
-                        <ConfirmDialog
-                          trigger={
-                            <button className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all" title="Excluir capítulo">
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          }
-                          title="Excluir capítulo"
-                          description={`Tem certeza que deseja excluir "${ch.title}"? Todas as cenas deste capítulo serão perdidas.`}
-                          confirmLabel="Excluir"
-                          onConfirm={() => deleteChapter(ch.id)}
-                        />
-                      </div>
-                      {showNotes === ch.id && (
-                        <div className="ml-5 mb-1">
-                          <Textarea value={ch.notes || ''} onChange={e => updateChapter(ch.id, { notes: e.target.value })}
-                            placeholder="Notas do capítulo…"
-                            className="text-[10px] min-h-[50px] bg-gold/[0.04] border-gold/20 text-gold-light placeholder:text-gold/30 resize-none" />
-                        </div>
-                      )}
-                      {expanded && (
-                        <div className="ml-4 space-y-px">
-                          {chScenes.map(sc => (
-                            <div key={sc.id} className="flex items-center group/scene">
-                              <button onClick={() => setActiveSceneId(sc.id)}
-                                className={`flex-1 min-w-0 text-left px-2 py-1 rounded text-[11px] truncate transition-colors ${
-                                  activeSceneId === sc.id ? 'bg-blue-bright/15 text-blue-light' : 'text-text-dim hover:text-foreground hover:bg-white/[0.03]'
-                                }`}>
-                                <FileText className="w-3 h-3 inline mr-1 opacity-50" />{sc.title}
-                              </button>
-                              <span className="text-[9px] text-text-dim/40 mr-1">{sc.word_count}</span>
-                              <ConfirmDialog
-                                trigger={
-                                  <button className="opacity-0 group-hover/scene:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all">
-                                    <Trash2 className="w-2.5 h-2.5" />
-                                  </button>
-                                }
-                                title="Excluir cena"
-                                description={`Tem certeza que deseja excluir "${sc.title}"? O conteúdo será perdido permanentemente.`}
-                                confirmLabel="Excluir"
-                                onConfirm={() => deleteScene(sc.id)}
-                              />
-                            </div>
-                          ))}
-                          {chScenes.length === 0 && (
-                            <button onClick={() => createScene(ch.id)}
-                              className="w-full text-left px-2 py-1 text-[10px] text-text-dim/40 hover:text-blue-light transition-colors">
-                              + Adicionar cena
-                            </button>
-                          )}
-                        </div>
-                      )}
+                    <div className="px-1 mb-1">
+                      <Textarea value={ch.notes || ''} onChange={e => updateChapter(ch.id, { notes: e.target.value })}
+                        placeholder="Notas do capítulo…"
+                        className="text-[10px] min-h-[50px] bg-gold/[0.04] border-gold/20 text-gold-light placeholder:text-gold/30 resize-none" />
                     </div>
                   );
-                })}
+                })()}
                 {chapters.length === 0 && <p className="text-xs text-text-dim text-center py-6">Crie seu primeiro capítulo.</p>}
               </div>
             </ScrollArea>
@@ -436,29 +380,27 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           )}
 
           {/* CENTER: Editor */}
-          <div className={`flex-1 min-w-0 flex flex-col rounded-lg border transition-all duration-300 ${zenMode ? 'bg-background border-transparent shadow-2xl' : 'bg-white/[0.02] border-blue-bright/10'} ${isMobile && !activeSceneId ? 'hidden' : ''}`}>
-            {activeScene ? (
+          <div className={`flex-1 min-w-0 flex flex-col rounded-lg border transition-all duration-300 ${zenMode ? 'bg-background border-transparent shadow-2xl' : 'bg-white/[0.02] border-blue-bright/10'} ${isMobile && !activeChapterId ? 'hidden' : ''}`}>
+            {activeChapter ? (
               <>
                 {/* Breadcrumb */}
-                {activeChapter && !zenMode && (
+                {!zenMode && (
                   <div className="px-3 pt-2 flex items-center gap-1 text-[10px] font-montserrat text-text-dim/60">
                     <span className="hover:text-foreground cursor-default">{activeManuscript.title}</span>
                     <ChevronRight className="w-2.5 h-2.5" />
-                    <span className="hover:text-foreground cursor-default">{activeChapter.title}</span>
-                    <ChevronRight className="w-2.5 h-2.5" />
-                    <span className="text-blue-light/80">{activeScene.title}</span>
+                    <span className="text-blue-light/80">{activeChapter.title}</span>
                   </div>
                 )}
                 <div className="p-3 border-b border-blue-bright/10 flex items-center gap-2">
                   {isMobile && (
-                    <button onClick={() => setActiveSceneId(null)} className="p-1 text-text-dim hover:text-foreground">
+                    <button onClick={() => setActiveChapterId(null)} className="p-1 text-text-dim hover:text-foreground">
                       <ChevronRight className="w-4 h-4 rotate-180" />
                     </button>
                   )}
-                  <input value={editingTitle} onChange={e => setEditingTitle(e.target.value)} onBlur={handleSceneTitleSave}
+                  <input value={editingTitle} onChange={e => setEditingTitle(e.target.value)} onBlur={handleChapterTitleSave}
                     className="bg-transparent font-montserrat font-bold text-sm text-foreground border-none focus:outline-none flex-1"
-                    placeholder="Título da cena" />
-                   <span className="text-[11px] font-mono text-text-dim bg-white/[0.04] px-2 py-0.5 rounded">{sceneWordCount} palavras</span>
+                    placeholder="Título do capítulo" />
+                   <span className="text-[11px] font-mono text-text-dim bg-white/[0.04] px-2 py-0.5 rounded">{chapterWordCount} palavras</span>
                   <button onClick={() => setZenMode(!zenMode)}
                     className={`p-1.5 rounded hover:bg-white/[0.05] transition-colors ${zenMode ? 'text-blue-light' : 'text-text-dim hover:text-foreground'}`}
                     title={zenMode ? 'Sair do modo foco' : 'Modo foco'}>
@@ -474,7 +416,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                 </div>
                 <div className="flex-1 relative">
                   <textarea ref={editorRef} value={editingContent} onChange={e => handleContentChange(e.target.value)}
-                    placeholder="Comece a escrever sua história aqui…&#10;&#10;Use @NomeDoPersonagem para inserir referências do Codex."
+                    placeholder="Comece a escrever seu capítulo aqui…&#10;&#10;Use @NomeDoPersonagem para inserir referências do Codex."
                     className="w-full h-full resize-none bg-transparent text-foreground/90 font-merriweather text-sm leading-relaxed p-4 focus:outline-none placeholder:text-text-dim/30"
                     style={{ minHeight: '100%' }} />
                   {mentionState.active && (
@@ -487,8 +429,8 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
               <div className="flex-1 flex items-center justify-center text-center p-8">
                 <div>
                   <FileText className="w-10 h-10 mx-auto mb-3 text-text-dim/30" />
-                  <p className="text-sm text-text-dim">Selecione uma cena para começar a escrever.</p>
-                  <p className="text-xs text-text-dim/50 mt-1">Ou crie um capítulo e adicione cenas.</p>
+                  <p className="text-sm text-text-dim">Selecione um capítulo para começar a escrever.</p>
+                  <p className="text-xs text-text-dim/50 mt-1">Ou crie um novo capítulo no painel à esquerda.</p>
                 </div>
               </div>
             )}
