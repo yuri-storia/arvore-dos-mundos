@@ -364,9 +364,10 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   // Expanded ficha (with image support)
   return (
     <div className="rounded-lg overflow-hidden animate-fadeUp card-glass">
-      <div className="flex flex-col md:flex-row">
-        {/* Image section */}
-        <div className="relative w-full md:w-[320px] h-[240px] md:h-auto bg-secondary/30 flex-shrink-0">
+      {/* Fixed-height layout */}
+      <div className="flex flex-col md:flex-row h-[70vh] max-h-[600px]">
+        {/* Image section — fixed size, contained */}
+        <div className="relative w-full md:w-[300px] h-[200px] md:h-full bg-secondary/30 flex-shrink-0 overflow-hidden">
           {entry.image_url ? (
             <img
               src={entry.image_url}
@@ -376,7 +377,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               onClick={e => { e.stopPropagation(); onLightbox({ src: entry.image_url!, alt: entry.title }); }}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center min-h-[200px]">
+            <div className="w-full h-full flex items-center justify-center">
               <span className="text-6xl opacity-15">{fruitInfo?.icon || '📄'}</span>
             </div>
           )}
@@ -393,7 +394,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             onClick={e => { e.stopPropagation(); setShowImageMenu(!showImageMenu); }}
             className="absolute bottom-3 right-3 px-3 py-1.5 bg-card/80 hover:bg-card text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider border border-border transition-colors backdrop-blur-sm"
           >
-            {entry.image_url ? '🖼 Alterar imagem' : '🖼 Adicionar imagem'}
+            {entry.image_url ? '🖼 Alterar' : '🖼 Adicionar'}
           </button>
           {fruitInfo && (
             <div className="absolute top-2 left-2">
@@ -420,9 +421,10 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
           />
         )}
 
-        {/* Content section */}
-        <div className="flex-1 p-4 sm:p-5">
-          <div className="flex items-start justify-between mb-3">
+        {/* Content section — scrollable */}
+        <div className="flex-1 flex flex-col min-h-0 p-4 sm:p-5">
+          {/* Header — fixed */}
+          <div className="flex items-start justify-between mb-3 flex-shrink-0">
             {editing ? (
               <input
                 value={title}
@@ -441,39 +443,43 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             </button>
           </div>
 
-          {editing ? (
-            <>
-              <div className="mb-3">
-                <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Fruto</label>
-                <select
-                  value={editFruit ?? ''}
-                  onChange={e => setEditFruit(e.target.value ? Number(e.target.value) : null)}
+          {/* Scrollable content area */}
+          <div className="flex-1 overflow-y-auto min-h-0 pr-1">
+            {editing ? (
+              <>
+                <div className="mb-3">
+                  <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Fruto</label>
+                  <select
+                    value={editFruit ?? ''}
+                    onChange={e => setEditFruit(e.target.value ? Number(e.target.value) : null)}
+                    onClick={e => e.stopPropagation()}
+                    className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-1.5 text-sm text-foreground font-merriweather focus:outline-none focus:border-ring/50"
+                  >
+                    <option value="">Nenhum</option>
+                    {FRUITS.map(f => <option key={f.id} value={f.id}>{f.icon} {f.name}</option>)}
+                  </select>
+                </div>
+                <textarea
+                  value={content}
+                  onChange={e => setContent(e.target.value)}
+                  rows={8}
+                  className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather mb-3 focus:outline-none focus:border-ring/50 resize-y"
                   onClick={e => e.stopPropagation()}
-                  className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-1.5 text-sm text-foreground font-merriweather focus:outline-none focus:border-ring/50"
-                >
-                  <option value="">Nenhum</option>
-                  {FRUITS.map(f => <option key={f.id} value={f.id}>{f.icon} {f.name}</option>)}
-                </select>
+                />
+              </>
+            ) : (
+              <div className="cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }} title="Clique para editar">
+                {displayContent ? (
+                  <p className="font-merriweather text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">{displayContent}</p>
+                ) : (
+                  <p className="font-merriweather text-sm text-text-dim italic">Sem conteúdo ainda. Clique para adicionar.</p>
+                )}
               </div>
-              <textarea
-                value={content}
-                onChange={e => setContent(e.target.value)}
-                rows={8}
-                className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather mb-3 focus:outline-none focus:border-ring/50 resize-y"
-                onClick={e => e.stopPropagation()}
-              />
-            </>
-          ) : (
-            <div className="mb-4 max-h-[400px] overflow-y-auto cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }} title="Clique para editar">
-              {displayContent ? (
-                <p className="font-merriweather text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">{displayContent}</p>
-              ) : (
-                <p className="font-merriweather text-sm text-text-dim italic">Sem conteúdo ainda. Clique para adicionar.</p>
-              )}
-            </div>
-          )}
+            )}
+          </div>
 
-          <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
+          {/* Actions — fixed at bottom */}
+          <div className="flex flex-wrap gap-2 pt-3 border-t border-border mt-3 flex-shrink-0">
             {editing && (
               <>
                 <button onClick={handleSave} className="px-4 py-1.5 bg-primary hover:bg-ring text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
