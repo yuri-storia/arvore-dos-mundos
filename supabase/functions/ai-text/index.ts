@@ -70,13 +70,13 @@ serve(async (req) => {
 
     const validRoles = new Set(["user", "assistant", "system"]);
     for (const msg of messages) {
-      if (!msg || typeof msg !== "object" || typeof msg.role !== "string" || !validRoles.has(msg.role) || typeof msg.content !== "string" || msg.content.length > 10000) {
+      if (!msg || typeof msg !== "object" || typeof msg.role !== "string" || !validRoles.has(msg.role) || typeof msg.content !== "string" || msg.content.length > 30000) {
         return new Response(JSON.stringify({ error: "Each message must have a valid role (user/assistant/system) and content (string, max 10000 chars)" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
     }
 
-    if (systemPrompt !== undefined && (typeof systemPrompt !== "string" || systemPrompt.length > 5000)) {
-      return new Response(JSON.stringify({ error: "systemPrompt must be a string with max 5000 chars" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (systemPrompt !== undefined && (typeof systemPrompt !== "string" || systemPrompt.length > 10000)) {
+      return new Response(JSON.stringify({ error: "systemPrompt must be a string with max 10000 chars" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // Call Lovable AI
@@ -95,7 +95,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-2.5-pro",
         messages: aiMessages,
-        max_tokens: 900,
+        max_tokens: 4096,
       }),
     });
 
