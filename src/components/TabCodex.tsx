@@ -13,6 +13,7 @@ import { Lock } from 'lucide-react';
 import { toast } from 'sonner';
 
 const FRUIT_ALL = -1;
+const FRUIT_NONE = -2; // sentinel for "no fruit" filter
 
 type EntryKind = 'ficha' | 'artigo';
 
@@ -27,7 +28,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   const planLimits = usePlanLimits();
   const { entries, loading, createEntry, updateEntry, deleteEntry, uploadImage, fetchEntriesFromWorld, importEntries } = useCodexEntries(worldId || undefined);
   
-  const [filterFruit, setFilterFruit] = useState(FRUIT_ALL);
+  const [filterFruits, setFilterFruits] = useState<number[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [createKind, setCreateKind] = useState<EntryKind | null>(null);
@@ -66,8 +67,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   }
 
   const filtered = entries.filter(e => {
-    if (filterFruit !== FRUIT_ALL && e.fruit_id !== filterFruit) return false;
-    return true;
+    if (filterFruits.length === 0) return true;
+    return filterFruits.includes(e.fruit_id ?? FRUIT_NONE);
   });
 
   const handleImageUpload = async (file: File, onUrl: (url: string) => void) => {
@@ -326,12 +327,12 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
             >
               📚 Exportar todas as entradas ({entries.length})
             </button>
-            {filterFruit !== FRUIT_ALL && (
+            {filterFruits.length === 1 && (
               <button
-                onClick={() => { exportFruitEntries(filterFruit, entries); setShowExport(false); }}
+                onClick={() => { exportFruitEntries(filterFruits[0], entries); setShowExport(false); }}
                 className="px-4 py-2.5 bg-accent/15 hover:bg-accent/25 text-accent-foreground rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider transition-colors border border-accent/20 text-left"
               >
-                🍎 Exportar de "{FRUITS.find(f => f.id === filterFruit)?.name}" ({entries.filter(e => e.fruit_id === filterFruit).length})
+                🍎 Exportar de "{FRUITS.find(f => f.id === filterFruits[0])?.name}" ({entries.filter(e => e.fruit_id === filterFruits[0]).length})
               </button>
             )}
           </div>
@@ -374,27 +375,28 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
         </div>
       )}
 
-      {/* Filters by fruit — dropdown */}
-      <div className="flex items-center gap-3 mb-6">
-        <span className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat font-bold">Filtrar por fruto:</span>
-        <Select value={String(filterFruit)} onValueChange={v => setFilterFruit(Number(v))}>
-          <SelectTrigger className="w-[200px] bg-background/60 border-blue-bright/20 text-sm font-merriweather">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={String(FRUIT_ALL)}>🌳 Todos os frutos</SelectItem>
-            {FRUITS.map(f => {
-              const count = entries.filter(e => e.fruit_id === f.id).length;
-              return (
-                <SelectItem key={f.id} value={String(f.id)}>
-                  {f.icon} {f.name} {count > 0 ? `(${count})` : ''}
-                </SelectItem>
-              );
-            })}
-          </SelectContent>
-        </Select>
-        {filterFruit !== FRUIT_ALL && (
-          <button onClick={() => setFilterFruit(FRUIT_ALL)} className="text-[10px] text-text-dim hover:text-foreground font-montserrat transition-colors">
+      {/* Filters by fruit — multi-select chips */}
+      <div className="flex flex-wrap items-center gap-2 mb-6">
+        <span className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat font-bold mr-1">Filtrar:</span>
+        {FRUITS.map(f => {
+          const count = entries.filter(e => e.fruit_id === f.id).length;
+          const active = filterFruits.includes(f.id);
+          return (
+            <button
+              key={f.id}
+              onClick={() => setFilterFruits(prev => active ? prev.filter(id => id !== f.id) : [...prev, f.id])}
+              className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold transition-colors border ${
+                active
+                  ? 'bg-primary/20 text-blue-light border-ring/40'
+                  : 'text-text-dim border-border hover:border-ring/20 hover:text-foreground'
+              }`}
+            >
+              {f.icon} {f.name} {count > 0 ? `(${count})` : ''}
+            </button>
+          );
+        })}
+        {filterFruits.length > 0 && (
+          <button onClick={() => setFilterFruits([])} className="text-[10px] text-text-dim hover:text-foreground font-montserrat transition-colors ml-1">
             ✕ Limpar
           </button>
         )}
@@ -509,8 +511,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                   <CodexCard
                     key={entry.id}
                     entry={entry}
-                    expanded={expandedId === entry.id}
-                    onToggle={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
+                    expanded={false}
+                    onToggle={() => setExpandedId(entry.id)}
                     onUpdate={updateEntry}
                     onDelete={deleteEntry}
                     onImageUpload={uploadImage}
@@ -535,8 +537,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                   <CodexCard
                     key={entry.id}
                     entry={entry}
-                    expanded={expandedId === entry.id}
-                    onToggle={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
+                    expanded={false}
+                    onToggle={() => setExpandedId(entry.id)}
                     onUpdate={updateEntry}
                     onDelete={deleteEntry}
                     onImageUpload={uploadImage}
@@ -547,6 +549,34 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
               </div>
             </div>
           )}
+
+          {/* Expanded card modal overlay */}
+          {expandedId && (() => {
+            const expandedEntry = entries.find(e => e.id === expandedId);
+            if (!expandedEntry) return null;
+            return (
+              <div
+                className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-start justify-center overflow-y-auto py-8 px-3 sm:px-6"
+                onClick={() => setExpandedId(null)}
+              >
+                <div
+                  className="w-full max-w-[900px] animate-fadeUp"
+                  onClick={e => e.stopPropagation()}
+                >
+                  <CodexCard
+                    entry={expandedEntry}
+                    expanded={true}
+                    onToggle={() => setExpandedId(null)}
+                    onUpdate={updateEntry}
+                    onDelete={async (id) => { await deleteEntry(id); setExpandedId(null); }}
+                    onImageUpload={uploadImage}
+                    onLightbox={setLightbox}
+                    gallery={gallery}
+                  />
+                </div>
+              </div>
+            );
+          })()}
         </>
       )}
 
