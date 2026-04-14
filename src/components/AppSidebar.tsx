@@ -261,18 +261,9 @@ export const AppSidebar: React.FC<Props> = ({
   );
 };
 
-// ── Sub-component: chapters/scenes tree inside sidebar ──
+// ── Sub-component: chapters tree inside sidebar ──
 const WorldChaptersTree: React.FC<{ worldId: string; setActiveTab: (t: TabType) => void }> = ({ worldId, setActiveTab }) => {
-  const { chapters, scenes } = useManuscript(worldId);
-  const [expandedChapters, setExpandedChapters] = useState<Set<string>>(new Set());
-
-  const toggleChapter = (id: string) => {
-    setExpandedChapters(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
+  const { chapters } = useManuscript(worldId);
 
   if (chapters.length === 0) {
     return (
@@ -284,40 +275,17 @@ const WorldChaptersTree: React.FC<{ worldId: string; setActiveTab: (t: TabType) 
 
   return (
     <div className="ml-4 py-0.5 border-l border-blue-bright/10 pl-2 space-y-0.5">
-      {chapters.map(ch => {
-        const chScenes = scenes.filter(s => s.chapter_id === ch.id);
-        const expanded = expandedChapters.has(ch.id);
-        return (
-          <div key={ch.id}>
-            <button
-              onClick={() => toggleChapter(ch.id)}
-              className="flex items-center gap-1 w-full text-left py-0.5 text-[10px] text-text-dim hover:text-foreground transition-colors"
-            >
-              {expanded ? <ChevronDown className="w-2.5 h-2.5 shrink-0" /> : <ChevronRight className="w-2.5 h-2.5 shrink-0" />}
-              <BookOpen className="w-2.5 h-2.5 shrink-0 opacity-50" />
-              <span className="truncate font-montserrat font-semibold">{ch.title}</span>
-            </button>
-            {expanded && (
-              <div className="ml-4 space-y-px">
-                {chScenes.map(sc => (
-                  <button
-                    key={sc.id}
-                    onClick={() => setActiveTab('escrever')}
-                    className="flex items-center gap-1 w-full text-left py-0.5 text-[9px] text-text-dim/60 hover:text-blue-light transition-colors"
-                  >
-                    <FileText className="w-2 h-2 shrink-0 opacity-40" />
-                    <span className="truncate">{sc.title}</span>
-                    <span className="ml-auto text-[8px] text-text-dim/30">{sc.word_count}</span>
-                  </button>
-                ))}
-                {chScenes.length === 0 && (
-                  <p className="text-[8px] text-text-dim/30 ml-3 py-0.5">Sem cenas</p>
-                )}
-              </div>
-            )}
-          </div>
-        );
-      })}
+      {chapters.map(ch => (
+        <button
+          key={ch.id}
+          onClick={() => setActiveTab('escrever')}
+          className="flex items-center gap-1 w-full text-left py-0.5 text-[10px] text-text-dim hover:text-foreground transition-colors"
+        >
+          <BookOpen className="w-2.5 h-2.5 shrink-0 opacity-50" />
+          <span className="truncate font-montserrat font-semibold">{ch.title}</span>
+          <span className="ml-auto text-[8px] text-text-dim/30">{ch.word_count || 0}</span>
+        </button>
+      ))}
     </div>
   );
 };

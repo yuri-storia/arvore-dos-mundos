@@ -3,13 +3,8 @@ import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Page
 import { saveAs } from 'file-saver';
 import type { Manuscript, Chapter, Scene } from '@/hooks/useManuscript';
 
-// ── Helpers ──
-function sortedScenes(scenes: Scene[], chapterId: string) {
-  return scenes.filter(s => s.chapter_id === chapterId).sort((a, b) => a.sort_order - b.sort_order);
-}
-
 // ── PDF Export ──
-export function exportManuscriptPDF(manuscript: Manuscript, chapters: Chapter[], scenes: Scene[]) {
+export function exportManuscriptPDF(manuscript: Manuscript, chapters: Chapter[], _scenes?: Scene[]) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
@@ -50,28 +45,18 @@ export function exportManuscriptPDF(manuscript: Manuscript, chapters: Chapter[],
     doc.text(ch.title, pageW / 2, y + 20, { align: 'center' });
     y += 35;
 
-    const chScenes = sortedScenes(scenes, ch.id);
-    chScenes.forEach((sc) => {
-      checkPage(15);
-      doc.setFontSize(13);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(60, 60, 60);
-      doc.text(sc.title, margin, y);
-      y += 8;
-
-      if (sc.content) {
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(40, 40, 40);
-        const lines = doc.splitTextToSize(sc.content, maxW);
-        lines.forEach((line: string) => {
-          checkPage(6);
-          doc.text(line, margin, y);
-          y += 5.5;
-        });
-      }
-      y += 8;
-    });
+    if (ch.content) {
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(40, 40, 40);
+      const lines = doc.splitTextToSize(ch.content, maxW);
+      lines.forEach((line: string) => {
+        checkPage(6);
+        doc.text(line, margin, y);
+        y += 5.5;
+      });
+    }
+    y += 8;
   });
 
   doc.setFontSize(8);
@@ -82,7 +67,7 @@ export function exportManuscriptPDF(manuscript: Manuscript, chapters: Chapter[],
 }
 
 // ── DOCX Export ──
-export async function exportManuscriptDOCX(manuscript: Manuscript, chapters: Chapter[], scenes: Scene[]) {
+export async function exportManuscriptDOCX(manuscript: Manuscript, chapters: Chapter[], _scenes?: Scene[]) {
   const children: Paragraph[] = [];
 
   // Title
@@ -110,23 +95,14 @@ export async function exportManuscriptDOCX(manuscript: Manuscript, chapters: Cha
       children: [new TextRun({ text: ch.title, bold: true, size: 36, font: 'Georgia' })],
     }));
 
-    const chScenes = sortedScenes(scenes, ch.id);
-    chScenes.forEach((sc) => {
-      children.push(new Paragraph({
-        heading: HeadingLevel.HEADING_2,
-        spacing: { before: 200, after: 100 },
-        children: [new TextRun({ text: sc.title, bold: true, size: 28, font: 'Georgia' })],
-      }));
-
-      if (sc.content) {
-        sc.content.split('\n').forEach(para => {
-          children.push(new Paragraph({
-            spacing: { after: 120, line: 360 },
-            children: [new TextRun({ text: para, size: 24, font: 'Georgia' })],
-          }));
-        });
-      }
-    });
+    if (ch.content) {
+      ch.content.split('\n').forEach(para => {
+        children.push(new Paragraph({
+          spacing: { after: 120, line: 360 },
+          children: [new TextRun({ text: para, size: 24, font: 'Georgia' })],
+        }));
+      });
+    }
   });
 
   const docFile = new Document({
@@ -138,7 +114,7 @@ export async function exportManuscriptDOCX(manuscript: Manuscript, chapters: Cha
 }
 
 // ── EPUB / Kindle-ready HTML Export ──
-export function exportManuscriptEPUB(manuscript: Manuscript, chapters: Chapter[], scenes: Scene[]) {
+export function exportManuscriptEPUB(manuscript: Manuscript, chapters: Chapter[], _scenes?: Scene[]) {
   let html = `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -148,7 +124,6 @@ export function exportManuscriptEPUB(manuscript: Manuscript, chapters: Chapter[]
   body { font-family: Georgia, serif; max-width: 700px; margin: 0 auto; padding: 40px 20px; color: #222; line-height: 1.8; }
   h1 { text-align: center; font-size: 2em; margin-bottom: 0.5em; page-break-before: always; }
   h1:first-of-type { page-break-before: avoid; }
-  h2 { font-size: 1.3em; margin-top: 2em; color: #444; }
   p { text-indent: 1.5em; margin: 0.3em 0; }
   .title-page { text-align: center; padding: 30vh 0 10vh; }
   .title-page h1 { page-break-before: avoid; font-size: 2.5em; }
@@ -164,15 +139,11 @@ export function exportManuscriptEPUB(manuscript: Manuscript, chapters: Chapter[]
 
   chapters.sort((a, b) => a.sort_order - b.sort_order).forEach((ch) => {
     html += `<h1>${ch.title}</h1>\n`;
-    const chScenes = sortedScenes(scenes, ch.id);
-    chScenes.forEach((sc) => {
-      html += `<h2>${sc.title}</h2>\n`;
-      if (sc.content) {
-        sc.content.split('\n').filter(p => p.trim()).forEach(para => {
-          html += `<p>${para}</p>\n`;
-        });
-      }
-    });
+    if (ch.content) {
+      ch.content.split('\n').filter(p => p.trim()).forEach(para => {
+        html += `<p>${para}</p>\n`;
+      });
+    }
   });
 
   html += `</body></html>`;

@@ -84,10 +84,10 @@ export const ManuscriptExportMenu: React.FC<Props> = ({ manuscript, chapters, sc
             {showHelp && (
               <div className="p-3 bg-idriel/[0.06] border-b border-idriel/10 text-xs text-text-secondary leading-relaxed space-y-2">
                 <p className="font-montserrat font-bold text-idriel-light text-[11px]">✨ Como exportar seu manuscrito</p>
-                <p>O manuscrito exporta <strong>todos os capítulos e cenas</strong> na ordem em que você organizou. Certifique-se de que:</p>
+                <p>O manuscrito exporta <strong>todos os capítulos</strong> na ordem em que você organizou. Certifique-se de que:</p>
                 <ul className="list-disc list-inside space-y-1 ml-1">
                   <li>Os capítulos estejam na ordem desejada</li>
-                  <li>Cada cena tenha título e conteúdo</li>
+                  <li>Cada capítulo tenha título e conteúdo</li>
                   <li>A sinopse do manuscrito esteja preenchida (aparece na capa)</li>
                 </ul>
                 <p><strong>Para Kindle:</strong> O arquivo HTML pode ser importado diretamente no <a href="https://kdp.amazon.com" target="_blank" rel="noopener" className="text-blue-light underline">Kindle Direct Publishing</a> ou convertido para .epub com o <a href="https://calibre-ebook.com" target="_blank" rel="noopener" className="text-blue-light underline">Calibre</a>.</p>
@@ -111,7 +111,7 @@ export const ManuscriptExportMenu: React.FC<Props> = ({ manuscript, chapters, sc
 
             <div className="p-2 pt-0">
               <p className="text-[10px] text-text-dim/50 text-center">
-                {chapters.length} capítulo{chapters.length !== 1 ? 's' : ''} · {scenes.length} cena{scenes.length !== 1 ? 's' : ''}
+                {chapters.length} capítulo{chapters.length !== 1 ? 's' : ''}
               </p>
             </div>
           </div>
