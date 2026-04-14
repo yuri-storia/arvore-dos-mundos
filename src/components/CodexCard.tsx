@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
@@ -33,6 +33,10 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   const [imgPos, setImgPos] = useState<{ x: number; y: number }>(entry.image_position || { x: 50, y: 50 });
   const fileRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    setImgPos(entry.image_position || { x: 50, y: 50 });
+  }, [entry.id, entry.image_position]);
+
   const fruitInfo = entry.fruit_id !== null ? FRUITS.find(f => f.id === entry.fruit_id) : null;
 
   const handleSave = async () => {
@@ -43,13 +47,19 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   const handleFileUpload = async (file: File) => {
     setUploading(true);
     const url = await onImageUpload(file);
-    if (url) await onUpdate(entry.id, { image_url: url });
+    if (url) {
+      const defaultPosition = { x: 50, y: 50 };
+      setImgPos(defaultPosition);
+      await onUpdate(entry.id, { image_url: url, image_position: defaultPosition });
+    }
     setUploading(false);
     setShowImageMenu(false);
   };
 
   const handleGallerySelect = async (img: GalleryImage) => {
-    await onUpdate(entry.id, { image_url: img.src });
+    const defaultPosition = { x: 50, y: 50 };
+    setImgPos(defaultPosition);
+    await onUpdate(entry.id, { image_url: img.src, image_position: defaultPosition });
     setShowGalleryPicker(false);
     setShowImageMenu(false);
   };
@@ -60,7 +70,9 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
     try {
       const url = await callAIImage(aiPrompt);
       if (url) {
-        await onUpdate(entry.id, { image_url: url });
+        const defaultPosition = { x: 50, y: 50 };
+        setImgPos(defaultPosition);
+        await onUpdate(entry.id, { image_url: url, image_position: defaultPosition });
         toast.success('Imagem gerada com sucesso!');
       }
     } catch (err: any) {
@@ -73,7 +85,8 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   };
 
   const handleRemoveImage = async () => {
-    await onUpdate(entry.id, { image_url: null as any });
+    setImgPos({ x: 50, y: 50 });
+    await onUpdate(entry.id, { image_url: null as any, image_position: { x: 50, y: 50 } });
     setShowImageMenu(false);
   };
 
@@ -163,7 +176,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
       >
         <div className="relative h-[140px] bg-secondary/30">
           {entry.image_url ? (
-            <img src={entry.image_url} alt={entry.title} className="w-full h-full object-cover" style={{ objectPosition: `${imgPos.x}% ${imgPos.y}%` }} />
+              <img src={entry.image_url} alt={entry.title} className="w-full h-full object-cover" style={{ objectPosition: `${imgPos.x}% ${imgPos.y}%` }} />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <span className="text-5xl opacity-20">{fruitInfo?.icon || '📄'}</span>
@@ -375,8 +388,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             <img
               src={entry.image_url}
               alt={entry.title}
-              className="w-full h-full object-cover cursor-zoom-in"
-              style={{ objectPosition: `${imgPos.x}% ${imgPos.y}%` }}
+              className="w-full h-full object-cover object-center cursor-zoom-in"
               onClick={e => { e.stopPropagation(); onLightbox({ src: entry.image_url!, alt: entry.title }); }}
             />
           ) : (
@@ -388,9 +400,9 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             <button
               onClick={e => { e.stopPropagation(); setShowRepositioner(true); }}
               className="absolute top-2 right-2 px-2 py-1 bg-card/80 hover:bg-card text-foreground rounded-md text-[9px] font-montserrat font-bold uppercase tracking-wider border border-border transition-colors backdrop-blur-sm"
-              title="Reposicionar imagem"
+              title="Ajustar a prévia da ficha"
             >
-              ↕ Posição
+              ↕ Ajustar prévia
             </button>
           )}
           <button
@@ -418,7 +430,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               setImgPos(pos);
               setShowRepositioner(false);
               await onUpdate(entry.id, { image_position: pos });
-              toast.success('Posição salva!');
+              toast.success('Prévia ajustada!');
             }}
             onCancel={() => setShowRepositioner(false)}
           />
