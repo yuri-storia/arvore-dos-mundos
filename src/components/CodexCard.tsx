@@ -196,7 +196,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   if (isArticle) {
     // Wiki-style expanded article — no images, text-focused
     return (
-      <div className="rounded-lg overflow-hidden col-span-1 sm:col-span-2 lg:col-span-3 animate-fadeUp card-glass-gold">
+      <div className="rounded-lg overflow-hidden animate-fadeUp card-glass-gold">
         <div className="p-5 sm:p-7">
           {/* Header */}
           <div className="flex items-start justify-between mb-1">
@@ -363,7 +363,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
   // Expanded ficha (with image support)
   return (
-    <div className="rounded-lg overflow-hidden col-span-1 sm:col-span-2 lg:col-span-3 animate-fadeUp card-glass">
+    <div className="rounded-lg overflow-hidden animate-fadeUp card-glass">
       <div className="flex flex-col md:flex-row">
         {/* Image section */}
         <div className="relative w-full md:w-[320px] h-[240px] md:h-auto bg-secondary/30 flex-shrink-0">
