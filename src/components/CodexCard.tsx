@@ -233,101 +233,104 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             </span>
           </div>
 
-          {editing ? (
-            <>
-              <div className="mb-3">
-                <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Fruto</label>
-                <select
-                  value={editFruit ?? ''}
-                  onChange={e => setEditFruit(e.target.value ? Number(e.target.value) : null)}
+          {/* Scrollable content area */}
+          <div className="flex-1 overflow-y-auto min-h-0 pr-1">
+            {editing ? (
+              <>
+                <div className="mb-3">
+                  <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Fruto</label>
+                  <select
+                    value={editFruit ?? ''}
+                    onChange={e => setEditFruit(e.target.value ? Number(e.target.value) : null)}
+                    onClick={e => e.stopPropagation()}
+                    className="w-full bg-[rgba(4,12,24,0.6)] border border-accent/20 rounded-md px-3 py-1.5 text-sm text-foreground font-merriweather focus:outline-none focus:border-accent/50"
+                  >
+                    <option value="">Nenhum</option>
+                    {FRUITS.map(f => <option key={f.id} value={f.id}>{f.icon} {f.name}</option>)}
+                  </select>
+                </div>
+                <textarea
+                  value={content}
+                  onChange={e => setContent(e.target.value)}
+                  rows={12}
+                  className="w-full bg-[rgba(4,12,24,0.6)] border border-accent/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather mb-3 focus:outline-none focus:border-accent/50 resize-y"
                   onClick={e => e.stopPropagation()}
-                  className="w-full bg-[rgba(4,12,24,0.6)] border border-accent/20 rounded-md px-3 py-1.5 text-sm text-foreground font-merriweather focus:outline-none focus:border-accent/50"
-                >
-                  <option value="">Nenhum</option>
-                  {FRUITS.map(f => <option key={f.id} value={f.id}>{f.icon} {f.name}</option>)}
-                </select>
-              </div>
-              <textarea
-                value={content}
-                onChange={e => setContent(e.target.value)}
-                rows={12}
-                className="w-full bg-[rgba(4,12,24,0.6)] border border-accent/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather mb-3 focus:outline-none focus:border-accent/50 resize-y"
-                onClick={e => e.stopPropagation()}
-              />
-            </>
-          ) : (
-            <div className="flex gap-5">
-              {/* Wiki TOC sidebar */}
-              {hasToc && (
-                <nav className="hidden sm:block w-[180px] flex-shrink-0 sticky top-0 self-start">
-                  <div className="border border-accent/20 rounded-md bg-accent/5 p-3">
-                    <h4 className="font-montserrat font-bold text-[9px] uppercase tracking-wider text-accent mb-2 pb-1.5 border-b border-accent/15">
-                      📑 Índice
-                    </h4>
-                    <ul className="space-y-1">
-                      {sections.filter(s => s.title).map((s, i) => (
-                        <li key={s.id}>
-                          <button
-                            onClick={e => { e.stopPropagation(); scrollToSection(s.id); }}
-                            className="text-left w-full text-[11px] font-merriweather text-muted-foreground hover:text-accent transition-colors leading-snug py-0.5 pl-2 border-l-2 border-transparent hover:border-accent/50"
-                          >
-                            {i + 1}. {s.title}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </nav>
-              )}
-
-              {/* Article body with sections */}
-              <div ref={contentRef} className="flex-1 mb-4 max-h-[500px] overflow-y-auto pr-2 cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }} title="Clique para editar">
-                {sections.length > 0 ? (
-                  sections.map(s => (
-                    <div key={s.id} data-section={s.id} className="mb-5">
-                      {s.title && (
-                        <h3 className="font-cinzel font-bold text-base text-foreground mb-2 pb-1 border-b border-accent/15">
-                          {s.title}
-                        </h3>
-                      )}
-                      {s.content && (
-                        <div className="codex-markdown font-merriweather text-sm text-muted-foreground leading-[1.85]">
-                          <ReactMarkdown
-                            components={{
-                              h1: ({ children }) => <h1 className="font-cinzel font-bold text-lg text-foreground mt-4 mb-2">{children}</h1>,
-                              h2: ({ children }) => <h2 className="font-cinzel font-bold text-base text-foreground mt-3 mb-2">{children}</h2>,
-                              h3: ({ children }) => <h3 className="font-cinzel font-bold text-sm text-foreground mt-2 mb-1">{children}</h3>,
-                              p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
-                              strong: ({ children }) => <strong className="font-bold text-foreground">{children}</strong>,
-                              em: ({ children }) => <em className="italic text-accent/80">{children}</em>,
-                              ul: ({ children }) => <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>,
-                              ol: ({ children }) => <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>,
-                              li: ({ children }) => <li>{children}</li>,
-                              blockquote: ({ children }) => <blockquote className="border-l-2 border-accent/30 pl-3 italic text-accent/70 my-3">{children}</blockquote>,
-                              hr: () => <hr className="border-accent/15 my-4" />,
-                              code: ({ children, className }) => {
-                                const isBlock = className?.includes('language-');
-                                return isBlock
-                                  ? <pre className="bg-secondary/50 rounded-md p-3 overflow-x-auto my-3"><code className="text-xs font-mono text-foreground">{children}</code></pre>
-                                  : <code className="bg-secondary/40 rounded px-1 py-0.5 text-xs font-mono text-accent">{children}</code>;
-                              },
-                            }}
-                          >
-                            {s.content}
-                          </ReactMarkdown>
-                        </div>
-                      )}
+                />
+              </>
+            ) : (
+              <div className="flex gap-5">
+                {/* Wiki TOC sidebar */}
+                {hasToc && (
+                  <nav className="hidden sm:block w-[180px] flex-shrink-0 sticky top-0 self-start">
+                    <div className="border border-accent/20 rounded-md bg-accent/5 p-3">
+                      <h4 className="font-montserrat font-bold text-[9px] uppercase tracking-wider text-accent mb-2 pb-1.5 border-b border-accent/15">
+                        📑 Índice
+                      </h4>
+                      <ul className="space-y-1">
+                        {sections.filter(s => s.title).map((s, i) => (
+                          <li key={s.id}>
+                            <button
+                              onClick={e => { e.stopPropagation(); scrollToSection(s.id); }}
+                              className="text-left w-full text-[11px] font-merriweather text-muted-foreground hover:text-accent transition-colors leading-snug py-0.5 pl-2 border-l-2 border-transparent hover:border-accent/50"
+                            >
+                              {i + 1}. {s.title}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                  ))
-                ) : (
-                  <p className="font-merriweather text-sm text-text-dim italic cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }}>Sem conteúdo ainda. Clique para adicionar.</p>
+                  </nav>
                 )}
-              </div>
-            </div>
-          )}
 
-          {/* Actions */}
-          <div className="flex flex-wrap gap-2 pt-3 border-t border-accent/20">
+                {/* Article body with sections */}
+                <div ref={contentRef} className="flex-1 pr-2 cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }} title="Clique para editar">
+                  {sections.length > 0 ? (
+                    sections.map(s => (
+                      <div key={s.id} data-section={s.id} className="mb-5">
+                        {s.title && (
+                          <h3 className="font-cinzel font-bold text-base text-foreground mb-2 pb-1 border-b border-accent/15">
+                            {s.title}
+                          </h3>
+                        )}
+                        {s.content && (
+                          <div className="codex-markdown font-merriweather text-sm text-muted-foreground leading-[1.85]">
+                            <ReactMarkdown
+                              components={{
+                                h1: ({ children }) => <h1 className="font-cinzel font-bold text-lg text-foreground mt-4 mb-2">{children}</h1>,
+                                h2: ({ children }) => <h2 className="font-cinzel font-bold text-base text-foreground mt-3 mb-2">{children}</h2>,
+                                h3: ({ children }) => <h3 className="font-cinzel font-bold text-sm text-foreground mt-2 mb-1">{children}</h3>,
+                                p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
+                                strong: ({ children }) => <strong className="font-bold text-foreground">{children}</strong>,
+                                em: ({ children }) => <em className="italic text-accent/80">{children}</em>,
+                                ul: ({ children }) => <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>,
+                                ol: ({ children }) => <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>,
+                                li: ({ children }) => <li>{children}</li>,
+                                blockquote: ({ children }) => <blockquote className="border-l-2 border-accent/30 pl-3 italic text-accent/70 my-3">{children}</blockquote>,
+                                hr: () => <hr className="border-accent/15 my-4" />,
+                                code: ({ children, className }) => {
+                                  const isBlock = className?.includes('language-');
+                                  return isBlock
+                                    ? <pre className="bg-secondary/50 rounded-md p-3 overflow-x-auto my-3"><code className="text-xs font-mono text-foreground">{children}</code></pre>
+                                    : <code className="bg-secondary/40 rounded px-1 py-0.5 text-xs font-mono text-accent">{children}</code>;
+                                },
+                              }}
+                            >
+                              {s.content}
+                            </ReactMarkdown>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="font-merriweather text-sm text-text-dim italic cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }}>Sem conteúdo ainda. Clique para adicionar.</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Actions — fixed at bottom */}
+          <div className="flex flex-wrap gap-2 pt-3 border-t border-accent/20 mt-3 flex-shrink-0">
             {editing && (
               <>
                 <button onClick={handleSave} className="px-4 py-1.5 bg-accent/80 hover:bg-accent text-accent-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
