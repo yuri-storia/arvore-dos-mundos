@@ -173,7 +173,9 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
       });
 
       setAnalysis(content);
-      fetchHistory(); // refresh history
+      setRevealedChars(0);
+      setIsRevealing(true);
+      fetchHistory();
     } catch (e: any) {
       setError(e.message || 'Erro ao analisar.');
     } finally {
