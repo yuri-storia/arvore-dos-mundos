@@ -461,12 +461,12 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
       )}
 
       {displayedAnalysis && !loading && (
-        <div className="mt-4">
+        <div className="mt-4 animate-fade-in">
           {viewingHistoryId && (
             <div className="mb-3 px-3 py-1.5 rounded-md bg-accent/10 border border-accent/20 flex items-center gap-2">
               <span className="text-[10px] text-accent-foreground font-montserrat">📜 Visualizando análise do histórico</span>
               <button
-                onClick={() => { setViewingHistoryId(null); setAnalysis(''); }}
+                onClick={() => { setViewingHistoryId(null); setAnalysis(''); setRevealedChars(0); }}
                 className="text-[10px] text-text-dim hover:text-foreground font-montserrat underline ml-auto"
               >
                 Voltar
@@ -474,18 +474,41 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
             </div>
           )}
 
-          <div className="rounded-lg p-4 sm:p-5 border border-accent/15 bg-background/30" style={{ backdropFilter: 'blur(10px)' }}>
+          <div className="rounded-lg p-4 sm:p-5 border border-accent/15 bg-background/30 relative" style={{ backdropFilter: 'blur(10px)' }}>
+            {isRevealing && (
+              <div className="absolute bottom-3 right-3 flex items-center gap-1.5 text-idriel-light/60">
+                <span className="w-1.5 h-1.5 rounded-full bg-idriel animate-pulse" />
+                <span className="text-[9px] font-montserrat italic">Idriel escrevendo…</span>
+              </div>
+            )}
             <div className="prose prose-sm prose-invert max-w-none
-              [&_h2]:font-cinzel [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-5 [&_h2]:mb-2 [&_h2]:text-blue-light
+              [&_h2]:font-cinzel [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-5 [&_h2]:mb-2 [&_h2]:text-idriel-light
               [&_h3]:font-montserrat [&_h3]:text-sm [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-foreground
               [&_p]:font-merriweather [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-foreground/85
               [&_ul]:font-merriweather [&_ul]:text-sm [&_ul]:text-foreground/85
               [&_ol]:font-merriweather [&_ol]:text-sm [&_ol]:text-foreground/85
               [&_li]:mb-1
-              [&_strong]:text-accent-foreground
-              [&_blockquote]:border-l-2 [&_blockquote]:border-accent/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-text-dim
+              [&_strong]:text-idriel-light [&_strong]:font-bold
+              [&_blockquote]:border-l-2 [&_blockquote]:border-idriel/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-text-dim
+              [&_em]:text-accent-foreground/90
             ">
-              <ReactMarkdown>{displayedAnalysis}</ReactMarkdown>
+              <ReactMarkdown
+                components={{
+                  h2: ({ children, ...props }) => {
+                    const text = String(children);
+                    let colorClass = 'text-idriel-light';
+                    if (text.includes('Furos') || text.includes('🕳️')) colorClass = 'text-destructive';
+                    else if (text.includes('Inconsistências') || text.includes('⚠️')) colorClass = 'text-orange-400';
+                    else if (text.includes('Expansão') || text.includes('🌱')) colorClass = 'text-emerald-400';
+                    else if (text.includes('Fortes') || text.includes('✨')) colorClass = 'text-idriel-light';
+                    else if (text.includes('Continuar') || text.includes('🧭')) colorClass = 'text-blue-light';
+                    else if (text.includes('Avaliação') || text.includes('🌳')) colorClass = 'text-idriel-light';
+                    return <h2 className={`font-cinzel text-base font-bold mt-5 mb-2 ${colorClass}`} {...props}>{children}</h2>;
+                  }
+                }}
+              >
+                {displayedAnalysis}
+              </ReactMarkdown>
             </div>
           </div>
 
