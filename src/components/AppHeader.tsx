@@ -2,8 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import treeWallpaper from '@/assets/tree-wallpaper.webp';
 import { UserMenu } from '@/components/UserMenu';
 import { FRUITS } from '@/lib/data';
-import { Pencil } from 'lucide-react';
+import { Pencil, ChevronDown, FolderOpen, Plus } from 'lucide-react';
 import type { MethodType } from '@/lib/data';
+import type { WorldRecord } from '@/hooks/useWorlds';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 interface AppHeaderProps {
   worldName?: string;
@@ -12,6 +15,11 @@ interface AppHeaderProps {
   method?: MethodType;
   currentSaveId?: string;
   db?: Record<number, Record<string, string>>;
+  // Mobile project switching
+  worlds?: WorldRecord[];
+  onLoadWorld?: (world: WorldRecord) => void;
+  onNewWorld?: () => void;
+  onDeleteWorld?: (id: string) => void;
 }
 
 const Particles: React.FC = () => {
@@ -91,11 +99,18 @@ function calcProgress(db?: Record<number, Record<string, string>>): { filled: nu
   return { filled, total };
 }
 
-export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, onCreateWorld, method, currentSaveId, db }) => {
+const formatDate = (ts: string) => {
+  const d = new Date(ts);
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+};
+
+export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, onCreateWorld, method, currentSaveId, db, worlds, onLoadWorld, onNewWorld, onDeleteWorld }) => {
+  const isMobile = useIsMobile();
   const hasWorld = !!currentSaveId;
   const progress = calcProgress(db);
   const pct = progress.total > 0 ? Math.round((progress.filled / progress.total) * 100) : 0;
   const [editing, setEditing] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -127,7 +142,72 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
           </span>
         </div>
 
-        {/* World name — editable inline */}
+        {/* Mobile: project switcher button */}
+        {isMobile && worlds && (
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-gold/[0.10] border border-gold/30 hover:bg-gold/[0.18] hover:border-gold/50 transition-all backdrop-blur-sm mt-2 group"
+          >
+            <FolderOpen className="w-3 h-3 text-gold/70 group-hover:text-gold-light transition-colors" />
+            <span className="font-cinzel text-[9px] uppercase tracking-[0.2em] text-gold group-hover:text-gold-light transition-colors">
+              Meus Projetos {worlds.length > 0 && `(${worlds.length})`}
+            </span>
+            <ChevronDown className={`w-3 h-3 text-gold/60 transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`} />
+          </button>
+        )}
+
+        {/* Mobile: project dropdown */}
+        {isMobile && menuOpen && worlds && onLoadWorld && onNewWorld && onDeleteWorld && (
+          <div className="w-full max-w-md mt-2 animate-fadeUp rounded-lg border border-gold/20 backdrop-blur-[16px] overflow-hidden" style={{ background: 'linear-gradient(135deg, hsl(38 67% 48% / 0.08) 0%, hsl(214 60% 3% / 0.85) 100%)' }}>
+            <button
+              onClick={() => { onNewWorld(); setMenuOpen(false); }}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-[10px] font-montserrat font-bold uppercase tracking-wider text-gold-light/80 hover:text-gold-light hover:bg-gold/[0.08] transition-all border-b border-gold/10"
+            >
+              <Plus className="w-3 h-3" />
+              Criar Novo Mundo
+            </button>
+            {worlds.length === 0 ? (
+              <p className="text-[10px] text-text-dim font-merriweather italic py-3 text-center">
+                Nenhum projeto salvo ainda.
+              </p>
+            ) : (
+              <div className="max-h-[200px] overflow-y-auto">
+                {worlds.map(s => (
+                  <div
+                    key={s.id}
+                    className={`flex items-center justify-between gap-2 px-3 py-2 cursor-pointer transition-all text-xs border-b border-gold/5 last:border-0 ${
+                      s.id === currentSaveId ? 'bg-blue-bright/[0.06]' : 'hover:bg-blue-bright/[0.03]'
+                    }`}
+                    onClick={() => { onLoadWorld(s); setMenuOpen(false); }}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <span className="font-cinzel font-bold text-[11px] text-foreground truncate block">
+                        {s.name}
+                        {s.id === currentSaveId && <span className="text-blue-light text-[9px] ml-1.5">● ativo</span>}
+                      </span>
+                      <span className="text-[9px] text-text-dim font-montserrat">
+                        {s.method === 'top-down' ? 'Cima→Baixo' : 'Baixo→Cima'} · {formatDate(s.updated_at)}
+                      </span>
+                    </div>
+                    <div onClick={e => e.stopPropagation()}>
+                      <ConfirmDialog
+                        trigger={
+                          <button className="px-1.5 py-0.5 rounded text-[9px] text-text-dim hover:text-destructive transition-colors">🗑</button>
+                        }
+                        title="Excluir mundo"
+                        description={`Tem certeza que deseja excluir "${s.name}"? Todos os dados serão perdidos permanentemente.`}
+                        confirmLabel="Excluir"
+                        onConfirm={() => { onDeleteWorld(s.id); }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* World name display / input */}
         <div className="flex items-center justify-center gap-2 mt-1 w-full max-w-lg">
           {editing ? (
             <input
