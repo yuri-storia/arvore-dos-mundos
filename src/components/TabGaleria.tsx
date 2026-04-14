@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { callAIText, callAIImage } from '@/lib/helpers';
+import { optimizeImage } from '@/lib/imageOptimizer';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import idrielAvatar from '@/assets/idriel-avatar.png';
@@ -62,9 +63,10 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
     for (let i = 0; i < items.length; i++) {
       const file = items[i];
       try {
-        const ext = file.name.split('.').pop() || 'webp';
+        const optimized = await optimizeImage(file);
+        const ext = optimized.name.split('.').pop() || 'webp';
         const path = `${user.id}/gallery-${crypto.randomUUID()}.${ext}`;
-        const { error } = await supabase.storage.from('codex-images').upload(path, file);
+        const { error } = await supabase.storage.from('codex-images').upload(path, optimized);
         if (error) throw error;
         const { data: { publicUrl } } = supabase.storage.from('codex-images').getPublicUrl(path);
         newImages.push({

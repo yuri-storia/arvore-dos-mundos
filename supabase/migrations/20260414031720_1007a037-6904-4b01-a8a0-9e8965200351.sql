@@ -1,0 +1,1 @@
+ALTER TABLE public.codex_entries ADD COLUMN IF NOT EXISTS image_position jsonb DEFAULT '{"x": 50, "y": 50}'::jsonb;

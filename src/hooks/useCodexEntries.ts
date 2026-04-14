@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { optimizeImage } from '@/lib/imageOptimizer';
 
 export interface CodexEntry {
   id: string;
@@ -11,6 +12,7 @@ export interface CodexEntry {
   entry_type: string;
   fruit_id: number | null;
   world_id: string | null;
+  image_position: { x: number; y: number } | null;
   created_at: string;
   updated_at: string;
 }
@@ -38,7 +40,7 @@ export function useCodexEntries(worldId?: string) {
 
     const { data, error } = await query;
     if (error) { toast.error('Erro ao carregar fichas'); console.error(error); }
-    else setEntries(data as CodexEntry[]);
+    else setEntries(data as unknown as unknown as CodexEntry[]);
     setLoading(false);
   }, [user, worldId]);
 
@@ -54,12 +56,12 @@ export function useCodexEntries(worldId?: string) {
       .select()
       .single();
     if (error) { toast.error('Erro ao criar ficha'); console.error(error); return null; }
-    setEntries(prev => [data as CodexEntry, ...prev]);
+    setEntries(prev => [data as unknown as CodexEntry, ...prev]);
     toast.success('Ficha criada!');
-    return data as CodexEntry;
+    return data as unknown as CodexEntry;
   }, [user, worldId]);
 
-  const updateEntry = useCallback(async (id: string, updates: Partial<Pick<CodexEntry, 'title' | 'content' | 'image_url' | 'entry_type' | 'fruit_id'>>) => {
+  const updateEntry = useCallback(async (id: string, updates: Partial<Pick<CodexEntry, 'title' | 'content' | 'image_url' | 'entry_type' | 'fruit_id' | 'image_position'>>) => {
     if (updates.title && updates.title.length > 200) { toast.error('Título muito longo (máximo 200 caracteres)'); return; }
     if (updates.content && updates.content.length > 50000) { toast.error('Conteúdo muito longo (máximo 50.000 caracteres)'); return; }
     if (updates.image_url && updates.image_url.startsWith('blob:')) {
@@ -80,12 +82,19 @@ export function useCodexEntries(worldId?: string) {
 
   const uploadImage = useCallback(async (file: File): Promise<string | null> => {
     if (!user) return null;
-    const ext = file.name.split('.').pop();
-    const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from('codex-images').upload(path, file);
-    if (error) { toast.error('Erro no upload'); console.error(error); return null; }
-    const { data: { publicUrl } } = supabase.storage.from('codex-images').getPublicUrl(path);
-    return publicUrl;
+    try {
+      const optimized = await optimizeImage(file);
+      const ext = optimized.name.split('.').pop() || 'webp';
+      const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+      const { error } = await supabase.storage.from('codex-images').upload(path, optimized);
+      if (error) { toast.error('Erro no upload'); console.error(error); return null; }
+      const { data: { publicUrl } } = supabase.storage.from('codex-images').getPublicUrl(path);
+      return publicUrl;
+    } catch (err) {
+      console.error(err);
+      toast.error('Erro ao processar imagem');
+      return null;
+    }
   }, [user]);
 
   /** Fetch entries from a different world (for import) */
@@ -97,7 +106,7 @@ export function useCodexEntries(worldId?: string) {
       .eq('world_id', otherWorldId)
       .order('updated_at', { ascending: false });
     if (error) { console.error(error); return []; }
-    return (data || []) as CodexEntry[];
+    return (data || []) as unknown as unknown as CodexEntry[];
   }, [user]);
 
   /** Import entries into current world */
@@ -117,7 +126,7 @@ export function useCodexEntries(worldId?: string) {
       .insert(inserts)
       .select();
     if (error) { toast.error('Erro ao importar entradas'); console.error(error); return; }
-    setEntries(prev => [...(data as CodexEntry[]), ...prev]);
+    setEntries(prev => [...(data as unknown as unknown as CodexEntry[]), ...prev]);
     toast.success(`${entriesToImport.length} entrada(s) importada(s)!`);
   }, [user, worldId]);
 

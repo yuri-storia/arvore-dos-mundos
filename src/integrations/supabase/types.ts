@@ -137,6 +137,7 @@ export type Database = {
           entry_type: string
           fruit_id: number | null
           id: string
+          image_position: Json | null
           image_url: string | null
           title: string
           updated_at: string
@@ -149,6 +150,7 @@ export type Database = {
           entry_type?: string
           fruit_id?: number | null
           id?: string
+          image_position?: Json | null
           image_url?: string | null
           title?: string
           updated_at?: string
@@ -161,6 +163,7 @@ export type Database = {
           entry_type?: string
           fruit_id?: number | null
           id?: string
+          image_position?: Json | null
           image_url?: string | null
           title?: string
           updated_at?: string
