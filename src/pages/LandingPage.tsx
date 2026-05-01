@@ -63,8 +63,8 @@ const LandingPage: React.FC = () => {
     },
     {
       id: 'idriel', name: '✨ Idriel', tagline: 'A Árvore responde ao seu chamado',
-      price: billingCycle === 'mensal' ? 'R$ 29,90' : 'R$ 279',
-      priceDetail: billingCycle === 'mensal' ? '/mês' : '/ano (2 meses grátis!)',
+      price: billingCycle === 'mensal' ? 'R$ 39,90' : 'R$ 399',
+      priceDetail: billingCycle === 'mensal' ? '/mês' : '/ano (~17% off)',
       accent: 'border-gold/40', accentBg: '', accentText: 'text-gold-light',
       cta: 'Assinar Idriel', ctaClass: 'bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] hover:from-[hsl(var(--idriel-light))] hover:to-[hsl(var(--gold))] text-[#1a0f00] font-bold',
       ctaAction: () => navigate('/login'), popular: true,
@@ -385,7 +385,7 @@ const LandingPage: React.FC = () => {
               <span className="font-cinzel font-bold text-xl text-gold-light">✨ Idriel — Tudo em um</span>
             </div>
             <div className="flex items-baseline justify-center gap-2 mb-2">
-              <span className="font-montserrat font-bold text-3xl text-gold-light">R$ 29,90</span>
+              <span className="font-montserrat font-bold text-3xl text-gold-light">R$ 39,90</span>
               <span className="text-text-dim font-montserrat text-sm">/mês</span>
             </div>
             <motion.div
@@ -501,19 +501,50 @@ const LandingPage: React.FC = () => {
             ))}
           </motion.div>
 
-          {/* Recharge */}
+          {/* Recharge packages */}
           <motion.div
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
-            className="rounded-2xl border border-gold/20 p-5 mb-16 text-center"
+            className="rounded-2xl border border-gold/20 p-6 mb-16"
             style={{ background: 'linear-gradient(135deg, rgba(200,146,42,0.06) 0%, rgba(200,146,42,0.02) 100%)' }}
           >
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Zap className="w-5 h-5 text-gold-light" />
-              <span className="font-cinzel font-bold text-lg text-gold-light">Recarga de Seiva Dourada</span>
+            <div className="text-center mb-5">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Zap className="w-5 h-5 text-gold-light" />
+                <span className="font-cinzel font-bold text-lg text-gold-light">Pacotes de Seiva Dourada</span>
+              </div>
+              <p className="font-merriweather italic text-text-dim text-sm max-w-xl mx-auto">
+                Acabou a Seiva mensal? Recarregue avulso — quanto mais gotas, mais barato fica cada uma.
+              </p>
             </div>
-            <p className="font-merriweather italic text-text-dim text-sm">
-              Acabou a Seiva? Recarregue +100 gotas por apenas <strong className="text-gold-light">R$ 15,00</strong> — sem assinar nada.
-            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              {[
+                { drops: 15, price: 'R$ 4,90', perDrop: '0,33', badge: null },
+                { drops: 25, price: 'R$ 7,90', perDrop: '0,32', badge: null },
+                { drops: 50, price: 'R$ 14,90', perDrop: '0,30', badge: null },
+                { drops: 100, price: 'R$ 27,90', perDrop: '0,28', badge: 'Popular' },
+                { drops: 200, price: 'R$ 54,90', perDrop: '0,27', badge: 'Melhor valor' },
+              ].map((pkg) => (
+                <div
+                  key={pkg.drops}
+                  className={`relative flex flex-col items-center text-center rounded-xl border p-4 ${
+                    pkg.badge ? 'border-gold/50 bg-gold/[0.08]' : 'border-border/60 bg-card/40'
+                  }`}
+                >
+                  {pkg.badge && (
+                    <span className={`absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-full text-[8px] font-montserrat font-bold uppercase tracking-wider ${
+                      pkg.badge === 'Popular'
+                        ? 'bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] text-[#1a0f00]'
+                        : 'bg-emerald-500 text-white'
+                    }`}>{pkg.badge}</span>
+                  )}
+                  <span className="text-2xl mb-1">🧪</span>
+                  <span className="font-cinzel font-bold text-xl text-gold-light">{pkg.drops}</span>
+                  <span className="font-montserrat text-[10px] text-text-dim uppercase tracking-wider mb-2">gotas</span>
+                  <span className="font-montserrat font-bold text-sm text-foreground">{pkg.price}</span>
+                  <span className="font-montserrat text-[10px] text-text-dim mt-1">R$ {pkg.perDrop}/gota</span>
+                </div>
+              ))}
+            </div>
           </motion.div>
 
           {/* Feature comparison table */}
@@ -546,8 +577,8 @@ const LandingPage: React.FC = () => {
                     <td className="py-2.5 px-4 font-montserrat text-xs font-bold text-foreground">Preço</td>
                     <td className="py-2.5 px-3 text-center font-montserrat font-bold text-xs text-emerald-400">Grátis</td>
                     <td className="py-2.5 px-3 text-center font-montserrat font-bold text-xs text-blue-light">R$ 87/ano</td>
-                    <td className="py-2.5 px-3 text-center font-montserrat font-bold text-xs text-gold-light">
-                      R$ 29,90/mês<br /><span className="text-[10px] text-text-dim">ou R$ 279/ano</span>
+                  <td className="py-2.5 px-3 text-center font-montserrat font-bold text-xs text-gold-light">
+                      R$ 39,90/mês<br /><span className="text-[10px] text-text-dim">ou R$ 399/ano</span>
                     </td>
                   </tr>
                 </tbody>
