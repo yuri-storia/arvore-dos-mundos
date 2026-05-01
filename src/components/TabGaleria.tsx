@@ -29,7 +29,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const filtered = filter === 'Todos' ? gallery : gallery.filter(img => img.cat === filter);
+  // (legacy 'filtered' replaced below by 'filteredSorted' which excludes unsorted)
 
   const [batchCat, setBatchCat] = useState(FRUITS[0].name);
   const [batchUploading, setBatchUploading] = useState(false);
@@ -148,9 +148,23 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
       src: generatedImage,
       name: desc.slice(0, 40) || 'Visão de Idriel',
       cat: saveCat === 'Todos' ? 'Geral' : saveCat,
+      status: 'unsorted',
     });
     setShowSaveModal(false);
+    toast.success('Visão guardada na Caixa de Visões Recentes ✦');
   };
+
+  // ===== Caixa de Visões Recentes (unsorted) =====
+  const unsorted = gallery.filter(img => img.status === 'unsorted');
+  const sorted = gallery.filter(img => img.status !== 'unsorted');
+  const filteredSorted = filter === 'Todos' ? sorted : sorted.filter(img => img.cat === filter);
+
+  const updateImage = (id: string, patch: Partial<GalleryImage>) => {
+    setGallery(gallery.map(img => img.id === id ? { ...img, ...patch } : img));
+  };
+
+  const [tagging, setTagging] = useState<GalleryImage | null>(null);
+  const [tagCat, setTagCat] = useState(FRUITS[0].name);
 
   return (
     <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-6">
@@ -221,24 +235,77 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
         )}
       </div>
 
+      {/* ===== Caixa de Visões Recentes (unsorted) ===== */}
+      {unsorted.length > 0 && (
+        <div className="mb-6 rounded-xl border border-gold/30 bg-gold/[0.04] p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="font-cinzel font-bold text-sm text-gold-light">📥 Caixa de Visões Recentes</h3>
+              <p className="font-merriweather italic text-[11px] text-text-dim">Visões geradas por Idriel aguardando sua decisão.</p>
+            </div>
+            <span className="text-[10px] font-montserrat text-gold-light/80 px-2 py-1 rounded-full bg-gold/10 border border-gold/20">
+              {unsorted.length} aguardando
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
+            {unsorted.map(img => (
+              <div key={img.id} className="group relative rounded-lg overflow-hidden border border-gold/30 bg-background/40">
+                <img
+                  src={img.src}
+                  alt={img.name}
+                  className="w-full h-[100px] sm:h-[120px] object-cover cursor-zoom-in"
+                  onClick={() => setLightbox({ src: img.src, alt: img.name })}
+                />
+                <div className="p-2">
+                  <p className="text-xs text-foreground font-montserrat truncate">{img.name}</p>
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    <button
+                      onClick={() => { setTagging(img); setTagCat(FRUITS[0].name); }}
+                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/15 transition-colors"
+                      title="Etiquetar e arquivar"
+                    >
+                      🌳 Etiquetar
+                    </button>
+                    <button
+                      onClick={() => { updateImage(img.id, { status: 'kept' }); toast.success('Mantida na galeria'); }}
+                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/15 transition-colors"
+                      title="Mover para galeria"
+                    >
+                      💾 Manter
+                    </button>
+                    <button
+                      onClick={() => removeImage(img.id)}
+                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-red-alert/30 text-red-alert/90 hover:bg-red-alert/15 transition-colors"
+                      title="Excluir"
+                    >
+                      🗑
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Grid */}
-      {filtered.length === 0 ? (
+      {filteredSorted.length === 0 ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
             <span className="text-3xl">🖼️</span>
           </div>
           <h3 className="font-cinzel font-bold text-lg text-foreground mb-2">
-            {gallery.length === 0 ? 'Sua galeria está vazia' : 'Nenhuma visão nesta categoria'}
+            {sorted.length === 0 ? 'Sua galeria está vazia' : 'Nenhuma visão nesta categoria'}
           </h3>
           <p className="font-merriweather text-sm text-text-dim mb-4 max-w-md mx-auto">
-            {gallery.length === 0
+            {sorted.length === 0
               ? 'Faça upload de referências visuais ou gere imagens com Idriel abaixo.'
               : 'Tente um filtro diferente ou adicione novas imagens.'}
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
-          {filtered.map(img => (
+          {filteredSorted.map(img => (
             <div
               key={img.id}
               className="group relative rounded-lg overflow-hidden border border-gold/15 hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(218,165,32,0.15)] transition-all"
@@ -489,6 +556,40 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
             <div className="flex gap-2 justify-end">
               <button onClick={() => setShowSaveModal(false)} className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-border hover:text-foreground transition-colors">Cancelar</button>
               <button onClick={confirmSave} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors">💾 Guardar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tag-and-archive modal for unsorted images */}
+      {tagging && (
+        <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-3 sm:p-4" onClick={() => setTagging(null)}>
+          <div className="card-glass rounded-lg w-full max-w-sm p-5 animate-fadeUp border border-gold/20" onClick={e => e.stopPropagation()}>
+            <h3 className="font-cinzel font-bold text-foreground mb-1">🌳 Etiquetar Visão</h3>
+            <p className="font-merriweather text-xs text-text-dim italic mb-4">Escolha o Fruto/categoria onde esta visão deve ser arquivada.</p>
+            <div className="flex flex-wrap gap-1.5 mb-4 max-h-[240px] overflow-y-auto">
+              {FRUITS.map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setTagCat(f.name)}
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${tagCat === f.name ? 'bg-gold/20 text-gold-light border border-gold/40' : 'text-text-dim border border-transparent hover:border-gold/20'}`}
+                >
+                  {f.icon} {f.name}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setTagging(null)} className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-border hover:text-foreground transition-colors">Cancelar</button>
+              <button
+                onClick={() => {
+                  updateImage(tagging.id, { status: 'kept', cat: tagCat });
+                  toast.success(`Etiquetada em "${tagCat}" ✦`);
+                  setTagging(null);
+                }}
+                className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors"
+              >
+                💾 Etiquetar
+              </button>
             </div>
           </div>
         </div>

@@ -470,8 +470,33 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 {aiResponse && !aiLoading && (
                   <div className="animate-fadeUp border-l-[3px] border-idriel-light pl-4 py-3 bg-idriel/[0.04] rounded-r-md">
                     <span className="font-cinzel text-[10px] text-idriel-light block mb-2">🌿 Idriel responde</span>
-                    <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed">{aiResponse}</p>
+                    <p className="font-merriweather text-sm text-foreground/95 whitespace-pre-wrap leading-relaxed">{aiResponse}</p>
+                    <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-idriel/15">
+                      <button
+                        onClick={() => handleOpenSaveDialog('ficha')}
+                        className="px-3 py-1.5 rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider border border-idriel/40 text-idriel-light hover:bg-idriel/15 transition-colors"
+                      >
+                        💾 Salvar como Ficha
+                      </button>
+                      <button
+                        onClick={() => handleOpenSaveDialog('artigo')}
+                        className="px-3 py-1.5 rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider border border-idriel/40 text-idriel-light hover:bg-idriel/15 transition-colors"
+                      >
+                        💾 Salvar como Artigo
+                      </button>
+                    </div>
                   </div>
+                )}
+
+                {/* History toggle */}
+                {suggestions.length > 0 && (
+                  <button
+                    onClick={() => setShowHistory(true)}
+                    className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[11px] font-montserrat text-text-dim border border-idriel/20 hover:text-idriel-light hover:border-idriel/40 transition-colors"
+                  >
+                    <History className="w-3.5 h-3.5" />
+                    📜 Histórico de Idriel ({suggestions.length})
+                  </button>
                 )}
               </div>
             ) : (
@@ -521,6 +546,100 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       )}
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
+
+      {/* Idriel history drawer */}
+      <Sheet open={showHistory} onOpenChange={setShowHistory}>
+        <SheetContent side="right" className="w-full sm:max-w-md bg-background border-idriel/20 overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="font-cinzel text-idriel-light flex items-center gap-2">
+              <History className="w-4 h-4" /> Histórico de Idriel — {fruit.name}
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 space-y-3">
+            {suggestions.length === 0 ? (
+              <p className="font-merriweather italic text-text-dim text-sm">Nenhuma consulta salva neste fruto ainda.</p>
+            ) : suggestions.map(s => (
+              <div key={s.id} className="rounded-md border border-idriel/15 bg-idriel/[0.04] p-3">
+                <p className="text-[10px] uppercase font-montserrat text-idriel-light/70 mb-1">
+                  {new Date(s.created_at).toLocaleString('pt-BR')}
+                </p>
+                <p className="text-xs font-bold text-foreground mb-2">❓ {s.question}</p>
+                <p className="text-xs font-merriweather text-foreground/90 whitespace-pre-wrap leading-relaxed mb-3 max-h-[200px] overflow-y-auto">
+                  {s.response}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    onClick={() => { handleOpenSaveDialog('ficha', s.response); setShowHistory(false); }}
+                    className="px-2 py-1 rounded text-[10px] font-montserrat border border-idriel/30 text-idriel-light hover:bg-idriel/15 transition-colors"
+                  >
+                    💾 Ficha
+                  </button>
+                  <button
+                    onClick={() => { handleOpenSaveDialog('artigo', s.response); setShowHistory(false); }}
+                    className="px-2 py-1 rounded text-[10px] font-montserrat border border-idriel/30 text-idriel-light hover:bg-idriel/15 transition-colors"
+                  >
+                    💾 Artigo
+                  </button>
+                  <button
+                    onClick={() => deleteSuggestion(s.id)}
+                    className="ml-auto p-1 rounded text-text-dim hover:text-red-alert transition-colors"
+                    title="Excluir"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Save Idriel response as ficha/artigo dialog */}
+      <Dialog open={!!savingAs} onOpenChange={(open) => { if (!open) { setSavingAs(null); setSaveDraft({ title: '', content: '' }); } }}>
+        <DialogContent className="card-glass border-idriel/30 max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="font-cinzel text-idriel-light">
+              💾 Salvar como {savingAs === 'ficha' ? 'Ficha' : 'Artigo'}
+            </DialogTitle>
+            <DialogDescription className="text-text-dim font-merriweather text-xs italic">
+              Idriel resumiu a resposta de forma objetiva. Você pode editar antes de salvar.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="text-[10px] uppercase font-montserrat text-idriel-light/80 block mb-1">Título</label>
+              <Input
+                value={saveDraft.title}
+                onChange={e => setSaveDraft(prev => ({ ...prev, title: e.target.value }))}
+                disabled={saveLoading}
+                className="bg-background/60 border-idriel/20"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] uppercase font-montserrat text-idriel-light/80 block mb-1">Conteúdo</label>
+              <Textarea
+                value={saveDraft.content}
+                onChange={e => setSaveDraft(prev => ({ ...prev, content: e.target.value }))}
+                disabled={saveLoading}
+                rows={10}
+                className="bg-background/60 border-idriel/20 font-merriweather text-sm leading-relaxed"
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => { setSavingAs(null); setSaveDraft({ title: '', content: '' }); }} className="border-idriel/30 text-text-secondary">
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleConfirmSave}
+              disabled={saveLoading || !saveDraft.title.trim() || !saveDraft.content.trim()}
+              className="bg-idriel-dim hover:bg-idriel text-foreground"
+            >
+              {saveLoading ? 'Resumindo…' : '💾 Salvar no Codex'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Magictype first-time creation dialog */}
       <Dialog open={showMagictypeCreated} onOpenChange={setShowMagictypeCreated}>
