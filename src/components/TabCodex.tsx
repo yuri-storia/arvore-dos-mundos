@@ -12,6 +12,7 @@ import type { WorldRecord } from '@/hooks/useWorlds';
 import { Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { IdrielImportDialog } from '@/components/IdrielImportDialog';
 
 const FRUIT_ALL = -1;
 const FRUIT_NONE = -2; // sentinel for "no fruit" filter
@@ -42,6 +43,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   const [importEntryList, setImportEntryList] = useState<CodexEntry[]>([]);
   const [importSelectedIds, setImportSelectedIds] = useState<string[]>([]);
   const [importLoading, setImportLoading] = useState(false);
+  const [showIdrielImport, setShowIdrielImport] = useState(false);
 
   // Create form state
   const [newTitle, setNewTitle] = useState('');
@@ -219,6 +221,14 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                     </button>
                   </>
                 )}
+                <div className="border-t border-blue-bright/15 my-2" />
+                <button
+                  onClick={() => { setShowIdrielImport(true); setShowCreate(false); }}
+                  className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors"
+                >
+                  <span className="font-montserrat font-bold text-xs text-foreground block">📚 Importar com Idriel</span>
+                  <span className="text-[10px] text-text-dim font-merriweather">Extrair fichas/artigos de um PDF, DOCX ou texto (5 gotas)</span>
+                </button>
                 <button onClick={resetCreate} className="absolute top-1 right-1 w-5 h-5 rounded-full text-text-dim hover:text-foreground text-xs flex items-center justify-center">✕</button>
               </div>
             )}
@@ -600,6 +610,34 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
       )}
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
+
+      <IdrielImportDialog
+        open={showIdrielImport}
+        onOpenChange={setShowIdrielImport}
+        remaining={(() => {
+          const fichaCount = entries.filter(e => e.entry_type !== 'artigo').length;
+          const artigoCount = entries.filter(e => e.entry_type === 'artigo').length;
+          const fichaSlots = Math.max(0, planLimits.maxFichas - fichaCount);
+          const artigoSlots = Math.max(0, planLimits.maxArtigos - artigoCount);
+          const total = fichaSlots + artigoSlots;
+          return Number.isFinite(total) ? total : 999;
+        })()}
+        canCreateMore={() => {
+          const fichaCount = entries.filter(e => e.entry_type !== 'artigo').length;
+          const artigoCount = entries.filter(e => e.entry_type === 'artigo').length;
+          return fichaCount < planLimits.maxFichas || artigoCount < planLimits.maxArtigos;
+        }}
+        onCreate={async (items) => {
+          for (const it of items) {
+            await createEntry({
+              title: it.title,
+              content: it.content,
+              entry_type: it.entry_type,
+              fruit_id: it.fruit_id,
+            });
+          }
+        }}
+      />
     </div>
   );
 };

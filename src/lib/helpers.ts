@@ -51,6 +51,32 @@ export async function callAIImage(prompt: string) {
   return data?.imageUrl || '';
 }
 
+// Generate an image using Codex references (text + up to 5 image URLs) for consistency.
+export async function callAIImageConsistent(prompt: string, referenceImageUrls: string[] = [], referenceText = ''): Promise<string> {
+  const { data, error } = await supabase.functions.invoke('ai-image-consistent', {
+    body: { prompt, referenceImageUrls: referenceImageUrls.slice(0, 5), referenceText: referenceText.slice(0, 4000) },
+  });
+  if (error) throw new Error(error.message || 'Erro ao gerar imagem consistente');
+  if (data?.error) throw new Error(data.error);
+  return data?.imageUrl || '';
+}
+
+// Send extracted document text to Idriel and receive Codex entry suggestions.
+export interface ImportedSuggestion {
+  type: 'ficha' | 'artigo';
+  title: string;
+  fruit_id: number;
+  summary: string;
+}
+export async function importTextWithIdriel(text: string, sourceType: 'pdf' | 'docx' | 'txt' | 'texto' = 'texto'): Promise<ImportedSuggestion[]> {
+  const { data, error } = await supabase.functions.invoke('idriel-import-text', {
+    body: { text, sourceType },
+  });
+  if (error) throw new Error(error.message || 'Erro ao analisar texto');
+  if (data?.error) throw new Error(data.error);
+  return (data?.entries || []) as ImportedSuggestion[];
+}
+
 // Summarize an Idriel response into clean prose suitable for a Codex entry
 export async function summarizeIdrielResponse(response: string, kind: 'ficha' | 'artigo'): Promise<string> {
   const sysPrompt = `Você é um editor enxuto. Resuma o conselho de worldbuilding a seguir em ${kind === 'ficha' ? '2-4 parágrafos curtos e diretos, focados nos fatos e ideias concretas (não inclua perguntas retóricas, vocativos como "querido criador" ou linguagem mística)' : '3-5 parágrafos objetivos e bem estruturados (sem trejeitos místicos, vocativos ou repetições). Use um título ## para cada seção temática quando houver mais de uma ideia clara'}. Responda em português brasileiro. NÃO use prefácios — entregue apenas o resumo limpo.`;
