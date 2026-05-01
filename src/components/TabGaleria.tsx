@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { FRUITS, STYLE_OPTIONS, IMAGE_TYPE_OPTIONS, TONE_OPTIONS, GalleryImage } from '@/lib/data';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,9 +8,12 @@ import { callAIText, callAIImage } from '@/lib/helpers';
 import { optimizeImage } from '@/lib/imageOptimizer';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
+import { useCodexEntries } from '@/hooks/useCodexEntries';
+import { useIdrielVisions } from '@/hooks/useIdrielVisions';
+import { useIdrielJobs } from '@/contexts/IdrielJobsContext';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, Lock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, Lock, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import type { AppState } from '@/lib/data';
 
 interface Props {
