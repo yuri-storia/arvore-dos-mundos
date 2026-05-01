@@ -132,6 +132,100 @@ const MentionPopup: React.FC<{
   );
 };
 
+// ── Content Preview with clickable @reference chips ──
+const ContentPreview: React.FC<{
+  content: string;
+  entries: CodexEntry[];
+  onChipClick: (entry: CodexEntry) => void;
+}> = ({ content, entries, onChipClick }) => {
+  const entriesByName = useMemo(() => {
+    const map = new Map<string, CodexEntry>();
+    entries.forEach(e => map.set(e.title.toLowerCase(), e));
+    return map;
+  }, [entries]);
+
+  // Tokenize content into text + @mentions
+  const parts = useMemo(() => {
+    const out: Array<{ type: 'text' | 'mention'; value: string; entry?: CodexEntry }> = [];
+    const regex = /@([A-Za-zÀ-ÿ0-9_\-]+(?:\s[A-Za-zÀ-ÿ0-9_\-]+)?)/g;
+    let lastIdx = 0;
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(content)) !== null) {
+      if (match.index > lastIdx) out.push({ type: 'text', value: content.slice(lastIdx, match.index) });
+      const name = match[1];
+      const entry = entriesByName.get(name.toLowerCase());
+      out.push({ type: 'mention', value: name, entry });
+      lastIdx = match.index + match[0].length;
+    }
+    if (lastIdx < content.length) out.push({ type: 'text', value: content.slice(lastIdx) });
+    return out;
+  }, [content, entriesByName]);
+
+  return (
+    <div className="w-full h-full overflow-y-auto p-4 font-merriweather text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
+      {parts.map((p, i) => {
+        if (p.type === 'text') return <span key={i}>{p.value}</span>;
+        if (p.entry) {
+          const isFicha = p.entry.entry_type === 'ficha';
+          return (
+            <button
+              key={i}
+              onClick={() => onChipClick(p.entry!)}
+              className={`inline-flex items-center px-1.5 py-0.5 mx-0.5 rounded text-[12px] font-montserrat font-bold transition-colors ${
+                isFicha
+                  ? 'bg-blue-bright/15 text-blue-light hover:bg-blue-bright/25'
+                  : 'bg-gold/15 text-gold-light hover:bg-gold/25'
+              }`}
+            >
+              @{p.value}
+            </button>
+          );
+        }
+        return (
+          <span key={i} className="text-text-dim/60 italic" title="Referência não encontrada no Codex">
+            @{p.value}
+          </span>
+        );
+      })}
+      {parts.length === 0 && <span className="text-text-dim/40 italic">Nada escrito ainda.</span>}
+    </div>
+  );
+};
+
+// ── Entry Preview Panel (right side, shown when a chip is clicked) ──
+const EntryPreviewPanel: React.FC<{
+  entry: CodexEntry;
+  onClose: () => void;
+}> = ({ entry, onClose }) => {
+  const fruit = FRUITS.find(f => f.id === entry.fruit_id);
+  const isFicha = entry.entry_type === 'ficha';
+  return (
+    <div className="flex flex-col h-full">
+      <div className="p-3 border-b border-blue-bright/10 flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-[9px] font-montserrat uppercase tracking-widest text-text-dim mb-0.5">
+            {isFicha ? 'Ficha' : 'Artigo'}{fruit ? ` · ${fruit.icon} ${fruit.name}` : ''}
+          </p>
+          <h3 className={`font-cinzel font-bold text-sm truncate ${isFicha ? 'text-blue-light' : 'text-gold-light'}`}>
+            {entry.title}
+          </h3>
+        </div>
+        <button onClick={onClose} className="p-1 text-text-dim hover:text-foreground" title="Fechar">
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+      {entry.image_url && (
+        <img src={entry.image_url} alt={entry.title} className="w-full h-[120px] object-cover" />
+      )}
+      <ScrollArea className="flex-1">
+        <div className="p-3 text-xs text-foreground/85 font-merriweather leading-relaxed whitespace-pre-wrap">
+          {entry.content || <span className="italic text-text-dim">Sem conteúdo.</span>}
+        </div>
+      </ScrollArea>
+    </div>
+  );
+};
+
 // ── Main Component ──
 export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const { user } = useAuth();
