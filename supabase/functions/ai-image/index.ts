@@ -62,9 +62,10 @@ serve(async (req) => {
     }
 
     const { prompt } = body as Record<string, unknown>;
-    if (!prompt || typeof prompt !== "string" || prompt.length === 0 || prompt.length > 2000) {
-      return new Response(JSON.stringify({ error: "prompt must be a string with 1-2000 chars" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!prompt || typeof prompt !== "string" || prompt.length === 0) {
+      return new Response(JSON.stringify({ error: "prompt must be a non-empty string" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+    const safePrompt = prompt.length > 8000 ? prompt.slice(0, 8000) : prompt;
 
     // Call Lovable AI image generation
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -75,7 +76,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: "google/gemini-3-pro-image-preview",
-        messages: [{ role: "user", content: prompt }],
+        messages: [{ role: "user", content: safePrompt }],
         modalities: ["image", "text"],
       }),
     });

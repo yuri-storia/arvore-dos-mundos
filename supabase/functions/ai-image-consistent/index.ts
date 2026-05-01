@@ -57,8 +57,8 @@ serve(async (req) => {
     }
 
     const { prompt, referenceImageUrls, referenceText } = body as Record<string, unknown>;
-    if (!prompt || typeof prompt !== "string" || prompt.length === 0 || prompt.length > 2000) {
-      return new Response(JSON.stringify({ error: "prompt must be a string with 1-2000 chars" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!prompt || typeof prompt !== "string" || prompt.length === 0) {
+      return new Response(JSON.stringify({ error: "prompt must be a non-empty string" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
     const refs = Array.isArray(referenceImageUrls) ? referenceImageUrls.filter((u): u is string => typeof u === "string" && u.length < 4000).slice(0, 5) : [];
     const refText = typeof referenceText === "string" ? referenceText.slice(0, 4000) : "";
