@@ -248,6 +248,36 @@ export type Database = {
         }
         Relationships: []
       }
+      idriel_suggestions: {
+        Row: {
+          created_at: string
+          fruit_id: number
+          id: string
+          question: string
+          response: string
+          user_id: string
+          world_id: string
+        }
+        Insert: {
+          created_at?: string
+          fruit_id: number
+          id?: string
+          question: string
+          response: string
+          user_id: string
+          world_id: string
+        }
+        Update: {
+          created_at?: string
+          fruit_id?: number
+          id?: string
+          question?: string
+          response?: string
+          user_id?: string
+          world_id?: string
+        }
+        Relationships: []
+      }
       manuscripts: {
         Row: {
           created_at: string
@@ -321,6 +351,7 @@ export type Database = {
           id: string
           sort_order: number
           status: string
+          storyline_column_id: string | null
           title: string
           updated_at: string
           user_id: string
@@ -333,6 +364,7 @@ export type Database = {
           id?: string
           sort_order?: number
           status?: string
+          storyline_column_id?: string | null
           title?: string
           updated_at?: string
           user_id: string
@@ -345,6 +377,7 @@ export type Database = {
           id?: string
           sort_order?: number
           status?: string
+          storyline_column_id?: string | null
           title?: string
           updated_at?: string
           user_id?: string
@@ -359,6 +392,74 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      storyline_columns: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          sort_order: number
+          storyline_id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          sort_order?: number
+          storyline_id: string
+          title?: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          sort_order?: number
+          storyline_id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "storyline_columns_storyline_id_fkey"
+            columns: ["storyline_id"]
+            isOneToOne: false
+            referencedRelation: "storylines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      storylines: {
+        Row: {
+          created_at: string
+          id: string
+          manuscript_id: string | null
+          name: string
+          updated_at: string
+          user_id: string
+          world_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          manuscript_id?: string | null
+          name?: string
+          updated_at?: string
+          user_id: string
+          world_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          manuscript_id?: string | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+          world_id?: string
+        }
+        Relationships: []
       }
       subscriptions: {
         Row: {
