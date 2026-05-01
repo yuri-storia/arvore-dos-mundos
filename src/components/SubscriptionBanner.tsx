@@ -72,9 +72,9 @@ export const SubscriptionBanner: React.FC = () => {
                 className="flex flex-col items-start gap-1.5 p-3 rounded-lg border border-gold/30 hover:border-gold/50 transition-all text-left"
                 style={{ background: 'linear-gradient(135deg, rgba(200,146,42,0.10) 0%, rgba(200,146,42,0.04) 100%)' }}
               >
-                <span className="font-montserrat font-bold text-xs text-gold-light">✨ Idriel — Tudo + IA</span>
-                <span className="text-[10px] text-text-dim">Tudo do Raiz + assistente de IA + geração de imagens</span>
-                <span className="font-montserrat font-bold text-sm text-gold-light">R$ 29,90/mês</span>
+                <span className="font-montserrat font-bold text-xs text-gold-light">✨ Idriel — Tudo + IA Suprema</span>
+                <span className="text-[10px] text-text-dim">Tudo do Raiz + IA + imagens em qualidade máxima (Gemini 3 Pro Image)</span>
+                <span className="font-montserrat font-bold text-sm text-gold-light">R$ 39,90/mês</span>
               </button>
             </div>
             <Link to="/planos" className="block text-center mt-3 text-[10px] font-montserrat font-bold text-text-dim hover:text-foreground transition-colors uppercase tracking-wider">
