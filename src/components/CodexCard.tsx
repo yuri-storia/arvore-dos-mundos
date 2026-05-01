@@ -592,15 +592,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 )}
               </div>
 
-              <div className="border-t border-border pt-3 mt-1">
-                <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1.5">✨ Gerar imagem com IA</label>
-                <div className="flex gap-2">
-                  <input
-                    value={aiPrompt}
-                    onChange={e => setAiPrompt(e.target.value)}
-                    placeholder={`Descreva a imagem para "${entry.title}"…`}
-                    className="flex-1 bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-xs text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-ring/50"
-                  />
+
               <div className="border-t border-border pt-3 mt-1">
                 <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1.5">✨ Gerar imagem com IA</label>
                 <div className="flex gap-2">
