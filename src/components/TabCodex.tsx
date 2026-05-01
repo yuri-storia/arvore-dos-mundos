@@ -610,6 +610,34 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
       )}
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
+
+      <IdrielImportDialog
+        open={showIdrielImport}
+        onOpenChange={setShowIdrielImport}
+        remaining={(() => {
+          const fichaCount = entries.filter(e => e.entry_type !== 'artigo').length;
+          const artigoCount = entries.filter(e => e.entry_type === 'artigo').length;
+          const fichaSlots = Math.max(0, planLimits.maxFichas - fichaCount);
+          const artigoSlots = Math.max(0, planLimits.maxArtigos - artigoCount);
+          const total = fichaSlots + artigoSlots;
+          return Number.isFinite(total) ? total : 999;
+        })()}
+        canCreateMore={() => {
+          const fichaCount = entries.filter(e => e.entry_type !== 'artigo').length;
+          const artigoCount = entries.filter(e => e.entry_type === 'artigo').length;
+          return fichaCount < planLimits.maxFichas || artigoCount < planLimits.maxArtigos;
+        }}
+        onCreate={async (items) => {
+          for (const it of items) {
+            await createEntry({
+              title: it.title,
+              content: it.content,
+              entry_type: it.entry_type,
+              fruit_id: it.fruit_id,
+            });
+          }
+        }}
+      />
     </div>
   );
 };
