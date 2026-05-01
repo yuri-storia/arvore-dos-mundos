@@ -74,25 +74,42 @@ const KanbanCard: React.FC<{
           <input
             value={title}
             onChange={e => { setTitle(e.target.value); debouncedSave({ title: e.target.value }); }}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                if (saveTimer.current) clearTimeout(saveTimer.current);
+                onUpdate(card.id, { title });
+                (e.target as HTMLInputElement).blur();
+              }
+            }}
             placeholder="Título do card"
-            className="w-full bg-transparent text-xs font-montserrat font-semibold text-foreground border-none focus:outline-none placeholder:text-text-dim/40"
+            className="w-full bg-transparent text-sm font-montserrat font-semibold text-foreground border-none focus:outline-none placeholder:text-text-dim/40"
           />
           {expanded ? (
             <textarea
               value={content}
               onChange={e => { setContent(e.target.value); debouncedSave({ content: e.target.value }); }}
-              onBlur={() => content.trim() === '' && setExpanded(false)}
-              placeholder="Escreva livremente…"
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (saveTimer.current) clearTimeout(saveTimer.current);
+                  onUpdate(card.id, { content });
+                  (e.target as HTMLTextAreaElement).blur();
+                  setExpanded(false);
+                }
+              }}
+              onBlur={() => { if (content.trim() === '') setExpanded(false); }}
+              placeholder="Escreva livremente… (Enter para salvar, Shift+Enter quebra linha)"
               autoFocus
               rows={4}
-              className="w-full mt-1.5 bg-white/[0.03] rounded p-1.5 text-[11px] font-merriweather text-foreground/90 border border-white/5 focus:border-blue-bright/30 focus:outline-none resize-y placeholder:text-text-dim/40 leading-relaxed"
+              className="w-full mt-1.5 bg-white/[0.03] rounded p-2 text-[13px] font-merriweather text-foreground/90 border border-white/5 focus:border-blue-bright/30 focus:outline-none resize-y placeholder:text-text-dim/40 leading-relaxed"
             />
           ) : (
             <button
               onClick={() => setExpanded(true)}
-              className="w-full text-left text-[11px] text-text-dim/70 mt-1 line-clamp-3 font-merriweather italic hover:text-text-dim transition-colors"
+              className="w-full text-left text-[13px] text-text-dim/80 mt-1 line-clamp-4 font-merriweather hover:text-foreground/90 transition-colors leading-relaxed"
             >
-              {content || <span className="opacity-60">+ adicionar conteúdo</span>}
+              {content || <span className="opacity-60 italic text-xs">+ adicionar conteúdo</span>}
             </button>
           )}
         </div>
