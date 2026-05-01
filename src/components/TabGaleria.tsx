@@ -148,9 +148,23 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
       src: generatedImage,
       name: desc.slice(0, 40) || 'Visão de Idriel',
       cat: saveCat === 'Todos' ? 'Geral' : saveCat,
+      status: 'unsorted',
     });
     setShowSaveModal(false);
+    toast.success('Visão guardada na Caixa de Visões Recentes ✦');
   };
+
+  // ===== Caixa de Visões Recentes (unsorted) =====
+  const unsorted = gallery.filter(img => img.status === 'unsorted');
+  const sorted = gallery.filter(img => img.status !== 'unsorted');
+  const filteredSorted = filter === 'Todos' ? sorted : sorted.filter(img => img.cat === filter);
+
+  const updateImage = (id: string, patch: Partial<GalleryImage>) => {
+    setGallery(gallery.map(img => img.id === id ? { ...img, ...patch } : img));
+  };
+
+  const [tagging, setTagging] = useState<GalleryImage | null>(null);
+  const [tagCat, setTagCat] = useState(FRUITS[0].name);
 
   return (
     <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-6">
