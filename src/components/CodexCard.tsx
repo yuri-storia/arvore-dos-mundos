@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
-import { callAIImage } from '@/lib/helpers';
+import { callAIImage, callAIImageConsistent } from '@/lib/helpers';
 import { exportSingleEntry } from '@/lib/codexPdfExport';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -29,6 +29,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   const [showGalleryPicker, setShowGalleryPicker] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
   const [generatingAi, setGeneratingAi] = useState(false);
+  const [consistent, setConsistent] = useState(true);
   const [showRepositioner, setShowRepositioner] = useState(false);
   const [imgPos, setImgPos] = useState<{ x: number; y: number }>(entry.image_position || { x: 50, y: 50 });
   const fileRef = useRef<HTMLInputElement>(null);
@@ -68,15 +69,27 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
     if (!aiPrompt.trim()) return;
     setGeneratingAi(true);
     try {
-      const url = await callAIImage(aiPrompt);
+      let url: string;
+      if (consistent) {
+        // Build references from same-fruit Codex entries with images (excluding self), up to 5.
+        const sameFruitWithImage = gallery
+          .filter(g => g.src && g.src !== entry.image_url)
+          .slice(0, 5)
+          .map(g => g.src);
+        const refText = `Entrada atual: "${entry.title}" (${entry.entry_type}). Conteúdo:\n${(entry.content || '').slice(0, 2000)}`;
+        url = await callAIImageConsistent(aiPrompt, sameFruitWithImage, refText);
+      } else {
+        url = await callAIImage(aiPrompt);
+      }
       if (url) {
         const defaultPosition = { x: 50, y: 50 };
         setImgPos(defaultPosition);
         await onUpdate(entry.id, { image_url: url, image_position: defaultPosition });
-        toast.success('Imagem gerada com sucesso!');
+        toast.success(consistent ? 'Imagem gerada com consistência do Codex!' : 'Imagem gerada com sucesso!');
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao gerar imagem');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erro ao gerar imagem';
+      toast.error(msg);
     } finally {
       setGeneratingAi(false);
       setShowImageMenu(false);
@@ -588,6 +601,15 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                     placeholder={`Descreva a imagem para "${entry.title}"…`}
                     className="flex-1 bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-xs text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-ring/50"
                   />
+              <div className="border-t border-border pt-3 mt-1">
+                <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1.5">✨ Gerar imagem com IA</label>
+                <div className="flex gap-2">
+                  <input
+                    value={aiPrompt}
+                    onChange={e => setAiPrompt(e.target.value)}
+                    placeholder={`Descreva a imagem para "${entry.title}"…`}
+                    className="flex-1 bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-xs text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-ring/50"
+                  />
                   <button
                     onClick={handleAiGenerate}
                     disabled={!aiPrompt.trim() || generatingAi}
@@ -596,6 +618,17 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                     {generatingAi ? '⏳ Gerando…' : '✨ Gerar'}
                   </button>
                 </div>
+                <label className="flex items-center gap-2 mt-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={consistent}
+                    onChange={e => setConsistent(e.target.checked)}
+                    className="accent-gold"
+                  />
+                  <span className="text-[10px] text-foreground/80 font-merriweather">
+                    🔗 Manter consistência com o Codex (usa imagens da galeria como referência visual)
+                  </span>
+                </label>
               </div>
             </div>
           )}
