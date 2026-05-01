@@ -577,27 +577,31 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
             </div>
           )}
 
-          {/* Expanded card — proper Dialog (centered, scroll-locked, ESC closes) */}
-          <Dialog open={!!expandedId} onOpenChange={(open) => { if (!open) setExpandedId(null); }}>
-            <DialogContent className="max-w-[900px] w-[95vw] p-0 border-blue-bright/20 bg-transparent shadow-none overflow-hidden [&>button.absolute]:hidden">
-              {(() => {
-                const expandedEntry = entries.find(e => e.id === expandedId);
-                if (!expandedEntry) return null;
-                return (
-                  <CodexCard
-                    entry={expandedEntry}
-                    expanded={true}
-                    onToggle={() => setExpandedId(null)}
-                    onUpdate={updateEntry}
-                    onDelete={async (id) => { await deleteEntry(id); setExpandedId(null); }}
-                    onImageUpload={uploadImage}
-                    onLightbox={setLightbox}
-                    gallery={gallery}
-                  />
-                );
-              })()}
-            </DialogContent>
-          </Dialog>
+          {/* Expanded card — custom isolated layer so drag/click events never reach the page behind it */}
+          {expandedEntry && createPortal(
+            <div
+              className="fixed inset-0 z-[220] flex items-center justify-center bg-background/85 p-3 backdrop-blur-sm sm:p-6"
+              role="dialog"
+              aria-modal="true"
+              onMouseDown={(e) => {
+                if (e.target === e.currentTarget) setExpandedId(null);
+              }}
+            >
+              <div className="w-full max-w-[900px]" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+                <CodexCard
+                  entry={expandedEntry}
+                  expanded={true}
+                  onToggle={() => setExpandedId(null)}
+                  onUpdate={updateEntry}
+                  onDelete={async (id) => { await deleteEntry(id); setExpandedId(null); }}
+                  onImageUpload={uploadImage}
+                  onLightbox={setLightbox}
+                  gallery={gallery}
+                />
+              </div>
+            </div>,
+            document.body
+          )}
         </>
       )}
 
