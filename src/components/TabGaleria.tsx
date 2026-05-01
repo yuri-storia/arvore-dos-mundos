@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { FRUITS, STYLE_OPTIONS, IMAGE_TYPE_OPTIONS, TONE_OPTIONS, GalleryImage } from '@/lib/data';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,9 +8,12 @@ import { callAIText, callAIImage } from '@/lib/helpers';
 import { optimizeImage } from '@/lib/imageOptimizer';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
+import { useCodexEntries } from '@/hooks/useCodexEntries';
+import { useIdrielVisions } from '@/hooks/useIdrielVisions';
+import { useIdrielJobs } from '@/contexts/IdrielJobsContext';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, Lock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, Lock, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import type { AppState } from '@/lib/data';
 
 interface Props {
@@ -25,11 +28,13 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const { user } = useAuth();
   const sub = useSubscription();
   const planLimits = usePlanLimits();
+  const worldId = state.currentSaveId || undefined;
+  const { entries: codexEntries } = useCodexEntries(worldId);
+  const { visions, saveVision, updateVisionImage, deleteVision } = useIdrielVisions(worldId);
+  const idrielJobs = useIdrielJobs();
   const [filter, setFilter] = useState('Todos');
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  // (legacy 'filtered' replaced below by 'filteredSorted' which excludes unsorted)
 
   const [batchCat, setBatchCat] = useState(FRUITS[0].name);
   const [batchUploading, setBatchUploading] = useState(false);
@@ -43,13 +48,44 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const [imgType, setImgType] = useState(IMAGE_TYPE_OPTIONS[0]);
   const [tone, setTone] = useState(TONE_OPTIONS[0]);
   const [extras, setExtras] = useState('');
-  const [loading1, setLoading1] = useState(false);
-  const [loading2, setLoading2] = useState(false);
   const [generatedImage, setGeneratedImage] = useState('');
+  const promptJobKey = worldId ? `idriel:promptJob:${worldId}` : null;
+  const imageJobKey = worldId ? `idriel:imageJob:${worldId}` : null;
+  const visionKey = worldId ? `idriel:vision:${worldId}` : null;
+  const [activePromptJobId, setActivePromptJobId] = useState<string | null>(() => promptJobKey ? localStorage.getItem(promptJobKey) : null);
+  const [activeImageJobId, setActiveImageJobId] = useState<string | null>(() => imageJobKey ? localStorage.getItem(imageJobKey) : null);
+  const [activeVisionId, setActiveVisionId] = useState<string | null>(() => visionKey ? localStorage.getItem(visionKey) : null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState('Todos');
+  const [showHistory, setShowHistory] = useState(true);
+
+  // Read from persistent jobs (so switching tabs doesn't cancel)
+  const promptJob = activePromptJobId ? idrielJobs.get<string>(activePromptJobId) : undefined;
+  const imageJob = activeImageJobId ? idrielJobs.get<string>(activeImageJobId) : undefined;
+  const loading1 = promptJob?.status === 'running';
+  const loading2 = imageJob?.status === 'running';
+
+  useEffect(() => {
+    if (promptJob?.status === 'done' && typeof promptJob.result === 'string' && promptJob.result) {
+      setGeneratedPrompt(promptJob.result);
+    }
+    if (promptJob?.status === 'error') setError(promptJob.error || 'Erro ao tecer prompt');
+  }, [promptJob?.status, promptJob?.result, promptJob?.error, setGeneratedPrompt]);
+
+  useEffect(() => {
+    if (imageJob?.status === 'done' && typeof imageJob.result === 'string' && imageJob.result) {
+      setGeneratedImage(imageJob.result);
+      if (activeVisionId) updateVisionImage(activeVisionId, imageJob.result);
+    }
+    if (imageJob?.status === 'error') setError(imageJob.error || 'Erro ao materializar visão');
+  }, [imageJob?.status, imageJob?.result, imageJob?.error, activeVisionId, updateVisionImage]);
+
+  // Persist job ids per world so navigating away & back keeps the running session.
+  useEffect(() => { if (promptJobKey) { activePromptJobId ? localStorage.setItem(promptJobKey, activePromptJobId) : localStorage.removeItem(promptJobKey); } }, [promptJobKey, activePromptJobId]);
+  useEffect(() => { if (imageJobKey) { activeImageJobId ? localStorage.setItem(imageJobKey, activeImageJobId) : localStorage.removeItem(imageJobKey); } }, [imageJobKey, activeImageJobId]);
+  useEffect(() => { if (visionKey) { activeVisionId ? localStorage.setItem(visionKey, activeVisionId) : localStorage.removeItem(visionKey); } }, [visionKey, activeVisionId]);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || !user) return;
@@ -90,7 +126,25 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
 
   const removeImage = (id: string) => setGallery(gallery.filter(img => img.id !== id));
 
-  // --- Image generation logic ---
+  // --- Codex-aware context for Idriel ---
+  // The Codex IS Idriel's brain — every name, every concept already written there
+  // must inform the prompts she weaves and the images she materializes.
+  const codexContext = useMemo(() => {
+    if (!codexEntries || codexEntries.length === 0) return '';
+    const mention = (raw: string) => raw && desc && new RegExp(`\\b${raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(desc);
+    // Prioritize entries explicitly mentioned in the user's description
+    const mentioned = codexEntries.filter(e => mention(e.title));
+    const others = codexEntries.filter(e => !mentioned.includes(e));
+    const ordered = [...mentioned, ...others].slice(0, 12);
+    const lines = ordered.map(e => {
+      const cleaned = (e.content || '').replace(/^__magictype__\n?/, '').replace(/\s+/g, ' ').trim().slice(0, 600);
+      const fruit = e.fruit_id !== null ? FRUITS.find(f => f.id === e.fruit_id)?.name : null;
+      const tag = e.entry_type === 'artigo' ? 'Artigo' : 'Ficha';
+      return `- [${tag}${fruit ? ` · ${fruit}` : ''}] ${e.title}: ${cleaned}`;
+    });
+    return lines.join('\n');
+  }, [codexEntries, desc]);
+
   const buildContext = () => {
     const parts: string[] = [];
     if (worldName) parts.push(`World: ${worldName}`);
@@ -100,39 +154,55 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
       const vals = f.fields.map(ff => data[ff.id]).filter(Boolean);
       if (vals.length > 0) parts.push(`${f.name}: ${vals.join('; ')}`);
     });
+    if (codexContext) {
+      parts.push('\n=== CODEX (canon — these names, characters and concepts already exist; honor them) ===');
+      parts.push(codexContext);
+    }
     return parts.join('\n');
   };
 
   const handleCreatePrompt = async () => {
     if (!planLimits.canUseAI) return;
     if (!desc.trim()) { setError('Descreva a visão que deseja materializar.'); return; }
+    if (!worldId) { setError('Selecione um mundo antes de invocar Idriel.'); return; }
     setError('');
-    setLoading1(true);
-    try {
-      const ctx = buildContext();
-      const systemPrompt = 'You are an expert at writing image generation prompts. Respond ONLY with the prompt in English. Be specific about visual details, lighting, composition, and artistic style.';
-      const userMsg = `World context:\n${ctx}\n\nDescription: ${desc}\nVisual style: ${style}\nImage type: ${imgType}\nTone/Lighting: ${tone}\n${extras ? `Extra details: ${extras}` : ''}`;
-      const result = await callAIText([{ role: 'user', content: userMsg }], systemPrompt);
-      setGeneratedPrompt(result);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading1(false);
-    }
+    const ctx = buildContext();
+    const systemPrompt = 'You are an expert at writing image generation prompts. Respond ONLY with the prompt in English. The CODEX section lists canonical characters, places and concepts that already exist in this world — when the user references any of those names in their description, you MUST use the canonical descriptions provided (appearance, role, relationships) instead of inventing new ones. Be specific about visual details, lighting, composition, and artistic style.';
+    const userMsg = `World context:\n${ctx}\n\nDescription: ${desc}\nVisual style: ${style}\nImage type: ${imgType}\nTone/Lighting: ${tone}\n${extras ? `Extra details: ${extras}` : ''}`;
+    const jobId = `idriel-prompt-${Date.now()}`;
+    setActivePromptJobId(jobId);
+    idrielJobs.run({
+      id: jobId,
+      kind: 'prompt',
+      label: `Tecendo: ${desc.slice(0, 40)}`,
+      task: () => callAIText([{ role: 'user', content: userMsg }], systemPrompt),
+    });
   };
 
   const handleGenerate = async () => {
     if (!planLimits.canUseAI || !generatedPrompt) return;
+    if (!worldId) { setError('Selecione um mundo antes de materializar.'); return; }
     setError('');
-    setLoading2(true);
-    try {
-      const url = await callAIImage(generatedPrompt);
-      setGeneratedImage(url);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading2(false);
-    }
+    setGeneratedImage('');
+    // Persist the vision row up front so it shows in history immediately
+    const vision = await saveVision({
+      description: desc,
+      prompt: generatedPrompt,
+      image_url: null,
+      style,
+      image_type: imgType,
+      tone,
+      extras,
+    });
+    setActiveVisionId(vision?.id || null);
+    const jobId = `idriel-image-${Date.now()}`;
+    setActiveImageJobId(jobId);
+    idrielJobs.run({
+      id: jobId,
+      kind: 'image',
+      label: `Materializando: ${desc.slice(0, 40)}`,
+      task: () => callAIImage(generatedPrompt),
+    });
   };
 
   const copyPrompt = () => {
@@ -534,6 +604,74 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                   ⬇ Baixar
                 </a>
               </div>
+            </div>
+          )}
+
+          {/* ===== Histórico: Visões tecidas por Idriel ===== */}
+          {visions.length > 0 && (
+            <div className="mt-6 rounded-lg border border-gold/15 bg-gold/[0.03] p-4">
+              <button
+                onClick={() => setShowHistory(s => !s)}
+                className="w-full flex items-center justify-between mb-3"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="font-cinzel text-sm font-bold text-gold-light">📜 Visões tecidas por Idriel</span>
+                  <span className="text-[10px] text-text-dim font-montserrat">({visions.length})</span>
+                </div>
+                {showHistory ? <ChevronUp className="w-4 h-4 text-gold-light/60" /> : <ChevronDown className="w-4 h-4 text-gold-light/60" />}
+              </button>
+              {showHistory && (
+                <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+                  {visions.map(v => (
+                    <div key={v.id} className="flex gap-3 rounded-md border border-gold/10 bg-background/40 p-3">
+                      {v.image_url ? (
+                        <img
+                          src={v.image_url}
+                          alt={v.description}
+                          className="w-20 h-20 object-cover rounded cursor-zoom-in flex-shrink-0"
+                          onClick={() => v.image_url && setLightbox({ src: v.image_url, alt: v.description })}
+                        />
+                      ) : (
+                        <div className="w-20 h-20 rounded bg-gold/5 border border-gold/10 flex items-center justify-center flex-shrink-0 text-gold-light/40 text-xs italic">
+                          (sem img)
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-merriweather text-foreground line-clamp-2 mb-1">{v.description || 'Sem descrição'}</p>
+                        <p className="text-[10px] text-text-dim font-mono line-clamp-2 whitespace-pre-wrap">{v.prompt}</p>
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          <button
+                            onClick={() => { navigator.clipboard.writeText(v.prompt); toast.success('Prompt copiado'); }}
+                            className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors"
+                          >
+                            📋 Copiar prompt
+                          </button>
+                          <button
+                            onClick={() => { setGeneratedPrompt(v.prompt); setDesc(v.description); toast.success('Prompt restaurado para edição'); }}
+                            className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors"
+                          >
+                            ↻ Reusar
+                          </button>
+                          {v.image_url && (
+                            <button
+                              onClick={() => addToGallery({ id: Date.now().toString(), src: v.image_url!, name: v.description.slice(0, 40) || 'Visão de Idriel', cat: 'Geral', status: 'unsorted' })}
+                              className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors"
+                            >
+                              💾 P/ Galeria
+                            </button>
+                          )}
+                          <button
+                            onClick={() => { if (confirm('Excluir esta visão do histórico?')) deleteVision(v.id); }}
+                            className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-red-alert/30 text-red-alert/80 hover:bg-red-alert/10 transition-colors ml-auto"
+                          >
+                            <Trash2 className="w-3 h-3 inline" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -278,6 +278,48 @@ export type Database = {
         }
         Relationships: []
       }
+      idriel_visions: {
+        Row: {
+          created_at: string
+          description: string
+          extras: string | null
+          id: string
+          image_type: string | null
+          image_url: string | null
+          prompt: string
+          style: string | null
+          tone: string | null
+          user_id: string
+          world_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          extras?: string | null
+          id?: string
+          image_type?: string | null
+          image_url?: string | null
+          prompt?: string
+          style?: string | null
+          tone?: string | null
+          user_id: string
+          world_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          extras?: string | null
+          id?: string
+          image_type?: string | null
+          image_url?: string | null
+          prompt?: string
+          style?: string | null
+          tone?: string | null
+          user_id?: string
+          world_id?: string
+        }
+        Relationships: []
+      }
       manuscripts: {
         Row: {
           created_at: string
