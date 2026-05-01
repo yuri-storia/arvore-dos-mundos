@@ -20,3 +20,9 @@ verify_jwt = false
 
 [functions.customer-portal]
 verify_jwt = false
+
+[functions.idriel-import-text]
+verify_jwt = false
+
+[functions.ai-image-consistent]
+verify_jwt = false
