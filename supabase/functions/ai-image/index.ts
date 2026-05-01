@@ -76,7 +76,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: "google/gemini-3-pro-image-preview",
-        messages: [{ role: "user", content: prompt }],
+        messages: [{ role: "user", content: safePrompt }],
         modalities: ["image", "text"],
       }),
     });
