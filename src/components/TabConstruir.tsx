@@ -1,21 +1,27 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 import { FRUITS, getOrderedFruits, METHOD_DESCRIPTIONS, MethodType, GalleryImage } from '@/lib/data';
-import { getFruitProgress, callAIText, exportWorldMarkdown } from '@/lib/helpers';
+import { getFruitProgress, callAIText, exportWorldMarkdown, summarizeIdrielResponse } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
 import { FruitGuideBlock } from '@/components/FruitGuideBlock';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { CreateFichaButton } from '@/components/CreateFichaButton';
 import { MapGenerator } from '@/components/MapGenerator';
 import { useCodexEntries } from '@/hooks/useCodexEntries';
+import { useIdrielHistory } from '@/hooks/useIdrielHistory';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from '@/components/ui/dialog';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import type { AppState } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useNavigate } from 'react-router-dom';
+import { History, Save, BookOpen, FileText as FileTextIcon, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface Props {
   state: AppState;
