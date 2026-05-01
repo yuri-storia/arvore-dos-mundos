@@ -561,6 +561,40 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
         </div>
       )}
 
+      {/* Tag-and-archive modal for unsorted images */}
+      {tagging && (
+        <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-3 sm:p-4" onClick={() => setTagging(null)}>
+          <div className="card-glass rounded-lg w-full max-w-sm p-5 animate-fadeUp border border-gold/20" onClick={e => e.stopPropagation()}>
+            <h3 className="font-cinzel font-bold text-foreground mb-1">🌳 Etiquetar Visão</h3>
+            <p className="font-merriweather text-xs text-text-dim italic mb-4">Escolha o Fruto/categoria onde esta visão deve ser arquivada.</p>
+            <div className="flex flex-wrap gap-1.5 mb-4 max-h-[240px] overflow-y-auto">
+              {FRUITS.map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setTagCat(f.name)}
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${tagCat === f.name ? 'bg-gold/20 text-gold-light border border-gold/40' : 'text-text-dim border border-transparent hover:border-gold/20'}`}
+                >
+                  {f.icon} {f.name}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setTagging(null)} className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-border hover:text-foreground transition-colors">Cancelar</button>
+              <button
+                onClick={() => {
+                  updateImage(tagging.id, { status: 'kept', cat: tagCat });
+                  toast.success(`Etiquetada em "${tagCat}" ✦`);
+                  setTagging(null);
+                }}
+                className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors"
+              >
+                💾 Etiquetar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Lightbox */}
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
     </div>
