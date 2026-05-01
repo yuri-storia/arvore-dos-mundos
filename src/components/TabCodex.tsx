@@ -563,7 +563,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
 
           {/* Expanded card — proper Dialog (centered, scroll-locked, ESC closes) */}
           <Dialog open={!!expandedId} onOpenChange={(open) => { if (!open) setExpandedId(null); }}>
-            <DialogContent className="max-w-[900px] w-[95vw] p-0 border-blue-bright/20 bg-transparent shadow-none overflow-hidden">
+            <DialogContent className="max-w-[900px] w-[95vw] p-0 border-blue-bright/20 bg-transparent shadow-none overflow-hidden [&>button.absolute]:hidden">
               {(() => {
                 const expandedEntry = entries.find(e => e.id === expandedId);
                 if (!expandedEntry) return null;
