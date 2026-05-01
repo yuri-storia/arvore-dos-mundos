@@ -621,7 +621,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
               {previewEntry ? (
                 <EntryPreviewPanel entry={previewEntry} onClose={() => setPreviewEntry(null)} />
               ) : (
-                <ReferencePanel entries={entries} onInsertMention={handleInsertMentionFromPanel} />
+                <ReferencePanel entries={entries} onPreview={(e) => setPreviewEntry(e)} />
               )}
             </div>
           )}
