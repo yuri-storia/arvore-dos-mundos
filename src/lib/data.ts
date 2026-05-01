@@ -260,6 +260,22 @@ export const TOP_DOWN_ORDER = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 // Bottom-up: characters → local → expand world
 export const BOTTOM_UP_ORDER = [9, 10, 0, 3, 4, 5, 8, 2, 1, 6, 7];
 
+// Recommended Codex entry type per fruit (Idriel guidance)
+export type RecommendedType = 'ficha' | 'artigo' | 'both';
+export const FRUIT_RECOMMENDED_TYPE: Record<number, RecommendedType> = {
+  0: 'ficha',   // Mapa do Mundo — regiões, locais
+  1: 'artigo',  // Sistema Político — sistemas/leis
+  2: 'artigo',  // Linha do Tempo — eventos, eras
+  3: 'both',    // Cultura — fichas (rituais, povos) + artigos (valores)
+  4: 'artigo',  // Magia & Tec — sistemas (artigo), itens (ficha — override por campo)
+  5: 'ficha',   // Seres Fantásticos — criaturas, raças
+  6: 'artigo',  // Economia — sistemas, classes
+  7: 'artigo',  // Linguagem — padrões, idiomas
+  8: 'artigo',  // Mitologia — mitos, crenças
+  9: 'ficha',   // Personagens
+  10: 'artigo', // Narrativa — premissa, tema
+};
+
 export function getOrderedFruits(method: MethodType): Fruit[] {
   const order = method === 'top-down' ? TOP_DOWN_ORDER : BOTTOM_UP_ORDER;
   return order.map(id => FRUITS[id]);
