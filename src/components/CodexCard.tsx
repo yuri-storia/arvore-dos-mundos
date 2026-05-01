@@ -161,7 +161,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             </div>
             <h3 className="font-cinzel font-bold text-base text-foreground mb-2">{entry.title}</h3>
             {displayContent && (
-              <p className="font-merriweather text-xs text-muted-foreground line-clamp-4 whitespace-pre-wrap leading-relaxed">{displayContent}</p>
+              <p className="font-merriweather text-xs text-foreground/85 line-clamp-4 whitespace-pre-wrap leading-relaxed">{displayContent}</p>
             )}
           </div>
         </div>
@@ -198,7 +198,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
           </div>
           <h3 className="font-cinzel font-bold text-sm text-foreground mb-1">{entry.title}</h3>
           {displayContent && (
-            <p className="font-merriweather text-xs text-muted-foreground line-clamp-3 whitespace-pre-wrap">{displayContent}</p>
+            <p className="font-merriweather text-xs text-foreground/85 line-clamp-3 whitespace-pre-wrap">{displayContent}</p>
           )}
         </div>
       </div>
@@ -306,7 +306,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                           </h3>
                         )}
                         {s.content && (
-                          <div className="codex-markdown font-merriweather text-sm text-muted-foreground leading-[1.85]">
+                          <div className="codex-markdown font-merriweather text-[15px] text-foreground/95 leading-[1.85]">
                             <ReactMarkdown
                               components={{
                                 h1: ({ children }) => <h1 className="font-cinzel font-bold text-lg text-foreground mt-4 mb-2">{children}</h1>,
@@ -485,7 +485,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             ) : (
               <div className="cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }} title="Clique para editar">
                 {displayContent ? (
-                  <p className="font-merriweather text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">{displayContent}</p>
+                  <p className="font-merriweather text-[15px] text-foreground/95 whitespace-pre-wrap leading-[1.8]">{displayContent}</p>
                 ) : (
                   <p className="font-merriweather text-sm text-text-dim italic">Sem conteúdo ainda. Clique para adicionar.</p>
                 )}
