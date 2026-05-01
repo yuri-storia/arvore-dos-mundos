@@ -460,17 +460,6 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
             onDeleteColumn={storylineState.deleteColumn}
             onLinkManuscript={(id, mid) => storylineState.updateStoryline(id, { manuscript_id: mid })}
             manuscripts={manuscripts}
-            chapters={chapters}
-            scenes={scenes}
-            onUpdateScene={updateScene}
-            onSelectScene={(id) => {
-              const scene = scenes.find(s => s.id === id);
-              if (scene) {
-                setActiveChapterId(scene.chapter_id);
-                setWriteMode('manuscrito');
-              }
-            }}
-            onCreateScene={createScene}
           />
         </div>
       )}
