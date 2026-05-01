@@ -69,8 +69,15 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
   // Global move/up listeners while dragging
   useEffect(() => {
     if (!dragging) return;
+    // Prevent text selection / iframe focus issues globally during drag
+    const previousUserSelect = document.body.style.userSelect;
+    const previousCursor = document.body.style.cursor;
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'grabbing';
+
     const onMove = (e: MouseEvent) => {
       if (!dragStartRef.current) return;
+      e.preventDefault();
       const delta = e.clientY - dragStartRef.current.mouseY;
       setOffsetY(clampOffset(dragStartRef.current.startOffset + delta));
     };
@@ -84,17 +91,22 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
       setDragging(false);
       dragStartRef.current = null;
     };
+    const onSelectStart = (e: Event) => e.preventDefault();
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
     window.addEventListener('touchmove', onTouchMove, { passive: false });
     window.addEventListener('touchend', onUp);
     window.addEventListener('touchcancel', onUp);
+    document.addEventListener('selectstart', onSelectStart);
     return () => {
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onUp);
       window.removeEventListener('touchcancel', onUp);
+      document.removeEventListener('selectstart', onSelectStart);
+      document.body.style.userSelect = previousUserSelect;
+      document.body.style.cursor = previousCursor;
     };
   }, [dragging, clampOffset]);
 
