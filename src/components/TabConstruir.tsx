@@ -173,6 +173,9 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
         systemPrompt
       );
       setAiResponse(response);
+      if (response && !response.startsWith('❌')) {
+        await saveSuggestion(aiQuestion, response);
+      }
       setRefreshKey(k => k + 1);
     } catch (e: any) {
       setAiResponse(`❌ ${e.message}`);
