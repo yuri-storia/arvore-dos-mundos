@@ -235,24 +235,77 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
         )}
       </div>
 
+      {/* ===== Caixa de Visões Recentes (unsorted) ===== */}
+      {unsorted.length > 0 && (
+        <div className="mb-6 rounded-xl border border-gold/30 bg-gold/[0.04] p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="font-cinzel font-bold text-sm text-gold-light">📥 Caixa de Visões Recentes</h3>
+              <p className="font-merriweather italic text-[11px] text-text-dim">Visões geradas por Idriel aguardando sua decisão.</p>
+            </div>
+            <span className="text-[10px] font-montserrat text-gold-light/80 px-2 py-1 rounded-full bg-gold/10 border border-gold/20">
+              {unsorted.length} aguardando
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
+            {unsorted.map(img => (
+              <div key={img.id} className="group relative rounded-lg overflow-hidden border border-gold/30 bg-background/40">
+                <img
+                  src={img.src}
+                  alt={img.name}
+                  className="w-full h-[100px] sm:h-[120px] object-cover cursor-zoom-in"
+                  onClick={() => setLightbox({ src: img.src, alt: img.name })}
+                />
+                <div className="p-2">
+                  <p className="text-xs text-foreground font-montserrat truncate">{img.name}</p>
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    <button
+                      onClick={() => { setTagging(img); setTagCat(FRUITS[0].name); }}
+                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/15 transition-colors"
+                      title="Etiquetar e arquivar"
+                    >
+                      🌳 Etiquetar
+                    </button>
+                    <button
+                      onClick={() => { updateImage(img.id, { status: 'kept' }); toast.success('Mantida na galeria'); }}
+                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/15 transition-colors"
+                      title="Mover para galeria"
+                    >
+                      💾 Manter
+                    </button>
+                    <button
+                      onClick={() => removeImage(img.id)}
+                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-red-alert/30 text-red-alert/90 hover:bg-red-alert/15 transition-colors"
+                      title="Excluir"
+                    >
+                      🗑
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Grid */}
-      {filtered.length === 0 ? (
+      {filteredSorted.length === 0 ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
             <span className="text-3xl">🖼️</span>
           </div>
           <h3 className="font-cinzel font-bold text-lg text-foreground mb-2">
-            {gallery.length === 0 ? 'Sua galeria está vazia' : 'Nenhuma visão nesta categoria'}
+            {sorted.length === 0 ? 'Sua galeria está vazia' : 'Nenhuma visão nesta categoria'}
           </h3>
           <p className="font-merriweather text-sm text-text-dim mb-4 max-w-md mx-auto">
-            {gallery.length === 0
+            {sorted.length === 0
               ? 'Faça upload de referências visuais ou gere imagens com Idriel abaixo.'
               : 'Tente um filtro diferente ou adicione novas imagens.'}
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
-          {filtered.map(img => (
+          {filteredSorted.map(img => (
             <div
               key={img.id}
               className="group relative rounded-lg overflow-hidden border border-gold/15 hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(218,165,32,0.15)] transition-all"
