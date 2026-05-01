@@ -12,6 +12,7 @@ export const SubscriptionBanner: React.FC = () => {
   const sub = useSubscription();
   const { isAdmin } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
+  const [rechargeOpen, setRechargeOpen] = useState(false);
   const [dismissed, setDismissed] = useState(() => {
     try { return sessionStorage.getItem(DISMISS_KEY) === '1'; } catch { return false; }
   });
