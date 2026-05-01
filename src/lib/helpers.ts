@@ -51,6 +51,12 @@ export async function callAIImage(prompt: string) {
   return data?.imageUrl || '';
 }
 
+// Summarize an Idriel response into clean prose suitable for a Codex entry
+export async function summarizeIdrielResponse(response: string, kind: 'ficha' | 'artigo'): Promise<string> {
+  const sysPrompt = `Você é um editor enxuto. Resuma o conselho de worldbuilding a seguir em ${kind === 'ficha' ? '2-4 parágrafos curtos e diretos, focados nos fatos e ideias concretas (não inclua perguntas retóricas, vocativos como "querido criador" ou linguagem mística)' : '3-5 parágrafos objetivos e bem estruturados (sem trejeitos místicos, vocativos ou repetições). Use um título ## para cada seção temática quando houver mais de uma ideia clara'}. Responda em português brasileiro. NÃO use prefácios — entregue apenas o resumo limpo.`;
+  return await callAIText([{ role: 'user', content: response }], sysPrompt);
+}
+
 // Export PDF
 export function exportWorldMarkdown(worldName: string, method: string, db: AppState['db']) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
