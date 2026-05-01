@@ -458,6 +458,23 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                     className="bg-transparent font-montserrat font-bold text-sm text-foreground border-none focus:outline-none flex-1"
                     placeholder="Título do capítulo" />
                    <span className="text-[11px] font-mono text-text-dim bg-white/[0.04] px-2 py-0.5 rounded">{chapterWordCount} palavras</span>
+                  {/* Edit/Preview toggle */}
+                  <div className="flex items-center bg-white/[0.03] rounded border border-blue-bright/10 p-0.5">
+                    <button
+                      onClick={() => setPreviewMode(false)}
+                      className={`px-1.5 py-0.5 rounded text-[10px] flex items-center gap-1 transition-colors ${!previewMode ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'}`}
+                      title="Editar"
+                    >
+                      <Edit3 className="w-3 h-3" />
+                    </button>
+                    <button
+                      onClick={() => setPreviewMode(true)}
+                      className={`px-1.5 py-0.5 rounded text-[10px] flex items-center gap-1 transition-colors ${previewMode ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'}`}
+                      title="Pré-visualizar com chips"
+                    >
+                      <Eye className="w-3 h-3" />
+                    </button>
+                  </div>
                   <button onClick={() => setZenMode(!zenMode)}
                     className={`p-1.5 rounded hover:bg-white/[0.05] transition-colors ${zenMode ? 'text-blue-light' : 'text-text-dim hover:text-foreground'}`}
                     title={zenMode ? 'Sair do modo foco' : 'Modo foco'}>
@@ -472,11 +489,19 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                   )}
                 </div>
                 <div className="flex-1 relative">
-                  <textarea ref={editorRef} value={editingContent} onChange={e => handleContentChange(e.target.value)}
-                    placeholder="Comece a escrever seu capítulo aqui…&#10;&#10;Use @NomeDoPersonagem para inserir referências do Codex."
-                    className="w-full h-full resize-none bg-transparent text-foreground/90 font-merriweather text-sm leading-relaxed p-4 focus:outline-none placeholder:text-text-dim/30"
-                    style={{ minHeight: '100%' }} />
-                  {mentionState.active && (
+                  {previewMode ? (
+                    <ContentPreview
+                      content={editingContent}
+                      entries={entries}
+                      onChipClick={(entry) => { setPreviewEntry(entry); setShowRefPanel(true); }}
+                    />
+                  ) : (
+                    <textarea ref={editorRef} value={editingContent} onChange={e => handleContentChange(e.target.value)}
+                      placeholder="Comece a escrever seu capítulo aqui…&#10;&#10;Use @NomeDoPersonagem para inserir referências do Codex."
+                      className="w-full h-full resize-none bg-transparent text-foreground/90 font-merriweather text-sm leading-relaxed p-4 focus:outline-none placeholder:text-text-dim/30"
+                      style={{ minHeight: '100%' }} />
+                  )}
+                  {mentionState.active && !previewMode && (
                     <MentionPopup entries={entries} query={mentionState.query} position={mentionState.pos}
                       onSelect={handleMentionSelect} onClose={() => setMentionState(prev => ({ ...prev, active: false }))} />
                   )}
@@ -493,10 +518,14 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
             )}
           </div>
 
-          {/* RIGHT: Reference Panel */}
+          {/* RIGHT: Reference Panel (or selected entry preview) */}
           {showRefPanel && !isMobile && !zenMode && (
-            <div className="w-[240px] shrink-0 bg-white/[0.02] rounded-lg border border-blue-bright/10">
-              <ReferencePanel entries={entries} onInsertMention={handleInsertMentionFromPanel} />
+            <div className="w-[280px] shrink-0 bg-white/[0.02] rounded-lg border border-blue-bright/10 overflow-hidden">
+              {previewEntry ? (
+                <EntryPreviewPanel entry={previewEntry} onClose={() => setPreviewEntry(null)} />
+              ) : (
+                <ReferencePanel entries={entries} onInsertMention={handleInsertMentionFromPanel} />
+              )}
             </div>
           )}
         </div>
