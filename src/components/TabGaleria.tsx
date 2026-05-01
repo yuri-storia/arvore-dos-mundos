@@ -118,7 +118,25 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
 
   const removeImage = (id: string) => setGallery(gallery.filter(img => img.id !== id));
 
-  // --- Image generation logic ---
+  // --- Codex-aware context for Idriel ---
+  // The Codex IS Idriel's brain — every name, every concept already written there
+  // must inform the prompts she weaves and the images she materializes.
+  const codexContext = useMemo(() => {
+    if (!codexEntries || codexEntries.length === 0) return '';
+    const mention = (raw: string) => raw && desc && new RegExp(`\\b${raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(desc);
+    // Prioritize entries explicitly mentioned in the user's description
+    const mentioned = codexEntries.filter(e => mention(e.title));
+    const others = codexEntries.filter(e => !mentioned.includes(e));
+    const ordered = [...mentioned, ...others].slice(0, 12);
+    const lines = ordered.map(e => {
+      const cleaned = (e.content || '').replace(/^__magictype__\n?/, '').replace(/\s+/g, ' ').trim().slice(0, 600);
+      const fruit = e.fruit_id !== null ? FRUITS.find(f => f.id === e.fruit_id)?.name : null;
+      const tag = e.entry_type === 'artigo' ? 'Artigo' : 'Ficha';
+      return `- [${tag}${fruit ? ` · ${fruit}` : ''}] ${e.title}: ${cleaned}`;
+    });
+    return lines.join('\n');
+  }, [codexEntries, desc]);
+
   const buildContext = () => {
     const parts: string[] = [];
     if (worldName) parts.push(`World: ${worldName}`);
@@ -128,39 +146,55 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
       const vals = f.fields.map(ff => data[ff.id]).filter(Boolean);
       if (vals.length > 0) parts.push(`${f.name}: ${vals.join('; ')}`);
     });
+    if (codexContext) {
+      parts.push('\n=== CODEX (canon — these names, characters and concepts already exist; honor them) ===');
+      parts.push(codexContext);
+    }
     return parts.join('\n');
   };
 
   const handleCreatePrompt = async () => {
     if (!planLimits.canUseAI) return;
     if (!desc.trim()) { setError('Descreva a visão que deseja materializar.'); return; }
+    if (!worldId) { setError('Selecione um mundo antes de invocar Idriel.'); return; }
     setError('');
-    setLoading1(true);
-    try {
-      const ctx = buildContext();
-      const systemPrompt = 'You are an expert at writing image generation prompts. Respond ONLY with the prompt in English. Be specific about visual details, lighting, composition, and artistic style.';
-      const userMsg = `World context:\n${ctx}\n\nDescription: ${desc}\nVisual style: ${style}\nImage type: ${imgType}\nTone/Lighting: ${tone}\n${extras ? `Extra details: ${extras}` : ''}`;
-      const result = await callAIText([{ role: 'user', content: userMsg }], systemPrompt);
-      setGeneratedPrompt(result);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading1(false);
-    }
+    const ctx = buildContext();
+    const systemPrompt = 'You are an expert at writing image generation prompts. Respond ONLY with the prompt in English. The CODEX section lists canonical characters, places and concepts that already exist in this world — when the user references any of those names in their description, you MUST use the canonical descriptions provided (appearance, role, relationships) instead of inventing new ones. Be specific about visual details, lighting, composition, and artistic style.';
+    const userMsg = `World context:\n${ctx}\n\nDescription: ${desc}\nVisual style: ${style}\nImage type: ${imgType}\nTone/Lighting: ${tone}\n${extras ? `Extra details: ${extras}` : ''}`;
+    const jobId = `idriel-prompt-${Date.now()}`;
+    setActivePromptJobId(jobId);
+    idrielJobs.run({
+      id: jobId,
+      kind: 'prompt',
+      label: `Tecendo: ${desc.slice(0, 40)}`,
+      task: () => callAIText([{ role: 'user', content: userMsg }], systemPrompt),
+    });
   };
 
   const handleGenerate = async () => {
     if (!planLimits.canUseAI || !generatedPrompt) return;
+    if (!worldId) { setError('Selecione um mundo antes de materializar.'); return; }
     setError('');
-    setLoading2(true);
-    try {
-      const url = await callAIImage(generatedPrompt);
-      setGeneratedImage(url);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading2(false);
-    }
+    setGeneratedImage('');
+    // Persist the vision row up front so it shows in history immediately
+    const vision = await saveVision({
+      description: desc,
+      prompt: generatedPrompt,
+      image_url: null,
+      style,
+      image_type: imgType,
+      tone,
+      extras,
+    });
+    setActiveVisionId(vision?.id || null);
+    const jobId = `idriel-image-${Date.now()}`;
+    setActiveImageJobId(jobId);
+    idrielJobs.run({
+      id: jobId,
+      kind: 'image',
+      label: `Materializando: ${desc.slice(0, 40)}`,
+      task: () => callAIImage(generatedPrompt),
+    });
   };
 
   const copyPrompt = () => {
