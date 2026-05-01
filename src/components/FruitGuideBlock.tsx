@@ -90,6 +90,21 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide, id, fruitId }) => {
 
                 {sectionOpen && (
                   <div className="animate-fadeUp px-4 pb-4">
+                    {/* Recommendation banner — only on "Sobre este Fruto" */}
+                    {section.recCopy && (
+                      <div className="mb-3 flex items-start gap-2.5 p-3 rounded-md bg-gold/[0.07] border border-gold/25">
+                        <span className="text-base shrink-0 mt-0.5">{section.recCopy.icon}</span>
+                        <p
+                          className="font-merriweather text-[13px] leading-relaxed text-gold-light/95 italic"
+                          dangerouslySetInnerHTML={{
+                            __html: section.recCopy.tone.replace(
+                              /\*\*(.+?)\*\*/g,
+                              '<strong class="text-gold not-italic font-bold">$1</strong>'
+                            ),
+                          }}
+                        />
+                      </div>
+                    )}
                     <p className="font-merriweather text-[14px] leading-[1.75] whitespace-pre-line text-text-secondary">
                       {section.content}
                     </p>
