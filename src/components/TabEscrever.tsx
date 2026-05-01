@@ -41,8 +41,8 @@ const WRITE_MODE_INFO: Record<WriteMode, { icon: typeof BookMarked; label: strin
   },
   mural: {
     icon: LayoutGrid,
-    label: 'Mural de Arcos',
-    desc: 'Visualize seus arcos narrativos em colunas por status (Ideia → Rascunho → Revisão → Pronto). Arraste para reorganizar.',
+    label: 'Storyline',
+    desc: 'Visualize seus arcos narrativos em colunas customizáveis. Crie suas próprias colunas, vincule a um manuscrito, e arraste arcos para reorganizar.',
   },
 };
 
