@@ -4,6 +4,7 @@ import { useSubscription, openCheckout, STRIPE_PLANS, openCustomerPortal } from 
 import { useAuth } from '@/contexts/AuthContext';
 import { Progress } from '@/components/ui/progress';
 import { Lock, Sparkles, CreditCard, X } from 'lucide-react';
+import { RechargePackageDialog } from '@/components/RechargePackageDialog';
 
 const DISMISS_KEY = 'adm_sub_banner_dismissed';
 
