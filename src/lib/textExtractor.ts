@@ -3,7 +3,6 @@
 // DOCX: uses mammoth (raw text only).
 
 import * as pdfjsLib from 'pdfjs-dist';
-// @ts-expect-error - mammoth has no TS types in some builds
 import mammoth from 'mammoth/mammoth.browser';
 
 // Use CDN worker to keep bundle small and avoid Vite worker config.
