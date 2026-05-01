@@ -137,12 +137,7 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
           ref={containerRef}
           className={`relative m-4 h-[300px] sm:m-5 sm:h-[380px] rounded-xl overflow-hidden border-2 bg-secondary/30 ${dragging ? 'border-primary cursor-grabbing' : 'border-border cursor-grab'} transition-colors select-none`}
           onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
           onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
         >
           <div className="absolute inset-0 pointer-events-none z-10">
             <div className="absolute top-0 left-0 right-0 h-px bg-border" />
