@@ -598,6 +598,74 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
               </div>
             </div>
           )}
+
+          {/* ===== Histórico: Visões tecidas por Idriel ===== */}
+          {visions.length > 0 && (
+            <div className="mt-6 rounded-lg border border-gold/15 bg-gold/[0.03] p-4">
+              <button
+                onClick={() => setShowHistory(s => !s)}
+                className="w-full flex items-center justify-between mb-3"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="font-cinzel text-sm font-bold text-gold-light">📜 Visões tecidas por Idriel</span>
+                  <span className="text-[10px] text-text-dim font-montserrat">({visions.length})</span>
+                </div>
+                {showHistory ? <ChevronUp className="w-4 h-4 text-gold-light/60" /> : <ChevronDown className="w-4 h-4 text-gold-light/60" />}
+              </button>
+              {showHistory && (
+                <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+                  {visions.map(v => (
+                    <div key={v.id} className="flex gap-3 rounded-md border border-gold/10 bg-background/40 p-3">
+                      {v.image_url ? (
+                        <img
+                          src={v.image_url}
+                          alt={v.description}
+                          className="w-20 h-20 object-cover rounded cursor-zoom-in flex-shrink-0"
+                          onClick={() => v.image_url && setLightbox({ src: v.image_url, alt: v.description })}
+                        />
+                      ) : (
+                        <div className="w-20 h-20 rounded bg-gold/5 border border-gold/10 flex items-center justify-center flex-shrink-0 text-gold-light/40 text-xs italic">
+                          (sem img)
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-merriweather text-foreground line-clamp-2 mb-1">{v.description || 'Sem descrição'}</p>
+                        <p className="text-[10px] text-text-dim font-mono line-clamp-2 whitespace-pre-wrap">{v.prompt}</p>
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          <button
+                            onClick={() => { navigator.clipboard.writeText(v.prompt); toast.success('Prompt copiado'); }}
+                            className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors"
+                          >
+                            📋 Copiar prompt
+                          </button>
+                          <button
+                            onClick={() => { setGeneratedPrompt(v.prompt); setDesc(v.description); toast.success('Prompt restaurado para edição'); }}
+                            className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors"
+                          >
+                            ↻ Reusar
+                          </button>
+                          {v.image_url && (
+                            <button
+                              onClick={() => addToGallery({ id: Date.now().toString(), src: v.image_url!, name: v.description.slice(0, 40) || 'Visão de Idriel', cat: 'Geral', status: 'unsorted' })}
+                              className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors"
+                            >
+                              💾 P/ Galeria
+                            </button>
+                          )}
+                          <button
+                            onClick={() => { if (confirm('Excluir esta visão do histórico?')) deleteVision(v.id); }}
+                            className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-red-alert/30 text-red-alert/80 hover:bg-red-alert/10 transition-colors ml-auto"
+                          >
+                            <Trash2 className="w-3 h-3 inline" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
