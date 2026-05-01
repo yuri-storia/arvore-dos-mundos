@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { type Scene, type Chapter } from '@/hooks/useManuscript';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { type Storyline, type StorylineColumn } from '@/hooks/useStorylines';
+import { useStorylineCards, type StorylineCard } from '@/hooks/useStorylineCards';
 import type { Manuscript } from '@/hooks/useManuscript';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { GripVertical, Plus, X, Pencil, Check, Link2 } from 'lucide-react';
@@ -20,8 +20,10 @@ const COLOR_PRESETS: Record<string, string> = {
 };
 const colorClass = (c: string | null) => COLOR_PRESETS[c || 'gray'] || COLOR_PRESETS.gray;
 
+// Fixed width per column (CRM-style — same preset for all)
+const COLUMN_WIDTH = 280;
+
 interface Props {
-  // Storyline state
   storylines: Storyline[];
   activeStoryline: Storyline | null;
   setActiveStoryline: (s: Storyline) => void;
@@ -34,52 +36,115 @@ interface Props {
   onDeleteColumn: (id: string) => void;
   onLinkManuscript: (storylineId: string, manuscriptId: string | null) => void;
   manuscripts: Manuscript[];
-
-  // Scenes (cards in the columns)
-  chapters: Chapter[];
-  scenes: Scene[];
-  onUpdateScene: (id: string, updates: Partial<Pick<Scene, 'title' | 'content' | 'sort_order' | 'status' | 'storyline_column_id'>>) => Promise<void>;
-  onSelectScene: (id: string) => void;
-  onCreateScene: (chapterId: string, columnId?: string) => Promise<any>;
 }
+
+// ── Inline editable card (CRM-style: title + free-write content) ──
+const KanbanCard: React.FC<{
+  card: StorylineCard;
+  onUpdate: (id: string, updates: Partial<Pick<StorylineCard, 'title' | 'content' | 'storyline_column_id'>>) => void;
+  onDelete: (id: string) => void;
+  onDragStart: (e: React.DragEvent, id: string) => void;
+  isDragging: boolean;
+}> = ({ card, onUpdate, onDelete, onDragStart, isDragging }) => {
+  const [title, setTitle] = useState(card.title);
+  const [content, setContent] = useState(card.content);
+  const [expanded, setExpanded] = useState(false);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Sync from external changes (e.g. drag-and-drop reload)
+  useEffect(() => { setTitle(card.title); }, [card.title]);
+  useEffect(() => { setContent(card.content); }, [card.content]);
+
+  const debouncedSave = (patch: Partial<Pick<StorylineCard, 'title' | 'content'>>) => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => onUpdate(card.id, patch), 600);
+  };
+
+  return (
+    <div
+      draggable
+      onDragStart={e => onDragStart(e, card.id)}
+      className={`p-2.5 rounded-md border border-white/10 bg-white/[0.04] hover:bg-white/[0.07] transition-all group ${
+        isDragging ? 'opacity-40 scale-95' : ''
+      }`}
+    >
+      <div className="flex items-start gap-1.5">
+        <GripVertical className="w-3 h-3 text-text-dim/30 mt-1 shrink-0 opacity-0 group-hover:opacity-100 cursor-grab" />
+        <div className="flex-1 min-w-0">
+          <input
+            value={title}
+            onChange={e => { setTitle(e.target.value); debouncedSave({ title: e.target.value }); }}
+            placeholder="Título do card"
+            className="w-full bg-transparent text-xs font-montserrat font-semibold text-foreground border-none focus:outline-none placeholder:text-text-dim/40"
+          />
+          {expanded ? (
+            <textarea
+              value={content}
+              onChange={e => { setContent(e.target.value); debouncedSave({ content: e.target.value }); }}
+              onBlur={() => content.trim() === '' && setExpanded(false)}
+              placeholder="Escreva livremente…"
+              autoFocus
+              rows={4}
+              className="w-full mt-1.5 bg-white/[0.03] rounded p-1.5 text-[11px] font-merriweather text-foreground/90 border border-white/5 focus:border-blue-bright/30 focus:outline-none resize-y placeholder:text-text-dim/40 leading-relaxed"
+            />
+          ) : (
+            <button
+              onClick={() => setExpanded(true)}
+              className="w-full text-left text-[11px] text-text-dim/70 mt-1 line-clamp-3 font-merriweather italic hover:text-text-dim transition-colors"
+            >
+              {content || <span className="opacity-60">+ adicionar conteúdo</span>}
+            </button>
+          )}
+        </div>
+        <ConfirmDialog
+          trigger={
+            <button className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all" title="Excluir card">
+              <X className="w-3 h-3" />
+            </button>
+          }
+          title="Excluir card"
+          description="Esta ação não pode ser desfeita."
+          confirmLabel="Excluir"
+          onConfirm={() => onDelete(card.id)}
+        />
+      </div>
+    </div>
+  );
+};
 
 export const KanbanBoard: React.FC<Props> = ({
   storylines, activeStoryline, setActiveStoryline, columns,
   onCreateStoryline, onRenameStoryline, onDeleteStoryline,
   onCreateColumn, onUpdateColumn, onDeleteColumn,
   onLinkManuscript, manuscripts,
-  chapters, scenes, onUpdateScene, onSelectScene, onCreateScene,
 }) => {
+  const columnIds = useMemo(() => columns.map(c => c.id), [columns]);
+  const { cards, createCard, updateCard, deleteCard } = useStorylineCards(columnIds);
+
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [editingColId, setEditingColId] = useState<string | null>(null);
   const [editingColTitle, setEditingColTitle] = useState('');
   const [editingStorylineName, setEditingStorylineName] = useState(false);
   const [storylineNameDraft, setStorylineNameDraft] = useState('');
 
-  // Map scenes to columns. Scenes without storyline_column_id show up only in the
-  // first column of the active storyline as "loose" cards (until they're moved).
-  const scenesByColumn = useMemo(() => {
-    const map: Record<string, Scene[]> = {};
+  const cardsByColumn = useMemo(() => {
+    const map: Record<string, StorylineCard[]> = {};
     columns.forEach(c => { map[c.id] = []; });
-    const firstColId = columns[0]?.id;
-    scenes.forEach(s => {
-      if (s.storyline_column_id && map[s.storyline_column_id]) {
-        map[s.storyline_column_id].push(s);
-      } else if (firstColId) {
-        map[firstColId].push(s);
-      }
+    cards.forEach(c => {
+      if (map[c.storyline_column_id]) map[c.storyline_column_id].push(c);
     });
     return map;
-  }, [columns, scenes]);
+  }, [columns, cards]);
 
-  const handleDragStart = (e: React.DragEvent, sceneId: string) => {
-    e.dataTransfer.setData('text/plain', sceneId);
-    setDraggedId(sceneId);
+  const handleDragStart = (e: React.DragEvent, cardId: string) => {
+    e.dataTransfer.setData('text/plain', cardId);
+    e.dataTransfer.effectAllowed = 'move';
+    setDraggedId(cardId);
   };
   const handleDrop = (e: React.DragEvent, columnId: string) => {
     e.preventDefault();
-    const sceneId = e.dataTransfer.getData('text/plain');
-    if (sceneId) onUpdateScene(sceneId, { storyline_column_id: columnId });
+    const cardId = e.dataTransfer.getData('text/plain');
+    if (cardId) updateCard(cardId, { storyline_column_id: columnId });
     setDraggedId(null);
   };
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
@@ -105,20 +170,10 @@ export const KanbanBoard: React.FC<Props> = ({
     setEditingStorylineName(false);
   };
 
-  // Where should the "+ arco" button create a new scene? We need a chapter.
-  // Pick the first chapter (or do nothing if none).
-  const handleAddScene = async (columnId: string) => {
-    const chapter = chapters[0];
-    if (!chapter) return;
-    const sc = await onCreateScene(chapter.id, columnId);
-    if (sc) await onUpdateScene(sc.id, { storyline_column_id: columnId });
-  };
-
   return (
     <div className="flex flex-col h-full">
       {/* Toolbar */}
       <div className="p-3 border-b border-blue-bright/10 flex items-center gap-2 flex-wrap">
-        {/* Storyline switcher */}
         <Select value={activeStoryline?.id || ''} onValueChange={id => {
           const sl = storylines.find(s => s.id === id);
           if (sl) setActiveStoryline(sl);
@@ -154,7 +209,6 @@ export const KanbanBoard: React.FC<Props> = ({
           )
         )}
 
-        {/* Link to manuscript */}
         {activeStoryline && (
           <div className="flex items-center gap-1.5 ml-2">
             <Link2 className="w-3 h-3 text-text-dim" />
@@ -173,7 +227,6 @@ export const KanbanBoard: React.FC<Props> = ({
           </div>
         )}
 
-        {/* Delete storyline */}
         {activeStoryline && storylines.length > 1 && (
           <ConfirmDialog
             trigger={
@@ -182,7 +235,7 @@ export const KanbanBoard: React.FC<Props> = ({
               </button>
             }
             title="Excluir storyline"
-            description={`Excluir "${activeStoryline.name}"? As colunas serão removidas, mas as cenas continuam nos capítulos.`}
+            description={`Excluir "${activeStoryline.name}"? Todas as colunas e cards serão removidos.`}
             confirmLabel="Excluir"
             onConfirm={() => onDeleteStoryline(activeStoryline.id)}
           />
@@ -193,19 +246,20 @@ export const KanbanBoard: React.FC<Props> = ({
         </button>
       </div>
 
-      {/* Columns */}
+      {/* Columns — fixed equal width */}
       <div className="flex-1 overflow-x-auto">
-        <div className="flex gap-3 p-3 min-h-full" style={{ minWidth: Math.max(columns.length, 1) * 240 }}>
+        <div className="flex gap-3 p-3 h-full" style={{ minWidth: Math.max(columns.length, 1) * (COLUMN_WIDTH + 12) }}>
           {columns.length === 0 ? (
             <div className="flex-1 flex items-center justify-center text-text-dim text-xs">
               Esta storyline ainda não tem colunas. Clique em "+ Coluna" para criar.
             </div>
           ) : columns.map(col => {
-            const colScenes = scenesByColumn[col.id] || [];
+            const colCards = cardsByColumn[col.id] || [];
             return (
               <div
                 key={col.id}
-                className={`flex-1 min-w-[220px] rounded-lg border ${colorClass(col.color)} flex flex-col`}
+                style={{ width: COLUMN_WIDTH, minWidth: COLUMN_WIDTH, maxWidth: COLUMN_WIDTH }}
+                className={`shrink-0 rounded-lg border ${colorClass(col.color)} flex flex-col`}
                 onDrop={e => handleDrop(e, col.id)}
                 onDragOver={handleDragOver}
               >
@@ -226,7 +280,7 @@ export const KanbanBoard: React.FC<Props> = ({
                       {col.title}
                     </button>
                   )}
-                  <span className="text-[10px] text-text-dim bg-white/[0.05] px-1.5 py-0.5 rounded-full shrink-0">{colScenes.length}</span>
+                  <span className="text-[10px] text-text-dim bg-white/[0.05] px-1.5 py-0.5 rounded-full shrink-0">{colCards.length}</span>
                   {columns.length > 1 && (
                     <ConfirmDialog
                       trigger={
@@ -235,57 +289,35 @@ export const KanbanBoard: React.FC<Props> = ({
                         </button>
                       }
                       title="Excluir coluna"
-                      description={`Excluir "${col.title}"? As cenas voltarão ao padrão (sem coluna).`}
+                      description={`Excluir "${col.title}"? Os cards desta coluna serão removidos.`}
                       confirmLabel="Excluir"
                       onConfirm={() => onDeleteColumn(col.id)}
                     />
                   )}
                 </div>
-                <ScrollArea className="flex-1 p-2">
-                  <div className="space-y-2">
-                    {colScenes.map(scene => {
-                      const chapter = chapters.find(c => c.id === scene.chapter_id);
-                      return (
-                        <div
-                          key={scene.id}
-                          draggable
-                          onDragStart={e => handleDragStart(e, scene.id)}
-                          onClick={() => onSelectScene(scene.id)}
-                          className={`p-2.5 rounded-md border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] cursor-pointer transition-all group ${
-                            draggedId === scene.id ? 'opacity-40 scale-95' : ''
-                          }`}
-                        >
-                          <div className="flex items-start gap-1.5">
-                            <GripVertical className="w-3 h-3 text-text-dim/30 mt-0.5 shrink-0 opacity-0 group-hover:opacity-100 cursor-grab" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-montserrat font-semibold text-foreground truncate">{scene.title}</p>
-                              {chapter && (
-                                <p className="text-[9px] text-text-dim mt-0.5">{chapter.title}</p>
-                              )}
-                              {scene.content && (
-                                <p className="text-[10px] text-text-dim/60 mt-1 line-clamp-2">{scene.content.substring(0, 100)}</p>
-                              )}
-                              <div className="flex items-center gap-2 mt-1.5">
-                                <span className="text-[9px] text-text-dim/40">{scene.word_count} palavras</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                    {colScenes.length === 0 && (
+                <ScrollArea className="flex-1">
+                  <div className="p-2 space-y-2">
+                    {colCards.map(card => (
+                      <KanbanCard
+                        key={card.id}
+                        card={card}
+                        onUpdate={updateCard}
+                        onDelete={deleteCard}
+                        onDragStart={handleDragStart}
+                        isDragging={draggedId === card.id}
+                      />
+                    ))}
+                    {colCards.length === 0 && (
                       <div className="text-center py-6 text-[10px] text-text-dim/30">
-                        Arraste arcos aqui
+                        Arraste cards aqui ou crie um novo
                       </div>
                     )}
-                    {chapters.length > 0 && (
-                      <button
-                        onClick={() => handleAddScene(col.id)}
-                        className="w-full text-[10px] py-1.5 rounded border border-dashed border-white/10 text-text-dim hover:text-foreground hover:border-blue-bright/30 transition-colors"
-                      >
-                        + arco
-                      </button>
-                    )}
+                    <button
+                      onClick={() => createCard(col.id)}
+                      className="w-full text-[11px] py-1.5 rounded border border-dashed border-white/10 text-text-dim hover:text-blue-light hover:border-blue-bright/30 transition-colors"
+                    >
+                      + Card
+                    </button>
                   </div>
                 </ScrollArea>
               </div>

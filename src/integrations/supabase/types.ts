@@ -393,6 +393,50 @@ export type Database = {
           },
         ]
       }
+      storyline_cards: {
+        Row: {
+          color: string | null
+          content: string
+          created_at: string
+          id: string
+          sort_order: number
+          storyline_column_id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          storyline_column_id: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          storyline_column_id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "storyline_cards_storyline_column_id_fkey"
+            columns: ["storyline_column_id"]
+            isOneToOne: false
+            referencedRelation: "storyline_columns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       storyline_columns: {
         Row: {
           color: string | null

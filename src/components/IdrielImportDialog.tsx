@@ -77,15 +77,34 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
   };
 
   const runAnalysis = async (text: string, src: ImportSourceType) => {
+    if (text.trim().length < 50) {
+      toast.error('Texto muito curto (mínimo 50 caracteres).');
+      return;
+    }
+    if (text.length > 200000) {
+      toast.error('Texto muito longo (máximo 200.000 caracteres).');
+      return;
+    }
     setAnalyzing(true);
     try {
       const result = await importTextWithIdriel(text, src);
-      if (result.length === 0) {
-        toast.warning('Idriel não encontrou entradas relevantes neste texto.');
+      if (!Array.isArray(result) || result.length === 0) {
+        toast.warning('Idriel não encontrou entradas relevantes neste texto. Tente um trecho mais descritivo.');
         return;
       }
-      setSuggestions(result);
-      setSelected(new Set(result.map((_, i) => i)));
+      // Validate each entry shape
+      const valid = result.filter(e =>
+        e && (e.type === 'ficha' || e.type === 'artigo') &&
+        typeof e.title === 'string' && e.title.trim().length > 0 &&
+        typeof e.summary === 'string' && e.summary.trim().length > 0 &&
+        typeof e.fruit_id === 'number' && e.fruit_id >= 0 && e.fruit_id <= 10
+      );
+      if (valid.length === 0) {
+        toast.warning('As sugestões retornadas não são válidas. Tente novamente.');
+        return;
+      }
+      setSuggestions(valid);
+      setSelected(new Set(valid.map((_, i) => i)));
       setStep('review');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Erro ao analisar texto';
@@ -105,11 +124,11 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
   const handleCreate = async () => {
     const items = suggestions.filter((_, i) => selected.has(i));
     if (items.length === 0) { toast.error('Selecione ao menos uma entrada.'); return; }
+    if (!canCreateMore()) { toast.error('Limite do plano atingido.'); return; }
     if (items.length > remaining) {
       toast.error(`Seu plano permite criar apenas ${remaining} entrada(s) restante(s).`);
       return;
     }
-    if (!canCreateMore()) { toast.error('Limite do plano atingido.'); return; }
     setCreating(true);
     try {
       await onCreate(items.map(s => ({
@@ -123,7 +142,8 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
       onOpenChange(false);
     } catch (err) {
       console.error(err);
-      toast.error('Erro ao criar entradas.');
+      const msg = err instanceof Error ? err.message : 'Erro ao criar entradas.';
+      toast.error(msg);
     } finally {
       setCreating(false);
     }

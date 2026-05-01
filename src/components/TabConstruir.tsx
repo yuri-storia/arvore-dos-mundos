@@ -34,7 +34,7 @@ interface Props {
 export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFruit, setMethod, onNavigateCodex }) => {
   const isMobile = useIsMobile();
   const { db, currentFruit, method, worldName, currentSaveId } = state;
-  const { entries, createEntry, updateEntry } = useCodexEntries();
+  const { entries, createEntry, updateEntry } = useCodexEntries(currentSaveId || undefined);
   const { suggestions, saveSuggestion, deleteSuggestion } = useIdrielHistory(currentSaveId, currentFruit);
   const planLimits = usePlanLimits();
   const navigate = useNavigate();
