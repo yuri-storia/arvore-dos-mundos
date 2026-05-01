@@ -99,15 +99,15 @@ export const FRUITS: Fruit[] = [
     },
   },
   {
-    id: 2, num: '3º Fruto', name: 'Fatos Históricos', icon: '⚔',
+    id: 2, num: '3º Fruto', name: 'Linha do Tempo', icon: '⚔',
     gradient: 'from-amber-900 via-red-900 to-orange-900',
-    desc: 'História transforma seu mundo em consequência. O presente carrega marcas do passado.',
+    desc: 'História, eras e calendário transformam seu mundo em consequência. O presente carrega marcas do passado.',
     fields: [
       { id: 'origin', label: 'Crie um Evento Histórico', type: 'textarea', ph: 'Um evento do passado que ainda marca o presente: fundação, guerra, queda ou descoberta.' },
       { id: 'turning', label: 'Crie uma Figura ou Relíquia', type: 'textarea', ph: 'Uma pessoa do passado cujo nome ainda move pessoas, ou um objeto/documento que sobreviveu ao tempo.' },
       { id: 'present', label: 'Crie o Ponto de Partida', type: 'textarea', ph: 'Em que momento da linha do tempo sua narrativa começa? O que acabou de acontecer que todos comentam?' },
     ],
-    chips: ['Criar evento histórico fundador', 'Desenvolver relíquia com significado oculto', 'Expandir uma figura lendária', 'Conectar passado ao conflito presente'],
+    chips: ['Criar calendário', 'Criar evento histórico fundador', 'Desenvolver relíquia com significado oculto', 'Expandir uma figura lendária', 'Conectar passado ao conflito presente'],
     guide: {
       min: 'A história do seu mundo é o que transforma cenário em consequência. Cada guerra, descoberta ou catástrofe do passado deixa cicatrizes visíveis no presente: ruínas que ninguém ousa reconstruir, linhagens reais que carregam culpa ancestral, fronteiras que existem por causa de um tratado de 300 anos.\n\nNão crie uma linha do tempo enciclopédica — crie eventos que ainda importam. A pergunta-chave é: "Isso afeta alguém vivo na história?" Se a resposta for não, o evento é decorativo. Se for sim, é narrativa.\n\nPense em três camadas temporais: a origem (mitos fundadores, como o mundo começou), os pontos de virada (guerras, descobertas, quedas de impérios) e o presente imediato (o que acabou de acontecer que coloca tudo em movimento). Figuras históricas e relíquias do passado funcionam como âncoras emocionais — o leitor entende o peso do presente quando conhece o passado.',
       ref: '📖 The Elder Scrolls — Bethesda (Tamriel)\n\nA franquia Elder Scrolls é referência mundial em história de worldbuilding porque cada jogo se passa em uma era diferente, mas os eventos anteriores sempre reverberam:\n\n• A Guerra dos Dragões (Era Merética): Aconteceu milênios antes de Skyrim, mas os dragões retornam no jogo — e os jogadores descobrem que a profecia do Dragonborn nasceu desse conflito original.\n\n• Tiber Septim / Talos: Um homem que conquistou todo o continente e, após a morte, foi elevado a deus. Gerações depois, o Domínio Aldmeri proíbe seu culto — e esse ato político é o pivô central de Skyrim. Um evento de 400 anos atrás move a guerra civil do presente.\n\n• A Grande Guerra (4ª Era): O Império cedeu aos Thalmor e assinou o Concordato Ouro-Branco, banindo o culto a Talos. Os Nórdicos se sentiram traídos, Ulfric se rebelou, e o jogador entra no meio desse conflito.\n\n• Livros in-game: Bethesda espalhou centenas de livros jogáveis com versões conflitantes da história — diferentes povos contam o mesmo evento de formas opostas. Isso faz a história parecer real, porque ninguém tem a "versão definitiva".',
