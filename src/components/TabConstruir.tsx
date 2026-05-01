@@ -270,7 +270,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               </div>
             </div>
 
-            <FruitGuideBlock guide={fruit.guide} id="orientacoes-idriel" />
+            <FruitGuideBlock guide={fruit.guide} id="orientacoes-idriel" fruitId={fruit.id} />
 
             {/* Gallery images */}
             {(() => {
