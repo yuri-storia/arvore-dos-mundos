@@ -82,6 +82,11 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
     if (imageJob?.status === 'error') setError(imageJob.error || 'Erro ao materializar visão');
   }, [imageJob?.status, imageJob?.result, imageJob?.error, activeVisionId, updateVisionImage]);
 
+  // Persist job ids per world so navigating away & back keeps the running session.
+  useEffect(() => { if (promptJobKey) { activePromptJobId ? localStorage.setItem(promptJobKey, activePromptJobId) : localStorage.removeItem(promptJobKey); } }, [promptJobKey, activePromptJobId]);
+  useEffect(() => { if (imageJobKey) { activeImageJobId ? localStorage.setItem(imageJobKey, activeImageJobId) : localStorage.removeItem(imageJobKey); } }, [imageJobKey, activeImageJobId]);
+  useEffect(() => { if (visionKey) { activeVisionId ? localStorage.setItem(visionKey, activeVisionId) : localStorage.removeItem(visionKey); } }, [visionKey, activeVisionId]);
+
   const handleFiles = async (files: FileList | null) => {
     if (!files || !user) return;
     const items = Array.from(files).filter(f => /image\/(png|jpe?g|webp)/.test(f.type));
