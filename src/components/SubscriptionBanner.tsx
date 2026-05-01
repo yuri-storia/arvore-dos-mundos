@@ -4,6 +4,7 @@ import { useSubscription, openCheckout, STRIPE_PLANS, openCustomerPortal } from 
 import { useAuth } from '@/contexts/AuthContext';
 import { Progress } from '@/components/ui/progress';
 import { Lock, Sparkles, CreditCard, X } from 'lucide-react';
+import { RechargePackageDialog } from '@/components/RechargePackageDialog';
 
 const DISMISS_KEY = 'adm_sub_banner_dismissed';
 
@@ -11,6 +12,7 @@ export const SubscriptionBanner: React.FC = () => {
   const sub = useSubscription();
   const { isAdmin } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
+  const [rechargeOpen, setRechargeOpen] = useState(false);
   const [dismissed, setDismissed] = useState(() => {
     try { return sessionStorage.getItem(DISMISS_KEY) === '1'; } catch { return false; }
   });
@@ -70,9 +72,9 @@ export const SubscriptionBanner: React.FC = () => {
                 className="flex flex-col items-start gap-1.5 p-3 rounded-lg border border-gold/30 hover:border-gold/50 transition-all text-left"
                 style={{ background: 'linear-gradient(135deg, rgba(200,146,42,0.10) 0%, rgba(200,146,42,0.04) 100%)' }}
               >
-                <span className="font-montserrat font-bold text-xs text-gold-light">✨ Idriel — Tudo + IA</span>
-                <span className="text-[10px] text-text-dim">Tudo do Raiz + assistente de IA + geração de imagens</span>
-                <span className="font-montserrat font-bold text-sm text-gold-light">R$ 29,90/mês</span>
+                <span className="font-montserrat font-bold text-xs text-gold-light">✨ Idriel — Tudo + IA Suprema</span>
+                <span className="text-[10px] text-text-dim">Tudo do Raiz + IA + imagens em qualidade máxima (Gemini 3 Pro Image)</span>
+                <span className="font-montserrat font-bold text-sm text-gold-light">R$ 39,90/mês</span>
               </button>
             </div>
             <Link to="/planos" className="block text-center mt-3 text-[10px] font-montserrat font-bold text-text-dim hover:text-foreground transition-colors uppercase tracking-wider">
@@ -108,7 +110,7 @@ export const SubscriptionBanner: React.FC = () => {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/[0.12] transition-all"
               >
                 <Sparkles className="w-3 h-3" />
-                Desbloquear Idriel — R$ 29,90/mês
+                Desbloquear Idriel — R$ 39,90/mês
               </button>
               <button
                 onClick={async () => { try { await openCustomerPortal(); } catch {} }}
@@ -177,16 +179,19 @@ export const SubscriptionBanner: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              {(isEmpty || isLow) && (
-                <button
-                  onClick={() => handleCheckout('recarga_seiva')}
-                  disabled={!!loading}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light bg-gold/[0.08] hover:bg-gold/[0.18] transition-all"
-                >
-                  <Sparkles className="w-2.5 h-2.5" />
-                  +100 gotas — R$15
-                </button>
-              )}
+              <button
+                onClick={() => setRechargeOpen(true)}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-montserrat font-bold uppercase tracking-wider border transition-all ${
+                  isEmpty || isLow
+                    ? 'border-gold/40 text-gold-light bg-gold/[0.08] hover:bg-gold/[0.18]'
+                    : 'border-[#5A4020]/40 hover:bg-[#5A4020]/20'
+                }`}
+                style={!isEmpty && !isLow ? { color: '#3D2800' } : undefined}
+              >
+                <Sparkles className="w-2.5 h-2.5" />
+                <span className="hidden sm:inline">Recarregar Seiva</span>
+                <span className="sm:hidden">+ Gotas</span>
+              </button>
               <div className="hidden sm:block w-24">
                 <Progress
                   value={100 - pct}
@@ -217,6 +222,7 @@ export const SubscriptionBanner: React.FC = () => {
             </div>
           </div>
         </div>
+        <RechargePackageDialog open={rechargeOpen} onClose={() => setRechargeOpen(false)} />
       </div>
     );
   }

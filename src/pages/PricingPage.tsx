@@ -59,8 +59,8 @@ const PricingPage: React.FC = () => {
       id: 'idriel',
       name: '✨ Idriel',
       tagline: 'A Árvore responde ao seu chamado',
-      price: billingCycle === 'mensal' ? 'R$ 29,90' : 'R$ 279',
-      priceDetail: billingCycle === 'mensal' ? '/mês' : '/ano (2 meses grátis!)',
+      price: billingCycle === 'mensal' ? 'R$ 39,90' : 'R$ 399',
+      priceDetail: billingCycle === 'mensal' ? '/mês' : '/ano (~17% off)',
       icon: Crown,
       accent: 'border-gold/40',
       accentBg: '',
@@ -92,7 +92,8 @@ const PricingPage: React.FC = () => {
     { label: 'Geração de Mapas IA', semente: false, raiz: false, idriel: true },
     { label: 'Análise de Mundo IA', semente: false, raiz: false, idriel: true },
     { label: '100 gotas de Seiva/mês', semente: false, raiz: false, idriel: true },
-    { label: 'Recarga avulsa (R$15)', semente: false, raiz: false, idriel: true },
+    { label: 'Imagens em qualidade máxima (Gemini 3 Pro)', semente: false, raiz: false, idriel: true },
+    { label: 'Recargas avulsas (a partir de R$ 4,90)', semente: false, raiz: false, idriel: true },
   ];
 
   const competitors = [
@@ -226,23 +227,54 @@ const PricingPage: React.FC = () => {
           ))}
         </div>
 
-        {/* Recharge banner */}
-        <div className="rounded-2xl border border-gold/20 p-5 mb-16 text-center" style={{ background: 'linear-gradient(135deg, rgba(200,146,42,0.06) 0%, rgba(200,146,42,0.02) 100%)' }}>
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Zap className="w-5 h-5 text-gold-light" />
-            <span className="font-cinzel font-bold text-lg text-gold-light">Recarga de Seiva Dourada</span>
+        {/* Recharge packages */}
+        <div className="rounded-2xl border border-gold/20 p-6 mb-16" style={{ background: 'linear-gradient(135deg, rgba(200,146,42,0.06) 0%, rgba(200,146,42,0.02) 100%)' }}>
+          <div className="text-center mb-5">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Zap className="w-5 h-5 text-gold-light" />
+              <span className="font-cinzel font-bold text-lg text-gold-light">Pacotes de Seiva Dourada</span>
+            </div>
+            <p className="font-merriweather italic text-text-dim text-sm max-w-xl mx-auto">
+              Acabou a Seiva mensal? Recarregue avulso — sem assinar nada. Quanto mais gotas, mais barato fica cada uma.
+            </p>
           </div>
-          <p className="font-merriweather italic text-text-dim text-sm mb-3">
-            Acabou a Seiva? Recarregue +100 gotas por apenas <strong className="text-gold-light">R$ 15,00</strong> — sem assinar nada.
-          </p>
-          <button
-            onClick={() => handleCheckout(STRIPE_PLANS.recarga_seiva.price_id)}
-            disabled={!!loading}
-            className="px-6 py-2.5 rounded-full text-xs font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/[0.12] transition-all"
-          >
-            <Sparkles className="w-3.5 h-3.5 inline mr-1.5" />
-            Recarregar Seiva — R$ 15
-          </button>
+
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            {[
+              { drops: 15, price: 'R$ 4,90', perDrop: '0,33', id: 'recarga_15', badge: null },
+              { drops: 25, price: 'R$ 7,90', perDrop: '0,32', id: 'recarga_25', badge: null },
+              { drops: 50, price: 'R$ 14,90', perDrop: '0,30', id: 'recarga_50', badge: null },
+              { drops: 100, price: 'R$ 27,90', perDrop: '0,28', id: 'recarga_100', badge: 'Popular' },
+              { drops: 200, price: 'R$ 54,90', perDrop: '0,27', id: 'recarga_200', badge: 'Melhor valor' },
+            ].map((pkg) => {
+              const highlighted = !!pkg.badge;
+              return (
+                <button
+                  key={pkg.id}
+                  onClick={() => handleCheckout(pkg.id)}
+                  disabled={!!loading}
+                  className={`relative flex flex-col items-center text-center rounded-xl border p-4 transition-all hover:-translate-y-1 ${
+                    highlighted
+                      ? 'border-gold/50 bg-gold/[0.08] hover:bg-gold/[0.14]'
+                      : 'border-border/60 bg-card/40 hover:border-gold/30'
+                  }`}
+                >
+                  {pkg.badge && (
+                    <span className={`absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-full text-[8px] font-montserrat font-bold uppercase tracking-wider ${
+                      pkg.badge === 'Popular'
+                        ? 'bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] text-[#1a0f00]'
+                        : 'bg-emerald-500 text-white'
+                    }`}>{pkg.badge}</span>
+                  )}
+                  <span className="text-2xl mb-1">🧪</span>
+                  <span className="font-cinzel font-bold text-xl text-gold-light">{pkg.drops}</span>
+                  <span className="font-montserrat text-[10px] text-text-dim uppercase tracking-wider mb-2">gotas</span>
+                  <span className="font-montserrat font-bold text-sm text-foreground">{pkg.price}</span>
+                  <span className="font-montserrat text-[10px] text-text-dim mt-1">R$ {pkg.perDrop}/gota</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Feature comparison table */}
@@ -274,7 +306,7 @@ const PricingPage: React.FC = () => {
                   <td className="py-2.5 px-3 text-center font-montserrat font-bold text-xs text-emerald-400">Grátis</td>
                   <td className="py-2.5 px-3 text-center font-montserrat font-bold text-xs text-blue-light">R$ 87/ano</td>
                   <td className="py-2.5 px-3 text-center font-montserrat font-bold text-xs text-gold-light">
-                    R$ 29,90/mês<br /><span className="text-[10px] text-text-dim">ou R$ 279/ano</span>
+                    R$ 39,90/mês<br /><span className="text-[10px] text-text-dim">ou R$ 399/ano</span>
                   </td>
                 </tr>
               </tbody>
@@ -325,7 +357,7 @@ const PricingPage: React.FC = () => {
                 <h3 className="font-cinzel font-bold text-2xl text-gold-light">✨ Idriel</h3>
               </div>
               <div className="flex items-baseline justify-center gap-2 mb-1">
-                <span className="font-montserrat font-bold text-4xl text-gold-light">R$ 29,90</span>
+                <span className="font-montserrat font-bold text-4xl text-gold-light">R$ 39,90</span>
                 <span className="text-text-dim font-montserrat text-sm">/mês</span>
               </div>
               <p className="font-merriweather italic text-text-secondary text-sm mb-6">

@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Stripe product/price IDs
-// Pricing plans (gateway: Asaas — IDs will be set after integration)
+// Pricing plans (gateway será integrado depois — IDs prontos para mapear)
 export const PLANS = {
   semente: {
     id: "semente",
@@ -24,28 +23,85 @@ export const PLANS = {
   idriel_mensal: {
     id: "idriel_mensal",
     name: "✨ Idriel",
-    price: "R$ 29,90/mês",
-    priceValue: 29.90,
+    price: "R$ 39,90/mês",
+    priceValue: 39.90,
     period: "mensal",
     hasIdriel: true,
   },
   idriel_anual: {
     id: "idriel_anual",
     name: "✨ Idriel Anual",
-    price: "R$ 279/ano",
-    priceValue: 279,
+    price: "R$ 399/ano",
+    priceValue: 399,
     period: "anual",
     hasIdriel: true,
   },
+  // Pacotes de recarga de Seiva Dourada (avulsos)
+  recarga_15: {
+    id: "recarga_15",
+    name: "🧪 15 gotas",
+    price: "R$ 4,90",
+    priceValue: 4.90,
+    drops: 15,
+    period: "avulso",
+    hasIdriel: false,
+  },
+  recarga_25: {
+    id: "recarga_25",
+    name: "🧪 25 gotas",
+    price: "R$ 7,90",
+    priceValue: 7.90,
+    drops: 25,
+    period: "avulso",
+    hasIdriel: false,
+  },
+  recarga_50: {
+    id: "recarga_50",
+    name: "🧪 50 gotas",
+    price: "R$ 14,90",
+    priceValue: 14.90,
+    drops: 50,
+    period: "avulso",
+    hasIdriel: false,
+  },
+  recarga_100: {
+    id: "recarga_100",
+    name: "🧪 100 gotas",
+    price: "R$ 27,90",
+    priceValue: 27.90,
+    drops: 100,
+    period: "avulso",
+    hasIdriel: false,
+  },
+  recarga_200: {
+    id: "recarga_200",
+    name: "🧪 200 gotas",
+    price: "R$ 54,90",
+    priceValue: 54.90,
+    drops: 200,
+    period: "avulso",
+    hasIdriel: false,
+  },
+  // Alias legado para compatibilidade
   recarga_seiva: {
-    id: "recarga_seiva",
+    id: "recarga_100",
     name: "🧪 Recarga de Seiva",
-    price: "R$ 15,00",
-    priceValue: 15,
+    price: "R$ 27,90",
+    priceValue: 27.90,
+    drops: 100,
     period: "avulso",
     hasIdriel: false,
   },
 } as const;
+
+// Pacotes de recarga em ordem de exibição (UI)
+export const RECHARGE_PACKAGES = [
+  { id: "recarga_15",  drops: 15,  price: 4.90,  priceLabel: "R$ 4,90",  pricePerDrop: 0.327, badge: null },
+  { id: "recarga_25",  drops: 25,  price: 7.90,  priceLabel: "R$ 7,90",  pricePerDrop: 0.316, badge: null },
+  { id: "recarga_50",  drops: 50,  price: 14.90, priceLabel: "R$ 14,90", pricePerDrop: 0.298, badge: null },
+  { id: "recarga_100", drops: 100, price: 27.90, priceLabel: "R$ 27,90", pricePerDrop: 0.279, badge: "Mais popular" },
+  { id: "recarga_200", drops: 200, price: 54.90, priceLabel: "R$ 54,90", pricePerDrop: 0.275, badge: "Melhor custo-benefício" },
+] as const;
 
 export interface SubscriptionInfo {
   loading: boolean;
