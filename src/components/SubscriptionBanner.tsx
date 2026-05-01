@@ -179,16 +179,19 @@ export const SubscriptionBanner: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              {(isEmpty || isLow) && (
-                <button
-                  onClick={() => handleCheckout('recarga_seiva')}
-                  disabled={!!loading}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light bg-gold/[0.08] hover:bg-gold/[0.18] transition-all"
-                >
-                  <Sparkles className="w-2.5 h-2.5" />
-                  +100 gotas — R$15
-                </button>
-              )}
+              <button
+                onClick={() => setRechargeOpen(true)}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-montserrat font-bold uppercase tracking-wider border transition-all ${
+                  isEmpty || isLow
+                    ? 'border-gold/40 text-gold-light bg-gold/[0.08] hover:bg-gold/[0.18]'
+                    : 'border-[#5A4020]/40 hover:bg-[#5A4020]/20'
+                }`}
+                style={!isEmpty && !isLow ? { color: '#3D2800' } : undefined}
+              >
+                <Sparkles className="w-2.5 h-2.5" />
+                <span className="hidden sm:inline">Recarregar Seiva</span>
+                <span className="sm:hidden">+ Gotas</span>
+              </button>
               <div className="hidden sm:block w-24">
                 <Progress
                   value={100 - pct}
@@ -219,6 +222,7 @@ export const SubscriptionBanner: React.FC = () => {
             </div>
           </div>
         </div>
+        <RechargePackageDialog open={rechargeOpen} onClose={() => setRechargeOpen(false)} />
       </div>
     );
   }
