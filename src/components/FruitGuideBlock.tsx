@@ -1,23 +1,45 @@
 import React, { useState } from 'react';
-import type { FruitGuide } from '@/lib/data';
+import { FRUIT_RECOMMENDED_TYPE, type FruitGuide, type RecommendedType } from '@/lib/data';
 import { ChevronDown } from 'lucide-react';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 
 interface Props {
   guide: FruitGuide;
   id?: string;
+  fruitId?: number;
 }
 
-export const FruitGuideBlock: React.FC<Props> = ({ guide, id }) => {
+const RECOMMENDATION_COPY: Record<RecommendedType, { icon: string; label: string; tone: string }> = {
+  ficha: {
+    icon: '📋',
+    label: 'Fichas',
+    tone: 'Idriel sugere que este Fruto gere principalmente **Fichas** — entradas estruturadas e visuais (personagens, lugares, criaturas, itens).',
+  },
+  artigo: {
+    icon: '📝',
+    label: 'Artigos',
+    tone: 'Idriel sugere que este Fruto gere principalmente **Artigos** — textos livres que explicam sistemas, lore, conceitos e história.',
+  },
+  both: {
+    icon: '🌿',
+    label: 'Fichas e Artigos',
+    tone: 'Idriel sugere que este Fruto pode gerar tanto **Fichas** (rituais, costumes específicos) quanto **Artigos** (valores e crenças).',
+  },
+};
+
+export const FruitGuideBlock: React.FC<Props> = ({ guide, id, fruitId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   const toggle = (key: string) =>
     setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
 
+  const recommendation = fruitId !== undefined ? FRUIT_RECOMMENDED_TYPE[fruitId] : undefined;
+  const recCopy = recommendation ? RECOMMENDATION_COPY[recommendation] : null;
+
   const sections = [
-    { key: 'orientacao', icon: '🌿', title: 'Sobre este Fruto', content: guide.min },
-    { key: 'estudo', icon: '📖', title: 'Estudo de Caso', content: guide.ref },
+    { key: 'orientacao', icon: '🌿', title: 'Sobre este Fruto', content: guide.min, recCopy },
+    { key: 'estudo', icon: '📖', title: 'Estudo de Caso', content: guide.ref, recCopy: null },
   ];
 
   return (
