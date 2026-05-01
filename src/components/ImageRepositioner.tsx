@@ -19,7 +19,7 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
   const [dragging, setDragging] = useState(false);
   const [imgNatural, setImgNatural] = useState({ w: 0, h: 0 });
   const [offsetY, setOffsetY] = useState(0); // px offset from center
-  const dragStartRef = useRef<{ mouseY: number; startOffset: number } | null>(null);
+  const dragStartRef = useRef<{ pointerId: number; clientY: number; startOffset: number } | null>(null);
 
   // Convert initial % position to pixel offset once image loads
   const handleImgLoad = useCallback(() => {
@@ -53,62 +53,47 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
     return Math.max(-max, Math.min(max, off));
   }, [getMaxOffset]);
 
-  // Mouse handlers — start drag on container; track move/up on window so leaving the box doesn't kill it
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+  const handlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.setPointerCapture(e.pointerId);
     setDragging(true);
-    dragStartRef.current = { mouseY: e.clientY, startOffset: offsetY };
+    dragStartRef.current = { pointerId: e.pointerId, clientY: e.clientY, startOffset: offsetY };
   }, [offsetY]);
 
-  // Touch handlers — start drag on container
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    setDragging(true);
-    dragStartRef.current = { mouseY: e.touches[0].clientY, startOffset: offsetY };
-  }, [offsetY]);
+  const handlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragStartRef.current || dragStartRef.current.pointerId !== e.pointerId) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const delta = e.clientY - dragStartRef.current.clientY;
+    setOffsetY(clampOffset(dragStartRef.current.startOffset + delta));
+  }, [clampOffset]);
 
-  // Global move/up listeners while dragging
+  const handlePointerEnd = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (dragStartRef.current?.pointerId === e.pointerId) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+      setDragging(false);
+      dragStartRef.current = null;
+    }
+  }, []);
+
+  // Global selection lock while dragging
   useEffect(() => {
     if (!dragging) return;
-    // Prevent text selection / iframe focus issues globally during drag
     const previousUserSelect = document.body.style.userSelect;
     const previousCursor = document.body.style.cursor;
     document.body.style.userSelect = 'none';
     document.body.style.cursor = 'grabbing';
-
-    const onMove = (e: MouseEvent) => {
-      if (!dragStartRef.current) return;
-      e.preventDefault();
-      const delta = e.clientY - dragStartRef.current.mouseY;
-      setOffsetY(clampOffset(dragStartRef.current.startOffset + delta));
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      if (!dragStartRef.current || !e.touches[0]) return;
-      e.preventDefault();
-      const delta = e.touches[0].clientY - dragStartRef.current.mouseY;
-      setOffsetY(clampOffset(dragStartRef.current.startOffset + delta));
-    };
-    const onUp = () => {
-      setDragging(false);
-      dragStartRef.current = null;
-    };
     const onSelectStart = (e: Event) => e.preventDefault();
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-    window.addEventListener('touchmove', onTouchMove, { passive: false });
-    window.addEventListener('touchend', onUp);
-    window.addEventListener('touchcancel', onUp);
     document.addEventListener('selectstart', onSelectStart);
     return () => {
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-      window.removeEventListener('touchmove', onTouchMove);
-      window.removeEventListener('touchend', onUp);
-      window.removeEventListener('touchcancel', onUp);
       document.removeEventListener('selectstart', onSelectStart);
       document.body.style.userSelect = previousUserSelect;
       document.body.style.cursor = previousCursor;
     };
-  }, [dragging, clampOffset]);
+  }, [dragging]);
 
   // Convert offset back to % on save
   const handleSave = useCallback(() => {
@@ -156,9 +141,10 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
         <div
           ref={containerRef}
           className={`relative m-4 h-[300px] sm:m-5 sm:h-[380px] rounded-xl overflow-hidden border-2 bg-secondary/30 ${dragging ? 'border-primary cursor-grabbing' : 'border-border cursor-grab'} transition-colors select-none touch-none`}
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleTouchStart}
-          onPointerDown={e => e.stopPropagation()}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerEnd}
+          onPointerCancel={handlePointerEnd}
         >
           <div className="absolute inset-0 pointer-events-none z-10">
             <div className="absolute top-0 left-0 right-0 h-px bg-border" />

@@ -4,7 +4,7 @@ import { ImageLightbox } from '@/components/ImageLightbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { callAIText, callAIImage } from '@/lib/helpers';
+import { callAIText, callAIImageConsistent } from '@/lib/helpers';
 import { optimizeImage } from '@/lib/imageOptimizer';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
@@ -145,6 +145,15 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
     return lines.join('\n');
   }, [codexEntries, desc]);
 
+  const codexReferenceImageUrls = useMemo(() => {
+    if (!codexEntries || codexEntries.length === 0) return [];
+    const safeMention = (raw: string) => raw && desc && new RegExp(`\\b${raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(desc);
+    const withImages = codexEntries.filter(e => e.entry_type !== 'artigo' && e.image_url);
+    const mentioned = withImages.filter(e => safeMention(e.title));
+    const others = withImages.filter(e => !mentioned.includes(e));
+    return [...mentioned, ...others].slice(0, 5).map(e => e.image_url!);
+  }, [codexEntries, desc]);
+
   const buildContext = () => {
     const parts: string[] = [];
     if (worldName) parts.push(`World: ${worldName}`);
@@ -201,7 +210,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
       id: jobId,
       kind: 'image',
       label: `Materializando: ${desc.slice(0, 40)}`,
-      task: () => callAIImage(generatedPrompt),
+      task: () => callAIImageConsistent(generatedPrompt, codexReferenceImageUrls, codexContext),
     });
   };
 

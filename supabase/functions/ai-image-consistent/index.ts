@@ -63,7 +63,7 @@ serve(async (req) => {
     const refs = Array.isArray(referenceImageUrls) ? referenceImageUrls.filter((u): u is string => typeof u === "string" && u.length < 4000).slice(0, 5) : [];
     const refText = typeof referenceText === "string" ? referenceText.slice(0, 4000) : "";
 
-    const consistencyInstructions = `Maintain consistent character design, lighting, art style and color palette with the reference images. Treat them as canon for this world.${refText ? `\n\nWorld context (canon, do not contradict):\n${refText}` : ""}\n\nNew image to generate: ${prompt}`;
+    const consistencyInstructions = `Use the reference images as visual canon for characters, species, clothing, symbols, locations, color palette and lighting. Do not invent relationships or lore not present in the canon text. If a named Codex entry appears in the prompt, prioritize its image and written description over generic fantasy defaults.${refText ? `\n\nWorld context (canon, do not contradict):\n${refText}` : ""}\n\nNew image to generate: ${prompt}`;
 
     const userContent: Array<Record<string, unknown>> = [
       { type: "text", text: consistencyInstructions },
@@ -74,7 +74,7 @@ serve(async (req) => {
       method: "POST",
       headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-3.1-flash-image-preview",
+        model: "google/gemini-3-pro-image-preview",
         messages: [{ role: "user", content: userContent }],
         modalities: ["image", "text"],
       }),

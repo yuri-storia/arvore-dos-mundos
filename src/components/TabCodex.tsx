@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { WorldRecord } from '@/hooks/useWorlds';
 import { Lock } from 'lucide-react';
 import { toast } from 'sonner';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { IdrielImportDialog } from '@/components/IdrielImportDialog';
 
 const FRUIT_ALL = -1;
@@ -52,6 +52,22 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   const [newImageUrl, setNewImageUrl] = useState('');
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const expandedEntry = entries.find(e => e.id === expandedId) || null;
+
+  useEffect(() => {
+    if (!expandedId) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setExpandedId(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [expandedId]);
 
   if (!user) {
     return (
@@ -561,27 +577,31 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
             </div>
           )}
 
-          {/* Expanded card — proper Dialog (centered, scroll-locked, ESC closes) */}
-          <Dialog open={!!expandedId} onOpenChange={(open) => { if (!open) setExpandedId(null); }}>
-            <DialogContent className="max-w-[900px] w-[95vw] p-0 border-blue-bright/20 bg-transparent shadow-none overflow-hidden [&>button.absolute]:hidden">
-              {(() => {
-                const expandedEntry = entries.find(e => e.id === expandedId);
-                if (!expandedEntry) return null;
-                return (
-                  <CodexCard
-                    entry={expandedEntry}
-                    expanded={true}
-                    onToggle={() => setExpandedId(null)}
-                    onUpdate={updateEntry}
-                    onDelete={async (id) => { await deleteEntry(id); setExpandedId(null); }}
-                    onImageUpload={uploadImage}
-                    onLightbox={setLightbox}
-                    gallery={gallery}
-                  />
-                );
-              })()}
-            </DialogContent>
-          </Dialog>
+          {/* Expanded card — custom isolated layer so drag/click events never reach the page behind it */}
+          {expandedEntry && createPortal(
+            <div
+              className="fixed inset-0 z-[220] flex items-center justify-center bg-background/85 p-3 backdrop-blur-sm sm:p-6"
+              role="dialog"
+              aria-modal="true"
+              onMouseDown={(e) => {
+                if (e.target === e.currentTarget) setExpandedId(null);
+              }}
+            >
+              <div className="w-full max-w-[900px]" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+                <CodexCard
+                  entry={expandedEntry}
+                  expanded={true}
+                  onToggle={() => setExpandedId(null)}
+                  onUpdate={updateEntry}
+                  onDelete={async (id) => { await deleteEntry(id); setExpandedId(null); }}
+                  onImageUpload={uploadImage}
+                  onLightbox={setLightbox}
+                  gallery={gallery}
+                />
+              </div>
+            </div>,
+            document.body
+          )}
         </>
       )}
 

@@ -401,8 +401,10 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             <img
               src={entry.image_url}
               alt={entry.title}
-              className="w-full h-full object-cover object-center cursor-zoom-in"
+              className="w-full h-full object-cover cursor-zoom-in select-none"
+              style={{ objectPosition: `${imgPos.x}% ${imgPos.y}%` }}
               onClick={e => { e.stopPropagation(); onLightbox({ src: entry.image_url!, alt: entry.title }); }}
+              draggable={false}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
