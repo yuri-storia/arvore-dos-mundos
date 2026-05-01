@@ -69,8 +69,15 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
   // Global move/up listeners while dragging
   useEffect(() => {
     if (!dragging) return;
+    // Prevent text selection / iframe focus issues globally during drag
+    const previousUserSelect = document.body.style.userSelect;
+    const previousCursor = document.body.style.cursor;
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'grabbing';
+
     const onMove = (e: MouseEvent) => {
       if (!dragStartRef.current) return;
+      e.preventDefault();
       const delta = e.clientY - dragStartRef.current.mouseY;
       setOffsetY(clampOffset(dragStartRef.current.startOffset + delta));
     };
@@ -84,17 +91,22 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
       setDragging(false);
       dragStartRef.current = null;
     };
+    const onSelectStart = (e: Event) => e.preventDefault();
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
     window.addEventListener('touchmove', onTouchMove, { passive: false });
     window.addEventListener('touchend', onUp);
     window.addEventListener('touchcancel', onUp);
+    document.addEventListener('selectstart', onSelectStart);
     return () => {
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onUp);
       window.removeEventListener('touchcancel', onUp);
+      document.removeEventListener('selectstart', onSelectStart);
+      document.body.style.userSelect = previousUserSelect;
+      document.body.style.cursor = previousCursor;
     };
   }, [dragging, clampOffset]);
 
@@ -121,8 +133,16 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
   }, []);
 
   const content = (
-    <div className="fixed inset-0 z-[300] bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={onCancel}>
-      <div className="w-full max-w-[760px] rounded-2xl border border-border bg-card/95 shadow-2xl" onClick={e => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-[300] bg-background/80 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={onCancel}
+      onPointerDown={e => e.stopPropagation()}
+      onMouseDown={e => e.stopPropagation()}
+    >
+      <div
+        className="w-full max-w-[760px] rounded-2xl border border-border bg-card/95 shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
         <div className="flex items-start justify-between gap-4 border-b border-border px-4 py-4 sm:px-5">
           <div>
             <h3 className="font-cinzel font-bold text-base text-foreground">Ajustar prévia da imagem</h3>
@@ -135,9 +155,10 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
 
         <div
           ref={containerRef}
-          className={`relative m-4 h-[300px] sm:m-5 sm:h-[380px] rounded-xl overflow-hidden border-2 bg-secondary/30 ${dragging ? 'border-primary cursor-grabbing' : 'border-border cursor-grab'} transition-colors select-none`}
+          className={`relative m-4 h-[300px] sm:m-5 sm:h-[380px] rounded-xl overflow-hidden border-2 bg-secondary/30 ${dragging ? 'border-primary cursor-grabbing' : 'border-border cursor-grab'} transition-colors select-none touch-none`}
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
+          onPointerDown={e => e.stopPropagation()}
         >
           <div className="absolute inset-0 pointer-events-none z-10">
             <div className="absolute top-0 left-0 right-0 h-px bg-border" />
