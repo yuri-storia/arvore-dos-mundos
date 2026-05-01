@@ -277,10 +277,47 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
       <div className={`flex items-center gap-3 mb-4 flex-wrap transition-opacity duration-300 ${zenMode ? 'opacity-0 hover:opacity-100 h-0 overflow-hidden hover:h-auto hover:overflow-visible' : ''}`}>
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <PenLine className="w-4 h-4 text-blue-light shrink-0" />
-          <input value={activeManuscript.title}
-            onChange={e => updateManuscript(activeManuscript.id, { title: e.target.value })}
-            className="bg-transparent font-cinzel font-bold text-lg text-foreground border-none focus:outline-none min-w-0 flex-1"
-            placeholder="Título do manuscrito" />
+          {/* Manuscript switcher */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-1.5 min-w-0 group">
+              <input
+                value={activeManuscript.title}
+                onChange={e => updateManuscript(activeManuscript.id, { title: e.target.value })}
+                onClick={e => e.stopPropagation()}
+                className="bg-transparent font-cinzel font-bold text-lg text-foreground border-none focus:outline-none min-w-0 max-w-[260px] cursor-text"
+                placeholder="Título do manuscrito"
+              />
+              <ChevronDown className="w-3.5 h-3.5 text-text-dim group-hover:text-foreground transition-colors shrink-0" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-[240px]">
+              <p className="text-[9px] uppercase font-montserrat text-text-dim px-2 py-1">Manuscritos deste mundo</p>
+              {manuscripts.map(m => (
+                <DropdownMenuItem
+                  key={m.id}
+                  onSelect={() => setActiveManuscript(m)}
+                  className={`text-xs ${m.id === activeManuscript.id ? 'bg-blue-bright/10 text-blue-light' : ''}`}
+                >
+                  <BookMarked className="w-3 h-3 mr-2 opacity-60" />
+                  {m.title}
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => setShowNamePrompt(true)} className="text-xs text-blue-light">
+                <Plus className="w-3 h-3 mr-2" /> Novo manuscrito
+              </DropdownMenuItem>
+              <ConfirmDialog
+                trigger={
+                  <DropdownMenuItem onSelect={e => e.preventDefault()} className="text-xs text-red-alert/90">
+                    <Trash2 className="w-3 h-3 mr-2" /> Excluir manuscrito atual
+                  </DropdownMenuItem>
+                }
+                title="Excluir manuscrito"
+                description={`Excluir "${activeManuscript.title}"? Todos os capítulos e arcos serão perdidos.`}
+                confirmLabel="Excluir"
+                onConfirm={() => deleteManuscript(activeManuscript.id)}
+              />
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className="flex items-center gap-1 shrink-0">
           {/* Mode switcher */}
@@ -310,15 +347,26 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
         </div>
       </div>
 
-      {/* ── MURAL DE ARCOS MODE ── */}
+      {/* ── STORYLINE / MURAL MODE ── */}
       {writeMode === 'mural' && (
         <div className="h-[calc(100vh-220px)] min-h-[400px] bg-white/[0.02] rounded-lg border border-blue-bright/10">
           <KanbanBoard
+            storylines={storylineState.storylines}
+            activeStoryline={storylineState.activeStoryline}
+            setActiveStoryline={storylineState.setActiveStoryline}
+            columns={storylineState.columns}
+            onCreateStoryline={() => storylineState.createStoryline('Nova storyline')}
+            onRenameStoryline={(id, name) => storylineState.updateStoryline(id, { name })}
+            onDeleteStoryline={storylineState.deleteStoryline}
+            onCreateColumn={() => storylineState.createColumn('Nova coluna')}
+            onUpdateColumn={storylineState.updateColumn}
+            onDeleteColumn={storylineState.deleteColumn}
+            onLinkManuscript={(id, mid) => storylineState.updateStoryline(id, { manuscript_id: mid })}
+            manuscripts={manuscripts}
             chapters={chapters}
             scenes={scenes}
             onUpdateScene={updateScene}
             onSelectScene={(id) => {
-              // Find the scene's chapter and navigate there
               const scene = scenes.find(s => s.id === id);
               if (scene) {
                 setActiveChapterId(scene.chapter_id);
