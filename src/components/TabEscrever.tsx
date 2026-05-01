@@ -144,6 +144,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     createScene, updateScene, deleteScene,
   } = useManuscript(worldId);
   const { entries } = useCodexEntries(worldId);
+  const storylineState = useStorylines(worldId);
 
   const [writeMode, setWriteMode] = useState<WriteMode>('manuscrito');
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
@@ -155,6 +156,10 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [newManuscriptName, setNewManuscriptName] = useState('');
   const [zenMode, setZenMode] = useState(false);
+  // Preview-mode toggle: when true, content renders chips for @references; when false, raw textarea.
+  const [previewMode, setPreviewMode] = useState(false);
+  // Currently-selected reference (when a chip is clicked) — shows in the right panel as a card.
+  const [previewEntry, setPreviewEntry] = useState<CodexEntry | null>(null);
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
