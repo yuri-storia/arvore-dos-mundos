@@ -29,7 +29,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const filtered = filter === 'Todos' ? gallery : gallery.filter(img => img.cat === filter);
+  // (legacy 'filtered' replaced below by 'filteredSorted' which excludes unsorted)
 
   const [batchCat, setBatchCat] = useState(FRUITS[0].name);
   const [batchUploading, setBatchUploading] = useState(false);
