@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useManuscript, type Chapter, type Scene } from '@/hooks/useManuscript';
+import { useStorylines } from '@/hooks/useStorylines';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -10,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Plus, Trash2, FileText, BookOpen,
   PanelRightOpen, PanelRightClose, StickyNote, Search, BookMarked, PenLine,
-  LayoutGrid, Maximize, Minimize, ChevronRight
+  LayoutGrid, Maximize, Minimize, ChevronRight, ChevronDown, Eye, Edit3, X,
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
@@ -21,6 +22,9 @@ import { ManuscriptExportMenu } from '@/components/ManuscriptExportMenu';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface Props {
   worldId: string;
