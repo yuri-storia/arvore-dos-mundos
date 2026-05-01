@@ -13,14 +13,14 @@ import { useIdrielHistory } from '@/hooks/useIdrielHistory';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from '@/components/ui/dialog';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import type { AppState } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useNavigate } from 'react-router-dom';
-import { History, Save, BookOpen, FileText as FileTextIcon, Trash2 } from 'lucide-react';
+import { History, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
