@@ -470,8 +470,33 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 {aiResponse && !aiLoading && (
                   <div className="animate-fadeUp border-l-[3px] border-idriel-light pl-4 py-3 bg-idriel/[0.04] rounded-r-md">
                     <span className="font-cinzel text-[10px] text-idriel-light block mb-2">🌿 Idriel responde</span>
-                    <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed">{aiResponse}</p>
+                    <p className="font-merriweather text-sm text-foreground/95 whitespace-pre-wrap leading-relaxed">{aiResponse}</p>
+                    <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-idriel/15">
+                      <button
+                        onClick={() => handleOpenSaveDialog('ficha')}
+                        className="px-3 py-1.5 rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider border border-idriel/40 text-idriel-light hover:bg-idriel/15 transition-colors"
+                      >
+                        💾 Salvar como Ficha
+                      </button>
+                      <button
+                        onClick={() => handleOpenSaveDialog('artigo')}
+                        className="px-3 py-1.5 rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider border border-idriel/40 text-idriel-light hover:bg-idriel/15 transition-colors"
+                      >
+                        💾 Salvar como Artigo
+                      </button>
+                    </div>
                   </div>
+                )}
+
+                {/* History toggle */}
+                {suggestions.length > 0 && (
+                  <button
+                    onClick={() => setShowHistory(true)}
+                    className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[11px] font-montserrat text-text-dim border border-idriel/20 hover:text-idriel-light hover:border-idriel/40 transition-colors"
+                  >
+                    <History className="w-3.5 h-3.5" />
+                    📜 Histórico de Idriel ({suggestions.length})
+                  </button>
                 )}
               </div>
             ) : (
