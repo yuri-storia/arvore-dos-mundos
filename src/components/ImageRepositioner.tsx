@@ -133,8 +133,16 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
   }, []);
 
   const content = (
-    <div className="fixed inset-0 z-[300] bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={onCancel}>
-      <div className="w-full max-w-[760px] rounded-2xl border border-border bg-card/95 shadow-2xl" onClick={e => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-[300] bg-background/80 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={onCancel}
+      onPointerDown={e => e.stopPropagation()}
+      onMouseDown={e => e.stopPropagation()}
+    >
+      <div
+        className="w-full max-w-[760px] rounded-2xl border border-border bg-card/95 shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
         <div className="flex items-start justify-between gap-4 border-b border-border px-4 py-4 sm:px-5">
           <div>
             <h3 className="font-cinzel font-bold text-base text-foreground">Ajustar prévia da imagem</h3>
