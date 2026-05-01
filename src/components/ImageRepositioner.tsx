@@ -53,40 +53,50 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
     return Math.max(-max, Math.min(max, off));
   }, [getMaxOffset]);
 
-  // Mouse handlers
+  // Mouse handlers — start drag on container; track move/up on window so leaving the box doesn't kill it
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     setDragging(true);
     dragStartRef.current = { mouseY: e.clientY, startOffset: offsetY };
   }, [offsetY]);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!dragging || !dragStartRef.current) return;
-    const delta = e.clientY - dragStartRef.current.mouseY;
-    setOffsetY(clampOffset(dragStartRef.current.startOffset + delta));
-  }, [dragging, clampOffset]);
-
-  const handleMouseUp = useCallback(() => {
-    setDragging(false);
-    dragStartRef.current = null;
-  }, []);
-
-  // Touch handlers
+  // Touch handlers — start drag on container
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     setDragging(true);
     dragStartRef.current = { mouseY: e.touches[0].clientY, startOffset: offsetY };
   }, [offsetY]);
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!dragging || !dragStartRef.current) return;
-    const delta = e.touches[0].clientY - dragStartRef.current.mouseY;
-    setOffsetY(clampOffset(dragStartRef.current.startOffset + delta));
+  // Global move/up listeners while dragging
+  useEffect(() => {
+    if (!dragging) return;
+    const onMove = (e: MouseEvent) => {
+      if (!dragStartRef.current) return;
+      const delta = e.clientY - dragStartRef.current.mouseY;
+      setOffsetY(clampOffset(dragStartRef.current.startOffset + delta));
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!dragStartRef.current || !e.touches[0]) return;
+      e.preventDefault();
+      const delta = e.touches[0].clientY - dragStartRef.current.mouseY;
+      setOffsetY(clampOffset(dragStartRef.current.startOffset + delta));
+    };
+    const onUp = () => {
+      setDragging(false);
+      dragStartRef.current = null;
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
+    window.addEventListener('touchend', onUp);
+    window.addEventListener('touchcancel', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onUp);
+      window.removeEventListener('touchcancel', onUp);
+    };
   }, [dragging, clampOffset]);
-
-  const handleTouchEnd = useCallback(() => {
-    setDragging(false);
-    dragStartRef.current = null;
-  }, []);
 
   // Convert offset back to % on save
   const handleSave = useCallback(() => {
@@ -127,12 +137,7 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
           ref={containerRef}
           className={`relative m-4 h-[300px] sm:m-5 sm:h-[380px] rounded-xl overflow-hidden border-2 bg-secondary/30 ${dragging ? 'border-primary cursor-grabbing' : 'border-border cursor-grab'} transition-colors select-none`}
           onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
           onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
         >
           <div className="absolute inset-0 pointer-events-none z-10">
             <div className="absolute top-0 left-0 right-0 h-px bg-border" />
