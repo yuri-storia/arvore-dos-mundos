@@ -28,11 +28,13 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const { user } = useAuth();
   const sub = useSubscription();
   const planLimits = usePlanLimits();
+  const worldId = state.currentSaveId || undefined;
+  const { entries: codexEntries } = useCodexEntries(worldId);
+  const { visions, saveVision, updateVisionImage, deleteVision } = useIdrielVisions(worldId);
+  const idrielJobs = useIdrielJobs();
   const [filter, setFilter] = useState('Todos');
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  // (legacy 'filtered' replaced below by 'filteredSorted' which excludes unsorted)
 
   const [batchCat, setBatchCat] = useState(FRUITS[0].name);
   const [batchUploading, setBatchUploading] = useState(false);
@@ -46,13 +48,36 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const [imgType, setImgType] = useState(IMAGE_TYPE_OPTIONS[0]);
   const [tone, setTone] = useState(TONE_OPTIONS[0]);
   const [extras, setExtras] = useState('');
-  const [loading1, setLoading1] = useState(false);
-  const [loading2, setLoading2] = useState(false);
   const [generatedImage, setGeneratedImage] = useState('');
+  const [activePromptJobId, setActivePromptJobId] = useState<string | null>(null);
+  const [activeImageJobId, setActiveImageJobId] = useState<string | null>(null);
+  const [activeVisionId, setActiveVisionId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState('Todos');
+  const [showHistory, setShowHistory] = useState(true);
+
+  // Read from persistent jobs (so switching tabs doesn't cancel)
+  const promptJob = activePromptJobId ? idrielJobs.get<string>(activePromptJobId) : undefined;
+  const imageJob = activeImageJobId ? idrielJobs.get<string>(activeImageJobId) : undefined;
+  const loading1 = promptJob?.status === 'running';
+  const loading2 = imageJob?.status === 'running';
+
+  useEffect(() => {
+    if (promptJob?.status === 'done' && typeof promptJob.result === 'string' && promptJob.result) {
+      setGeneratedPrompt(promptJob.result);
+    }
+    if (promptJob?.status === 'error') setError(promptJob.error || 'Erro ao tecer prompt');
+  }, [promptJob?.status, promptJob?.result, promptJob?.error, setGeneratedPrompt]);
+
+  useEffect(() => {
+    if (imageJob?.status === 'done' && typeof imageJob.result === 'string' && imageJob.result) {
+      setGeneratedImage(imageJob.result);
+      if (activeVisionId) updateVisionImage(activeVisionId, imageJob.result);
+    }
+    if (imageJob?.status === 'error') setError(imageJob.error || 'Erro ao materializar visão');
+  }, [imageJob?.status, imageJob?.result, imageJob?.error, activeVisionId, updateVisionImage]);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || !user) return;
