@@ -46,8 +46,8 @@ const WRITE_MODE_INFO: Record<WriteMode, { icon: typeof BookMarked; label: strin
   },
 };
 
-// ── Reference Panel (Codex sidebar) ──
-const ReferencePanel: React.FC<{ entries: CodexEntry[]; onInsertMention: (name: string) => void }> = ({ entries, onInsertMention }) => {
+// ── Reference Panel (Codex sidebar) — click opens preview only ──
+const ReferencePanel: React.FC<{ entries: CodexEntry[]; onPreview: (entry: CodexEntry) => void }> = ({ entries, onPreview }) => {
   const [search, setSearch] = useState('');
   const filtered = useMemo(() => {
     if (!search.trim()) return entries;
@@ -63,6 +63,9 @@ const ReferencePanel: React.FC<{ entries: CodexEntry[]; onInsertMention: (name: 
         <h3 className="font-cinzel font-bold text-xs text-blue-light uppercase tracking-wider mb-2 flex items-center gap-1.5">
           <BookOpen className="w-3.5 h-3.5" /> Referências do Codex
         </h3>
+        <p className="text-[10px] text-text-dim mb-2 font-merriweather italic leading-snug">
+          Clique para visualizar. Use <span className="text-blue-light">@nome</span> no editor para vincular.
+        </p>
         <div className="relative">
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-text-dim" />
           <Input value={search} onChange={e => setSearch(e.target.value)}
@@ -77,7 +80,7 @@ const ReferencePanel: React.FC<{ entries: CodexEntry[]; onInsertMention: (name: 
               {fichas.map(e => {
                 const fruit = FRUITS.find(f => f.id === e.fruit_id);
                 return (
-                  <button key={e.id} onClick={() => onInsertMention(e.title)}
+                  <button key={e.id} onClick={() => onPreview(e)}
                     className="w-full text-left px-2 py-1.5 rounded text-xs hover:bg-blue-bright/10 transition-colors group">
                     <span className="text-blue-light group-hover:text-blue-bright">{e.title}</span>
                     {fruit && <span className="text-[9px] text-text-dim ml-1.5">{fruit.icon}</span>}
@@ -90,7 +93,7 @@ const ReferencePanel: React.FC<{ entries: CodexEntry[]; onInsertMention: (name: 
             <>
               <p className="text-[9px] font-montserrat uppercase tracking-widest text-text-dim px-2 pt-2">Artigos</p>
               {artigos.map(e => (
-                <button key={e.id} onClick={() => onInsertMention(e.title)}
+                <button key={e.id} onClick={() => onPreview(e)}
                   className="w-full text-left px-2 py-1.5 rounded text-xs hover:bg-gold/10 transition-colors group">
                   <span className="text-gold-light group-hover:text-gold">{e.title}</span>
                 </button>
