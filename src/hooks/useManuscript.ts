@@ -35,6 +35,7 @@ export interface Scene {
   word_count: number;
   sort_order: number;
   status: SceneStatus;
+  storyline_column_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -177,7 +178,7 @@ export function useManuscript(worldId?: string) {
     return sc;
   }, [user, scenes]);
 
-  const updateScene = useCallback(async (id: string, updates: Partial<Pick<Scene, 'title' | 'content' | 'sort_order' | 'status'>>) => {
+  const updateScene = useCallback(async (id: string, updates: Partial<Pick<Scene, 'title' | 'content' | 'sort_order' | 'status' | 'storyline_column_id'>>) => {
     const finalUpdates: any = { ...updates };
     if (updates.content !== undefined) {
       finalUpdates.word_count = countWords(updates.content);

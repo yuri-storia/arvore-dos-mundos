@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useManuscript, type Chapter, type Scene } from '@/hooks/useManuscript';
+import { useStorylines } from '@/hooks/useStorylines';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -10,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Plus, Trash2, FileText, BookOpen,
   PanelRightOpen, PanelRightClose, StickyNote, Search, BookMarked, PenLine,
-  LayoutGrid, Maximize, Minimize, ChevronRight
+  LayoutGrid, Maximize, Minimize, ChevronRight, ChevronDown, Eye, Edit3, X,
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
@@ -21,6 +22,9 @@ import { ManuscriptExportMenu } from '@/components/ManuscriptExportMenu';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface Props {
   worldId: string;
@@ -37,8 +41,8 @@ const WRITE_MODE_INFO: Record<WriteMode, { icon: typeof BookMarked; label: strin
   },
   mural: {
     icon: LayoutGrid,
-    label: 'Mural de Arcos',
-    desc: 'Visualize seus arcos narrativos em colunas por status (Ideia → Rascunho → Revisão → Pronto). Arraste para reorganizar.',
+    label: 'Storyline',
+    desc: 'Visualize seus arcos narrativos em colunas customizáveis. Crie suas próprias colunas, vincule a um manuscrito, e arraste arcos para reorganizar.',
   },
 };
 
@@ -128,6 +132,100 @@ const MentionPopup: React.FC<{
   );
 };
 
+// ── Content Preview with clickable @reference chips ──
+const ContentPreview: React.FC<{
+  content: string;
+  entries: CodexEntry[];
+  onChipClick: (entry: CodexEntry) => void;
+}> = ({ content, entries, onChipClick }) => {
+  const entriesByName = useMemo(() => {
+    const map = new Map<string, CodexEntry>();
+    entries.forEach(e => map.set(e.title.toLowerCase(), e));
+    return map;
+  }, [entries]);
+
+  // Tokenize content into text + @mentions
+  const parts = useMemo(() => {
+    const out: Array<{ type: 'text' | 'mention'; value: string; entry?: CodexEntry }> = [];
+    const regex = /@([A-Za-zÀ-ÿ0-9_\-]+(?:\s[A-Za-zÀ-ÿ0-9_\-]+)?)/g;
+    let lastIdx = 0;
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(content)) !== null) {
+      if (match.index > lastIdx) out.push({ type: 'text', value: content.slice(lastIdx, match.index) });
+      const name = match[1];
+      const entry = entriesByName.get(name.toLowerCase());
+      out.push({ type: 'mention', value: name, entry });
+      lastIdx = match.index + match[0].length;
+    }
+    if (lastIdx < content.length) out.push({ type: 'text', value: content.slice(lastIdx) });
+    return out;
+  }, [content, entriesByName]);
+
+  return (
+    <div className="w-full h-full overflow-y-auto p-4 font-merriweather text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
+      {parts.map((p, i) => {
+        if (p.type === 'text') return <span key={i}>{p.value}</span>;
+        if (p.entry) {
+          const isFicha = p.entry.entry_type === 'ficha';
+          return (
+            <button
+              key={i}
+              onClick={() => onChipClick(p.entry!)}
+              className={`inline-flex items-center px-1.5 py-0.5 mx-0.5 rounded text-[12px] font-montserrat font-bold transition-colors ${
+                isFicha
+                  ? 'bg-blue-bright/15 text-blue-light hover:bg-blue-bright/25'
+                  : 'bg-gold/15 text-gold-light hover:bg-gold/25'
+              }`}
+            >
+              @{p.value}
+            </button>
+          );
+        }
+        return (
+          <span key={i} className="text-text-dim/60 italic" title="Referência não encontrada no Codex">
+            @{p.value}
+          </span>
+        );
+      })}
+      {parts.length === 0 && <span className="text-text-dim/40 italic">Nada escrito ainda.</span>}
+    </div>
+  );
+};
+
+// ── Entry Preview Panel (right side, shown when a chip is clicked) ──
+const EntryPreviewPanel: React.FC<{
+  entry: CodexEntry;
+  onClose: () => void;
+}> = ({ entry, onClose }) => {
+  const fruit = FRUITS.find(f => f.id === entry.fruit_id);
+  const isFicha = entry.entry_type === 'ficha';
+  return (
+    <div className="flex flex-col h-full">
+      <div className="p-3 border-b border-blue-bright/10 flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-[9px] font-montserrat uppercase tracking-widest text-text-dim mb-0.5">
+            {isFicha ? 'Ficha' : 'Artigo'}{fruit ? ` · ${fruit.icon} ${fruit.name}` : ''}
+          </p>
+          <h3 className={`font-cinzel font-bold text-sm truncate ${isFicha ? 'text-blue-light' : 'text-gold-light'}`}>
+            {entry.title}
+          </h3>
+        </div>
+        <button onClick={onClose} className="p-1 text-text-dim hover:text-foreground" title="Fechar">
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+      {entry.image_url && (
+        <img src={entry.image_url} alt={entry.title} className="w-full h-[120px] object-cover" />
+      )}
+      <ScrollArea className="flex-1">
+        <div className="p-3 text-xs text-foreground/85 font-merriweather leading-relaxed whitespace-pre-wrap">
+          {entry.content || <span className="italic text-text-dim">Sem conteúdo.</span>}
+        </div>
+      </ScrollArea>
+    </div>
+  );
+};
+
 // ── Main Component ──
 export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const { user } = useAuth();
@@ -140,6 +238,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     createScene, updateScene, deleteScene,
   } = useManuscript(worldId);
   const { entries } = useCodexEntries(worldId);
+  const storylineState = useStorylines(worldId);
 
   const [writeMode, setWriteMode] = useState<WriteMode>('manuscrito');
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
@@ -151,6 +250,10 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [newManuscriptName, setNewManuscriptName] = useState('');
   const [zenMode, setZenMode] = useState(false);
+  // Preview-mode toggle: when true, content renders chips for @references; when false, raw textarea.
+  const [previewMode, setPreviewMode] = useState(false);
+  // Currently-selected reference (when a chip is clicked) — shows in the right panel as a card.
+  const [previewEntry, setPreviewEntry] = useState<CodexEntry | null>(null);
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -268,10 +371,47 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
       <div className={`flex items-center gap-3 mb-4 flex-wrap transition-opacity duration-300 ${zenMode ? 'opacity-0 hover:opacity-100 h-0 overflow-hidden hover:h-auto hover:overflow-visible' : ''}`}>
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <PenLine className="w-4 h-4 text-blue-light shrink-0" />
-          <input value={activeManuscript.title}
-            onChange={e => updateManuscript(activeManuscript.id, { title: e.target.value })}
-            className="bg-transparent font-cinzel font-bold text-lg text-foreground border-none focus:outline-none min-w-0 flex-1"
-            placeholder="Título do manuscrito" />
+          {/* Manuscript switcher */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-1.5 min-w-0 group">
+              <input
+                value={activeManuscript.title}
+                onChange={e => updateManuscript(activeManuscript.id, { title: e.target.value })}
+                onClick={e => e.stopPropagation()}
+                className="bg-transparent font-cinzel font-bold text-lg text-foreground border-none focus:outline-none min-w-0 max-w-[260px] cursor-text"
+                placeholder="Título do manuscrito"
+              />
+              <ChevronDown className="w-3.5 h-3.5 text-text-dim group-hover:text-foreground transition-colors shrink-0" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-[240px]">
+              <p className="text-[9px] uppercase font-montserrat text-text-dim px-2 py-1">Manuscritos deste mundo</p>
+              {manuscripts.map(m => (
+                <DropdownMenuItem
+                  key={m.id}
+                  onSelect={() => setActiveManuscript(m)}
+                  className={`text-xs ${m.id === activeManuscript.id ? 'bg-blue-bright/10 text-blue-light' : ''}`}
+                >
+                  <BookMarked className="w-3 h-3 mr-2 opacity-60" />
+                  {m.title}
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => setShowNamePrompt(true)} className="text-xs text-blue-light">
+                <Plus className="w-3 h-3 mr-2" /> Novo manuscrito
+              </DropdownMenuItem>
+              <ConfirmDialog
+                trigger={
+                  <DropdownMenuItem onSelect={e => e.preventDefault()} className="text-xs text-red-alert/90">
+                    <Trash2 className="w-3 h-3 mr-2" /> Excluir manuscrito atual
+                  </DropdownMenuItem>
+                }
+                title="Excluir manuscrito"
+                description={`Excluir "${activeManuscript.title}"? Todos os capítulos e arcos serão perdidos.`}
+                confirmLabel="Excluir"
+                onConfirm={() => deleteManuscript(activeManuscript.id)}
+              />
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className="flex items-center gap-1 shrink-0">
           {/* Mode switcher */}
@@ -301,15 +441,26 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
         </div>
       </div>
 
-      {/* ── MURAL DE ARCOS MODE ── */}
+      {/* ── STORYLINE / MURAL MODE ── */}
       {writeMode === 'mural' && (
         <div className="h-[calc(100vh-220px)] min-h-[400px] bg-white/[0.02] rounded-lg border border-blue-bright/10">
           <KanbanBoard
+            storylines={storylineState.storylines}
+            activeStoryline={storylineState.activeStoryline}
+            setActiveStoryline={storylineState.setActiveStoryline}
+            columns={storylineState.columns}
+            onCreateStoryline={() => storylineState.createStoryline('Nova storyline')}
+            onRenameStoryline={(id, name) => storylineState.updateStoryline(id, { name })}
+            onDeleteStoryline={storylineState.deleteStoryline}
+            onCreateColumn={() => storylineState.createColumn('Nova coluna')}
+            onUpdateColumn={storylineState.updateColumn}
+            onDeleteColumn={storylineState.deleteColumn}
+            onLinkManuscript={(id, mid) => storylineState.updateStoryline(id, { manuscript_id: mid })}
+            manuscripts={manuscripts}
             chapters={chapters}
             scenes={scenes}
             onUpdateScene={updateScene}
             onSelectScene={(id) => {
-              // Find the scene's chapter and navigate there
               const scene = scenes.find(s => s.id === id);
               if (scene) {
                 setActiveChapterId(scene.chapter_id);
@@ -401,6 +552,23 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                     className="bg-transparent font-montserrat font-bold text-sm text-foreground border-none focus:outline-none flex-1"
                     placeholder="Título do capítulo" />
                    <span className="text-[11px] font-mono text-text-dim bg-white/[0.04] px-2 py-0.5 rounded">{chapterWordCount} palavras</span>
+                  {/* Edit/Preview toggle */}
+                  <div className="flex items-center bg-white/[0.03] rounded border border-blue-bright/10 p-0.5">
+                    <button
+                      onClick={() => setPreviewMode(false)}
+                      className={`px-1.5 py-0.5 rounded text-[10px] flex items-center gap-1 transition-colors ${!previewMode ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'}`}
+                      title="Editar"
+                    >
+                      <Edit3 className="w-3 h-3" />
+                    </button>
+                    <button
+                      onClick={() => setPreviewMode(true)}
+                      className={`px-1.5 py-0.5 rounded text-[10px] flex items-center gap-1 transition-colors ${previewMode ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'}`}
+                      title="Pré-visualizar com chips"
+                    >
+                      <Eye className="w-3 h-3" />
+                    </button>
+                  </div>
                   <button onClick={() => setZenMode(!zenMode)}
                     className={`p-1.5 rounded hover:bg-white/[0.05] transition-colors ${zenMode ? 'text-blue-light' : 'text-text-dim hover:text-foreground'}`}
                     title={zenMode ? 'Sair do modo foco' : 'Modo foco'}>
@@ -415,11 +583,19 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                   )}
                 </div>
                 <div className="flex-1 relative">
-                  <textarea ref={editorRef} value={editingContent} onChange={e => handleContentChange(e.target.value)}
-                    placeholder="Comece a escrever seu capítulo aqui…&#10;&#10;Use @NomeDoPersonagem para inserir referências do Codex."
-                    className="w-full h-full resize-none bg-transparent text-foreground/90 font-merriweather text-sm leading-relaxed p-4 focus:outline-none placeholder:text-text-dim/30"
-                    style={{ minHeight: '100%' }} />
-                  {mentionState.active && (
+                  {previewMode ? (
+                    <ContentPreview
+                      content={editingContent}
+                      entries={entries}
+                      onChipClick={(entry) => { setPreviewEntry(entry); setShowRefPanel(true); }}
+                    />
+                  ) : (
+                    <textarea ref={editorRef} value={editingContent} onChange={e => handleContentChange(e.target.value)}
+                      placeholder="Comece a escrever seu capítulo aqui…&#10;&#10;Use @NomeDoPersonagem para inserir referências do Codex."
+                      className="w-full h-full resize-none bg-transparent text-foreground/90 font-merriweather text-sm leading-relaxed p-4 focus:outline-none placeholder:text-text-dim/30"
+                      style={{ minHeight: '100%' }} />
+                  )}
+                  {mentionState.active && !previewMode && (
                     <MentionPopup entries={entries} query={mentionState.query} position={mentionState.pos}
                       onSelect={handleMentionSelect} onClose={() => setMentionState(prev => ({ ...prev, active: false }))} />
                   )}
@@ -436,10 +612,14 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
             )}
           </div>
 
-          {/* RIGHT: Reference Panel */}
+          {/* RIGHT: Reference Panel (or selected entry preview) */}
           {showRefPanel && !isMobile && !zenMode && (
-            <div className="w-[240px] shrink-0 bg-white/[0.02] rounded-lg border border-blue-bright/10">
-              <ReferencePanel entries={entries} onInsertMention={handleInsertMentionFromPanel} />
+            <div className="w-[280px] shrink-0 bg-white/[0.02] rounded-lg border border-blue-bright/10 overflow-hidden">
+              {previewEntry ? (
+                <EntryPreviewPanel entry={previewEntry} onClose={() => setPreviewEntry(null)} />
+              ) : (
+                <ReferencePanel entries={entries} onInsertMention={handleInsertMentionFromPanel} />
+              )}
             </div>
           )}
         </div>
