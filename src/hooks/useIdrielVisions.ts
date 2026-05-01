@@ -38,7 +38,7 @@ export function useIdrielVisions(worldId?: string) {
 
   useEffect(() => { fetchVisions(); }, [fetchVisions]);
 
-  const saveVision = useCallback(async (v: Omit<IdrielVision, 'id' | 'user_id' | 'created_at'>) => {
+  const saveVision = useCallback(async (v: Omit<IdrielVision, 'id' | 'user_id' | 'created_at' | 'world_id'>) => {
     if (!user || !worldId) return null;
     const { data, error } = await supabase
       .from('idriel_visions')
