@@ -49,9 +49,12 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const [tone, setTone] = useState(TONE_OPTIONS[0]);
   const [extras, setExtras] = useState('');
   const [generatedImage, setGeneratedImage] = useState('');
-  const [activePromptJobId, setActivePromptJobId] = useState<string | null>(null);
-  const [activeImageJobId, setActiveImageJobId] = useState<string | null>(null);
-  const [activeVisionId, setActiveVisionId] = useState<string | null>(null);
+  const promptJobKey = worldId ? `idriel:promptJob:${worldId}` : null;
+  const imageJobKey = worldId ? `idriel:imageJob:${worldId}` : null;
+  const visionKey = worldId ? `idriel:vision:${worldId}` : null;
+  const [activePromptJobId, setActivePromptJobId] = useState<string | null>(() => promptJobKey ? localStorage.getItem(promptJobKey) : null);
+  const [activeImageJobId, setActiveImageJobId] = useState<string | null>(() => imageJobKey ? localStorage.getItem(imageJobKey) : null);
+  const [activeVisionId, setActiveVisionId] = useState<string | null>(() => visionKey ? localStorage.getItem(visionKey) : null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
