@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { WorldRecord } from '@/hooks/useWorlds';
 import { Lock } from 'lucide-react';
 import { toast } from 'sonner';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 const FRUIT_ALL = -1;
 const FRUIT_NONE = -2; // sentinel for "no fruit" filter
@@ -550,19 +551,13 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
             </div>
           )}
 
-          {/* Expanded card modal overlay */}
-          {expandedId && (() => {
-            const expandedEntry = entries.find(e => e.id === expandedId);
-            if (!expandedEntry) return null;
-            return (
-              <div
-                className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
-                onClick={() => setExpandedId(null)}
-              >
-                <div
-                  className="w-full max-w-[900px] max-h-[90vh] overflow-y-auto animate-fadeUp rounded-lg"
-                  onClick={e => e.stopPropagation()}
-                >
+          {/* Expanded card — proper Dialog (centered, scroll-locked, ESC closes) */}
+          <Dialog open={!!expandedId} onOpenChange={(open) => { if (!open) setExpandedId(null); }}>
+            <DialogContent className="max-w-[900px] w-[95vw] p-0 border-blue-bright/20 bg-transparent shadow-none overflow-hidden">
+              {(() => {
+                const expandedEntry = entries.find(e => e.id === expandedId);
+                if (!expandedEntry) return null;
+                return (
                   <CodexCard
                     entry={expandedEntry}
                     expanded={true}
@@ -573,10 +568,10 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                     onLightbox={setLightbox}
                     gallery={gallery}
                   />
-                </div>
-              </div>
-            );
-          })()}
+                );
+              })()}
+            </DialogContent>
+          </Dialog>
         </>
       )}
 

@@ -1,21 +1,27 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 import { FRUITS, getOrderedFruits, METHOD_DESCRIPTIONS, MethodType, GalleryImage } from '@/lib/data';
-import { getFruitProgress, callAIText, exportWorldMarkdown } from '@/lib/helpers';
+import { getFruitProgress, callAIText, exportWorldMarkdown, summarizeIdrielResponse } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
 import { FruitGuideBlock } from '@/components/FruitGuideBlock';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { CreateFichaButton } from '@/components/CreateFichaButton';
 import { MapGenerator } from '@/components/MapGenerator';
 import { useCodexEntries } from '@/hooks/useCodexEntries';
+import { useIdrielHistory } from '@/hooks/useIdrielHistory';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from '@/components/ui/dialog';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import type { AppState } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useNavigate } from 'react-router-dom';
+import { History, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface Props {
   state: AppState;
@@ -27,10 +33,12 @@ interface Props {
 
 export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFruit, setMethod, onNavigateCodex }) => {
   const isMobile = useIsMobile();
-  const { db, currentFruit, method, worldName } = state;
+  const { db, currentFruit, method, worldName, currentSaveId } = state;
   const { entries, createEntry, updateEntry } = useCodexEntries();
+  const { suggestions, saveSuggestion, deleteSuggestion } = useIdrielHistory(currentSaveId, currentFruit);
   const planLimits = usePlanLimits();
   const navigate = useNavigate();
+  const draftKey = `idriel_draft_${currentSaveId}_${currentFruit}`;
   const [aiQuestion, setAiQuestion] = useState('');
   const [aiResponse, setAiResponse] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
@@ -41,6 +49,55 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   const [showMagictypeCreated, setShowMagictypeCreated] = useState(false);
   const [showMagictypeUpdate, setShowMagictypeUpdate] = useState(false);
   const [pendingMagictypeValue, setPendingMagictypeValue] = useState('');
+  const [showHistory, setShowHistory] = useState(false);
+  const [savingAs, setSavingAs] = useState<null | 'ficha' | 'artigo'>(null);
+  const [saveDraft, setSaveDraft] = useState({ title: '', content: '' });
+  const [saveLoading, setSaveLoading] = useState(false);
+
+  // Restore aiQuestion draft per fruit/world
+  useEffect(() => {
+    if (!currentSaveId) return;
+    const saved = localStorage.getItem(draftKey);
+    if (saved) setAiQuestion(saved);
+    else setAiQuestion('');
+  }, [draftKey, currentSaveId]);
+
+  useEffect(() => {
+    if (!currentSaveId) return;
+    if (aiQuestion) localStorage.setItem(draftKey, aiQuestion);
+    else localStorage.removeItem(draftKey);
+  }, [aiQuestion, draftKey, currentSaveId]);
+
+  const handleOpenSaveDialog = async (kind: 'ficha' | 'artigo', sourceText?: string) => {
+    const text = sourceText ?? aiResponse;
+    if (!text.trim()) return;
+    setSavingAs(kind);
+    setSaveLoading(true);
+    setSaveDraft({ title: `${FRUITS[currentFruit].name} — sugestão de Idriel`, content: '⏳ Resumindo…' });
+    try {
+      const summary = await summarizeIdrielResponse(text, kind);
+      setSaveDraft(prev => ({ ...prev, content: summary }));
+    } catch (e: any) {
+      toast.error(e.message || 'Erro ao resumir');
+      setSaveDraft(prev => ({ ...prev, content: text }));
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const handleConfirmSave = async () => {
+    if (!savingAs || !saveDraft.title.trim() || !saveDraft.content.trim()) return;
+    await createEntry({
+      title: saveDraft.title.trim(),
+      content: saveDraft.content.trim(),
+      entry_type: savingAs,
+      fruit_id: currentFruit,
+    });
+    toast.success(`${savingAs === 'ficha' ? 'Ficha' : 'Artigo'} criado no Codex!`);
+    setSavingAs(null);
+    setSaveDraft({ title: '', content: '' });
+  };
+
 
   // Fruits that generate fichas
   const FICHA_FRUITS = [0, 5, 9]; // Mapa do Mundo, Seres Fantásticos, Personagens
@@ -116,6 +173,9 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
         systemPrompt
       );
       setAiResponse(response);
+      if (response && !response.startsWith('❌')) {
+        await saveSuggestion(aiQuestion, response);
+      }
       setRefreshKey(k => k + 1);
     } catch (e: any) {
       setAiResponse(`❌ ${e.message}`);
@@ -270,7 +330,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               </div>
             </div>
 
-            <FruitGuideBlock guide={fruit.guide} id="orientacoes-idriel" />
+            <FruitGuideBlock guide={fruit.guide} id="orientacoes-idriel" fruitId={fruit.id} />
 
             {/* Gallery images */}
             {(() => {
