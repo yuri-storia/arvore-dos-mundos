@@ -305,15 +305,6 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     setTimeout(() => { textarea.focus(); const newPos = atIdx + name.length + 1; textarea.setSelectionRange(newPos, newPos); }, 0);
   };
 
-  const handleInsertMentionFromPanel = (name: string) => {
-    if (!editorRef.current || !activeChapterId) return;
-    const textarea = editorRef.current;
-    const cursor = textarea.selectionStart;
-    const newContent = editingContent.substring(0, cursor) + `@${name} ` + editingContent.substring(cursor);
-    setEditingContent(newContent);
-    debouncedSave(activeChapterId, newContent);
-    setTimeout(() => textarea.focus(), 0);
-  };
 
   const handleChapterTitleSave = () => {
     if (activeChapterId && editingTitle.trim()) updateChapter(activeChapterId, { title: editingTitle.trim() });
