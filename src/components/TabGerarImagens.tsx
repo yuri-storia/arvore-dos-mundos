@@ -194,7 +194,36 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
           </button>
         </div>
 
-        {error && <p className="text-red-alert text-sm mt-3">{error}</p>}
+        {error && (() => {
+          const f = friendlyAIError(error);
+          const styles = f.kind === 'balance'
+            ? 'border-l-gold/70 bg-gold/[0.06]'
+            : f.kind === 'prompt'
+              ? 'border-l-blue-bright/70 bg-blue-bright/[0.05]'
+              : 'border-l-red-alert/70 bg-red-alert/[0.06]';
+          return (
+            <div className={`mt-3 rounded-md border-l-[3px] ${styles} p-3 animate-fadeUp`}>
+              <p className="font-cinzel text-sm text-foreground mb-1">{f.title}</p>
+              <p className="font-merriweather text-xs text-text-secondary mb-2 leading-relaxed">{f.hint}</p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setError('')}
+                  className="px-2.5 py-1 rounded text-[10px] font-montserrat uppercase tracking-wider text-text-dim border border-border hover:text-foreground transition-colors"
+                >
+                  Fechar
+                </button>
+                <BugReportDialog
+                  initialContext={`Erro de IA (${f.kind}) na aba Gerar Imagens: ${error}`}
+                  trigger={
+                    <button className="px-2.5 py-1 rounded text-[10px] font-montserrat font-bold uppercase tracking-wider border border-red-alert/40 text-red-alert hover:bg-red-alert/10 transition-colors">
+                      🐞 Reportar problema
+                    </button>
+                  }
+                />
+              </div>
+            </div>
+          );
+        })()}
 
       {(loading1 || loading2) && (
           <div className="mt-4 animate-fadeUp">
