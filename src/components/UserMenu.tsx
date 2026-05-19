@@ -52,6 +52,18 @@ export const UserMenu: React.FC = () => {
           {displayName || user.email}
         </span>
 
+        <BugReportDialog
+          trigger={
+            <button
+              title="Reportar problema"
+              className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/30 text-gold-light/80 hover:text-gold-light hover:border-gold/50 transition-colors"
+            >
+              <Bug className="w-3 h-3" />
+              <span className="hidden sm:inline">Bug</span>
+            </button>
+          }
+        />
+
         <ConfirmDialog
           trigger={
             <button className="px-2 sm:px-3 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-red-alert/40 text-red-alert hover:text-destructive-foreground hover:bg-red-alert/20 hover:border-red-alert/60 transition-colors">
