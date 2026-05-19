@@ -1,105 +1,72 @@
-## Decisões já travadas
+# Mensagem amigável quando IA está pausada
 
-- **Custo-base:** R$ 0,18 por gota (1 imagem máxima qualidade = 5 gotas ≈ R$ 0,90 de custo)
-- **Modelo de imagem:** `google/gemini-3-pro-image-preview` (Nano Banana Pro) em todas as gerações de Idriel — máxima qualidade
-- **Idriel mensal:** R$ 29,90 → **R$ 39,90/mês** (mantém 100 gotas/mês)
-- **Idriel anual:** R$ 279 → **R$ 399/ano** (proporcional, ~17% desconto vs mensal)
-- **Sem migração necessária:** ainda não há assinantes Idriel
-- **Gateway:** decisão adiada — vamos só travar a tabela de preços e a estrutura de código; integração de cobrança fica para depois
+## Problema
 
-## Tabela de recargas (Seiva Dourada)
+Quando os endpoints de IA estão pausados/indisponíveis, o usuário vê:
 
-Custo-base R$ 0,18/gota. Margens calculadas:
+> "Edge Function returned a non-2xx status code"
 
-| Pacote | Custo (R$) | Preço sugerido | Margem | R$/gota efetivo |
-|---|---|---|---|---|
-| 15 gotas | 2,70 | **R$ 4,90** | 45% | 0,33 |
-| 25 gotas | 4,50 | **R$ 7,90** | 43% | 0,32 |
-| 50 gotas | 9,00 | **R$ 14,90** | 40% | 0,30 |
-| 100 gotas | 18,00 | **R$ 27,90** | 35% | 0,28 |
-| 200 gotas | 36,00 | **R$ 49,90** | 28%* | 0,25 |
+Essa string vem do cliente Supabase Functions quando o status HTTP não é 2xx — o corpo real (que já contém uma mensagem clara em pt-BR vinda das edge functions) não é lido nem repassado. Resultado: `friendlyAIError` recebe só "non-2xx" e cai no fallback genérico.
 
-*O pacote de 200 gotas fica ligeiramente abaixo da faixa pedida (28% vs 35–50%). Duas opções para corrigir:
-- **A)** Subir para **R$ 54,90** (margem 34%) — ainda atrativo, escala suave
-- **B)** Manter R$ 49,90 como "âncora de volume" e aceitar margem menor para incentivar compras grandes
+## Solução
 
-Recomendação: **opção A** (R$ 54,90) — preserva sua regra de 35–50% em todos os SKUs.
+Duas mudanças pequenas em `src/lib/helpers.ts`:
 
-**Tabela final recomendada:**
-- 🧪 15 gotas — R$ 4,90
-- 🧪 25 gotas — R$ 7,90
-- 🧪 50 gotas — R$ 14,90
-- 🧪 100 gotas — R$ 27,90
-- 🧪 200 gotas — R$ 54,90
+### 1. Extrair o erro real do `FunctionsHttpError`
 
-Psicologia de preço: o usuário vê que comprar mais barateia o R$/gota (de 0,33 → 0,25), incentivando ticket maior.
+Nos wrappers `callAIText`, `callAIImage`, `callAIImageConsistent` e `importTextWithIdriel`, quando `error` existir, tentar ler `error.context.response` (Response object) para obter o JSON com a mensagem real e o status. Lançar `Error(jsonBody.error)` para que o chamador veja a mensagem em pt-BR. Se falhar o parse, lançar a mensagem original.
 
-## Mudanças no produto
+### 2. Reconhecer "non-2xx" como indisponibilidade
 
-### 1. Plano Idriel — novo posicionamento
-- Banner e landing passam a comunicar **"Qualidade Suprema"** — Idriel agora usa o modelo de imagem mais avançado disponível
-- Preço: R$ 39,90/mês ou R$ 399/ano
-- Mantém 100 gotas mensais
-- Mantém todos os outros benefícios
+Em `friendlyAIError`, adicionar à categoria `balance` (que já mostra "Idriel está indisponível no momento, aguarde até que a conexão seja reestabelecida") os padrões:
+- `non-2xx`
+- `failed to fetch`
+- `network error`
+- `functionshttperror`
+- `edge function returned`
 
-### 2. Tela de Recarga
-Substituir o botão único atual ("+100 gotas — R$15") por uma **modal/tela de seleção de pacote** com os 5 SKUs em cards. Acessível a partir de:
-- Banner de Seiva Dourada (botão "Recarregar Seiva")
-- Estado vazio quando gotas = 0
-- Página `/planos`
+Assim, mesmo que o parse do corpo falhe ou a função esteja totalmente offline, o usuário vê a mensagem correta.
 
-Layout: 5 cards lado a lado em desktop, carrossel/grid 2 colunas em mobile. Pacote de 100 marcado como "Mais popular", pacote de 200 como "Melhor custo-benefício".
+### 3. Padronizar uso de `friendlyAIError` nos toasts de erro
 
-### 3. Página `/planos`
-Atualizar todas as referências de preço (R$ 29,90 → R$ 39,90, R$ 279 → R$ 399) e adicionar a nova tabela de recargas.
+Hoje só `TabGerarImagens.tsx` usa `friendlyAIError`. Aplicar o mesmo helper nos toasts de erro de:
+- `MapGenerator.tsx` (geração de mapa)
+- `CodexCard.tsx` (gerar imagem de ficha)
+- `CodexAnalysis.tsx` (análise de mundo)
+- `TabConstruir.tsx` (Idriel)
+- `TabGaleria.tsx` (Visões de Idriel + texto)
 
-## Arquivos a alterar
-
-**Front-end (preços e UI):**
-- `src/hooks/useSubscription.ts` — atualizar objeto `PLANS` com novos preços e os 5 SKUs de recarga (`recarga_15`, `recarga_25`, `recarga_50`, `recarga_100`, `recarga_200`)
-- `src/components/SubscriptionBanner.tsx` — novo botão "Recarregar Seiva" abre modal de pacotes; preço Idriel atualizado
-- `src/pages/PricingPage.tsx` — preços novos + seção "Pacotes de Seiva"
-- `src/pages/LandingPage.tsx` — comparativo de custo atualizado
-- **Novo:** `src/components/RechargePackageDialog.tsx` — modal com os 5 cards de recarga
-
-**Back-end (preparação, sem cobrar ainda):**
-- Manter `useSubscription.openCheckout()` como stub até decisão de gateway
-- Documentar IDs de SKU em código para integração futura
-- `supabase/functions/ai-image-consistent/index.ts` — já está em `gemini-3-pro-image-preview`, sem mudanças
-- Garantir que `ai-image` legado (se ainda usado em algum ponto) também seja apontado para o modelo Pro, OU descontinuado
-
-**Memória:**
-- Atualizar `mem://project/monetization` com nova tabela de preços
-- Atualizar Core memory: novo preço Idriel R$ 39,90
+Cada toast passa a mostrar `title` + `description: hint` em vez do `err.message` cru.
 
 ## Detalhes técnicos
 
-**Estrutura de PLANS atualizada:**
 ```ts
-PLANS = {
-  semente: { priceValue: 0, ... },
-  raiz_anual: { priceValue: 87, ... },
-  idriel_mensal: { priceValue: 39.90, ... },   // ← era 29.90
-  idriel_anual: { priceValue: 399, ... },      // ← era 279
-  recarga_15:  { priceValue: 4.90,  drops: 15  },
-  recarga_25:  { priceValue: 7.90,  drops: 25  },
-  recarga_50:  { priceValue: 14.90, drops: 50  },
-  recarga_100: { priceValue: 27.90, drops: 100 },
-  recarga_200: { priceValue: 54.90, drops: 200 },
+// helpers.ts — exemplo do wrapper
+async function unwrapFnError(error: any): Promise<never> {
+  try {
+    const ctxResp: Response | undefined = error?.context?.response ?? error?.context;
+    if (ctxResp && typeof ctxResp.json === 'function') {
+      const body = await ctxResp.clone().json();
+      if (body?.error) throw new Error(body.error);
+    }
+  } catch (parsed) {
+    if (parsed instanceof Error && parsed.message) throw parsed;
+  }
+  throw new Error(error?.message || 'Erro ao chamar IA');
 }
 ```
 
-**Lógica de gotas no servidor:** quando integrarmos o gateway, o webhook de pagamento vai creditar `drops` na tabela `ai_usage` (decrementando `text_count + image_count*5` correspondente, ou criar coluna `bonus_credits` separada — decidiremos no momento da integração).
+```ts
+// friendlyAIError — adicionar ao bloco "balance"
+msg.includes('non-2xx') ||
+msg.includes('edge function returned') ||
+msg.includes('failed to fetch') ||
+msg.includes('functionshttperror') ||
+msg.includes('network error')
+```
 
-**Custo do modelo já implementado:** `ai-image-consistent` usa `google/gemini-3-pro-image-preview` ($0.134/imagem ≈ R$ 0,75–0,90 dependendo do câmbio). Os 5 gotas/imagem cobrem o custo com folga em qualquer cenário.
+## Fora do escopo
 
-## O que fica para depois (fora deste plano)
-
-- Escolha definitiva e integração do gateway (Stripe vs Asaas vs outro)
-- Webhook de creditamento de gotas
-- Email transacional de confirmação de recarga
-- Histórico de compras na página de Configurações
-
-## Próximo passo após aprovação
-
-Implementar tudo do bloco "Arquivos a alterar" — UI, preços, modal de recarga e atualização de memória. A camada de cobrança fica em stub até você decidir o gateway.
+- Não alterar as edge functions (já retornam JSON correto).
+- Não mudar a lógica de cobrança de gotas ou planos.
+- Não tocar no `BugReportDialog` — ele continua disponível como ação de recuperação.
