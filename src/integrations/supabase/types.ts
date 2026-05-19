@@ -83,6 +83,42 @@ export type Database = {
         }
         Relationships: []
       }
+      bug_reports: {
+        Row: {
+          context: string | null
+          created_at: string
+          id: string
+          message: string
+          route: string | null
+          status: string
+          updated_at: string
+          user_email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          route?: string | null
+          status?: string
+          updated_at?: string
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          context?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          route?: string | null
+          status?: string
+          updated_at?: string
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       chapters: {
         Row: {
           content: string | null
