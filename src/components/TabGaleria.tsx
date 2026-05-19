@@ -76,7 +76,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
       setError(`${f.title} ${f.hint}`);
     }
   }, [promptJob?.status, promptJob?.result, promptJob?.error, setGeneratedPrompt]);
-  // ... keep existing code (image job effect header)
+  
   useEffect(() => {
     if (imageJob?.status === 'done' && imageJob.result) {
       setGeneratedImage(imageJob.result);
