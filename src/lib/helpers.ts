@@ -67,7 +67,13 @@ export function friendlyAIError(rawMessage: string): { title: string; hint: stri
     msg.includes('payment required') ||
     msg.includes('ai gateway') ||
     msg.includes('insufficient') ||
-    msg.includes('esgotados. entre em contato')
+    msg.includes('esgotados. entre em contato') ||
+    msg.includes('non-2xx') ||
+    msg.includes('edge function returned') ||
+    msg.includes('functionshttperror') ||
+    msg.includes('failed to fetch') ||
+    msg.includes('network error') ||
+    msg.includes('failedtofetch')
   ) {
     return {
       kind: 'balance',
@@ -89,6 +95,36 @@ export function friendlyAIError(rawMessage: string): { title: string; hint: stri
     title: 'Não foi possível completar a visão agora.',
     hint: rawMessage || 'Tente novamente em instantes. Se o erro continuar, use "Reportar problema" para nos avisar.',
   };
+}
+
+/**
+ * Quando a edge function retorna 4xx/5xx, o cliente Supabase lança um
+ * FunctionsHttpError genérico ("Edge Function returned a non-2xx status code")
+ * e NÃO lê o corpo. Aqui tentamos extrair o JSON real para entregar a
+ * mensagem em pt-BR que a edge function preparou.
+ */
+async function throwInvokeError(error: unknown, fallback: string): Promise<never> {
+  const anyErr = error as { context?: unknown; message?: string } | null;
+  const ctx: any = anyErr?.context;
+  const resp: Response | undefined =
+    ctx && typeof ctx === 'object' && 'json' in ctx ? (ctx as Response) :
+    ctx?.response && typeof ctx.response === 'object' && 'json' in ctx.response ? ctx.response as Response :
+    undefined;
+  if (resp) {
+    try {
+      const body = await resp.clone().json();
+      if (body?.error) throw new Error(String(body.error));
+    } catch (parsed) {
+      if (parsed instanceof Error && parsed.message && !/json/i.test(parsed.message)) throw parsed;
+    }
+    try {
+      const text = await resp.clone().text();
+      if (text) throw new Error(text);
+    } catch (parsed) {
+      if (parsed instanceof Error && parsed.message) throw parsed;
+    }
+  }
+  throw new Error(anyErr?.message || fallback);
 }
 
 export async function callAIText(messages: { role: string; content: string }[], systemPrompt?: string) {
