@@ -33,6 +33,64 @@ export function getFruitsComplete(db: AppState['db']) {
 }
 
 // AI helpers via edge functions
+
+/**
+ * Traduz erros vindos das edge functions de IA em mensagens claras em pt-BR.
+ * Identifica especialmente:
+ *  - prompts inválidos / longos demais → orientar a reduzir o texto
+ *  - falhas de saldo/AI gateway (402 / credit / balance) → Idriel indisponível
+ *  - rate-limit (429)
+ */
+export function friendlyAIError(rawMessage: string): { title: string; hint: string; kind: 'prompt' | 'balance' | 'rate' | 'generic' } {
+  const msg = (rawMessage || '').toLowerCase();
+
+  if (
+    msg.includes('prompt must be') ||
+    msg.includes('1-2000') ||
+    msg.includes('too long') ||
+    msg.includes('context length') ||
+    msg.includes('maximum context') ||
+    msg.includes('token limit') ||
+    msg.includes('invalid prompt')
+  ) {
+    return {
+      kind: 'prompt',
+      title: 'Sua visão ficou longa demais para Idriel canalizar.',
+      hint: 'Reduza a descrição, remova detalhes opcionais ou diminua o número de referências do Códex usadas. Textos mais curtos e diretos costumam gerar resultados melhores.',
+    };
+  }
+
+  if (
+    msg.includes('credit') ||
+    msg.includes('balance') ||
+    msg.includes('402') ||
+    msg.includes('payment required') ||
+    msg.includes('ai gateway') ||
+    msg.includes('insufficient') ||
+    msg.includes('esgotados. entre em contato')
+  ) {
+    return {
+      kind: 'balance',
+      title: 'Idriel está indisponível no momento.',
+      hint: 'A conexão com a Seiva Dourada caiu temporariamente. Aguarde até que a conexão seja reestabelecida — sua quota pessoal de gotas não foi consumida.',
+    };
+  }
+
+  if (msg.includes('429') || msg.includes('rate') || msg.includes('muitas requisições')) {
+    return {
+      kind: 'rate',
+      title: 'Idriel recebeu pedidos demais ao mesmo tempo.',
+      hint: 'Aguarde alguns segundos e tente novamente. Se persistir, espere um minuto antes de uma nova tentativa.',
+    };
+  }
+
+  return {
+    kind: 'generic',
+    title: 'Não foi possível completar a visão agora.',
+    hint: rawMessage || 'Tente novamente em instantes. Se o erro continuar, use "Reportar problema" para nos avisar.',
+  };
+}
+
 export async function callAIText(messages: { role: string; content: string }[], systemPrompt?: string) {
   const { data, error } = await supabase.functions.invoke('ai-text', {
     body: { messages, systemPrompt },

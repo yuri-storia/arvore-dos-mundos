@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, ChevronDown, ChevronUp } from 'lucide-react';
+import { Settings, ChevronDown, ChevronUp, Bug } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { BugReportDialog } from '@/components/BugReportDialog';
 
 export const UserMenu: React.FC = () => {
   const { user, isAdmin, signOut } = useAuth();
@@ -50,6 +51,18 @@ export const UserMenu: React.FC = () => {
         <span className="text-[11px] text-text-dim font-montserrat truncate max-w-[140px] sm:max-w-[200px]">
           {displayName || user.email}
         </span>
+
+        <BugReportDialog
+          trigger={
+            <button
+              title="Reportar problema"
+              className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/30 text-gold-light/80 hover:text-gold-light hover:border-gold/50 transition-colors"
+            >
+              <Bug className="w-3 h-3" />
+              <span className="hidden sm:inline">Bug</span>
+            </button>
+          }
+        />
 
         <ConfirmDialog
           trigger={
