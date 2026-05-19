@@ -131,7 +131,7 @@ export async function callAIText(messages: { role: string; content: string }[], 
   const { data, error } = await supabase.functions.invoke('ai-text', {
     body: { messages, systemPrompt },
   });
-  if (error) throw new Error(error.message || 'Erro ao chamar IA');
+  if (error) await throwInvokeError(error, 'Erro ao chamar IA');
   if (data?.error) throw new Error(data.error);
   return data?.content || '';
 }
@@ -140,7 +140,7 @@ export async function callAIImage(prompt: string) {
   const { data, error } = await supabase.functions.invoke('ai-image', {
     body: { prompt },
   });
-  if (error) throw new Error(error.message || 'Erro ao gerar imagem');
+  if (error) await throwInvokeError(error, 'Erro ao gerar imagem');
   if (data?.error) throw new Error(data.error);
   return data?.imageUrl || '';
 }
@@ -150,7 +150,7 @@ export async function callAIImageConsistent(prompt: string, referenceImageUrls: 
   const { data, error } = await supabase.functions.invoke('ai-image-consistent', {
     body: { prompt, referenceImageUrls: referenceImageUrls.slice(0, 5), referenceText: referenceText.slice(0, 4000) },
   });
-  if (error) throw new Error(error.message || 'Erro ao gerar imagem consistente');
+  if (error) await throwInvokeError(error, 'Erro ao gerar imagem consistente');
   if (data?.error) throw new Error(data.error);
   return data?.imageUrl || '';
 }
@@ -166,7 +166,7 @@ export async function importTextWithIdriel(text: string, sourceType: 'pdf' | 'do
   const { data, error } = await supabase.functions.invoke('idriel-import-text', {
     body: { text, sourceType },
   });
-  if (error) throw new Error(error.message || 'Erro ao analisar texto');
+  if (error) await throwInvokeError(error, 'Erro ao analisar texto');
   if (data?.error) throw new Error(data.error);
   return (data?.entries || []) as ImportedSuggestion[];
 }
