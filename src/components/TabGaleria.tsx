@@ -4,7 +4,7 @@ import { ImageLightbox } from '@/components/ImageLightbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { callAIText, callAIImageConsistent } from '@/lib/helpers';
+import { callAIText, callAIImageConsistent, friendlyAIError } from '@/lib/helpers';
 import { optimizeImage } from '@/lib/imageOptimizer';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
@@ -71,15 +71,21 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
     if (promptJob?.status === 'done' && typeof promptJob.result === 'string' && promptJob.result) {
       setGeneratedPrompt(promptJob.result);
     }
-    if (promptJob?.status === 'error') setError(promptJob.error || 'Erro ao tecer prompt');
+    if (promptJob?.status === 'error') {
+      const f = friendlyAIError(promptJob.error || '');
+      setError(`${f.title} ${f.hint}`);
+    }
   }, [promptJob?.status, promptJob?.result, promptJob?.error, setGeneratedPrompt]);
-
+  // ... keep existing code (image job effect header)
   useEffect(() => {
-    if (imageJob?.status === 'done' && typeof imageJob.result === 'string' && imageJob.result) {
+    if (imageJob?.status === 'done' && imageJob.result) {
       setGeneratedImage(imageJob.result);
       if (activeVisionId) updateVisionImage(activeVisionId, imageJob.result);
     }
-    if (imageJob?.status === 'error') setError(imageJob.error || 'Erro ao materializar visão');
+    if (imageJob?.status === 'error') {
+      const f = friendlyAIError(imageJob.error || '');
+      setError(`${f.title} ${f.hint}`);
+    }
   }, [imageJob?.status, imageJob?.result, imageJob?.error, activeVisionId, updateVisionImage]);
 
   // Persist job ids per world so navigating away & back keeps the running session.
