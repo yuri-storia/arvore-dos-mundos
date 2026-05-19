@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
-import { callAIText } from '@/lib/helpers';
+import { callAIText, friendlyAIError } from '@/lib/helpers';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
@@ -206,7 +206,8 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
       setIsRevealing(true);
       fetchHistory();
     } catch (e: any) {
-      setError(e.message || 'Erro ao analisar.');
+      const f = friendlyAIError(e?.message || '');
+      setError(`${f.title} ${f.hint}`);
     } finally {
       setLoading(false);
     }

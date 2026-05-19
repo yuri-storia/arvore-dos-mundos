@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
-import { callAIImage, callAIImageConsistent } from '@/lib/helpers';
+import { callAIImage, callAIImageConsistent, friendlyAIError } from '@/lib/helpers';
 import { exportSingleEntry } from '@/lib/codexPdfExport';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -88,8 +88,9 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
         toast.success(consistent ? 'Imagem gerada com consistência do Codex!' : 'Imagem gerada com sucesso!');
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Erro ao gerar imagem';
-      toast.error(msg);
+      const raw = err instanceof Error ? err.message : 'Erro ao gerar imagem';
+      const f = friendlyAIError(raw);
+      toast.error(f.title, { description: f.hint });
     } finally {
       setGeneratingAi(false);
       setShowImageMenu(false);

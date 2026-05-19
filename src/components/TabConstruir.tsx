@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 import { FRUITS, getOrderedFruits, METHOD_DESCRIPTIONS, MethodType, GalleryImage } from '@/lib/data';
-import { getFruitProgress, callAIText, exportWorldMarkdown, summarizeIdrielResponse } from '@/lib/helpers';
+import { getFruitProgress, callAIText, exportWorldMarkdown, summarizeIdrielResponse, friendlyAIError } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
 import { FruitGuideBlock } from '@/components/FruitGuideBlock';
 import { ImageLightbox } from '@/components/ImageLightbox';
@@ -178,7 +178,8 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       }
       setRefreshKey(k => k + 1);
     } catch (e: any) {
-      setAiResponse(`❌ ${e.message}`);
+      const f = friendlyAIError(e?.message || '');
+      setAiResponse(`❌ ${f.title}\n\n${f.hint}`);
     } finally {
       setAiLoading(false);
     }

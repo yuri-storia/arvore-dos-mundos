@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Map, Compass, Mountain, Anchor, Building2, Globe, Sparkles, Lock } from 'lucide-react';
-import { callAIText, callAIImage } from '@/lib/helpers';
+import { callAIText, callAIImage, friendlyAIError } from '@/lib/helpers';
 import { FRUITS, GalleryImage, GALLERY_CATEGORIES } from '@/lib/data';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
@@ -72,7 +72,8 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
       );
       setGeneratedPrompt(result);
     } catch (e: any) {
-      setError(e.message);
+      const f = friendlyAIError(e?.message || '');
+      setError(`${f.title} ${f.hint}`);
     } finally {
       setLoadingPrompt(false);
     }
@@ -86,7 +87,8 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
       const imageUrl = await callAIImage(generatedPrompt);
       setGeneratedImage(imageUrl);
     } catch (e: any) {
-      setError(e.message);
+      const f = friendlyAIError(e?.message || '');
+      setError(`${f.title} ${f.hint}`);
     } finally {
       setLoadingImage(false);
     }

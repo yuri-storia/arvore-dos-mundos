@@ -67,7 +67,13 @@ export function friendlyAIError(rawMessage: string): { title: string; hint: stri
     msg.includes('payment required') ||
     msg.includes('ai gateway') ||
     msg.includes('insufficient') ||
-    msg.includes('esgotados. entre em contato')
+    msg.includes('esgotados. entre em contato') ||
+    msg.includes('non-2xx') ||
+    msg.includes('edge function returned') ||
+    msg.includes('functionshttperror') ||
+    msg.includes('failed to fetch') ||
+    msg.includes('network error') ||
+    msg.includes('failedtofetch')
   ) {
     return {
       kind: 'balance',
@@ -91,11 +97,41 @@ export function friendlyAIError(rawMessage: string): { title: string; hint: stri
   };
 }
 
+/**
+ * Quando a edge function retorna 4xx/5xx, o cliente Supabase lança um
+ * FunctionsHttpError genérico ("Edge Function returned a non-2xx status code")
+ * e NÃO lê o corpo. Aqui tentamos extrair o JSON real para entregar a
+ * mensagem em pt-BR que a edge function preparou.
+ */
+async function throwInvokeError(error: unknown, fallback: string): Promise<never> {
+  const anyErr = error as { context?: unknown; message?: string } | null;
+  const ctx: any = anyErr?.context;
+  const resp: Response | undefined =
+    ctx && typeof ctx === 'object' && 'json' in ctx ? (ctx as Response) :
+    ctx?.response && typeof ctx.response === 'object' && 'json' in ctx.response ? ctx.response as Response :
+    undefined;
+  if (resp) {
+    try {
+      const body = await resp.clone().json();
+      if (body?.error) throw new Error(String(body.error));
+    } catch (parsed) {
+      if (parsed instanceof Error && parsed.message && !/json/i.test(parsed.message)) throw parsed;
+    }
+    try {
+      const text = await resp.clone().text();
+      if (text) throw new Error(text);
+    } catch (parsed) {
+      if (parsed instanceof Error && parsed.message) throw parsed;
+    }
+  }
+  throw new Error(anyErr?.message || fallback);
+}
+
 export async function callAIText(messages: { role: string; content: string }[], systemPrompt?: string) {
   const { data, error } = await supabase.functions.invoke('ai-text', {
     body: { messages, systemPrompt },
   });
-  if (error) throw new Error(error.message || 'Erro ao chamar IA');
+  if (error) await throwInvokeError(error, 'Erro ao chamar IA');
   if (data?.error) throw new Error(data.error);
   return data?.content || '';
 }
@@ -104,7 +140,7 @@ export async function callAIImage(prompt: string) {
   const { data, error } = await supabase.functions.invoke('ai-image', {
     body: { prompt },
   });
-  if (error) throw new Error(error.message || 'Erro ao gerar imagem');
+  if (error) await throwInvokeError(error, 'Erro ao gerar imagem');
   if (data?.error) throw new Error(data.error);
   return data?.imageUrl || '';
 }
@@ -114,7 +150,7 @@ export async function callAIImageConsistent(prompt: string, referenceImageUrls: 
   const { data, error } = await supabase.functions.invoke('ai-image-consistent', {
     body: { prompt, referenceImageUrls: referenceImageUrls.slice(0, 5), referenceText: referenceText.slice(0, 4000) },
   });
-  if (error) throw new Error(error.message || 'Erro ao gerar imagem consistente');
+  if (error) await throwInvokeError(error, 'Erro ao gerar imagem consistente');
   if (data?.error) throw new Error(data.error);
   return data?.imageUrl || '';
 }
@@ -130,7 +166,7 @@ export async function importTextWithIdriel(text: string, sourceType: 'pdf' | 'do
   const { data, error } = await supabase.functions.invoke('idriel-import-text', {
     body: { text, sourceType },
   });
-  if (error) throw new Error(error.message || 'Erro ao analisar texto');
+  if (error) await throwInvokeError(error, 'Erro ao analisar texto');
   if (data?.error) throw new Error(data.error);
   return (data?.entries || []) as ImportedSuggestion[];
 }
