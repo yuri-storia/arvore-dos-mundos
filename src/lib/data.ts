@@ -1,5 +1,6 @@
-import type { ComponentType } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import { Map, Landmark, Swords, Drama, Sparkles, Flame, Coins, ScrollText, User, Trees } from 'lucide-react';
+
 
 export interface FruitField {
   id: string;
