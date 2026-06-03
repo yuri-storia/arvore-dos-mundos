@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useManuscript, type Chapter, type Scene } from '@/hooks/useManuscript';
-import { useStorylines } from '@/hooks/useStorylines';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Plus, Trash2, FileText, BookOpen,
@@ -16,7 +14,8 @@ import {
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
-import { KanbanBoard } from '@/components/escritor/KanbanBoard';
+import { MuralMode } from '@/components/escritor/MuralMode';
+import { DebouncedTextarea } from '@/components/escritor/DebouncedTextarea';
 import { PomodoroTimer } from '@/components/PomodoroTimer';
 import { ManuscriptExportMenu } from '@/components/ManuscriptExportMenu';
 import {
@@ -47,7 +46,7 @@ const WRITE_MODE_INFO: Record<WriteMode, { icon: typeof BookMarked; label: strin
 };
 
 // ── Reference Panel (Codex sidebar) — click opens preview only ──
-const ReferencePanel: React.FC<{ entries: CodexEntry[]; onPreview: (entry: CodexEntry) => void }> = ({ entries, onPreview }) => {
+const ReferencePanel: React.FC<{ entries: CodexEntry[]; onPreview: (entry: CodexEntry) => void }> = React.memo(({ entries, onPreview }) => {
   const [search, setSearch] = useState('');
   const filtered = useMemo(() => {
     if (!search.trim()) return entries;
@@ -105,7 +104,8 @@ const ReferencePanel: React.FC<{ entries: CodexEntry[]; onPreview: (entry: Codex
       </ScrollArea>
     </div>
   );
-};
+});
+ReferencePanel.displayName = 'ReferencePanel';
 
 // ── Mention Popup ──
 const MentionPopup: React.FC<{
@@ -238,10 +238,8 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     chapters, scenes, totalWordCount,
     createManuscript, updateManuscript, deleteManuscript,
     createChapter, updateChapter, deleteChapter,
-    createScene, updateScene, deleteScene,
   } = useManuscript(worldId);
   const { entries } = useCodexEntries(worldId);
-  const storylineState = useStorylines(worldId);
 
   const [writeMode, setWriteMode] = useState<WriteMode>('manuscrito');
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
@@ -259,8 +257,15 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const [previewEntry, setPreviewEntry] = useState<CodexEntry | null>(null);
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const titleSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const activeChapter = useMemo(() => chapters.find(c => c.id === activeChapterId), [chapters, activeChapterId]);
+
+  // Local manuscript title (debounced save — was firing 1 DB write per keystroke)
+  const [manuscriptTitleLocal, setManuscriptTitleLocal] = useState(activeManuscript?.title ?? '');
+  useEffect(() => {
+    setManuscriptTitleLocal(activeManuscript?.title ?? '');
+  }, [activeManuscript?.id]); // eslint-disable-line
 
   useEffect(() => {
     if (activeChapter) {
@@ -275,10 +280,25 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     return () => window.removeEventListener('keydown', handleKey);
   }, [zenMode]);
 
+  // Cleanup all pending save timers on unmount
+  useEffect(() => () => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    if (titleSaveTimerRef.current) clearTimeout(titleSaveTimerRef.current);
+  }, []);
+
   const debouncedSave = useCallback((id: string, content: string) => {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => updateChapter(id, { content }), 1500);
   }, [updateChapter]);
+
+  const handleManuscriptTitleChange = (next: string) => {
+    setManuscriptTitleLocal(next);
+    if (!activeManuscript) return;
+    if (titleSaveTimerRef.current) clearTimeout(titleSaveTimerRef.current);
+    titleSaveTimerRef.current = setTimeout(() => {
+      updateManuscript(activeManuscript.id, { title: next });
+    }, 700);
+  };
 
   const handleContentChange = (value: string) => {
     setEditingContent(value);
@@ -317,7 +337,10 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     setNewManuscriptName('');
   };
 
-  const chapterWordCount = editingContent.trim() ? editingContent.trim().split(/\s+/).length : 0;
+  const chapterWordCount = useMemo(
+    () => (editingContent.trim() ? editingContent.trim().split(/\s+/).length : 0),
+    [editingContent],
+  );
 
   if (!user) return <div className="text-center py-20 text-text-dim">Faça login para acessar.</div>;
   if (!worldId) return <div className="text-center py-20 text-text-dim">Selecione um mundo para começar a escrever.</div>;
@@ -369,8 +392,8 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-1.5 min-w-0 group">
               <input
-                value={activeManuscript.title}
-                onChange={e => updateManuscript(activeManuscript.id, { title: e.target.value })}
+                value={manuscriptTitleLocal}
+                onChange={e => handleManuscriptTitleChange(e.target.value)}
                 onClick={e => e.stopPropagation()}
                 className="bg-transparent font-cinzel font-bold text-lg text-foreground border-none focus:outline-none min-w-0 max-w-[260px] cursor-text"
                 placeholder="Título do manuscrito"
@@ -435,25 +458,8 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
         </div>
       </div>
 
-      {/* ── STORYLINE / MURAL MODE ── */}
-      {writeMode === 'mural' && (
-        <div className="h-[calc(100vh-220px)] min-h-[400px] bg-white/[0.02] rounded-lg border border-blue-bright/10">
-          <KanbanBoard
-            storylines={storylineState.storylines}
-            activeStoryline={storylineState.activeStoryline}
-            setActiveStoryline={storylineState.setActiveStoryline}
-            columns={storylineState.columns}
-            onCreateStoryline={() => storylineState.createStoryline('Nova storyline')}
-            onRenameStoryline={(id, name) => storylineState.updateStoryline(id, { name })}
-            onDeleteStoryline={storylineState.deleteStoryline}
-            onCreateColumn={() => storylineState.createColumn('Nova coluna')}
-            onUpdateColumn={storylineState.updateColumn}
-            onDeleteColumn={storylineState.deleteColumn}
-            onLinkManuscript={(id, mid) => storylineState.updateStoryline(id, { manuscript_id: mid })}
-            manuscripts={manuscripts}
-          />
-        </div>
-      )}
+      {/* ── STORYLINE / MURAL MODE (lazy) ── */}
+      {writeMode === 'mural' && <MuralMode worldId={worldId} manuscripts={manuscripts} />}
 
       {/* ── MANUSCRIPT MODE ── */}
       {writeMode === 'manuscrito' && (
@@ -501,9 +507,12 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                   if (!ch) return null;
                   return (
                     <div className="px-1 mb-1">
-                      <Textarea value={ch.notes || ''} onChange={e => updateChapter(ch.id, { notes: e.target.value })}
+                      <DebouncedTextarea
+                        value={ch.notes || ''}
+                        onSave={(notes) => updateChapter(ch.id, { notes })}
                         placeholder="Notas do capítulo…"
-                        className="text-[10px] min-h-[50px] bg-gold/[0.04] border-gold/20 text-gold-light placeholder:text-gold/30 resize-none" />
+                        className="text-[10px] min-h-[50px] bg-gold/[0.04] border-gold/20 text-gold-light placeholder:text-gold/30 resize-none"
+                      />
                     </div>
                   );
                 })()}
