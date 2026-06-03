@@ -469,40 +469,51 @@ const AccessTab: React.FC<{ userId: string }> = ({ userId }) => {
 
 /* ---------------- Bugs Tab ---------------- */
 const BugsTab: React.FC = () => {
-  const [bugs, setBugs] = useState<BugReport[]>([]);
-  const [loading, setLoading] = useState(true);
+  const qc = useQueryClient();
+  const { data: bugs = [], isLoading, isFetching, refetch } = useQuery({
+    queryKey: ['admin', 'bugs'],
+    queryFn: async (): Promise<BugReport[]> => {
+      const { data, error } = await supabase.functions.invoke('admin-dashboard', { body: { action: 'list_bugs' } });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      return data.bugs ?? [];
+    },
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
+  });
+
   const [filter, setFilter] = useState<string>('open');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [selected, setSelected] = useState<BugReport | null>(null);
 
-  const load = async () => {
-    setLoading(true);
-    const { data, error } = await supabase.functions.invoke('admin-dashboard', { body: { action: 'list_bugs' } });
-    if (error || data?.error) toast.error('Erro: ' + (error?.message || data?.error));
-    else setBugs(data.bugs ?? []);
-    setLoading(false);
-  };
-  useEffect(() => { load(); }, []);
+  const loading = isLoading;
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['admin', 'bugs'] });
 
   const filtered = useMemo(() => {
-    let arr = filter === 'all' ? bugs : bugs.filter(b => b.status === filter);
-    if (from) { const t = new Date(from).getTime(); arr = arr.filter(b => new Date(b.created_at).getTime() >= t); }
-    if (to)   { const t = new Date(to).getTime() + 86400_000; arr = arr.filter(b => new Date(b.created_at).getTime() < t); }
-    return arr;
+    const fromTs = from ? new Date(from).getTime() : 0;
+    const toTs = to ? new Date(to).getTime() + 86400_000 : Infinity;
+    return bugs.filter(b => {
+      if (filter !== 'all' && b.status !== filter) return false;
+      const t = new Date(b.created_at).getTime();
+      if (fromTs && t < fromTs) return false;
+      if (toTs !== Infinity && t >= toTs) return false;
+      return true;
+    });
   }, [bugs, filter, from, to]);
 
   const updateStatus = async (id: string, status: string) => {
     const { data, error } = await supabase.functions.invoke('admin-dashboard', { body: { action: 'update_bug', id, status } });
     if (error || data?.error) toast.error('Erro');
-    else { toast.success('Status atualizado'); load(); }
+    else { toast.success('Status atualizado'); invalidate(); }
   };
 
   const remove = async (id: string) => {
     const { data, error } = await supabase.functions.invoke('admin-dashboard', { body: { action: 'delete_bug', id } });
     if (error || data?.error) toast.error('Erro');
-    else { toast.success('Removido'); setSelected(null); load(); }
+    else { toast.success('Removido'); setSelected(null); invalidate(); }
   };
+
 
   const exportCsv = () => {
     if (!filtered.length) { toast.error('Nenhum relato para exportar.'); return; }
