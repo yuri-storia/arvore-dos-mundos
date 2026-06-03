@@ -186,7 +186,7 @@ const PricingPage: React.FC = () => {
         </motion.div>
 
         {/* Pricing cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-24 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-7 mb-24 max-w-4xl mx-auto">
           {tiers.map((tier, i) => {
             const Icon = tier.Icon;
             return (
@@ -195,64 +195,112 @@ const PricingPage: React.FC = () => {
                 initial={{ opacity: 0, y: 32 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 + i * 0.15, duration: 0.7 }}
-                className={`relative rounded-2xl border p-8 sm:p-10 transition-all duration-500 backdrop-blur-md ${
-                  tier.popular
-                    ? 'border-gold-warm/60 hover:border-gold-champagne/80 shadow-[0_0_60px_hsl(var(--gold-bronze)/0.25)] hover:shadow-[0_0_80px_hsl(var(--gold-champagne)/0.35)] md:-mt-4 md:pb-12'
-                    : 'border-blue-bright/25 hover:border-blue-bright/55 hover:shadow-[0_0_50px_hsl(var(--blue-bright)/0.2)]'
+                className={`group relative rounded-[1.25rem] p-[1px] transition-all duration-500 ${
+                  tier.popular ? 'md:-mt-4 shadow-gold-glow hover:shadow-gold-glow-strong' : ''
                 }`}
                 style={{
                   background: tier.popular
-                    ? 'linear-gradient(180deg, hsl(34 38% 30% / 0.18) 0%, hsl(214 60% 4% / 0.92) 100%)'
-                    : 'linear-gradient(180deg, hsl(211 76% 30% / 0.08) 0%, hsl(214 60% 4% / 0.92) 100%)',
+                    ? 'linear-gradient(140deg, hsl(var(--gold-bronze)) 0%, hsl(var(--gold-champagne)) 35%, hsl(var(--gold-deep)) 70%, hsl(var(--gold-warm)) 100%)'
+                    : 'linear-gradient(140deg, hsl(var(--blue-main) / 0.6) 0%, hsl(var(--blue-bright) / 0.3) 50%, hsl(var(--blue-main) / 0.5) 100%)',
                 }}
               >
-                {tier.popular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-gold-premium text-[10px] font-montserrat font-bold uppercase tracking-[0.22em] text-[#1a0f00] shadow-[0_4px_24px_hsl(var(--gold-warm)/0.5)] flex items-center gap-1.5">
-                    <Star className="w-3 h-3 fill-current" />
-                    Mais escolhido
-                  </div>
-                )}
-
-                <div className="text-center mb-8">
-                  <div className={`mx-auto mb-5 w-14 h-14 rounded-full flex items-center justify-center border ${
-                    tier.popular
-                      ? 'bg-gradient-gold-premium border-gold-champagne/60 shadow-[0_4px_20px_hsl(var(--gold-bronze)/0.4)]'
-                      : 'bg-blue-main/15 border-blue-bright/40'
-                  }`}>
-                    <Icon className={`w-6 h-6 ${tier.popular ? 'text-[#1a0f00]' : 'text-blue-light'}`} strokeWidth={1.75} />
-                  </div>
-                  <h3 className={`font-cinzel font-bold text-2xl tracking-wide mb-2 ${
-                    tier.popular ? 'text-gradient-gold' : 'text-blue-light'
-                  }`}>
-                    {tier.name}
-                  </h3>
-                  <p className="font-amiri italic text-text-secondary text-base mb-6">{tier.tagline}</p>
-                  <div className="flex items-baseline justify-center gap-1.5">
-                    <span className={`font-cinzel font-bold text-5xl sm:text-6xl ${
-                      tier.popular ? 'text-gradient-gold' : 'text-blue-light'
-                    }`}>
-                      {tier.price}
-                    </span>
-                    <span className="text-text-secondary text-base font-montserrat">{tier.priceDetail}</span>
-                  </div>
-                  {tier.savings && (
-                    <p className="mt-3 text-[11px] font-montserrat font-bold uppercase tracking-[0.18em] text-gold-champagne">
-                      {tier.savings}
-                    </p>
-                  )}
-                </div>
-
-                <button
-                  onClick={tier.ctaAction}
-                  disabled={!!loading}
-                  className={`w-full py-4 rounded-xl text-[11px] font-montserrat font-bold uppercase tracking-[0.22em] transition-all mb-8 ${
-                    tier.popular
-                      ? 'bg-gradient-gold-premium text-[#1a0f00] hover:shadow-[0_8px_36px_hsl(var(--gold-warm)/0.55)] hover:-translate-y-0.5'
-                      : 'bg-gradient-to-r from-[hsl(var(--blue-main))] to-[hsl(var(--blue-bright))] text-foreground hover:shadow-[0_8px_30px_hsl(var(--blue-bright)/0.45)] hover:-translate-y-0.5'
+                <div
+                  className={`relative rounded-[1.18rem] p-8 sm:p-10 backdrop-blur-md transition-all duration-500 ${
+                    tier.popular ? 'md:pb-12' : ''
                   }`}
+                  style={{
+                    background: tier.popular
+                      ? 'radial-gradient(ellipse at top, hsl(34 38% 30% / 0.22) 0%, hsl(214 60% 4% / 0.97) 70%)'
+                      : 'radial-gradient(ellipse at top, hsl(211 76% 30% / 0.14) 0%, hsl(214 60% 4% / 0.97) 70%)',
+                  }}
                 >
-                  {tier.cta}
-                </button>
+                  {tier.popular && (
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-gold-premium text-[10px] font-montserrat font-bold uppercase tracking-[0.22em] text-[#1a0f00] shadow-[0_6px_28px_hsl(var(--gold-warm)/0.55)] flex items-center gap-1.5 whitespace-nowrap">
+                      <Star className="w-3 h-3 fill-current" />
+                      Mais escolhido
+                    </div>
+                  )}
+
+                  <div className="text-center mb-8">
+                    <div
+                      className={`mx-auto mb-6 w-16 h-16 rounded-full flex items-center justify-center ${
+                        tier.popular
+                          ? 'bg-gradient-gold-premium shadow-[0_6px_28px_hsl(var(--gold-bronze)/0.55),inset_0_1px_0_hsl(var(--gold-cream)/0.4)]'
+                          : 'bg-gradient-to-br from-[hsl(var(--blue-main))]/40 to-[hsl(var(--blue-bright))]/10 border border-blue-bright/40 shadow-[0_4px_22px_hsl(var(--blue-bright)/0.3)]'
+                      }`}
+                    >
+                      <Icon
+                        className={`w-7 h-7 ${tier.popular ? 'text-[#1a0f00]' : 'text-blue-light'}`}
+                        strokeWidth={1.75}
+                      />
+                    </div>
+                    <h3
+                      className={`font-cinzel font-bold text-[1.75rem] tracking-[0.04em] mb-2 ${
+                        tier.popular ? 'text-gradient-gold' : 'text-blue-light'
+                      }`}
+                    >
+                      {tier.name}
+                    </h3>
+                    <p className="font-amiri italic text-text-secondary text-[1.05rem] mb-6 leading-relaxed">
+                      {tier.tagline}
+                    </p>
+                    <div className="flex items-baseline justify-center gap-1.5">
+                      <span
+                        className={`font-cinzel font-bold text-[3.5rem] sm:text-[4rem] leading-none ${
+                          tier.popular ? 'text-gradient-gold' : 'text-blue-light'
+                        }`}
+                      >
+                        {tier.price}
+                      </span>
+                      <span className="text-text-secondary text-base font-montserrat">
+                        {tier.priceDetail}
+                      </span>
+                    </div>
+                    {tier.savings && (
+                      <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-gold-warm/40 bg-gold-deep/15">
+                        <Sparkles className="w-3 h-3 text-gold-champagne" strokeWidth={2} />
+                        <span className="text-[10px] font-montserrat font-bold uppercase tracking-[0.18em] text-gold-champagne">
+                          {tier.savings}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={tier.ctaAction}
+                    disabled={!!loading}
+                    className={`w-full py-4 rounded-xl text-[11px] font-montserrat font-bold uppercase tracking-[0.24em] transition-all mb-8 ${
+                      tier.popular
+                        ? 'bg-gradient-gold-premium text-[#1a0f00] shadow-[0_6px_24px_hsl(var(--gold-bronze)/0.4),inset_0_1px_0_hsl(var(--gold-cream)/0.35)] hover:shadow-[0_10px_42px_hsl(var(--gold-warm)/0.6),inset_0_1px_0_hsl(var(--gold-cream)/0.45)] hover:-translate-y-0.5'
+                        : 'bg-gradient-to-r from-[hsl(var(--blue-main))] to-[hsl(var(--blue-bright))] text-foreground shadow-[0_4px_20px_hsl(var(--blue-bright)/0.3)] hover:shadow-[0_8px_32px_hsl(var(--blue-bright)/0.5)] hover:-translate-y-0.5'
+                    }`}
+                  >
+                    {tier.cta}
+                  </button>
+
+                  <ul className="space-y-3">
+                    {tier.features.map((f) => (
+                      <li key={f} className="flex items-start gap-3 text-[15px]">
+                        <Check
+                          className={`w-4 h-4 mt-1 shrink-0 ${tier.popular ? 'text-gold-champagne' : 'text-blue-light'}`}
+                          strokeWidth={2.5}
+                        />
+                        <span className="text-foreground/90 font-amiri leading-snug">{f}</span>
+                      </li>
+                    ))}
+                    {tier.missing.map((f) => (
+                      <li key={f} className="flex items-start gap-3 text-[15px] opacity-40">
+                        <X className="w-4 h-4 mt-1 shrink-0" />
+                        <span className="font-amiri line-through leading-snug">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
 
                 <ul className="space-y-3">
                   {tier.features.map((f) => (
