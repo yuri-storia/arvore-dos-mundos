@@ -13,7 +13,7 @@ const ASAAS_BASE = "https://api.asaas.com/v3";
 type PlanDef = {
   name: string;
   amount: number;
-  kind: "subscription" | "recharge";
+  kind: "subscription" | "recharge" | "upgrade";
   cycle?: "MONTHLY" | "YEARLY";
   drops?: number;
   hasIdriel?: boolean;
@@ -29,6 +29,16 @@ const PLANS: Record<string, PlanDef> = {
   recarga_50:    { name: "50 gotas de Elixir",  amount: 14.90, kind: "recharge", drops:  50 },
   recarga_100:   { name: "100 gotas de Elixir", amount: 27.90, kind: "recharge", drops: 100 },
   recarga_200:   { name: "200 gotas de Elixir", amount: 54.90, kind: "recharge", drops: 200 },
+  // Upgrades — sempre exigem login (validado abaixo)
+  upgrade_raiz_m_to_idriel_m: { name: "Upgrade Raiz->Idriel Mensal", amount:  20.00, kind: "upgrade" },
+  upgrade_raiz_m_to_idriel_a: { name: "Upgrade Raiz Mensal->Idriel Anual", amount: 329.00, kind: "upgrade" },
+  upgrade_raiz_a_to_idriel_a: { name: "Upgrade Raiz Anual->Idriel Anual", amount: 200.00, kind: "upgrade" },
+};
+
+const UPGRADE_REQUIREMENT: Record<string, string[]> = {
+  upgrade_raiz_m_to_idriel_m: ["raiz_mensal"],
+  upgrade_raiz_m_to_idriel_a: ["raiz_mensal"],
+  upgrade_raiz_a_to_idriel_a: ["raiz_anual"],
 };
 
 async function asaas(path: string, init: RequestInit = {}) {
