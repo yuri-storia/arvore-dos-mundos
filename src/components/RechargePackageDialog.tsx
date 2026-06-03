@@ -54,7 +54,7 @@ export const RechargePackageDialog: React.FC<RechargePackageDialogProps> = ({ op
             Recarregar Elixir dos Mundos
           </h2>
           <p className="font-merriweather italic text-text-dim text-sm max-w-md mx-auto">
-            Escolha quantas gotas a Árvore deve devolver à sua Seiva. Quanto mais, mais barato fica cada gota.
+            Escolha quantas gotas a Árvore deve devolver ao seu Elixir. Quanto mais, mais barato fica cada gota.
           </p>
         </div>
 
@@ -108,7 +108,7 @@ export const RechargePackageDialog: React.FC<RechargePackageDialogProps> = ({ op
         <div className="mt-6 text-center">
           <p className="font-merriweather italic text-text-dim text-[11px]">
             <Sparkles className="w-3 h-3 inline mr-1 text-gold-light" />
-            Compras avulsas — não renovam automaticamente. As gotas são acumuladas à sua Seiva atual.
+            Compras avulsas — não renovam automaticamente. As gotas são acumuladas ao seu Elixir atual.
           </p>
         </div>
       </div>

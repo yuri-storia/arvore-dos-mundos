@@ -12,7 +12,7 @@ interface Tip {
 const TAB_TIPS: Record<string, Tip[]> = {
   construir: [
     { Icon: Leaf, title: 'Saudações, viajante!', desc: 'Eu sou Idriel, guardiã desta Árvore. Aqui você vai cultivar 11 Frutos — cada um é um pilar do seu mundo. Escolha qualquer um para começar!' },
-    { Icon: Map, title: 'Crie mapas no primeiro Fruto', desc: 'No Fruto "Mapa do Mundo", você pode gerar mapas em estilos como político, geográfico ou explorador com a Elixir dos Mundos (plano completo).' },
+    { Icon: Map, title: 'Crie mapas no primeiro Fruto', desc: 'No Fruto "Mapa do Mundo", você pode gerar mapas em estilos como político, geográfico ou explorador com o Elixir dos Mundos (plano completo).' },
     { Icon: BookOpen, title: 'Orientação em cada Fruto', desc: 'Dentro de cada Fruto você encontra minha "Orientação para Criação & Estudo de Caso" — uma sanfona com guia, exemplos literários e passo a passo. Consulte sempre que precisar!' },
     { Icon: Trees, title: 'Me consulte (plano completo)', desc: 'Nos demais Frutos, peça minha ajuda criativa usando os chips de sugestão ou digitando sua pergunta. Custa apenas 1 gota. Recurso exclusivo do plano Template + Idriel.' },
     { Icon: Save, title: 'Relaxe, eu cuido de tudo', desc: 'Suas criações são salvas automaticamente a cada 2 segundos. Foque no que importa — dar vida ao seu mundo, viajante.' },

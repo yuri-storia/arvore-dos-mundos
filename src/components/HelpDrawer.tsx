@@ -27,7 +27,7 @@ const FAQ: Record<string, { label: string; items: { q: string; a: string }[] }> 
         a: 'No Fruto "Mapa do Mundo", clique em **Gerar Mapa**. Escolha um dos 6 estilos (Político, Geográfico, Náutico, Explorador, Cidade ou Personalizado), descreva seu mundo e confirme. Custa **5 gotas de Elixir dos Mundos**. Requer plano Idriel.',
       },
       {
-        q: 'O que é a Elixir dos Mundos?',
+        q: 'O que é o Elixir dos Mundos?',
         a: 'É a moeda de créditos para funcionalidades de IA. No plano Idriel você recebe **100 gotas por mês**. Custos: texto (1 gota), imagem (5 gotas), análise de mundo (2 gotas).',
       },
       {
