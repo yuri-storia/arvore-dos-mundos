@@ -13,7 +13,7 @@ import { useIdrielVisions } from '@/hooks/useIdrielVisions';
 import { useIdrielJobs } from '@/contexts/IdrielJobsContext';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, Lock, ChevronDown, ChevronUp, Trash2, Palette, Leaf, ScrollText, Trees } from 'lucide-react';
+import { Sparkles, Lock, ChevronDown, ChevronUp, Trash2, Palette, Leaf, ScrollText, Trees, X, Inbox, Save, Apple, BarChart3, Check, ClipboardCopy, ArrowDown, RotateCw, Image as ImageIcon } from 'lucide-react';
 import type { AppState } from '@/lib/data';
 
 interface Props {
@@ -236,7 +236,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
       status: 'unsorted',
     });
     setShowSaveModal(false);
-    toast.success('Visão guardada na Caixa de Visões Recentes ✦');
+    toast.success('Visão guardada na Caixa de Visões Recentes');
   };
 
   // ===== Caixa de Visões Recentes (unsorted) =====
@@ -280,7 +280,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
           onClick={() => !batchUploading && fileRef.current?.click()}
           className={`flex-1 border-2 border-dashed border-gold/20 rounded-lg p-5 text-center cursor-pointer hover:border-gold/40 transition-colors ${batchUploading ? 'opacity-50 pointer-events-none' : ''}`}
         >
-          <span className="text-2xl mb-1 block">🖼️</span>
+          <ImageIcon className="w-6 h-6 mb-1 text-gold-champagne" strokeWidth={1.75} />
           <p className="text-sm text-gold-light font-montserrat">
             {batchUploading ? `Enviando ${batchProgress.done}/${batchProgress.total}…` : 'Clique ou arraste para adicionar imagens'}
           </p>
@@ -316,7 +316,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
           </SelectContent>
         </Select>
         {filter !== 'Todos' && (
-          <button onClick={() => setFilter('Todos')} className="text-[10px] text-text-dim hover:text-foreground font-montserrat transition-colors">✕ Limpar</button>
+          <button onClick={() => setFilter('Todos')} className="inline-flex items-center gap-1 text-[10px] text-text-dim hover:text-foreground font-montserrat transition-colors"><X className="w-3 h-3" strokeWidth={2} />Limpar</button>
         )}
       </div>
 
@@ -325,7 +325,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
         <div className="mb-6 rounded-xl border border-gold/30 bg-gold/[0.04] p-4">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h3 className="font-cinzel font-bold text-sm text-gold-light">📥 Caixa de Visões Recentes</h3>
+              <h3 className="font-cinzel font-bold text-sm text-gold-light inline-flex items-center gap-2"><Inbox className="w-4 h-4" strokeWidth={1.75} />Caixa de Visões Recentes</h3>
               <p className="font-merriweather italic text-[11px] text-text-dim">Visões geradas por Idriel aguardando sua decisão.</p>
             </div>
             <span className="text-[10px] font-montserrat text-gold-light/80 px-2 py-1 rounded-full bg-gold/10 border border-gold/20">
@@ -349,21 +349,21 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                       className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/15 transition-colors"
                       title="Etiquetar e arquivar"
                     >
-                      🌳 Etiquetar
+                      <><Trees className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Etiquetar</>
                     </button>
                     <button
                       onClick={() => { updateImage(img.id, { status: 'kept' }); toast.success('Mantida na galeria'); }}
                       className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/15 transition-colors"
                       title="Mover para galeria"
                     >
-                      💾 Manter
+                      <><Save className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Manter</>
                     </button>
                     <button
                       onClick={() => removeImage(img.id)}
                       className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-red-alert/30 text-red-alert/90 hover:bg-red-alert/15 transition-colors"
                       title="Excluir"
                     >
-                      🗑
+                      <Trash2 className="w-3 h-3" strokeWidth={1.75} />
                     </button>
                   </div>
                 </div>
@@ -377,7 +377,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
       {filteredSorted.length === 0 ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
-            <span className="text-3xl">🖼️</span>
+            <ImageIcon className="w-8 h-8 text-gold-champagne opacity-60" strokeWidth={1.5} />
           </div>
           <h3 className="font-cinzel font-bold text-lg text-foreground mb-2">
             {sorted.length === 0 ? 'Sua galeria está vazia' : 'Nenhuma visão nesta categoria'}
@@ -409,7 +409,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                 onClick={() => removeImage(img.id)}
                 className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-alert/80 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
               >
-                ✕
+                <X className="w-3.5 h-3.5" strokeWidth={2} />
               </button>
             </div>
           ))}
@@ -449,7 +449,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                   <div className="absolute inset-0 rounded-full bg-gold/10 animate-pulse" />
                   <div className="relative w-full h-full rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-2 border-gold/30 flex items-center justify-center shadow-[0_0_30px_rgba(218,165,32,0.15)]">
                     <div className="relative">
-                      <span className="text-4xl">🍊</span>
+                      <Apple className="w-10 h-10 text-gold-champagne" strokeWidth={1.5} />
                       <Lock className="absolute -bottom-1 -right-1 w-5 h-5 text-gold-light drop-shadow-lg" />
                     </div>
                   </div>
@@ -471,7 +471,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                 <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto mb-5">
                   {[
                     { Icon: Palette, label: 'Gerar imagens', cost: '5 gotas' },
-                    { icon: '📊', label: 'Análise do mundo', cost: '2 gotas' },
+                    { Icon: BarChart3, label: 'Análise do mundo', cost: '2 gotas' },
                     { Icon: Leaf, label: 'Consultar Idriel', cost: '1 gota' },
                   ].map(p => (
                     <div key={p.label} className="rounded-lg p-2.5 bg-gold/[0.04] border border-gold/10 opacity-70">
@@ -486,7 +486,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                   onClick={async () => { const { openCheckout, STRIPE_PLANS } = await import('@/hooks/useSubscription'); openCheckout(STRIPE_PLANS.idriel_mensal.price_id); }}
                   className="px-6 py-3 rounded-full text-sm font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold to-gold-light text-background hover:shadow-[0_0_24px_rgba(218,165,32,0.3)] transition-all"
                 >
-                  ✨ Colher o Fruto Dourado — R$ 29,90/mês
+                  <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Colher o Fruto Dourado — R$ 29,90/mês</>
                 </button>
                 <p className="text-[10px] text-text-dim mt-2 font-montserrat">100 gotas de Seiva Dourada por mês</p>
               </div>
@@ -593,14 +593,14 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
               <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed mb-4">{generatedPrompt}</p>
               <div className="flex flex-wrap gap-2">
                 <button onClick={copyPrompt} className="px-3 py-1.5 rounded-md text-xs font-montserrat border border-gold/30 text-text-secondary hover:text-foreground transition-colors">
-                  {copied ? '✓ Copiado!' : '📋 Copiar para Midjourney / Leonardo'}
+                  <>{copied ? <><Check className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Copiado!</> : <><ClipboardCopy className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Copiar para Midjourney / Leonardo</>}</>
                 </button>
                 <button
                   onClick={handleGenerate}
                   disabled={loading2}
                   className="px-3 py-1.5 rounded-md text-xs font-montserrat bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-colors"
                 >
-                  ✨ Materializar Visão
+                  <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Materializar Visão</>
                 </button>
               </div>
             </div>
@@ -613,10 +613,10 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
               <img src={generatedImage} alt="Visão de Idriel" className="w-full max-w-[512px] mx-auto rounded-lg mb-4" />
               <div className="flex flex-wrap gap-2 justify-center">
                 <button onClick={() => { setSaveCat('Todos'); setShowSaveModal(true); }} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors">
-                  💾 Guardar na Galeria
+                  <><Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Guardar na Galeria</>
                 </button>
                 <a href={generatedImage} download target="_blank" rel="noopener" className="px-4 py-2 rounded-md text-xs font-montserrat border border-gold/30 text-text-secondary hover:text-foreground transition-colors">
-                  ⬇ Baixar
+                  <><ArrowDown className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Baixar</>
                 </a>
               </div>
             </div>
@@ -659,20 +659,20 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                             onClick={() => { navigator.clipboard.writeText(v.prompt); toast.success('Prompt copiado'); }}
                             className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors"
                           >
-                            📋 Copiar prompt
+                            <><ClipboardCopy className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Copiar prompt</>
                           </button>
                           <button
                             onClick={() => { setGeneratedPrompt(v.prompt); setDesc(v.description); toast.success('Prompt restaurado para edição'); }}
                             className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors"
                           >
-                            ↻ Reusar
+                            <><RotateCw className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reusar</>
                           </button>
                           {v.image_url && (
                             <button
                               onClick={() => addToGallery({ id: Date.now().toString(), src: v.image_url!, name: v.description.slice(0, 40) || 'Visão de Idriel', cat: 'Geral', status: 'unsorted' })}
                               className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors"
                             >
-                              💾 P/ Galeria
+                              <><Save className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />P/ Galeria</>
                             </button>
                           )}
                           <button
@@ -708,7 +708,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
             </div>
             <div className="flex gap-2 justify-end">
               <button onClick={() => setShowSaveModal(false)} className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-border hover:text-foreground transition-colors">Cancelar</button>
-              <button onClick={confirmSave} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors">💾 Guardar</button>
+              <button onClick={confirmSave} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors inline-flex items-center gap-1.5"><Save className="w-3.5 h-3.5" strokeWidth={1.75} />Guardar</button>
             </div>
           </div>
         </div>
@@ -736,12 +736,12 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
               <button
                 onClick={() => {
                   updateImage(tagging.id, { status: 'kept', cat: tagCat });
-                  toast.success(`Etiquetada em "${tagCat}" ✦`);
+                  toast.success(`Etiquetada em "${tagCat}"`);
                   setTagging(null);
                 }}
                 className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors"
               >
-                💾 Etiquetar
+                <><Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Etiquetar</>
               </button>
             </div>
           </div>

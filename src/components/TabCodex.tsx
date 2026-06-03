@@ -10,7 +10,7 @@ import { exportSingleEntry, exportFruitEntries, exportSelectedFruits, exportAllE
 import { CodexAnalysis } from '@/components/CodexAnalysis';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { WorldRecord } from '@/hooks/useWorlds';
-import { Lock, BookOpen, Search, FileDown } from 'lucide-react';
+import { Lock, BookOpen, Search, FileDown, ClipboardList, PencilLine, Inbox, Library, X, Globe, Check, Apple } from 'lucide-react';
 import { toast } from 'sonner';
 import { IdrielImportDialog } from '@/components/IdrielImportDialog';
 
@@ -199,7 +199,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                         disabled={fichaLimitReached}
                         className={`w-full text-left px-3 py-2 rounded-md transition-colors mb-1 ${fichaLimitReached ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-bright/10'}`}
                       >
-                        <span className="font-montserrat font-bold text-xs text-foreground block">📋 Ficha</span>
+                        <span className="font-montserrat font-bold text-xs text-foreground inline-flex items-center gap-1.5"><ClipboardList className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />Ficha</span>
                         <span className="text-[10px] text-text-dim font-merriweather">
                           {fichaLimitReached 
                             ? `Limite atingido (${fichaCount}/${planLimits.maxFichas}) — faça upgrade` 
@@ -213,7 +213,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                         disabled={artigoLimitReached}
                         className={`w-full text-left px-3 py-2 rounded-md transition-colors mb-1 ${artigoLimitReached ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-bright/10'}`}
                       >
-                        <span className="font-montserrat font-bold text-xs text-foreground block">📝 Artigo</span>
+                        <span className="font-montserrat font-bold text-xs text-foreground inline-flex items-center gap-1.5"><PencilLine className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />Artigo</span>
                         <span className="text-[10px] text-text-dim font-merriweather">
                           {artigoLimitReached 
                             ? `Limite atingido (${artigoCount}/${planLimits.maxArtigos}) — faça upgrade` 
@@ -232,7 +232,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                       onClick={() => { setShowImport(true); }}
                       className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors"
                     >
-                      <span className="font-montserrat font-bold text-xs text-foreground block">📥 Importar de outro Mundo</span>
+                      <span className="font-montserrat font-bold text-xs text-foreground inline-flex items-center gap-1.5"><Inbox className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />Importar de outro Mundo</span>
                       <span className="text-[10px] text-text-dim font-merriweather">Copiar fichas ou artigos</span>
                     </button>
                   </>
@@ -242,10 +242,10 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                   onClick={() => { setShowIdrielImport(true); setShowCreate(false); }}
                   className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors"
                 >
-                  <span className="font-montserrat font-bold text-xs text-foreground block">📚 Importar com Idriel</span>
+                  <span className="font-montserrat font-bold text-xs text-foreground inline-flex items-center gap-1.5"><Library className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />Importar com Idriel</span>
                   <span className="text-[10px] text-text-dim font-merriweather">Extrair fichas/artigos de um PDF, DOCX ou texto (5 gotas)</span>
                 </button>
-                <button onClick={resetCreate} className="absolute top-1 right-1 w-5 h-5 rounded-full text-text-dim hover:text-foreground text-xs flex items-center justify-center">✕</button>
+                <button onClick={resetCreate} className="absolute top-1 right-1 w-5 h-5 rounded-full text-text-dim hover:text-foreground flex items-center justify-center" aria-label="Fechar"><X className="w-3.5 h-3.5" strokeWidth={2} /></button>
               </div>
             )}
           </div>
@@ -257,8 +257,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
       {showImport && (
         <div className="card-glass rounded-lg p-4 sm:p-5 mb-6 animate-fadeUp border border-blue-bright/20">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-cinzel font-bold text-sm text-blue-light">📥 Importar de outro Mundo</h3>
-            <button onClick={resetCreate} className="text-[10px] text-text-dim font-montserrat hover:text-foreground">✕ Fechar</button>
+            <h3 className="font-cinzel font-bold text-sm text-blue-light inline-flex items-center gap-2"><Inbox className="w-4 h-4" strokeWidth={1.75} />Importar de outro Mundo</h3>
+            <button onClick={resetCreate} className="inline-flex items-center gap-1 text-[10px] text-text-dim font-montserrat hover:text-foreground"><X className="w-3 h-3" strokeWidth={2} />Fechar</button>
           </div>
 
           <div className="mb-4">
@@ -269,7 +269,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
               </SelectTrigger>
               <SelectContent>
                 {worlds.filter(w => w.id !== worldId).map(w => (
-                  <SelectItem key={w.id} value={w.id}>🌍 {w.name}</SelectItem>
+                  <SelectItem key={w.id} value={w.id}><Globe className="inline-block w-3 h-3 mr-1.5 align-[-0.1em]" strokeWidth={1.75} />{w.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -319,10 +319,10 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                       <span className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center text-[10px] ${
                         selected ? 'bg-primary border-ring text-foreground' : 'border-border'
                       }`}>
-                        {selected && '✓'}
+                        {selected && <Check className="w-3 h-3" strokeWidth={2.5} />}
                       </span>
                       <span className="text-[10px] font-montserrat font-bold uppercase text-text-dim">
-                        {e.entry_type === 'ficha' ? '📋' : '📝'}
+                        {e.entry_type === 'ficha' ? <ClipboardList className="w-3.5 h-3.5" strokeWidth={1.75} /> : <PencilLine className="w-3.5 h-3.5" strokeWidth={1.75} />}
                       </span>
                       {fruit && <span className="text-[10px]"><fruit.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /></span>}
                       <span className="font-merriweather text-sm text-foreground truncate">{e.title}</span>
@@ -335,7 +335,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                   onClick={handleImport}
                   className="px-4 py-2 bg-primary hover:bg-ring text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
                 >
-                  📥 Importar {importSelectedIds.length} entrada(s)
+                  <><Inbox className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Importar {importSelectedIds.length} entrada(s)</>
                 </button>
               )}
             </>
@@ -346,20 +346,20 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
       {/* Export panel */}
       {showExport && (
         <div className="card-glass-idriel rounded-lg p-4 mb-5 animate-fadeUp">
-          <h3 className="font-cinzel font-bold text-sm mb-3 text-idriel-light">📄 Exportar Entradas em PDF</h3>
+          <h3 className="font-cinzel font-bold text-sm mb-3 text-idriel-light inline-flex items-center gap-2"><FileDown className="w-4 h-4" strokeWidth={1.75} />Exportar Entradas em PDF</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
             <button
               onClick={() => { exportAllEntries(entries); setShowExport(false); }}
               className="px-4 py-2.5 bg-primary/20 hover:bg-primary/30 text-blue-light rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider transition-colors border border-ring/20 text-left"
             >
-              📚 Exportar todas as entradas ({entries.length})
+              <><Library className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Exportar todas as entradas ({entries.length})</>
             </button>
             {filterFruits.length === 1 && (
               <button
                 onClick={() => { exportFruitEntries(filterFruits[0], entries); setShowExport(false); }}
                 className="px-4 py-2.5 bg-accent/15 hover:bg-accent/25 text-accent-foreground rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider transition-colors border border-accent/20 text-left"
               >
-                🍎 Exportar de "{FRUITS.find(f => f.id === filterFruits[0])?.name}" ({entries.filter(e => e.fruit_id === filterFruits[0]).length})
+                <><Apple className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Exportar de "{FRUITS.find(f => f.id === filterFruits[0])?.name}" ({entries.filter(e => e.fruit_id === filterFruits[0]).length})</>
               </button>
             )}
           </div>
@@ -391,7 +391,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                 onClick={() => { exportSelectedFruits(exportSelectedFruitIds, entries); setShowExport(false); }}
                 className="px-4 py-2 bg-accent/80 hover:bg-accent text-accent-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors"
               >
-                📄 Exportar {exportSelectedFruitIds.length} fruto(s) selecionado(s)
+                <><FileDown className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Exportar {exportSelectedFruitIds.length} fruto(s) selecionado(s)</>
               </button>
             )}
           </div>
@@ -424,7 +424,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
         })}
         {filterFruits.length > 0 && (
           <button onClick={() => setFilterFruits([])} className="text-[10px] text-text-dim hover:text-foreground font-montserrat transition-colors ml-1">
-            ✕ Limpar
+            <><X className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={2} />Limpar</>
           </button>
         )}
       </div>
@@ -433,7 +433,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
       {showCreate && createKind && (
         <div className="card-glass rounded-lg p-4 sm:p-5 mb-6 animate-fadeUp">
           <h3 className="font-cinzel font-bold text-sm text-blue-light mb-3">
-            {createKind === 'ficha' ? '📋 Nova Ficha' : '📝 Novo Artigo'}
+            <>{createKind === 'ficha' ? <><ClipboardList className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Nova Ficha</> : <><PencilLine className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Novo Artigo</>}</>
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <div>
@@ -456,7 +456,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
               {newImageUrl ? (
                 <div className="relative w-full max-w-[300px] rounded-lg overflow-hidden border border-blue-bright/20">
                   <img src={newImageUrl} alt="" className="w-full h-[180px] object-cover" />
-                  <button onClick={() => setNewImageUrl('')} className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-foreground text-xs flex items-center justify-center hover:bg-destructive/80">✕</button>
+                  <button onClick={() => setNewImageUrl('')} className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-foreground flex items-center justify-center hover:bg-destructive/80" aria-label="Remover"><X className="w-3.5 h-3.5" strokeWidth={2} /></button>
                 </div>
               ) : (
                 <div className="flex gap-2">
