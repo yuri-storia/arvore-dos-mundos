@@ -167,8 +167,7 @@ const Index = () => {
       <div className="relative z-10">
         <AppHeader worldName={state.worldName} setWorldName={setWorldName} onCreateWorld={handleCreateWorld} method={state.method} currentSaveId={state.currentSaveId} db={state.db} worlds={worlds} onLoadWorld={handleLoadWorld} onNewWorld={handleNewWorld} onDeleteWorld={handleDeleteWorld} />
 
-
-
+        <DropsCounterBadge />
 
         <SubscriptionBanner />
         <TabNav activeTab={state.activeTab} setActiveTab={setActiveTab} />
