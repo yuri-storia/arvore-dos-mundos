@@ -119,13 +119,30 @@ const PricingPage: React.FC = () => {
         />
 
         <div className="relative z-10 max-w-5xl mx-auto px-5 pt-8 pb-32">
-          <button
-            onClick={() => navigate('/')}
-            className="inline-flex items-center gap-2 text-text-secondary hover:text-foreground transition-colors mb-20 font-montserrat text-xs uppercase tracking-[0.25em]"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Voltar
-          </button>
+          <div className="flex items-center justify-between mb-20">
+            {user ? (
+              <button
+                onClick={() => navigate('/')}
+                className="inline-flex items-center gap-2 text-text-secondary hover:text-foreground transition-colors font-montserrat text-xs uppercase tracking-[0.25em]"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Voltar ao app
+              </button>
+            ) : <span />}
+
+            <button
+              onClick={() => navigate(user ? '/' : '/login')}
+              className="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-montserrat font-bold uppercase tracking-[0.22em] text-[11px] text-[#04140a] transition-all hover:-translate-y-0.5"
+              style={{
+                background: 'linear-gradient(135deg, #b9f5c8 0%, #4ade80 28%, #16a34a 60%, #166534 100%)',
+                boxShadow: '0 6px 24px hsl(142 70% 35% / 0.4), inset 0 1px 0 hsl(142 90% 80% / 0.6), inset 0 -2px 0 hsl(142 70% 20% / 0.4)',
+                border: '1px solid hsl(142 70% 25% / 0.6)',
+              }}
+            >
+              <LogIn className="w-4 h-4" strokeWidth={2.25} />
+              {user ? 'Entrar no app' : 'Login'}
+            </button>
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: 24 }}
