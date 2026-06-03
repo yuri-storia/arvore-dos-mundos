@@ -108,6 +108,7 @@ export interface SubscriptionInfo {
   loading: boolean;
   subscribed: boolean;
   plan: 'template' | 'idriel' | null;
+  plan_code: string | null;
   hasIdriel: boolean;
   hasTemplate: boolean;
   subscriptionEnd: string | null;
@@ -127,6 +128,7 @@ export function useSubscription(): SubscriptionInfo {
     loading: true,
     subscribed: false,
     plan: null,
+    plan_code: null,
     hasIdriel: false,
     hasTemplate: false,
     subscriptionEnd: null,
