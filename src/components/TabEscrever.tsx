@@ -257,8 +257,15 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const [previewEntry, setPreviewEntry] = useState<CodexEntry | null>(null);
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const titleSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const activeChapter = useMemo(() => chapters.find(c => c.id === activeChapterId), [chapters, activeChapterId]);
+
+  // Local manuscript title (debounced save — was firing 1 DB write per keystroke)
+  const [manuscriptTitleLocal, setManuscriptTitleLocal] = useState(activeManuscript?.title ?? '');
+  useEffect(() => {
+    setManuscriptTitleLocal(activeManuscript?.title ?? '');
+  }, [activeManuscript?.id]); // eslint-disable-line
 
   useEffect(() => {
     if (activeChapter) {
@@ -273,10 +280,25 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     return () => window.removeEventListener('keydown', handleKey);
   }, [zenMode]);
 
+  // Cleanup all pending save timers on unmount
+  useEffect(() => () => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    if (titleSaveTimerRef.current) clearTimeout(titleSaveTimerRef.current);
+  }, []);
+
   const debouncedSave = useCallback((id: string, content: string) => {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => updateChapter(id, { content }), 1500);
   }, [updateChapter]);
+
+  const handleManuscriptTitleChange = (next: string) => {
+    setManuscriptTitleLocal(next);
+    if (!activeManuscript) return;
+    if (titleSaveTimerRef.current) clearTimeout(titleSaveTimerRef.current);
+    titleSaveTimerRef.current = setTimeout(() => {
+      updateManuscript(activeManuscript.id, { title: next });
+    }, 700);
+  };
 
   const handleContentChange = (value: string) => {
     setEditingContent(value);
