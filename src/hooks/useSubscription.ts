@@ -190,23 +190,52 @@ export function useSubscription(): SubscriptionInfo {
   return info;
 }
 
-// Asaas checkout — opens invoice URL in a new tab
-export async function openCheckout(planId: string) {
+// Asaas checkout — opens invoice URL in a new tab.
+// When the user lacks CPF/CNPJ, dispatches a global event so a UI dialog can collect it
+// and retry. This avoids touching every callsite.
+export async function openCheckout(planId: string, cpfCnpj?: string) {
   try {
     const { data, error } = await supabase.functions.invoke('asaas-create-checkout', {
-      body: { planId },
+      body: { planId, cpfCnpj },
     });
-    if (error) throw error;
-    if (data?.url) {
-      window.open(data.url, '_blank', 'noopener,noreferrer');
-    } else {
-      throw new Error('Sem URL de pagamento');
+
+    // Detect cpf_required from either parsed body or the FunctionsHttpError context
+    let parsed: any = data;
+    if (error) {
+      const ctx: any = (error as any)?.context;
+      try { if (ctx && typeof ctx.json === 'function') parsed = await ctx.json(); } catch {}
+      if (!parsed) {
+        try {
+          const raw = ctx?.body ?? ctx;
+          parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        } catch {}
+      }
     }
+
+    if (parsed?.error === 'cpf_required') {
+      // Open global dialog. Retry happens inside the dialog handler.
+      window.dispatchEvent(new CustomEvent('arvore:cpf-required', { detail: { planId } }));
+      return;
+    }
+
+    if (error) {
+      console.error('openCheckout error:', error);
+      alert('Não foi possível abrir o pagamento: ' + (error.message || 'erro desconhecido'));
+      return;
+    }
+
+    if (parsed?.url) {
+      window.open(parsed.url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    alert('Não foi possível abrir o pagamento: resposta inválida.');
   } catch (e: any) {
     console.error('openCheckout error:', e);
     alert('Não foi possível abrir o pagamento: ' + (e?.message || 'erro desconhecido'));
   }
 }
+
+
 
 export async function openCustomerPortal() {
   if (!confirm('Deseja cancelar sua assinatura ativa? O acesso permanece até o fim do ciclo já pago.')) return;

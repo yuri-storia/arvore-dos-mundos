@@ -75,25 +75,51 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const planCode = String(body.planId || body.plan || "");
+    const cpfFromBody = String(body.cpfCnpj || "").replace(/\D/g, "");
     const plan = PLANS[planCode];
     if (!plan) {
       return new Response(JSON.stringify({ error: "Unknown plan", planCode }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    // Pull profile (display_name + cpf_cnpj)
+    const { data: profile } = await supa.from("profiles")
+      .select("display_name, cpf_cnpj")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    // Resolve CPF: body wins (just collected from user), otherwise profile
+    let cpfCnpj = (cpfFromBody || (profile?.cpf_cnpj || "")).replace(/\D/g, "");
+    if (!cpfCnpj || (cpfCnpj.length !== 11 && cpfCnpj.length !== 14)) {
+      return new Response(JSON.stringify({
+        error: "cpf_required",
+        message: "CPF ou CNPJ é obrigatório para emitir cobranças no Brasil.",
+      }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // Persist CPF on profile if it came from body
+    if (cpfFromBody && cpfFromBody !== (profile?.cpf_cnpj || "")) {
+      await supa.from("profiles").update({ cpf_cnpj: cpfCnpj }).eq("user_id", userId);
+    }
+
     // Get or create asaas customer
     let customerId: string | null = null;
     const { data: existing } = await supa.from("asaas_customers").select("asaas_customer_id").eq("user_id", userId).maybeSingle();
+    const displayName = profile?.display_name || userEmail.split("@")[0] || "Usuário";
+
     if (existing?.asaas_customer_id) {
       customerId = existing.asaas_customer_id;
+      // Ensure CPF is set on the Asaas customer record (idempotent)
+      await asaas(`/customers/${customerId}`, {
+        method: "POST",
+        body: JSON.stringify({ cpfCnpj, name: displayName, email: userEmail }),
+      }).catch((e) => console.warn("update customer cpf:", e?.message));
     } else {
-      // Pull profile for nicer name
-      const { data: profile } = await supa.from("profiles").select("display_name").eq("user_id", userId).maybeSingle();
-      const displayName = profile?.display_name || userEmail.split("@")[0] || "Usuário";
       const created = await asaas("/customers", {
         method: "POST",
         body: JSON.stringify({
           name: displayName,
           email: userEmail,
+          cpfCnpj,
           externalReference: userId,
         }),
       });
@@ -105,6 +131,7 @@ Deno.serve(async (req) => {
         updated_at: new Date().toISOString(),
       });
     }
+
 
     const origin = req.headers.get("origin") || "https://arvoredosmundos.app";
 

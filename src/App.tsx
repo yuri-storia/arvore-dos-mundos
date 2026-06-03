@@ -14,6 +14,8 @@ import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import PricingPage from "./pages/PricingPage";
+import { CheckoutCpfGate } from "@/components/CheckoutCpfGate";
+
 
 const queryClient = new QueryClient();
 
@@ -25,6 +27,8 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <IdrielJobsProvider>
+            <CheckoutCpfGate />
+
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/inicio" element={<Navigate to="/planos" replace />} />
