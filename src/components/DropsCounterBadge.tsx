@@ -130,19 +130,22 @@ export const DropsCounterBadge: React.FC = () => {
   const BuyButton = (
     <button
       onClick={() => setShowRecharge(true)}
-      className="group relative flex items-center gap-1.5 h-9 px-3.5 rounded-full border border-gold/45 bg-gradient-to-r from-gold/15 via-gold-warm/15 to-gold-deep/15 hover:from-gold/35 hover:via-gold-warm/35 hover:to-gold-deep/35 transition-all font-montserrat font-bold text-[10px] uppercase tracking-wider text-gold-light whitespace-nowrap shadow-[0_0_12px_rgba(218,165,32,0.12)] hover:shadow-[0_0_16px_rgba(218,165,32,0.28)]"
+      aria-label="Adquirir Elixir"
+      className="group relative flex items-center justify-center gap-1.5 h-9 px-2.5 sm:px-3.5 rounded-full border border-gold/45 bg-gradient-to-r from-gold/15 via-gold-warm/15 to-gold-deep/15 hover:from-gold/35 hover:via-gold-warm/35 hover:to-gold-deep/35 transition-all font-montserrat font-bold text-[10px] uppercase tracking-wider text-gold-light whitespace-nowrap shadow-[0_0_12px_rgba(218,165,32,0.12)] hover:shadow-[0_0_16px_rgba(218,165,32,0.28)] shrink-0"
     >
-      <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />
-      <span>Adquirir Elixir</span>
+      <Sparkles className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+      <span className="hidden sm:inline">Adquirir Elixir</span>
+      <span className="sm:hidden">+ Elixir</span>
     </button>
   );
 
   // wrapper centralizado, abaixo do header
   const wrap = (inner: React.ReactNode) => (
-    <div className="w-full flex justify-center px-4 mt-1 mb-3">
-      <div className="flex items-center gap-2 w-full max-w-2xl">{inner}</div>
+    <div className="w-full flex justify-center px-3 sm:px-4 mt-1 mb-3">
+      <div className="flex items-center gap-2 w-full max-w-2xl min-w-0">{inner}</div>
     </div>
   );
+
 
   // Tooltip content with breakdown
   const renderTooltip = (
