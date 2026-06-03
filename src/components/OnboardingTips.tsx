@@ -120,7 +120,7 @@ export const OnboardingTips: React.FC<Props> = ({ tab }) => {
           {/* Tip content with animation */}
           <div className={`transition-all duration-200 ${animating ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'}`}>
             <div className="flex items-start gap-3.5 mb-5">
-              <span className="text-2xl shrink-0 mt-0.5">{tip.icon}</span>
+              <tip.Icon className="w-6 h-6 shrink-0 mt-0.5 text-gold-light" strokeWidth={1.75} />
               <div className="flex-1 min-w-0">
                 <h4 className="font-montserrat font-bold text-base text-foreground mb-1.5">{tip.title}</h4>
                 <p className="font-merriweather italic text-[15px] text-text-secondary leading-relaxed">{tip.desc}</p>
