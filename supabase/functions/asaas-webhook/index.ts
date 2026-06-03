@@ -35,9 +35,47 @@ Deno.serve(async (req) => {
     const event = await req.json();
     const eventType: string = event.event || "";
     const payment = event.payment;
+
+    // ---------- SUBSCRIPTION lifecycle events (no payment payload) ----------
+    if (eventType === "SUBSCRIPTION_CREATED" || eventType === "SUBSCRIPTION_UPDATED") {
+      const sub = event.subscription;
+      if (!sub?.id) {
+        return new Response(JSON.stringify({ ok: true, ignored: "no subscription payload" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      // externalReference on subscription = "<userId>:<planCode>"
+      const ref: string = sub.externalReference || "";
+      const [subUserId, subPlanCode] = ref.split(":");
+      const meta = PLAN_MAP[subPlanCode];
+
+      // Apenas SINCRONIZA contrato já ativo (não libera acesso — isso é responsabilidade do PAYMENT_CONFIRMED)
+      if (meta && subUserId) {
+        await supa.from("subscriptions")
+          .update({
+            plan_code: subPlanCode,
+            has_idriel: meta.hasIdriel,
+            billing_cycle: meta.cycle,
+            asaas_subscription_id: sub.id,
+          })
+          .eq("user_id", subUserId)
+          .eq("status", "active");
+      }
+      console.log(`subscription ${eventType}: ${sub.id} user=${subUserId} plan=${subPlanCode}`);
+      return new Response(JSON.stringify({ ok: true, kind: "subscription_sync" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    if (eventType === "SUBSCRIPTION_DELETED" || eventType === "SUBSCRIPTION_INACTIVATED") {
+      const subId = event.subscription?.id;
+      if (subId) {
+        await supa.from("subscriptions").update({ status: "cancelled", cancelled_at: new Date().toISOString() })
+          .eq("asaas_subscription_id", subId);
+      }
+      return new Response(JSON.stringify({ ok: true, kind: "subscription_cancelled" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     if (!payment) {
       return new Response(JSON.stringify({ ok: true, ignored: "no payment" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+
 
     // externalReference = "<userId>:<planCode>"
     const externalRef: string = payment.externalReference || "";
@@ -116,13 +154,8 @@ Deno.serve(async (req) => {
         .eq("asaas_subscription_id", payment.subscription);
     }
 
-    if (eventType === "SUBSCRIPTION_DELETED" || eventType === "SUBSCRIPTION_INACTIVATED") {
-      const subId = event.subscription?.id;
-      if (subId) {
-        await supa.from("subscriptions").update({ status: "cancelled", cancelled_at: new Date().toISOString() })
-          .eq("asaas_subscription_id", subId);
-      }
-    }
+
+
 
     return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (err: any) {
