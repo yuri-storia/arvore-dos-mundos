@@ -1,131 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, X, ArrowLeft, Crown, Leaf, Zap, Sparkles } from 'lucide-react';
+import { Check, X, ArrowLeft, Zap } from 'lucide-react';
 import { openCheckout, PLANS } from '@/hooks/useSubscription';
-import idrielAvatar from '@/assets/idriel-avatar.png';
-
-/* ----------------------------- Background FX ----------------------------- */
-
-const RisingParticles: React.FC = () => {
-  const particles = useMemo(
-    () =>
-      Array.from({ length: 36 }).map((_, i) => ({
-        id: i,
-        left: Math.random() * 100,
-        size: 2 + Math.random() * 3,
-        duration: 14 + Math.random() * 18,
-        delay: Math.random() * 20,
-        hue: Math.random() > 0.5 ? 'gold' : 'blue',
-      })),
-    [],
-  );
-  return (
-    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-      {particles.map((p) => (
-        <span
-          key={p.id}
-          style={{
-            position: 'absolute',
-            bottom: '-10px',
-            left: `${p.left}%`,
-            width: p.size,
-            height: p.size,
-            borderRadius: '50%',
-            background:
-              p.hue === 'gold'
-                ? 'hsl(var(--gold-light))'
-                : 'hsl(var(--blue-glow))',
-            boxShadow:
-              p.hue === 'gold'
-                ? '0 0 8px hsl(var(--gold) / 0.7)'
-                : '0 0 8px hsl(var(--blue-bright) / 0.6)',
-            opacity: 0,
-            animation: `riseParticle ${p.duration}s ease-in-out ${p.delay}s infinite`,
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-const FlyingLeaves: React.FC = () => {
-  const leaves = useMemo(
-    () =>
-      Array.from({ length: 14 }).map((_, i) => ({
-        id: i,
-        top: Math.random() * 80,
-        size: 16 + Math.random() * 20,
-        duration: 24 + Math.random() * 22,
-        delay: Math.random() * 25,
-        rotate: Math.random() * 360,
-        drift: 40 + Math.random() * 80,
-      })),
-    [],
-  );
-  return (
-    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-      {leaves.map((l) => (
-        <span
-          key={l.id}
-          style={{
-            position: 'absolute',
-            top: `${l.top}%`,
-            left: '-60px',
-            width: l.size,
-            height: l.size,
-            color: 'hsl(var(--gold-light))',
-            opacity: 0,
-            transform: `rotate(${l.rotate}deg)`,
-            animation: `flyLeaf ${l.duration}s linear ${l.delay}s infinite`,
-            filter: 'drop-shadow(0 0 6px hsl(var(--gold) / 0.4))',
-            // pass drift via CSS var
-            ['--drift' as never]: `${l.drift}vh`,
-          }}
-        >
-          <svg viewBox="0 0 24 24" width="100%" height="100%" fill="currentColor">
-            <path d="M12 2C7 6 4 10 4 14a8 8 0 0 0 16 0c0-4-3-8-8-12zm0 4.5c3 3 5 6 5 8.5a5 5 0 0 1-10 0c0-2.5 2-5.5 5-8.5z" />
-          </svg>
-        </span>
-      ))}
-    </div>
-  );
-};
-
-const TreeSilhouette: React.FC = () => (
-  <div className="pointer-events-none fixed inset-x-0 bottom-0 z-0 flex justify-center opacity-[0.18]">
-    <svg
-      viewBox="0 0 800 600"
-      className="w-[1400px] max-w-[140%] h-auto"
-      fill="none"
-    >
-      <defs>
-        <radialGradient id="treeGlow" cx="50%" cy="40%" r="50%">
-          <stop offset="0%" stopColor="hsl(38 80% 55%)" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="hsl(214 60% 3%)" stopOpacity="0" />
-        </radialGradient>
-        <linearGradient id="trunk" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="hsl(38 50% 35%)" />
-          <stop offset="100%" stopColor="hsl(214 60% 5%)" />
-        </linearGradient>
-      </defs>
-      <ellipse cx="400" cy="240" rx="360" ry="180" fill="url(#treeGlow)" />
-      <path
-        d="M390 600 L390 360 Q370 320 340 290 Q310 260 330 240 M410 600 L410 340 Q430 310 460 280 Q490 250 470 230 M400 600 L400 200 Q380 150 360 130 M400 380 Q420 350 450 340 M400 320 Q380 290 350 280 M400 260 Q420 230 450 220"
-        stroke="url(#trunk)"
-        strokeWidth="6"
-        strokeLinecap="round"
-      />
-      <circle cx="360" cy="220" r="70" fill="hsl(38 70% 45% / 0.35)" />
-      <circle cx="430" cy="200" r="80" fill="hsl(38 70% 50% / 0.3)" />
-      <circle cx="400" cy="150" r="90" fill="hsl(42 75% 55% / 0.25)" />
-      <circle cx="320" cy="260" r="55" fill="hsl(38 70% 45% / 0.3)" />
-      <circle cx="470" cy="260" r="55" fill="hsl(38 70% 45% / 0.3)" />
-    </svg>
-  </div>
-);
-
-/* ------------------------------- Page ------------------------------- */
+import heroVideo from '@/assets/arvore-hero-bg.mp4.asset.json';
+import heroPoster from '@/assets/arvore-mundos-hero.png.asset.json';
 
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -146,17 +25,17 @@ const PricingPage: React.FC = () => {
   const raizPriceId = billingCycle === 'mensal' ? PLANS.raiz_mensal.id : PLANS.raiz_anual.id;
   const idrielPriceId = billingCycle === 'mensal' ? PLANS.idriel_mensal.id : PLANS.idriel_anual.id;
 
+  // 197 / 19.90 ≈ 9.9 → 2 meses grátis | 397 / 39.90 ≈ 9.95 → 2 meses grátis
   const tiers = [
     {
       id: 'raiz',
       name: 'Raiz',
       symbol: '🌿',
-      tagline: 'Crie mundos sem limites',
+      tagline: 'Worldbuilding e escrita sem limites',
       price: billingCycle === 'mensal' ? 'R$ 19,90' : 'R$ 197',
       priceDetail: billingCycle === 'mensal' ? '/mês' : '/ano',
-      savings: billingCycle === 'anual' ? 'Economize R$ 41,80' : null,
-      icon: Leaf,
-      cta: 'Despertar a Raiz',
+      savings: billingCycle === 'anual' ? '2 meses grátis nesse plano' : null,
+      cta: 'Assinar Raiz',
       ctaAction: () => handleCheckout(raizPriceId),
       popular: false,
       borderClass: 'border-blue-bright/30 hover:border-blue-bright/60',
@@ -179,12 +58,11 @@ const PricingPage: React.FC = () => {
       id: 'idriel',
       name: 'Idriel',
       symbol: '✨',
-      tagline: 'A Árvore responde ao seu chamado',
+      tagline: 'Tudo do Raiz + a Idriel ao seu lado',
       price: billingCycle === 'mensal' ? 'R$ 39,90' : 'R$ 397',
       priceDetail: billingCycle === 'mensal' ? '/mês' : '/ano',
-      savings: billingCycle === 'anual' ? 'Economize R$ 81,80' : null,
-      icon: Crown,
-      cta: 'Invocar Idriel',
+      savings: billingCycle === 'anual' ? '2 meses grátis nesse plano' : null,
+      cta: 'Assinar Idriel',
       ctaAction: () => handleCheckout(idrielPriceId),
       popular: true,
       borderClass: 'border-gold/50 hover:border-gold/80',
@@ -207,87 +85,77 @@ const PricingPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ background: '#02070d' }}>
-      {/* Keyframes injetadas */}
-      <style>{`
-        @keyframes riseParticle {
-          0%   { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
-          10%  { opacity: 0.7; }
-          50%  { opacity: 0.4; }
-          100% { transform: translateY(-110vh) translateX(40px) scale(0.4); opacity: 0; }
-        }
-        @keyframes flyLeaf {
-          0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-          10%  { opacity: 0.65; }
-          90%  { opacity: 0.5; }
-          100% { transform: translate(110vw, var(--drift)) rotate(720deg); opacity: 0; }
-        }
-        @keyframes auroraPulse {
-          0%, 100% { opacity: 0.35; transform: translate(-50%, 0) scale(1); }
-          50%      { opacity: 0.55; transform: translate(-50%, -10px) scale(1.05); }
-        }
-      `}</style>
+    <div className="min-h-screen relative" style={{ background: '#02070d' }}>
+      {/* ---------------- HERO ---------------- */}
+      <section className="relative w-full overflow-hidden" style={{ minHeight: '88vh' }}>
+        {/* Vídeo de fundo + poster de reserva */}
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          src={heroVideo.url}
+          poster={heroPoster.url}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+        />
+        {/* Fallback estático caso o vídeo não carregue */}
+        <img
+          src={heroPoster.url}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover -z-10"
+          aria-hidden="true"
+        />
+        {/* Véu sutil para contraste do texto */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(ellipse at center, hsl(214 80% 3% / 0.25) 0%, hsl(214 80% 3% / 0.55) 100%)',
+          }}
+        />
+        {/* Transição fluida para o fundo da página */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-48 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(to bottom, transparent 0%, rgba(2,7,13,0.5) 45%, #02070d 100%)',
+          }}
+        />
 
-      {/* Camadas de fundo */}
-      <div
-        className="fixed inset-0 z-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse 80% 60% at 50% 0%, hsl(38 70% 35% / 0.18) 0%, transparent 60%), radial-gradient(ellipse 70% 50% at 50% 100%, hsl(211 76% 30% / 0.25) 0%, transparent 60%)',
-        }}
-      />
-      <div
-        className="fixed top-[-80px] left-1/2 -translate-x-1/2 w-[120vw] h-[500px] z-0 pointer-events-none rounded-full"
-        style={{
-          background:
-            'radial-gradient(ellipse at center, hsl(38 80% 50% / 0.18) 0%, transparent 70%)',
-          filter: 'blur(80px)',
-          animation: 'auroraPulse 12s ease-in-out infinite',
-        }}
-      />
-      <TreeSilhouette />
-      <RisingParticles />
-      <FlyingLeaves />
+        {/* Conteúdo da hero */}
+        <div className="relative z-10 max-w-5xl mx-auto px-4 pt-8 pb-32">
+          <button
+            onClick={() => navigate('/')}
+            className="inline-flex items-center gap-2 text-text-dim hover:text-foreground transition-colors mb-16 font-montserrat text-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Voltar
+          </button>
 
-      {/* Conteúdo */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 py-10">
-        <button
-          onClick={() => navigate('/')}
-          className="inline-flex items-center gap-2 text-text-dim hover:text-foreground transition-colors mb-10 font-montserrat text-sm"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Voltar à Árvore
-        </button>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9 }}
+            className="text-center pt-8"
+          >
+            <p className="font-montserrat uppercase tracking-[0.4em] text-xs text-gold-light/80 mb-5">
+              Planos da Árvore dos Mundos
+            </p>
+            <h1 className="font-cinzel font-bold text-4xl sm:text-5xl md:text-6xl text-foreground mb-6 leading-tight drop-shadow-[0_2px_20px_rgba(0,0,0,0.6)]">
+              Escolha o seu <span className="text-gold-light">plano</span>
+            </h1>
+            <p className="font-merriweather italic text-text-secondary text-base sm:text-lg max-w-2xl mx-auto leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)]">
+              Worldbuilding, escrita e IA num só lugar — pensado para autores brasileiros.
+              Assine mensal ou anual e cancele quando quiser.
+            </p>
+          </motion.div>
+        </div>
+      </section>
 
-        {/* Hero */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-14"
-        >
-          <div className="inline-flex items-center justify-center gap-3 mb-6">
-            <div className="relative">
-              <img
-                src={idrielAvatar}
-                alt="Idriel"
-                className="w-16 h-16 rounded-full border-2 border-gold/50 shadow-[0_0_30px_hsl(var(--gold)/0.5)]"
-              />
-              <Sparkles className="absolute -top-1 -right-1 w-5 h-5 text-gold-light animate-pulse" />
-            </div>
-          </div>
-          <p className="font-montserrat uppercase tracking-[0.4em] text-xs text-gold-light/80 mb-4">
-            A Árvore dos Mundos
-          </p>
-          <h1 className="font-cinzel font-bold text-4xl sm:text-5xl md:text-6xl text-foreground mb-5 leading-tight">
-            Escolha seu <span className="text-gold-light">Caminho</span>
-          </h1>
-          <p className="font-merriweather italic text-text-secondary text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            Cada autor é uma semente que busca a luz. A Árvore acolhe todos —
-            mas só revela seus mistérios mais profundos a quem ousa percorrer suas raízes.
-          </p>
-        </motion.div>
-
+      {/* ---------------- CONTEÚDO ---------------- */}
+      <div className="relative z-10 max-w-6xl mx-auto px-4 -mt-16 pb-20">
         {/* Billing toggle */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -295,7 +163,7 @@ const PricingPage: React.FC = () => {
           transition={{ delay: 0.3, duration: 0.6 }}
           className="flex items-center justify-center gap-2 mb-12"
         >
-          <div className="inline-flex p-1 rounded-full border border-gold/20 bg-card/40 backdrop-blur-md">
+          <div className="inline-flex p-1 rounded-full border border-gold/20 bg-card/60 backdrop-blur-md">
             <button
               onClick={() => setBillingCycle('mensal')}
               className={`px-6 py-2.5 rounded-full text-xs font-montserrat font-bold uppercase tracking-wider transition-all ${
@@ -316,7 +184,7 @@ const PricingPage: React.FC = () => {
             >
               Anual
               <span className="absolute -top-2 -right-3 px-1.5 py-0.5 bg-emerald-500 text-[8px] text-white rounded-full font-bold">
-                -17%
+                2 meses grátis
               </span>
             </button>
           </div>
@@ -335,13 +203,13 @@ const PricingPage: React.FC = () => {
               }`}
               style={{
                 background: tier.popular
-                  ? 'linear-gradient(180deg, hsl(38 70% 35% / 0.12) 0%, hsl(214 60% 4% / 0.85) 100%)'
-                  : 'linear-gradient(180deg, hsl(211 76% 30% / 0.08) 0%, hsl(214 60% 4% / 0.85) 100%)',
+                  ? 'linear-gradient(180deg, hsl(38 70% 35% / 0.12) 0%, hsl(214 60% 4% / 0.9) 100%)'
+                  : 'linear-gradient(180deg, hsl(211 76% 30% / 0.08) 0%, hsl(214 60% 4% / 0.9) 100%)',
               }}
             >
               {tier.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] text-[10px] font-montserrat font-bold uppercase tracking-widest text-[#1a0f00] shadow-[0_0_20px_hsl(var(--gold)/0.5)]">
-                  ✨ Recomendado
+                  ✨ Mais escolhido
                 </div>
               )}
 
@@ -392,7 +260,7 @@ const PricingPage: React.FC = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.7 }}
-          className="rounded-2xl border border-gold/25 p-7 mb-20 backdrop-blur-md"
+          className="rounded-2xl border border-gold/25 p-7 mb-16 backdrop-blur-md"
           style={{
             background: 'linear-gradient(135deg, hsl(38 70% 35% / 0.1) 0%, hsl(214 60% 4% / 0.85) 100%)',
           }}
@@ -405,7 +273,7 @@ const PricingPage: React.FC = () => {
               </span>
             </div>
             <p className="font-merriweather italic text-text-dim text-sm max-w-xl mx-auto">
-              Esgotaram suas gotas? Recarregue avulso, sem mexer na assinatura.
+              Acabaram suas gotas? Compre recarga avulsa sem mexer na assinatura.
               Quanto mais gotas, mais barata cada uma.
             </p>
           </div>
@@ -453,22 +321,11 @@ const PricingPage: React.FC = () => {
         </motion.div>
 
         {/* Closing */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center pb-16"
-        >
-          <div className="gold-divider mx-auto max-w-xs mb-6" style={{ height: 1, background: 'linear-gradient(90deg, transparent 0%, hsl(var(--gold) / 0.7) 50%, transparent 100%)' }} />
-          <p className="font-merriweather italic text-text-secondary text-base mb-3 max-w-2xl mx-auto">
-            "A Árvore dos Mundos é a única ferramenta brasileira que une
-            worldbuilding, escrita e IA em um só lugar."
-          </p>
+        <div className="text-center pb-8">
           <p className="font-montserrat text-[10px] uppercase tracking-[0.3em] text-text-dim/60">
             Universo STORIA · Todos os direitos reservados
           </p>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
