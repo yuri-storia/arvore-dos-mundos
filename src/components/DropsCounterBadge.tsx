@@ -33,7 +33,7 @@ const ElixirBar: React.FC<{
 
   return (
     <div
-      className="flex items-center gap-3 flex-1 min-w-[220px] max-w-[460px]"
+      className="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0 max-w-[460px]"
       title={subtitle}
     >
       {/* Icon */}
