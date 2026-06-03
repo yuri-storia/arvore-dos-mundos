@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Bug } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Bug, Paperclip, X, Image as ImageIcon, Video } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -15,21 +15,49 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 
 interface Props {
-  /** Texto pré-preenchido (ex: mensagem de erro técnica que disparou o relato) */
   initialContext?: string;
-  /** Aparência do botão gatilho. Se omitido, usa o botão padrão. */
   trigger?: React.ReactNode;
 }
+
+const MAX_BYTES = 20 * 1024 * 1024; // 20 MB
 
 export const BugReportDialog: React.FC<Props> = ({ initialContext = '', trigger }) => {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [saving, setSaving] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenChange = (next: boolean) => {
-    if (next) setMessage('');
+    if (next) {
+      setMessage('');
+      clearFile();
+    }
     setOpen(next);
+  };
+
+  const clearFile = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setFile(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const onPickFile = (f: File | null) => {
+    if (!f) return;
+    if (f.size > MAX_BYTES) {
+      toast.error('Arquivo muito grande. Máximo 20 MB.');
+      return;
+    }
+    if (!f.type.startsWith('image/') && !f.type.startsWith('video/')) {
+      toast.error('Apenas imagens ou vídeos são permitidos.');
+      return;
+    }
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setFile(f);
+    setPreviewUrl(URL.createObjectURL(f));
   };
 
   const handleSubmit = async () => {
@@ -42,18 +70,39 @@ export const BugReportDialog: React.FC<Props> = ({ initialContext = '', trigger 
       toast.error('Mensagem longa demais. Resuma em até 4000 caracteres.');
       return;
     }
+    if (file && !user) {
+      toast.error('Faça login para anexar arquivos.');
+      return;
+    }
     setSaving(true);
     try {
+      let attachment_path: string | null = null;
+      let attachment_type: string | null = null;
+
+      if (file && user) {
+        const ext = file.name.split('.').pop()?.toLowerCase() || 'bin';
+        const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from('bug-attachments')
+          .upload(path, file, { contentType: file.type, upsert: false });
+        if (upErr) throw upErr;
+        attachment_path = path;
+        attachment_type = file.type;
+      }
+
       const { error } = await supabase.from('bug_reports').insert({
         user_id: user?.id ?? null,
         user_email: user?.email ?? null,
         message: text,
         context: initialContext || null,
         route: typeof window !== 'undefined' ? window.location.pathname : null,
+        attachment_path,
+        attachment_type,
       });
       if (error) throw error;
       toast.success('Relato enviado! Obrigado por ajudar a melhorar A Árvore dos Mundos.');
       setOpen(false);
+      clearFile();
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Erro desconhecido';
       toast.error(`Não foi possível enviar agora: ${msg}`);
@@ -71,6 +120,8 @@ export const BugReportDialog: React.FC<Props> = ({ initialContext = '', trigger 
       Reportar problema
     </button>
   );
+
+  const isVideo = file?.type.startsWith('video/');
 
   return (
     <>
@@ -123,6 +174,54 @@ export const BugReportDialog: React.FC<Props> = ({ initialContext = '', trigger 
                 </span>
               )}
             </div>
+          </div>
+
+          {/* Attachment */}
+          <div className="space-y-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,video/*"
+              className="hidden"
+              onChange={(e) => onPickFile(e.target.files?.[0] ?? null)}
+            />
+            {!file ? (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={!user}
+                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-dashed border-gold-bronze/40 text-text-secondary hover:text-foreground hover:border-gold-champagne/60 transition-colors text-[11px] font-montserrat uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
+                title={user ? 'Anexar imagem ou vídeo (máx. 20 MB)' : 'Faça login para anexar arquivos'}
+              >
+                <Paperclip className="w-3.5 h-3.5" />
+                Anexar imagem ou vídeo
+              </button>
+            ) : (
+              <div className="rounded-md border border-gold-bronze/30 bg-[rgba(4,12,24,0.6)] p-2 flex items-center gap-3">
+                {isVideo ? (
+                  <video src={previewUrl ?? undefined} className="w-20 h-20 rounded object-cover bg-black" muted />
+                ) : (
+                  <img src={previewUrl ?? ''} alt="prévia" className="w-20 h-20 rounded object-cover" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 text-[11px] text-foreground font-montserrat truncate">
+                    {isVideo ? <Video className="w-3 h-3" /> : <ImageIcon className="w-3 h-3" />}
+                    <span className="truncate">{file.name}</span>
+                  </div>
+                  <div className="text-[10px] text-text-dim font-montserrat">
+                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={clearFile}
+                  className="w-7 h-7 rounded-full text-text-dim hover:text-red-alert hover:bg-red-alert/10 flex items-center justify-center"
+                  aria-label="Remover anexo"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
           </div>
 
           <DialogFooter className="gap-2 sm:gap-2">
