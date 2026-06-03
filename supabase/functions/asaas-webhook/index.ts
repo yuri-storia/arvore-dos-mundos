@@ -154,13 +154,8 @@ Deno.serve(async (req) => {
         .eq("asaas_subscription_id", payment.subscription);
     }
 
-    if (eventType === "SUBSCRIPTION_DELETED" || eventType === "SUBSCRIPTION_INACTIVATED") {
-      const subId = event.subscription?.id;
-      if (subId) {
-        await supa.from("subscriptions").update({ status: "cancelled", cancelled_at: new Date().toISOString() })
-          .eq("asaas_subscription_id", subId);
-      }
-    }
+
+
 
     return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (err: any) {
