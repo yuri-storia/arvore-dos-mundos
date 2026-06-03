@@ -392,8 +392,8 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-1.5 min-w-0 group">
               <input
-                value={activeManuscript.title}
-                onChange={e => updateManuscript(activeManuscript.id, { title: e.target.value })}
+                value={manuscriptTitleLocal}
+                onChange={e => handleManuscriptTitleChange(e.target.value)}
                 onClick={e => e.stopPropagation()}
                 className="bg-transparent font-cinzel font-bold text-lg text-foreground border-none focus:outline-none min-w-0 max-w-[260px] cursor-text"
                 placeholder="Título do manuscrito"
