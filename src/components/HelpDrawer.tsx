@@ -116,7 +116,7 @@ const FAQ: Record<string, { label: string; items: { q: string; a: string }[] }> 
     items: [
       {
         q: 'Como posso ter acesso à geração de imagens e análise do mundo?',
-        a: 'Essas funcionalidades estão disponíveis exclusivamente no **plano Idriel** (R$ 29,90/mês ou R$ 279/ano). Para fazer upgrade:\n\n1. Clique no seu avatar no canto superior direito\n2. Vá em **Configurações** ou clique no banner de upgrade\n3. Escolha o plano Idriel\n\nCom o plano Idriel você recebe **100 gotas de Elixir dos Mundos por mês** para usar em geração de imagens (5 gotas), consultas de IA (1 gota) e análise de mundo (2 gotas).',
+        a: 'Essas funcionalidades estão disponíveis exclusivamente no **plano Idriel** (R$ 39,90/mês ou R$ 397/ano). Para fazer upgrade:\n\n1. Clique no seu avatar no canto superior direito\n2. Vá em **Configurações** ou clique no banner de upgrade\n3. Escolha o plano Idriel\n\nCom o plano Idriel você recebe **100 gotas de Elixir dos Mundos por mês** para usar em geração de imagens (5 gotas), consultas de IA (1 gota) e análise de mundo (2 gotas).',
       },
       {
         q: 'Quais são os planos disponíveis?',

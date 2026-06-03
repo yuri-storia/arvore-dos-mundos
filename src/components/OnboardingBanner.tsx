@@ -79,7 +79,7 @@ export const OnboardingBanner: React.FC = () => {
                   Idriel alimenta suas habilidades com <strong className="text-gold-light">Elixir dos Mundos</strong> — a energia que flui pela Árvore dos Mundos. Seu plano inclui <strong className="text-gold-light">100 gotas de Elixir</strong> por mês. Textos consomem <strong className="text-gold-light">1 gota</strong>, imagens consomem <strong className="text-gold-light">5 gotas</strong> e uma Análise de Mundo consome <strong className="text-gold-light">2 gotas</strong>.
                 </p>
                 <p className="mt-2 text-[11px] text-text-dim font-merriweather italic">
-                  <><Leaf className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} />Acompanhe suo Elixir dos Mundos no banner dourado no topo da página. A cada lua nova (mês), Idriel renova sua energia!</>
+                  <><Leaf className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} />Acompanhe seu Elixir dos Mundos no banner dourado no topo da página. A cada lua nova (mês), Idriel renova sua energia!</>
                 </p>
               </div>
             </div>

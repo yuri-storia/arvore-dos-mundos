@@ -462,7 +462,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                   <div className="flex items-start gap-3 text-left bg-gold/[0.04] rounded-lg p-3 border border-gold/10">
                     <img src={idrielAvatar} alt="Idriel" className="w-8 h-8 rounded-full border border-gold/30 shrink-0 mt-0.5" />
                     <p className="font-merriweather text-sm text-text-secondary leading-relaxed italic">
-                      "Querido criador, o Elixir dos Mundos flui dentro deste Fruto. Com ela, posso materializar as visões do seu mundo em imagens, analisar sua criação e guiá-lo com toda minha sabedoria. Basta colher o Fruto."
+                      "Querido criador, o Elixir dos Mundos flui dentro deste Fruto. Com ele, posso materializar as visões do seu mundo em imagens, analisar sua criação e guiá-lo com toda minha sabedoria. Basta colher o Fruto."
                     </p>
                   </div>
                 </div>
