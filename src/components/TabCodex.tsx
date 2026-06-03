@@ -10,7 +10,7 @@ import { exportSingleEntry, exportFruitEntries, exportSelectedFruits, exportAllE
 import { CodexAnalysis } from '@/components/CodexAnalysis';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { WorldRecord } from '@/hooks/useWorlds';
-import { Lock, BookOpen, Search } from 'lucide-react';
+import { Lock, BookOpen, Search, FileDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { IdrielImportDialog } from '@/components/IdrielImportDialog';
 
@@ -164,7 +164,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                 onClick={() => { setShowExport(!showExport); setExportSelectedFruitIds([]); }}
                 className="px-3 py-2 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_16px_hsl(var(--idriel)/0.4)] hover:shadow-[0_0_24px_hsl(var(--idriel)/0.6)]"
               >
-                📄 Exportar PDF
+                <><FileDown className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Exportar PDF</>
               </button>
           )}
           {entries.length > 0 && !planLimits.canExport && (

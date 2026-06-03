@@ -421,7 +421,7 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
 
           {/* Content */}
           <div className="flex items-start gap-2.5 mb-4">
-            <span className="text-xl shrink-0">{currentStep.icon}</span>
+            <currentStep.Icon className="w-5 h-5 shrink-0 text-gold-champagne" strokeWidth={1.75} />
             <div className="flex-1 min-w-0">
               <h4 className="font-montserrat font-bold text-[13px] text-foreground mb-1">{currentStep.title}</h4>
               <p className="font-merriweather italic text-[12px] text-text-secondary leading-relaxed">{currentStep.desc}</p>

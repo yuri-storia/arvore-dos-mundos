@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Trees, X } from 'lucide-react';
+import { Trees, X, ScrollText, Trash2, Droplet, Droplets, Leaf, Sparkles, RefreshCw, Check } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
 import { callAIText, friendlyAIError } from '@/lib/helpers';
@@ -286,7 +286,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
           className="w-full mb-4 px-3 py-2 rounded-md border border-accent/20 bg-accent/5 hover:bg-accent/10 transition-colors text-left flex items-center justify-between"
         >
           <span className="text-[10px] uppercase tracking-wider font-montserrat font-bold text-accent-foreground">
-            📜 Histórico de Análises ({history.length})
+            <><ScrollText className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Histórico de Análises ({history.length})</>
           </span>
           <span className="text-text-dim text-xs">{showHistory ? '▲' : '▼'}</span>
         </button>
@@ -328,7 +328,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
                           className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded-full text-destructive hover:bg-destructive/10 text-xs flex items-center justify-center transition-all"
                           title="Excluir análise"
                         >
-                          🗑
+                          <Trash2 className="w-3 h-3" strokeWidth={1.75} />
                         </button>
                       }
                       title="Excluir análise"
@@ -361,7 +361,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
               className={`text-[9px] uppercase tracking-wider font-montserrat font-bold ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : ''}`}
               style={!isOut && !isLow ? { color: '#2A1A00' } : undefined}
             >
-              {isOut ? '🥀 Seiva esgotada' : isLow ? '🍂 Poucas gotas' : '✨ Seiva Dourada'}
+              <>{isOut ? <><Droplets className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Seiva esgotada</> : isLow ? <><Leaf className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Poucas gotas</> : <><Sparkles className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Seiva Dourada</>}</>
             </span>
             <span
               className={`text-[10px] font-montserrat font-bold ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : ''}`}
@@ -386,7 +386,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
       {!sub.loading && !planLimits.canUseAI && (
         <div className="rounded-md px-3 py-2 mb-4 border border-destructive/30 bg-destructive/5">
           <p className="text-[10px] text-destructive font-merriweather">
-            🥀 Idriel precisa de Seiva Dourada para novas análises. Mas você ainda pode revisitar análises anteriores no histórico!
+            <><Droplets className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Idriel precisa de Seiva Dourada para novas análises. Mas você ainda pode revisitar análises anteriores no histórico!</>
           </p>
         </div>
       )}
@@ -403,11 +403,11 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
               disabled={!canAnalyze || sub.loading}
               className="px-5 py-2.5 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_hsl(var(--idriel)/0.3)] hover:shadow-[0_0_30px_hsl(var(--idriel)/0.5)] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
             >
-              🌳 Consultar {IDRIEL_NAME} sobre {entries.length} entrada{entries.length !== 1 ? 's' : ''}
+              <><Trees className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Consultar {IDRIEL_NAME} sobre {entries.length} entrada{entries.length !== 1 ? 's' : ''}</>
             </button>
           )}
           <p className="text-[10px] text-text-dim mt-2 font-montserrat">
-            💧 Custo: <span className="font-bold text-idriel-light">{ANALYSIS_COST} gota</span> de Seiva · Você tem <span className="font-bold text-idriel-light">{creditsRemaining} gotas</span> · Análises anteriores são gratuitas
+            <Droplet className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Custo: <span className="font-bold text-idriel-light">{ANALYSIS_COST} gota</span> de Seiva · Você tem <span className="font-bold text-idriel-light">{creditsRemaining} gotas</span> · Análises anteriores são gratuitas
           </p>
         </div>
       )}
@@ -420,7 +420,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
               <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-idriel/40 shadow-[0_0_30px_hsl(var(--idriel-glow)/0.3)] animate-pulse">
                 <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
               </div>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-idriel/30 border border-idriel-light/50 flex items-center justify-center text-xs animate-pulse">🌳</div>
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-idriel/30 border border-idriel-light/50 flex items-center justify-center animate-pulse"><Trees className="w-3 h-3 text-gold-champagne" strokeWidth={1.75} /></div>
             </div>
             <div className="text-center">
               <p className="font-cinzel font-bold text-sm text-foreground">{IDRIEL_NAME}</p>
@@ -443,7 +443,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
                       ? 'bg-violet-500/30 text-violet-400 animate-pulse'
                       : 'bg-border text-text-dim'
                 }`}>
-                  {i < currentStep ? '✓' : '●'}
+                  {i < currentStep ? <Check className="w-3 h-3" strokeWidth={2.5} /> : <span className="w-1.5 h-1.5 rounded-full bg-current" />}
                 </span>
                 <p className={`font-merriweather italic text-sm transition-colors duration-300 ${
                   i === currentStep ? 'text-foreground' : 'text-text-dim'
@@ -466,7 +466,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
         <div className="mt-4 animate-fade-in">
           {viewingHistoryId && (
             <div className="mb-3 px-3 py-1.5 rounded-md bg-accent/10 border border-accent/20 flex items-center gap-2">
-              <span className="text-[10px] text-accent-foreground font-montserrat">📜 Visualizando análise do histórico</span>
+              <span className="text-[10px] text-accent-foreground font-montserrat inline-flex items-center gap-1.5"><ScrollText className="w-3 h-3" strokeWidth={1.75} />Visualizando análise do histórico</span>
               <button
                 onClick={() => { setViewingHistoryId(null); setAnalysis(''); setRevealedChars(0); }}
                 className="text-[10px] text-text-dim hover:text-foreground font-montserrat underline ml-auto"
@@ -521,7 +521,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
                 disabled={!canAnalyze}
                 className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors disabled:opacity-40"
               >
-                🔄 Nova análise
+                <><RefreshCw className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Nova análise</>
               </button>
             )}
             <button
