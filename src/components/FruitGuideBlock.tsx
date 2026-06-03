@@ -93,7 +93,7 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide, id, fruitId }) => {
                     {/* Recommendation banner — only on "Sobre este Fruto" */}
                     {section.recCopy && (
                       <div className="mb-3 flex items-start gap-2.5 p-3 rounded-md bg-gold/[0.07] border border-gold/25">
-                        <span className="text-base shrink-0 mt-0.5">{section.recCopy.icon}</span>
+                        <section.recCopy.Icon className="w-4 h-4 shrink-0 mt-0.5 text-gold-light" strokeWidth={1.75} />
                         <p
                           className="font-merriweather text-[13px] leading-relaxed text-gold-light/95 italic"
                           dangerouslySetInnerHTML={{
