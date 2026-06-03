@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
 import { RechargePackageDialog } from '@/components/RechargePackageDialog';
 import { UpgradeIdrielDialog } from '@/components/UpgradeIdrielDialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 /**
  * Painel horizontal de Elixir dos Mundos:
@@ -143,23 +144,75 @@ export const DropsCounterBadge: React.FC = () => {
     </div>
   );
 
+  // Tooltip content with breakdown
+  const renderTooltip = (
+    remainingMonth: number | null,
+    bonus: number,
+    totalAvailable: number,
+    totalCapacity: number,
+    infinite: boolean,
+  ) => (
+    <div className="font-montserrat text-[11px] text-foreground space-y-1 min-w-[200px]">
+      <div className="font-cinzel font-bold text-gold-light text-[12px] tracking-wide mb-1.5 border-b border-gold/20 pb-1">
+        Elixir dos Mundos
+      </div>
+      {infinite ? (
+        <>
+          <div className="flex justify-between gap-3">
+            <span className="text-text-dim">Acesso</span>
+            <span className="text-gold-light font-bold">Ilimitado (Admin)</span>
+          </div>
+          {bonus > 0 && (
+            <div className="flex justify-between gap-3">
+              <span className="text-text-dim">Bônus avulso</span>
+              <span className="tabular-nums">+{bonus} gotas</span>
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <div className="flex justify-between gap-3">
+            <span className="text-text-dim">Gotas do mês</span>
+            <span className="tabular-nums">{remainingMonth} restantes</span>
+          </div>
+          <div className="flex justify-between gap-3">
+            <span className="text-text-dim">Bônus avulso</span>
+            <span className="tabular-nums">+{bonus} gotas</span>
+          </div>
+          <div className="flex justify-between gap-3 border-t border-gold/15 pt-1 mt-1">
+            <span className="text-gold-light font-bold">Disponível agora</span>
+            <span className="text-gold-light font-bold tabular-nums">{totalAvailable} gotas</span>
+          </div>
+          <div className="flex justify-between gap-3">
+            <span className="text-text-dim">Capacidade total</span>
+            <span className="tabular-nums">{totalCapacity} gotas</span>
+          </div>
+        </>
+      )}
+    </div>
+  );
+
   if (isAdmin) {
     const totalCapacity = Math.max(1, sub.creditLimit + sub.bonusDrops);
     return (
-      <>
+      <TooltipProvider delayDuration={150}>
         {wrap(
           <>
-            <ElixirBar
-              available={totalCapacity}
-              total={totalCapacity}
-              infinite
-              subtitle={`Admin · ilimitado${sub.bonusDrops ? ` (+ ${sub.bonusDrops} bônus)` : ''}`}
-            />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex-1 min-w-0 cursor-help">
+                  <ElixirBar available={totalCapacity} total={totalCapacity} infinite />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="border-gold/40 bg-[#0a0d14]/95 backdrop-blur-md p-3 shadow-[0_0_20px_hsl(var(--gold)/0.15)]">
+                {renderTooltip(null, sub.bonusDrops, totalCapacity, totalCapacity, true)}
+              </TooltipContent>
+            </Tooltip>
             {BuyButton}
           </>,
         )}
         <RechargePackageDialog open={showRecharge} onClose={() => setShowRecharge(false)} />
-      </>
+      </TooltipProvider>
     );
   }
 
@@ -168,19 +221,24 @@ export const DropsCounterBadge: React.FC = () => {
     const totalAvailable = remainingMonth + sub.bonusDrops;
     const totalCapacity = sub.creditLimit + sub.bonusDrops;
     return (
-      <>
+      <TooltipProvider delayDuration={150}>
         {wrap(
           <>
-            <ElixirBar
-              available={totalAvailable}
-              total={totalCapacity}
-              subtitle={`${remainingMonth} do mês + ${sub.bonusDrops} bônus`}
-            />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex-1 min-w-0 cursor-help">
+                  <ElixirBar available={totalAvailable} total={totalCapacity} />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="border-gold/40 bg-[#0a0d14]/95 backdrop-blur-md p-3 shadow-[0_0_20px_hsl(var(--gold)/0.15)]">
+                {renderTooltip(remainingMonth, sub.bonusDrops, totalAvailable, totalCapacity, false)}
+              </TooltipContent>
+            </Tooltip>
             {BuyButton}
           </>,
         )}
         <RechargePackageDialog open={showRecharge} onClose={() => setShowRecharge(false)} />
-      </>
+      </TooltipProvider>
     );
   }
 
