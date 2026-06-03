@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
-import { Bug, X } from 'lucide-react';
+import { Bug } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   /** Texto pré-preenchido (ex: mensagem de erro técnica que disparou o relato) */
   initialContext?: string;
-  /** Aparência do botão gatilho. Se omitido, usa o ícone padrão. */
+  /** Aparência do botão gatilho. Se omitido, usa o botão padrão. */
   trigger?: React.ReactNode;
 }
 
@@ -17,9 +27,9 @@ export const BugReportDialog: React.FC<Props> = ({ initialContext = '', trigger 
   const [message, setMessage] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const handleOpen = () => {
-    setMessage('');
-    setOpen(true);
+  const handleOpenChange = (next: boolean) => {
+    if (next) setMessage('');
+    setOpen(next);
   };
 
   const handleSubmit = async () => {
@@ -52,69 +62,60 @@ export const BugReportDialog: React.FC<Props> = ({ initialContext = '', trigger 
     }
   };
 
+  const defaultTrigger = (
+    <button
+      type="button"
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider border border-red-alert/40 text-red-alert hover:bg-red-alert/10 transition-colors"
+    >
+      <Bug className="w-3 h-3" />
+      Reportar problema
+    </button>
+  );
+
   return (
     <>
-      {trigger ? (
-        <span onClick={handleOpen} className="inline-flex">{trigger}</span>
-      ) : (
-        <button
-          onClick={handleOpen}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider border border-red-alert/40 text-red-alert hover:bg-red-alert/10 transition-colors"
-        >
-          <Bug className="w-3 h-3" />
-          Reportar problema
-        </button>
-      )}
+      <span onClick={() => setOpen(true)} className="inline-flex">
+        {trigger ?? defaultTrigger}
+      </span>
 
-      {open && (
-        <div
-          className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-sm flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto"
-          onClick={() => setOpen(false)}
+      <Dialog open={open} onOpenChange={handleOpenChange}>
+        <DialogContent
+          className="sm:max-w-md border-gold-bronze/40"
+          style={{
+            background: 'linear-gradient(135deg, hsl(214 60% 5%) 0%, hsl(214 65% 7%) 100%)',
+          }}
         >
-          <div
-            onClick={e => e.stopPropagation()}
-            className="my-auto w-full max-w-md rounded-xl p-5 animate-fadeUp relative shadow-gold-glow-strong"
-            style={{
-              background: 'linear-gradient(135deg, hsl(214 60% 5%) 0%, hsl(214 65% 7%) 100%)',
-              border: '1px solid hsl(34 42% 58% / 0.45)',
-            }}
-          >
-            <button
-              onClick={() => setOpen(false)}
-              className="absolute top-3 right-3 text-text-dim hover:text-foreground"
-              aria-label="Fechar"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="flex items-center gap-2 mb-2">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-cinzel text-foreground">
               <Bug className="w-5 h-5 text-gold-champagne" strokeWidth={1.75} />
-              <h3 className="font-cinzel font-bold text-foreground text-lg">Reportar problema</h3>
-            </div>
-            <p className="font-amiri text-sm text-text-secondary mb-4 leading-relaxed">
+              Reportar problema
+            </DialogTitle>
+            <DialogDescription className="font-amiri text-text-secondary">
               Conte o que aconteceu — quanto mais detalhes (o que tentou fazer, em qual aba, o que apareceu na tela), mais rápido conseguimos resolver.
-            </p>
+            </DialogDescription>
+          </DialogHeader>
 
-            {initialContext && (
-              <div className="mb-3 rounded-md bg-red-alert/5 border border-red-alert/20 p-2.5">
-                <span className="block text-[10px] font-montserrat uppercase tracking-wider text-red-alert/80 mb-1">
-                  Contexto técnico anexado
-                </span>
-                <code className="block text-[11px] text-text-secondary font-mono whitespace-pre-wrap break-words max-h-24 overflow-auto">
-                  {initialContext}
-                </code>
-              </div>
-            )}
+          {initialContext && (
+            <div className="rounded-md bg-red-alert/5 border border-red-alert/20 p-2.5">
+              <span className="block text-[10px] font-montserrat uppercase tracking-wider text-red-alert/80 mb-1">
+                Contexto técnico anexado
+              </span>
+              <code className="block text-[11px] text-text-secondary font-mono whitespace-pre-wrap break-words max-h-24 overflow-auto">
+                {initialContext}
+              </code>
+            </div>
+          )}
 
-            <textarea
+          <div className="space-y-1">
+            <Textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Ex: Tentei gerar uma imagem na aba Galeria e apareceu uma mensagem de erro. Estava usando o Chrome no notebook."
               rows={5}
               maxLength={4000}
-              className="w-full bg-[hsl(214_70%_3%)] border border-gold-bronze/30 rounded-md px-3 py-2 text-sm text-foreground font-amiri placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold-champagne/60 resize-y"
+              className="bg-[hsl(214_70%_3%)] border-gold-bronze/30 text-foreground font-amiri placeholder:italic placeholder:text-text-dim/70 focus-visible:ring-gold-champagne/40 resize-y"
             />
-            <div className="flex items-center justify-between mt-1 mb-4">
+            <div className="flex items-center justify-between">
               <span className="text-[10px] text-text-dim font-montserrat">{message.length}/4000</span>
               {!user && (
                 <span className="text-[10px] text-gold-champagne/80 font-montserrat italic">
@@ -122,29 +123,32 @@ export const BugReportDialog: React.FC<Props> = ({ initialContext = '', trigger 
                 </span>
               )}
             </div>
-
-            <div className="flex gap-2 justify-end">
-              <button
-                onClick={() => setOpen(false)}
-                className="px-4 py-2 rounded-md text-xs font-montserrat text-text-secondary border border-border hover:text-foreground hover:bg-white/[0.04] transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={saving}
-                className="px-5 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider text-[#1a0f00] transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
-                style={{
-                  background: 'linear-gradient(135deg, hsl(42 55% 90%) 0%, hsl(40 50% 78%) 35%, hsl(34 42% 58%) 100%)',
-                  boxShadow: '0 6px 22px hsl(34 42% 35% / 0.45), inset 0 1px 0 hsl(42 60% 96% / 0.6)',
-                }}
-              >
-                {saving ? 'Enviando…' : 'Enviar relato'}
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setOpen(false)}
+              className="border-border text-text-secondary hover:text-foreground"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={saving}
+              className="text-[#1a0f00] font-montserrat font-bold uppercase tracking-wider text-xs hover:-translate-y-0.5 transition-transform disabled:translate-y-0"
+              style={{
+                background:
+                  'linear-gradient(135deg, hsl(42 55% 90%) 0%, hsl(40 50% 78%) 35%, hsl(34 42% 58%) 100%)',
+                boxShadow:
+                  '0 6px 22px hsl(34 42% 35% / 0.45), inset 0 1px 0 hsl(42 60% 96% / 0.6)',
+              }}
+            >
+              {saving ? 'Enviando…' : 'Enviar relato'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
