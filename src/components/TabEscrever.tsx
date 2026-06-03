@@ -240,7 +240,6 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     createScene, updateScene, deleteScene,
   } = useManuscript(worldId);
   const { entries } = useCodexEntries(worldId);
-  const storylineState = useStorylines(worldId);
 
   const [writeMode, setWriteMode] = useState<WriteMode>('manuscrito');
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
