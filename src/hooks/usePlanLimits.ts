@@ -11,12 +11,12 @@ export interface PlanLimits {
 }
 
 const SEMENTE_LIMITS: PlanLimits = {
-  maxWorlds: 1,
-  maxFichas: 5,
-  maxArtigos: 1,
+  maxWorlds: 0,
+  maxFichas: 0,
+  maxArtigos: 0,
   canExport: false,
   canUseAI: false,
-  planLabel: 'Semente',
+  planLabel: 'Sem plano',
 };
 
 const RAIZ_LIMITS: PlanLimits = {
@@ -69,6 +69,6 @@ export function usePlanLimits(): PlanLimits & { loading: boolean } {
     return { ...RAIZ_LIMITS, loading: false };
   }
 
-  // Free tier (Semente)
+  // Sem assinatura ativa — paywalled
   return { ...SEMENTE_LIMITS, loading: false };
 }

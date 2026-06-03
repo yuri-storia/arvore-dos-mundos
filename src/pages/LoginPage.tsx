@@ -329,7 +329,7 @@ const LoginPage: React.FC = () => {
 
                 {/* Link to landing page */}
                 <button
-                  onClick={() => navigate('/inicio')}
+                  onClick={() => navigate('/planos')}
                   className="mt-4 text-text-dim text-[11px] font-montserrat hover:text-blue-light hover:underline transition-colors"
                 >
                   <>Conheça a Árvore dos Mundos <ArrowRight className="inline-block w-4 h-4 ml-1 align-[-0.2em]" strokeWidth={2} /></>

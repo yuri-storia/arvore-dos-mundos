@@ -4,14 +4,18 @@ import { motion } from 'framer-motion';
 import {
   Check, X, ArrowLeft, Sparkles, BookOpen, Map, Library, Image as ImageIcon,
   Wand2, FileDown, Layers, Brain, Infinity as InfinityIcon, ShieldCheck, Clock, Heart,
-  Leaf, Feather, Star, Plus, Droplet, Trees, Crown, Compass,
+  Leaf, Feather, Star, Plus, Droplet, Trees, Crown, Compass, LogIn,
 } from 'lucide-react';
 import { openCheckout, PLANS } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
 import heroVideo from '@/assets/arvore-hero-bg.mp4.asset.json';
 import heroPoster from '@/assets/arvore-mundos-hero.png.asset.json';
+import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
+import idrielPoster from '@/assets/idriel-avatar.png';
 
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'mensal' | 'anual'>('anual');
 
@@ -115,13 +119,30 @@ const PricingPage: React.FC = () => {
         />
 
         <div className="relative z-10 max-w-5xl mx-auto px-5 pt-8 pb-32">
-          <button
-            onClick={() => navigate('/')}
-            className="inline-flex items-center gap-2 text-text-secondary hover:text-foreground transition-colors mb-20 font-montserrat text-xs uppercase tracking-[0.25em]"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Voltar
-          </button>
+          <div className="flex items-center justify-between mb-20">
+            {user ? (
+              <button
+                onClick={() => navigate('/')}
+                className="inline-flex items-center gap-2 text-text-secondary hover:text-foreground transition-colors font-montserrat text-xs uppercase tracking-[0.25em]"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Voltar ao app
+              </button>
+            ) : <span />}
+
+            <button
+              onClick={() => navigate(user ? '/' : '/login')}
+              className="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-montserrat font-bold uppercase tracking-[0.22em] text-[11px] text-[#04140a] transition-all hover:-translate-y-0.5"
+              style={{
+                background: 'linear-gradient(135deg, #b9f5c8 0%, #4ade80 28%, #16a34a 60%, #166534 100%)',
+                boxShadow: '0 6px 24px hsl(142 70% 35% / 0.4), inset 0 1px 0 hsl(142 90% 80% / 0.6), inset 0 -2px 0 hsl(142 70% 20% / 0.4)',
+                border: '1px solid hsl(142 70% 25% / 0.6)',
+              }}
+            >
+              <LogIn className="w-4 h-4" strokeWidth={2.25} />
+              {user ? 'Entrar no app' : 'Login'}
+            </button>
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -301,6 +322,109 @@ const PricingPage: React.FC = () => {
           })}
         </div>
 
+        {/* =============== QUEM É IDRIEL =============== */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.8 }}
+          className="mb-24"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+            {/* Visual */}
+            <div className="relative order-2 lg:order-1">
+              <div
+                className="relative rounded-[1.5rem] overflow-hidden border border-gold-warm/40"
+                style={{
+                  boxShadow:
+                    '0 30px 90px hsl(214 90% 2% / 0.7), 0 0 0 1px hsl(var(--gold-bronze) / 0.25), inset 0 1px 0 hsl(var(--gold-cream) / 0.15)',
+                }}
+              >
+                <video
+                  className="block w-full h-auto"
+                  src={idrielVideo.url}
+                  poster={idrielPoster}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  aria-label="Idriel, a anfitriã élfica da Árvore dos Mundos"
+                />
+                <div
+                  className="pointer-events-none absolute inset-0"
+                  style={{
+                    background:
+                      'radial-gradient(ellipse at center, transparent 55%, hsl(214 90% 2% / 0.55) 100%)',
+                  }}
+                />
+                <div
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-28"
+                  style={{
+                    background:
+                      'linear-gradient(to bottom, transparent 0%, hsl(214 90% 2% / 0.75) 100%)',
+                  }}
+                />
+                <div className="absolute bottom-5 left-5 right-5 flex items-center gap-2.5">
+                  <Sparkles className="w-4 h-4 text-gold-champagne" strokeWidth={2} />
+                  <span className="font-cinzel font-bold text-sm tracking-[0.18em] text-gradient-gold">
+                    Idriel
+                  </span>
+                  <span className="font-amiri italic text-xs text-text-secondary">
+                    — guardiã da Árvore
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Texto */}
+            <div className="order-1 lg:order-2">
+              <p className="font-montserrat uppercase tracking-[0.35em] text-[10px] text-gold-champagne mb-4">
+                Conheça a anfitriã
+              </p>
+              <h2 className="font-cinzel font-bold text-[clamp(1.9rem,4.2vw,3rem)] text-foreground mb-6 leading-[1.1]">
+                Quem é <span className="text-gradient-gold">Idriel?</span>
+              </h2>
+              <div className="space-y-5 font-amiri text-[1.05rem] sm:text-[1.1rem] leading-[1.75] text-text-secondary">
+                <p>
+                  Idriel é uma <em className="text-gold-cream">élfica imortal</em>, guardiã da Árvore
+                  dos Mundos. Há eras ela caminha entre cosmologias, ouvindo o sussurro de civilizações,
+                  deuses e mitos — e agora oferece esse conhecimento a você.
+                </p>
+                <p>
+                  Mais que uma IA, ela é a sua <span className="text-gold-champagne font-bold">parceira de criação</span>:
+                  alimentada pelo Codex do seu mundo, ela brainstormeia povos e religiões,
+                  expande cenas, gera retratos consistentes e desenha mapas — sempre em pt-BR,
+                  sempre com a voz de uma sábia que conhece o ofício.
+                </p>
+                <p>
+                  Quando você assina o plano <span className="text-gradient-gold font-bold">Idriel</span>,
+                  ela passa a habitar o seu santuário criativo — pronta para co-criar mundos
+                  que respiram.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 mt-8">
+                {[
+                  { Icon: Feather, label: 'Texto em Gemini 2.5 Pro' },
+                  { Icon: ImageIcon, label: 'Imagens em Gemini 3 Pro' },
+                  { Icon: Map, label: 'Mapas cartográficos' },
+                  { Icon: Brain, label: 'Análise de mundo' },
+                ].map(({ Icon, label }) => (
+                  <div
+                    key={label}
+                    className="flex items-center gap-2.5 rounded-lg border border-gold-bronze/30 bg-card/40 backdrop-blur-md px-3.5 py-2.5"
+                  >
+                    <Icon className="w-4 h-4 text-gold-champagne shrink-0" strokeWidth={1.75} />
+                    <span className="font-amiri text-[13.5px] text-foreground/85 leading-tight">
+                      {label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.section>
 
 
         {/* =============== O QUE VOCÊ GANHA =============== */}
@@ -466,12 +590,12 @@ const PricingPage: React.FC = () => {
 
           <div className="space-y-3">
             {[
-              { q: 'Posso testar antes de assinar?', a: 'Sim — crie sua conta sem cartão e explore a interface. Para usar Codex, Manuscrito, IA e Exportação você precisa assinar Raiz ou Idriel. Cancele a qualquer momento se não for para você.' },
+              { q: 'Como começo?', a: 'Escolha Raiz ou Idriel, finalize o checkout e sua Árvore é plantada na hora. Não há versão gratuita: cada plano dá acesso completo às funcionalidades do seu nível desde o primeiro minuto.' },
               { q: 'Qual a diferença entre Raiz e Idriel?', a: 'Raiz te dá worldbuilding e escrita ilimitados, com exportação. Idriel acrescenta toda a parte de IA: assistente Idriel, geração de imagens, mapas e análise de mundo. Comece pelo Raiz e suba para Idriel quando quiser turbinar com IA.' },
               { q: 'O que são as gotas de Seiva Dourada?', a: 'São os créditos de IA. O plano Idriel já vem com 100 gotas renovadas por mês — suficiente para a maioria dos autores. Se quiser mais, recarregue avulso a partir de R$ 4,90 sem mexer na assinatura.' },
               { q: 'Meus mundos ficam salvos? Posso exportar tudo?', a: 'Sim. Tudo é salvo automaticamente na nuvem. Exporte seu Codex e Manuscrito em PDF, Word ou Kindle a qualquer momento — o conteúdo é seu, para sempre.' },
               { q: 'A IA é boa mesmo? Que modelo vocês usam?', a: 'Idriel roda em Gemini 2.5 Pro para texto e Gemini 3 Pro para imagens — os modelos de ponta do Google, com prompts cuidadosamente adaptados em pt-BR e alimentados pelo seu Codex.' },
-              { q: 'Como funciona o pagamento?', a: 'Cartão de crédito ou Pix via Eduzz. No anual, cobrança única com 2 meses grátis. No mensal, cobrança recorrente. Sem fidelidade — cancele a qualquer momento.' },
+              { q: 'Como funciona o pagamento?', a: 'Cartão de crédito, boleto ou Pix processados via Asaas (instituição de pagamento brasileira regulamentada pelo Banco Central). No anual, cobrança única com 2 meses grátis. No mensal, cobrança recorrente. Sem fidelidade — cancele a qualquer momento.' },
             ].map((item, i) => (
               <details key={i} className="group rounded-xl border border-gold-bronze/25 bg-card/40 backdrop-blur-md overflow-hidden hover:border-gold-warm/40 transition-colors">
                 <summary className="cursor-pointer list-none px-6 py-5 flex items-center justify-between gap-4">
