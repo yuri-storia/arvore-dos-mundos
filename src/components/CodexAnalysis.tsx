@@ -119,10 +119,10 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
     FRUITS.forEach(fruit => {
       const fruitEntries = entries.filter(e => e.fruit_id === fruit.id);
       if (fruitEntries.length === 0) {
-        lines.push(`## ${fruit.icon} ${fruit.name}\nNenhuma entrada criada.\n`);
+        lines.push(`## ${fruit.name}\nNenhuma entrada criada.\n`);
         return;
       }
-      lines.push(`## ${fruit.icon} ${fruit.name} (${fruitEntries.length} entradas)`);
+      lines.push(`## ${fruit.name} (${fruitEntries.length} entradas)`);
       fruitEntries.forEach(e => {
         const typeLabel = e.entry_type === 'ficha' ? '📋 Ficha' : '📝 Artigo';
         const contentPreview = (e.content || '').slice(0, 600);
@@ -152,7 +152,7 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
     const systemPrompt = `Você é ${IDRIEL_NAME}, a ${IDRIEL_TITLE} — uma sábia ancestral élfica que observa mundos florescerem. Fale com elegância e sabedoria, mas seja objetiva e concisa. Trate o usuário como "viajante".
 
 A metodologia "Árvore dos Mundos" usa 11 pilares ("Frutos"):
-${FRUITS.map(f => `- ${f.icon} ${f.name}`).join('\n')}
+${FRUITS.map(f => `- ${f.name}`).join('\n')}
 
 Analise as entradas do Codex e responda em português brasileiro, usando Markdown. NÃO repita saudações. Use EXATAMENTE estas seções:
 
@@ -161,7 +161,7 @@ Uma ÚNICA frase poética de boas-vindas (máximo 2 linhas).
 
 ## 🌳 Avaliação dos Frutos
 Para CADA um dos 11 Frutos, dê uma nota de 1 a 5 estrelas (⭐) e um comentário de UMA linha. Use este formato exato para cada fruto:
-- **${FRUITS.map(f => `${f.icon} ${f.name}**: ⭐⭐⭐ — [comentário breve]`).join('\n- **')}
+- **${FRUITS.map(f => `${f.name}**: 3/5 — [comentário breve]`).join('\n- **')}
 Se o fruto não tem entradas, dê ⭐ e diga que precisa ser desenvolvido.
 
 ## 🕳️ Furos de Enredo

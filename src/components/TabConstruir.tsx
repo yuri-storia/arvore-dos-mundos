@@ -276,7 +276,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 <div className={`absolute inset-0 bg-gradient-to-br ${f.gradient} ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-80'} transition-opacity`} />
               )}
               {!coverImage && (
-                <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-30">{f.icon}</div>
+                <div className="absolute inset-0 flex items-center justify-center opacity-30"><f.Icon className="w-10 h-10 text-gold-champagne" strokeWidth={1.5} /></div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/50 text-[9px] text-blue-light font-montserrat font-bold">
@@ -307,7 +307,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               <img src={FRUIT_IMAGES[fruit.id]} alt={fruit.name} className="absolute inset-0 w-full h-full object-cover opacity-50" />
             ) : (
               <div className={`absolute inset-0 bg-gradient-to-br ${fruit.gradient}`}>
-                <div className="absolute inset-0 flex items-center justify-center text-8xl opacity-20">{fruit.icon}</div>
+                <div className="absolute inset-0 flex items-center justify-center opacity-20"><fruit.Icon className="w-28 h-28 text-gold-champagne" strokeWidth={1.25} /></div>
               </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-[rgba(6,14,28,0.95)] via-transparent to-transparent" />

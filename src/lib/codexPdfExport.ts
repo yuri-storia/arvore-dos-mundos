@@ -250,7 +250,7 @@ function addFruitSection(ctx: PdfCtx, fruitId: number) {
   ctx.doc.setFontSize(15);
   ctx.doc.setTextColor(...HEADING_CLR);
   ctx.doc.setFont('helvetica', 'bold');
-  ctx.doc.text(`${fruit.icon}  ${fruit.num}: ${fruit.name}`, MARGIN, ctx.y);
+  ctx.doc.text(`${fruit.num}: ${fruit.name}`, MARGIN, ctx.y);
   ctx.y += 3;
 
   ctx.doc.setDrawColor(...ACCENT_CLR);
