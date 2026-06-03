@@ -12,11 +12,19 @@ export const PLANS = {
     period: "gratuito",
     hasIdriel: false,
   },
+  raiz_mensal: {
+    id: "raiz_mensal",
+    name: "🌿 Raiz",
+    price: "R$ 19,90/mês",
+    priceValue: 19.90,
+    period: "mensal",
+    hasIdriel: false,
+  },
   raiz_anual: {
     id: "raiz_anual",
-    name: "🌿 Raiz",
-    price: "R$ 87/ano",
-    priceValue: 87,
+    name: "🌿 Raiz Anual",
+    price: "R$ 197/ano",
+    priceValue: 197,
     period: "anual",
     hasIdriel: false,
   },
@@ -31,11 +39,12 @@ export const PLANS = {
   idriel_anual: {
     id: "idriel_anual",
     name: "✨ Idriel Anual",
-    price: "R$ 399/ano",
-    priceValue: 399,
+    price: "R$ 397/ano",
+    priceValue: 397,
     period: "anual",
     hasIdriel: true,
   },
+
   // Pacotes de recarga de Seiva Dourada (avulsos)
   recarga_15: {
     id: "recarga_15",

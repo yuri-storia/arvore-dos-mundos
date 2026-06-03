@@ -1,13 +1,134 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, X, Sparkles, ArrowLeft, Crown, Zap, Leaf, Sprout } from 'lucide-react';
-import { openCheckout, STRIPE_PLANS, PLANS } from '@/hooks/useSubscription';
-import { useSubscription } from '@/hooks/useSubscription';
+import { motion } from 'framer-motion';
+import { Check, X, ArrowLeft, Crown, Leaf, Zap, Sparkles } from 'lucide-react';
+import { openCheckout, PLANS } from '@/hooks/useSubscription';
 import idrielAvatar from '@/assets/idriel-avatar.png';
+
+/* ----------------------------- Background FX ----------------------------- */
+
+const RisingParticles: React.FC = () => {
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 36 }).map((_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        size: 2 + Math.random() * 3,
+        duration: 14 + Math.random() * 18,
+        delay: Math.random() * 20,
+        hue: Math.random() > 0.5 ? 'gold' : 'blue',
+      })),
+    [],
+  );
+  return (
+    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+      {particles.map((p) => (
+        <span
+          key={p.id}
+          style={{
+            position: 'absolute',
+            bottom: '-10px',
+            left: `${p.left}%`,
+            width: p.size,
+            height: p.size,
+            borderRadius: '50%',
+            background:
+              p.hue === 'gold'
+                ? 'hsl(var(--gold-light))'
+                : 'hsl(var(--blue-glow))',
+            boxShadow:
+              p.hue === 'gold'
+                ? '0 0 8px hsl(var(--gold) / 0.7)'
+                : '0 0 8px hsl(var(--blue-bright) / 0.6)',
+            opacity: 0,
+            animation: `riseParticle ${p.duration}s ease-in-out ${p.delay}s infinite`,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+const FlyingLeaves: React.FC = () => {
+  const leaves = useMemo(
+    () =>
+      Array.from({ length: 14 }).map((_, i) => ({
+        id: i,
+        top: Math.random() * 80,
+        size: 16 + Math.random() * 20,
+        duration: 24 + Math.random() * 22,
+        delay: Math.random() * 25,
+        rotate: Math.random() * 360,
+        drift: 40 + Math.random() * 80,
+      })),
+    [],
+  );
+  return (
+    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+      {leaves.map((l) => (
+        <span
+          key={l.id}
+          style={{
+            position: 'absolute',
+            top: `${l.top}%`,
+            left: '-60px',
+            width: l.size,
+            height: l.size,
+            color: 'hsl(var(--gold-light))',
+            opacity: 0,
+            transform: `rotate(${l.rotate}deg)`,
+            animation: `flyLeaf ${l.duration}s linear ${l.delay}s infinite`,
+            filter: 'drop-shadow(0 0 6px hsl(var(--gold) / 0.4))',
+            // pass drift via CSS var
+            ['--drift' as never]: `${l.drift}vh`,
+          }}
+        >
+          <svg viewBox="0 0 24 24" width="100%" height="100%" fill="currentColor">
+            <path d="M12 2C7 6 4 10 4 14a8 8 0 0 0 16 0c0-4-3-8-8-12zm0 4.5c3 3 5 6 5 8.5a5 5 0 0 1-10 0c0-2.5 2-5.5 5-8.5z" />
+          </svg>
+        </span>
+      ))}
+    </div>
+  );
+};
+
+const TreeSilhouette: React.FC = () => (
+  <div className="pointer-events-none fixed inset-x-0 bottom-0 z-0 flex justify-center opacity-[0.18]">
+    <svg
+      viewBox="0 0 800 600"
+      className="w-[1400px] max-w-[140%] h-auto"
+      fill="none"
+    >
+      <defs>
+        <radialGradient id="treeGlow" cx="50%" cy="40%" r="50%">
+          <stop offset="0%" stopColor="hsl(38 80% 55%)" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="hsl(214 60% 3%)" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="trunk" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="hsl(38 50% 35%)" />
+          <stop offset="100%" stopColor="hsl(214 60% 5%)" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="400" cy="240" rx="360" ry="180" fill="url(#treeGlow)" />
+      <path
+        d="M390 600 L390 360 Q370 320 340 290 Q310 260 330 240 M410 600 L410 340 Q430 310 460 280 Q490 250 470 230 M400 600 L400 200 Q380 150 360 130 M400 380 Q420 350 450 340 M400 320 Q380 290 350 280 M400 260 Q420 230 450 220"
+        stroke="url(#trunk)"
+        strokeWidth="6"
+        strokeLinecap="round"
+      />
+      <circle cx="360" cy="220" r="70" fill="hsl(38 70% 45% / 0.35)" />
+      <circle cx="430" cy="200" r="80" fill="hsl(38 70% 50% / 0.3)" />
+      <circle cx="400" cy="150" r="90" fill="hsl(42 75% 55% / 0.25)" />
+      <circle cx="320" cy="260" r="55" fill="hsl(38 70% 45% / 0.3)" />
+      <circle cx="470" cy="260" r="55" fill="hsl(38 70% 45% / 0.3)" />
+    </svg>
+  </div>
+);
+
+/* ------------------------------- Page ------------------------------- */
 
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
-  const sub = useSubscription();
   const [loading, setLoading] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'mensal' | 'anual'>('anual');
 
@@ -22,220 +143,270 @@ const PricingPage: React.FC = () => {
     }
   };
 
+  const raizPriceId = billingCycle === 'mensal' ? PLANS.raiz_mensal.id : PLANS.raiz_anual.id;
+  const idrielPriceId = billingCycle === 'mensal' ? PLANS.idriel_mensal.id : PLANS.idriel_anual.id;
+
   const tiers = [
     {
-      id: 'semente',
-      name: '🌱 Semente',
-      tagline: 'Plante sua primeira semente',
-      price: 'Grátis',
-      priceDetail: 'Para sempre',
-      icon: Sprout,
-      accent: 'border-emerald-500/30',
-      accentBg: 'bg-emerald-500/[0.06]',
-      accentText: 'text-emerald-400',
-      accentGlow: '',
-      cta: 'Começar Grátis',
-      ctaClass: 'bg-emerald-600 hover:bg-emerald-500 text-white',
-      ctaAction: () => navigate('/'),
-      popular: false,
-    },
-    {
       id: 'raiz',
-      name: '🌿 Raiz',
+      name: 'Raiz',
+      symbol: '🌿',
       tagline: 'Crie mundos sem limites',
-      price: 'R$ 87',
-      priceDetail: '/ano (~R$ 7,25/mês)',
+      price: billingCycle === 'mensal' ? 'R$ 19,90' : 'R$ 197',
+      priceDetail: billingCycle === 'mensal' ? '/mês' : '/ano',
+      savings: billingCycle === 'anual' ? 'Economize R$ 41,80' : null,
       icon: Leaf,
-      accent: 'border-blue-bright/30',
-      accentBg: 'bg-blue-bright/[0.06]',
-      accentText: 'text-blue-light',
-      accentGlow: '',
-      cta: 'Assinar Raiz',
-      ctaClass: 'bg-[hsl(var(--blue-main))] hover:bg-[hsl(var(--blue-bright))] text-foreground',
-      ctaAction: () => handleCheckout(STRIPE_PLANS.template_anual.price_id),
+      cta: 'Despertar a Raiz',
+      ctaAction: () => handleCheckout(raizPriceId),
       popular: false,
+      borderClass: 'border-blue-bright/30 hover:border-blue-bright/60',
+      glowClass: 'hover:shadow-[0_0_50px_hsl(var(--blue-bright)/0.25)]',
+      accentText: 'text-blue-light',
+      ctaClass:
+        'bg-gradient-to-r from-[hsl(var(--blue-main))] to-[hsl(var(--blue-bright))] text-foreground hover:shadow-[0_0_30px_hsl(var(--blue-bright)/0.5)]',
+      features: [
+        'Mundos ilimitados',
+        'Codex ilimitado (fichas e artigos)',
+        'Manuscrito, Cenas e Mural de Arcos',
+        '11 Frutos de Worldbuilding',
+        'Galeria de Referências',
+        'Exportação PDF, Word e Kindle',
+        'Importar entre mundos',
+      ],
+      missing: ['Idriel (IA de texto e imagens)', 'Mapas IA e análise de mundo'],
     },
     {
       id: 'idriel',
-      name: '✨ Idriel',
+      name: 'Idriel',
+      symbol: '✨',
       tagline: 'A Árvore responde ao seu chamado',
-      price: billingCycle === 'mensal' ? 'R$ 39,90' : 'R$ 399',
-      priceDetail: billingCycle === 'mensal' ? '/mês' : '/ano (~17% off)',
+      price: billingCycle === 'mensal' ? 'R$ 39,90' : 'R$ 397',
+      priceDetail: billingCycle === 'mensal' ? '/mês' : '/ano',
+      savings: billingCycle === 'anual' ? 'Economize R$ 81,80' : null,
       icon: Crown,
-      accent: 'border-gold/40',
-      accentBg: '',
-      accentText: 'text-gold-light',
-      accentGlow: 'shadow-[0_0_40px_rgba(218,165,32,0.15)]',
-      cta: billingCycle === 'mensal' ? 'Assinar Idriel Mensal' : 'Assinar Idriel Anual',
-      ctaClass: 'bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] hover:from-[hsl(var(--idriel-light))] hover:to-[hsl(var(--gold))] text-[#1a0f00] font-bold',
-      ctaAction: () => handleCheckout(billingCycle === 'mensal' ? STRIPE_PLANS.idriel_mensal.price_id : PLANS.idriel_anual.id),
+      cta: 'Invocar Idriel',
+      ctaAction: () => handleCheckout(idrielPriceId),
       popular: true,
+      borderClass: 'border-gold/50 hover:border-gold/80',
+      glowClass: 'shadow-[0_0_50px_hsl(var(--gold)/0.2)] hover:shadow-[0_0_70px_hsl(var(--gold)/0.4)]',
+      accentText: 'text-gold-light',
+      ctaClass:
+        'bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] text-[#1a0f00] font-bold hover:shadow-[0_0_40px_hsl(var(--gold)/0.6)]',
+      features: [
+        'Tudo do plano Raiz',
+        'Idriel — assistente IA (Gemini 2.5 Pro)',
+        'Geração de imagens IA (Gemini 3 Pro)',
+        'Geração de mapas cartográficos',
+        'Análise de mundo com 6 dimensões',
+        'Importação de texto com Idriel',
+        '100 gotas de Seiva Dourada/mês',
+        'Recargas avulsas a partir de R$ 4,90',
+      ],
+      missing: [],
     },
   ];
 
-  const features = [
-    { label: 'Mundos', semente: '1', raiz: 'Ilimitados', idriel: 'Ilimitados' },
-    { label: 'Fichas no Codex', semente: '5', raiz: 'Ilimitadas', idriel: 'Ilimitadas' },
-    { label: 'Artigos no Codex', semente: '1', raiz: 'Ilimitados', idriel: 'Ilimitados' },
-    { label: 'Manuscrito & Cenas', semente: true, raiz: true, idriel: true },
-    { label: 'Escrita Livre', semente: true, raiz: true, idriel: true },
-    { label: 'Kanban de Cenas', semente: true, raiz: true, idriel: true },
-    { label: '11 Frutos de Worldbuilding', semente: true, raiz: true, idriel: true },
-    { label: 'Galeria de Referências', semente: true, raiz: true, idriel: true },
-    { label: 'Timer Pomodoro', semente: true, raiz: true, idriel: true },
-    { label: 'Exportação PDF', semente: false, raiz: true, idriel: true },
-    { label: 'Exportação Word (.docx)', semente: false, raiz: true, idriel: true },
-    { label: 'Exportação Kindle/E-book', semente: false, raiz: true, idriel: true },
-    { label: 'Importar entre mundos', semente: false, raiz: true, idriel: true },
-    { label: 'Assistente IA (Idriel)', semente: false, raiz: false, idriel: true },
-    { label: 'Geração de Imagens IA', semente: false, raiz: false, idriel: true },
-    { label: 'Geração de Mapas IA', semente: false, raiz: false, idriel: true },
-    { label: 'Análise de Mundo IA', semente: false, raiz: false, idriel: true },
-    { label: '100 gotas de Seiva/mês', semente: false, raiz: false, idriel: true },
-    { label: 'Imagens em qualidade máxima (Gemini 3 Pro)', semente: false, raiz: false, idriel: true },
-    { label: 'Recargas avulsas (a partir de R$ 4,90)', semente: false, raiz: false, idriel: true },
-  ];
-
-  const competitors = [
-    { name: 'ChatGPT Plus', price: 'R$ 104/mês', icon: '🤖', features: ['Texto IA', 'Sem worldbuilding', 'Sem geração de imagens', 'Sem organização'] },
-    { name: 'Midjourney', price: 'R$ 55/mês', icon: '🎨', features: ['Imagens IA', 'Sem texto IA', 'Sem worldbuilding', 'Sem manuscritos'] },
-    { name: 'World Anvil', price: 'R$ 115/mês', icon: '🗺️', features: ['Worldbuilding', 'Sem IA', 'Interface complexa', 'Em inglês'] },
-    { name: 'Notion AI', price: 'R$ 55/mês', icon: '📝', features: ['Notas + IA', 'Sem worldbuilding', 'Sem imagens', 'Genérico'] },
-  ];
-
-  const renderCellValue = (val: boolean | string) => {
-    if (typeof val === 'string') return <span className="font-montserrat font-bold text-xs">{val}</span>;
-    return val
-      ? <Check className="w-4 h-4 text-emerald-400 mx-auto" />
-      : <X className="w-4 h-4 text-muted-foreground/30 mx-auto" />;
-  };
-
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Background effects */}
-      <div className="fixed inset-0 pointer-events-none z-0" style={{ background: '#02070d' }} />
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-[200px] left-1/2 -translate-x-1/2 w-[140%] h-[600px]" style={{ background: 'radial-gradient(ellipse 80% 100% at 50% 0%, rgba(200,146,42,0.06) 0%, transparent 60%)', filter: 'blur(80px)' }} />
-      </div>
+    <div className="min-h-screen relative overflow-hidden" style={{ background: '#02070d' }}>
+      {/* Keyframes injetadas */}
+      <style>{`
+        @keyframes riseParticle {
+          0%   { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+          10%  { opacity: 0.7; }
+          50%  { opacity: 0.4; }
+          100% { transform: translateY(-110vh) translateX(40px) scale(0.4); opacity: 0; }
+        }
+        @keyframes flyLeaf {
+          0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+          10%  { opacity: 0.65; }
+          90%  { opacity: 0.5; }
+          100% { transform: translate(110vw, var(--drift)) rotate(720deg); opacity: 0; }
+        }
+        @keyframes auroraPulse {
+          0%, 100% { opacity: 0.35; transform: translate(-50%, 0) scale(1); }
+          50%      { opacity: 0.55; transform: translate(-50%, -10px) scale(1.05); }
+        }
+      `}</style>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 py-8">
-        {/* Back button */}
-        <button onClick={() => navigate('/')} className="inline-flex items-center gap-2 text-text-dim hover:text-foreground transition-colors mb-8 font-montserrat text-sm">
+      {/* Camadas de fundo */}
+      <div
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse 80% 60% at 50% 0%, hsl(38 70% 35% / 0.18) 0%, transparent 60%), radial-gradient(ellipse 70% 50% at 50% 100%, hsl(211 76% 30% / 0.25) 0%, transparent 60%)',
+        }}
+      />
+      <div
+        className="fixed top-[-80px] left-1/2 -translate-x-1/2 w-[120vw] h-[500px] z-0 pointer-events-none rounded-full"
+        style={{
+          background:
+            'radial-gradient(ellipse at center, hsl(38 80% 50% / 0.18) 0%, transparent 70%)',
+          filter: 'blur(80px)',
+          animation: 'auroraPulse 12s ease-in-out infinite',
+        }}
+      />
+      <TreeSilhouette />
+      <RisingParticles />
+      <FlyingLeaves />
+
+      {/* Conteúdo */}
+      <div className="relative z-10 max-w-6xl mx-auto px-4 py-10">
+        <button
+          onClick={() => navigate('/')}
+          className="inline-flex items-center gap-2 text-text-dim hover:text-foreground transition-colors mb-10 font-montserrat text-sm"
+        >
           <ArrowLeft className="w-4 h-4" />
           Voltar à Árvore
         </button>
 
         {/* Hero */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <img src={idrielAvatar} alt="Idriel" className="w-12 h-12 rounded-full border-2 border-gold/40 shadow-[0_0_20px_rgba(218,165,32,0.3)]" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-14"
+        >
+          <div className="inline-flex items-center justify-center gap-3 mb-6">
+            <div className="relative">
+              <img
+                src={idrielAvatar}
+                alt="Idriel"
+                className="w-16 h-16 rounded-full border-2 border-gold/50 shadow-[0_0_30px_hsl(var(--gold)/0.5)]"
+              />
+              <Sparkles className="absolute -top-1 -right-1 w-5 h-5 text-gold-light animate-pulse" />
+            </div>
           </div>
-          <h1 className="font-cinzel font-bold text-3xl sm:text-4xl md:text-5xl text-foreground mb-3">
+          <p className="font-montserrat uppercase tracking-[0.4em] text-xs text-gold-light/80 mb-4">
+            A Árvore dos Mundos
+          </p>
+          <h1 className="font-cinzel font-bold text-4xl sm:text-5xl md:text-6xl text-foreground mb-5 leading-tight">
             Escolha seu <span className="text-gold-light">Caminho</span>
           </h1>
           <p className="font-merriweather italic text-text-secondary text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            Da semente à Árvore plena — cada jornada começa com um passo. 
-            Quanto mais Seiva flui, mais poderosa se torna a criação.
+            Cada autor é uma semente que busca a luz. A Árvore acolhe todos —
+            mas só revela seus mistérios mais profundos a quem ousa percorrer suas raízes.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Billing toggle for Idriel */}
-        <div className="flex items-center justify-center gap-3 mb-10">
-          <button
-            onClick={() => setBillingCycle('mensal')}
-            className={`px-4 py-2 rounded-full text-xs font-montserrat font-bold uppercase tracking-wider transition-all ${
-              billingCycle === 'mensal'
-                ? 'bg-gold/20 text-gold-light border border-gold/40'
-                : 'text-text-dim border border-border hover:border-gold/20'
-            }`}
-          >
-            Mensal
-          </button>
-          <button
-            onClick={() => setBillingCycle('anual')}
-            className={`px-4 py-2 rounded-full text-xs font-montserrat font-bold uppercase tracking-wider transition-all relative ${
-              billingCycle === 'anual'
-                ? 'bg-gold/20 text-gold-light border border-gold/40'
-                : 'text-text-dim border border-border hover:border-gold/20'
-            }`}
-          >
-            Anual
-            <span className="absolute -top-2 -right-2 px-1.5 py-0.5 bg-emerald-500 text-[8px] text-white rounded-full font-bold">
-              -22%
-            </span>
-          </button>
-        </div>
+        {/* Billing toggle */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="flex items-center justify-center gap-2 mb-12"
+        >
+          <div className="inline-flex p-1 rounded-full border border-gold/20 bg-card/40 backdrop-blur-md">
+            <button
+              onClick={() => setBillingCycle('mensal')}
+              className={`px-6 py-2.5 rounded-full text-xs font-montserrat font-bold uppercase tracking-wider transition-all ${
+                billingCycle === 'mensal'
+                  ? 'bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] text-[#1a0f00]'
+                  : 'text-text-dim hover:text-foreground'
+              }`}
+            >
+              Mensal
+            </button>
+            <button
+              onClick={() => setBillingCycle('anual')}
+              className={`relative px-6 py-2.5 rounded-full text-xs font-montserrat font-bold uppercase tracking-wider transition-all ${
+                billingCycle === 'anual'
+                  ? 'bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] text-[#1a0f00]'
+                  : 'text-text-dim hover:text-foreground'
+              }`}
+            >
+              Anual
+              <span className="absolute -top-2 -right-3 px-1.5 py-0.5 bg-emerald-500 text-[8px] text-white rounded-full font-bold">
+                -17%
+              </span>
+            </button>
+          </div>
+        </motion.div>
 
         {/* Pricing cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-16">
-          {tiers.map(tier => (
-            <div
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-20 max-w-4xl mx-auto">
+          {tiers.map((tier, i) => (
+            <motion.div
               key={tier.id}
-              className={`relative rounded-2xl border p-6 transition-all ${tier.accent} ${tier.accentBg} ${tier.accentGlow} ${
-                tier.popular
-                  ? 'md:-mt-4 md:mb-0 md:pb-8'
-                  : ''
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 + i * 0.15, duration: 0.7 }}
+              className={`relative rounded-2xl border p-7 sm:p-8 transition-all duration-500 backdrop-blur-md ${tier.borderClass} ${tier.glowClass} ${
+                tier.popular ? 'md:-mt-4 md:pb-10' : ''
               }`}
-              style={tier.popular ? { background: 'linear-gradient(180deg, rgba(200,146,42,0.08) 0%, rgba(200,146,42,0.02) 100%)' } : {}}
+              style={{
+                background: tier.popular
+                  ? 'linear-gradient(180deg, hsl(38 70% 35% / 0.12) 0%, hsl(214 60% 4% / 0.85) 100%)'
+                  : 'linear-gradient(180deg, hsl(211 76% 30% / 0.08) 0%, hsl(214 60% 4% / 0.85) 100%)',
+              }}
             >
               {tier.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] text-[10px] font-montserrat font-bold uppercase tracking-widest text-[#1a0f00]">
-                  ✨ Mais Popular
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] text-[10px] font-montserrat font-bold uppercase tracking-widest text-[#1a0f00] shadow-[0_0_20px_hsl(var(--gold)/0.5)]">
+                  ✨ Recomendado
                 </div>
               )}
 
-              <div className="text-center mb-6">
-                <h3 className={`font-cinzel font-bold text-xl mb-1 ${tier.accentText}`}>{tier.name}</h3>
-                <p className="font-merriweather italic text-text-dim text-xs mb-4">{tier.tagline}</p>
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className={`font-montserrat font-bold text-3xl ${tier.accentText}`}>{tier.price}</span>
-                  <span className="text-text-dim text-xs font-montserrat">{tier.priceDetail}</span>
+              <div className="text-center mb-7">
+                <div className="text-4xl mb-3">{tier.symbol}</div>
+                <h3 className={`font-cinzel font-bold text-2xl mb-1.5 ${tier.accentText}`}>{tier.name}</h3>
+                <p className="font-merriweather italic text-text-dim text-sm mb-5">{tier.tagline}</p>
+                <div className="flex items-baseline justify-center gap-1.5">
+                  <span className={`font-cinzel font-bold text-4xl sm:text-5xl ${tier.accentText}`}>{tier.price}</span>
+                  <span className="text-text-dim text-sm font-montserrat">{tier.priceDetail}</span>
                 </div>
+                {tier.savings && (
+                  <p className="mt-2 text-[11px] font-montserrat font-bold uppercase tracking-wider text-emerald-400">
+                    {tier.savings}
+                  </p>
+                )}
               </div>
 
               <button
                 onClick={tier.ctaAction}
                 disabled={!!loading}
-                className={`w-full py-3 rounded-xl text-sm font-montserrat font-bold uppercase tracking-wider transition-all mb-6 ${tier.ctaClass}`}
+                className={`w-full py-3.5 rounded-xl text-sm font-montserrat font-bold uppercase tracking-wider transition-all mb-7 ${tier.ctaClass}`}
               >
                 {tier.cta}
               </button>
 
-              {/* Key highlights */}
               <ul className="space-y-2.5">
-                {features.slice(0, tier.id === 'idriel' ? 19 : tier.id === 'raiz' ? 13 : 9).map(f => {
-                  const val = f[tier.id as 'semente' | 'raiz' | 'idriel'];
-                  if (val === false) return null;
-                  return (
-                    <li key={f.label} className="flex items-center gap-2 text-xs">
-                      <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                      <span className="text-foreground/80 font-montserrat">
-                        {typeof val === 'string' ? `${f.label}: ${val}` : f.label}
-                      </span>
-                    </li>
-                  );
-                })}
-                {/* Show what's missing */}
-                {features.filter(f => f[tier.id as 'semente' | 'raiz' | 'idriel'] === false).slice(0, 3).map(f => (
-                  <li key={f.label} className="flex items-center gap-2 text-xs opacity-40">
-                    <X className="w-3.5 h-3.5 shrink-0" />
-                    <span className="font-montserrat line-through">{f.label}</span>
+                {tier.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm">
+                    <Check className={`w-4 h-4 mt-0.5 shrink-0 ${tier.accentText}`} />
+                    <span className="text-foreground/85 font-montserrat">{f}</span>
+                  </li>
+                ))}
+                {tier.missing.map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm opacity-40">
+                    <X className="w-4 h-4 mt-0.5 shrink-0" />
+                    <span className="font-montserrat line-through">{f}</span>
                   </li>
                 ))}
               </ul>
-            </div>
+            </motion.div>
           ))}
         </div>
 
         {/* Recharge packages */}
-        <div className="rounded-2xl border border-gold/20 p-6 mb-16" style={{ background: 'linear-gradient(135deg, rgba(200,146,42,0.06) 0%, rgba(200,146,42,0.02) 100%)' }}>
-          <div className="text-center mb-5">
-            <div className="flex items-center justify-center gap-2 mb-2">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ duration: 0.7 }}
+          className="rounded-2xl border border-gold/25 p-7 mb-20 backdrop-blur-md"
+          style={{
+            background: 'linear-gradient(135deg, hsl(38 70% 35% / 0.1) 0%, hsl(214 60% 4% / 0.85) 100%)',
+          }}
+        >
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center gap-2 mb-2">
               <Zap className="w-5 h-5 text-gold-light" />
-              <span className="font-cinzel font-bold text-lg text-gold-light">Pacotes de Seiva Dourada</span>
+              <span className="font-cinzel font-bold text-xl text-gold-light">
+                Recargas de Seiva Dourada
+              </span>
             </div>
             <p className="font-merriweather italic text-text-dim text-sm max-w-xl mx-auto">
-              Acabou a Seiva mensal? Recarregue avulso — sem assinar nada. Quanto mais gotas, mais barato fica cada uma.
+              Esgotaram suas gotas? Recarregue avulso, sem mexer na assinatura.
+              Quanto mais gotas, mais barata cada uma.
             </p>
           </div>
 
@@ -260,14 +431,18 @@ const PricingPage: React.FC = () => {
                   }`}
                 >
                   {pkg.badge && (
-                    <span className={`absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-full text-[8px] font-montserrat font-bold uppercase tracking-wider ${
-                      pkg.badge === 'Popular'
-                        ? 'bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] text-[#1a0f00]'
-                        : 'bg-emerald-500 text-white'
-                    }`}>{pkg.badge}</span>
+                    <span
+                      className={`absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-full text-[8px] font-montserrat font-bold uppercase tracking-wider ${
+                        pkg.badge === 'Popular'
+                          ? 'bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] text-[#1a0f00]'
+                          : 'bg-emerald-500 text-white'
+                      }`}
+                    >
+                      {pkg.badge}
+                    </span>
                   )}
                   <span className="text-2xl mb-1">🧪</span>
-                  <span className="font-cinzel font-bold text-xl text-gold-light">{pkg.drops}</span>
+                  <span className="font-cinzel font-bold text-2xl text-gold-light">{pkg.drops}</span>
                   <span className="font-montserrat text-[10px] text-text-dim uppercase tracking-wider mb-2">gotas</span>
                   <span className="font-montserrat font-bold text-sm text-foreground">{pkg.price}</span>
                   <span className="font-montserrat text-[10px] text-text-dim mt-1">R$ {pkg.perDrop}/gota</span>
@@ -275,146 +450,25 @@ const PricingPage: React.FC = () => {
               );
             })}
           </div>
-        </div>
+        </motion.div>
 
-        {/* Feature comparison table */}
-        <div className="mb-16">
-          <h2 className="font-cinzel font-bold text-2xl text-center text-foreground mb-2">Comparação Completa</h2>
-          <p className="font-merriweather italic text-text-dim text-sm text-center mb-8">Todas as funcionalidades, lado a lado</p>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 font-montserrat font-bold text-[10px] uppercase tracking-wider text-text-dim w-1/4">Funcionalidade</th>
-                  <th className="text-center py-3 px-3 font-montserrat font-bold text-[10px] uppercase tracking-wider text-emerald-400 w-1/4">🌱 Semente</th>
-                  <th className="text-center py-3 px-3 font-montserrat font-bold text-[10px] uppercase tracking-wider text-blue-light w-1/4">🌿 Raiz</th>
-                  <th className="text-center py-3 px-3 font-montserrat font-bold text-[10px] uppercase tracking-wider text-gold-light w-1/4">✨ Idriel</th>
-                </tr>
-              </thead>
-              <tbody>
-                {features.map((f, i) => (
-                  <tr key={f.label} className={`border-b border-border/50 ${i % 2 === 0 ? 'bg-white/[0.01]' : ''}`}>
-                    <td className="py-2.5 px-4 font-montserrat text-xs text-foreground/80">{f.label}</td>
-                    <td className="py-2.5 px-3 text-center">{renderCellValue(f.semente)}</td>
-                    <td className="py-2.5 px-3 text-center">{renderCellValue(f.raiz)}</td>
-                    <td className="py-2.5 px-3 text-center">{renderCellValue(f.idriel)}</td>
-                  </tr>
-                ))}
-                <tr className="border-b border-border/50">
-                  <td className="py-2.5 px-4 font-montserrat text-xs font-bold text-foreground">Preço</td>
-                  <td className="py-2.5 px-3 text-center font-montserrat font-bold text-xs text-emerald-400">Grátis</td>
-                  <td className="py-2.5 px-3 text-center font-montserrat font-bold text-xs text-blue-light">R$ 87/ano</td>
-                  <td className="py-2.5 px-3 text-center font-montserrat font-bold text-xs text-gold-light">
-                    R$ 39,90/mês<br /><span className="text-[10px] text-text-dim">ou R$ 399/ano</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Market comparison */}
-        <div className="mb-16">
-          <h2 className="font-cinzel font-bold text-2xl text-center text-foreground mb-2">
-            Por que Idriel é <span className="text-gold-light">imbatível</span>?
-          </h2>
-          <p className="font-merriweather italic text-text-dim text-sm text-center mb-4 max-w-2xl mx-auto">
-            Para ter o mesmo que Idriel oferece, você precisaria de 4 ferramentas separadas — gastando até <strong className="text-destructive">R$ 329+/mês</strong>
+        {/* Closing */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center pb-16"
+        >
+          <div className="gold-divider mx-auto max-w-xs mb-6" style={{ height: 1, background: 'linear-gradient(90deg, transparent 0%, hsl(var(--gold) / 0.7) 50%, transparent 100%)' }} />
+          <p className="font-merriweather italic text-text-secondary text-base mb-3 max-w-2xl mx-auto">
+            "A Árvore dos Mundos é a única ferramenta brasileira que une
+            worldbuilding, escrita e IA em um só lugar."
           </p>
-
-          {/* Competitor vs Idriel visual */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {competitors.map(c => (
-              <div key={c.name} className="rounded-xl border border-destructive/20 bg-destructive/[0.03] p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xl">{c.icon}</span>
-                  <span className="font-montserrat font-bold text-xs text-foreground">{c.name}</span>
-                </div>
-                <span className="font-montserrat font-bold text-lg text-destructive block mb-3">{c.price}</span>
-                <ul className="space-y-1.5">
-                  {c.features.map(f => (
-                    <li key={f} className="flex items-center gap-1.5 text-[11px]">
-                      {f.startsWith('Sem') ? (
-                        <X className="w-3 h-3 text-destructive/60 shrink-0" />
-                      ) : (
-                        <Check className="w-3 h-3 text-emerald-400/60 shrink-0" />
-                      )}
-                      <span className={`font-montserrat ${f.startsWith('Sem') ? 'text-text-dim' : 'text-foreground/70'}`}>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          {/* Idriel comparison card */}
-          <div className="rounded-2xl border-2 border-gold/40 p-6 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(200,146,42,0.10) 0%, rgba(200,146,42,0.03) 100%)' }}>
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[200px] rounded-full" style={{ background: 'radial-gradient(ellipse at center, rgba(218,165,32,0.15) 0%, transparent 70%)', filter: 'blur(40px)' }} />
-            <div className="relative">
-              <div className="flex items-center justify-center gap-3 mb-3">
-                <img src={idrielAvatar} alt="Idriel" className="w-10 h-10 rounded-full border-2 border-gold/50" />
-                <h3 className="font-cinzel font-bold text-2xl text-gold-light">✨ Idriel</h3>
-              </div>
-              <div className="flex items-baseline justify-center gap-2 mb-1">
-                <span className="font-montserrat font-bold text-4xl text-gold-light">R$ 39,90</span>
-                <span className="text-text-dim font-montserrat text-sm">/mês</span>
-              </div>
-              <p className="font-merriweather italic text-text-secondary text-sm mb-6">
-                Tudo-em-um: worldbuilding + IA de texto + IA de imagens + manuscrito + exportação
-              </p>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 max-w-xl mx-auto">
-                {[
-                  { icon: '📝', label: 'Texto IA Premium', sub: 'Gemini 2.5 Pro' },
-                  { icon: '🎨', label: 'Imagens IA HD', sub: 'Gemini 3 Pro Image' },
-                  { icon: '🗺️', label: 'Mapas IA', sub: 'Cartografia única' },
-                  { icon: '📖', label: 'Worldbuilding', sub: '11 pilares + Codex' },
-                ].map(item => (
-                  <div key={item.label} className="p-3 rounded-lg bg-gold/[0.06] border border-gold/15">
-                    <span className="text-xl block mb-1">{item.icon}</span>
-                    <span className="font-montserrat font-bold text-[10px] text-gold-light block">{item.label}</span>
-                    <span className="font-montserrat text-[9px] text-text-dim">{item.sub}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 mb-6">
-                <span className="font-montserrat font-bold text-sm text-emerald-400">
-                  Economia de até R$ 300/mês
-                </span>
-                <span className="text-emerald-400/60 text-xs font-montserrat">vs ferramentas separadas</span>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                <button
-                  onClick={() => handleCheckout(STRIPE_PLANS.idriel_mensal.price_id)}
-                  disabled={!!loading}
-                  className="px-8 py-3 rounded-xl bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] text-[#1a0f00] font-montserrat font-bold text-sm uppercase tracking-wider transition-all hover:shadow-[0_0_30px_rgba(218,165,32,0.4)]"
-                >
-                  ✨ Assinar Idriel — R$ 29,90/mês
-                </button>
-                <button
-                  onClick={() => handleCheckout(PLANS.idriel_anual.id)}
-                  disabled={!!loading}
-                  className="px-6 py-3 rounded-xl border border-gold/40 text-gold-light font-montserrat font-bold text-xs uppercase tracking-wider transition-all hover:bg-gold/[0.08]"
-                >
-                  ou R$ 279/ano (2 meses grátis)
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* FAQ-like closing */}
-        <div className="text-center pb-12">
-          <p className="font-merriweather italic text-text-dim text-sm mb-2">
-            "A Árvore dos Mundos é a única ferramenta brasileira que une worldbuilding, escrita e IA em um só lugar."
-          </p>
-          <p className="font-montserrat text-[10px] uppercase tracking-[0.2em] text-text-dim/50">
+          <p className="font-montserrat text-[10px] uppercase tracking-[0.3em] text-text-dim/60">
             Universo STORIA · Todos os direitos reservados
           </p>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
