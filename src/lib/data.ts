@@ -1,3 +1,6 @@
+import type { ComponentType } from 'react';
+import { Map, Landmark, Swords, Drama, Sparkles, Flame, Coins, ScrollText, User, Trees } from 'lucide-react';
+
 export interface FruitField {
   id: string;
   label: string;
@@ -18,6 +21,7 @@ export interface Fruit {
   num: string;
   name: string;
   desc: string;
+  Icon: ComponentType<{ className?: string; strokeWidth?: number }>;
   icon: string;
   gradient: string;
   fields: FruitField[];
@@ -38,12 +42,12 @@ export type MethodType = 'top-down' | 'bottom-up';
 export type TabType = 'construir' | 'codex' | 'galeria' | 'escrever';
 
 export const CODEX_ENTRY_TYPES = [
-  { id: 'personagem', label: 'Personagem', icon: '👤' },
-  { id: 'lugar', label: 'Lugar', icon: '🏰' },
-  { id: 'item', label: 'Item', icon: '⚔️' },
-  { id: 'criatura', label: 'Criatura', icon: '🐉' },
-  { id: 'evento', label: 'Evento', icon: '📜' },
-  { id: 'cultura', label: 'Cultura', icon: '🎭' },
+  { id: 'personagem', label: 'Personagem', icon: 'User' },
+  { id: 'lugar', label: 'Lugar', icon: 'Castle' },
+  { id: 'item', label: 'Item', icon: 'Swords' },
+  { id: 'criatura', label: 'Criatura', icon: 'Flame' },
+  { id: 'evento', label: 'Evento', icon: 'ScrollText' },
+  { id: 'cultura', label: 'Cultura', icon: 'Drama' },
 ] as const;
 
 export type CodexEntryType = typeof CODEX_ENTRY_TYPES[number]['id'];
@@ -67,7 +71,7 @@ export const GALLERY_CATEGORIES = [
 
 export const FRUITS: Fruit[] = [
   {
-    id: 0, num: '1º Fruto', name: 'Mapa do Mundo', icon: '🗺',
+    id: 0, num: '1º Fruto', name: 'Mapa do Mundo', Icon: Map, icon: '',
     gradient: 'from-blue-900 via-cyan-900 to-teal-900',
     desc: 'O mapa é o chão do seu universo — geografia, rotas e fronteiras que conectam tudo.',
     fields: [
@@ -78,13 +82,13 @@ export const FRUITS: Fruit[] = [
     chips: ['Criar uma região com conflito', 'Sugerir nome para esta região', 'Desenvolver uma rota perigosa', 'Criar uma fronteira disputada'],
     guide: {
       min: 'O mapa é muito mais do que um desenho bonito — ele é o alicerce do seu universo. Cada montanha, rio e deserto existe por uma razão: montanhas bloqueiam exércitos e isolam culturas, rios são estradas naturais que definem onde surgem cidades, e desertos criam fronteiras que nenhum tratado político consegue.\n\nPense no mapa como a "planta baixa" da sua narrativa. Se seu protagonista precisa viajar de um reino a outro, o terreno entre eles vai ditar o tempo, os perigos e os encontros da jornada. Cidades surgem em portos, cruzamentos e vales férteis — nunca no meio do nada sem motivo.\n\nUse este fruto para criar regiões com identidade própria (clima, terreno, recursos), traçar rotas comerciais e militares que conectam ou dividem povos, e marcar locais icônicos que o leitor vai lembrar pelo nome. Cada entrada aqui pode se tornar uma ficha detalhada no Codex.',
-      ref: '📖 Westeros — George R. R. Martin (As Crônicas de Gelo e Fogo)\n\nMartin não desenhou um mapa aleatório — ele usou a geografia como motor de narrativa:\n\n• A Muralha ao Norte não é só uma construção épica: é uma barreira psicológica. Tudo ao norte dela é "o desconhecido", o que justifica o medo e a negligência dos sulistas.\n\n• Dorne, isolada por montanhas e deserto, desenvolveu uma cultura completamente diferente do resto de Westeros: mais liberal, com leis de herança igualitárias e resistência feroz a invasores.\n\n• O Gargalo (The Neck) é um pântano que funciona como defesa natural do Norte — por isso os Stark conseguiram manter independência por milênios.\n\n• Porto Real fica onde fica porque Aegon desembarcou ali: a capital não surgiu por ser o melhor local, mas por ser o ponto de conquista. Isso gera tensão política constante.\n\nMartin confessou que inverteu o mapa da Irlanda e o colou ao Reino Unido como base geográfica — e depois ajustou para servir à história.',
+      ref: 'Westeros — George R. R. Martin (As Crônicas de Gelo e Fogo)\n\nMartin não desenhou um mapa aleatório — ele usou a geografia como motor de narrativa:\n\n• A Muralha ao Norte não é só uma construção épica: é uma barreira psicológica. Tudo ao norte dela é "o desconhecido", o que justifica o medo e a negligência dos sulistas.\n\n• Dorne, isolada por montanhas e deserto, desenvolveu uma cultura completamente diferente do resto de Westeros: mais liberal, com leis de herança igualitárias e resistência feroz a invasores.\n\n• O Gargalo (The Neck) é um pântano que funciona como defesa natural do Norte — por isso os Stark conseguiram manter independência por milênios.\n\n• Porto Real fica onde fica porque Aegon desembarcou ali: a capital não surgiu por ser o melhor local, mas por ser o ponto de conquista. Isso gera tensão política constante.\n\nMartin confessou que inverteu o mapa da Irlanda e o colou ao Reino Unido como base geográfica — e depois ajustou para servir à história.',
       steps: [],
       closing: 'Ao tomar deste fruto, o firmamento do seu Mundo será materializado.',
     },
   },
   {
-    id: 1, num: '2º Fruto', name: 'Sistema Político', icon: '🏛',
+    id: 1, num: '2º Fruto', name: 'Sistema Político', Icon: Landmark, icon: '',
     gradient: 'from-indigo-900 via-purple-900 to-blue-900',
     desc: 'Quem manda, como manda e por que alguém quer derrubar quem manda. Combustível de trama.',
     fields: [
@@ -95,13 +99,13 @@ export const FRUITS: Fruit[] = [
     chips: ['Criar um sistema de governo original', 'Desenvolver facção com agenda secreta', 'Gerar uma lei que revela o tom do poder', 'Criar uma conspiração política'],
     guide: {
       min: 'Política não é só "quem é o rei". É sobre como o poder funciona no dia a dia: quem cobra impostos, quem julga crimes, quem decide ir à guerra e por quê. Um sistema político bem construído é o maior gerador de conflito do seu mundo.\n\nPense em camadas: há o poder oficial (o trono, o senado, o conselho) e o poder real (quem sussurra no ouvido do rei, quem controla o ouro, quem comanda os exércitos). A tensão entre essas camadas é combustível narrativo puro.\n\nLeis revelam valores — e hipocrisia. Se a lei proíbe magia mas o rei tem um mago conselheiro, isso diz tudo sobre como o poder funciona. Crie governos, facções com agendas próprias e leis que mostrem as contradições do sistema. Cada facção pode virar uma entrada no Codex.',
-      ref: '📖 Sistemas de Poder em Grandes Narrativas\n\n• Gondor vs. Rohan (O Senhor dos Anéis): Tolkien mostra dois modelos — Gondor é uma monarquia burocrática em decadência (governada por um regente que se recusa a ceder o trono), enquanto Rohan é uma monarquia guerreira onde o rei cavalga na linha de frente. A diferença cultural nasce do sistema político.\n\n• O Império Galáctico (Star Wars): Lucas se inspirou na queda da República Romana. Palpatine não tomou o poder à força — ele foi eleito, acumulou "poderes emergenciais" e transformou democracia em ditadura com aplausos do Senado. É um estudo de como tiranos surgem dentro do sistema.\n\n• A Aliança dos Profetas (Halo): Uma teocracia onde líderes religiosos detêm poder absoluto e a verdade é controlada. Quando a mentira fundadora é exposta, todo o sistema colapsa — mostrando a fragilidade de poder baseado em fé cega.\n\n• Westeros: O Trono de Ferro é literalmente desconfortável de propósito — Aegon o construiu assim para lembrar que governar não deve ser fácil. Mas isso não impede que cada ocupante abuse do poder de formas diferentes.',
+      ref: 'Sistemas de Poder em Grandes Narrativas\n\n• Gondor vs. Rohan (O Senhor dos Anéis): Tolkien mostra dois modelos — Gondor é uma monarquia burocrática em decadência (governada por um regente que se recusa a ceder o trono), enquanto Rohan é uma monarquia guerreira onde o rei cavalga na linha de frente. A diferença cultural nasce do sistema político.\n\n• O Império Galáctico (Star Wars): Lucas se inspirou na queda da República Romana. Palpatine não tomou o poder à força — ele foi eleito, acumulou "poderes emergenciais" e transformou democracia em ditadura com aplausos do Senado. É um estudo de como tiranos surgem dentro do sistema.\n\n• A Aliança dos Profetas (Halo): Uma teocracia onde líderes religiosos detêm poder absoluto e a verdade é controlada. Quando a mentira fundadora é exposta, todo o sistema colapsa — mostrando a fragilidade de poder baseado em fé cega.\n\n• Westeros: O Trono de Ferro é literalmente desconfortável de propósito — Aegon o construiu assim para lembrar que governar não deve ser fácil. Mas isso não impede que cada ocupante abuse do poder de formas diferentes.',
       steps: [],
       closing: 'Ao tomar deste fruto, os fios do destino começarão a se ordenar diante do caos.',
     },
   },
   {
-    id: 2, num: '3º Fruto', name: 'Linha do Tempo', icon: '⚔',
+    id: 2, num: '3º Fruto', name: 'Linha do Tempo', Icon: Swords, icon: '',
     gradient: 'from-amber-900 via-red-900 to-orange-900',
     desc: 'História, eras e calendário transformam seu mundo em consequência. O presente carrega marcas do passado.',
     fields: [
@@ -112,13 +116,13 @@ export const FRUITS: Fruit[] = [
     chips: ['Criar calendário', 'Criar evento histórico fundador', 'Desenvolver relíquia com significado oculto', 'Expandir uma figura lendária', 'Conectar passado ao conflito presente'],
     guide: {
       min: 'A história do seu mundo é o que transforma cenário em consequência. Cada guerra, descoberta ou catástrofe do passado deixa cicatrizes visíveis no presente: ruínas que ninguém ousa reconstruir, linhagens reais que carregam culpa ancestral, fronteiras que existem por causa de um tratado de 300 anos.\n\nNão crie uma linha do tempo enciclopédica — crie eventos que ainda importam. A pergunta-chave é: "Isso afeta alguém vivo na história?" Se a resposta for não, o evento é decorativo. Se for sim, é narrativa.\n\nPense em três camadas temporais: a origem (mitos fundadores, como o mundo começou), os pontos de virada (guerras, descobertas, quedas de impérios) e o presente imediato (o que acabou de acontecer que coloca tudo em movimento). Figuras históricas e relíquias do passado funcionam como âncoras emocionais — o leitor entende o peso do presente quando conhece o passado.',
-      ref: '📖 The Elder Scrolls — Bethesda (Tamriel)\n\nA franquia Elder Scrolls é referência mundial em história de worldbuilding porque cada jogo se passa em uma era diferente, mas os eventos anteriores sempre reverberam:\n\n• A Guerra dos Dragões (Era Merética): Aconteceu milênios antes de Skyrim, mas os dragões retornam no jogo — e os jogadores descobrem que a profecia do Dragonborn nasceu desse conflito original.\n\n• Tiber Septim / Talos: Um homem que conquistou todo o continente e, após a morte, foi elevado a deus. Gerações depois, o Domínio Aldmeri proíbe seu culto — e esse ato político é o pivô central de Skyrim. Um evento de 400 anos atrás move a guerra civil do presente.\n\n• A Grande Guerra (4ª Era): O Império cedeu aos Thalmor e assinou o Concordato Ouro-Branco, banindo o culto a Talos. Os Nórdicos se sentiram traídos, Ulfric se rebelou, e o jogador entra no meio desse conflito.\n\n• Livros in-game: Bethesda espalhou centenas de livros jogáveis com versões conflitantes da história — diferentes povos contam o mesmo evento de formas opostas. Isso faz a história parecer real, porque ninguém tem a "versão definitiva".',
+      ref: 'The Elder Scrolls — Bethesda (Tamriel)\n\nA franquia Elder Scrolls é referência mundial em história de worldbuilding porque cada jogo se passa em uma era diferente, mas os eventos anteriores sempre reverberam:\n\n• A Guerra dos Dragões (Era Merética): Aconteceu milênios antes de Skyrim, mas os dragões retornam no jogo — e os jogadores descobrem que a profecia do Dragonborn nasceu desse conflito original.\n\n• Tiber Septim / Talos: Um homem que conquistou todo o continente e, após a morte, foi elevado a deus. Gerações depois, o Domínio Aldmeri proíbe seu culto — e esse ato político é o pivô central de Skyrim. Um evento de 400 anos atrás move a guerra civil do presente.',
       steps: [],
       closing: 'Ao tomar deste fruto, linhas do tempo são criadas e possibilidades se abrem.',
     },
   },
   {
-    id: 3, num: '4º Fruto', name: 'Cultura', icon: '🎭',
+    id: 3, num: '4º Fruto', name: 'Cultura', Icon: Drama, icon: '',
     gradient: 'from-rose-900 via-pink-900 to-fuchsia-900',
     desc: 'Cultura é identidade: o que faz um povo parecer real e inesquecível.',
     fields: [
@@ -129,13 +133,13 @@ export const FRUITS: Fruit[] = [
     chips: ['Criar valor com contradição oculta', 'Desenvolver ritual com significado profundo', 'Criar um tabu e suas consequências', 'Gerar cena que mostra a cultura em ação'],
     guide: {
       min: 'Cultura é o que faz um povo parecer real e não apenas um nome num mapa. É a diferença entre "eles vivem no Norte" e "eles marcam a pele com cinzas dos ancestrais ao completar 16 anos, porque acreditam que os mortos protegem através da dor".\n\nCultura se constrói em três níveis: o que o povo acredita (valores, religião, superstições), o que o povo faz (rituais, festivais, costumes cotidianos) e o que o povo cria (armas, roupas, música, culinária). O segredo é a contradição — o que pregam vs. o que praticam. Um povo que valoriza honra mas pratica escravidão é mais interessante que um povo "honrado".\n\nDetalhes sensoriais fazem a diferença: como cumprimentam estranhos? O que comem no café da manhã? Qual insulto é imperdoável? Esses micro-detalhes dão ao leitor a sensação de estar dentro do mundo, não lendo sobre ele.',
-      ref: '📖 Avatar: O Último Mestre do Ar — Bryan Konietzko & Michael DiMartino\n\nAvatar é uma masterclass em cultura como worldbuilding porque cada nação é construída com coerência total entre filosofia, estética, luta e modo de vida:\n\n• Nação do Fogo: Inspirada no Japão Imperial e China. Hierarquia rígida, honra como moeda social, industrialização agressiva. A dança do fogo-controle é marcial, agressiva — reflete uma cultura que valoriza dominação. Até a arquitetura é angular e imponente.\n\n• Tribo da Água: Inspirada nos Inuit e culturas polares. Comunidade acima do indivíduo, espiritualidade ligada à Lua e ao oceano. O controle da água é fluido, adaptativo — a cultura não resiste, ela se molda. Curandeiros são tão respeitados quanto guerreiros.\n\n• Nômades do Ar: Inspirados em monges tibetanos. Pacifismo radical, desapego material, vegetarianismo. O ar-controle é evasivo, circular — eles nunca atacam diretamente. O genocídio dessa cultura no início da série tem impacto devastador justamente porque o espectador entende o que foi perdido.\n\n• Reino da Terra: Inspirado na China continental. Resistência, teimosia, tradição. O terra-controle é firme, plantado — reflete um povo que não se move. Ba Sing Se, a capital, tem muros dentro de muros, e cada muro separa classes sociais — a própria arquitetura é opressão visual.',
+      ref: 'Avatar: O Último Mestre do Ar — Bryan Konietzko & Michael DiMartino\n\nAvatar é uma masterclass em cultura como worldbuilding porque cada nação é construída com coerência total entre filosofia, estética, luta e modo de vida.',
       steps: [],
       closing: 'Ao tomar deste fruto, povos e raças cantam e dançam ao redor da própria identidade.',
     },
   },
   {
-    id: 4, num: '5º Fruto', name: 'Magia & Tecnologia', icon: '✨',
+    id: 4, num: '5º Fruto', name: 'Magia & Tecnologia', Icon: Sparkles, icon: '',
     gradient: 'from-violet-900 via-blue-900 to-cyan-900',
     desc: 'O que é possível — e impossível — no seu mundo. Magia e tecnologia criam tensão quando controladas por grupos diferentes.',
     fields: [
@@ -145,14 +149,14 @@ export const FRUITS: Fruit[] = [
     ],
     chips: ['Definir custo e limite de um feitiço', 'Criar item híbrido (tecnologia + magia)', 'Gerar conflito político sobre a magia', 'Desenvolver grupo que rejeita a magia'],
     guide: {
-      min: 'Este fruto trata do que é possível — e impossível — no seu universo. Magia e tecnologia são duas faces da mesma moeda: ambas definem os limites do poder, e quem os controla define a política.\n\nA decisão mais importante é: seu sistema é "Duro" (regras claras, custos definidos, consistência lógica) ou "Suave" (misterioso, imprevisível, focado em atmosfera)? Sistemas duros geram tensão tática ("ele só tem mana para mais um feitiço"), sistemas suaves geram admiração e medo ("ninguém sabe o que Gandalf é capaz de fazer").\n\nTodo poder precisa de um custo. Sem custo, não há tensão. O custo pode ser físico (drenar vida), social (mágicos são perseguidos), moral (cada uso corrompe a alma) ou prático (ingredientes raros, anos de estudo). Tecnologia segue a mesma lógica: quem tem acesso? Quem fabrica? Quem proíbe?\n\nCrie regras, tecnologias e itens — e pense em como cada um afeta a sociedade.',
-      ref: '📖 Game of Thrones — George R. R. Martin\n\nMartin é brilhante porque usa magia dura e suave simultaneamente, em camadas:\n\n• Vidro de Dragão (Obsidiana): Sistema DURO. Propriedade clara e consistente — mata White Walkers. Isso transforma um mineral em recurso estratégico e gera corrida armamentista. O espectador entende as regras e sente tensão quando o recurso é escasso.\n\n• O Senhor da Luz (R\'hllor): Sistema SUAVE. Melisandre ressuscita pessoas, vê visões no fogo, dá à luz uma sombra assassina. As regras são vagas — nem ela entende completamente seu próprio poder. Isso gera medo e admiração, mas também desconfiança.\n\n• Fogovivo (Wildfire): HÍBRIDO magia/tecnologia. É uma substância alquímica (tecnologia), mas sua produção melhorou quando os dragões voltaram (magia). Isso sugere uma conexão entre as duas forças sem explicar completamente — mantendo o mistério.\n\n• Fogo de Dragão: Poder absoluto sem custo aparente para o dragão — mas com custo enorme para quem tenta controlá-lo. Daenerys paga o preço político e moral de ter armas de destruição em massa.\n\nA lição: misture sistemas, mas mantenha consistência interna. O leitor aceita qualquer regra, desde que você não a quebre.',
+      min: 'Este fruto trata do que é possível — e impossível — no seu universo. Magia e tecnologia são duas faces da mesma moeda: ambas definem os limites do poder, e quem os controla define a política.\n\nA decisão mais importante é: seu sistema é "Duro" (regras claras, custos definidos, consistência lógica) ou "Suave" (misterioso, imprevisível, focado em atmosfera)? Sistemas duros geram tensão tática, sistemas suaves geram admiração e medo.\n\nTodo poder precisa de um custo. Sem custo, não há tensão.',
+      ref: 'Game of Thrones — George R. R. Martin\n\nMartin é brilhante porque usa magia dura e suave simultaneamente, em camadas.',
       steps: [],
       closing: 'Ao tomar deste fruto, fantasia e ciência dançam ao redor da existência.',
     },
   },
   {
-    id: 5, num: '6º Fruto', name: 'Seres Fantásticos', icon: '🐉',
+    id: 5, num: '6º Fruto', name: 'Seres Fantásticos', Icon: Flame, icon: '',
     gradient: 'from-emerald-900 via-green-900 to-teal-900',
     desc: 'Seres que mudam política, história e cultura. Bem construídos, sustentam tramas longas.',
     fields: [
@@ -161,14 +165,14 @@ export const FRUITS: Fruit[] = [
     ],
     chips: ['Criar criatura com papel político', 'Desenvolver raça com cultura própria', 'Gerar conflito entre espécies', 'Criar ser cuja origem é mistério'],
     guide: {
-      min: 'Seres fantásticos não são decoração — são agentes políticos, culturais e narrativos. Um dragão não é interessante porque cospe fogo; é interessante porque sua existência muda a balança de poder, gera cultos religiosos e força civilizações a se adaptarem.\n\nA pergunta fundamental para cada criatura ou raça é: "Como o mundo seria diferente sem ela?" Se a resposta for "igual", o ser é decorativo. Se a resposta for "completamente diferente", você tem algo poderoso.\n\nPense em ecologia fantástica: criaturas precisam de habitat, alimentação e reprodução. Pense em relações: humanos caçam, veneram, temem ou comercializam com essa espécie? Existe preconceito entre raças? Alianças antigas? Guerras de extermínio?\n\nCada criatura ou raça criada aqui pode virar uma ficha detalhada no Codex.',
-      ref: '📖 Tolkien (O Senhor dos Anéis) & Hajime Isayama (Attack on Titan)\n\nDois extremos que funcionam brilhantemente:\n\n• Tolkien — Diversidade com profundidade: Cada raça tem cultura, idioma, história e motivações próprias. Os Elfos não são "humanos bonitos com orelhas pontudas" — são seres imortais cuja relação com o tempo e a perda é fundamentalmente diferente da humana. Os Anões são obsessivos, gananciosos e leais até a morte — e sua queda (Moria) nasceu da própria ganância. Os Ents são árvores que aprenderam a falar — lentos, pacientes, e quando finalmente se enfurecem, destroem Isengard. Cada raça existe por um motivo narrativo.\n\n• Isayama — Mistério como motor: Os Titãs começam como monstros sem explicação. O terror vem do desconhecido. Conforme a série avança, descobrimos que são humanos transformados — e isso muda completamente o significado moral de cada batalha anterior. A revelação transforma ação em tragédia.\n\n• Lição combinada: Você pode criar seres com cultura rica e detalhada (estilo Tolkien) ou seres cujo mistério é o ponto central (estilo Isayama). O erro é criar seres que não são nem detalhados nem misteriosos — apenas genéricos.',
+      min: 'Seres fantásticos não são decoração — são agentes políticos, culturais e narrativos. Um dragão não é interessante porque cospe fogo; é interessante porque sua existência muda a balança de poder, gera cultos religiosos e força civilizações a se adaptarem.\n\nA pergunta fundamental para cada criatura ou raça é: "Como o mundo seria diferente sem ela?" Se a resposta for "igual", o ser é decorativo. Se a resposta for "completamente diferente", você tem algo poderoso.',
+      ref: 'Tolkien (O Senhor dos Anéis) & Hajime Isayama (Attack on Titan)\n\nDois extremos que funcionam brilhantemente.',
       steps: [],
       closing: 'Ao tomar deste fruto, a vida fantástica se materializa diante de seus olhos.',
     },
   },
   {
-    id: 6, num: '7º Fruto', name: 'Economia', icon: '💰',
+    id: 6, num: '7º Fruto', name: 'Economia', Icon: Coins, icon: '',
     gradient: 'from-yellow-900 via-amber-900 to-orange-900',
     desc: 'Economia explica rotas, guerras, desigualdades e alianças do seu mundo.',
     fields: [
@@ -177,14 +181,14 @@ export const FRUITS: Fruit[] = [
     ],
     chips: ['Criar recurso raro e quem o controla', 'Desenvolver rota comercial com perigos', 'Gerar crise econômica em andamento', 'Criar guilda com agenda própria'],
     guide: {
-      min: 'Economia é o que explica por que guerras acontecem, por que rotas são perigosas, por que alguns vivem em palácios e outros em favelas. Não precisa ser complexa — precisa ser sentida.\n\nO recurso mais importante do seu mundo define tudo: quem o controla tem poder, quem não tem está subordinado. Pode ser ouro, especiaria, cristais mágicos, água limpa ou informação. O que importa é a escassez — coisas abundantes não geram conflito.\n\nPense em três perguntas: O que é valioso? Quem controla? O que acontece quando acaba? Classes sociais nascem naturalmente da economia: quem faz o trabalho pesado, quem comercializa, quem tributa. Rotas comerciais são artérias do mundo — cortá-las é um ato de guerra.\n\nCrie moedas, recursos, dinâmicas de classe e rotas — tudo isso dá peso e realismo ao mundo.',
-      ref: '📖 O Nome do Vento — Patrick Rothfuss\n\nRothfuss faz algo raro: transforma dinheiro em ferramenta narrativa constante e emocionalmente carregada:\n\n• A Universidade cobra mensalidades que variam conforme a avaliação do aluno. Kvothe, brilhante mas pobre, precisa se humilhar, negociar e fazer bicos para pagar cada trimestre. O leitor sente o peso de cada moeda porque o protagonista sente.\n\n• O sistema de "talentos" (moeda) é detalhado o suficiente para dar realismo, mas nunca se torna uma aula de economia. Rothfuss menciona câmbio entre moedas de diferentes reinos, empréstimos com juros abusivos, e o custo real de uma refeição vs. um livro raro.\n\n• A luta constante de Kvothe contra a pobreza humaniza o personagem mais do que qualquer cena de ação. Quando ele finalmente compra um alaúde (seu instrumento), o leitor celebra porque entende o sacrifício.\n\n• Lição: Você não precisa criar um tratado econômico. Precisa fazer o leitor sentir que dinheiro importa no seu mundo — que escolhas têm custo, que recursos são finitos, que riqueza e pobreza moldam destinos.',
+      min: 'Economia é o que explica por que guerras acontecem, por que rotas são perigosas, por que alguns vivem em palácios e outros em favelas. Não precisa ser complexa — precisa ser sentida.',
+      ref: 'O Nome do Vento — Patrick Rothfuss\n\nRothfuss faz algo raro: transforma dinheiro em ferramenta narrativa constante e emocionalmente carregada.',
       steps: [],
       closing: 'Ao tomar deste fruto, moedas de ouro cintilam e sibilam: o bem e o mal lutam por poder.',
     },
   },
   {
-    id: 7, num: '8º Fruto', name: 'Linguagem', icon: '📜',
+    id: 7, num: '8º Fruto', name: 'Linguagem', Icon: ScrollText, icon: '',
     gradient: 'from-stone-900 via-neutral-900 to-zinc-900',
     desc: 'Consistência de nomes, termos e expressões que fazem o mundo parecer real.',
     fields: [
@@ -193,14 +197,14 @@ export const FRUITS: Fruit[] = [
     ],
     chips: ['Criar padrão fonético para um povo', 'Gerar termos culturais com significado', 'Criar expressão idiomática reveladora', 'Desenvolver variação de dialeto'],
     guide: {
-      min: 'Linguagem é o detalhe que separa mundos genéricos de mundos que parecem reais. Você não precisa criar um idioma completo — precisa criar consistência. Se todos os nomes élficos terminam em "-iel" e "-wen", o leitor inconscientemente reconhece a origem de um personagem antes de você explicar.\n\nO segredo está nos padrões fonéticos: escolha 2-3 regras para cada povo. Nomes do norte podem ser curtos e com consoantes duras (Varn, Keth, Drog). Nomes do sul podem ser longos e melodiosos (Aelindra, Tharesian). Isso cria identidade cultural sem precisar de gramática.\n\nExpressões idiomáticas revelam valores: "Que o fogo te encontre antes do frio" conta uma história inteira sobre um povo que teme o inverno. Insultos, saudações, títulos e juramentos são janelas para a alma de uma cultura.\n\nCrie padrões fonéticos, termos culturais e expressões — cada um desses elementos dá voz e autenticidade ao seu mundo.',
-      ref: '📖 Tolkien — O Pai da Linguística Ficcional\n\nTolkien não criou línguas para seus livros — ele criou livros para suas línguas. Ele era professor de filologia em Oxford, e O Senhor dos Anéis nasceu como um "lar" para os idiomas que já havia inventado:\n\n• Quenya (Alto Élfico): Inspirada no finlandês e latim. Língua cerimonial, antiga, usada em poesia e rituais. Sons fluidos, vogais abertas (Namárië, Elen síla lúmenn\' omentielvo). O leitor sente a antiguidade e a nobreza sem entender uma palavra.\n\n• Sindarin (Élfico Cinzento): Inspirado no galês. Mais "terreno" que Quenya, é a língua élfica do cotidiano. Nomes como Legolas, Galadriel e Minas Tirith são Sindarin — e a sonoridade coesa faz o leitor sentir que pertencem ao mesmo mundo.\n\n• Khuzdul (Anão): Inspirado no hebraico e árabe. Sons guturais, consoantes pesadas (Khazad-dûm, Balin). Tolkien fez a língua ser secreta — Anões raramente a falam na frente de outros, o que reforça sua cultura reservada.\n\n• Língua Negra: Criada por Sauron, soa agressiva e dissonante de propósito. "Ash nazg durbatulûk" é desconfortável de ler em voz alta — e esse é o ponto.\n\nVocê não precisa desse nível de profundidade. Mas se os nomes do seu mundo parecem aleatórios, o leitor percebe. Consistência fonética é o mínimo que separa worldbuilding amador de profissional.',
+      min: 'Linguagem é o detalhe que separa mundos genéricos de mundos que parecem reais. Você não precisa criar um idioma completo — precisa criar consistência.',
+      ref: 'Tolkien — O Pai da Linguística Ficcional\n\nTolkien não criou línguas para seus livros — ele criou livros para suas línguas.',
       steps: [],
       closing: 'Ao tomar deste fruto, palavras ganham vida e culturas recebem a voz de muitas almas.',
     },
   },
   {
-    id: 8, num: '9º Fruto', name: 'Mitologia', icon: '🌟',
+    id: 8, num: '9º Fruto', name: 'Mitologia', Icon: Sparkles, icon: '',
     gradient: 'from-sky-900 via-indigo-900 to-violet-900',
     desc: 'Origem, propósito e destino do mundo. Explica o inexplicável e gera conflito.',
     fields: [
@@ -209,14 +213,14 @@ export const FRUITS: Fruit[] = [
     ],
     chips: ['Criar mito de criação com tom moral', 'Desenvolver heresia e seus seguidores', 'Gerar profecia que move a trama', 'Criar relíquia com disputa política'],
     guide: {
-      min: 'Mitologia é a camada mais profunda do worldbuilding — é onde você responde as perguntas que os habitantes do seu mundo não conseguem responder sozinhos. De onde viemos? Para onde vamos? Por que sofremos? Por que existe o mal?\n\nMitos de criação definem o tom do mundo inteiro. Um mundo criado por deuses que se sacrificaram tem tom diferente de um mundo criado por acidente cósmico. A cosmogonia (origem do universo) influencia religião, moral, leis e até arquitetura.\n\nO mais poderoso é quando a mitologia é ambígua: os mitos são verdade literal ou metáfora? Os deuses existem de fato ou são invenção dos poderosos para controlar os fracos? Essa ambiguidade gera conflito religioso, heresias, reformas e guerras santas.\n\nProfecias são ferramentas narrativas perigosamente boas — elas criam expectativa e permitem subversão. Crie divindades, mitos, crenças e relíquias sagradas que deem sentido (ou questionem o sentido) da existência no seu mundo.',
-      ref: '📖 Mitologia Nórdica — Neil Gaiman / Edda Poética\n\nA mitologia nórdica é uma das mais influentes na fantasia moderna, e por boas razões:\n\n• Ginnungagap (O Vazio): Antes de tudo, havia um abismo sem fundo entre o fogo (Muspelheim) e o gelo (Niflheim). Da colisão nasceu Ymir, o primeiro gigante, e dele os deuses criaram o mundo — usando seu crânio como céu, seu sangue como oceanos. A criação é violenta e sacrificial — isso define o tom de toda a mitologia.\n\n• Yggdrasil (A Árvore do Mundo): Nove mundos conectados por uma árvore cósmica. Não é um mapa — é uma cosmologia. Os deuses vivem em cima (Asgard), os mortos embaixo (Hel), e os humanos no meio (Midgard). A posição física reflete hierarquia espiritual.\n\n• Ragnarök: Os deuses nórdicos SABEM que vão morrer. Odin coleciona guerreiros em Valhalla não para vencer o Ragnarök, mas para lutar sabendo que vai perder. Isso dá à mitologia nórdica um tom trágico e heroico único — bravura não é esperar vencer, é lutar mesmo sabendo que vai cair.\n\n• As Nornas (Destino): Três seres que tecem o destino de todos — até dos deuses. Ninguém escapa. Isso cria uma tensão existencial que permeia toda a cultura nórdica: se o destino é inevitável, o que importa é COMO você enfrenta.\n\nTolkien bebeu diretamente dessa fonte. Sauron é uma versão de Loki. O Anel é uma versão do Andvaranaut. A queda dos Elfos ecoa o Ragnarök. Entender mitologia nórdica é entender a base da fantasia moderna.',
+      min: 'Mitologia é a camada mais profunda do worldbuilding — é onde você responde as perguntas que os habitantes do seu mundo não conseguem responder sozinhos.',
+      ref: 'Mitologia Nórdica — Neil Gaiman / Edda Poética\n\nA mitologia nórdica é uma das mais influentes na fantasia moderna.',
       steps: [],
       closing: 'Ao tomar deste fruto, o destino do seu mundo estará traçado nas linhas da eternidade.',
     },
   },
   {
-    id: 9, num: '10º Fruto', name: 'Personagens', icon: '👤',
+    id: 9, num: '10º Fruto', name: 'Personagens', Icon: User, icon: '',
     gradient: 'from-slate-900 via-gray-900 to-zinc-900',
     desc: 'O ponto de contato do leitor com o mundo. Nascem dele e também o transformam.',
     fields: [
@@ -225,14 +229,14 @@ export const FRUITS: Fruit[] = [
     ],
     chips: ['Desenvolver a ferida do protagonista', 'Criar antagonista que o leitor quase defende', 'Gerar conflito entre aliados', 'Definir arco de transformação'],
     guide: {
-      min: 'Personagens são o ponto de contato emocional entre o leitor e o seu mundo. O leitor não se importa com a geopolítica de Westeros — se importa com Jon Snow tentando fazer a coisa certa num mundo que pune quem faz a coisa certa.\n\nTodo personagem memorável tem três elementos: desejo (o que quer), medo (o que evita a todo custo) e ferida (o trauma do passado que distorce sua visão). A ferida é o mais importante — ela explica por que o personagem toma decisões irracionais que movem a trama.\n\nAntagonistas são protagonistas da própria história. Se seu vilão não tem uma lógica interna coerente ("do meu ponto de vista, estou certo"), ele é um boneco de papelão. Os melhores antagonistas são aqueles que o leitor quase defende.\n\nArcos de transformação são a espinha dorsal da narrativa: como o personagem começa vs. como termina. Se ele não muda, a história não aconteceu. Crie protagonistas, antagonistas, aliados e rivais — cada um pode virar uma ficha detalhada no Codex.',
-      ref: '📖 George R. R. Martin — Personagens "Cinzas"\n\nMartin revolucionou a fantasia ao recusar personagens puramente bons ou maus:\n\n• Jaime Lannister: Começa como o vilão que empurra uma criança da janela. Ao longo da série, descobrimos que ele matou o Rei Louco para salvar meio milhão de pessoas — e foi desprezado por isso. Sua jornada de "Regicida" a "homem tentando redimir-se" é um dos melhores arcos da literatura moderna.\n\n• Cersei Lannister: Cruel, paranóica, manipuladora — mas também uma mãe que viu todos os filhos morrerem e uma mulher que foi vendida em casamento como moeda política. Martin faz o leitor odiar suas ações e entender suas motivações simultaneamente.\n\n• Tyrion Lannister: Brilhante, engraçado, empático — mas também alcoólatra, vingativo e capaz de crueldade quando ferido. Sua "ferida" (ser rejeitado pelo pai por ser anão) explica 90% das suas decisões.\n\n• A ferida como motor: Quase todo personagem de Martin age motivado por um trauma. Arya quer vingança pela família. Sansa aprende a manipular porque foi manipulada. Theon trai os Stark porque nunca se sentiu pertencente. A ferida não é backstory — é o motor da trama presente.\n\nLição: Dê ao seu personagem uma falha que o leitor reconheça em si mesmo, e o leitor o seguirá até o inferno.',
+      min: 'Personagens são o ponto de contato emocional entre o leitor e o seu mundo. O leitor não se importa com a geopolítica de Westeros — se importa com Jon Snow tentando fazer a coisa certa num mundo que pune quem faz a coisa certa.',
+      ref: 'George R. R. Martin — Personagens "Cinzas"\n\nMartin revolucionou a fantasia ao recusar personagens puramente bons ou maus.',
       steps: [],
       closing: 'Ao tomar deste fruto, a alma do seu mundo despertará através dos olhos de quem o habita.',
     },
   },
   {
-    id: 10, num: 'Último Fruto', name: 'A Sua Narrativa', icon: '🌳',
+    id: 10, num: 'Último Fruto', name: 'A Sua Narrativa', Icon: Trees, icon: '',
     gradient: 'from-blue-900 via-indigo-900 to-purple-900',
     desc: 'Conecte tudo em história. O mundo age sobre as pessoas e elas causam reação em cadeia.',
     fields: [
@@ -241,8 +245,8 @@ export const FRUITS: Fruit[] = [
     ],
     chips: ['Escrever a premissa em uma frase', 'Definir a pergunta-tema', 'Criar a cena de abertura', 'Gerar sinopse de 3 parágrafos'],
     guide: {
-      min: 'Este é o fruto que une todos os outros. Até agora você construiu o cenário — agora é hora de transformar cenário em história. A diferença é simples: cenário é estático, história é movimento.\n\nA premissa responde: "Quem quer o quê, o que impede, e o que está em jogo?" Se você não consegue resumir em uma frase, a premissa não está clara. O tema é a pergunta filosófica por trás da trama: "Até onde a lealdade justifica a traição?", "O poder corrompe ou revela?"\n\nO conceito de "Mundo Autorregente" é o objetivo final: quando mapa, política, história, cultura, magia, economia e personagens estão tão interligados que a trama surge naturalmente das interações entre eles. Você não precisa forçar conflito — o conflito nasce sozinho porque as peças estão bem posicionadas.\n\nA cena de abertura é seu cartão de visitas. Ela deve criar uma pergunta na mente do leitor que ele precisa responder continuando a ler. Não comece com descrição do clima — comece com uma decisão, um mistério ou uma perda.',
-      ref: '📖 O "Mundo Autorregente" — Princípio de Brandon Sanderson & N.K. Jemisin\n\nOs melhores worldbuilders modernos compartilham um princípio: o mundo serve à história, não o contrário.\n\n• Brandon Sanderson (Mistborn): Sanderson criou um mundo onde cinzas caem do céu, o sol é vermelho e um imperador imortal governa há mil anos. Cada elemento foi projetado para servir à história: as cinzas existem porque a magia do Lorde Soberano alterou o planeta; o sol é vermelho pela mesma razão; e quando o sistema é consertado no final, TUDO muda simultaneamente. O cenário não é decoração — é consequência.\n\n• N.K. Jemisin (A Quinta Estação): Jemisin criou um mundo onde catástrofes sísmicas destroem civilizações a cada poucos séculos. A sociedade inteira é organizada em torno da sobrevivência: castas, tecnologia, cultura, religião — tudo existe porque o planeta tenta matar seus habitantes. Quando descobrimos POR QUE o planeta é hostil, o worldbuilding retroativamente ganha nova camada de significado.\n\n• "Show, Don\'t Tell": Ambos os autores nunca param a narrativa para explicar o mundo. O leitor aprende observando personagens interagirem com o ambiente. Kelsier não explica Alomancia — ele a usa, e o leitor aprende pelas consequências.\n\n• Servidão do Cenário: Se uma montanha existe no seu mapa mas nenhum personagem a cruza, nenhuma batalha acontece lá e nenhuma lenda fala dela — ela não precisa existir. Cada elemento do seu mundo deve servir à história ou gerar atmosfera.',
+      min: 'Este é o fruto que une todos os outros. Até agora você construiu o cenário — agora é hora de transformar cenário em história.',
+      ref: 'O "Mundo Autorregente" — Princípio de Brandon Sanderson & N.K. Jemisin\n\nOs melhores worldbuilders modernos compartilham um princípio: o mundo serve à história, não o contrário.',
       steps: [],
       closing: 'Ao tomar deste fruto, a sua voz ecoará por mundos que agora possuem vida própria.',
     },
@@ -265,17 +269,17 @@ export const BOTTOM_UP_ORDER = [9, 10, 0, 3, 4, 5, 8, 2, 1, 6, 7];
 // Recommended Codex entry type per fruit (Idriel guidance)
 export type RecommendedType = 'ficha' | 'artigo' | 'both';
 export const FRUIT_RECOMMENDED_TYPE: Record<number, RecommendedType> = {
-  0: 'ficha',   // Mapa do Mundo — regiões, locais
-  1: 'artigo',  // Sistema Político — sistemas/leis
-  2: 'artigo',  // Linha do Tempo — eventos, eras
-  3: 'both',    // Cultura — fichas (rituais, povos) + artigos (valores)
-  4: 'artigo',  // Magia & Tec — sistemas (artigo), itens (ficha — override por campo)
-  5: 'ficha',   // Seres Fantásticos — criaturas, raças
-  6: 'artigo',  // Economia — sistemas, classes
-  7: 'artigo',  // Linguagem — padrões, idiomas
-  8: 'artigo',  // Mitologia — mitos, crenças
-  9: 'ficha',   // Personagens
-  10: 'artigo', // Narrativa — premissa, tema
+  0: 'ficha',
+  1: 'artigo',
+  2: 'artigo',
+  3: 'both',
+  4: 'artigo',
+  5: 'ficha',
+  6: 'artigo',
+  7: 'artigo',
+  8: 'artigo',
+  9: 'ficha',
+  10: 'artigo',
 };
 
 export function getOrderedFruits(method: MethodType): Fruit[] {
@@ -285,11 +289,11 @@ export function getOrderedFruits(method: MethodType): Fruit[] {
 
 export const METHOD_DESCRIPTIONS: Record<MethodType, { title: string; desc: string }> = {
   'top-down': {
-    title: '⬇ Cima para Baixo',
+    title: 'Cima para Baixo',
     desc: 'Começa pela visão geral — continentes, nações, história — e vai detalhando até personagens e cenas.',
   },
   'bottom-up': {
-    title: '⬆ Baixo para Cima',
+    title: 'Baixo para Cima',
     desc: 'Começa pelos personagens e um local central, expandindo o mundo conforme a história exige.',
   },
 };
