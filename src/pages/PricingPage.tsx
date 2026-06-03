@@ -4,14 +4,18 @@ import { motion } from 'framer-motion';
 import {
   Check, X, ArrowLeft, Sparkles, BookOpen, Map, Library, Image as ImageIcon,
   Wand2, FileDown, Layers, Brain, Infinity as InfinityIcon, ShieldCheck, Clock, Heart,
-  Leaf, Feather, Star, Plus, Droplet, Trees, Crown, Compass,
+  Leaf, Feather, Star, Plus, Droplet, Trees, Crown, Compass, LogIn,
 } from 'lucide-react';
 import { openCheckout, PLANS } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
 import heroVideo from '@/assets/arvore-hero-bg.mp4.asset.json';
 import heroPoster from '@/assets/arvore-mundos-hero.png.asset.json';
+import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
+import idrielPoster from '@/assets/idriel-avatar.png';
 
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'mensal' | 'anual'>('anual');
 
