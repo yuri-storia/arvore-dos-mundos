@@ -173,7 +173,7 @@ Deno.serve(async (req) => {
       if (isGuest || !userId) {
         try {
           const apiKey = Deno.env.get("ASAAS_API_KEY")!;
-          const custRes = await fetch(`https://api-sandbox.asaas.com/v3/customers/${payment.customer}`, {
+          const custRes = await fetch(`https://api.asaas.com/v3/customers/${payment.customer}`, {
             headers: { access_token: apiKey, "User-Agent": "ArvoreDosMundos/1.0" },
           });
           if (custRes.ok) {
@@ -202,7 +202,7 @@ Deno.serve(async (req) => {
       await supa.from("asaas_customers").upsert({
         user_id: userId,
         asaas_customer_id: payment.customer,
-        environment: "sandbox",
+        environment: "production",
         updated_at: new Date().toISOString(),
       });
 
@@ -226,7 +226,7 @@ Deno.serve(async (req) => {
           billing_cycle: planMeta.cycle,
           asaas_customer_id: payment.customer,
           asaas_subscription_id: payment.subscription || null,
-          environment: "sandbox",
+          environment: "production",
           started_at: new Date().toISOString(),
           expires_at: expires,
           cancelled_at: null,
