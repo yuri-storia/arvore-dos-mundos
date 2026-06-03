@@ -173,7 +173,7 @@ Deno.serve(async (req) => {
       if (isGuest || !userId) {
         try {
           const apiKey = Deno.env.get("ASAAS_API_KEY")!;
-          const custRes = await fetch(`https://api-sandbox.asaas.com/v3/customers/${payment.customer}`, {
+          const custRes = await fetch(`https://api.asaas.com/v3/customers/${payment.customer}`, {
             headers: { access_token: apiKey, "User-Agent": "ArvoreDosMundos/1.0" },
           });
           if (custRes.ok) {
