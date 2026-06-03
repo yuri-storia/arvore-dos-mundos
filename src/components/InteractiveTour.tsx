@@ -14,7 +14,7 @@ export interface TourStep {
   target?: string; // data-tour attribute value
   title: string;
   desc: string;
-  icon: string;
+  Icon: LucideIcon;
   tabToActivate?: TabType;
   tooltipPos?: 'right' | 'bottom' | 'left' | 'top' | 'center';
   delay?: number;
