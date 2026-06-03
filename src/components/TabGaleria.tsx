@@ -294,7 +294,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
             </SelectTrigger>
             <SelectContent>
               {FRUITS.map(f => (
-                <SelectItem key={f.id} value={f.name}>{f.icon} {f.name}</SelectItem>
+                <SelectItem key={f.id} value={f.name}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -311,7 +311,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
           <SelectContent>
             <SelectItem value="Todos">🌳 Todos</SelectItem>
             {FRUITS.map(f => (
-              <SelectItem key={f.id} value={f.name}>{f.icon} {f.name}</SelectItem>
+              <SelectItem key={f.id} value={f.name}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -702,7 +702,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
               <button onClick={() => setSaveCat('Todos')} className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${saveCat === 'Todos' ? 'bg-gold/20 text-gold-light border border-gold/40' : 'text-text-dim border border-transparent hover:border-gold/20'}`}>Geral</button>
               {FRUITS.map(f => (
                 <button key={f.id} onClick={() => setSaveCat(f.name)} className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${saveCat === f.name ? 'bg-gold/20 text-gold-light border border-gold/40' : 'text-text-dim border border-transparent hover:border-gold/20'}`}>
-                  {f.icon} {f.name}
+                  <f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}
                 </button>
               ))}
             </div>
@@ -727,7 +727,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                   onClick={() => setTagCat(f.name)}
                   className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${tagCat === f.name ? 'bg-gold/20 text-gold-light border border-gold/40' : 'text-text-dim border border-transparent hover:border-gold/20'}`}
                 >
-                  {f.icon} {f.name}
+                  <f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}
                 </button>
               ))}
             </div>

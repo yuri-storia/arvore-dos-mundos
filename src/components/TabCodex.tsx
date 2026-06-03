@@ -324,7 +324,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                       <span className="text-[10px] font-montserrat font-bold uppercase text-text-dim">
                         {e.entry_type === 'ficha' ? '📋' : '📝'}
                       </span>
-                      {fruit && <span className="text-[10px]">{fruit.icon}</span>}
+                      {fruit && <span className="text-[10px]"><fruit.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /></span>}
                       <span className="font-merriweather text-sm text-foreground truncate">{e.title}</span>
                     </button>
                   );
@@ -381,7 +381,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                         : 'text-text-dim border border-border hover:border-accent/20'
                     }`}
                   >
-                    {f.icon} {f.name} ({count})
+                    <f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name} ({count})
                   </button>
                 );
               })}
@@ -418,7 +418,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                   : 'text-text-dim border-border hover:border-ring/20 hover:text-foreground'
               }`}
             >
-              {f.icon} {f.name} {count > 0 ? `(${count})` : ''}
+              <f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name} {count > 0 ? `(${count})` : ''}
             </button>
           );
         })}
@@ -444,7 +444,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
               <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Fruto</label>
               <select value={newFruit ?? ''} onChange={e => setNewFruit(e.target.value ? Number(e.target.value) : null)} className={`w-full bg-[rgba(4,12,24,0.6)] border rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-ring/50 ${newFruit === null ? 'border-destructive/40' : 'border-blue-bright/15'}`}>
                 <option value="">Selecione um fruto…</option>
-                {FRUITS.map(f => <option key={f.id} value={f.id}>{f.icon} {f.name}</option>)}
+                {FRUITS.map(f => <option key={f.id} value={f.id}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</option>)}
               </select>
             </div>
           </div>

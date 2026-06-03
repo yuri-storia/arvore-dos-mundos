@@ -273,7 +273,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                     className="w-full bg-[rgba(4,12,24,0.6)] border border-accent/20 rounded-md px-3 py-1.5 text-sm text-foreground font-merriweather focus:outline-none focus:border-accent/50"
                   >
                     <option value="">Nenhum</option>
-                    {FRUITS.map(f => <option key={f.id} value={f.id}>{f.icon} {f.name}</option>)}
+                    {FRUITS.map(f => <option key={f.id} value={f.id}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</option>)}
                   </select>
                 </div>
                 <textarea
@@ -487,7 +487,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                     className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-1.5 text-sm text-foreground font-merriweather focus:outline-none focus:border-ring/50"
                   >
                     <option value="">Nenhum</option>
-                    {FRUITS.map(f => <option key={f.id} value={f.id}>{f.icon} {f.name}</option>)}
+                    {FRUITS.map(f => <option key={f.id} value={f.id}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</option>)}
                   </select>
                 </div>
                 <textarea

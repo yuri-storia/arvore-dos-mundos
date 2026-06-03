@@ -46,7 +46,7 @@ const RefPanel: React.FC<{ entries: CodexEntry[]; onInsert: (name: string) => vo
                   <button key={e.id} onClick={() => onInsert(e.title)}
                     className="w-full text-left px-2 py-1.5 rounded text-xs hover:bg-blue-bright/10 transition-colors group">
                     <span className="text-blue-light group-hover:text-blue-bright">{e.title}</span>
-                    {fruit && <span className="text-[9px] text-text-dim ml-1.5">{fruit.icon}</span>}
+                    {fruit && <span className="text-[9px] text-text-dim ml-1.5"><fruit.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /></span>}
                   </button>
                 );
               })}

@@ -338,7 +338,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
                       : 'text-text-dim border border-transparent hover:border-gold/20'
                   }`}
                 >
-                  {f.icon} {f.name}
+                  <f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}
                 </button>
               ))}
             </div>

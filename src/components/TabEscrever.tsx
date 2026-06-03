@@ -83,7 +83,7 @@ const ReferencePanel: React.FC<{ entries: CodexEntry[]; onPreview: (entry: Codex
                   <button key={e.id} onClick={() => onPreview(e)}
                     className="w-full text-left px-2 py-1.5 rounded text-xs hover:bg-blue-bright/10 transition-colors group">
                     <span className="text-blue-light group-hover:text-blue-bright">{e.title}</span>
-                    {fruit && <span className="text-[9px] text-text-dim ml-1.5">{fruit.icon}</span>}
+                    {fruit && <span className="text-[9px] text-text-dim ml-1.5"><fruit.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /></span>}
                   </button>
                 );
               })}
@@ -207,7 +207,7 @@ const EntryPreviewPanel: React.FC<{
       <div className="p-3 border-b border-blue-bright/10 flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-[9px] font-montserrat uppercase tracking-widest text-text-dim mb-0.5">
-            {isFicha ? 'Ficha' : 'Artigo'}{fruit ? ` · ${fruit.icon} ${fruit.name}` : ''}
+            {isFicha ? 'Ficha' : 'Artigo'}{fruit ? ` · $<fruit.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> ${fruit.name}` : ''}
           </p>
           <h3 className={`font-cinzel font-bold text-sm truncate ${isFicha ? 'text-blue-light' : 'text-gold-light'}`}>
             {entry.title}
