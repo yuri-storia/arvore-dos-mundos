@@ -50,8 +50,13 @@
     --blue-bright: 207 90% 61%;
     --blue-light: 210 84% 69%;
     --blue-glow: 207 89% 78%;
-    --gold: 38 67% 48%;
-    --gold-light: 38 73% 60%;
+    --gold: 34 38% 52%;
+    --gold-light: 38 48% 70%;
+    --gold-deep: 28 32% 28%;
+    --gold-bronze: 30 30% 42%;
+    --gold-warm: 34 42% 58%;
+    --gold-champagne: 40 50% 78%;
+    --gold-cream: 42 55% 90%;
     --text-main: 204 80% 94%;
     --text-secondary: 213 35% 72%;
     --text-dim: 210 22% 49%;
