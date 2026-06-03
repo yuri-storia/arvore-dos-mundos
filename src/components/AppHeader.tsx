@@ -42,7 +42,7 @@ const Particles: React.FC = () => {
     resize();
     window.addEventListener('resize', resize);
 
-    for (let i = 0; i < 45; i++) {
+    for (let i = 0; i < 20; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
