@@ -27,10 +27,7 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
 
   if (!open) return null;
 
-  // Detecta plano atual via plan_code da subscription (vem do check-subscription)
-  // useSubscription não devolve plan_code diretamente; usamos hasIdriel/hasTemplate
-  // O plan_code real vive em subscriptions.plan_code; aqui usamos heurística simples
-  const planCode = (sub as any).plan_code as string | undefined; // virá quando expusermos
+  const planCode = sub.plan_code;
 
   // Se sem plano nenhum: redireciona para /planos
   if (!sub.hasTemplate && !sub.hasIdriel) {
