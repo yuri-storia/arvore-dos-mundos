@@ -454,6 +454,8 @@ const BugsTab: React.FC = () => {
   const [bugs, setBugs] = useState<BugReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('open');
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
   const [selected, setSelected] = useState<BugReport | null>(null);
 
   const load = async () => {
@@ -465,7 +467,12 @@ const BugsTab: React.FC = () => {
   };
   useEffect(() => { load(); }, []);
 
-  const filtered = useMemo(() => filter === 'all' ? bugs : bugs.filter(b => b.status === filter), [bugs, filter]);
+  const filtered = useMemo(() => {
+    let arr = filter === 'all' ? bugs : bugs.filter(b => b.status === filter);
+    if (from) { const t = new Date(from).getTime(); arr = arr.filter(b => new Date(b.created_at).getTime() >= t); }
+    if (to)   { const t = new Date(to).getTime() + 86400_000; arr = arr.filter(b => new Date(b.created_at).getTime() < t); }
+    return arr;
+  }, [bugs, filter, from, to]);
 
   const updateStatus = async (id: string, status: string) => {
     const { data, error } = await supabase.functions.invoke('admin-dashboard', { body: { action: 'update_bug', id, status } });
@@ -477,6 +484,21 @@ const BugsTab: React.FC = () => {
     const { data, error } = await supabase.functions.invoke('admin-dashboard', { body: { action: 'delete_bug', id } });
     if (error || data?.error) toast.error('Erro');
     else { toast.success('Removido'); setSelected(null); load(); }
+  };
+
+  const exportCsv = () => {
+    if (!filtered.length) { toast.error('Nenhum relato para exportar.'); return; }
+    const rows = filtered.map(b => ({
+      criado_em: b.created_at,
+      status: b.status,
+      usuario: b.user_email ?? '',
+      rota: b.route ?? '',
+      mensagem: b.message,
+      contexto: b.context ?? '',
+    }));
+    const stamp = new Date().toISOString().slice(0, 10);
+    downloadCSV(`bugs_${filter}_${stamp}.csv`, toCSV(rows));
+    toast.success(`${rows.length} linha(s) exportada(s)`);
   };
 
   return (
@@ -492,11 +514,21 @@ const BugsTab: React.FC = () => {
             <SelectItem value="all">Todos</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex items-center gap-1">
+          <span className="text-[10px] text-text-dim font-montserrat uppercase">Período</span>
+          <Input type="date" value={from} onChange={e => setFrom(e.target.value)} className="w-[140px] bg-[rgba(4,12,24,0.6)] border-blue-bright/20" />
+          <span className="text-[10px] text-text-dim">–</span>
+          <Input type="date" value={to} onChange={e => setTo(e.target.value)} className="w-[140px] bg-[rgba(4,12,24,0.6)] border-blue-bright/20" />
+        </div>
         <Button variant="outline" size="sm" onClick={load} disabled={loading} className="border-blue-bright/30">
           <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} /> Atualizar
         </Button>
+        <Button size="sm" onClick={exportCsv} className="bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-background hover:opacity-90">
+          <Download className="w-3.5 h-3.5 mr-1.5" /> CSV ({filtered.length})
+        </Button>
         <span className="text-xs text-text-dim ml-auto">{filtered.length} relato(s)</span>
       </div>
+
 
       <div className="card-glass rounded-lg overflow-hidden">
         {loading ? (
