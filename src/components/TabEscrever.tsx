@@ -46,7 +46,7 @@ const WRITE_MODE_INFO: Record<WriteMode, { icon: typeof BookMarked; label: strin
 };
 
 // ── Reference Panel (Codex sidebar) — click opens preview only ──
-const ReferencePanel: React.FC<{ entries: CodexEntry[]; onPreview: (entry: CodexEntry) => void }> = ({ entries, onPreview }) => {
+const ReferencePanel: React.FC<{ entries: CodexEntry[]; onPreview: (entry: CodexEntry) => void }> = React.memo(({ entries, onPreview }) => {
   const [search, setSearch] = useState('');
   const filtered = useMemo(() => {
     if (!search.trim()) return entries;
