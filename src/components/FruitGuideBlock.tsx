@@ -79,7 +79,7 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide, id, fruitId }) => {
                   onClick={() => toggle(section.key)}
                   className="w-full flex items-center gap-2.5 px-4 py-3 text-left hover:bg-idriel/[0.04] transition-colors group"
                 >
-                  <span className="text-base shrink-0">{section.icon}</span>
+                  <section.Icon className="w-4 h-4 shrink-0 text-idriel-light" strokeWidth={1.75} />
                   <span className="font-montserrat font-bold text-[13px] uppercase tracking-wider text-idriel-light flex-1">
                     {section.title}
                   </span>
