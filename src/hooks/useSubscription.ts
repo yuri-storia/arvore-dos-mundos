@@ -170,6 +170,7 @@ export function useSubscription(): SubscriptionInfo {
         loading: false,
         subscribed: !!data.subscribed,
         plan: data.plan,
+        plan_code: data.plan_code || null,
         hasIdriel: !!data.has_idriel,
         hasTemplate: !!(data.has_template || data.has_idriel),
         subscriptionEnd: data.subscription_end,
