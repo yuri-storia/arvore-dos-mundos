@@ -482,9 +482,12 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                   if (!ch) return null;
                   return (
                     <div className="px-1 mb-1">
-                      <Textarea value={ch.notes || ''} onChange={e => updateChapter(ch.id, { notes: e.target.value })}
+                      <DebouncedTextarea
+                        value={ch.notes || ''}
+                        onSave={(notes) => updateChapter(ch.id, { notes })}
                         placeholder="Notas do capítulo…"
-                        className="text-[10px] min-h-[50px] bg-gold/[0.04] border-gold/20 text-gold-light placeholder:text-gold/30 resize-none" />
+                        className="text-[10px] min-h-[50px] bg-gold/[0.04] border-gold/20 text-gold-light placeholder:text-gold/30 resize-none"
+                      />
                     </div>
                   );
                 })()}
