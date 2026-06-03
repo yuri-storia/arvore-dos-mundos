@@ -226,7 +226,7 @@ Deno.serve(async (req) => {
           billing_cycle: planMeta.cycle,
           asaas_customer_id: payment.customer,
           asaas_subscription_id: payment.subscription || null,
-          environment: "sandbox",
+          environment: "production",
           started_at: new Date().toISOString(),
           expires_at: expires,
           cancelled_at: null,
