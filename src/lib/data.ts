@@ -22,7 +22,7 @@ export interface Fruit {
   num: string;
   name: string;
   desc: string;
-  Icon: ComponentType<{ className?: string; strokeWidth?: number }>;
+  Icon: LucideIcon;
   icon: string;
   gradient: string;
   fields: FruitField[];
