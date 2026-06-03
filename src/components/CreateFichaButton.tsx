@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Save, ArrowLeft, X, ClipboardList, PencilLine, Sparkles, BookOpen, Feather } from 'lucide-react';
 import { FRUITS } from '@/lib/data';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
@@ -26,6 +26,28 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
   const [customTitle, setCustomTitle] = useState('');
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [createdEntryName, setCreatedEntryName] = useState('');
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showMenu) return;
+    const handlePointer = (e: MouseEvent | TouchEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+        setShowAddTo(false);
+      }
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setShowMenu(false); setShowAddTo(false); }
+    };
+    document.addEventListener('mousedown', handlePointer);
+    document.addEventListener('touchstart', handlePointer);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handlePointer);
+      document.removeEventListener('touchstart', handlePointer);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [showMenu]);
 
   const hasValue = !!fieldValue?.trim();
   const isFicha = entryType === 'ficha';
@@ -81,7 +103,7 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
       )}
 
       {showMenu && (
-        <div className="animate-fadeUp absolute right-0 bottom-full mb-1 z-50 w-[280px] card-glass rounded-lg p-3 shadow-lg border border-blue-bright/30">
+        <div ref={menuRef} className="animate-fadeUp absolute right-0 bottom-full mb-1 z-50 w-[280px] card-glass rounded-lg p-3 shadow-lg border border-blue-bright/30">
           {!showAddTo ? (
             <>
               <h4 className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-blue-light mb-2">
