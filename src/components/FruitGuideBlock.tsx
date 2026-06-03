@@ -9,7 +9,7 @@ interface Props {
   fruitId?: number;
 }
 
-const RECOMMENDATION_COPY: Record<RecommendedType, { icon: string; label: string; tone: string }> = {
+const RECOMMENDATION_COPY: Record<RecommendedType, { Icon: LucideIcon; label: string; tone: string }> = {
   ficha: {
     Icon: ClipboardList,
     label: 'Fichas',
