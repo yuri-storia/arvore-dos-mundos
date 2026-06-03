@@ -115,6 +115,7 @@ export interface SubscriptionInfo {
   active: boolean;
   creditsUsed: number;
   creditLimit: number;
+  bonusDrops: number;
 }
 
 const CREDIT_LIMIT = 100;
@@ -132,55 +133,22 @@ export function useSubscription(): SubscriptionInfo {
     active: false,
     creditsUsed: 0,
     creditLimit: CREDIT_LIMIT,
+    bonusDrops: 0,
   });
 
   const checkSubscription = useCallback(async () => {
     if (!user) {
-      setInfo(prev => ({ ...prev, loading: false, subscribed: false, plan: null, hasIdriel: false, hasTemplate: false, active: false }));
+      setInfo(prev => ({ ...prev, loading: false, subscribed: false, plan: null, hasIdriel: false, hasTemplate: false, active: false, bonusDrops: 0 }));
       return;
     }
 
     try {
       const { data, error } = await supabase.functions.invoke('check-subscription');
-      
       if (error || !data) {
-        // Fallback to legacy subscription table
-        const { data: sub } = await supabase
-          .from('subscriptions')
-          .select('plan, status')
-          .eq('user_id', user.id)
-          .eq('status', 'active')
-          .maybeSingle();
-
-        const active = !!sub;
-
-        const month = new Date().toISOString().slice(0, 7);
-        const { data: usage } = await supabase
-          .from('ai_usage')
-          .select('text_count, image_count')
-          .eq('user_id', user.id)
-          .eq('month', month)
-          .maybeSingle();
-
-        const textCount = usage?.text_count || 0;
-        const imageCount = usage?.image_count || 0;
-        const creditsUsed = textCount + (imageCount * IMAGE_CREDIT_COST);
-
-        setInfo({
-          loading: false,
-          subscribed: active,
-          plan: active ? 'idriel' : null,
-          hasIdriel: active,
-          hasTemplate: active,
-          subscriptionEnd: null,
-          active,
-          creditsUsed,
-          creditLimit: CREDIT_LIMIT,
-        });
+        setInfo(prev => ({ ...prev, loading: false }));
         return;
       }
 
-      // Fetch credits for idriel users
       let creditsUsed = 0;
       if (data.has_idriel) {
         const month = new Date().toISOString().slice(0, 7);
@@ -198,14 +166,15 @@ export function useSubscription(): SubscriptionInfo {
 
       setInfo({
         loading: false,
-        subscribed: data.subscribed,
+        subscribed: !!data.subscribed,
         plan: data.plan,
-        hasIdriel: data.has_idriel || false,
-        hasTemplate: data.has_template || data.has_idriel || false,
+        hasIdriel: !!data.has_idriel,
+        hasTemplate: !!(data.has_template || data.has_idriel),
         subscriptionEnd: data.subscription_end,
-        active: data.has_idriel || false,
+        active: !!data.has_idriel,
         creditsUsed,
         creditLimit: CREDIT_LIMIT,
+        bonusDrops: data.bonus_drops || 0,
       });
     } catch {
       setInfo(prev => ({ ...prev, loading: false }));
@@ -214,8 +183,6 @@ export function useSubscription(): SubscriptionInfo {
 
   useEffect(() => {
     checkSubscription();
-
-    // Auto-refresh every 60s
     const interval = setInterval(checkSubscription, 60_000);
     return () => clearInterval(interval);
   }, [checkSubscription]);
@@ -223,20 +190,42 @@ export function useSubscription(): SubscriptionInfo {
   return info;
 }
 
-// Placeholder — will be replaced by Asaas integration
+// Asaas checkout — opens invoice URL in a new tab
 export async function openCheckout(planId: string) {
-  console.log('Checkout will be handled by Asaas. Plan:', planId);
-  // TODO: Implement Asaas checkout
+  try {
+    const { data, error } = await supabase.functions.invoke('asaas-create-checkout', {
+      body: { planId },
+    });
+    if (error) throw error;
+    if (data?.url) {
+      window.open(data.url, '_blank', 'noopener,noreferrer');
+    } else {
+      throw new Error('Sem URL de pagamento');
+    }
+  } catch (e: any) {
+    console.error('openCheckout error:', e);
+    alert('Não foi possível abrir o pagamento: ' + (e?.message || 'erro desconhecido'));
+  }
 }
 
 export async function openCustomerPortal() {
-  console.log('Customer portal will be handled by Asaas');
-  // TODO: Implement Asaas portal
+  if (!confirm('Deseja cancelar sua assinatura ativa? O acesso permanece até o fim do ciclo já pago.')) return;
+  try {
+    const { data, error } = await supabase.functions.invoke('asaas-cancel-subscription');
+    if (error) throw error;
+    alert('Assinatura cancelada. O acesso continua até o fim do ciclo já pago.');
+  } catch (e: any) {
+    console.error('cancel error:', e);
+    alert('Não foi possível cancelar agora: ' + (e?.message || 'erro desconhecido'));
+  }
 }
 
-// Legacy compat alias
+// Plan id aliases for older components
 export const STRIPE_PLANS = {
-  idriel_mensal: { price_id: PLANS.idriel_mensal.id },
+  idriel_mensal:  { price_id: PLANS.idriel_mensal.id },
+  idriel_anual:   { price_id: PLANS.idriel_anual.id },
   template_anual: { price_id: PLANS.raiz_anual.id },
-  recarga_seiva: { price_id: PLANS.recarga_seiva.id },
+  raiz_mensal:    { price_id: PLANS.raiz_mensal.id },
+  recarga_seiva:  { price_id: PLANS.recarga_seiva.id },
 };
+

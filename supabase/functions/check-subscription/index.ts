@@ -1,87 +1,69 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
+// Lê assinatura ativa direto da tabela `subscriptions` (alimentada pelo webhook do Asaas)
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Product IDs from Stripe
-const PRODUCT_TEMPLATE_ANUAL = "prod_UBGQ3cdHdsbX3V";
-const PRODUCT_IDRIEL_MENSAL = "prod_UBGQ0z9sDQdUuz";
-
-serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
-
-  const supabaseClient = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    { auth: { persistSession: false } }
-  );
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
-
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ subscribed: false, plan: null }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
     const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError || !userData.user?.email) throw new Error("Auth failed");
+    const supa = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      { auth: { persistSession: false } }
+    );
+    const { data: claims, error } = await supa.auth.getClaims(token);
+    if (error || !claims?.claims?.sub) {
+      return new Response(JSON.stringify({ subscribed: false, plan: null }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    const userId = claims.claims.sub as string;
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-    const customers = await stripe.customers.list({ email: userData.user.email, limit: 1 });
+    const { data: sub } = await supa
+      .from("subscriptions")
+      .select("plan_code, has_idriel, expires_at, status")
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    if (customers.data.length === 0) {
-      return new Response(JSON.stringify({ subscribed: false, plan: null }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    // Bonus drops from recharges
+    const { data: bal } = await supa
+      .from("user_credit_balance")
+      .select("bonus_drops")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    const bonusDrops = bal?.bonus_drops ?? 0;
+
+    if (!sub) {
+      return new Response(JSON.stringify({
+        subscribed: false, plan: null, has_idriel: false, has_template: false,
+        subscription_end: null, bonus_drops: bonusDrops,
+      }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const customerId = customers.data[0].id;
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "active",
-      limit: 10,
-    });
-
-    let plan: string | null = null;
-    let subscriptionEnd: string | null = null;
-    let hasIdriel = false;
-    let hasTemplate = false;
-
-    for (const sub of subscriptions.data) {
-      const productId = sub.items.data[0]?.price?.product;
-      if (productId === PRODUCT_IDRIEL_MENSAL) {
-        hasIdriel = true;
-        subscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
-      }
-      if (productId === PRODUCT_TEMPLATE_ANUAL) {
-        hasTemplate = true;
-        if (!subscriptionEnd) {
-          subscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
-        }
-      }
-    }
-
-    if (hasIdriel) plan = "idriel";
-    else if (hasTemplate) plan = "template";
+    const hasIdriel = !!sub.has_idriel;
+    const planKey = hasIdriel ? "idriel" : "template";
 
     return new Response(JSON.stringify({
-      subscribed: !!plan,
-      plan,
+      subscribed: true,
+      plan: planKey,
       has_idriel: hasIdriel,
-      has_template: hasTemplate,
-      subscription_end: subscriptionEnd,
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+      has_template: true,
+      subscription_end: sub.expires_at,
+      plan_code: sub.plan_code,
+      bonus_drops: bonusDrops,
+    }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  } catch (err: any) {
+    return new Response(JSON.stringify({ error: err?.message || "error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });
