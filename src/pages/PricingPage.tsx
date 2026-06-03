@@ -119,7 +119,7 @@ const PricingPage: React.FC = () => {
         />
 
         <div className="relative z-10 max-w-5xl mx-auto px-5 pt-8 pb-32">
-          <div className="flex items-center justify-end mb-20">
+          <div className="flex items-center justify-center sm:justify-end mb-20">
             <button
               onClick={() => navigate(user ? '/' : '/login')}
               className="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-montserrat font-bold uppercase tracking-[0.22em] text-[11px] text-[#1a0f00] transition-all hover:-translate-y-0.5"

@@ -13,13 +13,35 @@ export const DropsCounterBadge: React.FC = () => {
 
   if (!user || sub.loading) return null;
 
-  // Admin: ilimitado, sem botão
+  // Admin: ilimitado, mas mostra o contador (com gotas bônus) e permite recarga avulsa
   if (isAdmin) {
     return (
-      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-gold/30 bg-gold/[0.08]">
-        <Droplet className="w-3.5 h-3.5 text-gold-light" strokeWidth={2} />
-        <InfinityIcon className="w-3.5 h-3.5 text-gold-light" strokeWidth={2.5} />
-      </div>
+      <>
+        <div className="flex items-center gap-1.5">
+          <div
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-gold/30 bg-gold/[0.08]"
+            title={`Admin · ilimitado${sub.bonusDrops ? ` (+ ${sub.bonusDrops} bônus)` : ''}`}
+          >
+            <Droplet className="w-3.5 h-3.5 text-gold-light" strokeWidth={2} />
+            <InfinityIcon className="w-3.5 h-3.5 text-gold-light" strokeWidth={2.5} />
+            {sub.bonusDrops > 0 && (
+              <span className="font-montserrat font-bold text-[11px] text-gold-light tabular-nums">
+                +{sub.bonusDrops}
+              </span>
+            )}
+            <span className="font-montserrat text-[9px] text-text-dim uppercase tracking-wider hidden sm:inline">
+              gotas
+            </span>
+          </div>
+          <button
+            onClick={() => setShowRecharge(true)}
+            className="px-2.5 py-1 rounded-full border border-gold/40 bg-gradient-to-r from-gold/15 via-gold-warm/15 to-gold-deep/15 hover:from-gold/30 hover:via-gold-warm/30 hover:to-gold-deep/30 transition-all font-montserrat font-bold text-[10px] uppercase tracking-wider text-gold-light whitespace-nowrap"
+          >
+            + Elixir
+          </button>
+        </div>
+        <RechargePackageDialog open={showRecharge} onClose={() => setShowRecharge(false)} />
+      </>
     );
   }
 
