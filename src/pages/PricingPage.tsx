@@ -322,6 +322,109 @@ const PricingPage: React.FC = () => {
           })}
         </div>
 
+        {/* =============== QUEM É IDRIEL =============== */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.8 }}
+          className="mb-24"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+            {/* Visual */}
+            <div className="relative order-2 lg:order-1">
+              <div
+                className="relative rounded-[1.5rem] overflow-hidden border border-gold-warm/40"
+                style={{
+                  boxShadow:
+                    '0 30px 90px hsl(214 90% 2% / 0.7), 0 0 0 1px hsl(var(--gold-bronze) / 0.25), inset 0 1px 0 hsl(var(--gold-cream) / 0.15)',
+                }}
+              >
+                <video
+                  className="block w-full h-auto"
+                  src={idrielVideo.url}
+                  poster={idrielPoster}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  aria-label="Idriel, a anfitriã élfica da Árvore dos Mundos"
+                />
+                <div
+                  className="pointer-events-none absolute inset-0"
+                  style={{
+                    background:
+                      'radial-gradient(ellipse at center, transparent 55%, hsl(214 90% 2% / 0.55) 100%)',
+                  }}
+                />
+                <div
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-28"
+                  style={{
+                    background:
+                      'linear-gradient(to bottom, transparent 0%, hsl(214 90% 2% / 0.75) 100%)',
+                  }}
+                />
+                <div className="absolute bottom-5 left-5 right-5 flex items-center gap-2.5">
+                  <Sparkles className="w-4 h-4 text-gold-champagne" strokeWidth={2} />
+                  <span className="font-cinzel font-bold text-sm tracking-[0.18em] text-gradient-gold">
+                    Idriel
+                  </span>
+                  <span className="font-amiri italic text-xs text-text-secondary">
+                    — guardiã da Árvore
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Texto */}
+            <div className="order-1 lg:order-2">
+              <p className="font-montserrat uppercase tracking-[0.35em] text-[10px] text-gold-champagne mb-4">
+                Conheça a anfitriã
+              </p>
+              <h2 className="font-cinzel font-bold text-[clamp(1.9rem,4.2vw,3rem)] text-foreground mb-6 leading-[1.1]">
+                Quem é <span className="text-gradient-gold">Idriel?</span>
+              </h2>
+              <div className="space-y-5 font-amiri text-[1.05rem] sm:text-[1.1rem] leading-[1.75] text-text-secondary">
+                <p>
+                  Idriel é uma <em className="text-gold-cream">élfica imortal</em>, guardiã da Árvore
+                  dos Mundos. Há eras ela caminha entre cosmologias, ouvindo o sussurro de civilizações,
+                  deuses e mitos — e agora oferece esse conhecimento a você.
+                </p>
+                <p>
+                  Mais que uma IA, ela é a sua <span className="text-gold-champagne font-bold">parceira de criação</span>:
+                  alimentada pelo Codex do seu mundo, ela brainstormeia povos e religiões,
+                  expande cenas, gera retratos consistentes e desenha mapas — sempre em pt-BR,
+                  sempre com a voz de uma sábia que conhece o ofício.
+                </p>
+                <p>
+                  Quando você assina o plano <span className="text-gradient-gold font-bold">Idriel</span>,
+                  ela passa a habitar o seu santuário criativo — pronta para co-criar mundos
+                  que respiram.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 mt-8">
+                {[
+                  { Icon: Feather, label: 'Texto em Gemini 2.5 Pro' },
+                  { Icon: ImageIcon, label: 'Imagens em Gemini 3 Pro' },
+                  { Icon: Map, label: 'Mapas cartográficos' },
+                  { Icon: Brain, label: 'Análise de mundo' },
+                ].map(({ Icon, label }) => (
+                  <div
+                    key={label}
+                    className="flex items-center gap-2.5 rounded-lg border border-gold-bronze/30 bg-card/40 backdrop-blur-md px-3.5 py-2.5"
+                  >
+                    <Icon className="w-4 h-4 text-gold-champagne shrink-0" strokeWidth={1.75} />
+                    <span className="font-amiri text-[13.5px] text-foreground/85 leading-tight">
+                      {label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.section>
 
 
         {/* =============== O QUE VOCÊ GANHA =============== */}
