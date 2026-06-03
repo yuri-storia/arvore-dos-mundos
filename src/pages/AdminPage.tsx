@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Loader2, Plus, Shield, ShieldOff, Trash2, RefreshCw, Search, Bug, Users, Mail, Crown, Sparkles, Infinity as InfinityIcon } from 'lucide-react';
+import { Loader2, Plus, Shield, ShieldOff, Trash2, RefreshCw, Search, Bug, Users, Mail, Crown, Sparkles, Infinity as InfinityIcon, Download } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { UserDetailDrawer } from '@/components/admin/UserDetailDrawer';
+import { downloadCSV, toCSV } from '@/lib/csv';
 
 interface AllowedEmail { id: string; email: string; created_at: string; }
 interface AdminUser {
