@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 export const PLANS = {
   semente: {
     id: "semente",
-    name: "🌱 Semente",
+    name: "Semente",
     price: "Grátis",
     priceValue: 0,
     period: "gratuito",
@@ -14,7 +14,7 @@ export const PLANS = {
   },
   raiz_mensal: {
     id: "raiz_mensal",
-    name: "🌿 Raiz",
+    name: "Raiz",
     price: "R$ 19,90/mês",
     priceValue: 19.90,
     period: "mensal",
@@ -22,7 +22,7 @@ export const PLANS = {
   },
   raiz_anual: {
     id: "raiz_anual",
-    name: "🌿 Raiz Anual",
+    name: "Raiz Anual",
     price: "R$ 197/ano",
     priceValue: 197,
     period: "anual",
@@ -30,7 +30,7 @@ export const PLANS = {
   },
   idriel_mensal: {
     id: "idriel_mensal",
-    name: "✨ Idriel",
+    name: "Idriel",
     price: "R$ 39,90/mês",
     priceValue: 39.90,
     period: "mensal",
@@ -38,7 +38,7 @@ export const PLANS = {
   },
   idriel_anual: {
     id: "idriel_anual",
-    name: "✨ Idriel Anual",
+    name: "Idriel Anual",
     price: "R$ 397/ano",
     priceValue: 397,
     period: "anual",
@@ -48,7 +48,7 @@ export const PLANS = {
   // Pacotes de recarga de Seiva Dourada (avulsos)
   recarga_15: {
     id: "recarga_15",
-    name: "🧪 15 gotas",
+    name: "15 gotas",
     price: "R$ 4,90",
     priceValue: 4.90,
     drops: 15,
@@ -57,7 +57,7 @@ export const PLANS = {
   },
   recarga_25: {
     id: "recarga_25",
-    name: "🧪 25 gotas",
+    name: "25 gotas",
     price: "R$ 7,90",
     priceValue: 7.90,
     drops: 25,
@@ -66,7 +66,7 @@ export const PLANS = {
   },
   recarga_50: {
     id: "recarga_50",
-    name: "🧪 50 gotas",
+    name: "50 gotas",
     price: "R$ 14,90",
     priceValue: 14.90,
     drops: 50,
@@ -75,7 +75,7 @@ export const PLANS = {
   },
   recarga_100: {
     id: "recarga_100",
-    name: "🧪 100 gotas",
+    name: "100 gotas",
     price: "R$ 27,90",
     priceValue: 27.90,
     drops: 100,
@@ -84,7 +84,7 @@ export const PLANS = {
   },
   recarga_200: {
     id: "recarga_200",
-    name: "🧪 200 gotas",
+    name: "200 gotas",
     price: "R$ 54,90",
     priceValue: 54.90,
     drops: 200,
@@ -94,7 +94,7 @@ export const PLANS = {
   // Alias legado para compatibilidade
   recarga_seiva: {
     id: "recarga_100",
-    name: "🧪 Recarga de Seiva",
+    name: "Recarga de Seiva",
     price: "R$ 27,90",
     priceValue: 27.90,
     drops: 100,

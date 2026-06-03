@@ -203,7 +203,7 @@ const LoginPage: React.FC = () => {
             {/* Badge */}
             <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-blue-bright/20 bg-blue-bright/[0.06]">
               <span className="font-cinzel text-xs tracking-[0.15em] text-blue-light">
-                ✦ Universo STORIA ✦
+                Universo STORIA
               </span>
             </div>
 

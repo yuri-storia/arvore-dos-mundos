@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Sparkles, Hand, ArrowRight } from 'lucide-react';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 import type { TabType } from '@/lib/data';
 
@@ -147,7 +148,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     type: 'outro',
     title: 'A jornada começa agora!',
-    desc: 'Agora você conhece cada ferramenta da Árvore, viajante. Comece pelo Fruto que mais te inspira — não existe ordem certa. E lembre-se: clique na minha imagem no canto inferior direito para me chamar a qualquer momento. Que a Árvore ilumine o seu caminho! ✨',
+    desc: 'Agora você conhece cada ferramenta da Árvore, viajante. Comece pelo Fruto que mais te inspira — não existe ordem certa. E lembre-se: clique na minha imagem no canto inferior direito para me chamar a qualquer momento. Que a Árvore ilumine o seu caminho!',
     icon: '🌟',
   },
 ];
@@ -407,7 +408,7 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
           <div className="flex items-center gap-3 mb-3">
             <div className="relative shrink-0">
               <img src={idrielAvatar} alt="Idriel" className="w-10 h-10 rounded-full object-cover border-2 border-idriel/50 animate-idriel-pulse" />
-              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-idriel flex items-center justify-center text-[7px]">✨</div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-idriel flex items-center justify-center"><Sparkles className="w-2 h-2 text-white" strokeWidth={2.5} /></div>
             </div>
             <div className="flex-1 min-w-0">
               <span className="font-cinzel font-bold text-xs text-idriel-light block">Idriel</span>
@@ -430,7 +431,7 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
           {/* Instruction for click steps */}
           {currentStep.type === 'click' && (
             <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg bg-idriel/[0.08] border border-idriel/15">
-              <span className="text-base animate-bounce">👆</span>
+              <Hand className="w-4 h-4 text-gold-champagne animate-bounce" strokeWidth={2} />
               <span className="font-montserrat text-[11px] text-idriel-light font-bold">
                 Clique no botão pulsando para continuar
               </span>
@@ -457,7 +458,7 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
                   onClick={currentStep.type === 'outro' ? finish : goNext}
                   className="px-3.5 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-background bg-idriel-light hover:bg-idriel-glow transition-all shadow-md shadow-idriel/20"
                 >
-                  {currentStep.type === 'outro' ? '✨ Começar!' : 'Próximo →'}
+                  <>{currentStep.type === 'outro' ? <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Começar!</> : <>Próximo <ArrowRight className="inline-block w-3.5 h-3.5 ml-1 align-[-0.15em]" strokeWidth={2} /></>}</>
                 </button>
               )}
             </div>

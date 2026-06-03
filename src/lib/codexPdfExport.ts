@@ -142,7 +142,7 @@ async function renderEntry(ctx: PdfCtx, entry: CodexEntry, includeImage = true) 
   ctx.doc.setFontSize(7);
   ctx.doc.setTextColor(...(isArticle ? LABEL_CLR : DIM_CLR));
   ctx.doc.setFont('helvetica', 'bold');
-  ctx.doc.text(isArticle ? '📝 ARTIGO' : '📋 FICHA', MARGIN, ctx.y);
+  ctx.doc.text(isArticle ? 'ARTIGO' : 'FICHA', MARGIN, ctx.y);
   ctx.y += 4;
 
   // ── Title ──

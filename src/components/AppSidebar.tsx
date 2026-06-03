@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, LogOut, Shield, Map, BookOpen, Image, Plus, Trash2, ChevronRight, ChevronDown, PenLine, FileText, Sparkles } from 'lucide-react';
+import { Settings, LogOut, Shield, Map, BookOpen, Image, Plus, Trash2, ChevronRight, ChevronDown, PenLine, FileText, Sparkles, FolderOpen } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useManuscript, type Chapter, type Scene } from '@/hooks/useManuscript';
 import type { TabType } from '@/lib/data';
@@ -98,7 +98,7 @@ export const AppSidebar: React.FC<Props> = ({
         {/* Worlds — NOW ON TOP */}
         <SidebarGroup>
           <SidebarGroupLabel className="font-montserrat text-[9px] uppercase tracking-widest text-text-dim">
-            {collapsed ? '📂' : 'Meus Mundos'}
+            {collapsed ? <FolderOpen className="w-4 h-4 mx-auto" strokeWidth={1.75} /> : 'Meus Mundos'}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>

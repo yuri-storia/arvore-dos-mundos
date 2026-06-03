@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, FileText, FileType, BookOpen, HelpCircle, X, Lock } from 'lucide-react';
+import { Download, FileText, FileType, BookOpen, HelpCircle, X, Lock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { exportManuscriptPDF, exportManuscriptDOCX, exportManuscriptEPUB } from '@/lib/manuscriptExport';
 import type { Manuscript, Chapter, Scene } from '@/hooks/useManuscript';
@@ -83,7 +83,7 @@ export const ManuscriptExportMenu: React.FC<Props> = ({ manuscript, chapters, sc
 
             {showHelp && (
               <div className="p-3 bg-idriel/[0.06] border-b border-idriel/10 text-xs text-text-secondary leading-relaxed space-y-2">
-                <p className="font-montserrat font-bold text-idriel-light text-[11px]">✨ Como exportar seu manuscrito</p>
+                <p className="font-montserrat font-bold text-idriel-light text-[11px] inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3" strokeWidth={1.75} />Como exportar seu manuscrito</p>
                 <p>O manuscrito exporta <strong>todos os capítulos</strong> na ordem em que você organizou. Certifique-se de que:</p>
                 <ul className="list-disc list-inside space-y-1 ml-1">
                   <li>Os capítulos estejam na ordem desejada</li>

@@ -138,7 +138,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
         {/* Brand badge */}
         <div className="inline-block px-3 py-1 rounded-full border border-blue-bright/15 bg-blue-bright/[0.04] backdrop-blur-sm">
           <span className="font-cinzel text-[9px] tracking-[0.18em] text-blue-light/60 uppercase">
-            ✦ A Árvore dos Mundos ✦
+            A Árvore dos Mundos
           </span>
         </div>
 
@@ -186,7 +186,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
                         {s.id === currentSaveId && <span className="text-blue-light text-[9px] ml-1.5">● ativo</span>}
                       </span>
                       <span className="text-[9px] text-text-dim font-montserrat">
-                        {s.method === 'top-down' ? 'Cima→Baixo' : 'Baixo→Cima'} · {formatDate(s.updated_at)}
+                        {s.method === 'top-down' ? 'Cima/Baixo' : 'Baixo/Cima'} · {formatDate(s.updated_at)}
                       </span>
                     </div>
                     <div onClick={e => e.stopPropagation()}>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, X, Sparkles, Crown, Leaf, Sprout, ArrowRight, BookOpen, Map, Palette, PenTool, Brain, Layers, Zap } from 'lucide-react';
+import { Check, X, Sparkles, Crown, Leaf, Sprout, ArrowRight, BookOpen, Map, Palette, PenTool, Brain, Layers, Zap, Droplet, Trees, Feather } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 import treeWallpaper from '@/assets/tree-wallpaper.webp';
@@ -48,21 +48,21 @@ const LandingPage: React.FC = () => {
 
   const tiers = [
     {
-      id: 'semente', name: '🌱 Semente', tagline: 'Plante sua primeira semente', price: 'Grátis', priceDetail: 'Para sempre',
+      id: 'semente', name: 'Semente', tagline: 'Plante sua primeira semente', price: 'Grátis', priceDetail: 'Para sempre',
       accent: 'border-emerald-500/30', accentBg: 'bg-emerald-500/[0.06]', accentText: 'text-emerald-400',
       cta: 'Começar Grátis', ctaClass: 'bg-emerald-600 hover:bg-emerald-500 text-white',
       ctaAction: () => navigate('/login'), popular: false,
       highlights: ['1 mundo', '5 fichas + 1 artigo', 'Manuscrito completo', 'Galeria de referências'],
     },
     {
-      id: 'raiz', name: '🌿 Raiz', tagline: 'Crie mundos sem limites', price: 'R$ 87', priceDetail: '/ano (~R$ 7,25/mês)',
+      id: 'raiz', name: 'Raiz', tagline: 'Crie mundos sem limites', price: 'R$ 87', priceDetail: '/ano (~R$ 7,25/mês)',
       accent: 'border-blue-bright/30', accentBg: 'bg-blue-bright/[0.06]', accentText: 'text-blue-light',
       cta: 'Assinar Raiz', ctaClass: 'bg-[hsl(var(--blue-main))] hover:bg-[hsl(var(--blue-bright))] text-foreground',
       ctaAction: () => navigate('/login'), popular: false,
       highlights: ['Mundos ilimitados', 'Fichas e artigos ilimitados', 'Exportação PDF/Word/Kindle', 'Tudo do Semente'],
     },
     {
-      id: 'idriel', name: '✨ Idriel', tagline: 'A Árvore responde ao seu chamado',
+      id: 'idriel', name: 'Idriel', tagline: 'A Árvore responde ao seu chamado',
       price: billingCycle === 'mensal' ? 'R$ 39,90' : 'R$ 399',
       priceDetail: billingCycle === 'mensal' ? '/mês' : '/ano (~17% off)',
       accent: 'border-gold/40', accentBg: '', accentText: 'text-gold-light',
@@ -73,10 +73,10 @@ const LandingPage: React.FC = () => {
   ];
 
   const competitors = [
-    { name: 'ChatGPT Plus', price: 'R$ 104/mês', icon: '🤖', has: ['Texto IA'], missing: ['Worldbuilding', 'Geração de imagens', 'Organização'] },
-    { name: 'Midjourney', price: 'R$ 55/mês', icon: '🎨', has: ['Imagens IA'], missing: ['Texto IA', 'Worldbuilding', 'Manuscritos'] },
-    { name: 'World Anvil', price: 'R$ 115/mês', icon: '🗺️', has: ['Worldbuilding'], missing: ['IA de texto', 'IA de imagens', 'Em português'] },
-    { name: 'Notion AI', price: 'R$ 55/mês', icon: '📝', has: ['Notas + IA'], missing: ['Worldbuilding', 'Imagens', 'Específico'] },
+    { name: 'ChatGPT Plus', price: 'R$ 104/mês', icon: 'Bot', has: ['Texto IA'], missing: ['Worldbuilding', 'Geração de imagens', 'Organização'] },
+    { name: 'Midjourney', price: 'R$ 55/mês', icon: 'Palette', has: ['Imagens IA'], missing: ['Texto IA', 'Worldbuilding', 'Manuscritos'] },
+    { name: 'World Anvil', price: 'R$ 115/mês', icon: 'Map', has: ['Worldbuilding'], missing: ['IA de texto', 'IA de imagens', 'Em português'] },
+    { name: 'Notion AI', price: 'R$ 55/mês', icon: 'FileText', has: ['Notas + IA'], missing: ['Worldbuilding', 'Imagens', 'Específico'] },
   ];
 
   const featureComparison = [
@@ -119,7 +119,7 @@ const LandingPage: React.FC = () => {
       >
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <span className="font-cinzel font-bold text-lg text-foreground">
-            🌳 A Árvore <span className="text-blue-light">dos Mundos</span>
+            <Trees className="inline-block w-10 h-10 mr-3 align-[-0.15em] text-gold-champagne" strokeWidth={1.5} />A Árvore <span className="text-blue-light">dos Mundos</span>
           </span>
           <div className="flex items-center gap-3">
             <button onClick={() => navigate('/login')} className="px-4 py-2 text-xs font-montserrat font-bold text-text-secondary hover:text-foreground transition-colors">
@@ -141,7 +141,7 @@ const LandingPage: React.FC = () => {
         <div className="relative z-10 max-w-4xl mx-auto px-4 pt-20 pb-24 text-center">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }}
             className="inline-block mb-6 px-4 py-1.5 rounded-full border border-gold/20 bg-gold/[0.06]">
-            <span className="font-cinzel text-xs tracking-[0.15em] text-gold-light">✦ Universo STORIA ✦</span>
+            <span className="font-cinzel text-xs tracking-[0.15em] text-gold-light">Universo STORIA</span>
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 40 }}
@@ -284,10 +284,10 @@ const LandingPage: React.FC = () => {
                 className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8"
               >
                 {[
-                  { icon: '📝', label: 'Texto IA Premium', sub: 'Gemini 2.5 Pro' },
-                  { icon: '🎨', label: 'Imagens IA HD', sub: 'Gemini 3 Pro Image' },
-                  { icon: '🗺️', label: 'Mapas IA', sub: 'Cartografia única' },
-                  { icon: '📖', label: 'Análise de Mundo', sub: 'Coerência narrativa' },
+                  { Icon: Feather, label: 'Texto IA Premium', sub: 'Gemini 2.5 Pro' },
+                  { Icon: Palette, label: 'Imagens IA HD', sub: 'Gemini 3 Pro Image' },
+                  { Icon: Map, label: 'Mapas IA', sub: 'Cartografia única' },
+                  { Icon: BookOpen, label: 'Análise de Mundo', sub: 'Coerência narrativa' },
                 ].map((item, i) => (
                   <motion.div
                     key={item.label}
@@ -309,7 +309,7 @@ const LandingPage: React.FC = () => {
                 onClick={() => navigate('/login')}
                 className="px-8 py-3 rounded-xl bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] text-[#1a0f00] font-montserrat font-bold text-sm uppercase tracking-wider transition-colors"
               >
-                ✨ Experimentar Idriel
+                <><Sparkles className="inline-block w-4 h-4 mr-1.5 align-[-0.2em]" strokeWidth={1.75} />Experimentar Idriel</>
               </motion.button>
             </div>
           </motion.div>
@@ -382,7 +382,7 @@ const LandingPage: React.FC = () => {
           >
             <div className="flex items-center justify-center gap-3 mb-2">
               <img src={idrielAvatar} alt="Idriel" className="w-8 h-8 rounded-full border border-gold/50" />
-              <span className="font-cinzel font-bold text-xl text-gold-light">✨ Idriel — Tudo em um</span>
+              <span className="font-cinzel font-bold text-xl text-gold-light"><><Sparkles className="inline-block w-4 h-4 mr-1.5 align-[-0.2em]" strokeWidth={1.75} />Idriel — Tudo em um</></span>
             </div>
             <div className="flex items-baseline justify-center gap-2 mb-2">
               <span className="font-montserrat font-bold text-3xl text-gold-light">R$ 39,90</span>
@@ -467,7 +467,7 @@ const LandingPage: React.FC = () => {
                     transition={{ delay: 0.4, type: 'spring', stiffness: 400 }}
                     className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] text-[10px] font-montserrat font-bold uppercase tracking-widest text-[#1a0f00]"
                   >
-                    ✨ Mais Popular
+                    <><Sparkles className="inline-block w-3 h-3 mr-1 align-[-0.15em]" strokeWidth={2} />Mais Popular</>
                   </motion.div>
                 )}
 
@@ -537,7 +537,7 @@ const LandingPage: React.FC = () => {
                         : 'bg-emerald-500 text-white'
                     }`}>{pkg.badge}</span>
                   )}
-                  <span className="text-2xl mb-1">🧪</span>
+                  <Droplet className="w-6 h-6 mb-1 text-gold-champagne" strokeWidth={1.75} />
                   <span className="font-cinzel font-bold text-xl text-gold-light">{pkg.drops}</span>
                   <span className="font-montserrat text-[10px] text-text-dim uppercase tracking-wider mb-2">gotas</span>
                   <span className="font-montserrat font-bold text-sm text-foreground">{pkg.price}</span>
@@ -559,9 +559,9 @@ const LandingPage: React.FC = () => {
                 <thead>
                   <tr className="border-b border-border">
                     <th className="text-left py-3 px-4 font-montserrat font-bold text-[10px] uppercase tracking-wider text-text-dim w-1/4">Funcionalidade</th>
-                    <th className="text-center py-3 px-3 font-montserrat font-bold text-[10px] uppercase tracking-wider text-emerald-400 w-1/4">🌱 Semente</th>
-                    <th className="text-center py-3 px-3 font-montserrat font-bold text-[10px] uppercase tracking-wider text-blue-light w-1/4">🌿 Raiz</th>
-                    <th className="text-center py-3 px-3 font-montserrat font-bold text-[10px] uppercase tracking-wider text-gold-light w-1/4">✨ Idriel</th>
+                    <th className="text-center py-3 px-3 font-montserrat font-bold text-[10px] uppercase tracking-wider text-emerald-400 w-1/4">Semente</th>
+                    <th className="text-center py-3 px-3 font-montserrat font-bold text-[10px] uppercase tracking-wider text-blue-light w-1/4">Raiz</th>
+                    <th className="text-center py-3 px-3 font-montserrat font-bold text-[10px] uppercase tracking-wider text-gold-light w-1/4">Idriel</th>
                   </tr>
                 </thead>
                 <tbody>

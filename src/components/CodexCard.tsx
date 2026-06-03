@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Sparkles, Loader2, X, FileText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
@@ -171,7 +171,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 </span>
               )}
               <span className="px-1.5 py-0.5 rounded-full bg-accent/10 text-accent text-[9px] font-montserrat font-bold uppercase">
-                📝 Artigo
+                Artigo
               </span>
             </div>
             <h3 className="font-cinzel font-bold text-base text-foreground mb-2">{entry.title}</h3>
@@ -194,7 +194,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               <img src={entry.image_url} alt={entry.title} className="w-full h-full object-cover" style={{ objectPosition: `${imgPos.x}% ${imgPos.y}%` }} />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-5xl opacity-20">{fruitInfo?.icon || '📄'}</span>
+              {fruitInfo ? <fruitInfo.Icon className="w-14 h-14 opacity-30 text-gold-champagne" strokeWidth={1.25} /> : <FileText className="w-14 h-14 opacity-30 text-gold-champagne" strokeWidth={1.25} />}
             </div>
           )}
           {fruitInfo && (
@@ -208,7 +208,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
         <div className="p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <span className="px-1.5 py-0.5 rounded-full bg-secondary/50 text-text-dim text-[9px] font-montserrat font-bold uppercase">
-              📋 Ficha
+              Ficha
             </span>
           </div>
           <h3 className="font-cinzel font-bold text-sm text-foreground mb-1">{entry.title}</h3>
@@ -242,7 +242,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               onClick={e => { e.stopPropagation(); onToggle(); }}
               className="ml-3 w-7 h-7 rounded-full bg-secondary hover:bg-secondary/80 text-foreground text-xs flex items-center justify-center flex-shrink-0 transition-colors"
             >
-              ✕
+              <X className="w-3.5 h-3.5" strokeWidth={2} />
             </button>
           </div>
 
@@ -254,7 +254,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               </span>
             )}
             <span className="px-1.5 py-0.5 rounded-full bg-accent/10 text-accent text-[9px] font-montserrat font-bold uppercase">
-              📝 Artigo
+              Artigo
             </span>
             <span className="text-[9px] text-text-dim font-montserrat ml-auto">
               Atualizado: {new Date(entry.updated_at).toLocaleDateString('pt-BR')}
@@ -471,7 +471,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               onClick={e => { e.stopPropagation(); onToggle(); }}
               className="ml-3 w-7 h-7 rounded-full bg-secondary hover:bg-secondary/80 text-foreground text-xs flex items-center justify-center flex-shrink-0 transition-colors"
             >
-              ✕
+              <X className="w-3.5 h-3.5" strokeWidth={2} />
             </button>
           </div>
 
