@@ -191,42 +191,50 @@ export function useSubscription(): SubscriptionInfo {
 }
 
 // Asaas checkout — opens invoice URL in a new tab.
-// Throws { code: 'cpf_required' } when the user needs to provide CPF/CNPJ.
+// When the user lacks CPF/CNPJ, dispatches a global event so a UI dialog can collect it
+// and retry. This avoids touching every callsite.
 export async function openCheckout(planId: string, cpfCnpj?: string) {
-  const { data, error } = await supabase.functions.invoke('asaas-create-checkout', {
-    body: { planId, cpfCnpj },
-  });
+  try {
+    const { data, error } = await supabase.functions.invoke('asaas-create-checkout', {
+      body: { planId, cpfCnpj },
+    });
 
-  // Edge function returned a non-2xx — inspect the JSON to detect cpf_required
-  if (error) {
-    const payload: any = (error as any)?.context?.body ?? (error as any)?.context;
-    let parsed: any = null;
-    try { parsed = typeof payload === 'string' ? JSON.parse(payload) : payload; } catch {}
-    // Fallback: refetch the response body via the FunctionsHttpError context
-    try {
+    // Detect cpf_required from either parsed body or the FunctionsHttpError context
+    let parsed: any = data;
+    if (error) {
       const ctx: any = (error as any)?.context;
-      if (ctx && typeof ctx.json === 'function') parsed = await ctx.json();
-    } catch {}
-    if (parsed?.error === 'cpf_required') {
-      const e: any = new Error(parsed.message || 'CPF requerido');
-      e.code = 'cpf_required';
-      throw e;
+      try { if (ctx && typeof ctx.json === 'function') parsed = await ctx.json(); } catch {}
+      if (!parsed) {
+        try {
+          const raw = ctx?.body ?? ctx;
+          parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        } catch {}
+      }
     }
-    console.error('openCheckout error:', error);
-    throw new Error('Não foi possível abrir o pagamento: ' + (error.message || 'erro desconhecido'));
-  }
 
-  if (data?.error === 'cpf_required') {
-    const e: any = new Error(data.message || 'CPF requerido');
-    e.code = 'cpf_required';
-    throw e;
+    if (parsed?.error === 'cpf_required') {
+      // Open global dialog. Retry happens inside the dialog handler.
+      window.dispatchEvent(new CustomEvent('arvore:cpf-required', { detail: { planId } }));
+      return;
+    }
+
+    if (error) {
+      console.error('openCheckout error:', error);
+      alert('Não foi possível abrir o pagamento: ' + (error.message || 'erro desconhecido'));
+      return;
+    }
+
+    if (parsed?.url) {
+      window.open(parsed.url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    alert('Não foi possível abrir o pagamento: resposta inválida.');
+  } catch (e: any) {
+    console.error('openCheckout error:', e);
+    alert('Não foi possível abrir o pagamento: ' + (e?.message || 'erro desconhecido'));
   }
-  if (data?.url) {
-    window.open(data.url, '_blank', 'noopener,noreferrer');
-    return;
-  }
-  throw new Error('Sem URL de pagamento');
 }
+
 
 
 export async function openCustomerPortal() {
