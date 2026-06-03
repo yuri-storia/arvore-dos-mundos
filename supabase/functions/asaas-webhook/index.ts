@@ -202,7 +202,7 @@ Deno.serve(async (req) => {
       await supa.from("asaas_customers").upsert({
         user_id: userId,
         asaas_customer_id: payment.customer,
-        environment: "sandbox",
+        environment: "production",
         updated_at: new Date().toISOString(),
       });
 
