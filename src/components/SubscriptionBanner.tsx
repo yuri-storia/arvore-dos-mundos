@@ -196,7 +196,7 @@ export const SubscriptionBanner: React.FC = () => {
               </button>
               <div className="hidden sm:block w-24">
                 <Progress
-                  value={100 - pct}
+                  value={pct}
                   className={`h-1.5 ${isEmpty ? 'bg-destructive/20' : isLow ? 'bg-amber-500/20' : 'bg-[#7A5A20]/30'}`}
                 />
               </div>
