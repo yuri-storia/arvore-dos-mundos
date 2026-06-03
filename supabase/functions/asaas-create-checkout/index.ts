@@ -91,23 +91,9 @@ Deno.serve(async (req) => {
       ? `${userId}:${planCode}`
       : `guest:${planCode}:${crypto.randomUUID()}`;
 
-    // Pré-preenchimento (apenas se logado) — não bloqueia se faltar
-    let customerData: Record<string, any> | undefined;
-    if (userId) {
-      const { data: profile } = await supa.from("profiles")
-        .select("display_name, cpf_cnpj")
-        .eq("user_id", userId).maybeSingle();
-      customerData = {
-        name: profile?.display_name || userEmail.split("@")[0] || undefined,
-        email: userEmail || undefined,
-        cpfCnpj: profile?.cpf_cnpj || undefined,
-      };
-      // remove undefined
-      customerData = Object.fromEntries(
-        Object.entries(customerData).filter(([, v]) => v !== undefined && v !== "")
-      );
-      if (Object.keys(customerData).length === 0) customerData = undefined;
-    }
+    // Não enviamos customerData — o Asaas Checkout exige TODOS os campos (endereço,
+    // telefone, CEP, etc.) quando customerData está presente. Deixamos o próprio
+    // checkout hospedado coletar os dados do cliente.
 
     // Monta payload do Asaas Checkout
     // Asaas: RECURRENT só aceita CREDIT_CARD; PIX só aceita DETACHED.
@@ -142,9 +128,6 @@ Deno.serve(async (req) => {
       };
     }
 
-    if (customerData) {
-      checkoutPayload.customerData = customerData;
-    }
 
     const checkout = await asaas("/checkouts", {
       method: "POST",
