@@ -37,92 +37,45 @@ Deno.serve(async (req) => {
 
     switch (action) {
       case "list_users": {
-        // Pull auth users via admin API (paginated, up to 1000)
-        const { data: list, error: listErr } = await supa.auth.admin.listUsers({ page: 1, perPage: 1000 });
-        if (listErr) return json({ error: listErr.message }, 500);
-
-        const users = list.users;
-        const ids = users.map((u) => u.id);
-
-        const [{ data: subs }, { data: bals }, { data: admins }, { data: payments }, { data: usages }] = await Promise.all([
-          supa.from("subscriptions").select("user_id, plan_code, has_idriel, status, billing_cycle, expires_at, started_at, asaas_subscription_id").in("user_id", ids),
-          supa.from("user_credit_balance").select("user_id, bonus_drops").in("user_id", ids),
-          supa.from("admin_users").select("user_id").in("user_id", ids),
-          supa.from("asaas_payments").select("user_id, kind, amount, status, paid_at, drops, plan_code").in("user_id", ids),
-          supa.from("ai_usage").select("user_id, month, text_count, image_count").in("user_id", ids),
+        // Parallel: paginated auth list + single aggregate RPC (DB does the heavy lifting)
+        const [authRes, aggRes] = await Promise.all([
+          supa.auth.admin.listUsers({ page: 1, perPage: 1000 }),
+          supa.rpc("admin_user_aggregates"),
         ]);
+        if (authRes.error) return json({ error: authRes.error.message }, 500);
+        if (aggRes.error) return json({ error: aggRes.error.message }, 500);
 
-        const subBy = new Map<string, any>();
-        // pick the most recent active sub per user; fallback to most recent any
-        for (const s of subs ?? []) {
-          const prev = subBy.get(s.user_id);
-          if (!prev) { subBy.set(s.user_id, s); continue; }
-          const prevActive = prev.status === "active";
-          const curActive = s.status === "active";
-          if (curActive && !prevActive) subBy.set(s.user_id, s);
-          else if (curActive === prevActive) {
-            if ((s.started_at ?? "") > (prev.started_at ?? "")) subBy.set(s.user_id, s);
-          }
-        }
-        const balBy = new Map((bals ?? []).map((b) => [b.user_id, b.bonus_drops ?? 0]));
-        const adminSet = new Set((admins ?? []).map((a) => a.user_id));
+        const aggBy = new Map<string, any>();
+        for (const r of (aggRes.data ?? []) as any[]) aggBy.set(r.user_id, r);
 
-        const payAgg = new Map<string, { recharges: number; recharge_total: number; last_payment: string | null; lifetime_total: number }>();
-        for (const p of payments ?? []) {
-          const a = payAgg.get(p.user_id) ?? { recharges: 0, recharge_total: 0, last_payment: null, lifetime_total: 0 };
-          if (p.status === "CONFIRMED" || p.status === "RECEIVED" || p.status === "paid") {
-            a.lifetime_total += Number(p.amount ?? 0);
-            if (p.kind === "recharge") {
-              a.recharges += 1;
-              a.recharge_total += Number(p.amount ?? 0);
-            }
-            if (p.paid_at && (!a.last_payment || p.paid_at > a.last_payment)) a.last_payment = p.paid_at;
-          }
-          payAgg.set(p.user_id, a);
-        }
-
-        const currentMonth = new Date().toISOString().slice(0, 7);
-        const usageBy = new Map<string, { text_month: number; image_month: number; text_total: number; image_total: number }>();
-        for (const u of usages ?? []) {
-          const a = usageBy.get(u.user_id) ?? { text_month: 0, image_month: 0, text_total: 0, image_total: 0 };
-          a.text_total += u.text_count ?? 0;
-          a.image_total += u.image_count ?? 0;
-          if (u.month === currentMonth) {
-            a.text_month += u.text_count ?? 0;
-            a.image_month += u.image_count ?? 0;
-          }
-          usageBy.set(u.user_id, a);
-        }
-
-        const result = users.map((u) => {
-          const s = subBy.get(u.id);
-          const pa = payAgg.get(u.id) ?? { recharges: 0, recharge_total: 0, last_payment: null, lifetime_total: 0 };
-          const ug = usageBy.get(u.id) ?? { text_month: 0, image_month: 0, text_total: 0, image_total: 0 };
+        const result = authRes.data.users.map((u) => {
+          const a = aggBy.get(u.id);
           return {
             id: u.id,
             email: u.email,
             created_at: u.created_at,
             last_sign_in_at: u.last_sign_in_at,
-            is_admin: adminSet.has(u.id),
-            plan_code: s?.plan_code ?? null,
-            has_idriel: !!s?.has_idriel,
-            sub_status: s?.status ?? null,
-            billing_cycle: s?.billing_cycle ?? null,
-            expires_at: s?.expires_at ?? null,
-            bonus_drops: balBy.get(u.id) ?? 0,
-            recharges_count: pa.recharges,
-            recharge_total: pa.recharge_total,
-            lifetime_total: pa.lifetime_total,
-            last_payment_at: pa.last_payment,
-            ai_text_month: ug.text_month,
-            ai_image_month: ug.image_month,
-            ai_text_total: ug.text_total,
-            ai_image_total: ug.image_total,
+            is_admin: a?.is_admin ?? false,
+            plan_code: a?.plan_code ?? null,
+            has_idriel: !!a?.has_idriel,
+            sub_status: a?.sub_status ?? null,
+            billing_cycle: a?.billing_cycle ?? null,
+            expires_at: a?.expires_at ?? null,
+            bonus_drops: a?.bonus_drops ?? 0,
+            recharges_count: a?.recharges_count ?? 0,
+            recharge_total: Number(a?.recharge_total ?? 0),
+            lifetime_total: Number(a?.lifetime_total ?? 0),
+            last_payment_at: a?.last_payment_at ?? null,
+            ai_text_month: a?.ai_text_month ?? 0,
+            ai_image_month: a?.ai_image_month ?? 0,
+            ai_text_total: a?.ai_text_total ?? 0,
+            ai_image_total: a?.ai_image_total ?? 0,
           };
         });
 
-        return json({ users: result });
+        return json({ users: result }, 200);
       }
+
 
       case "grant_admin": {
         const targetId = body?.user_id as string;
