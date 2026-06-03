@@ -296,7 +296,7 @@ const LandingPage: React.FC = () => {
                     whileHover={{ scale: 1.08, transition: { duration: 0.2 } }}
                     className="p-4 rounded-lg bg-gold/[0.06] border border-gold/15 cursor-default"
                   >
-                    <span className="text-2xl block mb-2">{item.icon}</span>
+                    <item.Icon className="w-6 h-6 mx-auto mb-2 text-gold-light" strokeWidth={1.75} />
                     <span className="font-montserrat font-bold text-[11px] text-gold-light block">{item.label}</span>
                     <span className="font-montserrat text-[10px] text-text-dim">{item.sub}</span>
                   </motion.div>
