@@ -10,7 +10,7 @@ import { exportSingleEntry, exportFruitEntries, exportSelectedFruits, exportAllE
 import { CodexAnalysis } from '@/components/CodexAnalysis';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { WorldRecord } from '@/hooks/useWorlds';
-import { Lock, BookOpen, Search, FileDown, ClipboardList, PencilLine, Inbox, Library, X, Globe, Check, Apple } from 'lucide-react';
+import { Lock, BookOpen, Search, FileDown, ClipboardList, PencilLine, Inbox, Library, X, Globe, Check, Apple, Loader2, FolderUp, Trees } from 'lucide-react';
 import { toast } from 'sonner';
 import { IdrielImportDialog } from '@/components/IdrielImportDialog';
 
@@ -462,7 +462,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                 <div className="flex gap-2">
                   <input type="file" ref={fileRef} accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, setNewImageUrl); }} />
                   <button onClick={() => fileRef.current?.click()} disabled={uploading} className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors">
-                    {uploading ? '⏳ Enviando…' : '📁 Upload'}
+                    <>{uploading ? <><Loader2 className="inline-block w-3.5 h-3.5 mr-1.5 animate-spin align-[-0.15em]" strokeWidth={2} />Enviando…</> : <><FolderUp className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Upload</>}</>
                   </button>
                 </div>
               )}
@@ -508,11 +508,11 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
               <div className="flex gap-3 justify-center">
                 <button onClick={() => openCreate('ficha')}
                   className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-blue-bright/30 text-blue-light bg-blue-bright/[0.08] hover:bg-blue-bright/[0.18] transition-all">
-                  📋 Criar primeira Ficha
+                  <><ClipboardList className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Criar primeira Ficha</>
                 </button>
                 <button onClick={() => openCreate('artigo')}
                   className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold/30 text-gold-light bg-gold/[0.08] hover:bg-gold/[0.18] transition-all">
-                  📝 Criar primeiro Artigo
+                  <><PencilLine className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Criar primeiro Artigo</>
                 </button>
               </div>
             </>
@@ -530,7 +530,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
             <div className="mb-8">
               <h2 className="font-cinzel font-bold text-base text-blue-light mb-3 flex items-center gap-2">
                 <span className="w-8 h-[2px] bg-gradient-to-r from-ring to-transparent" />
-                📋 Fichas
+                <ClipboardList className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Fichas
                 <span className="text-[10px] font-montserrat font-bold text-text-dim uppercase">({filtered.filter(e => e.entry_type === 'ficha').length})</span>
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -556,7 +556,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
             <div className="mb-8">
               <h2 className="font-cinzel font-bold text-base text-gold mb-3 flex items-center gap-2">
                 <span className="w-8 h-[2px] bg-gradient-to-r from-gold to-transparent" />
-                📝 Artigos
+                <PencilLine className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Artigos
                 <span className="text-[10px] font-montserrat font-bold text-text-dim uppercase">({filtered.filter(e => e.entry_type === 'artigo').length})</span>
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -617,7 +617,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                 shadow-[0_0_30px_hsl(var(--idriel)/0.15)] hover:shadow-[0_0_50px_hsl(var(--idriel)/0.3)]"
             >
               <span className="text-idriel-light">
-                🌳 Consultar Idriel — Guardiã da Árvore
+                <><Trees className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Consultar Idriel — Guardiã da Árvore</>
               </span>
               <p className="font-merriweather italic text-text-dim text-xs mt-1 normal-case tracking-normal">
                 Peça à sábia guardiã para avaliar suas entradas e guiar seu worldbuilding

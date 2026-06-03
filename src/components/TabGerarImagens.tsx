@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, Leaf, Sparkles, Bug } from 'lucide-react';
+import { Lock, Leaf, Sparkles, Bug, Check, ClipboardCopy, Save, ArrowDown } from 'lucide-react';
 import { STYLE_OPTIONS, IMAGE_TYPE_OPTIONS, TONE_OPTIONS, FRUITS, GalleryImage } from '@/lib/data';
 import { callAIText, callAIImage, friendlyAIError } from '@/lib/helpers';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -278,18 +278,18 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
       {/* Generated prompt */}
       {generatedPrompt && !loading1 && (
         <div className="animate-fadeUp card-glass rounded-lg p-5 mb-5 border border-gold/20">
-          <span className="font-cinzel text-[10px] text-gold-light block mb-2">🌿 Visão tecida por Idriel</span>
+          <span className="font-cinzel text-[10px] text-gold-light mb-2 inline-flex items-center gap-1.5"><Leaf className="w-3 h-3" strokeWidth={1.75} />Visão tecida por Idriel</span>
           <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed mb-4">{generatedPrompt}</p>
           <div className="flex flex-wrap gap-2">
             <button onClick={copyPrompt} className="px-3 py-1.5 rounded-md text-xs font-montserrat border border-gold/30 text-text-secondary hover:text-foreground transition-colors">
-              {copied ? '✓ Copiado!' : '📋 Copiar para Midjourney / Leonardo'}
+              <>{copied ? <><Check className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Copiado!</> : <><ClipboardCopy className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Copiar para Midjourney / Leonardo</>}</>
             </button>
             <button
               onClick={handleGenerate}
               disabled={loading2}
               className="px-3 py-1.5 rounded-md text-xs font-montserrat bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-colors"
             >
-              ✨ Materializar Visão
+              <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Materializar Visão</>
             </button>
           </div>
         </div>
@@ -298,14 +298,14 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
       {/* Generated image */}
       {generatedImage && !loading2 && (
         <div className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20">
-          <span className="font-cinzel text-[10px] text-gold-light block mb-3">✨ Visão materializada pela Seiva Dourada</span>
+          <span className="font-cinzel text-[10px] text-gold-light mb-3 inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3" strokeWidth={1.75} />Visão materializada pela Seiva Dourada</span>
           <img src={generatedImage} alt="Visão de Idriel" className="w-full max-w-[512px] mx-auto rounded-lg mb-4" />
           <div className="flex flex-wrap gap-2 justify-center">
             <button onClick={openSaveModal} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors">
-              💾 Guardar na Galeria
+              <><Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Guardar na Galeria</>
             </button>
             <a href={generatedImage} download target="_blank" rel="noopener" className="px-4 py-2 rounded-md text-xs font-montserrat border border-gold/30 text-text-secondary hover:text-foreground transition-colors">
-              ⬇ Baixar
+              <><ArrowDown className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Baixar</>
             </a>
           </div>
         </div>
@@ -347,7 +347,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
                 Cancelar
               </button>
               <button onClick={confirmSave} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors">
-                💾 Guardar
+                <Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Guardar
               </button>
             </div>
           </div>
