@@ -190,23 +190,44 @@ export function useSubscription(): SubscriptionInfo {
   return info;
 }
 
-// Asaas checkout — opens invoice URL in a new tab
-export async function openCheckout(planId: string) {
-  try {
-    const { data, error } = await supabase.functions.invoke('asaas-create-checkout', {
-      body: { planId },
-    });
-    if (error) throw error;
-    if (data?.url) {
-      window.open(data.url, '_blank', 'noopener,noreferrer');
-    } else {
-      throw new Error('Sem URL de pagamento');
+// Asaas checkout — opens invoice URL in a new tab.
+// Throws { code: 'cpf_required' } when the user needs to provide CPF/CNPJ.
+export async function openCheckout(planId: string, cpfCnpj?: string) {
+  const { data, error } = await supabase.functions.invoke('asaas-create-checkout', {
+    body: { planId, cpfCnpj },
+  });
+
+  // Edge function returned a non-2xx — inspect the JSON to detect cpf_required
+  if (error) {
+    const payload: any = (error as any)?.context?.body ?? (error as any)?.context;
+    let parsed: any = null;
+    try { parsed = typeof payload === 'string' ? JSON.parse(payload) : payload; } catch {}
+    // Fallback: refetch the response body via the FunctionsHttpError context
+    try {
+      const ctx: any = (error as any)?.context;
+      if (ctx && typeof ctx.json === 'function') parsed = await ctx.json();
+    } catch {}
+    if (parsed?.error === 'cpf_required') {
+      const e: any = new Error(parsed.message || 'CPF requerido');
+      e.code = 'cpf_required';
+      throw e;
     }
-  } catch (e: any) {
-    console.error('openCheckout error:', e);
-    alert('Não foi possível abrir o pagamento: ' + (e?.message || 'erro desconhecido'));
+    console.error('openCheckout error:', error);
+    throw new Error('Não foi possível abrir o pagamento: ' + (error.message || 'erro desconhecido'));
   }
+
+  if (data?.error === 'cpf_required') {
+    const e: any = new Error(data.message || 'CPF requerido');
+    e.code = 'cpf_required';
+    throw e;
+  }
+  if (data?.url) {
+    window.open(data.url, '_blank', 'noopener,noreferrer');
+    return;
+  }
+  throw new Error('Sem URL de pagamento');
 }
+
 
 export async function openCustomerPortal() {
   if (!confirm('Deseja cancelar sua assinatura ativa? O acesso permanece até o fim do ciclo já pago.')) return;
