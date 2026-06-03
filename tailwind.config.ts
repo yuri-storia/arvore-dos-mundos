@@ -15,6 +15,7 @@ export default {
         cinzel: ["Cinzel", "serif"],
         montserrat: ["Montserrat", "sans-serif"],
         merriweather: ["Merriweather", "serif"],
+        amiri: ["Amiri", "Merriweather", "Georgia", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
