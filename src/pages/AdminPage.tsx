@@ -468,6 +468,44 @@ const AccessTab: React.FC<{ userId: string }> = ({ userId }) => {
   );
 };
 
+/* ---------------- Bug Attachment ---------------- */
+const BugAttachment: React.FC<{ path: string; type: string }> = ({ path, type }) => {
+  const [url, setUrl] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase.storage
+        .from('bug-attachments')
+        .createSignedUrl(path, 60 * 60);
+      if (cancelled) return;
+      if (error) setErr(error.message);
+      else setUrl(data?.signedUrl ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [path]);
+  const isVideo = type.startsWith('video/');
+  return (
+    <div>
+      <div className="text-[10px] font-montserrat uppercase text-text-dim mb-1">Anexo do usuário</div>
+      {err && <div className="text-[11px] text-red-alert font-mono">{err}</div>}
+      {url && !isVideo && (
+        <a href={url} target="_blank" rel="noreferrer" className="block">
+          <img src={url} alt="anexo" className="max-h-[360px] w-auto rounded border border-blue-bright/20" />
+        </a>
+      )}
+      {url && isVideo && (
+        <video src={url} controls className="max-h-[360px] w-auto rounded border border-blue-bright/20 bg-black" />
+      )}
+      {url && (
+        <a href={url} target="_blank" rel="noreferrer" className="inline-block mt-1 text-[10px] text-gold-light font-montserrat underline">
+          Abrir em nova aba
+        </a>
+      )}
+    </div>
+  );
+};
+
 /* ---------------- Bugs Tab ---------------- */
 const BugsTab: React.FC = () => {
   const qc = useQueryClient();
