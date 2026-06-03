@@ -549,8 +549,8 @@ const BugsTab: React.FC = () => {
           <span className="text-[10px] text-text-dim">–</span>
           <Input type="date" value={to} onChange={e => setTo(e.target.value)} className="w-[140px] bg-[rgba(4,12,24,0.6)] border-blue-bright/20" />
         </div>
-        <Button variant="outline" size="sm" onClick={load} disabled={loading} className="border-blue-bright/30">
-          <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} /> Atualizar
+        <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching} className="border-blue-bright/30">
+          <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isFetching ? 'animate-spin' : ''}`} /> Atualizar
         </Button>
         <Button size="sm" onClick={exportCsv} className="bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-background hover:opacity-90">
           <Download className="w-3.5 h-3.5 mr-1.5" /> CSV ({filtered.length})
