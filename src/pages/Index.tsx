@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Trees, Sparkles } from 'lucide-react';
 import { AppHeader } from '@/components/AppHeader';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
+import { DropsCounterBadge } from '@/components/DropsCounterBadge';
 import { OnboardingTips } from '@/components/OnboardingTips';
 import { HelpDrawer } from '@/components/HelpDrawer';
 import { AppSidebar } from '@/components/AppSidebar';
@@ -167,8 +168,7 @@ const Index = () => {
       <div className="relative z-10">
         <AppHeader worldName={state.worldName} setWorldName={setWorldName} onCreateWorld={handleCreateWorld} method={state.method} currentSaveId={state.currentSaveId} db={state.db} worlds={worlds} onLoadWorld={handleLoadWorld} onNewWorld={handleNewWorld} onDeleteWorld={handleDeleteWorld} />
 
-
-
+        <DropsCounterBadge />
 
         <SubscriptionBanner />
         <TabNav activeTab={state.activeTab} setActiveTab={setActiveTab} />

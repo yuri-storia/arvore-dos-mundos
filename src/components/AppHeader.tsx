@@ -293,7 +293,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
               </div>
             </>
           )}
-          <DropsCounterBadge />
           <UserMenu />
         </div>
       </div>
