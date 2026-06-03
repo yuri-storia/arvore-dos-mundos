@@ -5,6 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import treeWallpaper from '@/assets/tree-wallpaper.webp';
+import heroVideo from '@/assets/arvore-hero-bg.mp4.asset.json';
+import heroPoster from '@/assets/arvore-mundos-hero.png.asset.json';
 
 const Particles: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -179,8 +181,25 @@ const LoginPage: React.FC = () => {
     <div className="min-h-screen bg-background relative flex items-center justify-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 z-0">
-        <img src={treeWallpaper} alt="" className="w-full h-full object-cover opacity-70" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/50 to-background/70" />
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          src={heroVideo.url}
+          poster={heroPoster.url}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(ellipse at center, hsl(214 80% 3% / 0.35) 0%, hsl(214 80% 3% / 0.75) 100%)',
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/40 to-background/70" />
       </div>
 
       <Particles />
