@@ -21,50 +21,102 @@ const ElixirBar: React.FC<{
   const isLow = !infinite && available > 0 && pct <= 20;
   const isEmpty = !infinite && available <= 0;
 
-  const fillBg = isEmpty
-    ? 'linear-gradient(90deg, hsl(0 70% 45%), hsl(0 70% 30%))'
-    : isLow
-      ? 'linear-gradient(90deg, hsl(28 90% 55%), hsl(20 80% 42%))'
-      : 'linear-gradient(90deg, hsl(45 92% 62%) 0%, hsl(38 80% 50%) 60%, hsl(32 70% 42%) 100%)';
+  // Dourado premium (champagne → ouro → âmbar profundo) com brilho lustroso
+  const premiumGold =
+    'linear-gradient(90deg, hsl(46 95% 78%) 0%, hsl(44 92% 62%) 35%, hsl(40 88% 52%) 65%, hsl(32 78% 42%) 100%)';
+  const lowGold =
+    'linear-gradient(90deg, hsl(38 92% 62%) 0%, hsl(28 88% 52%) 60%, hsl(20 82% 42%) 100%)';
+  const emptyRed = 'linear-gradient(90deg, hsl(0 75% 50%), hsl(0 70% 32%))';
+
+  const fillBg = isEmpty ? emptyRed : isLow ? lowGold : premiumGold;
 
   return (
     <div
-      className="relative flex items-center gap-3 h-9 px-3 rounded-full border border-gold/30 bg-gold/[0.05] overflow-hidden flex-1 min-w-[200px] max-w-[420px]"
+      className="flex items-center gap-3 flex-1 min-w-[220px] max-w-[460px]"
       title={subtitle}
     >
-      {/* fill */}
-      <div
-        className="absolute inset-y-0 left-0 transition-all duration-500"
-        style={{
-          width: `${pct}%`,
-          background: fillBg,
-          opacity: 0.35,
-          boxShadow: 'inset 0 0 12px rgba(218,165,32,0.25)',
-        }}
-        aria-hidden="true"
-      />
-      <Droplet className="relative w-4 h-4 text-gold-light shrink-0" strokeWidth={2} />
-      <div className="relative flex items-baseline gap-1.5 leading-none">
-        <span className="font-cinzel font-bold text-[12px] text-gold-light tracking-wide">
-          Elixir
-        </span>
-        <span className="font-montserrat text-[10px] text-text-dim uppercase tracking-wider hidden sm:inline">
-          ·
-        </span>
-        <span className="font-montserrat font-bold text-[12px] text-foreground tabular-nums">
-          {infinite ? (
-            <InfinityIcon className="inline-block w-4 h-4 align-[-0.15em]" strokeWidth={2.5} />
-          ) : (
-            available
-          )}
-        </span>
-        <span className="font-montserrat text-[9px] text-text-dim uppercase tracking-wider hidden sm:inline">
-          gotas
-        </span>
+      {/* Icon */}
+      <div className="relative shrink-0 w-7 h-7 rounded-full flex items-center justify-center border border-gold/40 bg-gradient-to-br from-gold/25 to-gold-deep/10 shadow-[0_0_8px_hsl(var(--gold)/0.25)]">
+        <Droplet className="w-3.5 h-3.5 text-gold-light" strokeWidth={2.25} />
+      </div>
+
+      {/* Label + Track stacked */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline justify-between gap-2 mb-1 leading-none">
+          <span className="font-cinzel font-bold text-[10px] uppercase tracking-[0.18em] text-gold-light">
+            Elixir dos Mundos
+          </span>
+          <span className="font-montserrat font-bold text-[10px] tabular-nums text-gold-light/90">
+            {infinite ? (
+              <>
+                <InfinityIcon className="inline-block w-3.5 h-3.5 align-[-0.15em]" strokeWidth={2.5} />
+                <span className="ml-1 text-[9px] text-text-dim uppercase tracking-wider">gotas</span>
+              </>
+            ) : (
+              <>
+                {available}
+                <span className="text-text-dim/70"> / {total}</span>
+                <span className="ml-1 text-[9px] text-text-dim uppercase tracking-wider">gotas</span>
+              </>
+            )}
+          </span>
+        </div>
+
+        {/* Loading-bar track */}
+        <div
+          className="relative h-2.5 w-full rounded-full overflow-hidden border border-gold/25"
+          style={{
+            background:
+              'linear-gradient(180deg, hsl(220 50% 4%) 0%, hsl(220 40% 7%) 100%)',
+            boxShadow:
+              'inset 0 1px 2px rgba(0,0,0,0.7), inset 0 -1px 1px rgba(218,165,32,0.08)',
+          }}
+        >
+          {/* Fill */}
+          <div
+            className="relative h-full rounded-full transition-all duration-700 ease-out"
+            style={{
+              width: `${pct}%`,
+              background: fillBg,
+              boxShadow:
+                '0 0 10px hsl(var(--gold) / 0.55), inset 0 1px 0 rgba(255, 240, 200, 0.55), inset 0 -1px 0 rgba(0,0,0,0.25)',
+            }}
+          >
+            {/* Glossy highlight */}
+            <div
+              className="absolute inset-x-0 top-0 h-1/2 rounded-t-full pointer-events-none"
+              style={{
+                background:
+                  'linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 100%)',
+              }}
+            />
+            {/* Shimmer */}
+            <div
+              className="absolute inset-y-0 w-1/3 pointer-events-none animate-[elixir-shimmer_2.6s_linear_infinite]"
+              style={{
+                background:
+                  'linear-gradient(90deg, transparent 0%, rgba(255,250,220,0.55) 50%, transparent 100%)',
+                mixBlendMode: 'screen',
+              }}
+            />
+            {/* Leading marker */}
+            {pct > 4 && pct < 100 && (
+              <div
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-1.5 h-3 rounded-full"
+                style={{
+                  background:
+                    'radial-gradient(circle, hsl(48 100% 88%) 0%, hsl(45 95% 68%) 60%, transparent 100%)',
+                  boxShadow: '0 0 8px hsl(48 100% 75% / 0.9)',
+                }}
+              />
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 };
+
 
 export const DropsCounterBadge: React.FC = () => {
   const { user, isAdmin } = useAuth();
