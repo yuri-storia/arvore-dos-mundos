@@ -346,7 +346,7 @@ Deno.serve(async (req) => {
       if (emailForMail) {
         // Sempre gera magic link — funciona tanto para novo quanto para existente
         const magicLink = await generateMagicLink(supa, emailForMail);
-        const planInfo = planMeta || recharge;
+        const planInfo = planMeta || recharge || (upgrade ? { displayName: upgrade.displayName, amount: upgrade.firstAmount } : undefined);
         await sendWelcomeEmail({
           email: emailForMail,
           name: nameForMail,
