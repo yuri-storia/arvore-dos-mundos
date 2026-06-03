@@ -823,6 +823,28 @@ export type Database = {
         Args: { _drops: number; _user_id: string }
         Returns: undefined
       }
+      admin_user_aggregates: {
+        Args: never
+        Returns: {
+          ai_image_month: number
+          ai_image_total: number
+          ai_text_month: number
+          ai_text_total: number
+          billing_cycle: string
+          bonus_drops: number
+          expires_at: string
+          has_idriel: boolean
+          is_admin: boolean
+          last_payment_at: string
+          lifetime_total: number
+          plan_code: string
+          recharge_total: number
+          recharges_count: number
+          started_at: string
+          sub_status: string
+          user_id: string
+        }[]
+      }
       check_ai_quota: {
         Args: { _type: string; _user_id: string }
         Returns: Json
