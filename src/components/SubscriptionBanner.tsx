@@ -63,7 +63,7 @@ export const SubscriptionBanner: React.FC = () => {
               >
                 <span className="font-montserrat font-bold text-xs text-blue-light"><><Leaf className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em] text-blue-light" strokeWidth={1.75} />Raiz — Worldbuilding Completo</></span>
                 <span className="text-[10px] text-text-dim">Mundos ilimitados, fichas e artigos ilimitados, exportação PDF/DOCX</span>
-                <span className="font-montserrat font-bold text-sm text-blue-light">R$ 87/ano</span>
+                <span className="font-montserrat font-bold text-sm text-blue-light">R$ 197/ano</span>
               </button>
               {/* Idriel Monthly */}
               <button
@@ -126,7 +126,7 @@ export const SubscriptionBanner: React.FC = () => {
     );
   }
 
-  // Idriel user: show credits (Seiva Dourada)
+  // Idriel user: show credits (Elixir dos Mundos)
   if (sub.hasIdriel) {
     const creditsLeft = sub.creditLimit - sub.creditsUsed;
     const pct = sub.creditLimit > 0 ? (sub.creditsUsed / sub.creditLimit) * 100 : 0;
@@ -138,10 +138,10 @@ export const SubscriptionBanner: React.FC = () => {
     const emptyBg = 'linear-gradient(135deg, rgba(220,38,38,0.18) 0%, rgba(220,38,38,0.10) 100%)';
 
     const statusLabel = isEmpty
-      ? 'A Seiva secou…'
+      ? 'O Elixir secou…'
       : isLow
         ? 'Poucas gotas restam…'
-        : 'Seiva Dourada de Idriel';
+        : 'Elixir dos Mundos de Idriel';
 
     const statusDesc = isEmpty
       ? 'Recarregue para continuar criando com Idriel'
@@ -189,7 +189,7 @@ export const SubscriptionBanner: React.FC = () => {
                 style={!isEmpty && !isLow ? { color: '#3D2800' } : undefined}
               >
                 <Sparkles className="w-2.5 h-2.5" />
-                <span className="hidden sm:inline">Recarregar Seiva</span>
+                <span className="hidden sm:inline">Recarregar Elixir</span>
                 <span className="sm:hidden">+ Gotas</span>
               </button>
               <div className="hidden sm:block w-24">

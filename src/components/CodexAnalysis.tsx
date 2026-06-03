@@ -344,7 +344,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
         </div>
       )}
 
-      {/* Credit info — Seiva Dourada */}
+      {/* Credit info — Elixir dos Mundos */}
       {!sub.loading && planLimits.canUseAI && (
         <div
           className={`rounded-md px-3 py-2 mb-4 border ${isOut ? 'border-destructive/30' : isLow ? 'border-orange-500/30' : 'border-transparent'}`}
@@ -361,7 +361,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
               className={`text-[9px] uppercase tracking-wider font-montserrat font-bold ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : ''}`}
               style={!isOut && !isLow ? { color: '#2A1A00' } : undefined}
             >
-              <>{isOut ? <><Droplets className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Seiva esgotada</> : isLow ? <><Leaf className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Poucas gotas</> : <><Sparkles className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Seiva Dourada</>}</>
+              <>{isOut ? <><Droplets className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Elixir esgotado</> : isLow ? <><Leaf className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Poucas gotas</> : <><Sparkles className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Elixir dos Mundos</>}</>
             </span>
             <span
               className={`text-[10px] font-montserrat font-bold ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : ''}`}
@@ -386,7 +386,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
       {!sub.loading && !planLimits.canUseAI && (
         <div className="rounded-md px-3 py-2 mb-4 border border-destructive/30 bg-destructive/5">
           <p className="text-[10px] text-destructive font-merriweather">
-            <><Droplets className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Idriel precisa de Seiva Dourada para novas análises. Mas você ainda pode revisitar análises anteriores no histórico!</>
+            <><Droplets className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Idriel precisa de Elixir dos Mundos para novas análises. Mas você ainda pode revisitar análises anteriores no histórico!</>
           </p>
         </div>
       )}
@@ -407,7 +407,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
             </button>
           )}
           <p className="text-[10px] text-text-dim mt-2 font-montserrat">
-            <Droplet className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Custo: <span className="font-bold text-idriel-light">{ANALYSIS_COST} gota</span> de Seiva · Você tem <span className="font-bold text-idriel-light">{creditsRemaining} gotas</span> · Análises anteriores são gratuitas
+            <Droplet className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Custo: <span className="font-bold text-idriel-light">{ANALYSIS_COST} gota</span> de Elixir · Você tem <span className="font-bold text-idriel-light">{creditsRemaining} gotas</span> · Análises anteriores são gratuitas
           </p>
         </div>
       )}

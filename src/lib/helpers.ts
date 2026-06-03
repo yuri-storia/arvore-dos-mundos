@@ -78,7 +78,7 @@ export function friendlyAIError(rawMessage: string): { title: string; hint: stri
     return {
       kind: 'balance',
       title: 'Idriel está indisponível no momento.',
-      hint: 'A conexão com a Seiva Dourada caiu temporariamente. Aguarde até que a conexão seja reestabelecida — sua quota pessoal de gotas não foi consumida.',
+      hint: 'A conexão com o Elixir dos Mundos caiu temporariamente. Aguarde até que a conexão seja reestabelecida — sua quota pessoal de gotas não foi consumida.',
     };
   }
 

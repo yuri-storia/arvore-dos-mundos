@@ -37,7 +37,7 @@ export const PLANS = {
     hasIdriel: true,
   },
 
-  // Pacotes de recarga de Seiva Dourada (avulsos)
+  // Pacotes de recarga de Elixir dos Mundos (avulsos)
   recarga_15: {
     id: "recarga_15",
     name: "15 gotas",
@@ -86,7 +86,7 @@ export const PLANS = {
   // Alias legado para compatibilidade
   recarga_seiva: {
     id: "recarga_100",
-    name: "Recarga de Seiva",
+    name: "Recarga de Elixir",
     price: "R$ 27,90",
     priceValue: 27.90,
     drops: 100,

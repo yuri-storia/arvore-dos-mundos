@@ -56,7 +56,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
   };
 
   const handleGeneratePrompt = async () => {
-    if (!planLimits.canUseAI) { setError('Idriel precisa do plano ativo para canalizar a Seiva Dourada.'); return; }
+    if (!planLimits.canUseAI) { setError('Idriel precisa do plano ativo para canalizar o Elixir dos Mundos.'); return; }
     setError('');
     setLoadingPrompt(true);
     setGeneratedPrompt('');
@@ -101,7 +101,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
         <span className="font-cinzel font-bold text-sm text-idriel-light inline-flex items-center gap-2"><Map className="w-4 h-4" strokeWidth={1.75} />Forjar Mapa do Mundo</span>
       </div>
       <p className="font-merriweather italic text-[11px] text-text-dim mb-1">
-        Idriel materializa o mapa do seu mundo usando a Seiva Dourada e o contexto dos seus Frutos.
+        Idriel materializa o mapa do seu mundo usando o Elixir dos Mundos e o contexto dos seus Frutos.
       </p>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
         <span className="inline-flex items-center gap-1 text-[10px] font-montserrat font-semibold text-gold-light/80">
@@ -126,18 +126,18 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
                 </div>
               </div>
             </div>
-            <h3 className="font-cinzel font-bold text-base text-gold-light mb-2">O Mapa aguarda a Seiva Dourada</h3>
+            <h3 className="font-cinzel font-bold text-base text-gold-light mb-2">O Mapa aguarda o Elixir dos Mundos</h3>
             <div className="flex items-start gap-2.5 text-left bg-gold/[0.04] rounded-lg p-2.5 border border-gold/10 max-w-sm mx-auto mb-4">
               <img src={idrielAvatar} alt="Idriel" className="w-7 h-7 rounded-full border border-gold/30 shrink-0 mt-0.5" />
               <p className="font-merriweather text-xs text-text-secondary leading-relaxed italic">
-                "Para traçar as linhas do seu mundo, preciso canalizar a Seiva Dourada. Colha o Fruto Dourado e juntos daremos forma ao seu mapa."
+                "Para traçar as linhas do seu mundo, preciso canalizar o Elixir dos Mundos. Colha o Fruto Dourado e juntos daremos forma ao seu mapa."
               </p>
             </div>
             <button
               onClick={async () => { const { openCheckout, STRIPE_PLANS } = await import('@/hooks/useSubscription'); openCheckout(STRIPE_PLANS.idriel_mensal.price_id); }}
               className="px-5 py-2.5 rounded-full text-xs font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold to-gold-light text-background hover:shadow-[0_0_20px_rgba(218,165,32,0.3)] transition-all"
             >
-              <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Colher o Fruto Dourado — R$ 29,90/mês</>
+              <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Colher o Fruto Dourado — R$ 39,90/mês</>
             </button>
           </div>
         </div>
@@ -228,7 +228,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
       {loadingImage && (
         <div className="flex flex-col items-center gap-3 py-8">
           <img src={idrielAvatar} alt="Idriel" className="w-12 h-12 rounded-full border-2 border-gold/40 animate-pulse" />
-          <span className="font-merriweather italic text-sm text-gold-light">A Seiva Dourada molda o território…</span>
+          <span className="font-merriweather italic text-sm text-gold-light">O Elixir dos Mundos molda o território…</span>
           <div className="flex gap-1">
             <span className="w-2 h-2 rounded-full bg-gold dot-bounce" />
             <span className="w-2 h-2 rounded-full bg-gold dot-bounce-2" />

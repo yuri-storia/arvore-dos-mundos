@@ -73,13 +73,13 @@ export const OnboardingBanner: React.FC = () => {
               <Sparkles className="w-5 h-5 shrink-0 mt-1 text-gold-champagne" strokeWidth={1.75} />
               <div>
                 <h3 className="font-montserrat font-bold text-sm text-gold-light">
-                  Seiva Dourada — Energia de Idriel
+                  Elixir dos Mundos — Energia de Idriel
                 </h3>
                 <p className="font-merriweather text-text-secondary text-xs leading-relaxed mt-1">
-                  Idriel alimenta suas habilidades com <strong className="text-gold-light">Seiva Dourada</strong> — a energia que flui pela Árvore dos Mundos. Seu plano inclui <strong className="text-gold-light">100 gotas de Seiva</strong> por mês. Textos consomem <strong className="text-gold-light">1 gota</strong>, imagens consomem <strong className="text-gold-light">5 gotas</strong> e uma Análise de Mundo consome <strong className="text-gold-light">2 gotas</strong>.
+                  Idriel destila o <strong className="text-gold-light">Elixir dos Mundos</strong> a partir da <strong className="text-gold-light">Seiva Lendária da Árvore dos Mundos</strong> — a essência viva que alimenta toda magia desta plataforma. Seu plano inclui <strong className="text-gold-light">100 gotas</strong> por mês. Textos consomem <strong className="text-gold-light">1 gota</strong>, imagens <strong className="text-gold-light">5 gotas</strong> e uma Análise de Mundo <strong className="text-gold-light">2 gotas</strong>.
                 </p>
                 <p className="mt-2 text-[11px] text-text-dim font-merriweather italic">
-                  <><Leaf className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} />Acompanhe sua Seiva Dourada no banner dourado no topo da página. A cada lua nova (mês), Idriel renova sua energia!</>
+                  <><Leaf className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} />Acompanhe seu Elixir dos Mundos no banner dourado no topo da página. A cada lua nova (mês), Idriel renova sua energia!</>
                 </p>
               </div>
             </div>

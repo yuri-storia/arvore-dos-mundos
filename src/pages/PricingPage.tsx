@@ -75,7 +75,7 @@ const PricingPage: React.FC = () => {
         'Geração de mapas cartográficos',
         'Análise de mundo com 6 dimensões',
         'Importação de texto com Idriel',
-        '100 gotas de Seiva Dourada por mês',
+        '100 gotas de Elixir dos Mundos por mês',
         'Recargas avulsas a partir de R$ 4,90',
       ],
       missing: [],
@@ -582,7 +582,7 @@ const PricingPage: React.FC = () => {
             {[
               { q: 'Como começo?', a: 'Escolha Raiz ou Idriel, finalize o checkout e sua Árvore é plantada na hora. Não há versão gratuita: cada plano dá acesso completo às funcionalidades do seu nível desde o primeiro minuto.' },
               { q: 'Qual a diferença entre Raiz e Idriel?', a: 'Raiz te dá worldbuilding e escrita ilimitados, com exportação. Idriel acrescenta toda a parte de IA: assistente Idriel, geração de imagens, mapas e análise de mundo. Comece pelo Raiz e suba para Idriel quando quiser turbinar com IA.' },
-              { q: 'O que são as gotas de Seiva Dourada?', a: 'São os créditos de IA. O plano Idriel já vem com 100 gotas renovadas por mês — suficiente para a maioria dos autores. Se quiser mais, recarregue avulso a partir de R$ 4,90 sem mexer na assinatura.' },
+              { q: 'O que é o Elixir dos Mundos?', a: 'É a poção que Idriel destila a partir da Seiva Lendária da Árvore dos Mundos — a essência que alimenta toda a magia da plataforma. Cada gota é um pedaço dessa Seiva: texto custa 1 gota, imagem 5 gotas e análise de mundo 2 gotas. O plano Idriel inclui 100 gotas renovadas por mês, e você pode recarregar avulso a partir de R$ 4,90 sem mexer na assinatura.' },
               { q: 'Meus mundos ficam salvos? Posso exportar tudo?', a: 'Sim. Tudo é salvo automaticamente na nuvem. Exporte seu Codex e Manuscrito em PDF, Word ou Kindle a qualquer momento — o conteúdo é seu, para sempre.' },
               { q: 'A IA é boa mesmo? Que modelo vocês usam?', a: 'Idriel roda em Gemini 2.5 Pro para texto e Gemini 3 Pro para imagens — os modelos de ponta do Google, com prompts cuidadosamente adaptados em pt-BR e alimentados pelo seu Codex.' },
               { q: 'Como funciona o pagamento?', a: 'Cartão de crédito, boleto ou Pix processados via Asaas (instituição de pagamento brasileira regulamentada pelo Banco Central). No anual, cobrança única com 2 meses grátis. No mensal, cobrança recorrente. Sem fidelidade — cancele a qualquer momento.' },
@@ -648,7 +648,7 @@ const PricingPage: React.FC = () => {
             <div className="inline-flex items-center justify-center gap-2.5 mb-3">
               <Droplet className="w-5 h-5 text-gold-champagne" strokeWidth={1.75} />
               <span className="font-cinzel font-bold text-xl text-gradient-gold tracking-wide">
-                Recargas de Seiva Dourada
+                Recargas de Elixir dos Mundos
               </span>
             </div>
             <p className="font-amiri italic text-text-secondary text-base max-w-xl mx-auto leading-relaxed">

@@ -24,15 +24,15 @@ const FAQ: Record<string, { label: string; items: { q: string; a: string }[] }> 
       },
       {
         q: 'Como gerar um mapa do mundo?',
-        a: 'No Fruto "Mapa do Mundo", clique em **Gerar Mapa**. Escolha um dos 6 estilos (Político, Geográfico, Náutico, Explorador, Cidade ou Personalizado), descreva seu mundo e confirme. Custa **5 gotas de Seiva Dourada**. Requer plano Idriel.',
+        a: 'No Fruto "Mapa do Mundo", clique em **Gerar Mapa**. Escolha um dos 6 estilos (Político, Geográfico, Náutico, Explorador, Cidade ou Personalizado), descreva seu mundo e confirme. Custa **5 gotas de Elixir dos Mundos**. Requer plano Idriel.',
       },
       {
-        q: 'O que é a Seiva Dourada?',
-        a: 'É a moeda de créditos para funcionalidades de IA. No plano Idriel você recebe **100 gotas por mês**. Custos: texto (1 gota), imagem (5 gotas), análise de mundo (2 gotas).',
+        q: 'O que é o Elixir dos Mundos?',
+        a: 'É a **poção que Idriel destila** a partir da **Seiva Lendária da Árvore dos Mundos** — a essência que alimenta toda a magia criativa da plataforma. Cada gota libera um poder: **texto (1 gota)**, **imagem (5 gotas)**, **análise de mundo (2 gotas)**. O plano Idriel garante **100 gotas renovadas por mês**.',
       },
       {
         q: 'O que é "Consultar Idriel"?',
-        a: 'É um chat de IA disponível dentro de cada Fruto (exceto Mapa do Mundo) que responde perguntas criativas sobre aquele pilar. Cada consulta custa **1 gota de Seiva Dourada**. Disponível apenas no plano Idriel.',
+        a: 'É um chat de IA disponível dentro de cada Fruto (exceto Mapa do Mundo) que responde perguntas criativas sobre aquele pilar. Cada consulta custa **1 gota de Elixir dos Mundos**. Disponível apenas no plano Idriel.',
       },
       {
         q: 'Como funciona o salvamento automático?',
@@ -57,7 +57,7 @@ const FAQ: Record<string, { label: string; items: { q: string; a: string }[] }> 
       },
       {
         q: 'O que é a Análise de Mundo?',
-        a: 'A Análise de Mundo usa IA para avaliar todo o seu Codex e dar feedback sobre coerência, lacunas e sugestões de melhoria. Custa **2 gotas de Seiva Dourada**. Disponível apenas no plano Idriel.',
+        a: 'A Análise de Mundo usa IA para avaliar todo o seu Codex e dar feedback sobre coerência, lacunas e sugestões de melhoria. Custa **2 gotas de Elixir dos Mundos**. Disponível apenas no plano Idriel.',
       },
       {
         q: 'Posso adicionar imagem nas fichas?',
@@ -103,11 +103,11 @@ const FAQ: Record<string, { label: string; items: { q: string; a: string }[] }> 
       },
       {
         q: 'O que são as Visões de Idriel?',
-        a: 'É a funcionalidade de **geração de imagens com IA**. Você descreve o que quer, escolhe estilo e tom, e a IA cria a imagem. Cada imagem custa **5 gotas de Seiva Dourada**. Disponível apenas no plano Idriel.',
+        a: 'É a funcionalidade de **geração de imagens com IA**. Você descreve o que quer, escolhe estilo e tom, e a IA cria a imagem. Cada imagem custa **5 gotas de Elixir dos Mundos**. Disponível apenas no plano Idriel.',
       },
       {
         q: 'Quanto custa gerar uma imagem?',
-        a: 'Cada imagem gerada pelas Visões de Idriel custa **5 gotas de Seiva Dourada**. No plano Idriel você tem 100 gotas por mês.',
+        a: 'Cada imagem gerada pelas Visões de Idriel custa **5 gotas de Elixir dos Mundos**. No plano Idriel você tem 100 gotas por mês.',
       },
     ],
   },
@@ -116,11 +116,11 @@ const FAQ: Record<string, { label: string; items: { q: string; a: string }[] }> 
     items: [
       {
         q: 'Como posso ter acesso à geração de imagens e análise do mundo?',
-        a: 'Essas funcionalidades estão disponíveis exclusivamente no **plano Idriel** (R$ 29,90/mês ou R$ 279/ano). Para fazer upgrade:\n\n1. Clique no seu avatar no canto superior direito\n2. Vá em **Configurações** ou clique no banner de upgrade\n3. Escolha o plano Idriel\n\nCom o plano Idriel você recebe **100 gotas de Seiva Dourada por mês** para usar em geração de imagens (5 gotas), consultas de IA (1 gota) e análise de mundo (2 gotas).',
+        a: 'Essas funcionalidades estão disponíveis exclusivamente no **plano Idriel** (R$ 39,90/mês ou R$ 397/ano). Para fazer upgrade:\n\n1. Clique no seu avatar no canto superior direito\n2. Vá em **Configurações** ou clique no banner de upgrade\n3. Escolha o plano Idriel\n\nCom o plano Idriel você recebe **100 gotas de Elixir dos Mundos por mês** para usar em geração de imagens (5 gotas), consultas de IA (1 gota) e análise de mundo (2 gotas).',
       },
       {
         q: 'Quais são os planos disponíveis?',
-        a: '**Raiz (R$ 19,90/mês ou R$ 197/ano):** Mundos, fichas e artigos ilimitados. Manuscrito, Mural de Arcos e Exportação em PDF/Word/Kindle. Sem IA.\n\n**Idriel (R$ 39,90/mês ou R$ 397/ano):** Tudo do Raiz + Idriel (IA texto e imagens), mapas IA, análise de mundo e 100 gotas de Seiva Dourada por mês.\n\nNos planos anuais você ganha 2 meses grátis.',
+        a: '**Raiz (R$ 19,90/mês ou R$ 197/ano):** Mundos, fichas e artigos ilimitados. Manuscrito, Mural de Arcos e Exportação em PDF/Word/Kindle. Sem IA.\n\n**Idriel (R$ 39,90/mês ou R$ 397/ano):** Tudo do Raiz + Idriel (IA texto e imagens), mapas IA, análise de mundo e 100 gotas de Elixir dos Mundos por mês.\n\nNos planos anuais você ganha 2 meses grátis.',
       },
       {
         q: 'Como criar múltiplos mundos?',

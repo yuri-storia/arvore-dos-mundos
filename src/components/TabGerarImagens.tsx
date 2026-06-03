@@ -46,7 +46,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   };
 
   const handleCreatePrompt = async () => {
-    if (!planLimits.canUseAI) { setError('Idriel precisa do plano mensal para canalizar a Seiva Dourada. Faça o upgrade!'); return; }
+    if (!planLimits.canUseAI) { setError('Idriel precisa do plano mensal para canalizar o Elixir dos Mundos. Faça o upgrade!'); return; }
     if (!desc.trim()) { setError('Descreva a visão que deseja materializar.'); return; }
     setError('');
     setLoading1(true);
@@ -108,7 +108,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
     <div className="animate-fadeUp mx-auto max-w-[1060px] px-4 py-6">
       <h1 className="font-cinzel font-bold text-2xl text-foreground mb-1 inline-flex items-center gap-2"><Leaf className="w-5 h-5 text-gold-champagne" strokeWidth={1.75} />Visões de Idriel</h1>
       <p className="font-merriweather italic text-text-dim text-sm mb-5">
-        Idriel canaliza a Seiva Dourada da Árvore para materializar as visões do seu mundo · Descreva e ela dará forma
+        Idriel canaliza o Elixir dos Mundos da Árvore para materializar as visões do seu mundo · Descreva e ela dará forma
       </p>
 
       {!planLimits.canUseAI && (
@@ -118,13 +118,13 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
             <span className="text-sm text-gold-light font-montserrat font-bold">Recurso exclusivo do plano Idriel</span>
           </div>
           <span className="text-xs text-text-dim font-merriweather block mb-2">
-            A geração de imagens e assistência de IA requerem o plano mensal com Seiva Dourada.
+            A geração de imagens e assistência de IA requerem o plano mensal com Elixir dos Mundos.
           </span>
           <button
             onClick={async () => { const { openCheckout, STRIPE_PLANS } = await import('@/hooks/useSubscription'); openCheckout(STRIPE_PLANS.idriel_mensal.price_id); }}
             className="px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/[0.12] transition-all"
           >
-            <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Desbloquear Idriel — R$ 29,90/mês</>
+            <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Desbloquear Idriel — R$ 39,90/mês</>
           </button>
         </div>
       )}
@@ -252,7 +252,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
                   <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-2" />
                   <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-3" />
                   <span className="ml-2 font-merriweather italic text-xs text-gold-light">
-                    {loading1 ? 'Idriel está tecendo a essência da sua visão…' : 'A Seiva Dourada flui… sua visão está tomando forma…'}
+                    {loading1 ? 'Idriel está tecendo a essência da sua visão…' : 'O Elixir dos Mundos flui… sua visão está tomando forma…'}
                   </span>
                 </div>
                 {/* Animated progress bar */}
@@ -298,7 +298,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
       {/* Generated image */}
       {generatedImage && !loading2 && (
         <div className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20">
-          <span className="font-cinzel text-[10px] text-gold-light mb-3 inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3" strokeWidth={1.75} />Visão materializada pela Seiva Dourada</span>
+          <span className="font-cinzel text-[10px] text-gold-light mb-3 inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3" strokeWidth={1.75} />Visão materializada pelo Elixir dos Mundos</span>
           <img src={generatedImage} alt="Visão de Idriel" className="w-full max-w-[512px] mx-auto rounded-lg mb-4" />
           <div className="flex flex-wrap gap-2 justify-center">
             <button onClick={openSaveModal} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors">
