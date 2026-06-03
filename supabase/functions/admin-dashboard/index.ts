@@ -214,6 +214,43 @@ Deno.serve(async (req) => {
         return json({ ok: true });
       }
 
+      case "get_user_detail": {
+        const targetId = body?.user_id as string;
+        if (!targetId) return json({ error: "user_id required" }, 400);
+
+        const { data: authUser } = await supa.auth.admin.getUserById(targetId);
+
+        const [
+          { data: subs }, { data: bal }, { data: payments }, { data: usages },
+          { data: bugs }, { data: profile }, { data: adminRow2 },
+        ] = await Promise.all([
+          supa.from("subscriptions").select("*").eq("user_id", targetId).order("started_at", { ascending: false }),
+          supa.from("user_credit_balance").select("*").eq("user_id", targetId).maybeSingle(),
+          supa.from("asaas_payments").select("*").eq("user_id", targetId).order("created_at", { ascending: false }).limit(200),
+          supa.from("ai_usage").select("*").eq("user_id", targetId).order("month", { ascending: false }).limit(24),
+          supa.from("bug_reports").select("*").eq("user_id", targetId).order("created_at", { ascending: false }).limit(50),
+          supa.from("profiles").select("*").eq("user_id", targetId).maybeSingle(),
+          supa.from("admin_users").select("user_id").eq("user_id", targetId).maybeSingle(),
+        ]);
+
+        return json({
+          user: {
+            id: targetId,
+            email: authUser?.user?.email ?? null,
+            created_at: authUser?.user?.created_at ?? null,
+            last_sign_in_at: authUser?.user?.last_sign_in_at ?? null,
+            is_admin: !!adminRow2,
+            display_name: profile?.display_name ?? null,
+            cpf_cnpj: profile?.cpf_cnpj ?? null,
+          },
+          subscriptions: subs ?? [],
+          balance: bal ?? { bonus_drops: 0 },
+          payments: payments ?? [],
+          ai_usage: usages ?? [],
+          bug_reports: bugs ?? [],
+        });
+      }
+
       default:
         return json({ error: "unknown action" }, 400);
     }

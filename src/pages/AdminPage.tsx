@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Loader2, Plus, Shield, ShieldOff, Trash2, RefreshCw, Search, Bug, Users, Mail, Crown, Sparkles, Infinity as InfinityIcon } from 'lucide-react';
+import { Loader2, Plus, Shield, ShieldOff, Trash2, RefreshCw, Search, Bug, Users, Mail, Crown, Sparkles, Infinity as InfinityIcon, Download } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { UserDetailDrawer } from '@/components/admin/UserDetailDrawer';
+import { downloadCSV, toCSV } from '@/lib/csv';
 
 interface AllowedEmail { id: string; email: string; created_at: string; }
 interface AdminUser {
@@ -121,6 +123,9 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState<string>('all');
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
+  const [detailId, setDetailId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -138,12 +143,14 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
       else if (filter === 'none') arr = arr.filter(u => !u.plan_code || u.sub_status !== 'active');
       else arr = arr.filter(u => u.plan_code === filter && u.sub_status === 'active');
     }
+    if (from) { const t = new Date(from).getTime(); arr = arr.filter(u => u.created_at && new Date(u.created_at).getTime() >= t); }
+    if (to)   { const t = new Date(to).getTime() + 86400_000; arr = arr.filter(u => u.created_at && new Date(u.created_at).getTime() < t); }
     if (q.trim()) {
       const s = q.toLowerCase();
       arr = arr.filter(u => u.email?.toLowerCase().includes(s));
     }
     return arr;
-  }, [users, q, filter]);
+  }, [users, q, filter, from, to]);
 
   const stats = useMemo(() => {
     const active = users.filter(u => u.sub_status === 'active');
@@ -164,6 +171,32 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
     };
   }, [users]);
 
+  const exportCsv = () => {
+    if (!filtered.length) { toast.error('Nenhum usuário para exportar.'); return; }
+    const rows = filtered.map(u => ({
+      email: u.email,
+      criado_em: u.created_at,
+      ultimo_login: u.last_sign_in_at,
+      admin: u.is_admin ? 'sim' : 'nao',
+      plano: u.plan_code ?? '',
+      status_assinatura: u.sub_status ?? '',
+      ciclo: u.billing_cycle ?? '',
+      expira_em: u.expires_at ?? '',
+      gotas_bonus: u.bonus_drops,
+      ia_texto_mes: u.ai_text_month,
+      ia_imagem_mes: u.ai_image_month,
+      ia_texto_total: u.ai_text_total,
+      ia_imagem_total: u.ai_image_total,
+      recargas: u.recharges_count,
+      recarga_total: u.recharge_total,
+      ltv: u.lifetime_total,
+      ultimo_pagamento: u.last_payment_at ?? '',
+    }));
+    const stamp = new Date().toISOString().slice(0, 10);
+    downloadCSV(`usuarios_${filter}_${stamp}.csv`, toCSV(rows));
+    toast.success(`${rows.length} linha(s) exportada(s)`);
+  };
+
   return (
     <div className="space-y-4">
       {/* Stats */}
@@ -183,7 +216,7 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
           <Input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar por e-mail..." className="pl-8 bg-[rgba(4,12,24,0.6)] border-blue-bright/20" />
         </div>
         <Select value={filter} onValueChange={setFilter}>
-          <SelectTrigger className="w-[200px] bg-[rgba(4,12,24,0.6)] border-blue-bright/20"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-[180px] bg-[rgba(4,12,24,0.6)] border-blue-bright/20"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os planos</SelectItem>
             <SelectItem value="raiz_mensal">Raiz Mensal</SelectItem>
@@ -195,8 +228,17 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
             <SelectItem value="admin">Apenas admins</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex items-center gap-1">
+          <span className="text-[10px] text-text-dim font-montserrat uppercase">Criado</span>
+          <Input type="date" value={from} onChange={e => setFrom(e.target.value)} className="w-[140px] bg-[rgba(4,12,24,0.6)] border-blue-bright/20" />
+          <span className="text-[10px] text-text-dim">–</span>
+          <Input type="date" value={to} onChange={e => setTo(e.target.value)} className="w-[140px] bg-[rgba(4,12,24,0.6)] border-blue-bright/20" />
+        </div>
         <Button variant="outline" size="sm" onClick={load} disabled={loading} className="border-blue-bright/30">
           <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} /> Atualizar
+        </Button>
+        <Button size="sm" onClick={exportCsv} className="bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-background hover:opacity-90">
+          <Download className="w-3.5 h-3.5 mr-1.5" /> CSV ({filtered.length})
         </Button>
       </div>
 
@@ -223,7 +265,7 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
               </thead>
               <tbody>
                 {filtered.map(u => (
-                  <tr key={u.id} className="border-b border-blue-bright/10 hover:bg-blue-bright/5 transition-colors">
+                  <tr key={u.id} className="border-b border-blue-bright/10 hover:bg-blue-bright/5 transition-colors cursor-pointer" onClick={() => setDetailId(u.id)}>
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-2">
                         {u.is_admin && <Crown className="w-3 h-3 text-gold" />}
@@ -241,7 +283,7 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
                     <td className="px-3 py-2.5 text-right text-xs text-text-secondary">{u.recharges_count}<span className="block text-[9px] text-text-dim">{fmtMoney(u.recharge_total)}</span></td>
                     <td className="px-3 py-2.5 text-right text-xs text-text-secondary">{fmtMoney(u.lifetime_total)}</td>
                     <td className="px-3 py-2.5 text-xs text-text-dim">{fmtDate(u.last_sign_in_at)}</td>
-                    <td className="px-3 py-2.5 text-right"><UserActionsMenu user={u} callerId={callerId} onChanged={load} /></td>
+                    <td className="px-3 py-2.5 text-right" onClick={(e) => e.stopPropagation()}><UserActionsMenu user={u} callerId={callerId} onChanged={load} /></td>
                   </tr>
                 ))}
               </tbody>
@@ -249,6 +291,8 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
           </div>
         )}
       </div>
+
+      <UserDetailDrawer userId={detailId} onClose={() => setDetailId(null)} />
     </div>
   );
 };
@@ -410,6 +454,8 @@ const BugsTab: React.FC = () => {
   const [bugs, setBugs] = useState<BugReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('open');
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
   const [selected, setSelected] = useState<BugReport | null>(null);
 
   const load = async () => {
@@ -421,7 +467,12 @@ const BugsTab: React.FC = () => {
   };
   useEffect(() => { load(); }, []);
 
-  const filtered = useMemo(() => filter === 'all' ? bugs : bugs.filter(b => b.status === filter), [bugs, filter]);
+  const filtered = useMemo(() => {
+    let arr = filter === 'all' ? bugs : bugs.filter(b => b.status === filter);
+    if (from) { const t = new Date(from).getTime(); arr = arr.filter(b => new Date(b.created_at).getTime() >= t); }
+    if (to)   { const t = new Date(to).getTime() + 86400_000; arr = arr.filter(b => new Date(b.created_at).getTime() < t); }
+    return arr;
+  }, [bugs, filter, from, to]);
 
   const updateStatus = async (id: string, status: string) => {
     const { data, error } = await supabase.functions.invoke('admin-dashboard', { body: { action: 'update_bug', id, status } });
@@ -433,6 +484,21 @@ const BugsTab: React.FC = () => {
     const { data, error } = await supabase.functions.invoke('admin-dashboard', { body: { action: 'delete_bug', id } });
     if (error || data?.error) toast.error('Erro');
     else { toast.success('Removido'); setSelected(null); load(); }
+  };
+
+  const exportCsv = () => {
+    if (!filtered.length) { toast.error('Nenhum relato para exportar.'); return; }
+    const rows = filtered.map(b => ({
+      criado_em: b.created_at,
+      status: b.status,
+      usuario: b.user_email ?? '',
+      rota: b.route ?? '',
+      mensagem: b.message,
+      contexto: b.context ?? '',
+    }));
+    const stamp = new Date().toISOString().slice(0, 10);
+    downloadCSV(`bugs_${filter}_${stamp}.csv`, toCSV(rows));
+    toast.success(`${rows.length} linha(s) exportada(s)`);
   };
 
   return (
@@ -448,11 +514,21 @@ const BugsTab: React.FC = () => {
             <SelectItem value="all">Todos</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex items-center gap-1">
+          <span className="text-[10px] text-text-dim font-montserrat uppercase">Período</span>
+          <Input type="date" value={from} onChange={e => setFrom(e.target.value)} className="w-[140px] bg-[rgba(4,12,24,0.6)] border-blue-bright/20" />
+          <span className="text-[10px] text-text-dim">–</span>
+          <Input type="date" value={to} onChange={e => setTo(e.target.value)} className="w-[140px] bg-[rgba(4,12,24,0.6)] border-blue-bright/20" />
+        </div>
         <Button variant="outline" size="sm" onClick={load} disabled={loading} className="border-blue-bright/30">
           <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} /> Atualizar
         </Button>
+        <Button size="sm" onClick={exportCsv} className="bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-background hover:opacity-90">
+          <Download className="w-3.5 h-3.5 mr-1.5" /> CSV ({filtered.length})
+        </Button>
         <span className="text-xs text-text-dim ml-auto">{filtered.length} relato(s)</span>
       </div>
+
 
       <div className="card-glass rounded-lg overflow-hidden">
         {loading ? (
