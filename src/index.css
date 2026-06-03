@@ -273,3 +273,8 @@
 .animate-tour-pulse {
   animation: tour-pulse 1.5s ease-in-out infinite;
 }
+
+@keyframes elixir-shimmer {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(420%); }
+}
