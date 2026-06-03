@@ -475,7 +475,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                     { Icon: Leaf, label: 'Consultar Idriel', cost: '1 gota' },
                   ].map(p => (
                     <div key={p.label} className="rounded-lg p-2.5 bg-gold/[0.04] border border-gold/10 opacity-70">
-                      <span className="text-xl block mb-1">{p.icon}</span>
+                      <p.Icon className="w-5 h-5 mb-1 text-gold-light/80" strokeWidth={1.75} />
                       <p className="text-[10px] font-montserrat font-bold text-gold-light/80">{p.label}</p>
                       <p className="text-[9px] text-text-dim">{p.cost}</p>
                     </div>
