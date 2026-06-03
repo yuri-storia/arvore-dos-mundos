@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  Check, X, ArrowLeft, Sparkles, BookOpen, Map, Library, Image as ImageIcon,
+  Check, X, Sparkles, BookOpen, Map, Library, Image as ImageIcon,
   Wand2, FileDown, Layers, Brain, Infinity as InfinityIcon, ShieldCheck, Clock, Heart,
   Leaf, Feather, Star, Plus, Droplet, Trees, Crown, Compass, LogIn,
 } from 'lucide-react';
