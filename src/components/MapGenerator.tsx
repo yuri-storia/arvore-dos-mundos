@@ -137,7 +137,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
               onClick={async () => { const { openCheckout, STRIPE_PLANS } = await import('@/hooks/useSubscription'); openCheckout(STRIPE_PLANS.idriel_mensal.price_id); }}
               className="px-5 py-2.5 rounded-full text-xs font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold to-gold-light text-background hover:shadow-[0_0_20px_rgba(218,165,32,0.3)] transition-all"
             >
-              <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Colher o Fruto Dourado — R$ 29,90/mês</>
+              <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Colher o Fruto Dourado — R$ 39,90/mês</>
             </button>
           </div>
         </div>

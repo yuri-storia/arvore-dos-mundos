@@ -124,7 +124,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
             onClick={async () => { const { openCheckout, STRIPE_PLANS } = await import('@/hooks/useSubscription'); openCheckout(STRIPE_PLANS.idriel_mensal.price_id); }}
             className="px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/[0.12] transition-all"
           >
-            <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Desbloquear Idriel — R$ 29,90/mês</>
+            <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Desbloquear Idriel — R$ 39,90/mês</>
           </button>
         </div>
       )}

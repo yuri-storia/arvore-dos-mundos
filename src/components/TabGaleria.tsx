@@ -486,7 +486,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                   onClick={async () => { const { openCheckout, STRIPE_PLANS } = await import('@/hooks/useSubscription'); openCheckout(STRIPE_PLANS.idriel_mensal.price_id); }}
                   className="px-6 py-3 rounded-full text-sm font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold to-gold-light text-background hover:shadow-[0_0_24px_rgba(218,165,32,0.3)] transition-all"
                 >
-                  <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Colher o Fruto Dourado — R$ 29,90/mês</>
+                  <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Colher o Fruto Dourado — R$ 39,90/mês</>
                 </button>
                 <p className="text-[10px] text-text-dim mt-2 font-montserrat">100 gotas de Elixir dos Mundos por mês</p>
               </div>
