@@ -128,9 +128,6 @@ Deno.serve(async (req) => {
       };
     }
 
-    if (customerData) {
-      checkoutPayload.customerData = customerData;
-    }
 
     const checkout = await asaas("/checkouts", {
       method: "POST",
