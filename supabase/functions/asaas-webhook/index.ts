@@ -263,6 +263,76 @@ Deno.serve(async (req) => {
         if (upsertErr) console.error("subscription upsert error:", upsertErr);
       }
 
+      // Upgrade flow: ativa Idriel agora + cria nova assinatura recorrente futura
+      const upgrade = UPGRADE_MAP[planCode];
+      if (upgrade) {
+        try {
+          // 1. Busca assinatura atual ativa
+          const { data: currentSub } = await supa
+            .from("subscriptions")
+            .select("asaas_subscription_id, expires_at, plan_code, billing_cycle")
+            .eq("user_id", userId)
+            .eq("status", "active")
+            .maybeSingle();
+
+          // 2. Cancela a assinatura Raiz antiga no Asaas (se houver)
+          if (currentSub?.asaas_subscription_id) {
+            try {
+              await asaasFetch(`/subscriptions/${currentSub.asaas_subscription_id}`, { method: "DELETE" });
+            } catch (e: any) { console.warn("cancel old sub failed:", e?.message); }
+          }
+
+          // 3. Calcula nextDueDate da nova assinatura recorrente
+          // Para anual->anual (diferença), estende a partir do fim do ciclo atual quando útil
+          let nextDueAt = new Date(Date.now() + upgrade.firstChargeDelayDays * 24 * 60 * 60 * 1000);
+          if (planCode === "upgrade_raiz_a_to_idriel_a" && currentSub?.expires_at) {
+            const remaining = new Date(currentSub.expires_at).getTime();
+            // 365d a partir do fim do raiz atual (ou hoje+365, o que for maior)
+            const extended = new Date(remaining + 365 * 24 * 60 * 60 * 1000);
+            if (extended.getTime() > nextDueAt.getTime()) nextDueAt = extended;
+          }
+          const nextDueDateStr = nextDueAt.toISOString().slice(0, 10);
+
+          // 4. Cria nova assinatura recorrente Idriel no Asaas
+          let newAsaasSubId: string | null = null;
+          try {
+            const newSub = await asaasFetch("/subscriptions", {
+              method: "POST",
+              body: JSON.stringify({
+                customer: payment.customer,
+                billingType: "UNDEFINED", // cliente escolhe a forma a cada ciclo
+                value: upgrade.recurringAmount,
+                nextDueDate: nextDueDateStr,
+                cycle: upgrade.recurringCycle,
+                description: `Assinatura ${upgrade.displayName}`,
+                externalReference: `${userId}:${upgrade.targetPlanCode}`,
+              }),
+            });
+            newAsaasSubId = newSub?.id || null;
+          } catch (e: any) { console.error("create new sub failed:", e?.message); }
+
+          // 5. Upsert da subscriptions com Idriel ativo
+          const targetMeta = PLAN_MAP[upgrade.targetPlanCode];
+          await supa.from("subscriptions").upsert({
+            user_id: userId,
+            plan: "pro",
+            status: "active",
+            plan_code: upgrade.targetPlanCode,
+            has_idriel: true,
+            billing_cycle: targetMeta.cycle,
+            asaas_customer_id: payment.customer,
+            asaas_subscription_id: newAsaasSubId,
+            environment: "production",
+            started_at: new Date().toISOString(),
+            expires_at: nextDueAt.toISOString(),
+            cancelled_at: null,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: "user_id" });
+        } catch (e: any) {
+          console.error("upgrade flow error:", e?.message);
+        }
+      }
+
       // Envia e-mail de boas-vindas (apenas se identificarmos o email)
       // Busca o e-mail do auth.users se ainda não temos
       let emailForMail = payerEmail;
