@@ -10,6 +10,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { AlertTriangle } from 'lucide-react';
 
 interface ConfirmDialogProps {
   trigger: React.ReactNode;
@@ -36,7 +37,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       <AlertDialogContent className="border-red-alert/30 bg-[#0a0f18] backdrop-blur-xl shadow-[0_0_60px_rgba(220,38,38,0.15)]">
         <AlertDialogHeader>
           <AlertDialogTitle className="font-cinzel text-lg text-red-alert flex items-center gap-2">
-            <span className="text-xl">⚠</span> {title}
+            <AlertTriangle className="w-5 h-5 text-red-alert" strokeWidth={2} /> {title}
           </AlertDialogTitle>
           <AlertDialogDescription className="font-montserrat text-sm text-text-secondary">
             {description}

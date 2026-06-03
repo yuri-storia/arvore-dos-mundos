@@ -20,7 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import type { AppState } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useNavigate } from 'react-router-dom';
-import { History, Trash2 } from 'lucide-react';
+import { History, Trash2, Trees, Leaf, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
@@ -173,13 +173,13 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
         systemPrompt
       );
       setAiResponse(response);
-      if (response && !response.startsWith('❌')) {
+      if (response && !response.startsWith('[ERRO]')) {
         await saveSuggestion(aiQuestion, response);
       }
       setRefreshKey(k => k + 1);
     } catch (e: any) {
       const f = friendlyAIError(e?.message || '');
-      setAiResponse(`❌ ${f.title}\n\n${f.hint}`);
+      setAiResponse(`[ERRO] ${f.title}\n\n${f.hint}`);
     } finally {
       setAiLoading(false);
     }
@@ -314,7 +314,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
           </div>
 
           <div className="p-4 sm:p-5 md:p-7">
-            <span className="font-cinzel text-sm text-blue-light">✦ {fruit.num}</span>
+            <span className="font-cinzel text-sm text-blue-light inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3" strokeWidth={1.5} /> {fruit.num}</span>
             <h2 className="font-cinzel font-bold text-2xl sm:text-3xl text-foreground mt-1 mb-1">{fruit.name}</h2>
             <p className="font-merriweather italic text-text-dim text-[15px] leading-relaxed mb-4">{fruit.desc}</p>
 
@@ -419,7 +419,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               <div data-tour="consult-idriel" className="border-t border-idriel/15 pt-6">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-2 h-2 rounded-full bg-idriel-light animate-blink" />
-                  <span className="font-cinzel font-bold text-xs text-idriel-light">🌳 Consultar Idriel</span>
+                  <span className="font-cinzel font-bold text-xs text-idriel-light inline-flex items-center gap-1.5"><Trees className="w-3.5 h-3.5" strokeWidth={1.75} />Consultar Idriel</span>
                   <span className="font-merriweather italic text-[10px] text-text-dim">— Guardiã da Árvore dos Mundos</span>
                 </div>
 
@@ -470,7 +470,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
                 {aiResponse && !aiLoading && (
                   <div className="animate-fadeUp border-l-[3px] border-idriel-light pl-4 py-3 bg-idriel/[0.04] rounded-r-md">
-                    <span className="font-cinzel text-[10px] text-idriel-light block mb-2">🌿 Idriel responde</span>
+                    <span className="font-cinzel text-[10px] text-idriel-light mb-2 inline-flex items-center gap-1.5"><Leaf className="w-3 h-3" strokeWidth={1.75} />Idriel responde</span>
                     <p className="font-merriweather text-sm text-foreground/95 whitespace-pre-wrap leading-relaxed">{aiResponse}</p>
                     <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-idriel/15">
                       <button
@@ -503,7 +503,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
             ) : (
               <div className="border-t border-idriel/15 pt-6">
                 <div className="rounded-xl border border-gold/20 bg-gold/[0.04] p-5 text-center">
-                  <span className="text-2xl block mb-2">🌳</span>
+                  <Trees className="w-7 h-7 mx-auto mb-2 text-gold-champagne" strokeWidth={1.5} />
                   <h4 className="font-cinzel font-bold text-sm text-gold-light mb-1">Consultar Idriel</h4>
                   <p className="font-merriweather italic text-text-dim text-xs mb-3">
                     A Guardiã da Árvore aguarda seu chamado — disponível no plano Idriel.

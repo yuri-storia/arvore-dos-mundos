@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Sparkles } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import ReactMarkdown from 'react-markdown';
@@ -177,7 +178,7 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
             <div className="flex items-center gap-3">
               <div className="relative">
                 <img src={idrielAvatar} alt="Idriel" className="w-10 h-10 rounded-full object-cover border-2 border-idriel/40" />
-                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-idriel flex items-center justify-center text-[7px]">✨</div>
+                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-idriel flex items-center justify-center"><Sparkles className="w-2 h-2 text-white" strokeWidth={2.5} /></div>
               </div>
               <div>
                 <SheetTitle className="font-cinzel text-idriel-light text-lg">Idriel — Ajuda</SheetTitle>

@@ -1,12 +1,13 @@
 import React from 'react';
 import { TabType } from '@/lib/data';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Leaf, BookOpen, Feather, Palette, type LucideIcon } from 'lucide-react';
 
-const TABS: { id: TabType; label: string; icon: string }[] = [
-  { id: 'construir', label: 'Construir', icon: '🌿' },
-  { id: 'codex', label: 'Codex', icon: '📖' },
-  { id: 'escrever', label: 'Escrever', icon: '✍️' },
-  { id: 'galeria', label: 'Galeria', icon: '🎨' },
+const TABS: { id: TabType; label: string; Icon: LucideIcon }[] = [
+  { id: 'construir', label: 'Construir', Icon: Leaf },
+  { id: 'codex', label: 'Codex', Icon: BookOpen },
+  { id: 'escrever', label: 'Escrever', Icon: Feather },
+  { id: 'galeria', label: 'Galeria', Icon: Palette },
 ];
 
 interface Props {
@@ -34,7 +35,7 @@ export const TabNav: React.FC<Props> = ({ activeTab, setActiveTab }) => {
                 : 'text-bg-deep/60 hover:text-bg-deep/80'
             }`}
           >
-            <span className="block text-base mb-0.5" style={{ color: 'initial', filter: 'none' }}>{tab.icon}</span>
+            <tab.Icon className="block mx-auto mb-0.5 w-[18px] h-[18px]" strokeWidth={1.75} />
             <span className={`block ${activeTab === tab.id ? 'opacity-100' : 'opacity-70'}`}>{tab.label}</span>
             {activeTab === tab.id && (
               <div className="mx-auto mt-1 w-6 h-[2px] rounded-full bg-bg-deep" />

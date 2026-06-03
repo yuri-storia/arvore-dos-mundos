@@ -13,7 +13,7 @@ import { useIdrielVisions } from '@/hooks/useIdrielVisions';
 import { useIdrielJobs } from '@/contexts/IdrielJobsContext';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, Lock, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
+import { Sparkles, Lock, ChevronDown, ChevronUp, Trash2, Palette, Leaf, ScrollText, Trees } from 'lucide-react';
 import type { AppState } from '@/lib/data';
 
 interface Props {
@@ -260,7 +260,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
             <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
           </div>
           <div>
-            <h1 className="font-cinzel font-bold text-xl sm:text-2xl text-foreground mb-0.5">🎨 Galeria de Visões</h1>
+            <h1 className="font-cinzel font-bold text-xl sm:text-2xl text-foreground mb-0.5 inline-flex items-center gap-2.5"><Palette className="w-6 h-6 text-gold-champagne" strokeWidth={1.75} />Galeria de Visões</h1>
             <p className="font-merriweather italic text-gold-light/70 text-sm">Referências visuais e visões materializadas por Idriel</p>
           </div>
         </div>
@@ -309,7 +309,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Todos">🌳 Todos</SelectItem>
+            <SelectItem value="Todos">Todos</SelectItem>
             {FRUITS.map(f => (
               <SelectItem key={f.id} value={f.name}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</SelectItem>
             ))}
@@ -470,9 +470,9 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                 {/* Powers preview */}
                 <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto mb-5">
                   {[
-                    { icon: '🎨', label: 'Gerar imagens', cost: '5 gotas' },
+                    { Icon: Palette, label: 'Gerar imagens', cost: '5 gotas' },
                     { icon: '📊', label: 'Análise do mundo', cost: '2 gotas' },
-                    { icon: '🌿', label: 'Consultar Idriel', cost: '1 gota' },
+                    { Icon: Leaf, label: 'Consultar Idriel', cost: '1 gota' },
                   ].map(p => (
                     <div key={p.label} className="rounded-lg p-2.5 bg-gold/[0.04] border border-gold/10 opacity-70">
                       <span className="text-xl block mb-1">{p.icon}</span>
@@ -545,14 +545,14 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                   disabled={loading1}
                   className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold text-gold-light hover:bg-gold/10 disabled:opacity-40 transition-all"
                 >
-                  {loading1 ? '🌿 Idriel está tecendo…' : '🌿 1. Pedir Visão a Idriel'}
+                  <><Leaf className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />{loading1 ? 'Idriel está tecendo…' : '1. Pedir Visão a Idriel'}</>
                 </button>
                 <button
                   onClick={handleGenerate}
                   disabled={loading2 || !generatedPrompt}
                   className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-all"
                 >
-                  {loading2 ? '✨ Materializando…' : '✨ 2. Materializar Visão'}
+                  <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />{loading2 ? 'Materializando…' : '2. Materializar Visão'}</>
                 </button>
               </div>
 
@@ -589,7 +589,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
           {/* Generated prompt */}
           {generatedPrompt && !loading1 && planLimits.canUseAI && (
             <div className="animate-fadeUp card-glass rounded-lg p-5 mb-5 border border-gold/20">
-              <span className="font-cinzel text-[10px] text-gold-light block mb-2">🌿 Visão tecida por Idriel</span>
+              <span className="font-cinzel text-[10px] text-gold-light mb-2 inline-flex items-center gap-1.5"><Leaf className="w-3 h-3" strokeWidth={1.75} />Visão tecida por Idriel</span>
               <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed mb-4">{generatedPrompt}</p>
               <div className="flex flex-wrap gap-2">
                 <button onClick={copyPrompt} className="px-3 py-1.5 rounded-md text-xs font-montserrat border border-gold/30 text-text-secondary hover:text-foreground transition-colors">
@@ -609,7 +609,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
           {/* Generated image */}
           {generatedImage && !loading2 && (
             <div className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20">
-              <span className="font-cinzel text-[10px] text-gold-light block mb-3">✨ Visão materializada pela Seiva Dourada</span>
+              <span className="font-cinzel text-[10px] text-gold-light mb-3 inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3" strokeWidth={1.75} />Visão materializada pela Seiva Dourada</span>
               <img src={generatedImage} alt="Visão de Idriel" className="w-full max-w-[512px] mx-auto rounded-lg mb-4" />
               <div className="flex flex-wrap gap-2 justify-center">
                 <button onClick={() => { setSaveCat('Todos'); setShowSaveModal(true); }} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors">
@@ -630,7 +630,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                 className="w-full flex items-center justify-between mb-3"
               >
                 <div className="flex items-center gap-2">
-                  <span className="font-cinzel text-sm font-bold text-gold-light">📜 Visões tecidas por Idriel</span>
+                  <span className="font-cinzel text-sm font-bold text-gold-light inline-flex items-center gap-2"><ScrollText className="w-4 h-4" strokeWidth={1.75} />Visões tecidas por Idriel</span>
                   <span className="text-[10px] text-text-dim font-montserrat">({visions.length})</span>
                 </div>
                 {showHistory ? <ChevronUp className="w-4 h-4 text-gold-light/60" /> : <ChevronDown className="w-4 h-4 text-gold-light/60" />}
@@ -718,7 +718,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
       {tagging && (
         <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-3 sm:p-4" onClick={() => setTagging(null)}>
           <div className="card-glass rounded-lg w-full max-w-sm p-5 animate-fadeUp border border-gold/20" onClick={e => e.stopPropagation()}>
-            <h3 className="font-cinzel font-bold text-foreground mb-1">🌳 Etiquetar Visão</h3>
+            <h3 className="font-cinzel font-bold text-foreground mb-1 inline-flex items-center gap-2"><Trees className="w-4 h-4 text-gold-champagne" strokeWidth={1.75} />Etiquetar Visão</h3>
             <p className="font-merriweather text-xs text-text-dim italic mb-4">Escolha o Fruto/categoria onde esta visão deve ser arquivada.</p>
             <div className="flex flex-wrap gap-1.5 mb-4 max-h-[240px] overflow-y-auto">
               {FRUITS.map(f => (

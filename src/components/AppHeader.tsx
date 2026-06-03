@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import treeWallpaper from '@/assets/tree-wallpaper.webp';
 import { UserMenu } from '@/components/UserMenu';
 import { FRUITS } from '@/lib/data';
-import { Pencil, ChevronDown, FolderOpen, Plus } from 'lucide-react';
+import { Pencil, ChevronDown, FolderOpen, Plus, Trash2, ArrowDown } from 'lucide-react';
 import type { MethodType } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -192,7 +192,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
                     <div onClick={e => e.stopPropagation()}>
                       <ConfirmDialog
                         trigger={
-                          <button className="px-1.5 py-0.5 rounded text-[9px] text-text-dim hover:text-destructive transition-colors">🗑</button>
+                          <button className="p-1 rounded text-text-dim hover:text-destructive transition-colors" aria-label="Excluir"><Trash2 className="w-3 h-3" strokeWidth={1.75} /></button>
                         }
                         title="Excluir mundo"
                         description={`Tem certeza que deseja excluir "${s.name}"? Todos os dados serão perdidos permanentemente.`}
@@ -261,7 +261,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
           {hasWorld && (
             <>
               <span className="text-[10px] font-montserrat uppercase tracking-wider text-text-dim">
-                {method === 'top-down' ? '⬇ De Cima para Baixo' : '⬆ De Baixo para Cima'}
+                <><ArrowDown className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={2} />{method === 'top-down' ? 'De Cima para Baixo' : 'De Baixo para Cima'}</>
               </span>
               <div className="flex items-center gap-2">
                 <div className="w-24 h-1.5 rounded-full bg-secondary overflow-hidden">

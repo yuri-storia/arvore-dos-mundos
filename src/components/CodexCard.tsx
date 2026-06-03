@@ -1,4 +1,5 @@
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
+import { Sparkles, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
@@ -597,7 +598,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
 
               <div className="border-t border-border pt-3 mt-1">
-                <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1.5">✨ Gerar imagem com IA</label>
+                <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1.5 inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3 text-gold-champagne" strokeWidth={1.75} />Gerar imagem com IA</label>
                 <div className="flex gap-2">
                   <input
                     value={aiPrompt}
@@ -610,7 +611,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                     disabled={!aiPrompt.trim() || generatingAi}
                     className="px-4 py-2 bg-accent/80 hover:bg-accent text-accent-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors disabled:opacity-40"
                   >
-                    {generatingAi ? '⏳ Gerando…' : '✨ Gerar'}
+                    <>{generatingAi ? <><Loader2 className="inline-block w-3.5 h-3.5 mr-1.5 animate-spin align-[-0.15em]" strokeWidth={2} />Gerando…</> : <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Gerar</>}</>
                   </button>
                 </div>
                 <label className="flex items-center gap-2 mt-2 cursor-pointer select-none">

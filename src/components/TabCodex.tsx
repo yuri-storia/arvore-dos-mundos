@@ -10,7 +10,7 @@ import { exportSingleEntry, exportFruitEntries, exportSelectedFruits, exportAllE
 import { CodexAnalysis } from '@/components/CodexAnalysis';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { WorldRecord } from '@/hooks/useWorlds';
-import { Lock } from 'lucide-react';
+import { Lock, BookOpen, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { IdrielImportDialog } from '@/components/IdrielImportDialog';
 
@@ -157,7 +157,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   return (
     <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-6">
       <div className="flex items-center justify-between mb-1">
-        <h1 className="font-cinzel font-bold text-xl sm:text-2xl md:text-3xl text-foreground">📖 Codex</h1>
+        <h1 className="font-cinzel font-bold text-xl sm:text-2xl md:text-3xl text-foreground inline-flex items-center gap-2.5"><BookOpen className="w-7 h-7 text-gold-champagne" strokeWidth={1.75} />Codex</h1>
         <div className="flex gap-2">
           {entries.length > 0 && planLimits.canExport && (
               <button
@@ -497,7 +497,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
       ) : filtered.length === 0 ? (
         <div className="text-center py-16">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-bright/10 flex items-center justify-center">
-            <span className="text-3xl">{entries.length === 0 ? '📖' : '🔍'}</span>
+            <span className="inline-flex">{entries.length === 0 ? <BookOpen className="w-8 h-8 text-gold-champagne opacity-60" strokeWidth={1.5} /> : <Search className="w-8 h-8 text-gold-champagne opacity-60" strokeWidth={1.5} />}</span>
           </div>
           {entries.length === 0 ? (
             <>

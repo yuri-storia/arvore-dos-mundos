@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, LogOut, Shield, Map, BookOpen, Image, Plus, Trash2, ChevronRight, ChevronDown, PenLine, FileText } from 'lucide-react';
+import { Settings, LogOut, Shield, Map, BookOpen, Image, Plus, Trash2, ChevronRight, ChevronDown, PenLine, FileText, Sparkles } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useManuscript, type Chapter, type Scene } from '@/hooks/useManuscript';
 import type { TabType } from '@/lib/data';
@@ -22,11 +22,11 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 
-const TABS: { id: TabType; label: string; icon: React.ElementType; emoji: string }[] = [
-  { id: 'construir', label: 'Construir', icon: Map, emoji: '🌿' },
-  { id: 'codex', label: 'Codex', icon: BookOpen, emoji: '📖' },
-  { id: 'escrever', label: 'Escrever', icon: PenLine, emoji: '✍️' },
-  { id: 'galeria', label: 'Galeria', icon: Image, emoji: '🎨' },
+const TABS: { id: TabType; label: string; icon: React.ElementType }[] = [
+  { id: 'construir', label: 'Construir', icon: Map },
+  { id: 'codex', label: 'Codex', icon: BookOpen },
+  { id: 'escrever', label: 'Escrever', icon: PenLine },
+  { id: 'galeria', label: 'Galeria', icon: Image },
 ];
 
 interface Props {
@@ -83,13 +83,13 @@ export const AppSidebar: React.FC<Props> = ({
           <div className="flex items-center justify-center px-1">
             <div className="inline-block px-3 py-1 rounded-full border border-blue-bright/15 bg-blue-bright/[0.04] backdrop-blur-sm">
               <span className="font-cinzel text-[9px] tracking-[0.18em] text-blue-light/60 uppercase">
-                ✦ A Árvore dos Mundos ✦
+                A Árvore dos Mundos
               </span>
             </div>
           </div>
         ) : (
           <div className="flex justify-center">
-            <span className="font-cinzel text-[9px] text-blue-light/60">✦</span>
+            <Sparkles className="w-3 h-3 text-blue-light/60" strokeWidth={1.5} />
           </div>
         )}
       </SidebarHeader>

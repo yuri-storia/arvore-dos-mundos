@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useSubscription, openCheckout, STRIPE_PLANS, openCustomerPortal } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { Progress } from '@/components/ui/progress';
-import { Lock, Sparkles, CreditCard, X } from 'lucide-react';
+import { Lock, Sparkles, CreditCard, X, Leaf, BookOpenCheck, Droplet, Droplets } from 'lucide-react';
 import { RechargePackageDialog } from '@/components/RechargePackageDialog';
 
 const DISMISS_KEY = 'adm_sub_banner_dismissed';
@@ -48,7 +48,7 @@ export const SubscriptionBanner: React.FC = () => {
           </button>
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-lg">🌱</span>
+              <Leaf className="w-5 h-5 text-emerald-400" strokeWidth={1.75} />
               <div>
                 <span className="font-montserrat font-bold text-sm text-foreground">Plano Semente — Gratuito</span>
                 <span className="block text-xs text-text-dim">1 mundo · 5 fichas · 1 artigo · sem exportação · sem IA</span>
@@ -61,7 +61,7 @@ export const SubscriptionBanner: React.FC = () => {
                 disabled={!!loading}
                 className="flex flex-col items-start gap-1.5 p-3 rounded-lg border border-blue-bright/20 bg-blue-bright/[0.06] hover:bg-blue-bright/[0.12] transition-all text-left"
               >
-                <span className="font-montserrat font-bold text-xs text-blue-light">🌿 Raiz — Worldbuilding Completo</span>
+                <span className="font-montserrat font-bold text-xs text-blue-light"><><Leaf className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em] text-blue-light" strokeWidth={1.75} />Raiz — Worldbuilding Completo</></span>
                 <span className="text-[10px] text-text-dim">Mundos ilimitados, fichas e artigos ilimitados, exportação PDF/DOCX</span>
                 <span className="font-montserrat font-bold text-sm text-blue-light">R$ 87/ano</span>
               </button>
@@ -72,13 +72,13 @@ export const SubscriptionBanner: React.FC = () => {
                 className="flex flex-col items-start gap-1.5 p-3 rounded-lg border border-gold/30 hover:border-gold/50 transition-all text-left"
                 style={{ background: 'linear-gradient(135deg, rgba(200,146,42,0.10) 0%, rgba(200,146,42,0.04) 100%)' }}
               >
-                <span className="font-montserrat font-bold text-xs text-gold-light">✨ Idriel — Tudo + IA Suprema</span>
+                <span className="font-montserrat font-bold text-xs text-gold-light"><><Sparkles className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} />Idriel — Tudo + IA Suprema</></span>
                 <span className="text-[10px] text-text-dim">Tudo do Raiz + IA + imagens em qualidade máxima (Gemini 3 Pro Image)</span>
                 <span className="font-montserrat font-bold text-sm text-gold-light">R$ 39,90/mês</span>
               </button>
             </div>
             <Link to="/planos" className="block text-center mt-3 text-[10px] font-montserrat font-bold text-text-dim hover:text-foreground transition-colors uppercase tracking-wider">
-              📋 Comparar todos os planos →
+              Comparar todos os planos →
             </Link>
           </div>
         </div>
@@ -97,7 +97,7 @@ export const SubscriptionBanner: React.FC = () => {
           </button>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <span className="text-lg">🌿</span>
+              <Leaf className="w-5 h-5 text-blue-light" strokeWidth={1.75} />
               <div className="min-w-0">
                 <span className="font-montserrat font-bold text-sm text-blue-light block">Plano Raiz Ativo</span>
                 <span className="block text-[10px] text-text-dim">Acesso completo ao worldbuilding. Desbloqueie Idriel para potencializar sua criação!</span>
@@ -138,10 +138,10 @@ export const SubscriptionBanner: React.FC = () => {
     const emptyBg = 'linear-gradient(135deg, rgba(220,38,38,0.18) 0%, rgba(220,38,38,0.10) 100%)';
 
     const statusLabel = isEmpty
-      ? '🥀 A Seiva secou…'
+      ? 'A Seiva secou…'
       : isLow
-        ? '🍂 Poucas gotas restam…'
-        : '✨ Seiva Dourada de Idriel';
+        ? 'Poucas gotas restam…'
+        : 'Seiva Dourada de Idriel';
 
     const statusDesc = isEmpty
       ? 'Recarregue para continuar criando com Idriel'
@@ -161,7 +161,7 @@ export const SubscriptionBanner: React.FC = () => {
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <span className="text-lg shrink-0">{isEmpty ? '🥀' : isLow ? '🍂' : '🌿'}</span>
+              <span className="shrink-0">{isEmpty ? <Droplets className="w-5 h-5 text-red-alert opacity-70" strokeWidth={1.75} /> : isLow ? <Leaf className="w-5 h-5 text-orange-400 opacity-80" strokeWidth={1.75} /> : <Droplet className="w-5 h-5" style={{ color: '#1E1000' }} strokeWidth={1.75} />}</span>
               <div className="min-w-0">
                 <span
                   className={`font-montserrat font-bold text-sm block ${isEmpty ? 'text-destructive' : isLow ? 'text-orange-400' : ''}`}
