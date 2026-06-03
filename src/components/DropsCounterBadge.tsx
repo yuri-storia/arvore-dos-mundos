@@ -44,8 +44,9 @@ const ElixirBar: React.FC<{
       {/* Label + Track stacked */}
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline justify-between gap-2 mb-1 leading-none">
-          <span className="font-cinzel font-bold text-[10px] uppercase tracking-[0.18em] text-gold-light">
-            Elixir dos Mundos
+          <span className="font-cinzel font-bold text-[10px] uppercase tracking-[0.16em] text-gold-light truncate">
+            <span className="hidden sm:inline">Elixir dos Mundos</span>
+            <span className="sm:hidden">Elixir</span>
           </span>
           <span className="font-montserrat font-bold text-[10px] tabular-nums text-gold-light/90">
             {infinite ? (
