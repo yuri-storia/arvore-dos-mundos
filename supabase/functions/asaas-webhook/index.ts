@@ -1,4 +1,6 @@
-// Recebe eventos do Asaas e atualiza assinaturas / saldo de gotas
+// Recebe eventos do Asaas e atualiza assinaturas / saldo de gotas.
+// Em PAYMENT_CONFIRMED: cria conta automaticamente se não existir (compra sem login)
+// e dispara e-mail de boas-vindas com magic link.
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
@@ -6,12 +8,77 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, content-type, asaas-access-token",
 };
 
-const PLAN_MAP: Record<string, { hasIdriel: boolean; cycle: "monthly" | "yearly"; tier: "raiz" | "idriel" }> = {
-  raiz_mensal:   { hasIdriel: false, cycle: "monthly", tier: "raiz"   },
-  raiz_anual:    { hasIdriel: false, cycle: "yearly",  tier: "raiz"   },
-  idriel_mensal: { hasIdriel: true,  cycle: "monthly", tier: "idriel" },
-  idriel_anual:  { hasIdriel: true,  cycle: "yearly",  tier: "idriel" },
+const PLAN_MAP: Record<string, { hasIdriel: boolean; cycle: "monthly" | "yearly"; tier: "raiz" | "idriel"; displayName: string; amount: number }> = {
+  raiz_mensal:   { hasIdriel: false, cycle: "monthly", tier: "raiz",   displayName: "Raiz Mensal",   amount: 19.90  },
+  raiz_anual:    { hasIdriel: false, cycle: "yearly",  tier: "raiz",   displayName: "Raiz Anual",    amount: 197.00 },
+  idriel_mensal: { hasIdriel: true,  cycle: "monthly", tier: "idriel", displayName: "Idriel Mensal", amount: 39.90  },
+  idriel_anual:  { hasIdriel: true,  cycle: "yearly",  tier: "idriel", displayName: "Idriel Anual",  amount: 397.00 },
 };
+
+const RECHARGE_MAP: Record<string, { drops: number; displayName: string; amount: number }> = {
+  recarga_15:  { drops: 15,  displayName: "15 gotas",  amount: 4.90  },
+  recarga_25:  { drops: 25,  displayName: "25 gotas",  amount: 7.90  },
+  recarga_50:  { drops: 50,  displayName: "50 gotas",  amount: 14.90 },
+  recarga_100: { drops: 100, displayName: "100 gotas", amount: 27.90 },
+  recarga_200: { drops: 200, displayName: "200 gotas", amount: 54.90 },
+};
+
+const APP_ORIGIN = "https://arvoredosmundos.app";
+
+async function ensureUser(
+  supa: ReturnType<typeof createClient>,
+  email: string,
+  name?: string
+): Promise<{ userId: string; isNewUser: boolean }> {
+  // Procura usuário existente
+  const { data: list } = await supa.auth.admin.listUsers({ page: 1, perPage: 200 });
+  const existing = list?.users?.find((u: any) => (u.email || "").toLowerCase() === email.toLowerCase());
+  if (existing) return { userId: existing.id, isNewUser: false };
+
+  // Cria usuário
+  const { data: created, error: createErr } = await supa.auth.admin.createUser({
+    email,
+    email_confirm: true,
+    user_metadata: name ? { display_name: name } : {},
+  });
+  if (createErr || !created?.user) {
+    throw new Error(`Falha ao criar usuário: ${createErr?.message}`);
+  }
+  return { userId: created.user.id, isNewUser: true };
+}
+
+async function generateMagicLink(supa: ReturnType<typeof createClient>, email: string): Promise<string | undefined> {
+  const { data, error } = await supa.auth.admin.generateLink({
+    type: "magiclink",
+    email,
+    options: { redirectTo: `${APP_ORIGIN}/` },
+  });
+  if (error) {
+    console.warn("generateLink failed:", error.message);
+    return undefined;
+  }
+  return data?.properties?.action_link;
+}
+
+async function sendWelcomeEmail(payload: {
+  email: string; name?: string; planName: string; amount: number;
+  isNewUser: boolean; magicLink?: string; loginUrl?: string;
+}) {
+  try {
+    const url = `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-welcome-email`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) console.warn("welcome email failed:", res.status, await res.text());
+  } catch (e: any) {
+    console.warn("welcome email exception:", e?.message);
+  }
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -36,54 +103,43 @@ Deno.serve(async (req) => {
     const eventType: string = event.event || "";
     const payment = event.payment;
 
-    // ---------- SUBSCRIPTION lifecycle events (no payment payload) ----------
-    if (eventType === "SUBSCRIPTION_CREATED" || eventType === "SUBSCRIPTION_UPDATED") {
+    // Subscription lifecycle (sem payment)
+    if (eventType.startsWith("SUBSCRIPTION_")) {
       const sub = event.subscription;
-      if (!sub?.id) {
-        return new Response(JSON.stringify({ ok: true, ignored: "no subscription payload" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (sub?.id) {
+        if (eventType === "SUBSCRIPTION_DELETED" || eventType === "SUBSCRIPTION_INACTIVATED") {
+          await supa.from("subscriptions").update({ status: "cancelled", cancelled_at: new Date().toISOString() })
+            .eq("asaas_subscription_id", sub.id);
+        }
       }
-      // externalReference on subscription = "<userId>:<planCode>"
-      const ref: string = sub.externalReference || "";
-      const [subUserId, subPlanCode] = ref.split(":");
-      const meta = PLAN_MAP[subPlanCode];
-
-      // Apenas SINCRONIZA contrato já ativo (não libera acesso — isso é responsabilidade do PAYMENT_CONFIRMED)
-      if (meta && subUserId) {
-        await supa.from("subscriptions")
-          .update({
-            plan_code: subPlanCode,
-            has_idriel: meta.hasIdriel,
-            billing_cycle: meta.cycle,
-            asaas_subscription_id: sub.id,
-          })
-          .eq("user_id", subUserId)
-          .eq("status", "active");
-      }
-      console.log(`subscription ${eventType}: ${sub.id} user=${subUserId} plan=${subPlanCode}`);
-      return new Response(JSON.stringify({ ok: true, kind: "subscription_sync" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-
-    if (eventType === "SUBSCRIPTION_DELETED" || eventType === "SUBSCRIPTION_INACTIVATED") {
-      const subId = event.subscription?.id;
-      if (subId) {
-        await supa.from("subscriptions").update({ status: "cancelled", cancelled_at: new Date().toISOString() })
-          .eq("asaas_subscription_id", subId);
-      }
-      return new Response(JSON.stringify({ ok: true, kind: "subscription_cancelled" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ ok: true, kind: "subscription_event" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     if (!payment) {
-      return new Response(JSON.stringify({ ok: true, ignored: "no payment" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ ok: true, ignored: "no payment" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-
-    // externalReference = "<userId>:<planCode>"
+    // externalReference: "<userId>:<planCode>" OU "guest:<planCode>:<uuid>"
     const externalRef: string = payment.externalReference || "";
-    const [userId, planCode] = externalRef.split(":");
+    const parts = externalRef.split(":");
+    let userId: string | null = null;
+    let planCode: string = "";
+    let isGuest = false;
+    if (parts[0] === "guest") {
+      isGuest = true;
+      planCode = parts[1] || "";
+    } else {
+      userId = parts[0] || null;
+      planCode = parts[1] || "";
+    }
 
-    // Always upsert payment record
+    // Sempre upsert do pagamento
     await supa.from("asaas_payments").upsert({
-      user_id: userId || null,
+      user_id: userId,
       asaas_payment_id: payment.id,
       asaas_subscription_id: payment.subscription || null,
       asaas_customer_id: payment.customer,
@@ -110,26 +166,57 @@ Deno.serve(async (req) => {
       eventType === "PAYMENT_CHARGEBACK_DISPUTE" ||
       eventType === "PAYMENT_REVERSED";
 
-    if (!userId) {
-      return new Response(JSON.stringify({ ok: true, note: "no externalReference" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-
     if (isConfirmed) {
-      // Recharge -> add bonus drops
-      const dropsMap: Record<string, number> = {
-        recarga_15: 15, recarga_25: 25, recarga_50: 50, recarga_100: 100, recarga_200: 200,
-      };
-      if (dropsMap[planCode]) {
-        await supa.rpc("add_bonus_drops", { _user_id: userId, _drops: dropsMap[planCode] });
+      // Se for guest, busca dados do cliente no Asaas para obter o e-mail
+      let payerEmail: string | undefined;
+      let payerName: string | undefined;
+      if (isGuest || !userId) {
+        try {
+          const apiKey = Deno.env.get("ASAAS_API_KEY")!;
+          const custRes = await fetch(`https://api-sandbox.asaas.com/v3/customers/${payment.customer}`, {
+            headers: { access_token: apiKey, "User-Agent": "ArvoreDosMundos/1.0" },
+          });
+          if (custRes.ok) {
+            const cust = await custRes.json();
+            payerEmail = cust.email;
+            payerName = cust.name;
+          }
+        } catch (e) { console.warn("fetch customer failed:", e); }
+
+        if (payerEmail) {
+          const { userId: createdId } = await ensureUser(supa, payerEmail, payerName);
+          userId = createdId;
+          // Atualiza asaas_payments com o user_id resolvido
+          await supa.from("asaas_payments").update({ user_id: userId }).eq("asaas_payment_id", payment.id);
+        }
       }
 
-      // Subscription -> activate
+      if (!userId) {
+        console.warn("PAYMENT_CONFIRMED sem userId resolvível:", payment.id);
+        return new Response(JSON.stringify({ ok: true, note: "no user resolved" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Vincula customer
+      await supa.from("asaas_customers").upsert({
+        user_id: userId,
+        asaas_customer_id: payment.customer,
+        environment: "sandbox",
+        updated_at: new Date().toISOString(),
+      });
+
+      // Recharge
+      const recharge = RECHARGE_MAP[planCode];
+      if (recharge) {
+        await supa.rpc("add_bonus_drops", { _user_id: userId, _drops: recharge.drops });
+      }
+
+      // Subscription
       const planMeta = PLAN_MAP[planCode];
       if (planMeta) {
         const cycleDays = planMeta.cycle === "yearly" ? 366 : 32;
         const expires = new Date(Date.now() + cycleDays * 24 * 60 * 60 * 1000).toISOString();
-
-        // UPSERT por user_id (tabela tem UNIQUE em user_id — uma assinatura ativa por usuário)
         const { error: upsertErr } = await supa.from("subscriptions").upsert({
           user_id: userId,
           plan: "pro",
@@ -147,6 +234,31 @@ Deno.serve(async (req) => {
         }, { onConflict: "user_id" });
         if (upsertErr) console.error("subscription upsert error:", upsertErr);
       }
+
+      // Envia e-mail de boas-vindas (apenas se identificarmos o email)
+      // Busca o e-mail do auth.users se ainda não temos
+      let emailForMail = payerEmail;
+      let nameForMail = payerName;
+      if (!emailForMail) {
+        const { data: u } = await supa.auth.admin.getUserById(userId);
+        emailForMail = u?.user?.email;
+        nameForMail = (u?.user?.user_metadata as any)?.display_name;
+      }
+
+      if (emailForMail) {
+        // Sempre gera magic link — funciona tanto para novo quanto para existente
+        const magicLink = await generateMagicLink(supa, emailForMail);
+        const planInfo = planMeta || recharge;
+        await sendWelcomeEmail({
+          email: emailForMail,
+          name: nameForMail,
+          planName: planInfo?.displayName || planCode,
+          amount: planInfo?.amount || payment.value,
+          isNewUser: isGuest, // guest = novo usuário criado agora
+          magicLink,
+          loginUrl: magicLink || `${APP_ORIGIN}/login`,
+        });
+      }
     }
 
     if (isReversed && payment.subscription) {
@@ -154,15 +266,13 @@ Deno.serve(async (req) => {
         .eq("asaas_subscription_id", payment.subscription);
     }
 
-
-
-
-    return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (err: any) {
     console.error("asaas-webhook error:", err?.message || err);
     return new Response(JSON.stringify({ error: err?.message || "Internal error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

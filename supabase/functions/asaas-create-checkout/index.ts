@@ -1,4 +1,6 @@
-// Cria cobrança (assinatura ou avulsa) no Asaas e devolve invoiceUrl
+// Cria checkout hospedado no Asaas (Asaas Checkout - /v3/checkouts)
+// Aceita compra com OU sem login. O Asaas coleta CPF, nome e dados de pagamento.
+// Métodos aceitos: PIX e CREDIT_CARD apenas (sem boleto).
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
@@ -54,145 +56,120 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-    const token = authHeader.replace("Bearer ", "");
-
     const supa = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
       { auth: { persistSession: false } }
     );
 
-    const { data: claims, error: claimErr } = await supa.auth.getClaims(token);
-    if (claimErr || !claims?.claims?.sub) {
-      return new Response(JSON.stringify({ error: "Invalid token" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    // Auth é OPCIONAL. Se logado, pré-preenchemos dados; se não, Asaas coleta tudo.
+    let userId: string | null = null;
+    let userEmail: string = "";
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data: claims } = await supa.auth.getClaims(token);
+      if (claims?.claims?.sub) {
+        userId = claims.claims.sub as string;
+        userEmail = (claims.claims.email as string) || "";
+      }
     }
-    const userId = claims.claims.sub as string;
-    const userEmail = (claims.claims.email as string) || "";
 
     const body = await req.json().catch(() => ({}));
     const planCode = String(body.planId || body.plan || "");
-    const cpfFromBody = String(body.cpfCnpj || "").replace(/\D/g, "");
     const plan = PLANS[planCode];
     if (!plan) {
-      return new Response(JSON.stringify({ error: "Unknown plan", planCode }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-
-    // Pull profile (display_name + cpf_cnpj)
-    const { data: profile } = await supa.from("profiles")
-      .select("display_name, cpf_cnpj")
-      .eq("user_id", userId)
-      .maybeSingle();
-
-    // Resolve CPF: body wins (just collected from user), otherwise profile
-    let cpfCnpj = (cpfFromBody || (profile?.cpf_cnpj || "")).replace(/\D/g, "");
-    if (!cpfCnpj || (cpfCnpj.length !== 11 && cpfCnpj.length !== 14)) {
-      return new Response(JSON.stringify({
-        error: "cpf_required",
-        message: "CPF ou CNPJ é obrigatório para emitir cobranças no Brasil.",
-      }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-
-    // Persist CPF on profile if it came from body
-    if (cpfFromBody && cpfFromBody !== (profile?.cpf_cnpj || "")) {
-      await supa.from("profiles").update({ cpf_cnpj: cpfCnpj }).eq("user_id", userId);
-    }
-
-    // Get or create asaas customer
-    let customerId: string | null = null;
-    const { data: existing } = await supa.from("asaas_customers").select("asaas_customer_id").eq("user_id", userId).maybeSingle();
-    const displayName = profile?.display_name || userEmail.split("@")[0] || "Usuário";
-
-    if (existing?.asaas_customer_id) {
-      customerId = existing.asaas_customer_id;
-      // Ensure CPF is set on the Asaas customer record (idempotent)
-      await asaas(`/customers/${customerId}`, {
-        method: "POST",
-        body: JSON.stringify({ cpfCnpj, name: displayName, email: userEmail }),
-      }).catch((e) => console.warn("update customer cpf:", e?.message));
-    } else {
-      const created = await asaas("/customers", {
-        method: "POST",
-        body: JSON.stringify({
-          name: displayName,
-          email: userEmail,
-          cpfCnpj,
-          externalReference: userId,
-        }),
-      });
-      customerId = created.id;
-      await supa.from("asaas_customers").upsert({
-        user_id: userId,
-        asaas_customer_id: customerId,
-        environment: "sandbox",
-        updated_at: new Date().toISOString(),
+      return new Response(JSON.stringify({ error: "Unknown plan", planCode }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
 
     const origin = req.headers.get("origin") || "https://arvoredosmundos.app";
 
-    // Create payment (subscription or one-off)
-    let invoiceUrl: string;
-    let asaasPaymentId: string;
-    let asaasSubscriptionId: string | null = null;
-    let dueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    // externalReference: <userId>:<planCode>  ou  guest:<planCode>:<random>
+    const externalReference = userId
+      ? `${userId}:${planCode}`
+      : `guest:${planCode}:${crypto.randomUUID()}`;
 
-    if (plan.kind === "subscription") {
-      const sub = await asaas("/subscriptions", {
-        method: "POST",
-        body: JSON.stringify({
-          customer: customerId,
-          billingType: "UNDEFINED", // user chooses PIX, boleto or credit card
-          value: plan.amount,
-          nextDueDate: dueDate,
-          cycle: plan.cycle,
-          description: `Árvore dos Mundos — ${plan.name}`,
-          externalReference: `${userId}:${planCode}`,
-        }),
-      });
-      asaasSubscriptionId = sub.id;
-      // Fetch first payment to get invoice URL
-      const payments = await asaas(`/subscriptions/${sub.id}/payments`);
-      const first = payments?.data?.[0];
-      if (!first) throw new Error("Subscription created but no payment generated yet");
-      asaasPaymentId = first.id;
-      invoiceUrl = first.invoiceUrl;
-    } else {
-      const payment = await asaas("/payments", {
-        method: "POST",
-        body: JSON.stringify({
-          customer: customerId,
-          billingType: "UNDEFINED",
-          value: plan.amount,
-          dueDate,
-          description: `Árvore dos Mundos — ${plan.name}`,
-          externalReference: `${userId}:${planCode}`,
-        }),
-      });
-      asaasPaymentId = payment.id;
-      invoiceUrl = payment.invoiceUrl;
+    // Pré-preenchimento (apenas se logado) — não bloqueia se faltar
+    let customerData: Record<string, any> | undefined;
+    if (userId) {
+      const { data: profile } = await supa.from("profiles")
+        .select("display_name, cpf_cnpj")
+        .eq("user_id", userId).maybeSingle();
+      customerData = {
+        name: profile?.display_name || userEmail.split("@")[0] || undefined,
+        email: userEmail || undefined,
+        cpfCnpj: profile?.cpf_cnpj || undefined,
+      };
+      // remove undefined
+      customerData = Object.fromEntries(
+        Object.entries(customerData).filter(([, v]) => v !== undefined && v !== "")
+      );
+      if (Object.keys(customerData).length === 0) customerData = undefined;
     }
 
-    // Log payment row
+    // Monta payload do Asaas Checkout
+    const checkoutPayload: Record<string, any> = {
+      billingTypes: ["CREDIT_CARD", "PIX"],
+      chargeTypes: plan.kind === "subscription" ? ["RECURRENT"] : ["DETACHED"],
+      minutesToExpire: 60,
+      callback: {
+        successUrl: `${origin}/obrigado?ref=${encodeURIComponent(externalReference)}`,
+        cancelUrl: `${origin}/planos?cancelled=1`,
+        expiredUrl: `${origin}/planos?expired=1`,
+      },
+      items: [{
+        name: `Árvore dos Mundos — ${plan.name}`,
+        description: plan.kind === "subscription"
+          ? `Assinatura ${plan.cycle === "YEARLY" ? "anual" : "mensal"}`
+          : `Recarga avulsa de ${plan.drops} gotas`,
+        value: plan.amount,
+        quantity: 1,
+      }],
+      externalReference,
+      notificationEnabled: true,
+    };
+
+    if (plan.kind === "subscription") {
+      const nextDueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      checkoutPayload.subscription = {
+        cycle: plan.cycle,
+        nextDueDate,
+      };
+    }
+
+    if (customerData) {
+      checkoutPayload.customerData = customerData;
+    }
+
+    const checkout = await asaas("/checkouts", {
+      method: "POST",
+      body: JSON.stringify(checkoutPayload),
+    });
+
+    // Asaas retorna { id, link } (ou { id, url } dependendo da versão)
+    const checkoutUrl: string = checkout.link || checkout.url || checkout.invoiceUrl;
+    if (!checkoutUrl) {
+      console.error("Asaas checkout sem URL:", JSON.stringify(checkout));
+      throw new Error("Asaas não retornou URL de checkout");
+    }
+
+    // Log do checkout (sem payment ainda — virá pelo webhook)
     await supa.from("asaas_payments").insert({
       user_id: userId,
-      asaas_payment_id: asaasPaymentId,
-      asaas_subscription_id: asaasSubscriptionId,
-      asaas_customer_id: customerId,
+      asaas_payment_id: `checkout_${checkout.id}`,
+      asaas_subscription_id: null,
+      asaas_customer_id: null,
       plan_code: planCode,
       kind: plan.kind,
       drops: plan.drops ?? null,
       amount: plan.amount,
-      status: "PENDING",
-      due_date: dueDate,
-      invoice_url: invoiceUrl,
+      status: "CHECKOUT_CREATED",
+      invoice_url: checkoutUrl,
     });
 
-    return new Response(JSON.stringify({ url: invoiceUrl, paymentId: asaasPaymentId }), {
+    return new Response(JSON.stringify({ url: checkoutUrl, checkoutId: checkout.id }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err: any) {

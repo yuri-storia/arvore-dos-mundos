@@ -190,33 +190,13 @@ export function useSubscription(): SubscriptionInfo {
   return info;
 }
 
-// Asaas checkout — opens invoice URL in a new tab.
-// When the user lacks CPF/CNPJ, dispatches a global event so a UI dialog can collect it
-// and retry. This avoids touching every callsite.
-export async function openCheckout(planId: string, cpfCnpj?: string) {
+// Asaas Checkout — redireciona na mesma aba para o checkout hospedado do Asaas.
+// Funciona com OU sem login. O Asaas coleta CPF, nome e dados de pagamento.
+export async function openCheckout(planId: string) {
   try {
     const { data, error } = await supabase.functions.invoke('asaas-create-checkout', {
-      body: { planId, cpfCnpj },
+      body: { planId },
     });
-
-    // Detect cpf_required from either parsed body or the FunctionsHttpError context
-    let parsed: any = data;
-    if (error) {
-      const ctx: any = (error as any)?.context;
-      try { if (ctx && typeof ctx.json === 'function') parsed = await ctx.json(); } catch {}
-      if (!parsed) {
-        try {
-          const raw = ctx?.body ?? ctx;
-          parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
-        } catch {}
-      }
-    }
-
-    if (parsed?.error === 'cpf_required') {
-      // Open global dialog. Retry happens inside the dialog handler.
-      window.dispatchEvent(new CustomEvent('arvore:cpf-required', { detail: { planId } }));
-      return;
-    }
 
     if (error) {
       console.error('openCheckout error:', error);
@@ -224,8 +204,8 @@ export async function openCheckout(planId: string, cpfCnpj?: string) {
       return;
     }
 
-    if (parsed?.url) {
-      window.open(parsed.url, '_blank', 'noopener,noreferrer');
+    if (data?.url) {
+      window.location.href = data.url;
       return;
     }
     alert('Não foi possível abrir o pagamento: resposta inválida.');
