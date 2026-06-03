@@ -590,12 +590,12 @@ const PricingPage: React.FC = () => {
 
           <div className="space-y-3">
             {[
-              { q: 'Posso testar antes de assinar?', a: 'Sim — crie sua conta sem cartão e explore a interface. Para usar Codex, Manuscrito, IA e Exportação você precisa assinar Raiz ou Idriel. Cancele a qualquer momento se não for para você.' },
+              { q: 'Como começo?', a: 'Escolha Raiz ou Idriel, finalize o checkout e sua Árvore é plantada na hora. Não há versão gratuita: cada plano dá acesso completo às funcionalidades do seu nível desde o primeiro minuto.' },
               { q: 'Qual a diferença entre Raiz e Idriel?', a: 'Raiz te dá worldbuilding e escrita ilimitados, com exportação. Idriel acrescenta toda a parte de IA: assistente Idriel, geração de imagens, mapas e análise de mundo. Comece pelo Raiz e suba para Idriel quando quiser turbinar com IA.' },
               { q: 'O que são as gotas de Seiva Dourada?', a: 'São os créditos de IA. O plano Idriel já vem com 100 gotas renovadas por mês — suficiente para a maioria dos autores. Se quiser mais, recarregue avulso a partir de R$ 4,90 sem mexer na assinatura.' },
               { q: 'Meus mundos ficam salvos? Posso exportar tudo?', a: 'Sim. Tudo é salvo automaticamente na nuvem. Exporte seu Codex e Manuscrito em PDF, Word ou Kindle a qualquer momento — o conteúdo é seu, para sempre.' },
               { q: 'A IA é boa mesmo? Que modelo vocês usam?', a: 'Idriel roda em Gemini 2.5 Pro para texto e Gemini 3 Pro para imagens — os modelos de ponta do Google, com prompts cuidadosamente adaptados em pt-BR e alimentados pelo seu Codex.' },
-              { q: 'Como funciona o pagamento?', a: 'Cartão de crédito ou Pix via Eduzz. No anual, cobrança única com 2 meses grátis. No mensal, cobrança recorrente. Sem fidelidade — cancele a qualquer momento.' },
+              { q: 'Como funciona o pagamento?', a: 'Cartão de crédito, boleto ou Pix processados via Asaas (instituição de pagamento brasileira regulamentada pelo Banco Central). No anual, cobrança única com 2 meses grátis. No mensal, cobrança recorrente. Sem fidelidade — cancele a qualquer momento.' },
             ].map((item, i) => (
               <details key={i} className="group rounded-xl border border-gold-bronze/25 bg-card/40 backdrop-blur-md overflow-hidden hover:border-gold-warm/40 transition-colors">
                 <summary className="cursor-pointer list-none px-6 py-5 flex items-center justify-between gap-4">
