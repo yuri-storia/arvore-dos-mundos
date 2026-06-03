@@ -83,6 +83,90 @@ export type Database = {
         }
         Relationships: []
       }
+      asaas_customers: {
+        Row: {
+          asaas_customer_id: string
+          created_at: string
+          environment: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          asaas_customer_id: string
+          created_at?: string
+          environment?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          asaas_customer_id?: string
+          created_at?: string
+          environment?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      asaas_payments: {
+        Row: {
+          amount: number
+          asaas_customer_id: string
+          asaas_payment_id: string
+          asaas_subscription_id: string | null
+          billing_type: string | null
+          created_at: string
+          drops: number | null
+          due_date: string | null
+          id: string
+          invoice_url: string | null
+          kind: string
+          paid_at: string | null
+          plan_code: string
+          raw: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          asaas_customer_id: string
+          asaas_payment_id: string
+          asaas_subscription_id?: string | null
+          billing_type?: string | null
+          created_at?: string
+          drops?: number | null
+          due_date?: string | null
+          id?: string
+          invoice_url?: string | null
+          kind: string
+          paid_at?: string | null
+          plan_code: string
+          raw?: Json | null
+          status: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          asaas_customer_id?: string
+          asaas_payment_id?: string
+          asaas_subscription_id?: string | null
+          billing_type?: string | null
+          created_at?: string
+          drops?: number | null
+          due_date?: string | null
+          id?: string
+          invoice_url?: string | null
+          kind?: string
+          paid_at?: string | null
+          plan_code?: string
+          raw?: Json | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       bug_reports: {
         Row: {
           context: string | null
@@ -585,41 +669,77 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          asaas_customer_id: string | null
+          asaas_subscription_id: string | null
+          billing_cycle: string | null
           cancelled_at: string | null
           created_at: string
           eduzz_subscription_id: string | null
           eduzz_transaction_id: string | null
+          environment: string
           expires_at: string | null
+          has_idriel: boolean
           id: string
           plan: Database["public"]["Enums"]["plan_type"]
+          plan_code: string | null
           started_at: string
           status: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          asaas_customer_id?: string | null
+          asaas_subscription_id?: string | null
+          billing_cycle?: string | null
           cancelled_at?: string | null
           created_at?: string
           eduzz_subscription_id?: string | null
           eduzz_transaction_id?: string | null
+          environment?: string
           expires_at?: string | null
+          has_idriel?: boolean
           id?: string
           plan?: Database["public"]["Enums"]["plan_type"]
+          plan_code?: string | null
           started_at?: string
           status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          asaas_customer_id?: string | null
+          asaas_subscription_id?: string | null
+          billing_cycle?: string | null
           cancelled_at?: string | null
           created_at?: string
           eduzz_subscription_id?: string | null
           eduzz_transaction_id?: string | null
+          environment?: string
           expires_at?: string | null
+          has_idriel?: boolean
           id?: string
           plan?: Database["public"]["Enums"]["plan_type"]
+          plan_code?: string | null
           started_at?: string
           status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_credit_balance: {
+        Row: {
+          bonus_drops: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bonus_drops?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bonus_drops?: number
           updated_at?: string
           user_id?: string
         }
@@ -696,6 +816,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_bonus_drops: {
+        Args: { _drops: number; _user_id: string }
+        Returns: undefined
+      }
       check_ai_quota: {
         Args: { _type: string; _user_id: string }
         Returns: Json
