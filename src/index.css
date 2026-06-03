@@ -50,8 +50,13 @@
     --blue-bright: 207 90% 61%;
     --blue-light: 210 84% 69%;
     --blue-glow: 207 89% 78%;
-    --gold: 38 67% 48%;
-    --gold-light: 38 73% 60%;
+    --gold: 34 38% 52%;
+    --gold-light: 38 48% 70%;
+    --gold-deep: 28 32% 28%;
+    --gold-bronze: 30 30% 42%;
+    --gold-warm: 34 42% 58%;
+    --gold-champagne: 40 50% 78%;
+    --gold-cream: 42 55% 90%;
     --text-main: 204 80% 94%;
     --text-secondary: 213 35% 72%;
     --text-dim: 210 22% 49%;
@@ -73,8 +78,11 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Amiri', 'Merriweather', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.65;
     background-color: hsl(var(--bg-deep));
+    -webkit-font-smoothing: antialiased;
   }
 }
 
@@ -82,6 +90,33 @@
 .font-cinzel { font-family: 'Cinzel', serif; }
 .font-montserrat { font-family: 'Montserrat', sans-serif; }
 .font-merriweather { font-family: 'Merriweather', serif; }
+.font-amiri { font-family: 'Amiri', 'Merriweather', Georgia, serif; }
+
+/* Premium gold gradient — bronze → champagne → cream */
+.text-gradient-gold {
+  background: linear-gradient(135deg,
+    hsl(var(--gold-bronze)) 0%,
+    hsl(var(--gold-warm)) 35%,
+    hsl(var(--gold-champagne)) 70%,
+    hsl(var(--gold-cream)) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.bg-gradient-gold-premium {
+  background: linear-gradient(135deg,
+    hsl(var(--gold-deep)) 0%,
+    hsl(var(--gold-bronze)) 25%,
+    hsl(var(--gold-warm)) 55%,
+    hsl(var(--gold-champagne)) 100%);
+}
+.border-gradient-gold {
+  border-image: linear-gradient(135deg,
+    hsl(var(--gold-bronze)),
+    hsl(var(--gold-champagne)),
+    hsl(var(--gold-bronze))) 1;
+}
 
 /* Animations */
 @keyframes fadeUp {
