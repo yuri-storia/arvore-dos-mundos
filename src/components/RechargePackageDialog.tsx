@@ -51,7 +51,7 @@ export const RechargePackageDialog: React.FC<RechargePackageDialogProps> = ({ op
             <Droplet className="w-6 h-6 text-gold-light" />
           </div>
           <h2 className="font-cinzel font-bold text-2xl text-gold-light mb-1">
-            Recarregar Seiva Dourada
+            Recarregar Elixir dos Mundos
           </h2>
           <p className="font-merriweather italic text-text-dim text-sm max-w-md mx-auto">
             Escolha quantas gotas a Árvore deve devolver à sua Seiva. Quanto mais, mais barato fica cada gota.

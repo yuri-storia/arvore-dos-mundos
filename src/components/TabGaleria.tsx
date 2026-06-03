@@ -432,7 +432,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
         </div>
         <p className="text-center font-merriweather italic text-text-dim text-xs mt-2">
-          Idriel canaliza a Seiva Dourada para materializar as visões do seu mundo
+          Idriel canaliza a Elixir dos Mundos para materializar as visões do seu mundo
         </p>
       </div>
 
@@ -462,7 +462,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                   <div className="flex items-start gap-3 text-left bg-gold/[0.04] rounded-lg p-3 border border-gold/10">
                     <img src={idrielAvatar} alt="Idriel" className="w-8 h-8 rounded-full border border-gold/30 shrink-0 mt-0.5" />
                     <p className="font-merriweather text-sm text-text-secondary leading-relaxed italic">
-                      "Querido criador, a Seiva Dourada flui dentro deste Fruto. Com ela, posso materializar as visões do seu mundo em imagens, analisar sua criação e guiá-lo com toda minha sabedoria. Basta colher o Fruto."
+                      "Querido criador, a Elixir dos Mundos flui dentro deste Fruto. Com ela, posso materializar as visões do seu mundo em imagens, analisar sua criação e guiá-lo com toda minha sabedoria. Basta colher o Fruto."
                     </p>
                   </div>
                 </div>
@@ -488,7 +488,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                 >
                   <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Colher o Fruto Dourado — R$ 29,90/mês</>
                 </button>
-                <p className="text-[10px] text-text-dim mt-2 font-montserrat">100 gotas de Seiva Dourada por mês</p>
+                <p className="text-[10px] text-text-dim mt-2 font-montserrat">100 gotas de Elixir dos Mundos por mês</p>
               </div>
             </div>
           ) : (
@@ -568,7 +568,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                     </div>
                     <div className="flex-1">
                       <span className="font-merriweather italic text-xs text-gold-light">
-                        {loading1 ? 'Idriel está tecendo a essência da sua visão…' : 'A Seiva Dourada flui… sua visão está tomando forma…'}
+                        {loading1 ? 'Idriel está tecendo a essência da sua visão…' : 'A Elixir dos Mundos flui… sua visão está tomando forma…'}
                       </span>
                       <div className="w-full h-1.5 bg-gold/10 rounded-full overflow-hidden mt-1.5">
                         <div
@@ -609,7 +609,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
           {/* Generated image */}
           {generatedImage && !loading2 && (
             <div className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20">
-              <span className="font-cinzel text-[10px] text-gold-light mb-3 inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3" strokeWidth={1.75} />Visão materializada pela Seiva Dourada</span>
+              <span className="font-cinzel text-[10px] text-gold-light mb-3 inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3" strokeWidth={1.75} />Visão materializada pela Elixir dos Mundos</span>
               <img src={generatedImage} alt="Visão de Idriel" className="w-full max-w-[512px] mx-auto rounded-lg mb-4" />
               <div className="flex flex-wrap gap-2 justify-center">
                 <button onClick={() => { setSaveCat('Todos'); setShowSaveModal(true); }} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors">

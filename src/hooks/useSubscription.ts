@@ -37,7 +37,7 @@ export const PLANS = {
     hasIdriel: true,
   },
 
-  // Pacotes de recarga de Seiva Dourada (avulsos)
+  // Pacotes de recarga de Elixir dos Mundos (avulsos)
   recarga_15: {
     id: "recarga_15",
     name: "15 gotas",

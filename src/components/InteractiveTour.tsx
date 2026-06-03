@@ -138,7 +138,7 @@ const TOUR_STEPS: TourStep[] = [
     type: 'highlight',
     target: 'visoes-idriel',
     title: 'Visões de Idriel — Geração de Imagens',
-    desc: 'Aqui eu materializo as visões do seu mundo, viajante! Descreva o que imagina, escolha estilo e tom, e eu gero a imagem com IA. Cada visão custa 5 gotas de Seiva Dourada. Este recurso é exclusivo do plano completo.',
+    desc: 'Aqui eu materializo as visões do seu mundo, viajante! Descreva o que imagina, escolha estilo e tom, e eu gero a imagem com IA. Cada visão custa 5 gotas de Elixir dos Mundos. Este recurso é exclusivo do plano completo.',
     Icon: Sparkles,
     tooltipPos: 'top',
     delay: 200,

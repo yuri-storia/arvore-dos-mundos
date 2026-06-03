@@ -126,7 +126,7 @@ export const SubscriptionBanner: React.FC = () => {
     );
   }
 
-  // Idriel user: show credits (Seiva Dourada)
+  // Idriel user: show credits (Elixir dos Mundos)
   if (sub.hasIdriel) {
     const creditsLeft = sub.creditLimit - sub.creditsUsed;
     const pct = sub.creditLimit > 0 ? (sub.creditsUsed / sub.creditLimit) * 100 : 0;
@@ -141,7 +141,7 @@ export const SubscriptionBanner: React.FC = () => {
       ? 'A Seiva secou…'
       : isLow
         ? 'Poucas gotas restam…'
-        : 'Seiva Dourada de Idriel';
+        : 'Elixir dos Mundos de Idriel';
 
     const statusDesc = isEmpty
       ? 'Recarregue para continuar criando com Idriel'
