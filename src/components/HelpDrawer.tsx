@@ -164,33 +164,79 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
 
   return (
     <>
+      {/* Botão flutuante de Idriel — destaque premium */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-20 right-4 z-40 w-12 h-12 rounded-full flex items-center justify-center border-[2.5px] border-gold/50 bg-gold/[0.08] backdrop-blur-sm hover:bg-gold/[0.20] hover:scale-110 transition-all shadow-[0_0_16px_rgba(218,165,32,0.25),0_0_32px_rgba(218,165,32,0.1)] animate-idriel-pulse overflow-hidden"
-        aria-label="Ajuda de Idriel"
+        className="group fixed bottom-6 right-6 z-[90] flex items-center gap-3 pl-2 pr-4 py-2 rounded-full transition-all hover:-translate-y-0.5 animate-idriel-pulse"
+        style={{
+          background: 'linear-gradient(135deg, hsl(28 32% 22%) 0%, hsl(30 30% 32%) 45%, hsl(34 42% 48%) 100%)',
+          border: '1px solid hsl(40 50% 70% / 0.55)',
+          boxShadow: '0 10px 32px hsl(28 32% 12% / 0.6), 0 0 28px hsl(34 42% 50% / 0.35), inset 0 1px 0 hsl(42 60% 96% / 0.25)',
+        }}
+        aria-label="Falar com Idriel"
       >
-        <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover rounded-full" />
+        <span
+          className="block w-12 h-12 rounded-full overflow-hidden ring-2"
+          style={{ boxShadow: '0 0 18px hsl(40 50% 78% / 0.5)' }}
+        >
+          <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover" />
+        </span>
+        <span className="hidden sm:flex flex-col items-start leading-tight pr-1">
+          <span className="font-cinzel font-bold text-[13px] text-gradient-gold tracking-wide">Idriel</span>
+          <span className="font-montserrat uppercase tracking-[0.18em] text-[9px] text-gold-cream/80">Ajuda</span>
+        </span>
       </button>
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="right" className="bg-[hsl(var(--bg-deep))] border-l border-idriel/15 w-[340px] sm:w-[400px] p-0 flex flex-col">
-          <SheetHeader className="p-4 pb-3 border-b border-idriel/10 shrink-0">
+        <SheetContent
+          side="right"
+          className="border-l border-gold-bronze/40 w-[340px] sm:w-[420px] p-0 flex flex-col"
+          style={{
+            background:
+              'linear-gradient(180deg, hsl(214 65% 5%) 0%, hsl(214 60% 3%) 100%)',
+            boxShadow: '-12px 0 40px hsl(28 32% 10% / 0.5)',
+          }}
+        >
+          <SheetHeader
+            className="p-5 pb-4 border-b border-gold-bronze/25 shrink-0 relative overflow-hidden"
+            style={{
+              background:
+                'linear-gradient(135deg, hsl(28 32% 22% / 0.45) 0%, hsl(34 42% 30% / 0.18) 60%, transparent 100%)',
+            }}
+          >
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <img src={idrielAvatar} alt="Idriel" className="w-10 h-10 rounded-full object-cover border-2 border-idriel/40" />
-                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-idriel flex items-center justify-center"><Sparkles className="w-2 h-2 text-white" strokeWidth={2.5} /></div>
+              <div className="relative shrink-0">
+                <img
+                  src={idrielAvatar}
+                  alt="Idriel"
+                  className="w-14 h-14 rounded-full object-cover"
+                  style={{
+                    border: '2px solid hsl(40 50% 78% / 0.7)',
+                    boxShadow: '0 0 18px hsl(34 42% 50% / 0.5)',
+                  }}
+                />
+                <div
+                  className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(40 50% 78%), hsl(34 42% 58%))',
+                  }}
+                >
+                  <Sparkles className="w-2.5 h-2.5 text-[#1a0f00]" strokeWidth={2.5} />
+                </div>
               </div>
-              <div>
-                <SheetTitle className="font-cinzel text-idriel-light text-lg">Idriel — Ajuda</SheetTitle>
-                <SheetDescription className="font-merriweather text-xs text-text-dim">
-                  Perguntas frequentes sobre a plataforma
+              <div className="min-w-0">
+                <SheetTitle className="font-cinzel text-gradient-gold text-xl leading-tight">
+                  Idriel
+                </SheetTitle>
+                <SheetDescription className="font-amiri text-sm text-text-secondary">
+                  Sua guia na Árvore dos Mundos
                 </SheetDescription>
               </div>
             </div>
           </SheetHeader>
 
-          {/* Category tabs */}
-          <div className="shrink-0 border-b border-idriel/10 px-3 py-2 flex gap-1.5 overflow-x-auto scrollbar-none">
+          {/* Categorias */}
+          <div className="shrink-0 border-b border-gold-bronze/20 px-3 py-2.5 flex gap-1.5 overflow-x-auto scrollbar-none">
             {categories.map(cat => (
               <button
                 key={cat}
@@ -198,35 +244,44 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
                   setActiveCategory(cat);
                   setMessages([{ role: 'greeting', content: GREETING }]);
                 }}
-                className={`text-[11px] font-montserrat uppercase tracking-wider px-3 py-1.5 rounded-full border whitespace-nowrap transition-all ${
+                className={`text-[11px] font-montserrat font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full border whitespace-nowrap transition-all ${
                   activeCategory === cat
-                    ? 'bg-idriel/20 border-idriel/40 text-idriel-light'
-                    : 'bg-transparent border-idriel/10 text-text-dim hover:border-idriel/25 hover:text-text-secondary'
+                    ? 'text-[#1a0f00] border-transparent'
+                    : 'bg-transparent border-gold-bronze/25 text-text-secondary hover:border-gold-champagne/50 hover:text-gold-cream'
                 }`}
+                style={
+                  activeCategory === cat
+                    ? {
+                        background:
+                          'linear-gradient(135deg, hsl(42 55% 90%) 0%, hsl(40 50% 78%) 45%, hsl(34 42% 58%) 100%)',
+                        boxShadow: 'inset 0 1px 0 hsl(42 60% 96% / 0.5), 0 4px 14px hsl(34 42% 30% / 0.45)',
+                      }
+                    : undefined
+                }
               >
                 {FAQ[cat].label}
               </button>
             ))}
           </div>
 
-          {/* Chat area */}
+          {/* Chat */}
           <ScrollArea className="flex-1 min-h-0" ref={scrollRef}>
             <div className="p-4 space-y-3">
               {messages.map((msg, i) => (
                 <ChatBubble key={i} message={msg} />
               ))}
 
-              {/* FAQ chips */}
               <div className="pt-1 space-y-2">
-                <p className="text-[10px] font-montserrat uppercase tracking-widest text-idriel/50 text-center">
-                  <><ScrollText className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />{currentFaq.label}</>
+                <p className="text-[10px] font-montserrat font-bold uppercase tracking-[0.22em] text-gold-champagne/70 text-center flex items-center justify-center gap-1.5">
+                  <ScrollText className="w-3.5 h-3.5" strokeWidth={1.75} />
+                  {currentFaq.label}
                 </p>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-col gap-2">
                   {currentFaq.items.map((item, i) => (
                     <button
                       key={i}
                       onClick={() => handleAsk(item.q, item.a)}
-                      className="text-left text-xs font-merriweather px-3 py-2 rounded-xl border border-idriel/15 bg-idriel/[0.04] hover:bg-idriel/[0.10] hover:border-idriel/30 text-text-secondary hover:text-foreground transition-all"
+                      className="text-left text-sm font-amiri px-4 py-2.5 rounded-lg border border-gold-bronze/25 bg-gold-deep/[0.10] hover:bg-gold-deep/25 hover:border-gold-champagne/40 text-text-secondary hover:text-foreground transition-all"
                     >
                       {item.q}
                     </button>
@@ -245,8 +300,14 @@ const ChatBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
   if (message.role === 'user') {
     return (
       <div className="flex justify-end">
-        <div className="bg-idriel/15 border border-idriel/20 rounded-2xl rounded-tr-sm px-3.5 py-2.5 max-w-[85%]">
-          <p className="font-merriweather text-sm text-foreground">{message.content}</p>
+        <div
+          className="rounded-2xl rounded-tr-sm px-3.5 py-2.5 max-w-[85%]"
+          style={{
+            background: 'linear-gradient(135deg, hsl(34 42% 30% / 0.5), hsl(28 32% 22% / 0.45))',
+            border: '1px solid hsl(40 50% 70% / 0.3)',
+          }}
+        >
+          <p className="font-amiri text-sm text-foreground">{message.content}</p>
         </div>
       </div>
     );
@@ -254,9 +315,20 @@ const ChatBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
 
   return (
     <div className="flex items-start gap-2.5">
-      <img src={idrielAvatar} alt="Idriel" className="w-7 h-7 rounded-full object-cover border border-idriel/30 mt-0.5 shrink-0" />
-      <div className="bg-idriel/[0.06] border border-idriel/10 rounded-2xl rounded-tl-sm px-3.5 py-2.5 max-w-[85%]">
-        <div className="font-merriweather text-sm text-foreground leading-relaxed prose prose-invert prose-sm max-w-none [&_p]:mb-1.5 [&_p:last-child]:mb-0">
+      <img
+        src={idrielAvatar}
+        alt="Idriel"
+        className="w-8 h-8 rounded-full object-cover mt-0.5 shrink-0"
+        style={{ border: '1px solid hsl(40 50% 70% / 0.5)' }}
+      />
+      <div
+        className="rounded-2xl rounded-tl-sm px-3.5 py-2.5 max-w-[85%]"
+        style={{
+          background: 'linear-gradient(135deg, hsl(214 60% 7%), hsl(214 65% 5%))',
+          border: '1px solid hsl(34 42% 45% / 0.25)',
+        }}
+      >
+        <div className="font-amiri text-sm text-foreground leading-relaxed prose prose-invert prose-sm max-w-none [&_p]:mb-1.5 [&_p:last-child]:mb-0 [&_strong]:text-gold-champagne">
           <ReactMarkdown>{message.content}</ReactMarkdown>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import treeWallpaper from '@/assets/tree-wallpaper.webp';
+import heroVideo from '@/assets/arvore-hero-bg.mp4.asset.json';
+import heroPoster from '@/assets/arvore-mundos-hero.png.asset.json';
 import { UserMenu } from '@/components/UserMenu';
 import { FRUITS } from '@/lib/data';
 import { Pencil, ChevronDown, FolderOpen, Plus, Trash2, ArrowDown } from 'lucide-react';
@@ -41,7 +42,7 @@ const Particles: React.FC = () => {
     resize();
     window.addEventListener('resize', resize);
 
-    for (let i = 0; i < 45; i++) {
+    for (let i = 0; i < 20; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
@@ -119,13 +120,25 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
 
   return (
     <header className="relative text-center pt-6 pb-4 px-4 min-h-[230px] mb-0">
-      {/* Background */}
+      {/* Background — vídeo da Árvore com poster otimizado */}
       <div className="absolute inset-0 overflow-hidden z-0">
         <div className="absolute inset-0">
           <img
-            src={treeWallpaper}
+            src={heroPoster.url}
             alt=""
-            className="w-full h-full object-cover object-[center_30%] opacity-60"
+            className="absolute inset-0 w-full h-full object-cover object-[center_30%] opacity-60"
+            aria-hidden="true"
+          />
+          <video
+            className="absolute inset-0 w-full h-full object-cover object-[center_30%] opacity-60"
+            src={heroVideo.url}
+            poster={heroPoster.url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent from-20% via-[#02070d]/70 via-60% to-[#02070d]" />
           <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-b from-transparent to-[#02070d]" />

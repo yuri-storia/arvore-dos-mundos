@@ -188,9 +188,17 @@ export const AppSidebar: React.FC<Props> = ({
                     tooltip={tab.label}
                     className={`transition-all ${
                       activeTab === tab.id
-                        ? 'bg-blue-bright/15 text-blue-light border-l-2 border-blue-bright'
-                        : 'text-text-dim hover:text-foreground hover:bg-white/[0.04]'
+                        ? 'text-[#1a0f00] border-l-2 border-gold-champagne shadow-[inset_0_1px_0_hsl(42_60%_96%/0.4)]'
+                        : 'text-text-secondary hover:text-gold-cream hover:bg-gold-deep/20'
                     }`}
+                    style={
+                      activeTab === tab.id
+                        ? {
+                            background:
+                              'linear-gradient(135deg, hsl(42 55% 90%) 0%, hsl(40 50% 78%) 45%, hsl(34 42% 58%) 100%)',
+                          }
+                        : undefined
+                    }
                   >
                     <tab.icon className="w-4 h-4 shrink-0" strokeWidth={1.75} />
                     {!collapsed && (
