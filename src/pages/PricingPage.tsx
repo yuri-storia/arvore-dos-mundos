@@ -302,24 +302,6 @@ const PricingPage: React.FC = () => {
         </div>
 
 
-                <ul className="space-y-3">
-                  {tier.features.map((f) => (
-                    <li key={f} className="flex items-start gap-3 text-[15px]">
-                      <Check className={`w-4 h-4 mt-1 shrink-0 ${tier.popular ? 'text-gold-champagne' : 'text-blue-light'}`} strokeWidth={2.5} />
-                      <span className="text-foreground/90 font-amiri leading-snug">{f}</span>
-                    </li>
-                  ))}
-                  {tier.missing.map((f) => (
-                    <li key={f} className="flex items-start gap-3 text-[15px] opacity-40">
-                      <X className="w-4 h-4 mt-1 shrink-0" />
-                      <span className="font-amiri line-through leading-snug">{f}</span>
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            );
-          })}
-        </div>
 
         {/* =============== O QUE VOCÊ GANHA =============== */}
         <motion.section
