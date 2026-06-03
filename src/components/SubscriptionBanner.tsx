@@ -63,7 +63,7 @@ export const SubscriptionBanner: React.FC = () => {
               >
                 <span className="font-montserrat font-bold text-xs text-blue-light"><><Leaf className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em] text-blue-light" strokeWidth={1.75} />Raiz — Worldbuilding Completo</></span>
                 <span className="text-[10px] text-text-dim">Mundos ilimitados, fichas e artigos ilimitados, exportação PDF/DOCX</span>
-                <span className="font-montserrat font-bold text-sm text-blue-light">R$ 87/ano</span>
+                <span className="font-montserrat font-bold text-sm text-blue-light">R$ 197/ano</span>
               </button>
               {/* Idriel Monthly */}
               <button
