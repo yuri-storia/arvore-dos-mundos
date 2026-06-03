@@ -104,7 +104,8 @@ const ReferencePanel: React.FC<{ entries: CodexEntry[]; onPreview: (entry: Codex
       </ScrollArea>
     </div>
   );
-};
+});
+ReferencePanel.displayName = 'ReferencePanel';
 
 // ── Mention Popup ──
 const MentionPopup: React.FC<{
