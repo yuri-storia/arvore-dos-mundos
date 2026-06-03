@@ -180,7 +180,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
           <div data-tour="codex-new-entry" className="relative">
             <button
               onClick={() => setShowCreate(!showCreate)}
-              className="px-4 py-2 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 hover:from-yellow-400 hover:via-amber-300 hover:to-yellow-400 text-black rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_12px_rgba(218,165,32,0.3)]"
+              className="px-4 py-2 bg-gradient-to-r from-gold via-gold-warm to-gold-deep hover:from-gold-light hover:via-gold hover:to-gold-warm text-[#1a0f00] rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_12px_hsl(var(--gold)/0.35)]"
             >
               + Nova Entrada
             </button>
