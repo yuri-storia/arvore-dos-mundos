@@ -120,7 +120,7 @@ const FAQ: Record<string, { label: string; items: { q: string; a: string }[] }> 
       },
       {
         q: 'Quais são os planos disponíveis?',
-        a: '**Semente (Grátis):** 1 mundo, 5 fichas, 1 artigo. Sem IA e sem exportação.\n\n**Raiz (R$ 87/ano):** Mundos, fichas e artigos ilimitados. Exportação em PDF. Sem IA.\n\n**Idriel Mensal (R$ 29,90/mês):** Tudo do Raiz + 100 gotas de Seiva Dourada por mês para IA.\n\n**Idriel Anual (R$ 279/ano):** Mesmo que o mensal, com economia de 22%.',
+        a: '**Raiz (R$ 19,90/mês ou R$ 197/ano):** Mundos, fichas e artigos ilimitados. Manuscrito, Mural de Arcos e Exportação em PDF/Word/Kindle. Sem IA.\n\n**Idriel (R$ 39,90/mês ou R$ 397/ano):** Tudo do Raiz + Idriel (IA texto e imagens), mapas IA, análise de mundo e 100 gotas de Seiva Dourada por mês.\n\nNos planos anuais você ganha 2 meses grátis.',
       },
       {
         q: 'Como criar múltiplos mundos?',

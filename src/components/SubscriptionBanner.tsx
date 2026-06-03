@@ -37,7 +37,7 @@ export const SubscriptionBanner: React.FC = () => {
     }
   };
 
-  // Not subscribed at all — Semente (free) user
+  // Not subscribed — no free tier
   if (!sub.subscribed) {
     if (dismissed) return null;
     return (
@@ -50,8 +50,8 @@ export const SubscriptionBanner: React.FC = () => {
             <div className="flex items-center gap-2">
               <Leaf className="w-5 h-5 text-emerald-400" strokeWidth={1.75} />
               <div>
-                <span className="font-montserrat font-bold text-sm text-foreground">Plano Semente — Gratuito</span>
-                <span className="block text-xs text-text-dim">1 mundo · 5 fichas · 1 artigo · sem exportação · sem IA</span>
+                <span className="font-montserrat font-bold text-sm text-foreground">Sem plano ativo</span>
+                <span className="block text-xs text-text-dim">Escolha Raiz ou Idriel para liberar a Árvore dos Mundos</span>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
