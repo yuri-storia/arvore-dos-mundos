@@ -129,11 +129,8 @@ Deno.serve(async (req) => {
         const cycleDays = planMeta.cycle === "yearly" ? 366 : 32;
         const expires = new Date(Date.now() + cycleDays * 24 * 60 * 60 * 1000).toISOString();
 
-        // Deactivate any prior active subs of same user
-        await supa.from("subscriptions").update({ status: "cancelled", cancelled_at: new Date().toISOString() })
-          .eq("user_id", userId).eq("status", "active");
-
-        await supa.from("subscriptions").insert({
+        // UPSERT por user_id (tabela tem UNIQUE em user_id — uma assinatura ativa por usuário)
+        const { error: upsertErr } = await supa.from("subscriptions").upsert({
           user_id: userId,
           plan: "pro",
           status: "active",
@@ -145,7 +142,10 @@ Deno.serve(async (req) => {
           environment: "sandbox",
           started_at: new Date().toISOString(),
           expires_at: expires,
-        });
+          cancelled_at: null,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "user_id" });
+        if (upsertErr) console.error("subscription upsert error:", upsertErr);
       }
     }
 
