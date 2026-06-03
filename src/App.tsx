@@ -27,6 +27,8 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <IdrielJobsProvider>
+            <CheckoutCpfGate />
+
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/inicio" element={<Navigate to="/planos" replace />} />
