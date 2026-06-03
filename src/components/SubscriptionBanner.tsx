@@ -128,8 +128,10 @@ export const SubscriptionBanner: React.FC = () => {
 
   // Idriel user: show credits (Elixir dos Mundos)
   if (sub.hasIdriel) {
-    const creditsLeft = sub.creditLimit - sub.creditsUsed;
-    const pct = sub.creditLimit > 0 ? (sub.creditsUsed / sub.creditLimit) * 100 : 0;
+    const remainingMonth = Math.max(0, sub.creditLimit - sub.creditsUsed);
+    const creditsLeft = remainingMonth + sub.bonusDrops;
+    const totalCapacity = sub.creditLimit + sub.bonusDrops;
+    const pct = totalCapacity > 0 ? (creditsLeft / totalCapacity) * 100 : 0;
     const isLow = creditsLeft > 0 && creditsLeft <= 10;
     const isEmpty = creditsLeft <= 0;
 
