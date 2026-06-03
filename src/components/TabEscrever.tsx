@@ -433,25 +433,8 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
         </div>
       </div>
 
-      {/* ── STORYLINE / MURAL MODE ── */}
-      {writeMode === 'mural' && (
-        <div className="h-[calc(100vh-220px)] min-h-[400px] bg-white/[0.02] rounded-lg border border-blue-bright/10">
-          <KanbanBoard
-            storylines={storylineState.storylines}
-            activeStoryline={storylineState.activeStoryline}
-            setActiveStoryline={storylineState.setActiveStoryline}
-            columns={storylineState.columns}
-            onCreateStoryline={() => storylineState.createStoryline('Nova storyline')}
-            onRenameStoryline={(id, name) => storylineState.updateStoryline(id, { name })}
-            onDeleteStoryline={storylineState.deleteStoryline}
-            onCreateColumn={() => storylineState.createColumn('Nova coluna')}
-            onUpdateColumn={storylineState.updateColumn}
-            onDeleteColumn={storylineState.deleteColumn}
-            onLinkManuscript={(id, mid) => storylineState.updateStoryline(id, { manuscript_id: mid })}
-            manuscripts={manuscripts}
-          />
-        </div>
-      )}
+      {/* ── STORYLINE / MURAL MODE (lazy) ── */}
+      {writeMode === 'mural' && <MuralMode worldId={worldId} manuscripts={manuscripts} />}
 
       {/* ── MANUSCRIPT MODE ── */}
       {writeMode === 'manuscrito' && (
