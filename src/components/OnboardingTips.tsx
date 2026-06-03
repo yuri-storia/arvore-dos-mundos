@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { X, ChevronRight, ChevronLeft, Leaf, Map, BookOpen, Trees, Save, BarChart3, Search, Feather, Timer, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { X, ChevronRight, ChevronLeft, Leaf, Map, BookOpen, Trees, Save, BarChart3, Search, Feather, Timer, Image as ImageIcon, Sparkles, type LucideIcon } from 'lucide-react';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 
 interface Tip {
-  icon: string;
+  Icon: LucideIcon;
+
   title: string;
   desc: string;
 }
