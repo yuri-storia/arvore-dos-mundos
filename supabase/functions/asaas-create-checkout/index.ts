@@ -94,6 +94,29 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Upgrades exigem login + plano atual compatível
+    if (plan.kind === "upgrade") {
+      if (!userId) {
+        return new Response(JSON.stringify({ error: "Login obrigatório para upgrade" }), {
+          status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const required = UPGRADE_REQUIREMENT[planCode] || [];
+      const { data: currentSub } = await supa
+        .from("subscriptions")
+        .select("plan_code, status")
+        .eq("user_id", userId)
+        .eq("status", "active")
+        .maybeSingle();
+      if (!currentSub || !required.includes(currentSub.plan_code)) {
+        return new Response(JSON.stringify({
+          error: "Upgrade indisponível para seu plano atual",
+          current: currentSub?.plan_code || null,
+          required,
+        }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+    }
+
     const origin = req.headers.get("origin") || "https://arvoredosmundos.app";
 
     // externalReference: <userId>:<planCode>  ou  guest:<planCode>:<random>
@@ -101,14 +124,16 @@ Deno.serve(async (req) => {
       ? `${userId}:${planCode}`
       : `guest:${planCode}:${crypto.randomUUID()}`;
 
-    // Não enviamos customerData — o Asaas Checkout exige TODOS os campos (endereço,
-    // telefone, CEP, etc.) quando customerData está presente. Deixamos o próprio
-    // checkout hospedado coletar os dados do cliente.
-
-    // Monta payload do Asaas Checkout
-    // Asaas: RECURRENT só aceita CREDIT_CARD; PIX só aceita DETACHED.
+    // Não enviamos customerData — o Asaas Checkout exige TODOS os campos quando presente.
     const isSubscription = plan.kind === "subscription";
+    const isUpgrade = plan.kind === "upgrade";
     const itemName = (`AdM — ${plan.name}`).slice(0, 30); // máx 30 chars
+    const description = isSubscription
+      ? `Assinatura ${plan.cycle === "YEARLY" ? "anual" : "mensal"} — ${plan.name}`
+      : isUpgrade
+      ? `Upgrade para Idriel — ${plan.name}`
+      : `Recarga avulsa de ${plan.drops} gotas`;
+
     const checkoutPayload: Record<string, any> = {
       billingTypes: isSubscription ? ["CREDIT_CARD"] : ["CREDIT_CARD", "PIX"],
       chargeTypes: isSubscription ? ["RECURRENT"] : ["DETACHED"],
@@ -120,9 +145,7 @@ Deno.serve(async (req) => {
       },
       items: [{
         name: itemName,
-        description: isSubscription
-          ? `Assinatura ${plan.cycle === "YEARLY" ? "anual" : "mensal"} — ${plan.name}`
-          : `Recarga avulsa de ${plan.drops} gotas`,
+        description,
         value: plan.amount,
         quantity: 1,
       }],
