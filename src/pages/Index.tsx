@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { Trees, Sparkles } from 'lucide-react';
 import { AppHeader } from '@/components/AppHeader';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
 import { OnboardingTips } from '@/components/OnboardingTips';
@@ -181,7 +182,7 @@ const Index = () => {
         {showTourPrompt && !tourActive && (
           <div className="fixed inset-0 z-[9990] flex items-center justify-center bg-background/60 backdrop-blur-[3px]" onClick={() => setShowTourPrompt(false)}>
             <div className="card-glass-idriel rounded-2xl p-6 w-[92vw] max-w-[400px] text-center" onClick={e => e.stopPropagation()}>
-              <span className="text-4xl block mb-3">🌳</span>
+              <Trees className="w-12 h-12 mx-auto mb-3 text-gold-champagne" strokeWidth={1.5} />
               <h3 className="font-cinzel font-bold text-lg text-foreground mb-2">Mundo criado, viajante!</h3>
               <p className="font-merriweather italic text-sm text-text-secondary mb-5 leading-relaxed">
                 Deseja que eu, Idriel, lhe mostre os caminhos desta Árvore? Posso guiá-lo(a) pelas ferramentas com graciosidade.
@@ -193,7 +194,7 @@ const Index = () => {
                 </button>
                 <button onClick={() => { setShowTourPrompt(false); setTourActive(true); }}
                   className="px-4 py-2 rounded-lg text-xs font-montserrat font-bold text-background bg-idriel-light hover:bg-idriel-glow transition-all shadow-md shadow-idriel/20">
-                  ✨ Guie-me, Idriel!
+                  <><Sparkles className="inline-block w-4 h-4 mr-1.5 align-[-0.2em]" strokeWidth={1.75} />Guie-me, Idriel!</>
                 </button>
               </div>
             </div>

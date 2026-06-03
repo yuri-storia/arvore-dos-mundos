@@ -1,4 +1,5 @@
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
+import { Sparkles, Loader2, X, FileText, BookText, FileDown, Trash2, Move, Image as ImageIcon, ArrowLeft, FolderUp, Link2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
@@ -170,7 +171,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 </span>
               )}
               <span className="px-1.5 py-0.5 rounded-full bg-accent/10 text-accent text-[9px] font-montserrat font-bold uppercase">
-                📝 Artigo
+                Artigo
               </span>
             </div>
             <h3 className="font-cinzel font-bold text-base text-foreground mb-2">{entry.title}</h3>
@@ -193,7 +194,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               <img src={entry.image_url} alt={entry.title} className="w-full h-full object-cover" style={{ objectPosition: `${imgPos.x}% ${imgPos.y}%` }} />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-5xl opacity-20">{fruitInfo?.icon || '📄'}</span>
+              {fruitInfo ? <fruitInfo.Icon className="w-14 h-14 opacity-30 text-gold-champagne" strokeWidth={1.25} /> : <FileText className="w-14 h-14 opacity-30 text-gold-champagne" strokeWidth={1.25} />}
             </div>
           )}
           {fruitInfo && (
@@ -207,7 +208,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
         <div className="p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <span className="px-1.5 py-0.5 rounded-full bg-secondary/50 text-text-dim text-[9px] font-montserrat font-bold uppercase">
-              📋 Ficha
+              Ficha
             </span>
           </div>
           <h3 className="font-cinzel font-bold text-sm text-foreground mb-1">{entry.title}</h3>
@@ -241,7 +242,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               onClick={e => { e.stopPropagation(); onToggle(); }}
               className="ml-3 w-7 h-7 rounded-full bg-secondary hover:bg-secondary/80 text-foreground text-xs flex items-center justify-center flex-shrink-0 transition-colors"
             >
-              ✕
+              <X className="w-3.5 h-3.5" strokeWidth={2} />
             </button>
           </div>
 
@@ -253,7 +254,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               </span>
             )}
             <span className="px-1.5 py-0.5 rounded-full bg-accent/10 text-accent text-[9px] font-montserrat font-bold uppercase">
-              📝 Artigo
+              Artigo
             </span>
             <span className="text-[9px] text-text-dim font-montserrat ml-auto">
               Atualizado: {new Date(entry.updated_at).toLocaleDateString('pt-BR')}
@@ -273,7 +274,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                     className="w-full bg-[rgba(4,12,24,0.6)] border border-accent/20 rounded-md px-3 py-1.5 text-sm text-foreground font-merriweather focus:outline-none focus:border-accent/50"
                   >
                     <option value="">Nenhum</option>
-                    {FRUITS.map(f => <option key={f.id} value={f.id}>{f.icon} {f.name}</option>)}
+                    {FRUITS.map(f => <option key={f.id} value={f.id}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</option>)}
                   </select>
                 </div>
                 <textarea
@@ -291,7 +292,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                   <nav className="hidden sm:block w-[180px] flex-shrink-0 sticky top-0 self-start">
                     <div className="border border-accent/20 rounded-md bg-accent/5 p-3">
                       <h4 className="font-montserrat font-bold text-[9px] uppercase tracking-wider text-accent mb-2 pb-1.5 border-b border-accent/15">
-                        📑 Índice
+                        <><BookText className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Índice</>
                       </h4>
                       <ul className="space-y-1">
                         {sections.filter(s => s.title).map((s, i) => (
@@ -372,12 +373,12 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               onClick={e => { e.stopPropagation(); exportSingleEntry(entry); }}
               className="px-4 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors"
             >
-              📄 Exportar PDF
+              <><FileDown className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Exportar PDF</>
             </button>
             <ConfirmDialog
               trigger={
                 <button onClick={e => e.stopPropagation()} className="ml-auto px-4 py-1.5 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
-                  🗑 Excluir
+                  <><Trash2 className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Excluir</>
                 </button>
               }
               title="Excluir artigo"
@@ -409,7 +410,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-6xl opacity-15">{fruitInfo?.icon || '📄'}</span>
+              {fruitInfo ? <fruitInfo.Icon className="w-16 h-16 opacity-25 text-gold-champagne" strokeWidth={1.25} /> : <FileText className="w-16 h-16 opacity-25 text-gold-champagne" strokeWidth={1.25} />}
             </div>
           )}
           {entry.image_url && (
@@ -418,14 +419,14 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               className="absolute top-2 right-2 px-2 py-1 bg-card/80 hover:bg-card text-foreground rounded-md text-[9px] font-montserrat font-bold uppercase tracking-wider border border-border transition-colors backdrop-blur-sm"
               title="Ajustar a prévia da ficha"
             >
-              ↕ Ajustar prévia
+              <><Move className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Ajustar prévia</>
             </button>
           )}
           <button
             onClick={e => { e.stopPropagation(); setShowImageMenu(!showImageMenu); }}
             className="absolute bottom-3 right-3 px-3 py-1.5 bg-card/80 hover:bg-card text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider border border-border transition-colors backdrop-blur-sm"
           >
-            {entry.image_url ? '🖼 Alterar' : '🖼 Adicionar'}
+            <><ImageIcon className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />{entry.image_url ? 'Alterar' : 'Adicionar'}</>
           </button>
           {fruitInfo && (
             <div className="absolute top-2 left-2">
@@ -470,7 +471,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               onClick={e => { e.stopPropagation(); onToggle(); }}
               className="ml-3 w-7 h-7 rounded-full bg-secondary hover:bg-secondary/80 text-foreground text-xs flex items-center justify-center flex-shrink-0 transition-colors"
             >
-              ✕
+              <X className="w-3.5 h-3.5" strokeWidth={2} />
             </button>
           </div>
 
@@ -487,7 +488,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                     className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-1.5 text-sm text-foreground font-merriweather focus:outline-none focus:border-ring/50"
                   >
                     <option value="">Nenhum</option>
-                    {FRUITS.map(f => <option key={f.id} value={f.id}>{f.icon} {f.name}</option>)}
+                    {FRUITS.map(f => <option key={f.id} value={f.id}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</option>)}
                   </select>
                 </div>
                 <textarea
@@ -525,12 +526,12 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               onClick={e => { e.stopPropagation(); exportSingleEntry(entry); }}
               className="px-4 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors"
             >
-              📄 Exportar PDF
+              <><FileDown className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Exportar PDF</>
             </button>
             <ConfirmDialog
               trigger={
                 <button onClick={e => e.stopPropagation()} className="ml-auto px-4 py-1.5 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
-                  🗑 Excluir
+                  <><Trash2 className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Excluir</>
                 </button>
               }
               title="Excluir ficha"
@@ -550,7 +551,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h4 className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-blue-light">Escolher da Galeria</h4>
-                <button onClick={() => setShowGalleryPicker(false)} className="text-[10px] text-text-dim font-montserrat hover:text-foreground">← Voltar</button>
+                <button onClick={() => setShowGalleryPicker(false)} className="inline-flex items-center gap-1 text-[10px] text-text-dim font-montserrat hover:text-foreground"><ArrowLeft className="w-3 h-3" strokeWidth={2} />Voltar</button>
               </div>
               {gallery.length === 0 ? (
                 <p className="font-merriweather text-xs text-text-dim italic">Nenhuma imagem na galeria. Adicione imagens na aba Galeria primeiro.</p>
@@ -577,27 +578,27 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                   disabled={uploading}
                   className="px-4 py-2 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors disabled:opacity-40"
                 >
-                  {uploading ? '⏳ Enviando…' : '📁 Upload do computador'}
+                  <>{uploading ? <><Loader2 className="inline-block w-3.5 h-3.5 mr-1.5 animate-spin align-[-0.15em]" strokeWidth={2} />Enviando…</> : <><FolderUp className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Upload do computador</>}</>
                 </button>
                 <button
                   onClick={() => setShowGalleryPicker(true)}
                   className="px-4 py-2 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors"
                 >
-                  🖼 Da galeria do app
+                  <><ImageIcon className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Da galeria do app</>
                 </button>
                 {entry.image_url && (
                   <button
                     onClick={handleRemoveImage}
                     className="px-4 py-2 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors"
                   >
-                    🗑 Remover imagem
+                    <><Trash2 className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Remover imagem</>
                   </button>
                 )}
               </div>
 
 
               <div className="border-t border-border pt-3 mt-1">
-                <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1.5">✨ Gerar imagem com IA</label>
+                <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1.5 inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3 text-gold-champagne" strokeWidth={1.75} />Gerar imagem com IA</label>
                 <div className="flex gap-2">
                   <input
                     value={aiPrompt}
@@ -610,7 +611,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                     disabled={!aiPrompt.trim() || generatingAi}
                     className="px-4 py-2 bg-accent/80 hover:bg-accent text-accent-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors disabled:opacity-40"
                   >
-                    {generatingAi ? '⏳ Gerando…' : '✨ Gerar'}
+                    <>{generatingAi ? <><Loader2 className="inline-block w-3.5 h-3.5 mr-1.5 animate-spin align-[-0.15em]" strokeWidth={2} />Gerando…</> : <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Gerar</>}</>
                   </button>
                 </div>
                 <label className="flex items-center gap-2 mt-2 cursor-pointer select-none">
@@ -621,7 +622,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                     className="accent-gold"
                   />
                   <span className="text-[10px] text-foreground/80 font-merriweather">
-                    🔗 Manter consistência com o Codex (usa imagens da galeria como referência visual)
+                    <><Link2 className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Manter consistência com o Codex (usa imagens da galeria como referência visual)</>
                   </span>
                 </label>
               </div>

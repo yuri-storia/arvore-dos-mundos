@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { Trees, X, ScrollText, Trash2, Droplet, Droplets, Leaf, Sparkles, RefreshCw, Check } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
 import { callAIText, friendlyAIError } from '@/lib/helpers';
@@ -34,12 +35,12 @@ const IDRIEL_NAME = 'Idriel';
 const IDRIEL_TITLE = 'Guardiã da Árvore dos Mundos';
 
 const LOADING_STEPS = [
-  { message: '🌿 Abrindo os galhos da Árvore para enxergar seu mundo…', delay: 0 },
-  { message: '📋 Analisando suas fichas de personagens, criaturas e lugares…', delay: 3000 },
-  { message: '📝 Agora, vou percorrer seus artigos e anotações…', delay: 7000 },
-  { message: '🍎 Verificando a cobertura de cada Fruto do worldbuilding…', delay: 11000 },
-  { message: '🔮 Quase lá… estou reunindo minhas considerações finais…', delay: 16000 },
-  { message: '✨ Tecendo a sabedoria dos Frutos em minha avaliação…', delay: 21000 },
+  { message: 'Abrindo os galhos da Árvore para enxergar seu mundo…', delay: 0 },
+  { message: 'Analisando suas fichas de personagens, criaturas e lugares…', delay: 3000 },
+  { message: 'Agora, vou percorrer seus artigos e anotações…', delay: 7000 },
+  { message: 'Verificando a cobertura de cada Fruto do worldbuilding…', delay: 11000 },
+  { message: 'Quase lá… estou reunindo minhas considerações finais…', delay: 16000 },
+  { message: 'Tecendo a sabedoria dos Frutos em minha avaliação…', delay: 21000 },
 ];
 
 export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
@@ -119,12 +120,12 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
     FRUITS.forEach(fruit => {
       const fruitEntries = entries.filter(e => e.fruit_id === fruit.id);
       if (fruitEntries.length === 0) {
-        lines.push(`## ${fruit.icon} ${fruit.name}\nNenhuma entrada criada.\n`);
+        lines.push(`## ${fruit.name}\nNenhuma entrada criada.\n`);
         return;
       }
-      lines.push(`## ${fruit.icon} ${fruit.name} (${fruitEntries.length} entradas)`);
+      lines.push(`## ${fruit.name} (${fruitEntries.length} entradas)`);
       fruitEntries.forEach(e => {
-        const typeLabel = e.entry_type === 'ficha' ? '📋 Ficha' : '📝 Artigo';
+        const typeLabel = e.entry_type === 'ficha' ? 'Ficha' : 'Artigo';
         const contentPreview = (e.content || '').slice(0, 600);
         lines.push(`### ${typeLabel}: ${e.title}`);
         lines.push(contentPreview || '(sem conteúdo)');
@@ -133,7 +134,7 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
     });
     const orphans = entries.filter(e => e.fruit_id === null);
     if (orphans.length > 0) {
-      lines.push(`## ❓ Sem fruto associado (${orphans.length})`);
+      lines.push(`## Sem fruto associado (${orphans.length})`);
       orphans.forEach(e => {
         lines.push(`- ${e.title}: ${(e.content || '').slice(0, 200)}`);
       });
@@ -152,31 +153,31 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
     const systemPrompt = `Você é ${IDRIEL_NAME}, a ${IDRIEL_TITLE} — uma sábia ancestral élfica que observa mundos florescerem. Fale com elegância e sabedoria, mas seja objetiva e concisa. Trate o usuário como "viajante".
 
 A metodologia "Árvore dos Mundos" usa 11 pilares ("Frutos"):
-${FRUITS.map(f => `- ${f.icon} ${f.name}`).join('\n')}
+${FRUITS.map(f => `- ${f.name}`).join('\n')}
 
 Analise as entradas do Codex e responda em português brasileiro, usando Markdown. NÃO repita saudações. Use EXATAMENTE estas seções:
 
-## 🌿 Saudação
+## Saudação
 Uma ÚNICA frase poética de boas-vindas (máximo 2 linhas).
 
-## 🌳 Avaliação dos Frutos
-Para CADA um dos 11 Frutos, dê uma nota de 1 a 5 estrelas (⭐) e um comentário de UMA linha. Use este formato exato para cada fruto:
-- **${FRUITS.map(f => `${f.icon} ${f.name}**: ⭐⭐⭐ — [comentário breve]`).join('\n- **')}
-Se o fruto não tem entradas, dê ⭐ e diga que precisa ser desenvolvido.
+## Avaliação dos Frutos
+Para CADA um dos 11 Frutos, dê uma nota de 1 a 5 estrelas e um comentário de UMA linha. Use este formato exato para cada fruto:
+- **${FRUITS.map(f => `${f.name}**: 3/5 — [comentário breve]`).join('\n- **')}
+Se o fruto não tem entradas, dê 1 estrela e diga que precisa ser desenvolvido.
 
-## 🕳️ Furos de Enredo
+## Furos de Enredo
 Identifique contradições, lacunas lógicas ou informações que se contradizem entre fichas/artigos. Se não houver, diga brevemente.
 
-## ⚠️ Inconsistências de Worldbuilding
+## Inconsistências de Worldbuilding
 Aponte elementos que não fazem sentido dentro da lógica interna do mundo (ex: tecnologia incompatível com a era, geografia contraditória, sistemas de magia sem regras claras).
 
-## 🌱 Oportunidades de Expansão
+## Oportunidades de Expansão
 Sugira 3-5 áreas promissoras onde o mundo pode crescer, baseando-se no que já existe. Seja específica referenciando entradas do criador.
 
-## ✨ Pontos Fortes
+## Pontos Fortes
 Destaque o que está bem construído e merece reconhecimento. Cite entradas específicas.
 
-## 🧭 Por Onde Continuar
+## Por Onde Continuar
 Liste 3 ações concretas e prioritárias que o criador deveria fazer a seguir, ordenadas por importância. Priorize os frutos com notas mais baixas.
 
 Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_TITLE}".`;
@@ -244,13 +245,13 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="font-cinzel font-bold text-base sm:text-lg text-idriel-light">
-            🌳 {IDRIEL_NAME} — {IDRIEL_TITLE}
+            <><Trees className="inline-block w-4 h-4 mr-2 align-[-0.2em] text-gold-champagne" strokeWidth={1.5} />{IDRIEL_NAME} — {IDRIEL_TITLE}</>
           </h3>
           <p className="font-merriweather italic text-text-dim text-xs mt-1">
             A sábia guardiã irá avaliar todas as suas entradas e sugerir melhorias
           </p>
         </div>
-        <button onClick={onClose} className="w-6 h-6 rounded-full text-text-dim hover:text-foreground text-sm flex items-center justify-center transition-colors">✕</button>
+        <button onClick={onClose} className="w-6 h-6 rounded-full text-text-dim hover:text-foreground flex items-center justify-center transition-colors" aria-label="Fechar"><X className="w-3.5 h-3.5" strokeWidth={2} /></button>
       </div>
 
       {/* Stats summary */}
@@ -285,7 +286,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
           className="w-full mb-4 px-3 py-2 rounded-md border border-accent/20 bg-accent/5 hover:bg-accent/10 transition-colors text-left flex items-center justify-between"
         >
           <span className="text-[10px] uppercase tracking-wider font-montserrat font-bold text-accent-foreground">
-            📜 Histórico de Análises ({history.length})
+            <><ScrollText className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Histórico de Análises ({history.length})</>
           </span>
           <span className="text-text-dim text-xs">{showHistory ? '▲' : '▼'}</span>
         </button>
@@ -327,7 +328,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
                           className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded-full text-destructive hover:bg-destructive/10 text-xs flex items-center justify-center transition-all"
                           title="Excluir análise"
                         >
-                          🗑
+                          <Trash2 className="w-3 h-3" strokeWidth={1.75} />
                         </button>
                       }
                       title="Excluir análise"
@@ -360,7 +361,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
               className={`text-[9px] uppercase tracking-wider font-montserrat font-bold ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : ''}`}
               style={!isOut && !isLow ? { color: '#2A1A00' } : undefined}
             >
-              {isOut ? '🥀 Seiva esgotada' : isLow ? '🍂 Poucas gotas' : '✨ Seiva Dourada'}
+              <>{isOut ? <><Droplets className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Seiva esgotada</> : isLow ? <><Leaf className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Poucas gotas</> : <><Sparkles className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Seiva Dourada</>}</>
             </span>
             <span
               className={`text-[10px] font-montserrat font-bold ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : ''}`}
@@ -385,7 +386,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
       {!sub.loading && !planLimits.canUseAI && (
         <div className="rounded-md px-3 py-2 mb-4 border border-destructive/30 bg-destructive/5">
           <p className="text-[10px] text-destructive font-merriweather">
-            🥀 Idriel precisa de Seiva Dourada para novas análises. Mas você ainda pode revisitar análises anteriores no histórico!
+            <><Droplets className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Idriel precisa de Seiva Dourada para novas análises. Mas você ainda pode revisitar análises anteriores no histórico!</>
           </p>
         </div>
       )}
@@ -402,11 +403,11 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
               disabled={!canAnalyze || sub.loading}
               className="px-5 py-2.5 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_hsl(var(--idriel)/0.3)] hover:shadow-[0_0_30px_hsl(var(--idriel)/0.5)] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
             >
-              🌳 Consultar {IDRIEL_NAME} sobre {entries.length} entrada{entries.length !== 1 ? 's' : ''}
+              <><Trees className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Consultar {IDRIEL_NAME} sobre {entries.length} entrada{entries.length !== 1 ? 's' : ''}</>
             </button>
           )}
           <p className="text-[10px] text-text-dim mt-2 font-montserrat">
-            💧 Custo: <span className="font-bold text-idriel-light">{ANALYSIS_COST} gota</span> de Seiva · Você tem <span className="font-bold text-idriel-light">{creditsRemaining} gotas</span> · Análises anteriores são gratuitas
+            <Droplet className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Custo: <span className="font-bold text-idriel-light">{ANALYSIS_COST} gota</span> de Seiva · Você tem <span className="font-bold text-idriel-light">{creditsRemaining} gotas</span> · Análises anteriores são gratuitas
           </p>
         </div>
       )}
@@ -419,7 +420,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
               <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-idriel/40 shadow-[0_0_30px_hsl(var(--idriel-glow)/0.3)] animate-pulse">
                 <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
               </div>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-idriel/30 border border-idriel-light/50 flex items-center justify-center text-xs animate-pulse">🌳</div>
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-idriel/30 border border-idriel-light/50 flex items-center justify-center animate-pulse"><Trees className="w-3 h-3 text-gold-champagne" strokeWidth={1.75} /></div>
             </div>
             <div className="text-center">
               <p className="font-cinzel font-bold text-sm text-foreground">{IDRIEL_NAME}</p>
@@ -442,7 +443,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
                       ? 'bg-violet-500/30 text-violet-400 animate-pulse'
                       : 'bg-border text-text-dim'
                 }`}>
-                  {i < currentStep ? '✓' : '●'}
+                  {i < currentStep ? <Check className="w-3 h-3" strokeWidth={2.5} /> : <span className="w-1.5 h-1.5 rounded-full bg-current" />}
                 </span>
                 <p className={`font-merriweather italic text-sm transition-colors duration-300 ${
                   i === currentStep ? 'text-foreground' : 'text-text-dim'
@@ -465,7 +466,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
         <div className="mt-4 animate-fade-in">
           {viewingHistoryId && (
             <div className="mb-3 px-3 py-1.5 rounded-md bg-accent/10 border border-accent/20 flex items-center gap-2">
-              <span className="text-[10px] text-accent-foreground font-montserrat">📜 Visualizando análise do histórico</span>
+              <span className="text-[10px] text-accent-foreground font-montserrat inline-flex items-center gap-1.5"><ScrollText className="w-3 h-3" strokeWidth={1.75} />Visualizando análise do histórico</span>
               <button
                 onClick={() => { setViewingHistoryId(null); setAnalysis(''); setRevealedChars(0); }}
                 className="text-[10px] text-text-dim hover:text-foreground font-montserrat underline ml-auto"
@@ -498,12 +499,12 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
                   h2: ({ children, ...props }) => {
                     const text = String(children);
                     let colorClass = 'text-idriel-light';
-                    if (text.includes('Furos') || text.includes('🕳️')) colorClass = 'text-destructive';
-                    else if (text.includes('Inconsistências') || text.includes('⚠️')) colorClass = 'text-orange-400';
-                    else if (text.includes('Expansão') || text.includes('🌱')) colorClass = 'text-emerald-400';
-                    else if (text.includes('Fortes') || text.includes('✨')) colorClass = 'text-idriel-light';
-                    else if (text.includes('Continuar') || text.includes('🧭')) colorClass = 'text-blue-light';
-                    else if (text.includes('Avaliação') || text.includes('🌳')) colorClass = 'text-idriel-light';
+                    if (text.includes('Furos')) colorClass = 'text-destructive';
+                    else if (text.includes('Inconsistências')) colorClass = 'text-orange-400';
+                    else if (text.includes('Expansão')) colorClass = 'text-emerald-400';
+                    else if (text.includes('Fortes')) colorClass = 'text-idriel-light';
+                    else if (text.includes('Continuar')) colorClass = 'text-blue-light';
+                    else if (text.includes('Avaliação')) colorClass = 'text-idriel-light';
                     return <h2 className={`font-cinzel text-base font-bold mt-5 mb-2 ${colorClass}`} {...props}>{children}</h2>;
                   }
                 }}
@@ -520,7 +521,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
                 disabled={!canAnalyze}
                 className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors disabled:opacity-40"
               >
-                🔄 Nova análise
+                <><RefreshCw className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Nova análise</>
               </button>
             )}
             <button

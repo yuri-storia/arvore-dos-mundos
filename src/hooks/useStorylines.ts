@@ -24,10 +24,10 @@ export interface StorylineColumn {
 }
 
 const DEFAULT_COLUMNS = [
-  { title: '💡 Ideia', color: 'yellow' },
-  { title: '✏️ Rascunho', color: 'blue' },
-  { title: '🔍 Revisão', color: 'purple' },
-  { title: '✅ Pronto', color: 'green' },
+  { title: 'Ideia', color: 'yellow' },
+  { title: 'Rascunho', color: 'blue' },
+  { title: 'Revisão', color: 'purple' },
+  { title: 'Pronto', color: 'green' },
 ];
 
 export function useStorylines(worldId?: string) {

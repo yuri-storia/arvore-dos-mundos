@@ -76,23 +76,51 @@
   * {
     @apply border-border;
   }
+  html { font-size: 16px; }
   body {
     @apply bg-background text-foreground;
     font-family: 'Amiri', 'Merriweather', Georgia, serif;
-    font-size: 16px;
+    font-size: 1rem;
     line-height: 1.65;
     background-color: hsl(var(--bg-deep));
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  /* Headings — Cinzel, ritmo de display tipográfico premium */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.15;
+  }
+  h1 { font-size: clamp(2rem, 4.4vw + 0.5rem, 3.75rem); }
+  h2 { font-size: clamp(1.6rem, 2.6vw + 0.5rem, 2.5rem); }
+  h3 { font-size: clamp(1.25rem, 1.4vw + 0.6rem, 1.6rem); }
+  h4 { font-size: clamp(1.1rem, 1vw + 0.6rem, 1.3rem); }
+  p, li { line-height: 1.7; }
+  /* Mínimo de legibilidade para Amiri (serif precisa de mais corpo) */
+  p { font-size: clamp(0.95rem, 0.5vw + 0.85rem, 1.0625rem); }
+  small, .text-xs, .text-\[10px\], .text-\[11px\] {
+    /* Pequenos só em chrome de UI — Amiri serif fica ilegível abaixo de 12px */
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 0.02em;
   }
 }
 
 /* Fonts */
-.font-cinzel { font-family: 'Cinzel', serif; }
+.font-cinzel { font-family: 'Cinzel', serif; letter-spacing: 0.01em; }
 .font-montserrat { font-family: 'Montserrat', sans-serif; }
 .font-merriweather { font-family: 'Merriweather', serif; }
 .font-amiri { font-family: 'Amiri', 'Merriweather', Georgia, serif; }
 
-/* Premium gold gradient — bronze → champagne → cream */
+/* Escala tipográfica utilitária (corpo legível) */
+.text-body-lg { font-size: clamp(1.0625rem, 0.4vw + 0.95rem, 1.2rem); line-height: 1.7; }
+.text-body    { font-size: clamp(0.9375rem, 0.4vw + 0.85rem, 1.0625rem); line-height: 1.7; }
+.text-body-sm { font-size: 0.9375rem; line-height: 1.6; }
+.text-ui      { font-family: 'Montserrat', sans-serif; font-size: 0.75rem; letter-spacing: 0.08em; }
+.text-ui-xs   { font-family: 'Montserrat', sans-serif; font-size: 0.6875rem; letter-spacing: 0.16em; text-transform: uppercase; }
+
+/* Premium gold — bronze → champagne → cream */
 .text-gradient-gold {
   background: linear-gradient(135deg,
     hsl(var(--gold-bronze)) 0%,
@@ -111,11 +139,33 @@
     hsl(var(--gold-warm)) 55%,
     hsl(var(--gold-champagne)) 100%);
 }
-.border-gradient-gold {
-  border-image: linear-gradient(135deg,
-    hsl(var(--gold-bronze)),
-    hsl(var(--gold-champagne)),
-    hsl(var(--gold-bronze))) 1;
+.bg-gradient-gold-soft {
+  background: linear-gradient(135deg,
+    hsl(var(--gold-deep) / 0.18) 0%,
+    hsl(var(--gold-warm) / 0.10) 50%,
+    hsl(var(--bg-deep) / 0.92) 100%);
+}
+.border-gold-premium {
+  border: 1px solid transparent;
+  background-image:
+    linear-gradient(hsl(var(--bg-deep)), hsl(var(--bg-deep))),
+    linear-gradient(135deg, hsl(var(--gold-bronze)), hsl(var(--gold-champagne)), hsl(var(--gold-bronze)));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+.shadow-gold-glow {
+  box-shadow:
+    0 0 24px hsl(var(--gold-warm) / 0.25),
+    0 0 60px hsl(var(--gold-bronze) / 0.18);
+}
+.shadow-gold-glow-strong {
+  box-shadow:
+    0 8px 32px hsl(var(--gold-warm) / 0.35),
+    0 0 80px hsl(var(--gold-bronze) / 0.28),
+    inset 0 1px 0 hsl(var(--gold-cream) / 0.2);
+}
+.ring-gold-soft {
+  box-shadow: 0 0 0 1px hsl(var(--gold-bronze) / 0.35), 0 0 0 4px hsl(var(--gold-warm) / 0.08);
 }
 
 /* Animations */

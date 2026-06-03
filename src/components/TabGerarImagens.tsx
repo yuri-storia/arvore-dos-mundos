@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock } from 'lucide-react';
+import { Lock, Leaf, Sparkles, Bug, Check, ClipboardCopy, Save, ArrowDown } from 'lucide-react';
 import { STYLE_OPTIONS, IMAGE_TYPE_OPTIONS, TONE_OPTIONS, FRUITS, GalleryImage } from '@/lib/data';
 import { callAIText, callAIImage, friendlyAIError } from '@/lib/helpers';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -46,7 +46,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   };
 
   const handleCreatePrompt = async () => {
-    if (!planLimits.canUseAI) { setError('🌿 Idriel precisa do plano mensal para canalizar a Seiva Dourada. Faça o upgrade!'); return; }
+    if (!planLimits.canUseAI) { setError('Idriel precisa do plano mensal para canalizar a Seiva Dourada. Faça o upgrade!'); return; }
     if (!desc.trim()) { setError('Descreva a visão que deseja materializar.'); return; }
     setError('');
     setLoading1(true);
@@ -67,7 +67,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   };
 
   const handleGenerate = async () => {
-    if (!planLimits.canUseAI) { setError('🌿 Idriel precisa do plano mensal para materializar visões. Faça o upgrade!'); return; }
+    if (!planLimits.canUseAI) { setError('Idriel precisa do plano mensal para materializar visões. Faça o upgrade!'); return; }
     if (!generatedPrompt) return;
     setError('');
     setLoading2(true);
@@ -106,7 +106,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
 
   return (
     <div className="animate-fadeUp mx-auto max-w-[1060px] px-4 py-6">
-      <h1 className="font-cinzel font-bold text-2xl text-foreground mb-1">🌿 Visões de Idriel</h1>
+      <h1 className="font-cinzel font-bold text-2xl text-foreground mb-1 inline-flex items-center gap-2"><Leaf className="w-5 h-5 text-gold-champagne" strokeWidth={1.75} />Visões de Idriel</h1>
       <p className="font-merriweather italic text-text-dim text-sm mb-5">
         Idriel canaliza a Seiva Dourada da Árvore para materializar as visões do seu mundo · Descreva e ela dará forma
       </p>
@@ -124,7 +124,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
             onClick={async () => { const { openCheckout, STRIPE_PLANS } = await import('@/hooks/useSubscription'); openCheckout(STRIPE_PLANS.idriel_mensal.price_id); }}
             className="px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/[0.12] transition-all"
           >
-            ✨ Desbloquear Idriel — R$ 29,90/mês
+            <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Desbloquear Idriel — R$ 29,90/mês</>
           </button>
         </div>
       )}
@@ -183,14 +183,14 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
             disabled={loading1 || !planLimits.canUseAI}
             className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold text-gold-light hover:bg-gold/10 disabled:opacity-40 transition-all"
           >
-            {loading1 ? '🌿 Idriel está tecendo…' : '🌿 1. Pedir Visão a Idriel'}
+            <><Leaf className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />{loading1 ? 'Idriel está tecendo…' : '1. Pedir Visão a Idriel'}</>
           </button>
           <button
             onClick={handleGenerate}
             disabled={loading2 || !generatedPrompt || !planLimits.canUseAI}
             className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-all"
           >
-            {loading2 ? '✨ Materializando…' : '✨ 2. Materializar Visão'}
+            <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />{loading2 ? 'Materializando…' : '2. Materializar Visão'}</>
           </button>
         </div>
 
@@ -216,7 +216,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
                   initialContext={`Erro de IA (${f.kind}) na aba Gerar Imagens: ${error}`}
                   trigger={
                     <button className="px-2.5 py-1 rounded text-[10px] font-montserrat font-bold uppercase tracking-wider border border-red-alert/40 text-red-alert hover:bg-red-alert/10 transition-colors">
-                      🐞 Reportar problema
+                      <><Bug className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Reportar problema</>
                     </button>
                   }
                 />
@@ -278,18 +278,18 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
       {/* Generated prompt */}
       {generatedPrompt && !loading1 && (
         <div className="animate-fadeUp card-glass rounded-lg p-5 mb-5 border border-gold/20">
-          <span className="font-cinzel text-[10px] text-gold-light block mb-2">🌿 Visão tecida por Idriel</span>
+          <span className="font-cinzel text-[10px] text-gold-light mb-2 inline-flex items-center gap-1.5"><Leaf className="w-3 h-3" strokeWidth={1.75} />Visão tecida por Idriel</span>
           <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed mb-4">{generatedPrompt}</p>
           <div className="flex flex-wrap gap-2">
             <button onClick={copyPrompt} className="px-3 py-1.5 rounded-md text-xs font-montserrat border border-gold/30 text-text-secondary hover:text-foreground transition-colors">
-              {copied ? '✓ Copiado!' : '📋 Copiar para Midjourney / Leonardo'}
+              <>{copied ? <><Check className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Copiado!</> : <><ClipboardCopy className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Copiar para Midjourney / Leonardo</>}</>
             </button>
             <button
               onClick={handleGenerate}
               disabled={loading2}
               className="px-3 py-1.5 rounded-md text-xs font-montserrat bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-colors"
             >
-              ✨ Materializar Visão
+              <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Materializar Visão</>
             </button>
           </div>
         </div>
@@ -298,14 +298,14 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
       {/* Generated image */}
       {generatedImage && !loading2 && (
         <div className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20">
-          <span className="font-cinzel text-[10px] text-gold-light block mb-3">✨ Visão materializada pela Seiva Dourada</span>
+          <span className="font-cinzel text-[10px] text-gold-light mb-3 inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3" strokeWidth={1.75} />Visão materializada pela Seiva Dourada</span>
           <img src={generatedImage} alt="Visão de Idriel" className="w-full max-w-[512px] mx-auto rounded-lg mb-4" />
           <div className="flex flex-wrap gap-2 justify-center">
             <button onClick={openSaveModal} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors">
-              💾 Guardar na Galeria
+              <><Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Guardar na Galeria</>
             </button>
             <a href={generatedImage} download target="_blank" rel="noopener" className="px-4 py-2 rounded-md text-xs font-montserrat border border-gold/30 text-text-secondary hover:text-foreground transition-colors">
-              ⬇ Baixar
+              <><ArrowDown className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Baixar</>
             </a>
           </div>
         </div>
@@ -338,7 +338,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
                       : 'text-text-dim border border-transparent hover:border-gold/20'
                   }`}
                 >
-                  {f.icon} {f.name}
+                  <f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}
                 </button>
               ))}
             </div>
@@ -347,7 +347,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
                 Cancelar
               </button>
               <button onClick={confirmSave} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors">
-                💾 Guardar
+                <Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Guardar
               </button>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Loader2, Plus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -85,7 +86,7 @@ const AdminPage: React.FC = () => {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="font-cinzel font-bold text-2xl text-foreground">
-              🛡 Painel do Administrador
+              Painel do Administrador
             </h1>
             <p className="font-merriweather italic text-text-dim text-sm mt-1">
               Gerencie quem pode acessar o template
@@ -96,7 +97,7 @@ const AdminPage: React.FC = () => {
               onClick={() => navigate('/')}
               className="px-3 py-1.5 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-blue-bright/30 text-text-secondary hover:text-foreground transition-colors"
             >
-              ← Voltar
+              Voltar
             </button>
             <ConfirmDialog
               trigger={
@@ -134,7 +135,7 @@ const AdminPage: React.FC = () => {
               disabled={adding}
               className="px-4 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
             >
-              {adding ? '⏳' : '+ Adicionar'}
+              {adding ? <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={2} /> : <><Plus className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={2} />Adicionar</>}
             </button>
           </div>
         </div>

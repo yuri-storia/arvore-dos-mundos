@@ -16,7 +16,7 @@ const SEMENTE_LIMITS: PlanLimits = {
   maxArtigos: 1,
   canExport: false,
   canUseAI: false,
-  planLabel: '🌱 Semente',
+  planLabel: 'Semente',
 };
 
 const RAIZ_LIMITS: PlanLimits = {
@@ -25,7 +25,7 @@ const RAIZ_LIMITS: PlanLimits = {
   maxArtigos: Infinity,
   canExport: true,
   canUseAI: false,
-  planLabel: '🌿 Raiz',
+  planLabel: 'Raiz',
 };
 
 const IDRIEL_LIMITS: PlanLimits = {
@@ -34,7 +34,7 @@ const IDRIEL_LIMITS: PlanLimits = {
   maxArtigos: Infinity,
   canExport: true,
   canUseAI: true,
-  planLabel: '✨ Idriel',
+  planLabel: 'Idriel',
 };
 
 const ADMIN_LIMITS: PlanLimits = {
@@ -43,7 +43,7 @@ const ADMIN_LIMITS: PlanLimits = {
   maxArtigos: Infinity,
   canExport: true,
   canUseAI: true,
-  planLabel: '👑 Admin',
+  planLabel: 'Admin',
 };
 
 export function usePlanLimits(): PlanLimits & { loading: boolean } {

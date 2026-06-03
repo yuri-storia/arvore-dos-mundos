@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Trees, Leaf, Feather, Sparkles, Compass, Image as ImageIcon } from 'lucide-react';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 
 const STEPS = [
-  { icon: '🌳', title: 'Crie seu mundo', desc: 'Faça login, nomeie seu mundo no campo acima e clique em "Criar Mundo". Tudo salva na nuvem automaticamente.' },
-  { icon: '🧭', title: 'Escolha o método', desc: 'Cima para Baixo: do panorama aos detalhes. Baixo para Cima: dos personagens ao mundo. Escolha na aba Construir.' },
-  { icon: '🌿', title: 'Explore os 11 Frutos', desc: 'Cada Fruto é um pilar do worldbuilding (Mapa, Cultura, Magia…). Vá em qualquer ordem — comece pelo que te inspira!' },
-  { icon: '✍️', title: 'Escreva sua história', desc: 'Na aba Escrever, crie manuscritos com capítulos e cenas, organize no mural ou escreva rascunhos livres. Exporte como PDF ou Word.' },
-  { icon: '🖼️', title: 'Galeria e Visões de Idriel', desc: 'Na aba Galeria, faça upload de referências visuais e gere imagens com IA através das Visões de Idriel (plano completo).' },
+  { Icon: Trees, title: 'Crie seu mundo', desc: 'Faça login, nomeie seu mundo no campo acima e clique em "Criar Mundo". Tudo salva na nuvem automaticamente.' },
+  { Icon: Compass, title: 'Escolha o método', desc: 'Cima para Baixo: do panorama aos detalhes. Baixo para Cima: dos personagens ao mundo. Escolha na aba Construir.' },
+  { Icon: Leaf, title: 'Explore os 11 Frutos', desc: 'Cada Fruto é um pilar do worldbuilding (Mapa, Cultura, Magia…). Vá em qualquer ordem — comece pelo que te inspira!' },
+  { Icon: Feather, title: 'Escreva sua história', desc: 'Na aba Escrever, crie manuscritos com capítulos e cenas, organize no mural ou escreva rascunhos livres. Exporte como PDF ou Word.' },
+  { Icon: ImageIcon, title: 'Galeria e Visões de Idriel', desc: 'Na aba Galeria, faça upload de referências visuais e gere imagens com IA através das Visões de Idriel (plano completo).' },
 ];
 
 export const OnboardingBanner: React.FC = () => {
@@ -25,7 +25,7 @@ export const OnboardingBanner: React.FC = () => {
             textShadow: '0 0 8px hsl(38 73% 60% / 0.8), 0 0 20px hsl(38 73% 60% / 0.5), 0 0 40px hsl(38 67% 48% / 0.3)',
           }}
         >
-          ✦ Tutorial: Como usar A Árvore dos Mundos ✦
+          Tutorial: Como usar A Árvore dos Mundos
         </h2>
         {expanded ? (
           <ChevronUp className="w-4 h-4 text-gold-light shrink-0 transition-colors" />
@@ -43,7 +43,7 @@ export const OnboardingBanner: React.FC = () => {
               <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
             </div>
             <div>
-              <h3 className="font-cinzel font-bold text-sm text-gold-light">🌿 Conheça Idriel</h3>
+              <h3 className="font-cinzel font-bold text-sm text-gold-light"><><Leaf className="inline-block w-4 h-4 mr-1.5 align-[-0.2em] text-gold-champagne" strokeWidth={1.75} />Conheça Idriel</></h3>
               <p className="font-merriweather text-text-secondary text-xs leading-relaxed mt-1">
                 <strong className="text-gold-light">Idriel, a Guardiã da Árvore dos Mundos</strong>, é a sua mentora élfica pessoal. Ela observa cada mundo que nasce e guia você com sabedoria milenar. Peça ajuda a ela em qualquer campo, consulte-a sobre seu Fruto atual ou solicite uma <strong className="text-gold-light">Análise de Mundo</strong> completa no Codex. Idriel se encanta com cada detalhe que você cria!
               </p>
@@ -70,7 +70,7 @@ export const OnboardingBanner: React.FC = () => {
           <div className="mt-5 rounded-lg p-4 border border-amber-500/30 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(180,130,20,0.15) 0%, rgba(218,165,32,0.08) 100%)' }}>
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
             <div className="flex gap-3 items-start">
-              <span className="text-xl shrink-0 mt-0.5">✨</span>
+              <Sparkles className="w-5 h-5 shrink-0 mt-1 text-gold-champagne" strokeWidth={1.75} />
               <div>
                 <h3 className="font-montserrat font-bold text-sm text-gold-light">
                   Seiva Dourada — Energia de Idriel
@@ -79,7 +79,7 @@ export const OnboardingBanner: React.FC = () => {
                   Idriel alimenta suas habilidades com <strong className="text-gold-light">Seiva Dourada</strong> — a energia que flui pela Árvore dos Mundos. Seu plano inclui <strong className="text-gold-light">100 gotas de Seiva</strong> por mês. Textos consomem <strong className="text-gold-light">1 gota</strong>, imagens consomem <strong className="text-gold-light">5 gotas</strong> e uma Análise de Mundo consome <strong className="text-gold-light">2 gotas</strong>.
                 </p>
                 <p className="mt-2 text-[11px] text-text-dim font-merriweather italic">
-                  🌿 Acompanhe sua Seiva Dourada no banner dourado no topo da página. A cada lua nova (mês), Idriel renova sua energia!
+                  <><Leaf className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} />Acompanhe sua Seiva Dourada no banner dourado no topo da página. A cada lua nova (mês), Idriel renova sua energia!</>
                 </p>
               </div>
             </div>

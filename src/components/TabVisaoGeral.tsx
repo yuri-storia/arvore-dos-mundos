@@ -1,4 +1,5 @@
 import React from 'react';
+import { PencilLine, FileDown } from 'lucide-react';
 import { FRUITS, getOrderedFruits } from '@/lib/data';
 import { getFruitProgress, getFruitsStarted, getFruitsComplete, getTotalProgress, exportWorldMarkdown } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
@@ -118,13 +119,13 @@ export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrent
           onClick={() => setActiveTab('construir')}
           className="px-5 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
         >
-          ✏️ Continuar Construindo
+          <><PencilLine className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Continuar Construindo</>
         </button>
         <button
           onClick={() => exportWorldMarkdown(worldName, method, db)}
           className="px-5 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
         >
-          🌳 Exportar PDF
+          <><FileDown className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Exportar PDF</>
         </button>
       </div>
     </div>

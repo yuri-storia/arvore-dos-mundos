@@ -87,7 +87,7 @@ export const RechargePackageDialog: React.FC<RechargePackageDialogProps> = ({ op
                   </span>
                 )}
 
-                <span className="text-2xl mb-1">🧪</span>
+                <Droplet className="w-6 h-6 mb-1 text-gold-champagne" strokeWidth={1.75} />
                 <span className="font-cinzel font-bold text-lg text-gold-light">
                   {pkg.drops}
                 </span>

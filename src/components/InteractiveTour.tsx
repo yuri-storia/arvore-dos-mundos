@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Sparkles, Hand, ArrowRight, Compass, ClipboardList, Book, BookOpen, Apple, Star, Trees, Palette, Image as ImageIcon, Leaf, Feather } from 'lucide-react';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 import type { TabType } from '@/lib/data';
 
@@ -27,7 +28,7 @@ const TOUR_STEPS: TourStep[] = [
     type: 'intro',
     title: 'Bem-vindo(a) à Árvore dos Mundos!',
     desc: 'Saudações, viajante! Eu sou Idriel, guardiã ancestral desta árvore mágica. Será uma honra guiá-lo(a) por cada ferramenta deste lugar sagrado. Preste atenção nos destaques dourados — eles mostram onde a magia acontece!',
-    icon: '🌳',
+    Icon: Trees,
   },
 
   // ── CONSTRUIR ──
@@ -37,14 +38,14 @@ const TOUR_STEPS: TourStep[] = [
     tabToActivate: 'construir',
     title: 'Aba Construir',
     desc: 'Vamos começar pela fundação do seu mundo, viajante. Clique em Construir!',
-    icon: '🌿',
+    Icon: Leaf,
   },
   {
     type: 'highlight',
     target: 'method-selector',
     title: 'Dois Caminhos, Viajante',
     desc: 'Existem dois caminhos para cultivar seu mundo. "De Cima para Baixo" parte do panorama geral — mapa, cosmologia, história — e desce aos detalhes. "De Baixo para Cima" nasce dos personagens e expande o mundo conforme a história pede. Os modelos ajudam a organizar o raciocínio, mas se você já for um criador experimentado, sinta-se livre para trilhar seu próprio caminho entre os Frutos.',
-    icon: '🧭',
+    Icon: Compass,
     tooltipPos: 'bottom',
     delay: 400,
   },
@@ -53,7 +54,7 @@ const TOUR_STEPS: TourStep[] = [
     target: 'method-bottom-up',
     title: 'Experimente "De Baixo para Cima"',
     desc: 'Para que sinta a diferença, viajante, clique em "De Baixo para Cima". Observe como a ordem dos Frutos se reorganiza, priorizando personagens e narrativa antes do panorama geral.',
-    icon: '🧭',
+    Icon: Compass,
     tooltipPos: 'bottom',
     delay: 200,
   },
@@ -62,7 +63,7 @@ const TOUR_STEPS: TourStep[] = [
     target: 'fruit-grid',
     title: 'Os 11 Frutos do Mundo',
     desc: 'Cada card é um Fruto — um pilar do seu mundo, viajante. Mapa, história, culturas, magia, personagens… O modelo escolhido sugere uma ordem, mas você é livre para explorar qualquer Fruto quando a inspiração chamar.',
-    icon: '🍎',
+    Icon: Apple,
     tooltipPos: 'bottom',
     delay: 400,
     setFruit: 1,
@@ -72,7 +73,7 @@ const TOUR_STEPS: TourStep[] = [
     target: 'consult-idriel',
     title: 'Consultar Idriel (Plano Completo)',
     desc: 'Dentro de cada Fruto, viajante, você pode me consultar! Use os chips de sugestão ou escreva sua dúvida. Este recurso é exclusivo do plano Template + Idriel e custa apenas 1 gota de Seiva.',
-    icon: '🌿',
+    Icon: Leaf,
     tooltipPos: 'top',
     delay: 200,
   },
@@ -84,14 +85,14 @@ const TOUR_STEPS: TourStep[] = [
     tabToActivate: 'codex',
     title: 'Aba Codex',
     desc: 'Agora vamos ver onde tudo se organiza, viajante. Clique em Codex!',
-    icon: '📖',
+    Icon: BookOpen,
   },
   {
     type: 'highlight',
     target: 'codex-new-entry',
     title: 'Criar Fichas e Artigos',
     desc: 'Aqui você cria Fichas (com imagem, para personagens, locais e itens) e Artigos (texto livre, para lore e regras). Tudo que você preenche nos Frutos também aparece aqui automaticamente!',
-    icon: '📋',
+    Icon: ClipboardList,
     tooltipPos: 'left',
     delay: 400,
   },
@@ -103,14 +104,14 @@ const TOUR_STEPS: TourStep[] = [
     tabToActivate: 'escrever',
     title: 'Aba Escrever',
     desc: 'Hora de dar vida à sua história, viajante! Clique em Escrever!',
-    icon: '✍️',
+    Icon: Feather,
   },
   {
     type: 'highlight',
     target: 'create-manuscript',
     title: 'Criar Manuscrito',
     desc: 'Comece criando um manuscrito, viajante. Dentro dele, você organiza Capítulos e Cenas — como um livro de verdade. Depois pode exportar em PDF, Word ou HTML para e-book!',
-    icon: '📕',
+    Icon: Book,
     tooltipPos: 'right',
     delay: 400,
   },
@@ -122,14 +123,14 @@ const TOUR_STEPS: TourStep[] = [
     tabToActivate: 'galeria',
     title: 'Aba Galeria',
     desc: 'Por último, as referências visuais, viajante! Clique em Galeria!',
-    icon: '🎨',
+    Icon: Palette,
   },
   {
     type: 'highlight',
     target: 'gallery-upload',
     title: 'Upload de Referências',
     desc: 'Faça upload das imagens que inspiram seu mundo — concept arts, mapas, paisagens. Organize por categoria de Fruto para encontrar facilmente.',
-    icon: '🖼️',
+    Icon: ImageIcon,
     tooltipPos: 'bottom',
     delay: 400,
   },
@@ -138,7 +139,7 @@ const TOUR_STEPS: TourStep[] = [
     target: 'visoes-idriel',
     title: 'Visões de Idriel — Geração de Imagens',
     desc: 'Aqui eu materializo as visões do seu mundo, viajante! Descreva o que imagina, escolha estilo e tom, e eu gero a imagem com IA. Cada visão custa 5 gotas de Seiva Dourada. Este recurso é exclusivo do plano completo.',
-    icon: '✨',
+    Icon: Sparkles,
     tooltipPos: 'top',
     delay: 200,
   },
@@ -147,8 +148,8 @@ const TOUR_STEPS: TourStep[] = [
   {
     type: 'outro',
     title: 'A jornada começa agora!',
-    desc: 'Agora você conhece cada ferramenta da Árvore, viajante. Comece pelo Fruto que mais te inspira — não existe ordem certa. E lembre-se: clique na minha imagem no canto inferior direito para me chamar a qualquer momento. Que a Árvore ilumine o seu caminho! ✨',
-    icon: '🌟',
+    desc: 'Agora você conhece cada ferramenta da Árvore, viajante. Comece pelo Fruto que mais te inspira — não existe ordem certa. E lembre-se: clique na minha imagem no canto inferior direito para me chamar a qualquer momento. Que a Árvore ilumine o seu caminho!',
+    Icon: Star,
   },
 ];
 
@@ -407,7 +408,7 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
           <div className="flex items-center gap-3 mb-3">
             <div className="relative shrink-0">
               <img src={idrielAvatar} alt="Idriel" className="w-10 h-10 rounded-full object-cover border-2 border-idriel/50 animate-idriel-pulse" />
-              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-idriel flex items-center justify-center text-[7px]">✨</div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-idriel flex items-center justify-center"><Sparkles className="w-2 h-2 text-white" strokeWidth={2.5} /></div>
             </div>
             <div className="flex-1 min-w-0">
               <span className="font-cinzel font-bold text-xs text-idriel-light block">Idriel</span>
@@ -420,7 +421,7 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
 
           {/* Content */}
           <div className="flex items-start gap-2.5 mb-4">
-            <span className="text-xl shrink-0">{currentStep.icon}</span>
+            <currentStep.Icon className="w-5 h-5 shrink-0 text-gold-champagne" strokeWidth={1.75} />
             <div className="flex-1 min-w-0">
               <h4 className="font-montserrat font-bold text-[13px] text-foreground mb-1">{currentStep.title}</h4>
               <p className="font-merriweather italic text-[12px] text-text-secondary leading-relaxed">{currentStep.desc}</p>
@@ -430,7 +431,7 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
           {/* Instruction for click steps */}
           {currentStep.type === 'click' && (
             <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg bg-idriel/[0.08] border border-idriel/15">
-              <span className="text-base animate-bounce">👆</span>
+              <Hand className="w-4 h-4 text-gold-champagne animate-bounce" strokeWidth={2} />
               <span className="font-montserrat text-[11px] text-idriel-light font-bold">
                 Clique no botão pulsando para continuar
               </span>
@@ -457,7 +458,7 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
                   onClick={currentStep.type === 'outro' ? finish : goNext}
                   className="px-3.5 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-background bg-idriel-light hover:bg-idriel-glow transition-all shadow-md shadow-idriel/20"
                 >
-                  {currentStep.type === 'outro' ? '✨ Começar!' : 'Próximo →'}
+                  <>{currentStep.type === 'outro' ? <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Começar!</> : <>Próximo <ArrowRight className="inline-block w-3.5 h-3.5 ml-1 align-[-0.15em]" strokeWidth={2} /></>}</>
                 </button>
               )}
             </div>

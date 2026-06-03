@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FRUIT_RECOMMENDED_TYPE, type FruitGuide, type RecommendedType } from '@/lib/data';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, ClipboardList, PencilLine, Leaf, BookOpen } from 'lucide-react';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 
 interface Props {
@@ -11,17 +11,17 @@ interface Props {
 
 const RECOMMENDATION_COPY: Record<RecommendedType, { icon: string; label: string; tone: string }> = {
   ficha: {
-    icon: '📋',
+    Icon: ClipboardList,
     label: 'Fichas',
     tone: 'Idriel sugere que este Fruto gere principalmente **Fichas** — entradas estruturadas e visuais (personagens, lugares, criaturas, itens).',
   },
   artigo: {
-    icon: '📝',
+    Icon: PencilLine,
     label: 'Artigos',
     tone: 'Idriel sugere que este Fruto gere principalmente **Artigos** — textos livres que explicam sistemas, lore, conceitos e história.',
   },
   both: {
-    icon: '🌿',
+    Icon: Leaf,
     label: 'Fichas e Artigos',
     tone: 'Idriel sugere que este Fruto pode gerar tanto **Fichas** (rituais, costumes específicos) quanto **Artigos** (valores e crenças).',
   },
@@ -38,8 +38,8 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide, id, fruitId }) => {
   const recCopy = recommendation ? RECOMMENDATION_COPY[recommendation] : null;
 
   const sections = [
-    { key: 'orientacao', icon: '🌿', title: 'Sobre este Fruto', content: guide.min, recCopy },
-    { key: 'estudo', icon: '📖', title: 'Estudo de Caso', content: guide.ref, recCopy: null },
+    { key: 'orientacao', Icon: Leaf, title: 'Sobre este Fruto', content: guide.min, recCopy },
+    { key: 'estudo', Icon: BookOpen, title: 'Estudo de Caso', content: guide.ref, recCopy: null },
   ];
 
   return (

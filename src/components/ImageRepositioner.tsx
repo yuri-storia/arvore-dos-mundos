@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { Move } from 'lucide-react';
 import { createPortal } from 'react-dom';
 
 interface Props {
@@ -169,7 +170,7 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
           {!dragging && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="px-4 py-2 rounded-full border border-border bg-card/85 text-foreground text-sm font-montserrat font-bold backdrop-blur-sm flex items-center gap-2 shadow-lg">
-                <span className="text-lg">↕</span> Arraste para reposicionar
+                <Move className="w-4 h-4 inline-block mr-1.5 align-[-0.2em]" strokeWidth={1.75} /> Arraste para reposicionar
               </span>
             </div>
           )}

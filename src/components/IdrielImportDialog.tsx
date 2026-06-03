@@ -6,7 +6,7 @@ import { extractTextFromFile, type ImportSourceType } from '@/lib/textExtractor'
 import { importTextWithIdriel, type ImportedSuggestion } from '@/lib/helpers';
 import { FRUITS } from '@/lib/data';
 import { toast } from 'sonner';
-import { Loader2, Upload, Sparkles, FileText } from 'lucide-react';
+import { Loader2, Upload, Sparkles, FileText, Library, Paperclip, ArrowLeft } from 'lucide-react';
 
 interface Props {
   open: boolean;
@@ -153,7 +153,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-[720px] w-[95vw] max-h-[90vh] overflow-y-auto bg-card border-stroke">
         <DialogHeader>
-          <DialogTitle className="font-cinzel text-gold">📚 Importar com Idriel</DialogTitle>
+          <DialogTitle className="font-cinzel text-gold inline-flex items-center gap-2"><Library className="w-4 h-4" strokeWidth={1.75} />Importar com Idriel</DialogTitle>
           <DialogDescription className="text-foreground/70">
             Idriel lê seu texto e sugere fichas e artigos para o Codex (custo: 5 gotas).
           </DialogDescription>
@@ -165,7 +165,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
               <Upload className="mx-auto h-8 w-8 text-gold mb-2" />
               <label className="cursor-pointer">
                 <span className="font-merriweather text-foreground/90">
-                  {fileName ? `📎 ${fileName}` : 'Clique para enviar PDF, DOCX, TXT ou MD'}
+                  <>{fileName ? <span className="inline-flex items-center gap-1.5"><Paperclip className="w-3.5 h-3.5" strokeWidth={1.75} />{fileName}</span> : 'Clique para enviar PDF, DOCX, TXT ou MD'}</>
                 </span>
                 <input
                   type="file"
@@ -244,7 +244,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
             </div>
 
             <div className="flex justify-between gap-2 pt-2">
-              <Button variant="ghost" onClick={() => setStep('upload')} disabled={creating}>← Voltar</Button>
+              <Button variant="ghost" onClick={() => setStep('upload')} disabled={creating} className="inline-flex items-center gap-1.5"><ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />Voltar</Button>
               <Button
                 onClick={handleCreate}
                 disabled={creating || selected.size === 0}

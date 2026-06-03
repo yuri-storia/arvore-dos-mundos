@@ -20,7 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import type { AppState } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useNavigate } from 'react-router-dom';
-import { History, Trash2 } from 'lucide-react';
+import { History, Trash2, Trees, Leaf, Sparkles, Check, Image as ImageIcon, Save, ScrollText, ArrowLeft, ArrowRight, HelpCircle, BookOpen, Feather, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
@@ -73,7 +73,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
     if (!text.trim()) return;
     setSavingAs(kind);
     setSaveLoading(true);
-    setSaveDraft({ title: `${FRUITS[currentFruit].name} — sugestão de Idriel`, content: '⏳ Resumindo…' });
+    setSaveDraft({ title: `${FRUITS[currentFruit].name} — sugestão de Idriel`, content: 'Resumindo…' });
     try {
       const summary = await summarizeIdrielResponse(text, kind);
       setSaveDraft(prev => ({ ...prev, content: summary }));
@@ -173,13 +173,13 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
         systemPrompt
       );
       setAiResponse(response);
-      if (response && !response.startsWith('❌')) {
+      if (response && !response.startsWith('[ERRO]')) {
         await saveSuggestion(aiQuestion, response);
       }
       setRefreshKey(k => k + 1);
     } catch (e: any) {
       const f = friendlyAIError(e?.message || '');
-      setAiResponse(`❌ ${f.title}\n\n${f.hint}`);
+      setAiResponse(`[ERRO] ${f.title}\n\n${f.hint}`);
     } finally {
       setAiLoading(false);
     }
@@ -276,7 +276,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 <div className={`absolute inset-0 bg-gradient-to-br ${f.gradient} ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-80'} transition-opacity`} />
               )}
               {!coverImage && (
-                <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-30">{f.icon}</div>
+                <div className="absolute inset-0 flex items-center justify-center opacity-30"><f.Icon className="w-10 h-10 text-gold-champagne" strokeWidth={1.5} /></div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/50 text-[9px] text-blue-light font-montserrat font-bold">
@@ -290,7 +290,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 )}
               </div>
               {isComplete && (
-                <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center text-[10px] text-white">✓</div>
+                <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center text-white"><Check className="w-3 h-3" strokeWidth={3} /></div>
               )}
               <div className={`absolute bottom-0 left-0 right-0 h-[2px] bg-blue-bright transition-transform origin-left ${isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
             </button>
@@ -307,14 +307,14 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               <img src={FRUIT_IMAGES[fruit.id]} alt={fruit.name} className="absolute inset-0 w-full h-full object-cover opacity-50" />
             ) : (
               <div className={`absolute inset-0 bg-gradient-to-br ${fruit.gradient}`}>
-                <div className="absolute inset-0 flex items-center justify-center text-8xl opacity-20">{fruit.icon}</div>
+                <div className="absolute inset-0 flex items-center justify-center opacity-20"><fruit.Icon className="w-28 h-28 text-gold-champagne" strokeWidth={1.25} /></div>
               </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-[rgba(6,14,28,0.95)] via-transparent to-transparent" />
           </div>
 
           <div className="p-4 sm:p-5 md:p-7">
-            <span className="font-cinzel text-sm text-blue-light">✦ {fruit.num}</span>
+            <span className="font-cinzel text-sm text-blue-light inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3" strokeWidth={1.5} /> {fruit.num}</span>
             <h2 className="font-cinzel font-bold text-2xl sm:text-3xl text-foreground mt-1 mb-1">{fruit.name}</h2>
             <p className="font-merriweather italic text-text-dim text-[15px] leading-relaxed mb-4">{fruit.desc}</p>
 
@@ -340,7 +340,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               if (fruitImages.length === 0) return null;
               return (
                 <div className="mb-6">
-                  <h3 className="font-montserrat font-bold text-xs uppercase tracking-wider text-gold mb-2">🖼 Referências deste Fruto</h3>
+                  <h3 className="font-montserrat font-bold text-xs uppercase tracking-wider text-gold mb-2 inline-flex items-center gap-1.5"><ImageIcon className="w-3.5 h-3.5" strokeWidth={1.75} />Referências deste Fruto</h3>
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                     {fruitImages.map(img => (
                       <div key={img.id} className="rounded-lg overflow-hidden border border-gold/20 hover:border-gold/50 transition-colors">
@@ -419,7 +419,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               <div data-tour="consult-idriel" className="border-t border-idriel/15 pt-6">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-2 h-2 rounded-full bg-idriel-light animate-blink" />
-                  <span className="font-cinzel font-bold text-xs text-idriel-light">🌳 Consultar Idriel</span>
+                  <span className="font-cinzel font-bold text-xs text-idriel-light inline-flex items-center gap-1.5"><Trees className="w-3.5 h-3.5" strokeWidth={1.75} />Consultar Idriel</span>
                   <span className="font-merriweather italic text-[10px] text-text-dim">— Guardiã da Árvore dos Mundos</span>
                 </div>
 
@@ -455,7 +455,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                     disabled={!aiQuestion.trim() || aiLoading}
                     className="px-4 py-2 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
                   >
-                    🌿 Consultar Idriel
+                    <><Leaf className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Consultar Idriel</>
                   </button>
                 </div>
 
@@ -470,20 +470,20 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
                 {aiResponse && !aiLoading && (
                   <div className="animate-fadeUp border-l-[3px] border-idriel-light pl-4 py-3 bg-idriel/[0.04] rounded-r-md">
-                    <span className="font-cinzel text-[10px] text-idriel-light block mb-2">🌿 Idriel responde</span>
+                    <span className="font-cinzel text-[10px] text-idriel-light mb-2 inline-flex items-center gap-1.5"><Leaf className="w-3 h-3" strokeWidth={1.75} />Idriel responde</span>
                     <p className="font-merriweather text-sm text-foreground/95 whitespace-pre-wrap leading-relaxed">{aiResponse}</p>
                     <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-idriel/15">
                       <button
                         onClick={() => handleOpenSaveDialog('ficha')}
                         className="px-3 py-1.5 rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider border border-idriel/40 text-idriel-light hover:bg-idriel/15 transition-colors"
                       >
-                        💾 Salvar como Ficha
+                        <><Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Salvar como Ficha</>
                       </button>
                       <button
                         onClick={() => handleOpenSaveDialog('artigo')}
                         className="px-3 py-1.5 rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider border border-idriel/40 text-idriel-light hover:bg-idriel/15 transition-colors"
                       >
-                        💾 Salvar como Artigo
+                        <><Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Salvar como Artigo</>
                       </button>
                     </div>
                   </div>
@@ -496,14 +496,14 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                     className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[11px] font-montserrat text-text-dim border border-idriel/20 hover:text-idriel-light hover:border-idriel/40 transition-colors"
                   >
                     <History className="w-3.5 h-3.5" />
-                    📜 Histórico de Idriel ({suggestions.length})
+                    <><ScrollText className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Histórico de Idriel ({suggestions.length})</>
                   </button>
                 )}
               </div>
             ) : (
               <div className="border-t border-idriel/15 pt-6">
                 <div className="rounded-xl border border-gold/20 bg-gold/[0.04] p-5 text-center">
-                  <span className="text-2xl block mb-2">🌳</span>
+                  <Trees className="w-7 h-7 mx-auto mb-2 text-gold-champagne" strokeWidth={1.5} />
                   <h4 className="font-cinzel font-bold text-sm text-gold-light mb-1">Consultar Idriel</h4>
                   <p className="font-merriweather italic text-text-dim text-xs mb-3">
                     A Guardiã da Árvore aguarda seu chamado — disponível no plano Idriel.
@@ -512,7 +512,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                     onClick={() => navigate('/planos')}
                     className="px-5 py-2 rounded-lg bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] text-[#1a0f00] font-montserrat font-bold text-xs uppercase tracking-wider hover:shadow-[0_0_20px_rgba(218,165,32,0.3)] transition-all"
                   >
-                    ✨ Conhecer planos
+                    <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Conhecer planos</>
                   </button>
                 </div>
               </div>
@@ -524,21 +524,21 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 disabled={currentOrderIndex <= 0}
                 className="px-3 sm:px-4 py-2 rounded-md text-xs font-montserrat font-bold text-text-dim border border-blue-bright/15 hover:text-foreground hover:border-blue-bright/30 disabled:opacity-30 transition-all"
               >
-                ← Anterior
+                <><ArrowLeft className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Anterior</>
               </button>
               {currentOrderIndex < orderedFruits.length - 1 ? (
                 <button
                   onClick={() => navigateFruit(1)}
                   className="px-4 sm:px-5 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
                 >
-                  Próximo Fruto →
+                  <>Próximo Fruto <ArrowRight className="inline-block w-3.5 h-3.5 ml-1.5 align-[-0.15em]" strokeWidth={2} /></>
                 </button>
               ) : (
                 <button
                   onClick={() => exportWorldMarkdown(worldName, method, db)}
                   className="px-4 sm:px-5 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
                 >
-                  🌳 Exportar Mundo
+                  <><Trees className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Exportar Mundo</>
                 </button>
               )}
             </div>
@@ -564,7 +564,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 <p className="text-[10px] uppercase font-montserrat text-idriel-light/70 mb-1">
                   {new Date(s.created_at).toLocaleString('pt-BR')}
                 </p>
-                <p className="text-xs font-bold text-foreground mb-2">❓ {s.question}</p>
+                <p className="text-xs font-bold text-foreground mb-2 inline-flex items-start gap-1.5"><HelpCircle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-gold-champagne" strokeWidth={1.75} />{s.question}</p>
                 <p className="text-xs font-merriweather text-foreground/90 whitespace-pre-wrap leading-relaxed mb-3 max-h-[200px] overflow-y-auto">
                   {s.response}
                 </p>
@@ -573,13 +573,13 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                     onClick={() => { handleOpenSaveDialog('ficha', s.response); setShowHistory(false); }}
                     className="px-2 py-1 rounded text-[10px] font-montserrat border border-idriel/30 text-idriel-light hover:bg-idriel/15 transition-colors"
                   >
-                    💾 Ficha
+                    <><Save className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Ficha</>
                   </button>
                   <button
                     onClick={() => { handleOpenSaveDialog('artigo', s.response); setShowHistory(false); }}
                     className="px-2 py-1 rounded text-[10px] font-montserrat border border-idriel/30 text-idriel-light hover:bg-idriel/15 transition-colors"
                   >
-                    💾 Artigo
+                    <><Save className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Artigo</>
                   </button>
                   <button
                     onClick={() => deleteSuggestion(s.id)}
@@ -600,7 +600,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
         <DialogContent className="card-glass border-idriel/30 max-w-xl">
           <DialogHeader>
             <DialogTitle className="font-cinzel text-idriel-light">
-              💾 Salvar como {savingAs === 'ficha' ? 'Ficha' : 'Artigo'}
+              <Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Salvar como {savingAs === 'ficha' ? 'Ficha' : 'Artigo'}
             </DialogTitle>
             <DialogDescription className="text-text-dim font-merriweather text-xs italic">
               Idriel resumiu a resposta de forma objetiva. Você pode editar antes de salvar.
@@ -636,7 +636,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               disabled={saveLoading || !saveDraft.title.trim() || !saveDraft.content.trim()}
               className="bg-idriel-dim hover:bg-idriel text-foreground"
             >
-              {saveLoading ? 'Resumindo…' : '💾 Salvar no Codex'}
+              <>{saveLoading ? 'Resumindo…' : <><Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Salvar no Codex</>}</>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -647,7 +647,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
         <DialogContent className="card-glass-gold border-gold/30 max-w-md">
           <DialogHeader>
             <DialogTitle className="font-cinzel text-gold-light">
-              ✨ Artigo Criado!
+              <><Sparkles className="inline-block w-4 h-4 mr-1.5 align-[-0.2em]" strokeWidth={1.75} />Artigo Criado!</>
             </DialogTitle>
             <DialogDescription className="text-text-secondary font-merriweather text-sm">
               Um artigo sobre o sistema de magia <strong>"{db[4]?.magictype}"</strong> foi criado automaticamente no Codex.
@@ -659,13 +659,13 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               onClick={() => { setShowMagictypeCreated(false); onNavigateCodex?.(); }}
               className="border-gold/30 text-gold-light hover:bg-gold/20"
             >
-              📖 Ver Codex
+              <><BookOpen className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Ver Codex</>
             </Button>
             <Button 
               onClick={() => setShowMagictypeCreated(false)}
               className="bg-gold/80 hover:bg-gold text-background"
             >
-              ✍️ Continuar a Criar
+              <><Feather className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Continuar a Criar</>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -676,7 +676,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
         <DialogContent className="card-glass-gold border-gold/30 max-w-md">
           <DialogHeader>
             <DialogTitle className="font-cinzel text-gold-light">
-              🔄 Atualizar Artigo?
+              <><RefreshCw className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Atualizar Artigo?</>
             </DialogTitle>
             <DialogDescription className="text-text-secondary font-merriweather text-sm">
               Você já possui um artigo sobre o sistema de magia no Codex. Deseja atualizá-lo para <strong>"{pendingMagictypeValue}"</strong>?

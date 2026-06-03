@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Map, Compass, Mountain, Anchor, Building2, Globe, Sparkles, Lock } from 'lucide-react';
+import { Map, Compass, Mountain, Anchor, Building2, Globe, Sparkles, Lock, Droplet, Loader2, Leaf, ArrowDown, RefreshCw } from 'lucide-react';
 import { callAIText, callAIImage, friendlyAIError } from '@/lib/helpers';
 import { FRUITS, GalleryImage, GALLERY_CATEGORIES } from '@/lib/data';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -56,7 +56,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
   };
 
   const handleGeneratePrompt = async () => {
-    if (!planLimits.canUseAI) { setError('🌿 Idriel precisa do plano ativo para canalizar a Seiva Dourada.'); return; }
+    if (!planLimits.canUseAI) { setError('Idriel precisa do plano ativo para canalizar a Seiva Dourada.'); return; }
     setError('');
     setLoadingPrompt(true);
     setGeneratedPrompt('');
@@ -98,17 +98,17 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
     <div className="border-t border-idriel/15 pt-6">
       <div className="flex items-center gap-2 mb-1">
         <Map className="w-4 h-4 text-idriel-light" />
-        <span className="font-cinzel font-bold text-sm text-idriel-light">🗺 Forjar Mapa do Mundo</span>
+        <span className="font-cinzel font-bold text-sm text-idriel-light inline-flex items-center gap-2"><Map className="w-4 h-4" strokeWidth={1.75} />Forjar Mapa do Mundo</span>
       </div>
       <p className="font-merriweather italic text-[11px] text-text-dim mb-1">
         Idriel materializa o mapa do seu mundo usando a Seiva Dourada e o contexto dos seus Frutos.
       </p>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
         <span className="inline-flex items-center gap-1 text-[10px] font-montserrat font-semibold text-gold-light/80">
-          💧 Custo: 5 gotas por mapa
+          <><Droplet className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Custo: 5 gotas por mapa</>
         </span>
         <span className="inline-flex items-center gap-1 text-[10px] font-montserrat text-text-dim">
-          ✦ Fruto Dourado = 100 gotas/mês
+          <><Sparkles className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Fruto Dourado = 100 gotas/mês</>
         </span>
       </div>
 
@@ -121,7 +121,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
               <div className="absolute inset-0 rounded-full bg-gold/10 animate-pulse" />
               <div className="relative w-full h-full rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-2 border-gold/30 flex items-center justify-center shadow-[0_0_24px_rgba(218,165,32,0.15)]">
                 <div className="relative">
-                  <span className="text-3xl">🗺️</span>
+                  <Map className="w-8 h-8 text-gold-champagne" strokeWidth={1.5} />
                   <Lock className="absolute -bottom-1 -right-1 w-4 h-4 text-gold-light drop-shadow-lg" />
                 </div>
               </div>
@@ -137,7 +137,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
               onClick={async () => { const { openCheckout, STRIPE_PLANS } = await import('@/hooks/useSubscription'); openCheckout(STRIPE_PLANS.idriel_mensal.price_id); }}
               className="px-5 py-2.5 rounded-full text-xs font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold to-gold-light text-background hover:shadow-[0_0_20px_rgba(218,165,32,0.3)] transition-all"
             >
-              ✨ Colher o Fruto Dourado — R$ 29,90/mês
+              <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Colher o Fruto Dourado — R$ 29,90/mês</>
             </button>
           </div>
         </div>
@@ -187,7 +187,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
             disabled={loadingPrompt || (styleObj.id === 'custom' && !customDesc.trim())}
             className="w-full sm:w-auto px-5 py-2.5 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors mb-4"
           >
-            {loadingPrompt ? '🌿 Canalizando a visão…' : '🗺 Gerar Visão do Mapa'}
+            <>{loadingPrompt ? <><Loader2 className="inline-block w-3.5 h-3.5 mr-1.5 animate-spin align-[-0.15em]" strokeWidth={2} />Canalizando a visão…</> : <><Map className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Gerar Visão do Mapa</>}</>
           </button>
         </>
       )}
@@ -212,14 +212,14 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
       {generatedPrompt && !loadingPrompt && (
         <div className="animate-fadeUp mb-4">
           <div className="border-l-[3px] border-idriel-light pl-4 py-3 bg-idriel/[0.04] rounded-r-md">
-            <span className="font-cinzel text-[10px] text-idriel-light block mb-2">🌿 Visão de Idriel — Prompt do Mapa</span>
+            <span className="font-cinzel text-[10px] text-idriel-light mb-2 inline-flex items-center gap-1.5"><Leaf className="w-3 h-3" strokeWidth={1.75} />Visão de Idriel — Prompt do Mapa</span>
             <p className="font-merriweather text-xs text-text-secondary leading-relaxed mb-3">{generatedPrompt}</p>
             <button
               onClick={handleGenerateImage}
               disabled={loadingImage}
               className="px-4 py-2 bg-gold/80 hover:bg-gold text-background rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors"
             >
-              {loadingImage ? '✨ Materializando…' : '✨ Materializar Mapa (5 gotas)'}
+              <>{loadingImage ? <><Loader2 className="inline-block w-3.5 h-3.5 mr-1.5 animate-spin align-[-0.15em]" strokeWidth={2} />Materializando…</> : <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Materializar Mapa (5 gotas)</>}</>
             </button>
           </div>
         </div>
@@ -249,13 +249,13 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
               download={`mapa-${worldName || 'mundo'}.png`}
               className="px-3 py-1.5 border border-blue-bright/20 text-blue-light text-[10px] font-montserrat font-bold uppercase rounded hover:bg-blue-bright/10 transition-colors"
             >
-              ⬇ Download
+              <><ArrowDown className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={2} />Download</>
             </a>
             <button
               onClick={() => { setGeneratedPrompt(''); setGeneratedImage(''); setCustomDesc(''); }}
               className="px-3 py-1.5 border border-blue-bright/20 text-text-dim text-[10px] font-montserrat font-bold uppercase rounded hover:text-foreground transition-colors"
             >
-              🔄 Gerar Outro
+              <><RefreshCw className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={2} />Gerar Outro</>
             </button>
           </div>
         </div>

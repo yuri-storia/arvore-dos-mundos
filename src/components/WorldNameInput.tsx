@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, ChevronDown, ChevronUp, FolderOpen, Plus } from 'lucide-react';
+import { Sparkles, ChevronDown, ChevronUp, FolderOpen, Plus, Trash2 } from 'lucide-react';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 
@@ -97,13 +97,13 @@ export const WorldNameInput: React.FC<Props> = ({ worldName, setWorldName, hasBe
                       {s.id === currentSaveId && <span className="text-blue-light text-[9px] ml-1.5">● ativo</span>}
                     </span>
                     <span className="text-[9px] text-text-dim font-montserrat">
-                      {s.method === 'top-down' ? 'Cima→Baixo' : 'Baixo→Cima'} · {formatDate(s.updated_at)}
+                      {s.method === 'top-down' ? 'Cima/Baixo' : 'Baixo/Cima'} · {formatDate(s.updated_at)}
                     </span>
                   </div>
                   <div onClick={e => e.stopPropagation()}>
                     <ConfirmDialog
                       trigger={
-                        <button className="px-1.5 py-0.5 rounded text-[9px] text-text-dim hover:text-destructive transition-colors">🗑</button>
+                        <button className="p-1 rounded text-text-dim hover:text-destructive transition-colors" aria-label="Excluir"><Trash2 className="w-3 h-3" strokeWidth={1.75} /></button>
                       }
                       title="Excluir mundo"
                       description={`Tem certeza que deseja excluir "${s.name}"? Todos os dados serão perdidos permanentemente.`}
