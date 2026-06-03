@@ -8,6 +8,7 @@ import type { MethodType } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { DropsCounterBadge } from '@/components/DropsCounterBadge';
 
 interface AppHeaderProps {
   worldName?: string;
@@ -292,6 +293,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
               </div>
             </>
           )}
+          <DropsCounterBadge />
           <UserMenu />
         </div>
       </div>

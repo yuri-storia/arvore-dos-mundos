@@ -57,10 +57,10 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({
       subscribed: true,
       plan: planKey,
+      plan_code: sub.plan_code,
       has_idriel: hasIdriel,
       has_template: true,
       subscription_end: sub.expires_at,
-      plan_code: sub.plan_code,
       bonus_drops: bonusDrops,
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (err: any) {
