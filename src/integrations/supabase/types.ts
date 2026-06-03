@@ -169,6 +169,8 @@ export type Database = {
       }
       bug_reports: {
         Row: {
+          attachment_path: string | null
+          attachment_type: string | null
           context: string | null
           created_at: string
           id: string
@@ -180,6 +182,8 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          attachment_path?: string | null
+          attachment_type?: string | null
           context?: string | null
           created_at?: string
           id?: string
@@ -191,6 +195,8 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          attachment_path?: string | null
+          attachment_type?: string | null
           context?: string | null
           created_at?: string
           id?: string
