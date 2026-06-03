@@ -1,4 +1,5 @@
 import React from 'react';
+import { X } from 'lucide-react';
 
 interface Props {
   src: string;
@@ -21,7 +22,7 @@ export const ImageLightbox: React.FC<Props> = ({ src, alt, onClose }) => (
       onClick={onClose}
       className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white text-lg flex items-center justify-center transition-colors"
     >
-      ✕
+      <X className="w-4 h-4" strokeWidth={2} />
     </button>
   </div>
 );

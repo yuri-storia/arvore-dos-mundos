@@ -499,12 +499,12 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
                   h2: ({ children, ...props }) => {
                     const text = String(children);
                     let colorClass = 'text-idriel-light';
-                    if (text.includes('Furos') || text.includes('🕳️')) colorClass = 'text-destructive';
-                    else if (text.includes('Inconsistências') || text.includes('⚠️')) colorClass = 'text-orange-400';
-                    else if (text.includes('Expansão') || text.includes('🌱')) colorClass = 'text-emerald-400';
-                    else if (text.includes('Fortes') || text.includes('✨')) colorClass = 'text-idriel-light';
-                    else if (text.includes('Continuar') || text.includes('🧭')) colorClass = 'text-blue-light';
-                    else if (text.includes('Avaliação') || text.includes('🌳')) colorClass = 'text-idriel-light';
+                    if (text.includes('Furos')) colorClass = 'text-destructive';
+                    else if (text.includes('Inconsistências')) colorClass = 'text-orange-400';
+                    else if (text.includes('Expansão')) colorClass = 'text-emerald-400';
+                    else if (text.includes('Fortes')) colorClass = 'text-idriel-light';
+                    else if (text.includes('Continuar')) colorClass = 'text-blue-light';
+                    else if (text.includes('Avaliação')) colorClass = 'text-idriel-light';
                     return <h2 className={`font-cinzel text-base font-bold mt-5 mb-2 ${colorClass}`} {...props}>{children}</h2>;
                   }
                 }}

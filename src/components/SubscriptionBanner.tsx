@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useSubscription, openCheckout, STRIPE_PLANS, openCustomerPortal } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { Progress } from '@/components/ui/progress';
-import { Lock, Sparkles, CreditCard, X, Leaf, BookOpenCheck, Droplet, Droplets } from 'lucide-react';
+import { Lock, Sparkles, CreditCard, X, Leaf, BookOpenCheck, Droplet, Droplets, ArrowRight } from 'lucide-react';
 import { RechargePackageDialog } from '@/components/RechargePackageDialog';
 
 const DISMISS_KEY = 'adm_sub_banner_dismissed';
@@ -78,7 +78,7 @@ export const SubscriptionBanner: React.FC = () => {
               </button>
             </div>
             <Link to="/planos" className="block text-center mt-3 text-[10px] font-montserrat font-bold text-text-dim hover:text-foreground transition-colors uppercase tracking-wider">
-              Comparar todos os planos →
+              <>Comparar todos os planos <ArrowRight className="inline-block w-3 h-3 ml-1 align-[-0.1em]" strokeWidth={2} /></>
             </Link>
           </div>
         </div>

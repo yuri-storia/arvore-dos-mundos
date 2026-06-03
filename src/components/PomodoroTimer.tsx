@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Timer, TimerOff, Settings2, Square } from 'lucide-react';
+import { Timer, TimerOff, Settings2, Square, Bell } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -50,11 +50,11 @@ export const PomodoroTimer: React.FC<Props> = ({ className }) => {
       if (isLast) {
         setPhase('long');
         setSeconds(longMin * 60);
-        toast.success(`✦ Foco concluído! Pausa longa de ${longMin} min — você merece.`);
+        toast.success(`Foco concluído! Pausa longa de ${longMin} min — você merece.`);
       } else {
         setPhase('short');
         setSeconds(shortMin * 60);
-        toast.success(`✦ Foco concluído! Pausa curta de ${shortMin} min.`);
+        toast.success(`Foco concluído! Pausa curta de ${shortMin} min.`);
       }
     } else {
       // break done — back to focus, advance cycle counter
@@ -62,7 +62,7 @@ export const PomodoroTimer: React.FC<Props> = ({ className }) => {
       setCycle(nextCycle);
       setPhase('focus');
       setSeconds(focusMin * 60);
-      toast.success(`✦ Pausa terminada! Hora de focar — ciclo ${nextCycle}/${cyclesUntilLong}.`);
+      toast.success(`Pausa terminada! Hora de focar — ciclo ${nextCycle}/${cyclesUntilLong}.`);
     }
   };
 
@@ -115,7 +115,7 @@ export const PomodoroTimer: React.FC<Props> = ({ className }) => {
   };
 
   const isBreak = phase !== 'focus';
-  const phaseLabel = phase === 'focus' ? '✍️ Foco' : phase === 'short' ? '☕ Pausa' : '🌙 Pausa Longa';
+  const phaseLabel = phase === 'focus' ? 'Foco' : phase === 'short' ? 'Pausa' : 'Pausa Longa';
 
   return (
     <TooltipProvider>
@@ -168,7 +168,7 @@ export const PomodoroTimer: React.FC<Props> = ({ className }) => {
           </PopoverTrigger>
           <PopoverContent className="w-64 p-4 space-y-3" align="end">
             <div>
-              <p className="text-xs font-montserrat font-bold uppercase tracking-widest text-foreground mb-1">⏱️ Timer Pomodoro</p>
+              <p className="text-xs font-montserrat font-bold uppercase tracking-widest text-foreground mb-1 inline-flex items-center gap-1.5"><Timer className="w-3.5 h-3.5" strokeWidth={1.75} />Timer Pomodoro</p>
               <p className="text-[10px] text-text-dim font-merriweather leading-relaxed">
                 Defina foco, pausas e quantos ciclos antes da pausa longa.
               </p>
@@ -205,7 +205,7 @@ export const PomodoroTimer: React.FC<Props> = ({ className }) => {
               onClick={playChime}
               className="w-full text-[10px] font-montserrat text-text-dim hover:text-foreground border border-border rounded py-1 transition-colors"
             >
-              🔔 Testar som
+              <><Bell className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Testar som</>
             </button>
           </PopoverContent>
         </Popover>

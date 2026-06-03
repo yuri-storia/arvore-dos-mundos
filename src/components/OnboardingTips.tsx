@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, ChevronRight, ChevronLeft } from 'lucide-react';
+import { X, ChevronRight, ChevronLeft, Leaf, Map, BookOpen, Trees, Save, BarChart3, Search, Feather, Timer, Image as ImageIcon, Sparkles } from 'lucide-react';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 
 interface Tip {
@@ -10,24 +10,24 @@ interface Tip {
 
 const TAB_TIPS: Record<string, Tip[]> = {
   construir: [
-    { icon: '🌿', title: 'Saudações, viajante!', desc: 'Eu sou Idriel, guardiã desta Árvore. Aqui você vai cultivar 11 Frutos — cada um é um pilar do seu mundo. Escolha qualquer um para começar!' },
-    { icon: '🗺️', title: 'Crie mapas no primeiro Fruto', desc: 'No Fruto "Mapa do Mundo", você pode gerar mapas em estilos como político, geográfico ou explorador com a Seiva Dourada (plano completo).' },
-    { icon: '📖', title: 'Orientação em cada Fruto', desc: 'Dentro de cada Fruto você encontra minha "Orientação para Criação & Estudo de Caso" — uma sanfona com guia, exemplos literários e passo a passo. Consulte sempre que precisar!' },
-    { icon: '🌳', title: 'Me consulte (plano completo)', desc: 'Nos demais Frutos, peça minha ajuda criativa usando os chips de sugestão ou digitando sua pergunta. Custa apenas 1 gota. Recurso exclusivo do plano Template + Idriel.' },
-    { icon: '💾', title: 'Relaxe, eu cuido de tudo', desc: 'Suas criações são salvas automaticamente a cada 2 segundos. Foque no que importa — dar vida ao seu mundo, viajante.' },
+    { Icon: Leaf, title: 'Saudações, viajante!', desc: 'Eu sou Idriel, guardiã desta Árvore. Aqui você vai cultivar 11 Frutos — cada um é um pilar do seu mundo. Escolha qualquer um para começar!' },
+    { Icon: Map, title: 'Crie mapas no primeiro Fruto', desc: 'No Fruto "Mapa do Mundo", você pode gerar mapas em estilos como político, geográfico ou explorador com a Seiva Dourada (plano completo).' },
+    { Icon: BookOpen, title: 'Orientação em cada Fruto', desc: 'Dentro de cada Fruto você encontra minha "Orientação para Criação & Estudo de Caso" — uma sanfona com guia, exemplos literários e passo a passo. Consulte sempre que precisar!' },
+    { Icon: Trees, title: 'Me consulte (plano completo)', desc: 'Nos demais Frutos, peça minha ajuda criativa usando os chips de sugestão ou digitando sua pergunta. Custa apenas 1 gota. Recurso exclusivo do plano Template + Idriel.' },
+    { Icon: Save, title: 'Relaxe, eu cuido de tudo', desc: 'Suas criações são salvas automaticamente a cada 2 segundos. Foque no que importa — dar vida ao seu mundo, viajante.' },
   ],
   codex: [
-    { icon: '📖', title: 'Seu Codex pessoal', desc: 'Aqui você organiza tudo sobre seu mundo. Crie Fichas com imagens para personagens e locais, ou Artigos estilo wiki para lore.' },
-    { icon: '📊', title: 'Posso analisar seu mundo', desc: 'Quando tiver algumas entradas, peça-me uma análise completa — avalio coerência, lacunas e dou sugestões para fortalecer sua criação.' },
-    { icon: '🔍', title: 'Filtros inteligentes', desc: 'Use os filtros para encontrar entradas por tipo ou por Fruto de origem. Cada categoria mostra quantos itens possui.' },
+    { Icon: BookOpen, title: 'Seu Codex pessoal', desc: 'Aqui você organiza tudo sobre seu mundo. Crie Fichas com imagens para personagens e locais, ou Artigos estilo wiki para lore.' },
+    { Icon: BarChart3, title: 'Posso analisar seu mundo', desc: 'Quando tiver algumas entradas, peça-me uma análise completa — avalio coerência, lacunas e dou sugestões para fortalecer sua criação.' },
+    { Icon: Search, title: 'Filtros inteligentes', desc: 'Use os filtros para encontrar entradas por tipo ou por Fruto de origem. Cada categoria mostra quantos itens possui.' },
   ],
   escrever: [
-    { icon: '✍️', title: 'Hora de escrever, viajante!', desc: 'Escolha entre Manuscrito (capítulos organizados como um livro), Mural de Cenas (visualize e arraste cenas por status) ou Rascunhos (escrita livre, sem estrutura). Passe o mouse sobre cada modo para saber mais!' },
-    { icon: '⏱️', title: 'Foco com Pomodoro', desc: 'Ative o timer para sessões focadas. Escreva com calma e faça pausas — as melhores ideias florescem quando descansamos.' },
+    { Icon: Feather, title: 'Hora de escrever, viajante!', desc: 'Escolha entre Manuscrito (capítulos organizados como um livro), Mural de Cenas (visualize e arraste cenas por status) ou Rascunhos (escrita livre, sem estrutura). Passe o mouse sobre cada modo para saber mais!' },
+    { Icon: Timer, title: 'Foco com Pomodoro', desc: 'Ative o timer para sessões focadas. Escreva com calma e faça pausas — as melhores ideias florescem quando descansamos.' },
   ],
   galeria: [
-    { icon: '🖼️', title: 'Referências visuais', desc: 'Traga as imagens que inspiram seu mundo — concept arts, mapas, paisagens. Categorize por Fruto para encontrar facilmente.' },
-    { icon: '✨', title: 'Visões de Idriel (plano completo)', desc: 'Logo abaixo da galeria, abra "Visões de Idriel" para gerar imagens com IA. Descreva o que imagina e Idriel materializa — cada visão custa 5 gotas de Seiva Dourada. Recurso exclusivo do plano Template + Idriel.' },
+    { Icon: ImageIcon, title: 'Referências visuais', desc: 'Traga as imagens que inspiram seu mundo — concept arts, mapas, paisagens. Categorize por Fruto para encontrar facilmente.' },
+    { Icon: Sparkles, title: 'Visões de Idriel (plano completo)', desc: 'Logo abaixo da galeria, abra "Visões de Idriel" para gerar imagens com IA. Descreva o que imagina e Idriel materializa — cada visão custa 5 gotas de Seiva Dourada. Recurso exclusivo do plano Template + Idriel.' },
   ],
 };
 
@@ -104,7 +104,7 @@ export const OnboardingTips: React.FC<Props> = ({ tab }) => {
                 alt="Idriel"
                 className="w-14 h-14 rounded-full object-cover border-2 border-idriel/50 animate-idriel-pulse"
               />
-              <div className="absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 rounded-full bg-idriel flex items-center justify-center text-[9px]">✨</div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-idriel flex items-center justify-center"><Sparkles className="w-2 h-2 text-white" strokeWidth={2.5} /></div>
             </div>
             <div>
               <span className="font-cinzel font-bold text-base text-idriel-light block">Idriel</span>
@@ -175,7 +175,7 @@ export const OnboardingTips: React.FC<Props> = ({ tab }) => {
                   onClick={dismiss}
                   className="px-4 py-2 rounded-lg text-xs font-montserrat font-bold text-background bg-idriel-light hover:bg-idriel-glow transition-all shadow-md shadow-idriel/20"
                 >
-                  ✨ Começar!
+                  <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Começar!</>
                 </button>
               )}
             </div>
