@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, X, ArrowLeft, Zap } from 'lucide-react';
+import {
+  Check, X, ArrowLeft, Zap, Sparkles, BookOpen, Map, Library, Image as ImageIcon,
+  Wand2, FileDown, Layers, Brain, Infinity as InfinityIcon, ShieldCheck, Clock, Heart,
+} from 'lucide-react';
 import { openCheckout, PLANS } from '@/hooks/useSubscription';
 import heroVideo from '@/assets/arvore-hero-bg.mp4.asset.json';
 import heroPoster from '@/assets/arvore-mundos-hero.png.asset.json';
