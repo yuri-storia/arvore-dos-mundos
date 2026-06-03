@@ -4,14 +4,6 @@ import { useAuth } from '@/contexts/AuthContext';
 
 // Pricing plans (gateway será integrado depois — IDs prontos para mapear)
 export const PLANS = {
-  semente: {
-    id: "semente",
-    name: "Semente",
-    price: "Grátis",
-    priceValue: 0,
-    period: "gratuito",
-    hasIdriel: false,
-  },
   raiz_mensal: {
     id: "raiz_mensal",
     name: "Raiz",
