@@ -28,7 +28,7 @@ const FAQ: Record<string, { label: string; items: { q: string; a: string }[] }> 
       },
       {
         q: 'O que é o Elixir dos Mundos?',
-        a: 'É a moeda de créditos para funcionalidades de IA. No plano Idriel você recebe **100 gotas por mês**. Custos: texto (1 gota), imagem (5 gotas), análise de mundo (2 gotas).',
+        a: 'É a **poção que Idriel destila** a partir da **Seiva Lendária da Árvore dos Mundos** — a essência que alimenta toda a magia criativa da plataforma. Cada gota libera um poder: **texto (1 gota)**, **imagem (5 gotas)**, **análise de mundo (2 gotas)**. O plano Idriel garante **100 gotas renovadas por mês**.',
       },
       {
         q: 'O que é "Consultar Idriel"?',
