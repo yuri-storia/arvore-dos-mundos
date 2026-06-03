@@ -22,26 +22,37 @@ export const TabNav: React.FC<Props> = ({ activeTab, setActiveTab }) => {
   if (!isMobile) return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-[150] backdrop-blur-[20px] border-t border-blue-glow/50 shadow-[0_-4px_30px_rgba(33,150,243,0.2)]" style={{ background: 'linear-gradient(135deg, hsl(210 84% 69% / 0.45) 0%, hsl(211 76% 42% / 0.35) 50%, hsl(207 90% 61% / 0.4) 100%)' }}>
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-[150] backdrop-blur-[20px] border-t shadow-[0_-6px_30px_hsl(28_32%_15%/0.55)]"
+      style={{
+        background:
+          'linear-gradient(135deg, hsl(28 32% 18% / 0.92) 0%, hsl(30 30% 28% / 0.88) 50%, hsl(34 42% 38% / 0.92) 100%)',
+        borderColor: 'hsl(40 50% 70% / 0.35)',
+      }}
+    >
       <div className="mx-auto max-w-[1060px] flex">
-        {TABS.map(tab => (
-          <button
-            key={tab.id}
-            data-tour={`tab-${tab.id}`}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 min-w-0 py-2.5 px-1 text-center font-montserrat font-bold text-[10px] sm:text-xs uppercase tracking-[0.1em] transition-colors ${
-              activeTab === tab.id
-                ? 'text-bg-deep'
-                : 'text-bg-deep/60 hover:text-bg-deep/80'
-            }`}
-          >
-            <tab.Icon className="block mx-auto mb-0.5 w-[18px] h-[18px]" strokeWidth={1.75} />
-            <span className={`block ${activeTab === tab.id ? 'opacity-100' : 'opacity-70'}`}>{tab.label}</span>
-            {activeTab === tab.id && (
-              <div className="mx-auto mt-1 w-6 h-[2px] rounded-full bg-bg-deep" />
-            )}
-          </button>
-        ))}
+        {TABS.map(tab => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              data-tour={`tab-${tab.id}`}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 min-w-0 py-2.5 px-1 text-center font-montserrat font-bold text-[10px] sm:text-xs uppercase tracking-[0.1em] transition-colors ${
+                isActive ? 'text-gold-cream' : 'text-gold-cream/55 hover:text-gold-cream/85'
+              }`}
+            >
+              <tab.Icon className="block mx-auto mb-0.5 w-[18px] h-[18px]" strokeWidth={1.75} />
+              <span className="block">{tab.label}</span>
+              {isActive && (
+                <div
+                  className="mx-auto mt-1 w-8 h-[2px] rounded-full"
+                  style={{ background: 'linear-gradient(90deg, hsl(40 50% 78%), hsl(42 55% 90%))' }}
+                />
+              )}
+            </button>
+          );
+        })}
       </div>
     </nav>
   );
