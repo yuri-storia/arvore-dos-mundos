@@ -3,7 +3,7 @@ import { lovable } from '@/integrations/lovable';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import treeWallpaper from '@/assets/tree-wallpaper.webp';
 
 const Particles: React.FC = () => {
@@ -332,7 +332,7 @@ const LoginPage: React.FC = () => {
                   onClick={() => navigate('/inicio')}
                   className="mt-4 text-text-dim text-[11px] font-montserrat hover:text-blue-light hover:underline transition-colors"
                 >
-                  Conheça a Árvore dos Mundos →
+                  <>Conheça a Árvore dos Mundos <ArrowRight className="inline-block w-4 h-4 ml-1 align-[-0.2em]" strokeWidth={2} /></>
                 </button>
               </>
             )}

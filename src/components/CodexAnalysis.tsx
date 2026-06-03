@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { Trees, X } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
 import { callAIText, friendlyAIError } from '@/lib/helpers';
@@ -34,12 +35,12 @@ const IDRIEL_NAME = 'Idriel';
 const IDRIEL_TITLE = 'Guardiã da Árvore dos Mundos';
 
 const LOADING_STEPS = [
-  { message: '🌿 Abrindo os galhos da Árvore para enxergar seu mundo…', delay: 0 },
-  { message: '📋 Analisando suas fichas de personagens, criaturas e lugares…', delay: 3000 },
-  { message: '📝 Agora, vou percorrer seus artigos e anotações…', delay: 7000 },
-  { message: '🍎 Verificando a cobertura de cada Fruto do worldbuilding…', delay: 11000 },
-  { message: '🔮 Quase lá… estou reunindo minhas considerações finais…', delay: 16000 },
-  { message: '✨ Tecendo a sabedoria dos Frutos em minha avaliação…', delay: 21000 },
+  { message: 'Abrindo os galhos da Árvore para enxergar seu mundo…', delay: 0 },
+  { message: 'Analisando suas fichas de personagens, criaturas e lugares…', delay: 3000 },
+  { message: 'Agora, vou percorrer seus artigos e anotações…', delay: 7000 },
+  { message: 'Verificando a cobertura de cada Fruto do worldbuilding…', delay: 11000 },
+  { message: 'Quase lá… estou reunindo minhas considerações finais…', delay: 16000 },
+  { message: 'Tecendo a sabedoria dos Frutos em minha avaliação…', delay: 21000 },
 ];
 
 export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
@@ -124,7 +125,7 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
       }
       lines.push(`## ${fruit.name} (${fruitEntries.length} entradas)`);
       fruitEntries.forEach(e => {
-        const typeLabel = e.entry_type === 'ficha' ? '📋 Ficha' : '📝 Artigo';
+        const typeLabel = e.entry_type === 'ficha' ? 'Ficha' : 'Artigo';
         const contentPreview = (e.content || '').slice(0, 600);
         lines.push(`### ${typeLabel}: ${e.title}`);
         lines.push(contentPreview || '(sem conteúdo)');
@@ -133,7 +134,7 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
     });
     const orphans = entries.filter(e => e.fruit_id === null);
     if (orphans.length > 0) {
-      lines.push(`## ❓ Sem fruto associado (${orphans.length})`);
+      lines.push(`## Sem fruto associado (${orphans.length})`);
       orphans.forEach(e => {
         lines.push(`- ${e.title}: ${(e.content || '').slice(0, 200)}`);
       });
@@ -156,27 +157,27 @@ ${FRUITS.map(f => `- ${f.name}`).join('\n')}
 
 Analise as entradas do Codex e responda em português brasileiro, usando Markdown. NÃO repita saudações. Use EXATAMENTE estas seções:
 
-## 🌿 Saudação
+## Saudação
 Uma ÚNICA frase poética de boas-vindas (máximo 2 linhas).
 
-## 🌳 Avaliação dos Frutos
-Para CADA um dos 11 Frutos, dê uma nota de 1 a 5 estrelas (⭐) e um comentário de UMA linha. Use este formato exato para cada fruto:
+## Avaliação dos Frutos
+Para CADA um dos 11 Frutos, dê uma nota de 1 a 5 estrelas e um comentário de UMA linha. Use este formato exato para cada fruto:
 - **${FRUITS.map(f => `${f.name}**: 3/5 — [comentário breve]`).join('\n- **')}
-Se o fruto não tem entradas, dê ⭐ e diga que precisa ser desenvolvido.
+Se o fruto não tem entradas, dê 1 estrela e diga que precisa ser desenvolvido.
 
-## 🕳️ Furos de Enredo
+## Furos de Enredo
 Identifique contradições, lacunas lógicas ou informações que se contradizem entre fichas/artigos. Se não houver, diga brevemente.
 
-## ⚠️ Inconsistências de Worldbuilding
+## Inconsistências de Worldbuilding
 Aponte elementos que não fazem sentido dentro da lógica interna do mundo (ex: tecnologia incompatível com a era, geografia contraditória, sistemas de magia sem regras claras).
 
-## 🌱 Oportunidades de Expansão
+## Oportunidades de Expansão
 Sugira 3-5 áreas promissoras onde o mundo pode crescer, baseando-se no que já existe. Seja específica referenciando entradas do criador.
 
-## ✨ Pontos Fortes
+## Pontos Fortes
 Destaque o que está bem construído e merece reconhecimento. Cite entradas específicas.
 
-## 🧭 Por Onde Continuar
+## Por Onde Continuar
 Liste 3 ações concretas e prioritárias que o criador deveria fazer a seguir, ordenadas por importância. Priorize os frutos com notas mais baixas.
 
 Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_TITLE}".`;
@@ -244,13 +245,13 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="font-cinzel font-bold text-base sm:text-lg text-idriel-light">
-            🌳 {IDRIEL_NAME} — {IDRIEL_TITLE}
+            <><Trees className="inline-block w-4 h-4 mr-2 align-[-0.2em] text-gold-champagne" strokeWidth={1.5} />{IDRIEL_NAME} — {IDRIEL_TITLE}</>
           </h3>
           <p className="font-merriweather italic text-text-dim text-xs mt-1">
             A sábia guardiã irá avaliar todas as suas entradas e sugerir melhorias
           </p>
         </div>
-        <button onClick={onClose} className="w-6 h-6 rounded-full text-text-dim hover:text-foreground text-sm flex items-center justify-center transition-colors">✕</button>
+        <button onClick={onClose} className="w-6 h-6 rounded-full text-text-dim hover:text-foreground flex items-center justify-center transition-colors" aria-label="Fechar"><X className="w-3.5 h-3.5" strokeWidth={2} /></button>
       </div>
 
       {/* Stats summary */}

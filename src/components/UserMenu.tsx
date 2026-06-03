@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, ChevronDown, ChevronUp, Bug } from 'lucide-react';
+import { Settings, ChevronDown, ChevronUp, Bug, Shield } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { BugReportDialog } from '@/components/BugReportDialog';
 
@@ -87,13 +87,13 @@ export const UserMenu: React.FC = () => {
             onClick={() => { navigate('/admin'); setMenuOpen(false); }}
             className="w-full text-left px-4 py-2.5 text-[10px] font-montserrat font-bold uppercase tracking-wider text-gold-light/80 hover:text-gold-light hover:bg-gold/[0.08] transition-all border-b border-blue-bright/10"
           >
-            🛡 Painel do Administrador
+            <><Shield className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Painel do Administrador</>
           </button>
           <button
             onClick={() => { navigate('/settings'); setMenuOpen(false); }}
             className="w-full text-left px-4 py-2.5 text-[10px] font-montserrat font-bold uppercase tracking-wider text-blue-light/80 hover:text-blue-light hover:bg-blue-bright/[0.06] transition-all"
           >
-            ⚙️ Configurações
+            <><Settings className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Configurações</>
           </button>
         </div>
       )}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Sparkles, Hand, ArrowRight } from 'lucide-react';
+import { Sparkles, Hand, ArrowRight, Compass, ClipboardList, Book, BookOpen, Apple, Star, Trees, Palette, Image as ImageIcon, Leaf, Feather } from 'lucide-react';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 import type { TabType } from '@/lib/data';
 
@@ -28,7 +28,7 @@ const TOUR_STEPS: TourStep[] = [
     type: 'intro',
     title: 'Bem-vindo(a) à Árvore dos Mundos!',
     desc: 'Saudações, viajante! Eu sou Idriel, guardiã ancestral desta árvore mágica. Será uma honra guiá-lo(a) por cada ferramenta deste lugar sagrado. Preste atenção nos destaques dourados — eles mostram onde a magia acontece!',
-    icon: '🌳',
+    Icon: Trees,
   },
 
   // ── CONSTRUIR ──
@@ -38,14 +38,14 @@ const TOUR_STEPS: TourStep[] = [
     tabToActivate: 'construir',
     title: 'Aba Construir',
     desc: 'Vamos começar pela fundação do seu mundo, viajante. Clique em Construir!',
-    icon: '🌿',
+    Icon: Leaf,
   },
   {
     type: 'highlight',
     target: 'method-selector',
     title: 'Dois Caminhos, Viajante',
     desc: 'Existem dois caminhos para cultivar seu mundo. "De Cima para Baixo" parte do panorama geral — mapa, cosmologia, história — e desce aos detalhes. "De Baixo para Cima" nasce dos personagens e expande o mundo conforme a história pede. Os modelos ajudam a organizar o raciocínio, mas se você já for um criador experimentado, sinta-se livre para trilhar seu próprio caminho entre os Frutos.',
-    icon: '🧭',
+    Icon: Compass,
     tooltipPos: 'bottom',
     delay: 400,
   },
@@ -54,7 +54,7 @@ const TOUR_STEPS: TourStep[] = [
     target: 'method-bottom-up',
     title: 'Experimente "De Baixo para Cima"',
     desc: 'Para que sinta a diferença, viajante, clique em "De Baixo para Cima". Observe como a ordem dos Frutos se reorganiza, priorizando personagens e narrativa antes do panorama geral.',
-    icon: '🧭',
+    Icon: Compass,
     tooltipPos: 'bottom',
     delay: 200,
   },
@@ -63,7 +63,7 @@ const TOUR_STEPS: TourStep[] = [
     target: 'fruit-grid',
     title: 'Os 11 Frutos do Mundo',
     desc: 'Cada card é um Fruto — um pilar do seu mundo, viajante. Mapa, história, culturas, magia, personagens… O modelo escolhido sugere uma ordem, mas você é livre para explorar qualquer Fruto quando a inspiração chamar.',
-    icon: '🍎',
+    Icon: Apple,
     tooltipPos: 'bottom',
     delay: 400,
     setFruit: 1,
@@ -73,7 +73,7 @@ const TOUR_STEPS: TourStep[] = [
     target: 'consult-idriel',
     title: 'Consultar Idriel (Plano Completo)',
     desc: 'Dentro de cada Fruto, viajante, você pode me consultar! Use os chips de sugestão ou escreva sua dúvida. Este recurso é exclusivo do plano Template + Idriel e custa apenas 1 gota de Seiva.',
-    icon: '🌿',
+    Icon: Leaf,
     tooltipPos: 'top',
     delay: 200,
   },
@@ -85,14 +85,14 @@ const TOUR_STEPS: TourStep[] = [
     tabToActivate: 'codex',
     title: 'Aba Codex',
     desc: 'Agora vamos ver onde tudo se organiza, viajante. Clique em Codex!',
-    icon: '📖',
+    Icon: BookOpen,
   },
   {
     type: 'highlight',
     target: 'codex-new-entry',
     title: 'Criar Fichas e Artigos',
     desc: 'Aqui você cria Fichas (com imagem, para personagens, locais e itens) e Artigos (texto livre, para lore e regras). Tudo que você preenche nos Frutos também aparece aqui automaticamente!',
-    icon: '📋',
+    Icon: ClipboardList,
     tooltipPos: 'left',
     delay: 400,
   },
@@ -104,14 +104,14 @@ const TOUR_STEPS: TourStep[] = [
     tabToActivate: 'escrever',
     title: 'Aba Escrever',
     desc: 'Hora de dar vida à sua história, viajante! Clique em Escrever!',
-    icon: '✍️',
+    Icon: Feather,
   },
   {
     type: 'highlight',
     target: 'create-manuscript',
     title: 'Criar Manuscrito',
     desc: 'Comece criando um manuscrito, viajante. Dentro dele, você organiza Capítulos e Cenas — como um livro de verdade. Depois pode exportar em PDF, Word ou HTML para e-book!',
-    icon: '📕',
+    Icon: Book,
     tooltipPos: 'right',
     delay: 400,
   },
@@ -123,14 +123,14 @@ const TOUR_STEPS: TourStep[] = [
     tabToActivate: 'galeria',
     title: 'Aba Galeria',
     desc: 'Por último, as referências visuais, viajante! Clique em Galeria!',
-    icon: '🎨',
+    Icon: Palette,
   },
   {
     type: 'highlight',
     target: 'gallery-upload',
     title: 'Upload de Referências',
     desc: 'Faça upload das imagens que inspiram seu mundo — concept arts, mapas, paisagens. Organize por categoria de Fruto para encontrar facilmente.',
-    icon: '🖼️',
+    Icon: ImageIcon,
     tooltipPos: 'bottom',
     delay: 400,
   },
@@ -139,7 +139,7 @@ const TOUR_STEPS: TourStep[] = [
     target: 'visoes-idriel',
     title: 'Visões de Idriel — Geração de Imagens',
     desc: 'Aqui eu materializo as visões do seu mundo, viajante! Descreva o que imagina, escolha estilo e tom, e eu gero a imagem com IA. Cada visão custa 5 gotas de Seiva Dourada. Este recurso é exclusivo do plano completo.',
-    icon: '✨',
+    Icon: Sparkles,
     tooltipPos: 'top',
     delay: 200,
   },
@@ -149,7 +149,7 @@ const TOUR_STEPS: TourStep[] = [
     type: 'outro',
     title: 'A jornada começa agora!',
     desc: 'Agora você conhece cada ferramenta da Árvore, viajante. Comece pelo Fruto que mais te inspira — não existe ordem certa. E lembre-se: clique na minha imagem no canto inferior direito para me chamar a qualquer momento. Que a Árvore ilumine o seu caminho!',
-    icon: '🌟',
+    Icon: Star,
   },
 ];
 

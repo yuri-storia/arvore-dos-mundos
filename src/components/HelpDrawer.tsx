@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, ScrollText } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import ReactMarkdown from 'react-markdown';
@@ -120,7 +120,7 @@ const FAQ: Record<string, { label: string; items: { q: string; a: string }[] }> 
       },
       {
         q: 'Quais são os planos disponíveis?',
-        a: '**🌱 Semente (Grátis):** 1 mundo, 5 fichas, 1 artigo. Sem IA e sem exportação.\n\n**🌿 Raiz (R$ 87/ano):** Mundos, fichas e artigos ilimitados. Exportação em PDF. Sem IA.\n\n**✨ Idriel Mensal (R$ 29,90/mês):** Tudo do Raiz + 100 gotas de Seiva Dourada por mês para IA.\n\n**✨ Idriel Anual (R$ 279/ano):** Mesmo que o mensal, com economia de 22%.',
+        a: '**Semente (Grátis):** 1 mundo, 5 fichas, 1 artigo. Sem IA e sem exportação.\n\n**Raiz (R$ 87/ano):** Mundos, fichas e artigos ilimitados. Exportação em PDF. Sem IA.\n\n**Idriel Mensal (R$ 29,90/mês):** Tudo do Raiz + 100 gotas de Seiva Dourada por mês para IA.\n\n**Idriel Anual (R$ 279/ano):** Mesmo que o mensal, com economia de 22%.',
       },
       {
         q: 'Como criar múltiplos mundos?',
@@ -219,7 +219,7 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
               {/* FAQ chips */}
               <div className="pt-1 space-y-2">
                 <p className="text-[10px] font-montserrat uppercase tracking-widest text-idriel/50 text-center">
-                  📜 {currentFaq.label}
+                  <><ScrollText className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />{currentFaq.label}</>
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {currentFaq.items.map((item, i) => (

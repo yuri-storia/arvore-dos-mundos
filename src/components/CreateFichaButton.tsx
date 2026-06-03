@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Save, ArrowLeft, X, ClipboardList, PencilLine, Sparkles, BookOpen, Feather } from 'lucide-react';
 import { FRUITS } from '@/lib/data';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
@@ -74,7 +75,7 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
                 : 'bg-secondary/30 text-text-dim/40 border border-blue-bright/10 cursor-not-allowed'
             }`}
           >
-            💾 Salvar Informação
+            <><Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Salvar Informação</>
           </button>
         </div>
       )}
@@ -128,10 +129,10 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
                   })}
                 </div>
               )}
-              <button onClick={() => setShowAddTo(false)} className="mt-2 text-[10px] text-text-dim font-montserrat hover:text-foreground transition-colors">← Voltar</button>
+              <button onClick={() => setShowAddTo(false)} className="mt-2 inline-flex items-center gap-1 text-[10px] text-text-dim font-montserrat hover:text-foreground transition-colors"><ArrowLeft className="w-3 h-3" strokeWidth={2} />Voltar</button>
             </>
           )}
-          <button onClick={() => setShowMenu(false)} className="absolute top-1 right-1 w-5 h-5 rounded-full text-text-dim hover:text-foreground text-xs flex items-center justify-center">✕</button>
+          <button onClick={() => setShowMenu(false)} className="absolute top-1 right-1 w-5 h-5 rounded-full text-text-dim hover:text-foreground flex items-center justify-center" aria-label="Fechar"><X className="w-3.5 h-3.5" strokeWidth={2} /></button>
         </div>
       )}
 
@@ -140,7 +141,7 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
         <DialogContent className="card-glass border-blue-bright/30 max-w-md">
           <DialogHeader>
             <DialogTitle className="font-cinzel text-blue-light">
-              {isFicha ? '📋 Nova Ficha' : '📝 Novo Artigo'}
+              <>{isFicha ? <><ClipboardList className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Nova Ficha</> : <><PencilLine className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Novo Artigo</>}</>
             </DialogTitle>
             <DialogDescription className="text-text-dim font-merriweather text-sm">
               Escolha um título para {isFicha ? 'sua ficha' : 'seu artigo'}:
@@ -171,7 +172,7 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
         <DialogContent className={`max-w-md ${isFicha ? 'card-glass border-blue-bright/30' : 'card-glass-gold border-gold/30'}`}>
           <DialogHeader>
             <DialogTitle className={`font-cinzel ${isFicha ? 'text-blue-light' : 'text-gold-light'}`}>
-              ✨ {isFicha ? 'Ficha Criada!' : 'Artigo Criado!'}
+              <Sparkles className="inline-block w-4 h-4 mr-1.5 align-[-0.2em] text-gold-champagne" strokeWidth={1.75} />{isFicha ? 'Ficha Criada!' : 'Artigo Criado!'}
             </DialogTitle>
             <DialogDescription className="text-text-secondary font-merriweather text-sm">
               <strong>"{createdEntryName}"</strong> foi salvo no Codex com sucesso.
@@ -183,13 +184,13 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
               onClick={() => handleSuccessAction('codex')} 
               className={`${isFicha ? 'border-blue-bright/30 text-blue-light hover:bg-blue-main/20' : 'border-gold/30 text-gold-light hover:bg-gold/20'}`}
             >
-              📖 Ver Codex
+              <><BookOpen className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Ver Codex</>
             </Button>
             <Button 
               onClick={() => handleSuccessAction('continue')} 
               className={`${isFicha ? 'bg-blue-main hover:bg-blue-bright' : 'bg-gold/80 hover:bg-gold'} text-foreground`}
             >
-              ✍️ Continuar a Criar
+              <><Feather className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Continuar a Criar</>
             </Button>
           </DialogFooter>
         </DialogContent>
