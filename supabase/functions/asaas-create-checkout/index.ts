@@ -110,9 +110,12 @@ Deno.serve(async (req) => {
     }
 
     // Monta payload do Asaas Checkout
+    // Asaas: RECURRENT só aceita CREDIT_CARD; PIX só aceita DETACHED.
+    const isSubscription = plan.kind === "subscription";
+    const itemName = (`AdM — ${plan.name}`).slice(0, 30); // máx 30 chars
     const checkoutPayload: Record<string, any> = {
-      billingTypes: ["CREDIT_CARD", "PIX"],
-      chargeTypes: plan.kind === "subscription" ? ["RECURRENT"] : ["DETACHED"],
+      billingTypes: isSubscription ? ["CREDIT_CARD"] : ["CREDIT_CARD", "PIX"],
+      chargeTypes: isSubscription ? ["RECURRENT"] : ["DETACHED"],
       minutesToExpire: 60,
       callback: {
         successUrl: `${origin}/obrigado?ref=${encodeURIComponent(externalReference)}`,
@@ -120,9 +123,9 @@ Deno.serve(async (req) => {
         expiredUrl: `${origin}/planos?expired=1`,
       },
       items: [{
-        name: `Árvore dos Mundos — ${plan.name}`,
-        description: plan.kind === "subscription"
-          ? `Assinatura ${plan.cycle === "YEARLY" ? "anual" : "mensal"}`
+        name: itemName,
+        description: isSubscription
+          ? `Assinatura ${plan.cycle === "YEARLY" ? "anual" : "mensal"} — ${plan.name}`
           : `Recarga avulsa de ${plan.drops} gotas`,
         value: plan.amount,
         quantity: 1,
