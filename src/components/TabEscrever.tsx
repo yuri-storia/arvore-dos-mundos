@@ -315,7 +315,10 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     setNewManuscriptName('');
   };
 
-  const chapterWordCount = editingContent.trim() ? editingContent.trim().split(/\s+/).length : 0;
+  const chapterWordCount = useMemo(
+    () => (editingContent.trim() ? editingContent.trim().split(/\s+/).length : 0),
+    [editingContent],
+  );
 
   if (!user) return <div className="text-center py-20 text-text-dim">Faça login para acessar.</div>;
   if (!worldId) return <div className="text-center py-20 text-text-dim">Selecione um mundo para começar a escrever.</div>;
