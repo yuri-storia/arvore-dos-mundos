@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FRUIT_RECOMMENDED_TYPE, type FruitGuide, type RecommendedType } from '@/lib/data';
-import { ChevronDown, ClipboardList, PencilLine, Leaf, BookOpen } from 'lucide-react';
+import { ChevronDown, ClipboardList, PencilLine, Leaf, BookOpen, type LucideIcon } from 'lucide-react';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 
 interface Props {
