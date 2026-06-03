@@ -15,6 +15,13 @@ const PLAN_MAP: Record<string, { hasIdriel: boolean; cycle: "monthly" | "yearly"
   idriel_anual:  { hasIdriel: true,  cycle: "yearly",  tier: "idriel", displayName: "Idriel Anual",  amount: 397.00 },
 };
 
+// Upgrades: SKU avulso -> ativa Idriel + cria nova assinatura recorrente futura
+const UPGRADE_MAP: Record<string, { targetPlanCode: "idriel_mensal" | "idriel_anual"; firstChargeDelayDays: number; recurringAmount: number; recurringCycle: "MONTHLY" | "YEARLY"; displayName: string; firstAmount: number }> = {
+  upgrade_raiz_m_to_idriel_m: { targetPlanCode: "idriel_mensal", firstChargeDelayDays: 30,  recurringAmount: 39.90,  recurringCycle: "MONTHLY", displayName: "Upgrade Idriel Mensal", firstAmount:  20.00 },
+  upgrade_raiz_m_to_idriel_a: { targetPlanCode: "idriel_anual",  firstChargeDelayDays: 365, recurringAmount: 397.00, recurringCycle: "YEARLY",  displayName: "Upgrade Idriel Anual (promo)", firstAmount: 329.00 },
+  upgrade_raiz_a_to_idriel_a: { targetPlanCode: "idriel_anual",  firstChargeDelayDays: 365, recurringAmount: 397.00, recurringCycle: "YEARLY",  displayName: "Upgrade Idriel Anual (diferença)", firstAmount: 200.00 },
+};
+
 const RECHARGE_MAP: Record<string, { drops: number; displayName: string; amount: number }> = {
   recarga_15:  { drops: 15,  displayName: "15 gotas",  amount: 4.90  },
   recarga_25:  { drops: 25,  displayName: "25 gotas",  amount: 7.90  },
@@ -22,6 +29,27 @@ const RECHARGE_MAP: Record<string, { drops: number; displayName: string; amount:
   recarga_100: { drops: 100, displayName: "100 gotas", amount: 27.90 },
   recarga_200: { drops: 200, displayName: "200 gotas", amount: 54.90 },
 };
+
+const ASAAS_BASE = "https://api.asaas.com/v3";
+
+async function asaasFetch(path: string, init: RequestInit = {}) {
+  const apiKey = Deno.env.get("ASAAS_API_KEY");
+  if (!apiKey) throw new Error("ASAAS_API_KEY missing");
+  const res = await fetch(`${ASAAS_BASE}${path}`, {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      "User-Agent": "ArvoreDosMundos/1.0",
+      access_token: apiKey,
+      ...(init.headers || {}),
+    },
+  });
+  const text = await res.text();
+  let json: any = null;
+  try { json = text ? JSON.parse(text) : null; } catch {}
+  if (!res.ok) throw new Error(`Asaas ${path} ${res.status}: ${text}`);
+  return json;
+}
 
 const APP_ORIGIN = "https://arvoredosmundos.app";
 
