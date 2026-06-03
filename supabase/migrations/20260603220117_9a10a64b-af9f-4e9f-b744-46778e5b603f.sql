@@ -1,0 +1,1 @@
+DELETE FROM public.asaas_payments WHERE id = '7d8b27ed-32c6-4917-80b6-155e6d33378e';
