@@ -240,7 +240,7 @@ const LandingPage: React.FC = () => {
                 className="rounded-xl border border-border/60 bg-card/50 p-6 transition-colors group cursor-default"
               >
                 <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-blue-light mb-4 group-hover:bg-primary/20 transition-colors">
-                  <f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} />
+                  {f.icon}
                 </div>
                 <h3 className="font-cinzel font-bold text-sm text-foreground mb-2">{f.title}</h3>
                 <p className="font-montserrat text-xs text-text-dim leading-relaxed">{f.desc}</p>
@@ -296,7 +296,7 @@ const LandingPage: React.FC = () => {
                     whileHover={{ scale: 1.08, transition: { duration: 0.2 } }}
                     className="p-4 rounded-lg bg-gold/[0.06] border border-gold/15 cursor-default"
                   >
-                    <span className="text-2xl block mb-2">{item.icon}</span>
+                    <item.Icon className="w-6 h-6 mx-auto mb-2 text-gold-light" strokeWidth={1.75} />
                     <span className="font-montserrat font-bold text-[11px] text-gold-light block">{item.label}</span>
                     <span className="font-montserrat text-[10px] text-text-dim">{item.sub}</span>
                   </motion.div>

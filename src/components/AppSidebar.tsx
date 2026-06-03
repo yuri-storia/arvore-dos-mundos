@@ -192,7 +192,7 @@ export const AppSidebar: React.FC<Props> = ({
                         : 'text-text-dim hover:text-foreground hover:bg-white/[0.04]'
                     }`}
                   >
-                    <span className="text-base shrink-0">{tab.emoji}</span>
+                    <tab.icon className="w-4 h-4 shrink-0" strokeWidth={1.75} />
                     {!collapsed && (
                       <span className="font-montserrat font-bold text-xs uppercase tracking-wider">
                         {tab.label}

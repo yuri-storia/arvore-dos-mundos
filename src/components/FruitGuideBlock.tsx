@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FRUIT_RECOMMENDED_TYPE, type FruitGuide, type RecommendedType } from '@/lib/data';
-import { ChevronDown, ClipboardList, PencilLine, Leaf, BookOpen } from 'lucide-react';
+import { ChevronDown, ClipboardList, PencilLine, Leaf, BookOpen, type LucideIcon } from 'lucide-react';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
   fruitId?: number;
 }
 
-const RECOMMENDATION_COPY: Record<RecommendedType, { icon: string; label: string; tone: string }> = {
+const RECOMMENDATION_COPY: Record<RecommendedType, { Icon: LucideIcon; label: string; tone: string }> = {
   ficha: {
     Icon: ClipboardList,
     label: 'Fichas',
@@ -79,7 +79,7 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide, id, fruitId }) => {
                   onClick={() => toggle(section.key)}
                   className="w-full flex items-center gap-2.5 px-4 py-3 text-left hover:bg-idriel/[0.04] transition-colors group"
                 >
-                  <span className="text-base shrink-0">{section.icon}</span>
+                  <section.Icon className="w-4 h-4 shrink-0 text-idriel-light" strokeWidth={1.75} />
                   <span className="font-montserrat font-bold text-[13px] uppercase tracking-wider text-idriel-light flex-1">
                     {section.title}
                   </span>
@@ -93,7 +93,7 @@ export const FruitGuideBlock: React.FC<Props> = ({ guide, id, fruitId }) => {
                     {/* Recommendation banner — only on "Sobre este Fruto" */}
                     {section.recCopy && (
                       <div className="mb-3 flex items-start gap-2.5 p-3 rounded-md bg-gold/[0.07] border border-gold/25">
-                        <span className="text-base shrink-0 mt-0.5">{section.recCopy.icon}</span>
+                        <section.recCopy.Icon className="w-4 h-4 shrink-0 mt-0.5 text-gold-light" strokeWidth={1.75} />
                         <p
                           className="font-merriweather text-[13px] leading-relaxed text-gold-light/95 italic"
                           dangerouslySetInnerHTML={{

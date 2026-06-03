@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Sparkles, Hand, ArrowRight, Compass, ClipboardList, Book, BookOpen, Apple, Star, Trees, Palette, Image as ImageIcon, Leaf, Feather } from 'lucide-react';
+import { Sparkles, Hand, ArrowRight, Compass, ClipboardList, Book, BookOpen, Apple, Star, Trees, Palette, Image as ImageIcon, Leaf, Feather, type LucideIcon } from 'lucide-react';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 import type { TabType } from '@/lib/data';
 
@@ -14,7 +14,7 @@ export interface TourStep {
   target?: string; // data-tour attribute value
   title: string;
   desc: string;
-  icon: string;
+  Icon: LucideIcon;
   tabToActivate?: TabType;
   tooltipPos?: 'right' | 'bottom' | 'left' | 'top' | 'center';
   delay?: number;

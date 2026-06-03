@@ -53,7 +53,7 @@ export const OnboardingBanner: React.FC = () => {
           <div className="space-y-3">
             {STEPS.map((step, i) => (
               <div key={i} className="flex gap-3 items-start">
-                <span className="text-lg shrink-0 mt-0.5">{step.icon}</span>
+                <step.Icon className="w-5 h-5 shrink-0 mt-0.5 text-gold-light" strokeWidth={1.75} />
                 <div>
                   <h3 className="font-montserrat font-bold text-sm text-gold-light">
                     {i + 1}. {step.title}
