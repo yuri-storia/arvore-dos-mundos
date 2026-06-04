@@ -152,37 +152,43 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, worldId, onClose }) =>
     setViewingHistoryId(null);
     setShowHistory(false);
 
-    const systemPrompt = `Você é ${IDRIEL_NAME}, a ${IDRIEL_TITLE} — uma sábia ancestral élfica que observa mundos florescerem. Fale com elegância e sabedoria, mas seja objetiva e concisa. Trate o usuário como "viajante".
+    const systemPrompt = `Você é ${IDRIEL_NAME}, a ${IDRIEL_TITLE} — uma sábia ancestral élfica que observa mundos florescerem. Fale com elegância, sofisticação e sabedoria contida. Seja objetiva, concisa e premium. Trate o usuário como "viajante".
+
+REGRAS DE ESTILO INVIOLÁVEIS:
+- NÃO use emojis em nenhuma circunstância (sem 🌟, ⭐, ✨, 🌿, 🌳, etc.). A estética é editorial e refinada, não infantil.
+- NÃO use ícones decorativos, hashtags soltas, exclamações exageradas ou linguagem coloquial.
+- Use APENAS texto e Markdown sóbrio (cabeçalhos ##, listas com -, **negrito**, *itálico*).
+- Para avaliações com estrelas, escreva sempre "3/5" em texto puro — NUNCA caracteres ★ ou ✰.
 
 A metodologia "Árvore dos Mundos" usa 11 pilares ("Frutos"):
 ${FRUITS.map(f => `- ${f.name}`).join('\n')}
 
-Analise as entradas do Codex e responda em português brasileiro, usando Markdown. NÃO repita saudações. Use EXATAMENTE estas seções:
+Analise as entradas do Codex e responda em português brasileiro. NÃO repita saudações. Use EXATAMENTE estas seções, nesta ordem:
 
 ## Saudação
-Uma ÚNICA frase poética de boas-vindas (máximo 2 linhas).
+Uma ÚNICA frase poética de boas-vindas (máximo 2 linhas, sem emojis).
 
 ## Avaliação dos Frutos
-Para CADA um dos 11 Frutos, dê uma nota de 1 a 5 estrelas e um comentário de UMA linha. Use este formato exato para cada fruto:
-- **${FRUITS.map(f => `${f.name}**: 3/5 — [comentário breve]`).join('\n- **')}
-Se o fruto não tem entradas, dê 1 estrela e diga que precisa ser desenvolvido.
+Para CADA um dos 11 Frutos, dê uma nota de 1 a 5 e um comentário de UMA linha. Formato exato:
+- **${FRUITS.map(f => `${f.name}**: 3/5 — [comentário breve, sem emojis]`).join('\n- **')}
+Se o fruto não tem entradas, dê 1 e diga que precisa ser desenvolvido.
 
 ## Furos de Enredo
 Identifique contradições, lacunas lógicas ou informações que se contradizem entre fichas/artigos. Se não houver, diga brevemente.
 
 ## Inconsistências de Worldbuilding
-Aponte elementos que não fazem sentido dentro da lógica interna do mundo (ex: tecnologia incompatível com a era, geografia contraditória, sistemas de magia sem regras claras).
+Aponte elementos que não fazem sentido dentro da lógica interna do mundo (ex.: tecnologia incompatível com a era, geografia contraditória, sistemas de magia sem regras claras).
 
 ## Oportunidades de Expansão
-Sugira 3-5 áreas promissoras onde o mundo pode crescer, baseando-se no que já existe. Seja específica referenciando entradas do criador.
+Sugira 3-5 áreas promissoras onde o mundo pode crescer, referenciando entradas específicas do criador.
 
 ## Pontos Fortes
-Destaque o que está bem construído e merece reconhecimento. Cite entradas específicas.
+Destaque o que está bem construído. Cite entradas específicas.
 
 ## Por Onde Continuar
-Liste 3 ações concretas e prioritárias que o criador deveria fazer a seguir, ordenadas por importância. Priorize os frutos com notas mais baixas.
+Liste 3 ações concretas e prioritárias, ordenadas por importância. Priorize os frutos com notas mais baixas.
 
-Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_TITLE}".`;
+Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${IDRIEL_TITLE}".`;
 
     try {
       const content = await callAIText(
@@ -244,14 +250,28 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
   
 
   return (
-    <div className="rounded-lg p-4 sm:p-5 mb-6 animate-fadeUp border border-accent/20" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.10) 0%, rgba(59,130,246,0.10) 50%, rgba(16,185,129,0.08) 100%)', backdropFilter: 'blur(20px)' }}>
+    <div
+      className="rounded-2xl p-4 sm:p-6 mb-6 animate-fadeUp border border-gold/25 relative overflow-hidden"
+      style={{
+        background:
+          'linear-gradient(135deg, rgba(20,14,4,0.92) 0%, rgba(10,8,2,0.95) 50%, rgba(8,5,10,0.92) 100%)',
+        backdropFilter: 'blur(20px)',
+        boxShadow:
+          '0 18px 60px rgba(0,0,0,0.55), 0 0 80px hsl(var(--gold-warm)/0.10), inset 0 1px 0 hsl(var(--gold-champagne)/0.12)',
+      }}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 opacity-50"
+        style={{ background: 'radial-gradient(ellipse 60% 60% at 0% 0%, hsl(var(--gold-warm)/0.10) 0%, transparent 70%)' }}
+      />
+      <div className="relative">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="font-cinzel font-bold text-base sm:text-lg text-idriel-light">
+          <h3 className="font-cinzel font-bold text-base sm:text-lg text-gold-light">
             <><Trees className="inline-block w-4 h-4 mr-2 align-[-0.2em] text-gold-champagne" strokeWidth={1.5} />{IDRIEL_NAME} — {IDRIEL_TITLE}</>
           </h3>
           <p className="font-merriweather italic text-text-dim text-xs mt-1">
-            A sábia guardiã irá avaliar todas as suas entradas e sugerir melhorias
+            A sábia guardiã irá avaliar suas entradas e iluminar o caminho a seguir
           </p>
         </div>
         <button onClick={onClose} className="w-6 h-6 rounded-full text-text-dim hover:text-foreground flex items-center justify-center transition-colors" aria-label="Fechar"><X className="w-3.5 h-3.5" strokeWidth={2} /></button>
@@ -404,13 +424,13 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
             <button
               onClick={handleAnalyze}
               disabled={!canAnalyze || sub.loading}
-              className="px-5 py-2.5 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_hsl(var(--idriel)/0.3)] hover:shadow-[0_0_30px_hsl(var(--idriel)/0.5)] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+              className="px-5 py-2.5 bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] hover:from-gold-warm hover:via-gold hover:to-gold-light rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_hsl(var(--gold-warm)/0.35)] hover:shadow-[0_0_32px_hsl(var(--gold-warm)/0.55)] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
             >
               <><Trees className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Consultar {IDRIEL_NAME} sobre {entries.length} entrada{entries.length !== 1 ? 's' : ''}</>
             </button>
           )}
           <p className="text-[10px] text-text-dim mt-2 font-montserrat">
-            <Droplet className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Custo: <span className="font-bold text-idriel-light">{ANALYSIS_COST} gota</span> de Elixir · Você tem <span className="font-bold text-idriel-light">{creditsRemaining} gotas</span> · Análises anteriores são gratuitas
+            <Droplet className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Custo: <span className="font-bold text-gold-light">{ANALYSIS_COST} gota</span> de Elixir · Você tem <span className="font-bold text-gold-light">{creditsRemaining} gotas</span> · Análises anteriores são gratuitas
           </p>
         </div>
       )}
@@ -420,14 +440,14 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
         <div className="py-6">
           <div className="flex flex-col items-center gap-4 mb-6">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-idriel/40 shadow-[0_0_30px_hsl(var(--idriel-glow)/0.3)] animate-pulse">
+              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gold/40 shadow-[0_0_30px_hsl(var(--gold-warm)/0.35)] animate-pulse">
                 <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
               </div>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-idriel/30 border border-idriel-light/50 flex items-center justify-center animate-pulse"><Trees className="w-3 h-3 text-gold-champagne" strokeWidth={1.75} /></div>
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-gold/20 border border-gold-light/50 flex items-center justify-center animate-pulse"><Trees className="w-3 h-3 text-gold-champagne" strokeWidth={1.75} /></div>
             </div>
             <div className="text-center">
               <p className="font-cinzel font-bold text-sm text-foreground">{IDRIEL_NAME}</p>
-              <p className="text-[10px] text-idriel-light/80 font-montserrat italic">está analisando seu mundo…</p>
+              <p className="text-[10px] text-gold-light/80 font-montserrat italic">está analisando seu mundo…</p>
             </div>
           </div>
 
@@ -441,7 +461,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
               >
                 <span className={`mt-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] flex-shrink-0 transition-colors duration-300 ${
                   i < currentStep
-                    ? 'bg-idriel/30 text-idriel-light'
+                    ? 'bg-gold/20 text-gold-light'
                     : i === currentStep
                       ? 'bg-violet-500/30 text-violet-400 animate-pulse'
                       : 'bg-border text-text-dim'
@@ -481,33 +501,33 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
 
           <div className="rounded-lg p-4 sm:p-5 border border-accent/15 bg-background/30 relative" style={{ backdropFilter: 'blur(10px)' }}>
             {isRevealing && (
-              <div className="absolute bottom-3 right-3 flex items-center gap-1.5 text-idriel-light/60">
-                <span className="w-1.5 h-1.5 rounded-full bg-idriel animate-pulse" />
+              <div className="absolute bottom-3 right-3 flex items-center gap-1.5 text-gold-light/60">
+                <span className="w-1.5 h-1.5 rounded-full bg-gold-champagne animate-pulse" />
                 <span className="text-[9px] font-montserrat italic">Idriel escrevendo…</span>
               </div>
             )}
             <div className="prose prose-sm prose-invert max-w-none
-              [&_h2]:font-cinzel [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-5 [&_h2]:mb-2 [&_h2]:text-idriel-light
+              [&_h2]:font-cinzel [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-5 [&_h2]:mb-2 [&_h2]:text-gold-light
               [&_h3]:font-montserrat [&_h3]:text-sm [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-foreground
               [&_p]:font-merriweather [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-foreground/85
               [&_ul]:font-merriweather [&_ul]:text-sm [&_ul]:text-foreground/85
               [&_ol]:font-merriweather [&_ol]:text-sm [&_ol]:text-foreground/85
               [&_li]:mb-1
-              [&_strong]:text-idriel-light [&_strong]:font-bold
-              [&_blockquote]:border-l-2 [&_blockquote]:border-idriel/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-text-dim
+              [&_strong]:text-gold-light [&_strong]:font-bold
+              [&_blockquote]:border-l-2 [&_blockquote]:border-gold/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-text-dim
               [&_em]:text-accent-foreground/90
             ">
               <ReactMarkdown
                 components={{
                   h2: ({ children, ...props }) => {
                     const text = String(children);
-                    let colorClass = 'text-idriel-light';
+                    let colorClass = 'text-gold-light';
                     if (text.includes('Furos')) colorClass = 'text-destructive';
                     else if (text.includes('Inconsistências')) colorClass = 'text-orange-400';
                     else if (text.includes('Expansão')) colorClass = 'text-emerald-400';
-                    else if (text.includes('Fortes')) colorClass = 'text-idriel-light';
+                    else if (text.includes('Fortes')) colorClass = 'text-gold-light';
                     else if (text.includes('Continuar')) colorClass = 'text-blue-light';
-                    else if (text.includes('Avaliação')) colorClass = 'text-idriel-light';
+                    else if (text.includes('Avaliação')) colorClass = 'text-gold-light';
                     return <h2 className={`font-cinzel text-base font-bold mt-5 mb-2 ${colorClass}`} {...props}>{children}</h2>;
                   }
                 }}
@@ -539,6 +559,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
