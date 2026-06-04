@@ -87,6 +87,10 @@ const LoginPage: React.FC = () => {
   const [forgotSent, setForgotSent] = useState(false);
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
   const [mfaCode, setMfaCode] = useState('');
+  const [mfaAttempts, setMfaAttempts] = useState(0);
+  const [recoveryMode, setRecoveryMode] = useState(false);
+  const [recoveryCode, setRecoveryCode] = useState('');
+  const [recoverySuccess, setRecoverySuccess] = useState(false);
   const [aalChecking, setAalChecking] = useState(true);
   const [needsMfa, setNeedsMfa] = useState(false);
 
@@ -167,11 +171,22 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const logMfaEventSafe = async (event: 'challenge_success' | 'challenge_failed') => {
+    if (!user) return;
+    try {
+      await supabase.from('mfa_audit_log').insert({
+        user_id: user.id,
+        event_type: event,
+        user_agent: navigator.userAgent.slice(0, 500),
+      });
+    } catch { /* never break the flow */ }
+  };
+
   const handleMfaVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!mfaFactorId) return;
     if (mfaCode.replace(/\s/g, '').length !== 6) {
-      setError('Digite o código de 6 dígitos.');
+      setError('Digite os 6 dígitos exibidos no seu app autenticador.');
       return;
     }
     setLoading(true);
@@ -179,7 +194,7 @@ const LoginPage: React.FC = () => {
     try {
       const { data: chal, error: chErr } = await supabase.auth.mfa.challenge({ factorId: mfaFactorId });
       if (chErr || !chal) {
-        setError('Erro ao gerar desafio. Tente novamente.');
+        setError('Não consegui gerar o desafio agora. Verifique sua conexão e tente novamente em alguns segundos.');
         setLoading(false);
         return;
       }
@@ -189,13 +204,59 @@ const LoginPage: React.FC = () => {
         code: mfaCode.replace(/\s/g, ''),
       });
       if (vErr) {
-        setError('Código inválido. Tente outro código do seu app.');
+        await logMfaEventSafe('challenge_failed');
+        const attempts = mfaAttempts + 1;
+        setMfaAttempts(attempts);
+        setMfaCode('');
+        if (attempts >= 3) {
+          setError(
+            'Código inválido após várias tentativas. Possíveis causas: (1) o relógio do seu celular está desajustado — ative "hora automática"; (2) você está usando o app autenticador de outra conta. Se perdeu acesso ao app, use um código de backup logo abaixo.'
+          );
+        } else {
+          setError('Código inválido. Aguarde o próximo código (eles mudam a cada 30 segundos) e tente novamente.');
+        }
         setLoading(false);
         return;
       }
+      await logMfaEventSafe('challenge_success');
       // Success — AuthProvider will pick up the session change
     } catch (e: any) {
-      setError(e.message || 'Erro inesperado.');
+      setError(e.message || 'Erro inesperado. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRecoveryRedeem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleaned = recoveryCode.trim().toUpperCase().replace(/\s/g, '');
+    if (!/^[A-Z2-9]{4}-?[A-Z2-9]{4}$/.test(cleaned)) {
+      setError('Formato inválido. O código tem 8 caracteres, no formato XXXX-XXXX.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const { data, error: fnErr } = await supabase.functions.invoke('mfa-recovery', {
+        body: { action: 'redeem', code: cleaned },
+      });
+      if (fnErr || !data?.ok) {
+        const code = (data?.error as string) || 'invalid_code';
+        if (code === 'already_used') {
+          setError('Este código de backup já foi utilizado. Tente outro código da sua lista.');
+        } else if (code === 'invalid_format') {
+          setError('Formato inválido. O código tem 8 caracteres, no formato XXXX-XXXX.');
+        } else {
+          setError('Código de backup não reconhecido. Verifique se digitou corretamente, com hífen.');
+        }
+        setLoading(false);
+        return;
+      }
+      setRecoverySuccess(true);
+      // Sign out so user re-authenticates fresh without the (now removed) MFA factor
+      await supabase.auth.signOut({ scope: 'local' });
+    } catch (e: any) {
+      setError(e.message || 'Erro inesperado. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -205,6 +266,9 @@ const LoginPage: React.FC = () => {
     await supabase.auth.signOut({ scope: 'local' });
     setMfaFactorId(null);
     setMfaCode('');
+    setMfaAttempts(0);
+    setRecoveryMode(false);
+    setRecoveryCode('');
     setError('');
   };
 
