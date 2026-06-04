@@ -113,12 +113,14 @@ Deno.serve(async (req) => {
 
   try {
     const expectedToken = Deno.env.get("ASAAS_WEBHOOK_TOKEN");
-    if (expectedToken) {
-      const got = req.headers.get("asaas-access-token");
-      if (got !== expectedToken) {
-        console.warn("webhook: invalid token");
-        return new Response("Unauthorized", { status: 401, headers: corsHeaders });
-      }
+    if (!expectedToken) {
+      console.error("ASAAS_WEBHOOK_TOKEN not configured");
+      return new Response("Server misconfigured", { status: 500, headers: corsHeaders });
+    }
+    const got = req.headers.get("asaas-access-token");
+    if (got !== expectedToken) {
+      console.warn("webhook: invalid token");
+      return new Response("Unauthorized", { status: 401, headers: corsHeaders });
     }
 
     const supa = createClient(
