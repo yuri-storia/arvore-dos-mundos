@@ -121,6 +121,13 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       setPendingMagictypeValue(value);
       setShowMagictypeUpdate(true);
     } else {
+      // Respeitar limites do plano antes de criar um novo artigo
+      const artigoCount = entries.filter(e => e.entry_type === 'artigo').length;
+      if (artigoCount >= planLimits.maxArtigos) {
+        toast.error(`O plano ${planLimits.planLabel} permite apenas ${planLimits.maxArtigos} artigo(s). Faça upgrade para registrar este sistema mágico no Codex.`);
+        updateField(4, 'magictype', value);
+        return;
+      }
       updateField(4, 'magictype', value);
       await createEntry({
         title: value,
