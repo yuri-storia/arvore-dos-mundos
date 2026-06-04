@@ -121,6 +121,16 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   // Filter out __magictype__ marker from displayed content
   const displayContent = entry.content?.replace(/^__magictype__\n?/, '').trim() || '';
 
+  // Resolve @Name mentions to other codex entries (for hover preview + jump).
+  const mentionByName = useMemo(
+    () => buildEntriesByName((siblings || []).filter(e => e.id !== entry.id)),
+    [siblings, entry.id],
+  );
+  const renderMd = useCallback(
+    (children: React.ReactNode) => renderMentionChildren(children, mentionByName, onOpenEntry),
+    [mentionByName, onOpenEntry],
+  );
+
   // Parse sections from content for wiki TOC using ## headings
   const sections = useMemo(() => {
     if (!displayContent) return [];
