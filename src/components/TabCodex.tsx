@@ -633,16 +633,25 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
           {!showAnalysis ? (
             <button
               onClick={() => setShowAnalysis(true)}
-              className="w-full py-5 rounded-xl text-center font-cinzel font-bold text-base sm:text-lg uppercase tracking-wider transition-all
-                bg-idriel/[0.08] hover:bg-idriel/[0.15]
-                border border-idriel/30 hover:border-idriel-light/50
-                shadow-[0_0_30px_hsl(var(--idriel)/0.15)] hover:shadow-[0_0_50px_hsl(var(--idriel)/0.3)]"
+              className="group relative w-full py-6 rounded-2xl text-center font-cinzel font-bold text-base sm:text-lg uppercase tracking-[0.18em] transition-all overflow-hidden
+                bg-gradient-to-b from-[#1a1305] via-[#0f0a02] to-[#08050a]
+                border border-gold/30 hover:border-gold-light/60
+                shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_hsl(var(--gold-champagne)/0.12)]
+                hover:shadow-[0_14px_48px_rgba(0,0,0,0.6),0_0_60px_hsl(var(--gold-warm)/0.28),inset_0_1px_0_hsl(var(--gold-champagne)/0.2)]"
             >
-              <span className="text-idriel-light">
-                <><Trees className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Consultar Idriel — Guardiã da Árvore</>
+              <span
+                className="pointer-events-none absolute inset-0 opacity-60 group-hover:opacity-100 transition-opacity"
+                style={{
+                  background:
+                    'radial-gradient(ellipse 70% 80% at 50% 0%, hsl(var(--gold-warm)/0.18) 0%, transparent 70%)',
+                }}
+              />
+              <span className="relative inline-flex items-center gap-2.5 bg-gradient-to-r from-gold-warm via-gold-champagne to-gold-warm bg-clip-text text-transparent">
+                <Trees className="w-4 h-4 text-gold-champagne" strokeWidth={1.5} />
+                Consultar Idriel — Guardiã da Árvore
               </span>
-              <p className="font-merriweather italic text-text-dim text-xs mt-1 normal-case tracking-normal">
-                Peça à sábia guardiã para avaliar suas entradas e guiar seu worldbuilding
+              <p className="relative font-merriweather italic text-text-secondary/80 text-xs mt-1.5 normal-case tracking-normal">
+                Peça à sábia guardiã para avaliar suas entradas e iluminar os próximos passos
               </p>
             </button>
           ) : (
