@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Trees, X, ScrollText, Trash2, Droplet, Droplets, Leaf, Sparkles, RefreshCw, Check, Gem, AlertTriangle, Eye, Compass, Award, ArrowRight } from 'lucide-react';
+import { Trees, X, ScrollText, Trash2, Droplet, Droplets, Leaf, Sparkles, RefreshCw, Check, Gem, AlertTriangle, Eye, Compass, Award, ArrowRight, Star } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
 import { callAIText, friendlyAIError } from '@/lib/helpers';
@@ -43,6 +43,49 @@ const LOADING_STEPS = [
   { message: 'Quase lá… estou reunindo minhas considerações finais…', delay: 16000 },
   { message: 'Tecendo a sabedoria dos Frutos em minha avaliação…', delay: 21000 },
 ];
+
+// Render N/5 ratings as 5-star icon rows (filled + outlined)
+const StarRating: React.FC<{ n: number }> = ({ n }) => (
+  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md align-middle mx-1"
+    style={{
+      background: 'linear-gradient(135deg, hsl(var(--gold-warm)/0.18), hsl(var(--gold-deep)/0.08))',
+      border: '1px solid hsl(var(--gold-warm)/0.35)',
+    }}>
+    <span className="inline-flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star
+          key={i}
+          className="w-3 h-3"
+          strokeWidth={1.5}
+          style={{
+            color: 'hsl(var(--gold-light))',
+            fill: i < n ? 'hsl(var(--gold-light))' : 'transparent',
+            filter: i < n ? 'drop-shadow(0 0 3px hsl(var(--gold-warm)/0.7))' : 'none',
+          }}
+        />
+      ))}
+    </span>
+    <span className="text-[9px] font-montserrat font-bold tracking-wider text-gold-light/80">{n}/5</span>
+  </span>
+);
+
+// Walk markdown children and replace plain-text "N/5" with <StarRating>
+const renderWithStars = (children: React.ReactNode): React.ReactNode => {
+  return React.Children.map(children, (child, idx) => {
+    if (typeof child === 'string') {
+      const parts = child.split(/(\b[1-5]\/5\b)/g);
+      if (parts.length === 1) return child;
+      return parts.map((p, i) => {
+        const m = p.match(/^([1-5])\/5$/);
+        return m ? <StarRating key={`${idx}-${i}`} n={parseInt(m[1], 10)} /> : <React.Fragment key={`${idx}-${i}`}>{p}</React.Fragment>;
+      });
+    }
+    if (React.isValidElement(child) && (child.props as any)?.children) {
+      return React.cloneElement(child, { ...(child.props as any) }, renderWithStars((child.props as any).children));
+    }
+    return child;
+  });
+};
 
 export const CodexAnalysis: React.FC<Props> = ({ entries, worldId, onClose }) => {
   const [analysis, setAnalysis] = useState('');
@@ -123,6 +166,10 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, worldId, onClose }) =>
     } catch {
       out = out.replace(/[\u2600-\u27BF\uE000-\uF8FF\uD800-\uDBFF\uDC00-\uDFFF]/g, '');
     }
+    // Fix malformed bold like "** Texto **" or "**  Texto  **" -> "**Texto**"
+    out = out.replace(/\*\*\s+([^*\n]+?)\s+\*\*/g, '**$1**');
+    out = out.replace(/\*\*\s+([^*\n]+?)\*\*/g, '**$1**');
+    out = out.replace(/\*\*([^*\n]+?)\s+\*\*/g, '**$1**');
     // Collapse leftover double spaces created by removals
     out = out.replace(/[ \t]{2,}/g, ' ').replace(/^\s*[-–—]\s*$/gm, '');
     return out;
@@ -191,9 +238,11 @@ Analise as entradas do Codex e responda em português brasileiro. NÃO repita sa
 Uma ÚNICA frase poética de boas-vindas (máximo 2 linhas, sem emojis).
 
 ## Avaliação dos Frutos
-Para CADA um dos 11 Frutos, dê uma nota de 1 a 5 e um comentário de UMA linha. Formato exato:
-- **${FRUITS.map(f => `${f.name}**: 3/5 — [comentário breve, sem emojis]`).join('\n- **')}
-Se o fruto não tem entradas, dê 1 e diga que precisa ser desenvolvido.
+Para CADA um dos 11 Frutos, escreva UMA linha no formato EXATO abaixo, sem espaços extras dentro dos asteriscos e SEM emojis:
+- **Nome do Fruto**: N/5 — comentário breve
+Exemplo: - **Mapa do Mundo**: 3/5 — A geografia está bem definida.
+Liste os frutos nesta ordem: ${FRUITS.map(f => f.name).join(', ')}.
+Se o fruto não tem entradas, dê 1/5 e diga que precisa ser desenvolvido.
 
 ## Furos de Enredo
 Identifique contradições, lacunas lógicas ou informações que se contradizem entre fichas/artigos. Se não houver, diga brevemente.
@@ -573,33 +622,11 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
                       </h2>
                     );
                   },
-                  strong: ({ children }) => {
-                    const text = String(children);
-                    const ratingMatch = text.match(/^(\d)\/5$/);
-                    if (ratingMatch) {
-                      const n = parseInt(ratingMatch[1], 10);
-                      return (
-                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md align-middle mx-0.5"
-                          style={{
-                            background: 'linear-gradient(135deg, hsl(var(--gold-warm)/0.18), hsl(var(--gold-deep)/0.08))',
-                            border: '1px solid hsl(var(--gold-warm)/0.35)',
-                          }}>
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <span
-                              key={i}
-                              className="w-1.5 h-1.5 rounded-full"
-                              style={{
-                                background: i < n ? 'hsl(var(--gold-light))' : 'hsl(var(--gold-warm)/0.18)',
-                                boxShadow: i < n ? '0 0 4px hsl(var(--gold-warm)/0.6)' : 'none',
-                              }}
-                            />
-                          ))}
-                          <span className="text-[9px] font-montserrat font-bold tracking-wider text-gold-light ml-1">{n}/5</span>
-                        </span>
-                      );
-                    }
-                    return <strong className="text-gold-light font-bold">{children}</strong>;
-                  },
+                  strong: ({ children }) => (
+                    <strong className="text-gold-light font-bold">{children}</strong>
+                  ),
+                  li: ({ children }) => <li className="mb-1">{renderWithStars(children)}</li>,
+                  p: ({ children }) => <p>{renderWithStars(children)}</p>,
                 }}
               >
                 {displayedAnalysis}
