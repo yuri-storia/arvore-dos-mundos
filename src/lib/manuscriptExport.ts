@@ -3,6 +3,11 @@ import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Page
 import { saveAs } from 'file-saver';
 import type { Manuscript, Chapter, Scene } from '@/hooks/useManuscript';
 
+/** Strip `@` from mention tokens so exports show plain text only. */
+const stripMentions = (s: string) =>
+  s.replace(/@([A-Za-zÀ-ÿ0-9_\-]+(?:\s[A-Za-zÀ-ÿ0-9_\-]+)?)/g, '$1');
+
+
 // ── PDF Export ──
 export function exportManuscriptPDF(manuscript: Manuscript, chapters: Chapter[], _scenes?: Scene[]) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
