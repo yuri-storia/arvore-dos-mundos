@@ -44,6 +44,49 @@ const LOADING_STEPS = [
   { message: 'Tecendo a sabedoria dos Frutos em minha avaliação…', delay: 21000 },
 ];
 
+// Render N/5 ratings as 5-star icon rows (filled + outlined)
+const StarRating: React.FC<{ n: number }> = ({ n }) => (
+  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md align-middle mx-1"
+    style={{
+      background: 'linear-gradient(135deg, hsl(var(--gold-warm)/0.18), hsl(var(--gold-deep)/0.08))',
+      border: '1px solid hsl(var(--gold-warm)/0.35)',
+    }}>
+    <span className="inline-flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star
+          key={i}
+          className="w-3 h-3"
+          strokeWidth={1.5}
+          style={{
+            color: 'hsl(var(--gold-light))',
+            fill: i < n ? 'hsl(var(--gold-light))' : 'transparent',
+            filter: i < n ? 'drop-shadow(0 0 3px hsl(var(--gold-warm)/0.7))' : 'none',
+          }}
+        />
+      ))}
+    </span>
+    <span className="text-[9px] font-montserrat font-bold tracking-wider text-gold-light/80">{n}/5</span>
+  </span>
+);
+
+// Walk markdown children and replace plain-text "N/5" with <StarRating>
+const renderWithStars = (children: React.ReactNode): React.ReactNode => {
+  return React.Children.map(children, (child, idx) => {
+    if (typeof child === 'string') {
+      const parts = child.split(/(\b[1-5]\/5\b)/g);
+      if (parts.length === 1) return child;
+      return parts.map((p, i) => {
+        const m = p.match(/^([1-5])\/5$/);
+        return m ? <StarRating key={`${idx}-${i}`} n={parseInt(m[1], 10)} /> : <React.Fragment key={`${idx}-${i}`}>{p}</React.Fragment>;
+      });
+    }
+    if (React.isValidElement(child) && (child.props as any)?.children) {
+      return React.cloneElement(child, { ...(child.props as any) }, renderWithStars((child.props as any).children));
+    }
+    return child;
+  });
+};
+
 export const CodexAnalysis: React.FC<Props> = ({ entries, worldId, onClose }) => {
   const [analysis, setAnalysis] = useState('');
   const [loading, setLoading] = useState(false);
