@@ -117,6 +117,10 @@ const Index = () => {
 
   const handleCreateWorld = useCallback(async () => {
     if (!user) { toast.error('Faça login para criar um mundo'); return; }
+    if (planLimits.isExpired) {
+      toast.error('Sua assinatura expirou. Seus Mundos ficam preservados, mas para criar um novo é preciso reativar o plano.');
+      return;
+    }
     if (worlds.length >= planLimits.maxWorlds) {
       toast.error(`O plano ${planLimits.planLabel} permite apenas ${planLimits.maxWorlds} mundo. Faça upgrade para criar mais!`);
       return;

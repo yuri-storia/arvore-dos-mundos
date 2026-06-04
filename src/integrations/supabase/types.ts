@@ -167,6 +167,77 @@ export type Database = {
         }
         Relationships: []
       }
+      beta_codes: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          label: string | null
+          max_uses: number
+          uses_count: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          label?: string | null
+          max_uses?: number
+          uses_count?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          label?: string | null
+          max_uses?: number
+          uses_count?: number
+        }
+        Relationships: []
+      }
+      beta_redemptions: {
+        Row: {
+          code: string
+          id: string
+          idriel_charges_used: number
+          idriel_discount_until: string
+          raiz_granted_until: string
+          redeemed_at: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          id?: string
+          idriel_charges_used?: number
+          idriel_discount_until: string
+          raiz_granted_until: string
+          redeemed_at?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          id?: string
+          idriel_charges_used?: number
+          idriel_discount_until?: string
+          raiz_granted_until?: string
+          redeemed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beta_redemptions_code_fkey"
+            columns: ["code"]
+            isOneToOne: false
+            referencedRelation: "beta_codes"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       bug_reports: {
         Row: {
           attachment_path: string | null

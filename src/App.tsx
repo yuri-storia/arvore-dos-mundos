@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import PricingPage from "./pages/PricingPage";
 import ObrigadoPage from "./pages/ObrigadoPage";
+import BetaPage from "./pages/BetaPage";
 
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
               <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
               <Route path="/planos" element={<PricingPage />} />
               <Route path="/obrigado" element={<ObrigadoPage />} />
+              <Route path="/beta" element={<BetaPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </IdrielJobsProvider>

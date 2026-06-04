@@ -95,6 +95,14 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || !user) return;
+    if (!planLimits.canUploadGallery) {
+      toast.error(
+        planLimits.isExpired
+          ? 'Sua assinatura expirou. Suas imagens ficam preservadas, mas para enviar novas é preciso reativar o plano.'
+          : 'Adicionar imagens à Galeria requer um plano ativo. Faça upgrade para liberar.'
+      );
+      return;
+    }
     const items = Array.from(files).filter(f => /image\/(png|jpe?g|webp)/.test(f.type));
     if (items.length === 0) return;
 
