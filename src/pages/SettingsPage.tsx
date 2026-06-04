@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, Eye, EyeOff } from 'lucide-react';
+import { TwoFactorSection } from '@/components/TwoFactorSection';
 
 const SettingsPage: React.FC = () => {
   const { user } = useAuth();
@@ -135,6 +136,11 @@ const SettingsPage: React.FC = () => {
           >
             Alterar Senha
           </button>
+        </div>
+
+        {/* 2FA */}
+        <div className="mt-4">
+          <TwoFactorSection />
         </div>
       </div>
     </div>

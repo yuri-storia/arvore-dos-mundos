@@ -85,8 +85,35 @@ const LoginPage: React.FC = () => {
   const [mode, setMode] = useState<AuthMode>('login');
   const [forgotMode, setForgotMode] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
+  const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
+  const [mfaCode, setMfaCode] = useState('');
+  const [aalChecking, setAalChecking] = useState(true);
+  const [needsMfa, setNeedsMfa] = useState(false);
 
-  if (!authLoading && user && !accessDenied) {
+  // When a user session appears, verify AAL. Block redirect until we know whether MFA is required.
+  useEffect(() => {
+    let cancelled = false;
+    if (!user) { setAalChecking(false); setNeedsMfa(false); return; }
+    setAalChecking(true);
+    (async () => {
+      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (cancelled) return;
+      if (aal?.currentLevel === 'aal1' && aal?.nextLevel === 'aal2') {
+        const { data: factors } = await supabase.auth.mfa.listFactors();
+        const totp = factors?.totp?.find(f => f.status === 'verified');
+        if (totp) {
+          setMfaFactorId(totp.id);
+          setNeedsMfa(true);
+        }
+      } else {
+        setNeedsMfa(false);
+      }
+      setAalChecking(false);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
+  if (!authLoading && !aalChecking && user && !accessDenied && !needsMfa) {
     return <Navigate to="/" replace />;
   }
 
@@ -120,12 +147,65 @@ const LoginPage: React.FC = () => {
           : error.message === 'Email not confirmed'
             ? 'Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada.'
             : error.message);
+        setLoading(false);
+        return;
+      }
+      // Check if MFA challenge is required
+      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (aal?.currentLevel === 'aal1' && aal?.nextLevel === 'aal2') {
+        const { data: factors } = await supabase.auth.mfa.listFactors();
+        const totp = factors?.totp?.find(f => f.status === 'verified');
+        if (totp) {
+          setMfaFactorId(totp.id);
+          setPassword('');
+        }
       }
     } catch (e: any) {
       setError(e.message || 'Erro inesperado.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleMfaVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mfaFactorId) return;
+    if (mfaCode.replace(/\s/g, '').length !== 6) {
+      setError('Digite o código de 6 dígitos.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const { data: chal, error: chErr } = await supabase.auth.mfa.challenge({ factorId: mfaFactorId });
+      if (chErr || !chal) {
+        setError('Erro ao gerar desafio. Tente novamente.');
+        setLoading(false);
+        return;
+      }
+      const { error: vErr } = await supabase.auth.mfa.verify({
+        factorId: mfaFactorId,
+        challengeId: chal.id,
+        code: mfaCode.replace(/\s/g, ''),
+      });
+      if (vErr) {
+        setError('Código inválido. Tente outro código do seu app.');
+        setLoading(false);
+        return;
+      }
+      // Success — AuthProvider will pick up the session change
+    } catch (e: any) {
+      setError(e.message || 'Erro inesperado.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMfaCancel = async () => {
+    await supabase.auth.signOut({ scope: 'local' });
+    setMfaFactorId(null);
+    setMfaCode('');
+    setError('');
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -235,7 +315,33 @@ const LoginPage: React.FC = () => {
 
             <div className="mx-auto w-[60px] h-[2px] bg-gradient-to-r from-transparent via-blue-bright to-transparent mb-8" />
 
-            {forgotMode ? (
+            {mfaFactorId ? (
+              <form onSubmit={handleMfaVerify} className="space-y-4">
+                <p className="text-text-secondary font-montserrat text-xs leading-relaxed">
+                  Sua conta está protegida por autenticação em dois fatores.
+                  Digite o código de 6 dígitos exibido no seu app autenticador.
+                </p>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={mfaCode}
+                  onChange={e => setMfaCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="000000"
+                  autoFocus
+                  className="w-full px-4 py-3 rounded-lg bg-foreground/[0.06] border border-blue-bright/15 text-foreground placeholder:text-text-dim font-mono text-center text-xl tracking-[0.4em] focus:outline-none focus:border-blue-bright/40 transition-colors"
+                />
+                <button type="submit" disabled={loading || mfaCode.length !== 6}
+                  className="w-full px-6 py-3 rounded-lg bg-primary/80 hover:bg-primary transition-colors text-primary-foreground font-montserrat font-semibold text-sm disabled:opacity-50">
+                  {loading ? 'Verificando…' : 'Verificar e entrar'}
+                </button>
+                <button type="button" onClick={handleMfaCancel}
+                  className="text-blue-light text-xs font-montserrat hover:underline">
+                  Cancelar e voltar ao login
+                </button>
+              </form>
+            ) : forgotMode ? (
               forgotSent ? (
                 <div className="space-y-4">
                   <p className="text-blue-light font-merriweather text-sm">
