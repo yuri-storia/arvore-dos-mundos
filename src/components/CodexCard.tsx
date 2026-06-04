@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ImageRepositioner } from '@/components/ImageRepositioner';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
-import { buildEntriesByName, renderMentionChildren, tokenizeMentions, MentionChip } from '@/components/escritor/MentionChip';
+import { buildEntriesByName, renderMentionChildren, renderInlineMentions } from '@/components/escritor/MentionChip';
 import { MentionTextarea } from '@/components/escritor/MentionTextarea';
 
 interface Props {
@@ -127,9 +127,15 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
     () => buildEntriesByName((siblings || []).filter(e => e.id !== entry.id)),
     [siblings, entry.id],
   );
+  const siblingEntries = useMemo(
+    () => (siblings || []).filter(e => e.id !== entry.id),
+    [siblings, entry.id],
+  );
   const renderMd = useCallback(
-    (children: React.ReactNode) => renderMentionChildren(children, mentionByName, onOpenEntry),
-    [mentionByName, onOpenEntry],
+    (children: React.ReactNode) => renderMentionChildren(children, mentionByName, onOpenEntry, {
+      allEntries: siblingEntries,
+    }),
+    [mentionByName, onOpenEntry, siblingEntries],
   );
 
   // Parse sections from content for wiki TOC using ## headings
@@ -529,11 +535,11 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               <div className="cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }} title="Clique para editar">
                 {displayContent ? (
                   <p className="font-merriweather text-[15px] text-foreground/95 whitespace-pre-wrap leading-[1.8]">
-                    {tokenizeMentions(displayContent, mentionByName).map((p, i) =>
-                      p.type === 'text'
-                        ? <span key={i}>{p.value}</span>
-                        : <MentionChip key={i} name={p.value} entry={p.entry} onClick={p.entry && onOpenEntry ? () => onOpenEntry(p.entry!.id) : undefined} />,
-                    )}
+                    {renderInlineMentions(displayContent, mentionByName, {
+                      allEntries: (siblings || []).filter(e => e.id !== entry.id),
+                      onOpenEntry,
+                      onSave: (next) => { onUpdate(entry.id, { content: next }); },
+                    })}
                   </p>
                 ) : (
                   <p className="font-merriweather text-sm text-text-dim italic">Sem conteúdo ainda. Clique para adicionar.</p>

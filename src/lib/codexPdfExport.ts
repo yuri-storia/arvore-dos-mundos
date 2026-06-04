@@ -72,8 +72,8 @@ function stripMarkdown(text: string): string {
     .replace(/^[-*]\s+/gm, '• ') // unordered list
     .replace(/^\d+\.\s+/gm, (m) => m) // keep numbered lists
     .replace(/---+/g, '────────────────────')
-    // Flatten @Mentions to plain text (no @ glyph, no highlight in export)
-    .replace(/@([A-Za-zÀ-ÿ0-9_\-]+(?:\s[A-Za-zÀ-ÿ0-9_\-]+)?)/g, '$1')
+    // Flatten @Mentions to plain text (drop the @ glyph, keep the name verbatim).
+    .replace(/@(?=[A-Za-zÀ-ÿ0-9_\-])/g, '')
     .trim();
 }
 
