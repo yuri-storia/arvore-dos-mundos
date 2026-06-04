@@ -16,6 +16,7 @@ import idrielAvatar from '@/assets/idriel-avatar.png';
 
 interface Props {
   entries: CodexEntry[];
+  worldId: string;
   onClose: () => void;
 }
 
