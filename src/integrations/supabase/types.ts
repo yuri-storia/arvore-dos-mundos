@@ -764,6 +764,7 @@ export type Database = {
           ficha_count: number
           id: string
           user_id: string
+          world_id: string | null
         }
         Insert: {
           analysis_text: string
@@ -774,6 +775,7 @@ export type Database = {
           ficha_count?: number
           id?: string
           user_id: string
+          world_id?: string | null
         }
         Update: {
           analysis_text?: string
@@ -784,8 +786,17 @@ export type Database = {
           ficha_count?: number
           id?: string
           user_id?: string
+          world_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "world_analyses_world_id_fkey"
+            columns: ["world_id"]
+            isOneToOne: false
+            referencedRelation: "worlds"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       worlds: {
         Row: {
