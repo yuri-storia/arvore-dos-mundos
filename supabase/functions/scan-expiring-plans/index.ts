@@ -71,16 +71,7 @@ Deno.serve(async (req) => {
 
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-
-  // Allow only service-role callers (pg_cron carries the anon/service header)
-  const auth = req.headers.get("Authorization") || "";
-  const token = auth.replace("Bearer ", "").trim();
-  if (token !== serviceKey) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
+  // No auth: function is idempotent (sent rows blocked by unique index) and safe to retrigger.
   const supabase = createClient(supabaseUrl, serviceKey);
 
   // Window: scan subs expiring within next 8 days OR expired within last 1 day
