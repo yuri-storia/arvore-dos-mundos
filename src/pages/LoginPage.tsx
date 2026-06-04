@@ -290,7 +290,33 @@ const LoginPage: React.FC = () => {
 
             <div className="mx-auto w-[60px] h-[2px] bg-gradient-to-r from-transparent via-blue-bright to-transparent mb-8" />
 
-            {forgotMode ? (
+            {mfaFactorId ? (
+              <form onSubmit={handleMfaVerify} className="space-y-4">
+                <p className="text-text-secondary font-montserrat text-xs leading-relaxed">
+                  Sua conta está protegida por autenticação em dois fatores.
+                  Digite o código de 6 dígitos exibido no seu app autenticador.
+                </p>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={mfaCode}
+                  onChange={e => setMfaCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="000000"
+                  autoFocus
+                  className="w-full px-4 py-3 rounded-lg bg-foreground/[0.06] border border-blue-bright/15 text-foreground placeholder:text-text-dim font-mono text-center text-xl tracking-[0.4em] focus:outline-none focus:border-blue-bright/40 transition-colors"
+                />
+                <button type="submit" disabled={loading || mfaCode.length !== 6}
+                  className="w-full px-6 py-3 rounded-lg bg-primary/80 hover:bg-primary transition-colors text-primary-foreground font-montserrat font-semibold text-sm disabled:opacity-50">
+                  {loading ? 'Verificando…' : 'Verificar e entrar'}
+                </button>
+                <button type="button" onClick={handleMfaCancel}
+                  className="text-blue-light text-xs font-montserrat hover:underline">
+                  Cancelar e voltar ao login
+                </button>
+              </form>
+            ) : forgotMode ? (
               forgotSent ? (
                 <div className="space-y-4">
                   <p className="text-blue-light font-merriweather text-sm">
