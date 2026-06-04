@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSubscription, openCheckout, STRIPE_PLANS, openCustomerPortal } from '@/hooks/useSubscription';
+import { useBetaStatus } from '@/hooks/useBetaStatus';
 import { useAuth } from '@/contexts/AuthContext';
 import { Progress } from '@/components/ui/progress';
-import { Lock, Sparkles, CreditCard, X, Leaf, BookOpenCheck, Droplet, Droplets, ArrowRight } from 'lucide-react';
+import { Lock, Sparkles, CreditCard, X, Leaf, BookOpenCheck, Droplet, Droplets, ArrowRight, Clock } from 'lucide-react';
 import { RechargePackageDialog } from '@/components/RechargePackageDialog';
 
 const DISMISS_KEY = 'adm_sub_banner_dismissed';
 
 export const SubscriptionBanner: React.FC = () => {
   const sub = useSubscription();
+  const beta = useBetaStatus();
   const { isAdmin } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
   const [rechargeOpen, setRechargeOpen] = useState(false);
@@ -99,8 +101,23 @@ export const SubscriptionBanner: React.FC = () => {
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <Leaf className="w-5 h-5 text-blue-light" strokeWidth={1.75} />
               <div className="min-w-0">
-                <span className="font-montserrat font-bold text-sm text-blue-light block">Plano Raiz Ativo</span>
-                <span className="block text-[10px] text-text-dim">Acesso completo ao worldbuilding. Desbloqueie Idriel para potencializar sua criação!</span>
+                <span className="font-montserrat font-bold text-sm text-blue-light block flex items-center gap-2 flex-wrap">
+                  Plano Raiz Ativo
+                  {beta.hasBeta && !beta.raizExpired && (
+                    <span
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-gold/40 bg-gold/10 text-gold-light text-[10px] font-montserrat font-bold uppercase tracking-wider"
+                      title={`Beta da Comunidade — válido até ${beta.raizGrantedUntil ? new Date(beta.raizGrantedUntil).toLocaleDateString('pt-BR') : ''}`}
+                    >
+                      <Clock className="w-2.5 h-2.5" />
+                      {beta.daysLeft} {beta.daysLeft === 1 ? 'dia' : 'dias'} de beta
+                    </span>
+                  )}
+                </span>
+                <span className="block text-[10px] text-text-dim">
+                  {beta.hasBeta && !beta.raizExpired
+                    ? 'Após o beta, condição especial: Idriel avulso por R$ 19,90 (até 3 vezes).'
+                    : 'Acesso completo ao worldbuilding. Desbloqueie Idriel para potencializar sua criação!'}
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-2">
