@@ -70,6 +70,10 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
   const handleAiGenerate = async () => {
     if (!aiPrompt.trim()) return;
+    if (!planLimits.canUseAI) {
+      toast.error('A geração de imagens com IA está disponível apenas no plano Idriel.');
+      return;
+    }
     setGeneratingAi(true);
     try {
       let url: string;
