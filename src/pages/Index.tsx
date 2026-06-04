@@ -176,6 +176,7 @@ const Index = () => {
         <DropsCounterBadge />
 
         <SubscriptionBanner />
+        <BetaPromoDialog />
         <TabNav activeTab={state.activeTab} setActiveTab={setActiveTab} />
         {!tourActive && <OnboardingTips tab={state.activeTab} />}
         <HelpDrawer tab={state.activeTab} />
