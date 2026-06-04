@@ -197,6 +197,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
 
       await supabase.from('world_analyses').insert({
         user_id: user.id,
+        world_id: worldId,
         analysis_text: content,
         entry_count: entries.length,
         ficha_count: fichas,
