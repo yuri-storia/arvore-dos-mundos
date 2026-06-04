@@ -1,9 +1,9 @@
 import React, { useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { Link2 } from 'lucide-react';
 import {
-  ContextMenu, ContextMenuTrigger, ContextMenuContent,
-  ContextMenuItem, ContextMenuSub, ContextMenuSubTrigger, ContextMenuSubContent,
+  ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem,
 } from '@/components/ui/context-menu';
+import { CodexEntryPicker } from './CodexEntryPicker';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 
 interface Props {
@@ -18,13 +18,12 @@ interface Props {
   onClick?: React.MouseEventHandler<HTMLTextAreaElement>;
 }
 
+type Tab = 'all' | 'ficha' | 'artigo';
+
 /**
  * Textarea with:
- *  - `@` autocomplete popup of fichas/artigos
- *  - right-click "Linkar com Ficha/Artigo" context menu over a text selection
- *
- * Mentions are stored as `@Title` in the underlying string; rendering layers
- * (MentionChip) strip the `@` glyph and exports flatten it back to plain text.
+ *  - `@` autocomplete popup (search + Fichas/Artigos filter)
+ *  - right-click "Linkar a entrada do Codex…" → shared picker dialog
  */
 export const MentionTextarea = React.forwardRef<HTMLTextAreaElement, Props>(({
   value, onChange, entries, placeholder, className, wrapperClassName, rows, autoFocus, onClick,
@@ -32,7 +31,9 @@ export const MentionTextarea = React.forwardRef<HTMLTextAreaElement, Props>(({
   const innerRef = useRef<HTMLTextAreaElement>(null);
   useImperativeHandle(ref, () => innerRef.current!);
   const [mention, setMention] = useState<{ active: boolean; query: string }>({ active: false, query: '' });
+  const [mentionTab, setMentionTab] = useState<Tab>('all');
   const selectionRef = useRef<{ start: number; end: number }>({ start: 0, end: 0 });
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const v = e.target.value;
@@ -41,16 +42,19 @@ export const MentionTextarea = React.forwardRef<HTMLTextAreaElement, Props>(({
     if (!ta) return;
     const cursor = ta.selectionStart;
     const before = v.slice(0, cursor);
-    const m = before.match(/@(\w*)$/);
+    const m = before.match(/@([\w\sÀ-ÿ-]{0,40})$/);
     if (m) setMention({ active: true, query: m[1] });
     else if (mention.active) setMention({ active: false, query: '' });
   };
 
   const matches = useMemo(() => {
     if (!mention.active) return [];
-    const q = mention.query.toLowerCase();
-    return entries.filter(e => e.title.toLowerCase().includes(q)).slice(0, 8);
-  }, [mention, entries]);
+    const q = mention.query.toLowerCase().trim();
+    return entries
+      .filter(e => mentionTab === 'all' || e.entry_type === mentionTab)
+      .filter(e => !q || e.title.toLowerCase().includes(q))
+      .slice(0, 10);
+  }, [mention, entries, mentionTab]);
 
   const insertMention = (name: string) => {
     const ta = innerRef.current;
@@ -62,6 +66,7 @@ export const MentionTextarea = React.forwardRef<HTMLTextAreaElement, Props>(({
     const next = value.slice(0, at) + `@${name}` + value.slice(cursor);
     onChange(next);
     setMention({ active: false, query: '' });
+    setMentionTab('all');
     setTimeout(() => {
       ta.focus();
       const pos = at + name.length + 1;
@@ -88,84 +93,85 @@ export const MentionTextarea = React.forwardRef<HTMLTextAreaElement, Props>(({
     }, 0);
   };
 
-  const fichas = useMemo(() => entries.filter(e => e.entry_type === 'ficha'), [entries]);
-  const artigos = useMemo(() => entries.filter(e => e.entry_type === 'artigo'), [entries]);
   const hasSel = (): boolean => {
     const ta = innerRef.current;
     return !!ta && ta.selectionStart !== ta.selectionEnd;
   };
 
   return (
-    <ContextMenu>
-      <ContextMenuTrigger asChild>
-        <div className={wrapperClassName ?? 'relative w-full h-full'}>
-          <textarea
-            ref={innerRef}
-            value={value}
-            onChange={handleChange}
-            onContextMenu={handleContextMenu}
-            placeholder={placeholder}
-            className={className}
-            rows={rows}
-            autoFocus={autoFocus}
-            onClick={onClick}
-          />
-          {mention.active && matches.length > 0 && (
-            <div
-              className="absolute z-50 bg-[#0d1520] border border-blue-bright/20 rounded-lg shadow-xl py-1 min-w-[200px] max-w-[280px]"
-              style={{ top: 8, left: 8 }}
-            >
-              {matches.map(e => (
-                <button
-                  key={e.id}
-                  type="button"
-                  onMouseDown={ev => { ev.preventDefault(); insertMention(e.title); }}
-                  className="w-full text-left px-3 py-1.5 text-xs hover:bg-blue-bright/10 transition-colors flex items-center gap-2"
-                >
-                  <span className={e.entry_type === 'ficha' ? 'text-blue-light' : 'text-gold-light'}>{e.title}</span>
-                  <span className="text-[9px] text-text-dim">{e.entry_type}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </ContextMenuTrigger>
-      <ContextMenuContent className="bg-[#0d1520] border-blue-bright/20 min-w-[200px]">
-        {!hasSel() && (
-          <ContextMenuItem disabled className="text-[11px] text-text-dim italic">
-            Selecione uma palavra primeiro
+    <>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <div className={wrapperClassName ?? 'relative w-full h-full'}>
+            <textarea
+              ref={innerRef}
+              value={value}
+              onChange={handleChange}
+              onContextMenu={handleContextMenu}
+              placeholder={placeholder}
+              className={className}
+              rows={rows}
+              autoFocus={autoFocus}
+              onClick={onClick}
+            />
+            {mention.active && (
+              <div
+                className="absolute z-50 bg-[#0d1520] border border-blue-bright/20 rounded-lg shadow-xl min-w-[220px] max-w-[300px] overflow-hidden"
+                style={{ top: 8, left: 8 }}
+                onMouseDown={e => e.preventDefault()}
+              >
+                <div className="flex items-center gap-1 p-1.5 border-b border-blue-bright/10 bg-white/[0.02]">
+                  {(['all', 'ficha', 'artigo'] as Tab[]).map(t => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setMentionTab(t)}
+                      className={`px-2 py-0.5 text-[9px] uppercase font-montserrat font-bold rounded transition-colors ${
+                        mentionTab === t ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'
+                      }`}
+                    >
+                      {t === 'all' ? 'Todos' : t === 'ficha' ? 'Fichas' : 'Artigos'}
+                    </button>
+                  ))}
+                </div>
+                <div className="py-1 max-h-[220px] overflow-y-auto">
+                  {matches.length === 0 ? (
+                    <p className="text-[11px] text-text-dim italic text-center py-3">Nenhuma entrada.</p>
+                  ) : matches.map(e => (
+                    <button
+                      key={e.id}
+                      type="button"
+                      onMouseDown={ev => { ev.preventDefault(); insertMention(e.title); }}
+                      className="w-full text-left px-3 py-1.5 text-xs hover:bg-blue-bright/10 transition-colors flex items-center gap-2"
+                    >
+                      <span className={e.entry_type === 'ficha' ? 'text-blue-light' : 'text-gold-light'}>{e.title}</span>
+                      <span className="text-[9px] text-text-dim uppercase ml-auto">{e.entry_type}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent className="bg-[#0d1520] border-blue-bright/20 min-w-[220px]">
+          <ContextMenuItem
+            disabled={!hasSel()}
+            onSelect={() => setPickerOpen(true)}
+            className="text-xs text-blue-light"
+          >
+            <Link2 className="w-3 h-3 mr-2" />
+            {hasSel() ? 'Linkar a entrada do Codex…' : 'Selecione uma palavra primeiro'}
           </ContextMenuItem>
-        )}
-        <ContextMenuSub>
-          <ContextMenuSubTrigger disabled={!hasSel()} className="text-xs text-blue-light">
-            <Link2 className="w-3 h-3 mr-2" /> Linkar com Ficha
-          </ContextMenuSubTrigger>
-          <ContextMenuSubContent className="bg-[#0d1520] border-blue-bright/20 max-h-[280px] overflow-y-auto">
-            {fichas.length === 0 ? (
-              <ContextMenuItem disabled className="text-xs text-text-dim">Nenhuma ficha</ContextMenuItem>
-            ) : fichas.map(e => (
-              <ContextMenuItem key={e.id} onSelect={() => linkSelection(e)} className="text-xs text-blue-light">
-                {e.title}
-              </ContextMenuItem>
-            ))}
-          </ContextMenuSubContent>
-        </ContextMenuSub>
-        <ContextMenuSub>
-          <ContextMenuSubTrigger disabled={!hasSel()} className="text-xs text-gold-light">
-            <Link2 className="w-3 h-3 mr-2" /> Linkar com Artigo
-          </ContextMenuSubTrigger>
-          <ContextMenuSubContent className="bg-[#0d1520] border-blue-bright/20 max-h-[280px] overflow-y-auto">
-            {artigos.length === 0 ? (
-              <ContextMenuItem disabled className="text-xs text-text-dim">Nenhum artigo</ContextMenuItem>
-            ) : artigos.map(e => (
-              <ContextMenuItem key={e.id} onSelect={() => linkSelection(e)} className="text-xs text-gold-light">
-                {e.title}
-              </ContextMenuItem>
-            ))}
-          </ContextMenuSubContent>
-        </ContextMenuSub>
-      </ContextMenuContent>
-    </ContextMenu>
+        </ContextMenuContent>
+      </ContextMenu>
+      <CodexEntryPicker
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        entries={entries}
+        onSelect={linkSelection}
+        title="Linkar seleção a"
+      />
+    </>
   );
 });
 MentionTextarea.displayName = 'MentionTextarea';
