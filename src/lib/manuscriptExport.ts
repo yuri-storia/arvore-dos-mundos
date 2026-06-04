@@ -87,11 +87,11 @@ export async function exportManuscriptDOCX(manuscript: Manuscript, chapters: Cha
 
   children.push(new Paragraph({ children: [new PageBreak()] }));
 
-  chapters.sort((a, b) => a.sort_order - b.sort_order).forEach((ch) => {
+  chapters.sort((a, b) => a.sort_order - b.sort_order).forEach((ch, idx) => {
     children.push(new Paragraph({
       heading: HeadingLevel.HEADING_1,
       spacing: { before: 400, after: 200 },
-      pageBreakBefore: children.length > 3,
+      pageBreakBefore: idx > 0,
       children: [new TextRun({ text: ch.title, bold: true, size: 36, font: 'Georgia' })],
     }));
 
