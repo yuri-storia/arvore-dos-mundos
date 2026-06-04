@@ -640,7 +640,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
               </p>
             </button>
           ) : (
-            <CodexAnalysis entries={entries} onClose={() => setShowAnalysis(false)} />
+            <CodexAnalysis entries={entries} worldId={worldId} onClose={() => setShowAnalysis(false)} />
           )}
         </div>
       )}
