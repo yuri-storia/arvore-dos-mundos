@@ -10,6 +10,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ImageRepositioner } from '@/components/ImageRepositioner';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { buildEntriesByName, renderMentionChildren, tokenizeMentions, MentionChip } from '@/components/escritor/MentionChip';
+import { MentionTextarea } from '@/components/escritor/MentionTextarea';
 
 interface Props {
   entry: CodexEntry;
