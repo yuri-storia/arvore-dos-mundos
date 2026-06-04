@@ -117,7 +117,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    const origin = req.headers.get("origin") || "https://arvoredosmundos.app";
+    const ALLOWED_ORIGINS = new Set(["https://arvoredosmundos.app", "https://www.arvoredosmundos.app"]);
+    const reqOrigin = req.headers.get("origin") || "";
+    const origin = ALLOWED_ORIGINS.has(reqOrigin) ? reqOrigin : "https://arvoredosmundos.app";
 
     // externalReference: <userId>:<planCode>  ou  guest:<planCode>:<random>
     const externalReference = userId

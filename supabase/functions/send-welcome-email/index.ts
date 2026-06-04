@@ -92,6 +92,16 @@ function renderHtml(p: Payload): string {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
+  // Only allow service-role callers (e.g. asaas-webhook). Reject anon/user JWTs.
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const authHeader = req.headers.get("Authorization") || "";
+  const token = authHeader.replace("Bearer ", "").trim();
+  if (!serviceKey || token !== serviceKey) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const apiKey = Deno.env.get("RESEND_API_KEY");
     const from = Deno.env.get("RESEND_FROM") || "Árvore dos Mundos <acesso@mail.arvoredosmundos.app>";

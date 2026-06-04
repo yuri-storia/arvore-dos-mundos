@@ -33,7 +33,9 @@ serve(async (req) => {
     let customerId: string | undefined;
     if (customers.data.length > 0) customerId = customers.data[0].id;
 
-    const origin = req.headers.get("origin") || "https://arvore-dos-mundos.lovable.app";
+    const ALLOWED_ORIGINS = new Set(["https://arvoredosmundos.app", "https://www.arvoredosmundos.app", "https://arvore-dos-mundos.lovable.app"]);
+    const reqOrigin = req.headers.get("origin") || "";
+    const origin = ALLOWED_ORIGINS.has(reqOrigin) ? reqOrigin : "https://arvoredosmundos.app";
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
