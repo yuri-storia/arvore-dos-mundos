@@ -37,6 +37,7 @@ const App = () => (
               <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
               <Route path="/planos" element={<PricingPage />} />
               <Route path="/obrigado" element={<ObrigadoPage />} />
+              <Route path="/beta" element={<BetaPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </IdrielJobsProvider>
