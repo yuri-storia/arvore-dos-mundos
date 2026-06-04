@@ -379,9 +379,57 @@ const LoginPage: React.FC = () => {
 
             <div className="mx-auto w-[60px] h-[2px] bg-gradient-to-r from-transparent via-blue-bright to-transparent mb-8" />
 
-            {mfaFactorId ? (
-              <form onSubmit={handleMfaVerify} className="space-y-4">
+            {recoverySuccess ? (
+              <div className="space-y-4 text-left">
+                <p className="text-emerald-300 font-montserrat font-semibold text-sm">
+                  Acesso recuperado com sucesso.
+                </p>
                 <p className="text-text-secondary font-montserrat text-xs leading-relaxed">
+                  Removemos o app autenticador anterior da sua conta. Entre novamente com seu e-mail e senha
+                  e, por segurança, reative a autenticação em dois fatores em <strong>Configurações</strong> logo após o login.
+                </p>
+                <button type="button" onClick={() => { setRecoverySuccess(false); setRecoveryMode(false); setMfaFactorId(null); setRecoveryCode(''); setMfaAttempts(0); setError(''); }}
+                  className="w-full px-6 py-3 rounded-lg bg-primary/80 hover:bg-primary transition-colors text-primary-foreground font-montserrat font-semibold text-sm">
+                  Voltar ao login
+                </button>
+              </div>
+            ) : mfaFactorId && recoveryMode ? (
+              <form onSubmit={handleRecoveryRedeem} className="space-y-4 text-left">
+                <div>
+                  <p className="text-foreground font-montserrat font-semibold text-sm mb-1">Recuperar acesso com código de backup</p>
+                  <p className="text-text-secondary font-montserrat text-xs leading-relaxed">
+                    Digite um dos códigos de backup que você guardou ao ativar o 2FA.
+                    Ao usá-lo, o app autenticador atual será removido e você deverá reconfigurar o 2FA após entrar.
+                  </p>
+                </div>
+                <input
+                  type="text"
+                  autoComplete="off"
+                  value={recoveryCode}
+                  onChange={e => setRecoveryCode(e.target.value.toUpperCase())}
+                  placeholder="XXXX-XXXX"
+                  maxLength={9}
+                  autoFocus
+                  className="w-full px-4 py-3 rounded-lg bg-foreground/[0.06] border border-blue-bright/15 text-foreground placeholder:text-text-dim font-mono text-center text-lg tracking-[0.2em] focus:outline-none focus:border-blue-bright/40 transition-colors"
+                />
+                <button type="submit" disabled={loading || recoveryCode.length < 8}
+                  className="w-full px-6 py-3 rounded-lg bg-gold/90 hover:bg-gold text-background font-montserrat font-semibold text-sm disabled:opacity-50 transition-colors">
+                  {loading ? 'Verificando…' : 'Recuperar acesso'}
+                </button>
+                <div className="flex items-center justify-between text-xs">
+                  <button type="button" onClick={() => { setRecoveryMode(false); setError(''); setRecoveryCode(''); }}
+                    className="text-blue-light font-montserrat hover:underline">
+                    Voltar ao código do app
+                  </button>
+                  <button type="button" onClick={handleMfaCancel}
+                    className="text-text-dim font-montserrat hover:text-foreground transition-colors">
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            ) : mfaFactorId ? (
+              <form onSubmit={handleMfaVerify} className="space-y-4 text-left">
+                <p className="text-text-secondary font-montserrat text-xs leading-relaxed text-center">
                   Sua conta está protegida por autenticação em dois fatores.
                   Digite o código de 6 dígitos exibido no seu app autenticador.
                 </p>
@@ -400,10 +448,16 @@ const LoginPage: React.FC = () => {
                   className="w-full px-6 py-3 rounded-lg bg-primary/80 hover:bg-primary transition-colors text-primary-foreground font-montserrat font-semibold text-sm disabled:opacity-50">
                   {loading ? 'Verificando…' : 'Verificar e entrar'}
                 </button>
-                <button type="button" onClick={handleMfaCancel}
-                  className="text-blue-light text-xs font-montserrat hover:underline">
-                  Cancelar e voltar ao login
-                </button>
+                <div className="flex items-center justify-between text-xs">
+                  <button type="button" onClick={() => { setRecoveryMode(true); setError(''); }}
+                    className="text-gold-light font-montserrat hover:underline">
+                    Perdi acesso ao app · usar código de backup
+                  </button>
+                  <button type="button" onClick={handleMfaCancel}
+                    className="text-text-dim font-montserrat hover:text-foreground transition-colors">
+                    Cancelar
+                  </button>
+                </div>
               </form>
             ) : forgotMode ? (
               forgotSent ? (
