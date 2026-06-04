@@ -123,9 +123,12 @@ const EntryPreviewPanel: React.FC<{
     () => buildEntriesByName(allEntries.filter(e => e.id !== entry.id)),
     [allEntries, entry.id],
   );
-  const parts = useMemo(
-    () => entry.content ? tokenizeMentions(entry.content, byName) : [],
-    [entry.content, byName],
+  const nodes = useMemo(
+    () => entry.content ? renderInlineMentions(entry.content, byName, {
+      allEntries: allEntries.filter(e => e.id !== entry.id),
+      onOpenEntry: onJump,
+    }) : [],
+    [entry.content, byName, allEntries, entry.id, onJump],
   );
   return (
     <div className="flex flex-col h-full">
@@ -154,13 +157,7 @@ const EntryPreviewPanel: React.FC<{
       )}
       <ScrollArea className="flex-1">
         <div className="p-3 text-xs text-foreground/85 font-merriweather leading-relaxed whitespace-pre-wrap">
-          {parts.length > 0
-            ? parts.map((p, i) =>
-                p.type === 'text'
-                  ? <span key={i}>{p.value}</span>
-                  : <MentionChip key={i} name={p.value} entry={p.entry} onClick={p.entry ? () => onJump(p.entry!.id) : undefined} />,
-              )
-            : <span className="italic text-text-dim">Sem conteúdo.</span>}
+          {nodes.length > 0 ? nodes : <span className="italic text-text-dim">Sem conteúdo.</span>}
         </div>
       </ScrollArea>
     </div>
