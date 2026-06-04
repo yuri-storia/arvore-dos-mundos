@@ -307,3 +307,21 @@
   0%   { transform: translateX(-120%); }
   100% { transform: translateX(420%); }
 }
+
+/* Premium selection styling for the writer */
+.mention-textarea::selection {
+  background: hsl(var(--gold) / 0.35);
+  color: hsl(var(--foreground));
+  text-shadow: 0 0 12px hsl(var(--gold) / 0.5);
+}
+.mention-textarea::-moz-selection {
+  background: hsl(var(--gold) / 0.35);
+  color: hsl(var(--foreground));
+}
+/* Tame native PT-BR spellcheck underline */
+.mention-textarea {
+  text-decoration-skip-ink: auto;
+}
+.mention-textarea:focus {
+  caret-color: hsl(var(--gold-light));
+}

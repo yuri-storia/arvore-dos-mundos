@@ -313,6 +313,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                   wrapperClassName="relative w-full mb-3"
                   className="w-full bg-[rgba(4,12,24,0.6)] border border-accent/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-accent/50 resize-y"
                   onClick={e => e.stopPropagation()}
+                  spellCheck={false}
                 />
               </>
             ) : (
@@ -529,6 +530,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                   wrapperClassName="relative w-full mb-3"
                   className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-ring/50 resize-y"
                   onClick={e => e.stopPropagation()}
+                  spellCheck={false}
                 />
               </>
             ) : (

@@ -1,7 +1,7 @@
 import React, { useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { Link2 } from 'lucide-react';
+import { Link2, Copy, Scissors, ClipboardPaste, Sparkles } from 'lucide-react';
 import {
-  ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem,
+  ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem, ContextMenuSeparator,
 } from '@/components/ui/context-menu';
 import { CodexEntryPicker } from './CodexEntryPicker';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
@@ -15,6 +15,8 @@ interface Props {
   wrapperClassName?: string;
   rows?: number;
   autoFocus?: boolean;
+  spellCheck?: boolean;
+  lang?: string;
   onClick?: React.MouseEventHandler<HTMLTextAreaElement>;
 }
 
@@ -23,17 +25,27 @@ type Tab = 'all' | 'ficha' | 'artigo';
 /**
  * Textarea with:
  *  - `@` autocomplete popup (search + Fichas/Artigos filter)
- *  - right-click "Linkar a entrada do Codex…" → shared picker dialog
+ *  - Premium right-click menu: Copiar/Recortar/Colar + "Linkar a entrada do Codex…"
+ *  - Optional native PT-BR spellcheck (passed by parent)
  */
 export const MentionTextarea = React.forwardRef<HTMLTextAreaElement, Props>(({
-  value, onChange, entries, placeholder, className, wrapperClassName, rows, autoFocus, onClick,
+  value, onChange, entries, placeholder, className, wrapperClassName, rows, autoFocus,
+  spellCheck, lang, onClick,
 }, ref) => {
   const innerRef = useRef<HTMLTextAreaElement>(null);
   useImperativeHandle(ref, () => innerRef.current!);
   const [mention, setMention] = useState<{ active: boolean; query: string }>({ active: false, query: '' });
   const [mentionTab, setMentionTab] = useState<Tab>('all');
   const selectionRef = useRef<{ start: number; end: number }>({ start: 0, end: 0 });
+  const [hasSelection, setHasSelection] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
+
+  const captureSelection = () => {
+    const ta = innerRef.current;
+    if (!ta) return;
+    selectionRef.current = { start: ta.selectionStart, end: ta.selectionEnd };
+    setHasSelection(ta.selectionStart !== ta.selectionEnd);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const v = e.target.value;
@@ -74,16 +86,11 @@ export const MentionTextarea = React.forwardRef<HTMLTextAreaElement, Props>(({
     }, 0);
   };
 
-  const handleContextMenu = () => {
-    const ta = innerRef.current;
-    if (!ta) return;
-    selectionRef.current = { start: ta.selectionStart, end: ta.selectionEnd };
-  };
-
   const linkSelection = (entry: CodexEntry) => {
     const ta = innerRef.current;
     if (!ta) return;
     const { start, end } = selectionRef.current;
+    if (start === end) return;
     const next = value.slice(0, start) + `@${entry.title}` + value.slice(end);
     onChange(next);
     setTimeout(() => {
@@ -93,9 +100,35 @@ export const MentionTextarea = React.forwardRef<HTMLTextAreaElement, Props>(({
     }, 0);
   };
 
-  const hasSel = (): boolean => {
+  const replaceSelection = (text: string) => {
     const ta = innerRef.current;
-    return !!ta && ta.selectionStart !== ta.selectionEnd;
+    if (!ta) return;
+    const { start, end } = selectionRef.current;
+    const next = value.slice(0, start) + text + value.slice(end);
+    onChange(next);
+    setTimeout(() => {
+      ta.focus();
+      const pos = start + text.length;
+      ta.setSelectionRange(pos, pos);
+    }, 0);
+  };
+
+  const handleCopy = async () => {
+    const { start, end } = selectionRef.current;
+    if (start === end) return;
+    try { await navigator.clipboard.writeText(value.slice(start, end)); } catch {}
+  };
+  const handleCut = async () => {
+    const { start, end } = selectionRef.current;
+    if (start === end) return;
+    try { await navigator.clipboard.writeText(value.slice(start, end)); } catch {}
+    replaceSelection('');
+  };
+  const handlePaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) replaceSelection(text);
+    } catch {}
   };
 
   return (
@@ -107,16 +140,21 @@ export const MentionTextarea = React.forwardRef<HTMLTextAreaElement, Props>(({
               ref={innerRef}
               value={value}
               onChange={handleChange}
-              onContextMenu={handleContextMenu}
+              onContextMenu={captureSelection}
+              onSelect={captureSelection}
+              onKeyUp={captureSelection}
+              onMouseUp={captureSelection}
               placeholder={placeholder}
-              className={className}
+              className={`mention-textarea ${className ?? ''}`}
               rows={rows}
               autoFocus={autoFocus}
+              spellCheck={spellCheck}
+              lang={lang}
               onClick={onClick}
             />
             {mention.active && (
               <div
-                className="absolute z-50 bg-[#0d1520] border border-blue-bright/20 rounded-lg shadow-xl min-w-[220px] max-w-[300px] overflow-hidden"
+                className="absolute z-50 bg-[#0d1520]/95 backdrop-blur-md border border-blue-bright/30 rounded-lg shadow-[0_8px_32px_rgba(0,0,0,0.6)] min-w-[220px] max-w-[300px] overflow-hidden"
                 style={{ top: 8, left: 8 }}
                 onMouseDown={e => e.preventDefault()}
               >
@@ -153,14 +191,30 @@ export const MentionTextarea = React.forwardRef<HTMLTextAreaElement, Props>(({
             )}
           </div>
         </ContextMenuTrigger>
-        <ContextMenuContent className="bg-[#0d1520] border-blue-bright/20 min-w-[220px]">
+        <ContextMenuContent className="min-w-[220px] bg-[#0d1520]/95 backdrop-blur-md border-blue-bright/30 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+          <ContextMenuItem onSelect={handleCopy} disabled={!hasSelection} className="text-xs gap-2 focus:bg-blue-bright/10 focus:text-blue-light">
+            <Copy className="w-3 h-3" /> Copiar
+            <span className="ml-auto text-[10px] text-text-dim">Ctrl+C</span>
+          </ContextMenuItem>
+          <ContextMenuItem onSelect={handleCut} disabled={!hasSelection} className="text-xs gap-2 focus:bg-blue-bright/10 focus:text-blue-light">
+            <Scissors className="w-3 h-3" /> Recortar
+            <span className="ml-auto text-[10px] text-text-dim">Ctrl+X</span>
+          </ContextMenuItem>
+          <ContextMenuItem onSelect={handlePaste} className="text-xs gap-2 focus:bg-blue-bright/10 focus:text-blue-light">
+            <ClipboardPaste className="w-3 h-3" /> Colar
+            <span className="ml-auto text-[10px] text-text-dim">Ctrl+V</span>
+          </ContextMenuItem>
+          <ContextMenuSeparator className="bg-blue-bright/10" />
           <ContextMenuItem
-            disabled={!hasSel()}
+            disabled={!hasSelection}
             onSelect={() => setPickerOpen(true)}
-            className="text-xs text-blue-light"
+            className="text-xs gap-2 focus:bg-gold/10 focus:text-gold-light data-[disabled]:opacity-50"
           >
-            <Link2 className="w-3 h-3 mr-2" />
-            {hasSel() ? 'Linkar a entrada do Codex…' : 'Selecione uma palavra primeiro'}
+            <Link2 className="w-3 h-3 text-gold-light" />
+            <span className="text-gold-light">
+              {hasSelection ? 'Linkar a entrada do Codex' : 'Selecione uma palavra primeiro'}
+            </span>
+            {hasSelection && <Sparkles className="w-3 h-3 ml-auto text-gold-light/60" />}
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
