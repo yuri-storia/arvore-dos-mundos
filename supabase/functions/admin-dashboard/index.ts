@@ -95,10 +95,13 @@ Deno.serve(async (req) => {
       }
 
       case "set_plan": {
-        // Manually set a user's subscription. Used to grant lifetime plans or fix records.
-        // body: { user_id, plan_code: 'raiz_mensal'|'raiz_anual'|'idriel_mensal'|'idriel_anual'|'raiz_vitalicio'|'none' }
+        // Manually set a user's subscription. No payment is charged; the user can be billed
+        // normally after expires_at.
+        // body: { user_id, plan_code, duration_days? }
+        // plan_code: 'raiz_mensal'|'raiz_anual'|'idriel_mensal'|'idriel_anual'|'raiz_vitalicio'|'beta_raiz'|'none'
         const targetId = body?.user_id as string;
         const planCode = body?.plan_code as string;
+        const durationDays = Number(body?.duration_days ?? 0);
         if (!targetId || !planCode) return json({ error: "user_id and plan_code required" }, 400);
 
         if (planCode === "none") {
@@ -107,16 +110,59 @@ Deno.serve(async (req) => {
           return json({ ok: true });
         }
 
+        const now = new Date();
+
+        // Beta path: grants N days of Raiz + records beta_redemption (with Idriel discount window).
+        if (planCode === "beta_raiz") {
+          const days = durationDays > 0 ? durationDays : 30;
+          const raizUntil = new Date(now.getTime() + days * 86400_000).toISOString();
+          const idrielDiscountUntil = new Date(now.getTime() + (days + 120) * 86400_000).toISOString();
+          const adminCode = "ADMIN_GRANT";
+
+          await supa.from("beta_codes").upsert(
+            { code: adminCode, label: "Concessão manual (admin)", max_uses: 1_000_000, active: true },
+            { onConflict: "code" }
+          );
+
+          await supa.from("subscriptions").update({ status: "cancelled", cancelled_at: now.toISOString() })
+            .eq("user_id", targetId).eq("status", "active");
+
+          const { error: subErr } = await supa.from("subscriptions").insert({
+            user_id: targetId,
+            plan: "template",
+            plan_code: "raiz_mensal",
+            status: "active",
+            has_idriel: false,
+            billing_cycle: "BETA_FREE",
+            started_at: now.toISOString(),
+            expires_at: raizUntil,
+            environment: "manual",
+            asaas_subscription_id: `beta_admin_${targetId}_${now.getTime()}`,
+          });
+          if (subErr) return json({ error: subErr.message }, 500);
+
+          const { error: redErr } = await supa.from("beta_redemptions").upsert({
+            user_id: targetId,
+            code: adminCode,
+            raiz_granted_until: raizUntil,
+            idriel_discount_until: idrielDiscountUntil,
+            idriel_charges_used: 0,
+            redeemed_at: now.toISOString(),
+          }, { onConflict: "user_id" });
+          if (redErr) return json({ error: redErr.message }, 500);
+
+          return json({ ok: true, expires_at: raizUntil });
+        }
+
         const hasIdriel = planCode.startsWith("idriel_");
         const isLifetime = planCode === "raiz_vitalicio";
         const isAnnual = planCode.endsWith("_anual");
-        const now = new Date();
         let expiresAt: string | null;
         if (isLifetime) expiresAt = null;
+        else if (durationDays > 0) expiresAt = new Date(now.getTime() + durationDays * 86400_000).toISOString();
         else if (isAnnual) expiresAt = new Date(now.getTime() + 365 * 86400_000).toISOString();
-        else expiresAt = new Date(now.getTime() + 31 * 86400_000).toISOString();
+        else expiresAt = new Date(now.getTime() + 30 * 86400_000).toISOString();
 
-        // Cancel any existing active subscription, then insert a new one (keeps history).
         await supa.from("subscriptions").update({ status: "cancelled", cancelled_at: now.toISOString() })
           .eq("user_id", targetId).eq("status", "active");
 
@@ -132,7 +178,7 @@ Deno.serve(async (req) => {
           environment: "manual",
         });
         if (error) return json({ error: error.message }, 500);
-        return json({ ok: true });
+        return json({ ok: true, expires_at: expiresAt });
       }
 
       case "add_drops": {
