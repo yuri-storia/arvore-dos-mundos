@@ -87,8 +87,33 @@ const LoginPage: React.FC = () => {
   const [forgotSent, setForgotSent] = useState(false);
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
   const [mfaCode, setMfaCode] = useState('');
+  const [aalChecking, setAalChecking] = useState(true);
+  const [needsMfa, setNeedsMfa] = useState(false);
 
-  if (!authLoading && user && !accessDenied) {
+  // When a user session appears, verify AAL. Block redirect until we know whether MFA is required.
+  useEffect(() => {
+    let cancelled = false;
+    if (!user) { setAalChecking(false); setNeedsMfa(false); return; }
+    setAalChecking(true);
+    (async () => {
+      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (cancelled) return;
+      if (aal?.currentLevel === 'aal1' && aal?.nextLevel === 'aal2') {
+        const { data: factors } = await supabase.auth.mfa.listFactors();
+        const totp = factors?.totp?.find(f => f.status === 'verified');
+        if (totp) {
+          setMfaFactorId(totp.id);
+          setNeedsMfa(true);
+        }
+      } else {
+        setNeedsMfa(false);
+      }
+      setAalChecking(false);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
+  if (!authLoading && !aalChecking && user && !accessDenied && !needsMfa) {
     return <Navigate to="/" replace />;
   }
 
