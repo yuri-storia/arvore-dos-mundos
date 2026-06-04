@@ -58,6 +58,27 @@ const planTone = (code: string | null) => {
 const fmtDate = (s: string | null) => s ? new Date(s).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
 const fmtMoney = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+const daysUntil = (iso: string | null): number | null => {
+  if (!iso) return null;
+  const diff = new Date(iso).getTime() - Date.now();
+  return Math.ceil(diff / 86_400_000);
+};
+
+const countdownTone = (days: number | null): string => {
+  if (days === null) return 'text-text-dim';
+  if (days < 0) return 'text-red-alert';
+  if (days <= 7) return 'text-orange-400';
+  return 'text-text-dim';
+};
+
+const countdownLabel = (days: number | null): string => {
+  if (days === null) return '';
+  if (days < 0) return `expirou há ${Math.abs(days)}d`;
+  if (days === 0) return 'expira hoje';
+  if (days === 1) return 'expira amanhã';
+  return `${days}d restantes`;
+};
+
 const AdminPage: React.FC = () => {
   const { user, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
@@ -301,9 +322,22 @@ const UserRow = memo<UserRowProps>(({ user: u, callerId, onOpenDetail, onChanged
       <span className="text-[10px] text-text-dim">Criado {fmtDate(u.created_at).split(',')[0]}</span>
     </td>
     <td className="px-3 py-2.5">
-      <Badge variant="outline" className={`text-[10px] ${planTone(u.plan_code)}`}>{planLabel(u.plan_code)}</Badge>
-      {u.expires_at === null && u.plan_code === 'raiz_vitalicio' && <span className="block text-[9px] text-gold mt-0.5">Vitalício</span>}
-      {u.expires_at && <span className="block text-[9px] text-text-dim mt-0.5">até {fmtDate(u.expires_at).split(',')[0]}</span>}
+      <div className="flex items-center gap-1 flex-wrap">
+        <Badge variant="outline" className={`text-[10px] ${planTone(u.plan_code)}`}>{planLabel(u.plan_code)}</Badge>
+        {u.billing_cycle === 'BETA_FREE' && (
+          <Badge variant="outline" className="text-[9px] border-gold/50 bg-gold/10 text-gold-light font-bold uppercase tracking-wider">Beta</Badge>
+        )}
+        {u.billing_cycle === 'lifetime' && (
+          <Badge variant="outline" className="text-[9px] border-gold/50 bg-gold/10 text-gold font-bold uppercase tracking-wider">Vitalício</Badge>
+        )}
+      </div>
+      {u.expires_at === null && u.plan_code === 'raiz_vitalicio' && <span className="block text-[9px] text-gold mt-0.5">sem expiração</span>}
+      {u.expires_at && (
+        <span className="block text-[9px] mt-0.5">
+          <span className="text-text-dim">até {fmtDate(u.expires_at).split(',')[0]} · </span>
+          <span className={`font-montserrat font-bold ${countdownTone(daysUntil(u.expires_at))}`}>{countdownLabel(daysUntil(u.expires_at))}</span>
+        </span>
+      )}
     </td>
     <td className="px-3 py-2.5 text-right font-montserrat text-foreground">{u.has_idriel || u.plan_code === 'raiz_vitalicio' ? <InfinityIcon className="w-3.5 h-3.5 inline text-gold" /> : u.bonus_drops}</td>
     <td className="px-3 py-2.5 text-right text-xs text-text-secondary">{u.ai_text_month}/{u.ai_image_month}<span className="block text-[9px] text-text-dim">total {u.ai_text_total}/{u.ai_image_total}</span></td>
