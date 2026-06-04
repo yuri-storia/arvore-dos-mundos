@@ -18,6 +18,7 @@ interface Props {
   spellCheck?: boolean;
   lang?: string;
   onClick?: React.MouseEventHandler<HTMLTextAreaElement>;
+  onKeyDown?: React.KeyboardEventHandler<HTMLTextAreaElement>;
 }
 
 type Tab = 'all' | 'ficha' | 'artigo';
@@ -26,11 +27,12 @@ type Tab = 'all' | 'ficha' | 'artigo';
  * Textarea with:
  *  - `@` autocomplete popup (search + Fichas/Artigos filter)
  *  - Premium right-click menu: Copiar/Recortar/Colar + "Linkar a entrada do Codex…"
+ *  - Ctrl/Cmd+L shortcut: open Codex picker for the selected text
  *  - Optional native PT-BR spellcheck (passed by parent)
  */
 export const MentionTextarea = React.forwardRef<HTMLTextAreaElement, Props>(({
   value, onChange, entries, placeholder, className, wrapperClassName, rows, autoFocus,
-  spellCheck, lang, onClick,
+  spellCheck, lang, onClick, onKeyDown,
 }, ref) => {
   const innerRef = useRef<HTMLTextAreaElement>(null);
   useImperativeHandle(ref, () => innerRef.current!);
@@ -57,6 +59,21 @@ export const MentionTextarea = React.forwardRef<HTMLTextAreaElement, Props>(({
     const m = before.match(/@([\w\sÀ-ÿ-]{0,40})$/);
     if (m) setMention({ active: true, query: m[1] });
     else if (mention.active) setMention({ active: false, query: '' });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Ctrl/Cmd+L → linkar seleção
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'l' || e.key === 'L')) {
+      const ta = innerRef.current;
+      if (ta && ta.selectionStart !== ta.selectionEnd) {
+        e.preventDefault();
+        selectionRef.current = { start: ta.selectionStart, end: ta.selectionEnd };
+        setHasSelection(true);
+        setPickerOpen(true);
+        return;
+      }
+    }
+    onKeyDown?.(e);
   };
 
   const matches = useMemo(() => {
@@ -144,6 +161,7 @@ export const MentionTextarea = React.forwardRef<HTMLTextAreaElement, Props>(({
               onSelect={captureSelection}
               onKeyUp={captureSelection}
               onMouseUp={captureSelection}
+              onKeyDown={handleKeyDown}
               placeholder={placeholder}
               className={`mention-textarea ${className ?? ''}`}
               rows={rows}
@@ -191,7 +209,7 @@ export const MentionTextarea = React.forwardRef<HTMLTextAreaElement, Props>(({
             )}
           </div>
         </ContextMenuTrigger>
-        <ContextMenuContent className="min-w-[220px] bg-[#0d1520]/95 backdrop-blur-md border-blue-bright/30 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+        <ContextMenuContent className="min-w-[240px] bg-[#0d1520]/95 backdrop-blur-md border-blue-bright/30 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
           <ContextMenuItem onSelect={handleCopy} disabled={!hasSelection} className="text-xs gap-2 focus:bg-blue-bright/10 focus:text-blue-light">
             <Copy className="w-3 h-3" /> Copiar
             <span className="ml-auto text-[10px] text-text-dim">Ctrl+C</span>
@@ -214,7 +232,8 @@ export const MentionTextarea = React.forwardRef<HTMLTextAreaElement, Props>(({
             <span className="text-gold-light">
               {hasSelection ? 'Linkar a entrada do Codex' : 'Selecione uma palavra primeiro'}
             </span>
-            {hasSelection && <Sparkles className="w-3 h-3 ml-auto text-gold-light/60" />}
+            <span className="ml-auto text-[10px] text-text-dim">{hasSelection ? 'Ctrl+L' : ''}</span>
+            {hasSelection && <Sparkles className="w-3 h-3 text-gold-light/60" />}
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
