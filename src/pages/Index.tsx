@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Trees, Sparkles } from 'lucide-react';
 import { AppHeader } from '@/components/AppHeader';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
+import { BetaPromoDialog } from '@/components/BetaPromoDialog';
 import { DropsCounterBadge } from '@/components/DropsCounterBadge';
 import { OnboardingTips } from '@/components/OnboardingTips';
 import { HelpDrawer } from '@/components/HelpDrawer';
