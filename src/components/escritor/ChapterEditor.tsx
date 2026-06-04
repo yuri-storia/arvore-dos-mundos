@@ -4,7 +4,7 @@ import type { CodexEntry } from '@/hooks/useCodexEntries';
 import {
   Edit3, Eye, Maximize, Minimize, PanelRightOpen, PanelRightClose, ChevronRight,
 } from 'lucide-react';
-import { MentionChip, buildEntriesByName, tokenizeMentions } from './MentionChip';
+import { buildEntriesByName, renderInlineMentions } from './MentionChip';
 import { MentionTextarea } from './MentionTextarea';
 
 interface Props {
