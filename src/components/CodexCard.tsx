@@ -127,9 +127,15 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
     () => buildEntriesByName((siblings || []).filter(e => e.id !== entry.id)),
     [siblings, entry.id],
   );
+  const siblingEntries = useMemo(
+    () => (siblings || []).filter(e => e.id !== entry.id),
+    [siblings, entry.id],
+  );
   const renderMd = useCallback(
-    (children: React.ReactNode) => renderMentionChildren(children, mentionByName, onOpenEntry),
-    [mentionByName, onOpenEntry],
+    (children: React.ReactNode) => renderMentionChildren(children, mentionByName, onOpenEntry, {
+      allEntries: siblingEntries,
+    }),
+    [mentionByName, onOpenEntry, siblingEntries],
   );
 
   // Parse sections from content for wiki TOC using ## headings
