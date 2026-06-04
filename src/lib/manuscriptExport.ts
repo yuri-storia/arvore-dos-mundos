@@ -132,8 +132,8 @@ export function exportManuscriptEPUB(manuscript: Manuscript, chapters: Chapter[]
 </head>
 <body>
 <div class="title-page">
-  <h1>${manuscript.title || 'Sem título'}</h1>
-  ${manuscript.synopsis ? `<p class="synopsis">${manuscript.synopsis}</p>` : ''}
+  <h1>${(manuscript.title || 'Sem título').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</h1>
+  ${manuscript.synopsis ? `<p class="synopsis">${manuscript.synopsis.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>` : ''}
 </div>
 `;
 
