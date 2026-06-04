@@ -250,14 +250,28 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
   
 
   return (
-    <div className="rounded-lg p-4 sm:p-5 mb-6 animate-fadeUp border border-accent/20" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.10) 0%, rgba(59,130,246,0.10) 50%, rgba(16,185,129,0.08) 100%)', backdropFilter: 'blur(20px)' }}>
+    <div
+      className="rounded-2xl p-4 sm:p-6 mb-6 animate-fadeUp border border-gold/25 relative overflow-hidden"
+      style={{
+        background:
+          'linear-gradient(135deg, rgba(20,14,4,0.92) 0%, rgba(10,8,2,0.95) 50%, rgba(8,5,10,0.92) 100%)',
+        backdropFilter: 'blur(20px)',
+        boxShadow:
+          '0 18px 60px rgba(0,0,0,0.55), 0 0 80px hsl(var(--gold-warm)/0.10), inset 0 1px 0 hsl(var(--gold-champagne)/0.12)',
+      }}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 opacity-50"
+        style={{ background: 'radial-gradient(ellipse 60% 60% at 0% 0%, hsl(var(--gold-warm)/0.10) 0%, transparent 70%)' }}
+      />
+      <div className="relative">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="font-cinzel font-bold text-base sm:text-lg text-idriel-light">
+          <h3 className="font-cinzel font-bold text-base sm:text-lg text-gold-light">
             <><Trees className="inline-block w-4 h-4 mr-2 align-[-0.2em] text-gold-champagne" strokeWidth={1.5} />{IDRIEL_NAME} — {IDRIEL_TITLE}</>
           </h3>
           <p className="font-merriweather italic text-text-dim text-xs mt-1">
-            A sábia guardiã irá avaliar todas as suas entradas e sugerir melhorias
+            A sábia guardiã irá avaliar suas entradas e iluminar o caminho a seguir
           </p>
         </div>
         <button onClick={onClose} className="w-6 h-6 rounded-full text-text-dim hover:text-foreground flex items-center justify-center transition-colors" aria-label="Fechar"><X className="w-3.5 h-3.5" strokeWidth={2} /></button>
