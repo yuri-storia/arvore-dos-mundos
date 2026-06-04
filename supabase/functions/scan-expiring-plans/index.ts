@@ -72,10 +72,20 @@ Deno.serve(async (req) => {
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 
-  // Auth: caller must present the service role key in x-cron-secret (used by pg_cron).
-  if (req.headers.get("x-cron-secret") !== serviceKey) {
+  // Auth: only callers presenting the service_role JWT may trigger this
+  // (used by pg_cron job; blocks unauthenticated external invocations).
+  const authHeader = req.headers.get("Authorization") || "";
+  const token = authHeader.replace(/^Bearer\s+/i, "");
+  if (!token) {
     return new Response(JSON.stringify({ error: "unauthorized" }), {
       status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+  const authClient = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
+  const { data: claims, error: claimsErr } = await authClient.auth.getClaims(token);
+  if (claimsErr || claims?.claims?.role !== "service_role") {
+    return new Response(JSON.stringify({ error: "forbidden" }), {
+      status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
