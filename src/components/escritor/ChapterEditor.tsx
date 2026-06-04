@@ -64,9 +64,13 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
 
   const byName = useMemo(() => buildEntriesByName(entries), [entries]);
 
-  const previewParts = useMemo(
-    () => previewMode ? tokenizeMentions(content, byName) : [],
-    [previewMode, content, byName],
+  const previewNodes = useMemo(
+    () => previewMode ? renderInlineMentions(content, byName, {
+      allEntries: entries,
+      onOpenEntry: (id) => { const e = entries.find(x => x.id === id); if (e) onPreviewEntry(e); },
+      onSave: (next) => handleContentChange(next),
+    }) : null,
+    [previewMode, content, byName, entries, onPreviewEntry, handleContentChange],
   );
 
   return (
