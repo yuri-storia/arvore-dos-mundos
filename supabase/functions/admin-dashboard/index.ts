@@ -129,7 +129,7 @@ Deno.serve(async (req) => {
 
           const { error: subErr } = await supa.from("subscriptions").insert({
             user_id: targetId,
-            plan: "template",
+            plan: "pro",
             plan_code: "raiz_mensal",
             status: "active",
             has_idriel: false,
@@ -168,7 +168,7 @@ Deno.serve(async (req) => {
 
         const { error } = await supa.from("subscriptions").insert({
           user_id: targetId,
-          plan: hasIdriel ? "idriel" : "template",
+          plan: "pro",
           plan_code: planCode,
           status: "active",
           has_idriel: hasIdriel,
