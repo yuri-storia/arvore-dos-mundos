@@ -206,8 +206,15 @@ const EntryPreviewPanel: React.FC<{
     <div className="flex flex-col h-full">
       <div className="p-3 border-b border-blue-bright/10 flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-[9px] font-montserrat uppercase tracking-widest text-text-dim mb-0.5">
-            {isFicha ? 'Ficha' : 'Artigo'}{fruit ? ` · $<fruit.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> ${fruit.name}` : ''}
+          <p className="text-[9px] font-montserrat uppercase tracking-widest text-text-dim mb-0.5 inline-flex items-center gap-1">
+            <span>{isFicha ? 'Ficha' : 'Artigo'}</span>
+            {fruit && (
+              <>
+                <span>·</span>
+                <fruit.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} />
+                <span>{fruit.name}</span>
+              </>
+            )}
           </p>
           <h3 className={`font-cinzel font-bold text-sm truncate ${isFicha ? 'text-blue-light' : 'text-gold-light'}`}>
             {entry.title}
