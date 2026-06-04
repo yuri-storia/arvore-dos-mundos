@@ -19,9 +19,13 @@ interface Props {
   onImageUpload: (file: File) => Promise<string | null>;
   onLightbox: (v: { src: string; alt: string }) => void;
   gallery: GalleryImage[];
+  /** All other entries in the world — used to resolve @mentions in content. */
+  siblings?: CodexEntry[];
+  /** Open another entry (used when an @mention chip is clicked). */
+  onOpenEntry?: (id: string) => void;
 }
 
-export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate, onDelete, onImageUpload, onLightbox, gallery }) => {
+export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate, onDelete, onImageUpload, onLightbox, gallery, siblings, onOpenEntry }) => {
   const planLimits = usePlanLimits();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(entry.title);
