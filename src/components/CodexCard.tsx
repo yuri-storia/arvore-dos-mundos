@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ImageRepositioner } from '@/components/ImageRepositioner';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
+import { buildEntriesByName, renderMentionChildren } from '@/components/escritor/MentionChip';
 
 interface Props {
   entry: CodexEntry;
@@ -19,9 +20,13 @@ interface Props {
   onImageUpload: (file: File) => Promise<string | null>;
   onLightbox: (v: { src: string; alt: string }) => void;
   gallery: GalleryImage[];
+  /** All other entries in the world — used to resolve @mentions in content. */
+  siblings?: CodexEntry[];
+  /** Open another entry (used when an @mention chip is clicked). */
+  onOpenEntry?: (id: string) => void;
 }
 
-export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate, onDelete, onImageUpload, onLightbox, gallery }) => {
+export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate, onDelete, onImageUpload, onLightbox, gallery, siblings, onOpenEntry }) => {
   const planLimits = usePlanLimits();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(entry.title);
@@ -115,6 +120,16 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
   // Filter out __magictype__ marker from displayed content
   const displayContent = entry.content?.replace(/^__magictype__\n?/, '').trim() || '';
+
+  // Resolve @Name mentions to other codex entries (for hover preview + jump).
+  const mentionByName = useMemo(
+    () => buildEntriesByName((siblings || []).filter(e => e.id !== entry.id)),
+    [siblings, entry.id],
+  );
+  const renderMd = useCallback(
+    (children: React.ReactNode) => renderMentionChildren(children, mentionByName, onOpenEntry),
+    [mentionByName, onOpenEntry],
+  );
 
   // Parse sections from content for wiki TOC using ## headings
   const sections = useMemo(() => {
@@ -330,16 +345,16 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                           <div className="codex-markdown font-merriweather text-[15px] text-foreground/95 leading-[1.85]">
                             <ReactMarkdown
                               components={{
-                                h1: ({ children }) => <h1 className="font-cinzel font-bold text-lg text-foreground mt-4 mb-2">{children}</h1>,
-                                h2: ({ children }) => <h2 className="font-cinzel font-bold text-base text-foreground mt-3 mb-2">{children}</h2>,
-                                h3: ({ children }) => <h3 className="font-cinzel font-bold text-sm text-foreground mt-2 mb-1">{children}</h3>,
-                                p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
-                                strong: ({ children }) => <strong className="font-bold text-foreground">{children}</strong>,
-                                em: ({ children }) => <em className="italic text-accent/80">{children}</em>,
+                                h1: ({ children }) => <h1 className="font-cinzel font-bold text-lg text-foreground mt-4 mb-2">{renderMd(children)}</h1>,
+                                h2: ({ children }) => <h2 className="font-cinzel font-bold text-base text-foreground mt-3 mb-2">{renderMd(children)}</h2>,
+                                h3: ({ children }) => <h3 className="font-cinzel font-bold text-sm text-foreground mt-2 mb-1">{renderMd(children)}</h3>,
+                                p: ({ children }) => <p className="mb-3 last:mb-0">{renderMd(children)}</p>,
+                                strong: ({ children }) => <strong className="font-bold text-foreground">{renderMd(children)}</strong>,
+                                em: ({ children }) => <em className="italic text-accent/80">{renderMd(children)}</em>,
                                 ul: ({ children }) => <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>,
                                 ol: ({ children }) => <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>,
-                                li: ({ children }) => <li>{children}</li>,
-                                blockquote: ({ children }) => <blockquote className="border-l-2 border-accent/30 pl-3 italic text-accent/70 my-3">{children}</blockquote>,
+                                li: ({ children }) => <li>{renderMd(children)}</li>,
+                                blockquote: ({ children }) => <blockquote className="border-l-2 border-accent/30 pl-3 italic text-accent/70 my-3">{renderMd(children)}</blockquote>,
                                 hr: () => <hr className="border-accent/15 my-4" />,
                                 code: ({ children, className }) => {
                                   const isBlock = className?.includes('language-');

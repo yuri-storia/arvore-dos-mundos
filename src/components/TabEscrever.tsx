@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useManuscript, type Chapter, type Scene } from '@/hooks/useManuscript';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useManuscript } from '@/hooks/useManuscript';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -8,14 +8,15 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Plus, Trash2, FileText, BookOpen,
-  PanelRightOpen, PanelRightClose, StickyNote, Search, BookMarked, PenLine,
-  LayoutGrid, Maximize, Minimize, ChevronRight, ChevronDown, Eye, Edit3, X,
+  PanelRightOpen, StickyNote, Search, BookMarked, PenLine,
+  LayoutGrid, ChevronRight, ChevronDown, X,
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import { MuralMode } from '@/components/escritor/MuralMode';
 import { DebouncedTextarea } from '@/components/escritor/DebouncedTextarea';
+import { ChapterEditor } from '@/components/escritor/ChapterEditor';
 import { PomodoroTimer } from '@/components/PomodoroTimer';
 import { ManuscriptExportMenu } from '@/components/ManuscriptExportMenu';
 import {
@@ -107,93 +108,6 @@ const ReferencePanel: React.FC<{ entries: CodexEntry[]; onPreview: (entry: Codex
 });
 ReferencePanel.displayName = 'ReferencePanel';
 
-// ── Mention Popup ──
-const MentionPopup: React.FC<{
-  entries: CodexEntry[];
-  query: string;
-  position: { top: number; left: number };
-  onSelect: (name: string) => void;
-  onClose: () => void;
-}> = ({ entries, query, position, onSelect, onClose }) => {
-  const filtered = useMemo(() => {
-    const q = query.toLowerCase();
-    return entries.filter(e => e.title.toLowerCase().includes(q)).slice(0, 8);
-  }, [entries, query]);
-  if (filtered.length === 0) return null;
-
-  return (
-    <div className="absolute z-50 bg-[#0d1520] border border-blue-bright/20 rounded-lg shadow-xl py-1 min-w-[200px] max-w-[280px]"
-      style={{ top: position.top, left: position.left }}>
-      {filtered.map(e => (
-        <button key={e.id} onClick={() => { onSelect(e.title); onClose(); }}
-          className="w-full text-left px-3 py-1.5 text-xs hover:bg-blue-bright/10 transition-colors flex items-center gap-2">
-          <span className={e.entry_type === 'ficha' ? 'text-blue-light' : 'text-gold-light'}>{e.title}</span>
-          <span className="text-[9px] text-text-dim">{e.entry_type}</span>
-        </button>
-      ))}
-    </div>
-  );
-};
-
-// ── Content Preview with clickable @reference chips ──
-const ContentPreview: React.FC<{
-  content: string;
-  entries: CodexEntry[];
-  onChipClick: (entry: CodexEntry) => void;
-}> = ({ content, entries, onChipClick }) => {
-  const entriesByName = useMemo(() => {
-    const map = new Map<string, CodexEntry>();
-    entries.forEach(e => map.set(e.title.toLowerCase(), e));
-    return map;
-  }, [entries]);
-
-  // Tokenize content into text + @mentions
-  const parts = useMemo(() => {
-    const out: Array<{ type: 'text' | 'mention'; value: string; entry?: CodexEntry }> = [];
-    const regex = /@([A-Za-zÀ-ÿ0-9_\-]+(?:\s[A-Za-zÀ-ÿ0-9_\-]+)?)/g;
-    let lastIdx = 0;
-    let match: RegExpExecArray | null;
-    while ((match = regex.exec(content)) !== null) {
-      if (match.index > lastIdx) out.push({ type: 'text', value: content.slice(lastIdx, match.index) });
-      const name = match[1];
-      const entry = entriesByName.get(name.toLowerCase());
-      out.push({ type: 'mention', value: name, entry });
-      lastIdx = match.index + match[0].length;
-    }
-    if (lastIdx < content.length) out.push({ type: 'text', value: content.slice(lastIdx) });
-    return out;
-  }, [content, entriesByName]);
-
-  return (
-    <div className="w-full h-full overflow-y-auto p-4 font-merriweather text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
-      {parts.map((p, i) => {
-        if (p.type === 'text') return <span key={i}>{p.value}</span>;
-        if (p.entry) {
-          const isFicha = p.entry.entry_type === 'ficha';
-          return (
-            <button
-              key={i}
-              onClick={() => onChipClick(p.entry!)}
-              className={`inline-flex items-center px-1.5 py-0.5 mx-0.5 rounded text-[12px] font-montserrat font-bold transition-colors ${
-                isFicha
-                  ? 'bg-blue-bright/15 text-blue-light hover:bg-blue-bright/25'
-                  : 'bg-gold/15 text-gold-light hover:bg-gold/25'
-              }`}
-            >
-              @{p.value}
-            </button>
-          );
-        }
-        return (
-          <span key={i} className="text-text-dim/60 italic" title="Referência não encontrada no Codex">
-            @{p.value}
-          </span>
-        );
-      })}
-      {parts.length === 0 && <span className="text-text-dim/40 italic">Nada escrito ainda.</span>}
-    </div>
-  );
-};
 
 // ── Entry Preview Panel (right side, shown when a chip is clicked) ──
 const EntryPreviewPanel: React.FC<{
@@ -250,21 +164,15 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
 
   const [writeMode, setWriteMode] = useState<WriteMode>('manuscrito');
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
-  const [showRefPanel, setShowRefPanel] = useState(!isMobile);
+  // Default closed: keeps the editor DOM lean and snappy on first paint.
+  const [showRefPanel, setShowRefPanel] = useState(false);
   const [showNotes, setShowNotes] = useState<string | null>(null);
-  const [editingContent, setEditingContent] = useState('');
-  const [editingTitle, setEditingTitle] = useState('');
-  const [mentionState, setMentionState] = useState<{ active: boolean; query: string; pos: { top: number; left: number } }>({ active: false, query: '', pos: { top: 0, left: 0 } });
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [newManuscriptName, setNewManuscriptName] = useState('');
   const [zenMode, setZenMode] = useState(false);
-  // Preview-mode toggle: when true, content renders chips for @references; when false, raw textarea.
-  const [previewMode, setPreviewMode] = useState(false);
-  // Currently-selected reference (when a chip is clicked) — shows in the right panel as a card.
+  // Selected reference (when a chip is clicked) — shows in the right panel as a card.
   const [previewEntry, setPreviewEntry] = useState<CodexEntry | null>(null);
-  const editorRef = useRef<HTMLTextAreaElement>(null);
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const titleSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const titleSaveTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const activeChapter = useMemo(() => chapters.find(c => c.id === activeChapterId), [chapters, activeChapterId]);
 
@@ -275,28 +183,14 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   }, [activeManuscript?.id]); // eslint-disable-line
 
   useEffect(() => {
-    if (activeChapter) {
-      setEditingContent(activeChapter.content || '');
-      setEditingTitle(activeChapter.title);
-    }
-  }, [activeChapterId]); // eslint-disable-line
-
-  useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && zenMode) setZenMode(false); };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [zenMode]);
 
-  // Cleanup all pending save timers on unmount
   useEffect(() => () => {
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     if (titleSaveTimerRef.current) clearTimeout(titleSaveTimerRef.current);
   }, []);
-
-  const debouncedSave = useCallback((id: string, content: string) => {
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => updateChapter(id, { content }), 1500);
-  }, [updateChapter]);
 
   const handleManuscriptTitleChange = (next: string) => {
     setManuscriptTitleLocal(next);
@@ -307,35 +201,19 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     }, 700);
   };
 
-  const handleContentChange = (value: string) => {
-    setEditingContent(value);
-    if (activeChapterId) debouncedSave(activeChapterId, value);
-    const textarea = editorRef.current;
-    if (!textarea) return;
-    const cursor = textarea.selectionStart;
-    const textBefore = value.substring(0, cursor);
-    const atMatch = textBefore.match(/@(\w*)$/);
-    if (atMatch) setMentionState({ active: true, query: atMatch[1], pos: { top: 40, left: 20 } });
-    else setMentionState(prev => ({ ...prev, active: false }));
-  };
+  // Stable callbacks for ChapterEditor (so React.memo can short-circuit when chapter id doesn't change)
+  const handleChapterContentSave = useCallback((content: string) => {
+    if (activeChapterId) updateChapter(activeChapterId, { content });
+  }, [activeChapterId, updateChapter]);
 
-  const handleMentionSelect = (name: string) => {
-    if (!editorRef.current) return;
-    const textarea = editorRef.current;
-    const cursor = textarea.selectionStart;
-    const textBefore = editingContent.substring(0, cursor);
-    const atIdx = textBefore.lastIndexOf('@');
-    const newContent = editingContent.substring(0, atIdx) + `@${name}` + editingContent.substring(cursor);
-    setEditingContent(newContent);
-    if (activeChapterId) debouncedSave(activeChapterId, newContent);
-    setMentionState(prev => ({ ...prev, active: false }));
-    setTimeout(() => { textarea.focus(); const newPos = atIdx + name.length + 1; textarea.setSelectionRange(newPos, newPos); }, 0);
-  };
+  const handleChapterTitleSave = useCallback((title: string) => {
+    if (activeChapterId) updateChapter(activeChapterId, { title });
+  }, [activeChapterId, updateChapter]);
 
-
-  const handleChapterTitleSave = () => {
-    if (activeChapterId && editingTitle.trim()) updateChapter(activeChapterId, { title: editingTitle.trim() });
-  };
+  const handlePreviewEntry = useCallback((entry: CodexEntry) => {
+    setPreviewEntry(entry);
+    setShowRefPanel(true);
+  }, []);
 
   const handleCreateManuscriptWithName = async () => {
     const name = newManuscriptName.trim() || 'Sem título';
@@ -344,10 +222,6 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     setNewManuscriptName('');
   };
 
-  const chapterWordCount = useMemo(
-    () => (editingContent.trim() ? editingContent.trim().split(/\s+/).length : 0),
-    [editingContent],
-  );
 
   if (!user) return <div className="text-center py-20 text-text-dim">Faça login para acessar.</div>;
   if (!worldId) return <div className="text-center py-20 text-text-dim">Selecione um mundo para começar a escrever.</div>;
@@ -541,64 +415,20 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                     <span className="text-blue-light/80">{activeChapter.title}</span>
                   </div>
                 )}
-                <div className="p-3 border-b border-blue-bright/10 flex items-center gap-2">
-                  {isMobile && (
-                    <button onClick={() => setActiveChapterId(null)} className="p-1 text-text-dim hover:text-foreground">
-                      <ChevronRight className="w-4 h-4 rotate-180" />
-                    </button>
-                  )}
-                  <input value={editingTitle} onChange={e => setEditingTitle(e.target.value)} onBlur={handleChapterTitleSave}
-                    className="bg-transparent font-montserrat font-bold text-sm text-foreground border-none focus:outline-none flex-1"
-                    placeholder="Título do capítulo" />
-                   <span className="text-[11px] font-mono text-text-dim bg-white/[0.04] px-2 py-0.5 rounded">{chapterWordCount} palavras</span>
-                  {/* Edit/Preview toggle */}
-                  <div className="flex items-center bg-white/[0.03] rounded border border-blue-bright/10 p-0.5">
-                    <button
-                      onClick={() => setPreviewMode(false)}
-                      className={`px-1.5 py-0.5 rounded text-[10px] flex items-center gap-1 transition-colors ${!previewMode ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'}`}
-                      title="Editar"
-                    >
-                      <Edit3 className="w-3 h-3" />
-                    </button>
-                    <button
-                      onClick={() => setPreviewMode(true)}
-                      className={`px-1.5 py-0.5 rounded text-[10px] flex items-center gap-1 transition-colors ${previewMode ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'}`}
-                      title="Pré-visualizar com chips"
-                    >
-                      <Eye className="w-3 h-3" />
-                    </button>
-                  </div>
-                  <button onClick={() => setZenMode(!zenMode)}
-                    className={`p-1.5 rounded hover:bg-white/[0.05] transition-colors ${zenMode ? 'text-blue-light' : 'text-text-dim hover:text-foreground'}`}
-                    title={zenMode ? 'Sair do modo foco' : 'Modo foco'}>
-                    {zenMode ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-                  </button>
-                  {!zenMode && (
-                  <button onClick={() => setShowRefPanel(!showRefPanel)}
-                    className="p-1.5 rounded hover:bg-white/[0.05] text-text-dim hover:text-foreground transition-colors"
-                    title={showRefPanel ? 'Fechar referências' : 'Abrir referências'}>
-                    {showRefPanel ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
-                  </button>
-                  )}
-                </div>
-                <div className="flex-1 relative">
-                  {previewMode ? (
-                    <ContentPreview
-                      content={editingContent}
-                      entries={entries}
-                      onChipClick={(entry) => { setPreviewEntry(entry); setShowRefPanel(true); }}
-                    />
-                  ) : (
-                    <textarea ref={editorRef} value={editingContent} onChange={e => handleContentChange(e.target.value)}
-                      placeholder="Comece a escrever seu capítulo aqui…&#10;&#10;Use @NomeDoPersonagem para inserir referências do Codex."
-                      className="w-full h-full resize-none bg-transparent text-foreground/90 font-merriweather text-sm leading-relaxed p-4 focus:outline-none placeholder:text-text-dim/30"
-                      style={{ minHeight: '100%' }} />
-                  )}
-                  {mentionState.active && !previewMode && (
-                    <MentionPopup entries={entries} query={mentionState.query} position={mentionState.pos}
-                      onSelect={handleMentionSelect} onClose={() => setMentionState(prev => ({ ...prev, active: false }))} />
-                  )}
-                </div>
+                <ChapterEditor
+                  key={activeChapter.id}
+                  chapter={activeChapter}
+                  entries={entries}
+                  isMobile={isMobile}
+                  zenMode={zenMode}
+                  setZenMode={setZenMode}
+                  showRefPanel={showRefPanel}
+                  setShowRefPanel={setShowRefPanel}
+                  onBack={isMobile ? () => setActiveChapterId(null) : undefined}
+                  onTitleSave={handleChapterTitleSave}
+                  onContentSave={handleChapterContentSave}
+                  onPreviewEntry={handlePreviewEntry}
+                />
               </>
             ) : (
               <div className="flex-1 flex items-center justify-center text-center p-8">
