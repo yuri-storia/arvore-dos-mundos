@@ -463,7 +463,13 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           {showRefPanel && !isMobile && !zenMode && (
             <div className="w-[280px] shrink-0 bg-white/[0.02] rounded-lg border border-blue-bright/10 overflow-hidden">
               {previewEntry ? (
-                <EntryPreviewPanel entry={previewEntry} onClose={() => setPreviewEntry(null)} />
+                <EntryPreviewPanel
+                  entry={previewEntry}
+                  allEntries={entries}
+                  onClose={() => setPreviewEntry(null)}
+                  onJump={(id) => { const e = entries.find(x => x.id === id); if (e) setPreviewEntry(e); }}
+                />
+
               ) : (
                 <ReferencePanel entries={entries} onPreview={(e) => setPreviewEntry(e)} />
               )}
