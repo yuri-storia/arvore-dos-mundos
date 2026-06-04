@@ -120,12 +120,9 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
       <div className="flex-1 relative">
         {previewMode ? (
           <div className="w-full h-full overflow-y-auto p-4 font-merriweather text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
-            {previewParts.map((p, i) =>
-              p.type === 'text'
-                ? <span key={i}>{p.value}</span>
-                : <MentionChip key={i} name={p.value} entry={p.entry} onClick={p.entry ? () => onPreviewEntry(p.entry!) : undefined} />,
-            )}
-            {previewParts.length === 0 && <span className="text-text-dim/40 italic">Nada escrito ainda.</span>}
+            {previewNodes && previewNodes.length > 0
+              ? previewNodes
+              : <span className="text-text-dim/40 italic">Nada escrito ainda.</span>}
           </div>
         ) : (
           <MentionTextarea
