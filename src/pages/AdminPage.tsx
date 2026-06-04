@@ -379,9 +379,29 @@ const UserActionsMenu: React.FC<{ user: AdminUser; callerId: string; onChanged: 
                 {PLAN_CODES.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
               </SelectContent>
             </Select>
-            <p className="text-[10px] text-text-dim mt-1.5">Vitalício gratuito = acesso Raiz sem expiração, sem cobrança.</p>
-            <Button size="sm" className="mt-2 w-full bg-gold/20 hover:bg-gold/30 text-gold border border-gold/40" disabled={busy} onClick={async () => { if (await call({ action: 'set_plan', user_id: user.id, plan_code: planCode })) { toast.success('Plano atualizado'); onChanged(); setOpen(false); } }}>
-              Aplicar plano
+            <div className="mt-2">
+              <label className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat">Duração personalizada (dias) — opcional</label>
+              <Input
+                type="number"
+                min={1}
+                value={durationDays}
+                onChange={e => setDurationDays(e.target.value)}
+                placeholder="Vazio = 30 (mensal/beta) ou 365 (anual)"
+                className="bg-background border-blue-bright/30 mt-1"
+                disabled={planCode === 'none' || planCode === 'raiz_vitalicio'}
+              />
+            </div>
+            <p className="text-[10px] text-text-dim mt-1.5">
+              Nada é cobrado. Após expirar, o usuário poderá pagar normalmente para renovar.
+              <br />Vitalício = Raiz sem expiração. Beta = 30d Raiz grátis + janela de desconto Idriel.
+            </p>
+            <Button size="sm" className="mt-2 w-full bg-gold/20 hover:bg-gold/30 text-gold border border-gold/40" disabled={busy} onClick={async () => {
+              const days = parseInt(durationDays, 10);
+              const payload: any = { action: 'set_plan', user_id: user.id, plan_code: planCode };
+              if (days > 0) payload.duration_days = days;
+              if (await call(payload)) { toast.success('Plano atualizado'); onChanged(); setOpen(false); setDurationDays(''); }
+            }}>
+              Aplicar plano (sem cobrança)
             </Button>
           </div>
 
