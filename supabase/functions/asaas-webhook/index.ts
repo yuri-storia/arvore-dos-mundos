@@ -242,6 +242,37 @@ Deno.serve(async (req) => {
         await supa.rpc("add_bonus_drops", { _user_id: userId, _drops: recharge.drops });
       }
 
+      // Beta Idriel avulso — concede 30 dias de Idriel e incrementa contador
+      if (planCode === "beta_idriel_avulso") {
+        const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        await supa.from("subscriptions").upsert({
+          user_id: userId,
+          plan: "pro",
+          status: "active",
+          plan_code: "idriel_mensal",
+          has_idriel: true,
+          billing_cycle: "BETA_MONTHLY",
+          asaas_customer_id: payment.customer,
+          asaas_subscription_id: `beta_idriel_${userId}_${Date.now()}`,
+          environment: "production",
+          started_at: new Date().toISOString(),
+          expires_at: expires,
+          cancelled_at: null,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "user_id" });
+        // Incrementa charges_used
+        const { data: red } = await supa
+          .from("beta_redemptions")
+          .select("idriel_charges_used")
+          .eq("user_id", userId)
+          .maybeSingle();
+        if (red) {
+          await supa.from("beta_redemptions")
+            .update({ idriel_charges_used: (red.idriel_charges_used || 0) + 1 })
+            .eq("user_id", userId);
+        }
+      }
+
       // Subscription
       const planMeta = PLAN_MAP[planCode];
       if (planMeta) {
