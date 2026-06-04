@@ -424,10 +424,10 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
             {currentFruit === 0 ? (
               <MapGenerator worldName={worldName} db={db} />
             ) : planLimits.canUseAI ? (
-              <div data-tour="consult-idriel" className="border-t border-idriel/15 pt-6">
+              <div data-tour="consult-idriel" className="border-t border-gold/15 pt-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="w-2 h-2 rounded-full bg-idriel-light animate-blink" />
-                  <span className="font-cinzel font-bold text-xs text-idriel-light inline-flex items-center gap-1.5"><Trees className="w-3.5 h-3.5" strokeWidth={1.75} />Consultar Idriel</span>
+                  <span className="w-2 h-2 rounded-full bg-gold-champagne animate-blink" />
+                  <span className="font-cinzel font-bold text-xs text-gold-light inline-flex items-center gap-1.5"><Trees className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />Consultar Idriel</span>
                   <span className="font-merriweather italic text-[10px] text-text-dim">— Guardiã da Árvore dos Mundos</span>
                 </div>
 
@@ -439,8 +439,8 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                       onClick={() => { setAiQuestion(chip); setActiveChip(chip); }}
                       className={`px-3 py-1 rounded-full text-xs font-montserrat transition-all ${
                         activeChip === chip
-                          ? 'border border-idriel-light text-idriel-light bg-idriel/15'
-                          : 'border border-idriel/20 text-text-dim hover:text-text-secondary hover:border-idriel/30'
+                          ? 'border border-gold-light text-gold-light bg-gold/15'
+                          : 'border border-gold/20 text-text-dim hover:text-gold-champagne hover:border-gold/35'
                       }`}
                     >
                       {chip}
@@ -456,12 +456,12 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                     onChange={e => setAiQuestion(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && aiQuestion.trim() && handleConsult()}
                     placeholder="Faça uma pergunta a Idriel sobre este fruto…"
-                    className="flex-1 bg-idriel/[0.04] border border-idriel/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-idriel/50"
+                    className="flex-1 bg-gold/[0.04] border border-gold/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50"
                   />
                   <button
                     onClick={handleConsult}
                     disabled={!aiQuestion.trim() || aiLoading}
-                    className="px-4 py-2 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors whitespace-nowrap"
+                    className="px-4 py-2 bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] hover:from-gold-warm hover:via-gold hover:to-gold-light rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-all shadow-[0_0_14px_hsl(var(--gold)/0.35)] hover:shadow-[0_0_22px_hsl(var(--gold)/0.55)] whitespace-nowrap"
                   >
                     <><Leaf className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Consultar Idriel</>
                   </button>
@@ -469,27 +469,27 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
                 {aiLoading && (
                   <div className="flex items-center gap-1 text-text-dim text-sm mb-4">
-                    <span className="w-1.5 h-1.5 rounded-full bg-idriel-light dot-bounce" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-idriel-light dot-bounce-2" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-idriel-light dot-bounce-3" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-gold-champagne dot-bounce" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-gold-champagne dot-bounce-2" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-gold-champagne dot-bounce-3" />
                     <span className="ml-2 font-merriweather italic text-xs">Idriel contempla os galhos da Árvore…</span>
                   </div>
                 )}
 
                 {aiResponse && !aiLoading && (
-                  <div className="animate-fadeUp border-l-[3px] border-idriel-light pl-4 py-3 bg-idriel/[0.04] rounded-r-md">
-                    <span className="font-cinzel text-[10px] text-idriel-light mb-2 inline-flex items-center gap-1.5"><Leaf className="w-3 h-3" strokeWidth={1.75} />Idriel responde</span>
+                  <div className="animate-fadeUp border-l-[3px] border-gold-light pl-4 py-3 bg-gold/[0.04] rounded-r-md">
+                    <span className="font-cinzel text-[10px] text-gold-light mb-2 inline-flex items-center gap-1.5"><Leaf className="w-3 h-3 text-gold-champagne" strokeWidth={1.75} />Idriel responde</span>
                     <p className="font-merriweather text-sm text-foreground/95 whitespace-pre-wrap leading-relaxed">{aiResponse}</p>
-                    <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-idriel/15">
+                    <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gold/15">
                       <button
                         onClick={() => handleOpenSaveDialog('ficha')}
-                        className="px-3 py-1.5 rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider border border-idriel/40 text-idriel-light hover:bg-idriel/15 transition-colors"
+                        className="px-3 py-1.5 rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/15 transition-colors"
                       >
                         <><Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Salvar como Ficha</>
                       </button>
                       <button
                         onClick={() => handleOpenSaveDialog('artigo')}
-                        className="px-3 py-1.5 rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider border border-idriel/40 text-idriel-light hover:bg-idriel/15 transition-colors"
+                        className="px-3 py-1.5 rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/15 transition-colors"
                       >
                         <><Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Salvar como Artigo</>
                       </button>
@@ -501,7 +501,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 {suggestions.length > 0 && (
                   <button
                     onClick={() => setShowHistory(true)}
-                    className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[11px] font-montserrat text-text-dim border border-idriel/20 hover:text-idriel-light hover:border-idriel/40 transition-colors"
+                    className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[11px] font-montserrat text-text-dim border border-gold/20 hover:text-gold-light hover:border-gold/40 transition-colors"
                   >
                     <History className="w-3.5 h-3.5" />
                     <><ScrollText className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Histórico de Idriel ({suggestions.length})</>
