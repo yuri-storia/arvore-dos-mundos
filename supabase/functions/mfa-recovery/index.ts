@@ -114,17 +114,8 @@ Deno.serve(async (req) => {
         .update({ used_at: new Date().toISOString() })
         .eq('id', match.id);
 
-      // Remove all TOTP factors so the session can elevate without code
-      const { data: factors } = await admin.auth.admin.listFactors({ userId: user.id });
-      if (factors?.factors) {
-        for (const f of factors.factors) {
-          // @ts-ignore - admin.mfa types vary across SDK versions
-          await admin.auth.admin.mfa.deleteFactor({ userId: user.id, id: f.id }).catch(async () => {
-            // Fallback: direct SQL deletion via service role
-            await admin.rpc('noop').catch(() => {});
-          });
-        }
-      }
+      // Remove all TOTP factors via SECURITY DEFINER RPC
+      await admin.rpc('admin_remove_mfa_factors', { _user_id: user.id });
 
       await admin.from('mfa_audit_log').insert([
         { user_id: user.id, event_type: 'backup_code_used', user_agent: userAgent },
