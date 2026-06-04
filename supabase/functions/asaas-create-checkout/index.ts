@@ -33,6 +33,8 @@ const PLANS: Record<string, PlanDef> = {
   upgrade_raiz_m_to_idriel_m: { name: "Upgrade Raiz->Idriel Mensal", amount:  20.00, kind: "upgrade" },
   upgrade_raiz_m_to_idriel_a: { name: "Upgrade Raiz Mensal->Idriel Anual", amount: 329.00, kind: "upgrade" },
   upgrade_raiz_a_to_idriel_a: { name: "Upgrade Raiz Anual->Idriel Anual", amount: 200.00, kind: "upgrade" },
+  // Beta — Idriel avulso a R$19,90, máx 3 cobranças, exige resgate prévio de código beta
+  beta_idriel_avulso: { name: "Idriel Beta - 30 dias", amount: 19.90, kind: "recharge" },
 };
 
 const UPGRADE_REQUIREMENT: Record<string, string[]> = {
