@@ -18,7 +18,7 @@ export const MentionChip: React.FC<Props> = React.memo(({ name, entry, onClick }
   if (!entry) {
     return (
       <span className="text-text-dim/60 italic" title="Referência não encontrada no Codex">
-        @{name}
+        {name}
       </span>
     );
   }
