@@ -164,21 +164,15 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
 
   const [writeMode, setWriteMode] = useState<WriteMode>('manuscrito');
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
-  const [showRefPanel, setShowRefPanel] = useState(!isMobile);
+  // Default closed: keeps the editor DOM lean and snappy on first paint.
+  const [showRefPanel, setShowRefPanel] = useState(false);
   const [showNotes, setShowNotes] = useState<string | null>(null);
-  const [editingContent, setEditingContent] = useState('');
-  const [editingTitle, setEditingTitle] = useState('');
-  const [mentionState, setMentionState] = useState<{ active: boolean; query: string; pos: { top: number; left: number } }>({ active: false, query: '', pos: { top: 0, left: 0 } });
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [newManuscriptName, setNewManuscriptName] = useState('');
   const [zenMode, setZenMode] = useState(false);
-  // Preview-mode toggle: when true, content renders chips for @references; when false, raw textarea.
-  const [previewMode, setPreviewMode] = useState(false);
-  // Currently-selected reference (when a chip is clicked) — shows in the right panel as a card.
+  // Selected reference (when a chip is clicked) — shows in the right panel as a card.
   const [previewEntry, setPreviewEntry] = useState<CodexEntry | null>(null);
-  const editorRef = useRef<HTMLTextAreaElement>(null);
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const titleSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const titleSaveTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const activeChapter = useMemo(() => chapters.find(c => c.id === activeChapterId), [chapters, activeChapterId]);
 
@@ -189,28 +183,14 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   }, [activeManuscript?.id]); // eslint-disable-line
 
   useEffect(() => {
-    if (activeChapter) {
-      setEditingContent(activeChapter.content || '');
-      setEditingTitle(activeChapter.title);
-    }
-  }, [activeChapterId]); // eslint-disable-line
-
-  useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && zenMode) setZenMode(false); };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [zenMode]);
 
-  // Cleanup all pending save timers on unmount
   useEffect(() => () => {
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     if (titleSaveTimerRef.current) clearTimeout(titleSaveTimerRef.current);
   }, []);
-
-  const debouncedSave = useCallback((id: string, content: string) => {
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => updateChapter(id, { content }), 1500);
-  }, [updateChapter]);
 
   const handleManuscriptTitleChange = (next: string) => {
     setManuscriptTitleLocal(next);
@@ -221,35 +201,19 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     }, 700);
   };
 
-  const handleContentChange = (value: string) => {
-    setEditingContent(value);
-    if (activeChapterId) debouncedSave(activeChapterId, value);
-    const textarea = editorRef.current;
-    if (!textarea) return;
-    const cursor = textarea.selectionStart;
-    const textBefore = value.substring(0, cursor);
-    const atMatch = textBefore.match(/@(\w*)$/);
-    if (atMatch) setMentionState({ active: true, query: atMatch[1], pos: { top: 40, left: 20 } });
-    else setMentionState(prev => ({ ...prev, active: false }));
-  };
+  // Stable callbacks for ChapterEditor (so React.memo can short-circuit when chapter id doesn't change)
+  const handleChapterContentSave = useCallback((content: string) => {
+    if (activeChapterId) updateChapter(activeChapterId, { content });
+  }, [activeChapterId, updateChapter]);
 
-  const handleMentionSelect = (name: string) => {
-    if (!editorRef.current) return;
-    const textarea = editorRef.current;
-    const cursor = textarea.selectionStart;
-    const textBefore = editingContent.substring(0, cursor);
-    const atIdx = textBefore.lastIndexOf('@');
-    const newContent = editingContent.substring(0, atIdx) + `@${name}` + editingContent.substring(cursor);
-    setEditingContent(newContent);
-    if (activeChapterId) debouncedSave(activeChapterId, newContent);
-    setMentionState(prev => ({ ...prev, active: false }));
-    setTimeout(() => { textarea.focus(); const newPos = atIdx + name.length + 1; textarea.setSelectionRange(newPos, newPos); }, 0);
-  };
+  const handleChapterTitleSave = useCallback((title: string) => {
+    if (activeChapterId) updateChapter(activeChapterId, { title });
+  }, [activeChapterId, updateChapter]);
 
-
-  const handleChapterTitleSave = () => {
-    if (activeChapterId && editingTitle.trim()) updateChapter(activeChapterId, { title: editingTitle.trim() });
-  };
+  const handlePreviewEntry = useCallback((entry: CodexEntry) => {
+    setPreviewEntry(entry);
+    setShowRefPanel(true);
+  }, []);
 
   const handleCreateManuscriptWithName = async () => {
     const name = newManuscriptName.trim() || 'Sem título';
@@ -258,10 +222,6 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     setNewManuscriptName('');
   };
 
-  const chapterWordCount = useMemo(
-    () => (editingContent.trim() ? editingContent.trim().split(/\s+/).length : 0),
-    [editingContent],
-  );
 
   if (!user) return <div className="text-center py-20 text-text-dim">Faça login para acessar.</div>;
   if (!worldId) return <div className="text-center py-20 text-text-dim">Selecione um mundo para começar a escrever.</div>;
