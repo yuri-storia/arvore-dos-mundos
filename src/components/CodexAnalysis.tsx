@@ -579,33 +579,11 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
                       </h2>
                     );
                   },
-                  strong: ({ children }) => {
-                    const text = String(children);
-                    const ratingMatch = text.match(/^(\d)\/5$/);
-                    if (ratingMatch) {
-                      const n = parseInt(ratingMatch[1], 10);
-                      return (
-                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md align-middle mx-0.5"
-                          style={{
-                            background: 'linear-gradient(135deg, hsl(var(--gold-warm)/0.18), hsl(var(--gold-deep)/0.08))',
-                            border: '1px solid hsl(var(--gold-warm)/0.35)',
-                          }}>
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <span
-                              key={i}
-                              className="w-1.5 h-1.5 rounded-full"
-                              style={{
-                                background: i < n ? 'hsl(var(--gold-light))' : 'hsl(var(--gold-warm)/0.18)',
-                                boxShadow: i < n ? '0 0 4px hsl(var(--gold-warm)/0.6)' : 'none',
-                              }}
-                            />
-                          ))}
-                          <span className="text-[9px] font-montserrat font-bold tracking-wider text-gold-light ml-1">{n}/5</span>
-                        </span>
-                      );
-                    }
-                    return <strong className="text-gold-light font-bold">{children}</strong>;
-                  },
+                  strong: ({ children }) => (
+                    <strong className="text-gold-light font-bold">{children}</strong>
+                  ),
+                  li: ({ children }) => <li className="mb-1">{renderWithStars(children)}</li>,
+                  p: ({ children }) => <p>{renderWithStars(children)}</p>,
                 }}
               >
                 {displayedAnalysis}
