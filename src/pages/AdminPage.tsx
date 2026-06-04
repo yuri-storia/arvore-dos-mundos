@@ -327,6 +327,7 @@ const StatCard: React.FC<{ label: string; value: string | number; tone: 'gold' |
 const UserActionsMenu: React.FC<{ user: AdminUser; callerId: string; onChanged: () => void }> = ({ user, callerId, onChanged }) => {
   const [open, setOpen] = useState(false);
   const [planCode, setPlanCode] = useState(user.plan_code ?? 'none');
+  const [durationDays, setDurationDays] = useState('');
   const [extraDrops, setExtraDrops] = useState('');
   const [busy, setBusy] = useState(false);
 
