@@ -101,7 +101,7 @@ export async function exportManuscriptDOCX(manuscript: Manuscript, chapters: Cha
     }));
 
     if (ch.content) {
-      ch.content.split('\n').forEach(para => {
+      stripMentions(ch.content).split('\n').forEach(para => {
         children.push(new Paragraph({
           spacing: { after: 120, line: 360 },
           children: [new TextRun({ text: para, size: 24, font: 'Georgia' })],
