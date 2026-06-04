@@ -137,11 +137,13 @@ export function exportManuscriptEPUB(manuscript: Manuscript, chapters: Chapter[]
 </div>
 `;
 
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
   chapters.sort((a, b) => a.sort_order - b.sort_order).forEach((ch) => {
-    html += `<h1>${ch.title}</h1>\n`;
+    html += `<h1>${esc(ch.title)}</h1>\n`;
     if (ch.content) {
       ch.content.split('\n').filter(p => p.trim()).forEach(para => {
-        html += `<p>${para}</p>\n`;
+        html += `<p>${esc(para)}</p>\n`;
       });
     }
   });
