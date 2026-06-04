@@ -80,21 +80,33 @@ export function useManuscript(worldId?: string) {
   useEffect(() => {
     if (!activeManuscript) { setChapters([]); setScenes([]); return; }
     (async () => {
-      const { data: chaps } = await supabase
+      const { data: chaps, error: chapErr } = await supabase
         .from('chapters')
         .select('*')
         .eq('manuscript_id', activeManuscript.id)
         .order('sort_order', { ascending: true });
+      if (chapErr) {
+        console.error('Erro ao carregar capítulos:', chapErr);
+        toast.error('Não foi possível carregar os capítulos.');
+        setChapters([]);
+        setScenes([]);
+        return;
+      }
       setChapters((chaps || []) as Chapter[]);
 
       const chapterIds = (chaps || []).map((c: any) => c.id);
       if (chapterIds.length > 0) {
-        const { data: sc } = await supabase
+        const { data: sc, error: scErr } = await supabase
           .from('scenes')
           .select('*')
           .in('chapter_id', chapterIds)
           .order('sort_order', { ascending: true });
-        setScenes((sc || []) as Scene[]);
+        if (scErr) {
+          console.error('Erro ao carregar cenas:', scErr);
+          setScenes([]);
+        } else {
+          setScenes((sc || []) as Scene[]);
+        }
       } else {
         setScenes([]);
       }
