@@ -137,7 +137,6 @@ const SettingsPage: React.FC = () => {
             Alterar Senha
           </button>
         </div>
-        </div>
 
         {/* 2FA */}
         <div className="mt-4">
