@@ -959,6 +959,10 @@ export type Database = {
         Args: { _drops: number; _user_id: string }
         Returns: undefined
       }
+      admin_remove_mfa_factors: {
+        Args: { _user_id: string }
+        Returns: undefined
+      }
       admin_user_aggregates: {
         Args: never
         Returns: {
