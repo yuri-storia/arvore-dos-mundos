@@ -54,7 +54,7 @@ export function exportManuscriptPDF(manuscript: Manuscript, chapters: Chapter[],
       doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(40, 40, 40);
-      const lines = doc.splitTextToSize(ch.content, maxW);
+      const lines = doc.splitTextToSize(stripMentions(ch.content), maxW);
       lines.forEach((line: string) => {
         checkPage(6);
         doc.text(line, margin, y);
