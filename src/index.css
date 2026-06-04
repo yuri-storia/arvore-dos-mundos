@@ -216,6 +216,35 @@
   border: 1px solid hsl(var(--gold) / 0.35);
 }
 
+.card-glass-gold-premium {
+  background:
+    linear-gradient(135deg,
+      hsl(var(--gold-deep) / 0.22) 0%,
+      hsl(var(--gold-warm) / 0.10) 45%,
+      hsl(var(--bg-deep) / 0.92) 100%);
+  backdrop-filter: blur(22px);
+  border: 1px solid hsl(var(--gold-warm) / 0.32);
+  box-shadow:
+    0 8px 32px hsl(var(--gold-warm) / 0.18),
+    inset 0 1px 0 hsl(var(--gold-champagne) / 0.15);
+}
+
+@keyframes gold-blink {
+  0%, 100% {
+    box-shadow:
+      0 0 12px hsl(var(--gold-warm) / 0.35),
+      0 0 24px hsl(var(--gold-champagne) / 0.20);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow:
+      0 0 28px hsl(var(--gold-warm) / 0.85),
+      0 0 56px hsl(var(--gold-champagne) / 0.55);
+    filter: brightness(1.18);
+  }
+}
+.animate-gold-blink { animation: gold-blink 1.2s ease-in-out infinite; }
+
 .card-glass-idriel {
   background: linear-gradient(135deg, hsl(var(--idriel) / 0.18) 0%, hsl(214 60% 3% / 0.96) 100%);
   backdrop-filter: blur(24px);

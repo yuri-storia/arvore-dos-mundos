@@ -95,19 +95,19 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
   };
 
   return (
-    <div className="border-t border-idriel/15 pt-6">
+    <div className="border-t border-gold-warm/20 pt-6">
       <div className="flex items-center gap-2 mb-1">
-        <Map className="w-4 h-4 text-idriel-light" />
-        <span className="font-cinzel font-bold text-sm text-idriel-light inline-flex items-center gap-2"><Map className="w-4 h-4" strokeWidth={1.75} />Forjar Mapa do Mundo</span>
+        <Map className="w-4 h-4 text-gold-champagne" />
+        <span className="font-cinzel font-bold text-sm text-gradient-gold inline-flex items-center gap-2"><Map className="w-4 h-4" strokeWidth={1.75} />Forjar Mapa do Mundo</span>
       </div>
       <p className="font-merriweather italic text-[11px] text-text-dim mb-1">
         Idriel materializa o mapa do seu mundo usando o Elixir dos Mundos e o contexto dos seus Frutos.
       </p>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
-        <span className="inline-flex items-center gap-1 text-[10px] font-montserrat font-semibold text-gold-light/80">
+        <span className="inline-flex items-center gap-1 text-[10px] font-montserrat font-semibold text-gold-champagne">
           <><Droplet className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Custo: 5 gotas por mapa</>
         </span>
-        <span className="inline-flex items-center gap-1 text-[10px] font-montserrat text-text-dim">
+        <span className="inline-flex items-center gap-1 text-[10px] font-montserrat text-gold-light/80">
           <><Sparkles className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Fruto Dourado = 100 gotas/mês</>
         </span>
       </div>
@@ -185,7 +185,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
           <button
             onClick={handleGeneratePrompt}
             disabled={loadingPrompt || (styleObj.id === 'custom' && !customDesc.trim())}
-            className="w-full sm:w-auto px-5 py-2.5 bg-idriel-dim hover:bg-idriel text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors mb-4"
+            className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-gold-bronze via-gold-warm to-gold-champagne hover:from-gold-warm hover:via-gold-champagne hover:to-gold-cream text-[#1a0f00] rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-all shadow-[0_0_16px_hsl(var(--gold-warm)/0.35)] hover:shadow-[0_0_24px_hsl(var(--gold-champagne)/0.55)] mb-4"
           >
             <>{loadingPrompt ? <><Loader2 className="inline-block w-3.5 h-3.5 mr-1.5 animate-spin align-[-0.15em]" strokeWidth={2} />Canalizando a visão…</> : <><Map className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Gerar Visão do Mapa</>}</>
           </button>
@@ -217,7 +217,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
             <button
               onClick={handleGenerateImage}
               disabled={loadingImage}
-              className="px-4 py-2 bg-gold/80 hover:bg-gold text-background rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-colors"
+              className="px-4 py-2 bg-gradient-to-r from-gold-bronze via-gold-warm to-gold-champagne hover:from-gold-warm hover:via-gold-champagne hover:to-gold-cream text-[#1a0f00] rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-all shadow-[0_0_14px_hsl(var(--gold-warm)/0.35)]"
             >
               <>{loadingImage ? <><Loader2 className="inline-block w-3.5 h-3.5 mr-1.5 animate-spin align-[-0.15em]" strokeWidth={2} />Materializando…</> : <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Materializar Mapa (5 gotas)</>}</>
             </button>
