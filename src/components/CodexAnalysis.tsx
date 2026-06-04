@@ -108,12 +108,33 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, worldId, onClose }) =>
     return () => { if (revealTimerRef.current) clearInterval(revealTimerRef.current); };
   }, [isRevealing, analysis]);
 
+  // Sanitize AI output: strip emojis/decorative chars and convert star runs to "N/5"
+  const sanitizeAnalysis = (txt: string): string => {
+    if (!txt) return '';
+    let out = txt;
+    // Convert runs of star/diamond glyphs (optionally separated by spaces) into "N/5"
+    out = out.replace(/(?:[★☆✦✧✨⭐]\s*){1,5}/g, (m) => {
+      const n = (m.match(/[★✦✨⭐]/g) || []).length;
+      return n > 0 ? `${n}/5 ` : '';
+    });
+    // Strip emoji / pictographs / variation selectors
+    try {
+      out = out.replace(/[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu, '');
+    } catch {
+      out = out.replace(/[\u2600-\u27BF\uE000-\uF8FF\uD800-\uDBFF\uDC00-\uDFFF]/g, '');
+    }
+    // Collapse leftover double spaces created by removals
+    out = out.replace(/[ \t]{2,}/g, ' ').replace(/^\s*[-–—]\s*$/gm, '');
+    return out;
+  };
+
   // Compute visible text (snap to last complete line to avoid broken markdown)
   const displayedAnalysis = useMemo(() => {
-    if (!analysis) return '';
-    if (!isRevealing && revealedChars >= analysis.length) return analysis;
-    if (viewingHistoryId) return analysis; // history = instant
-    const slice = analysis.slice(0, revealedChars);
+    const full = sanitizeAnalysis(analysis);
+    if (!full) return '';
+    if (!isRevealing && revealedChars >= analysis.length) return full;
+    if (viewingHistoryId) return full; // history = instant
+    const slice = full.slice(0, revealedChars);
     const lastNewline = slice.lastIndexOf('\n');
     return lastNewline > 0 ? slice.slice(0, lastNewline) : slice;
   }, [analysis, revealedChars, isRevealing, viewingHistoryId]);
