@@ -123,6 +123,10 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, worldId, onClose }) =>
     } catch {
       out = out.replace(/[\u2600-\u27BF\uE000-\uF8FF\uD800-\uDBFF\uDC00-\uDFFF]/g, '');
     }
+    // Fix malformed bold like "** Texto **" or "**  Texto  **" -> "**Texto**"
+    out = out.replace(/\*\*\s+([^*\n]+?)\s+\*\*/g, '**$1**');
+    out = out.replace(/\*\*\s+([^*\n]+?)\*\*/g, '**$1**');
+    out = out.replace(/\*\*([^*\n]+?)\s+\*\*/g, '**$1**');
     // Collapse leftover double spaces created by removals
     out = out.replace(/[ \t]{2,}/g, ' ').replace(/^\s*[-–—]\s*$/gm, '');
     return out;
