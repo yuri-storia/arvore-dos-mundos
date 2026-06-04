@@ -151,7 +151,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
       <div className="relative z-10 flex flex-col items-center gap-1">
         {/* Brand badge */}
         <div className="inline-block px-3 py-1 rounded-full border border-blue-bright/15 bg-blue-bright/[0.04] backdrop-blur-sm">
-          <span className="font-cinzel text-[9px] tracking-[0.18em] text-blue-light/60 uppercase">
+          <span className="font-cinzel text-[9px] tracking-[0.18em] text-white uppercase">
             A Árvore dos Mundos
           </span>
         </div>
