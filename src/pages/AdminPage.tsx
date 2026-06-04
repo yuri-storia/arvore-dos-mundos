@@ -58,6 +58,27 @@ const planTone = (code: string | null) => {
 const fmtDate = (s: string | null) => s ? new Date(s).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
 const fmtMoney = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+const daysUntil = (iso: string | null): number | null => {
+  if (!iso) return null;
+  const diff = new Date(iso).getTime() - Date.now();
+  return Math.ceil(diff / 86_400_000);
+};
+
+const countdownTone = (days: number | null): string => {
+  if (days === null) return 'text-text-dim';
+  if (days < 0) return 'text-red-alert';
+  if (days <= 7) return 'text-orange-400';
+  return 'text-text-dim';
+};
+
+const countdownLabel = (days: number | null): string => {
+  if (days === null) return '';
+  if (days < 0) return `expirou há ${Math.abs(days)}d`;
+  if (days === 0) return 'expira hoje';
+  if (days === 1) return 'expira amanhã';
+  return `${days}d restantes`;
+};
+
 const AdminPage: React.FC = () => {
   const { user, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
