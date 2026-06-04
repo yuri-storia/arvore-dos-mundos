@@ -86,7 +86,10 @@ export function useCodexEntries(worldId?: string) {
       const optimized = await optimizeImage(file);
       const ext = optimized.name.split('.').pop() || 'webp';
       const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
-      const { error } = await supabase.storage.from('codex-images').upload(path, optimized);
+      const { error } = await supabase.storage.from('codex-images').upload(path, optimized, {
+        cacheControl: '31536000',
+        contentType: optimized.type || 'image/webp',
+      });
       if (error) { toast.error('Erro no upload'); console.error(error); return null; }
       const { data: { publicUrl } } = supabase.storage.from('codex-images').getPublicUrl(path);
       return publicUrl;
