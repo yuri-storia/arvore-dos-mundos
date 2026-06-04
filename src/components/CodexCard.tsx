@@ -529,11 +529,11 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               <div className="cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }} title="Clique para editar">
                 {displayContent ? (
                   <p className="font-merriweather text-[15px] text-foreground/95 whitespace-pre-wrap leading-[1.8]">
-                    {tokenizeMentions(displayContent, mentionByName).map((p, i) =>
-                      p.type === 'text'
-                        ? <span key={i}>{p.value}</span>
-                        : <MentionChip key={i} name={p.value} entry={p.entry} onClick={p.entry && onOpenEntry ? () => onOpenEntry(p.entry!.id) : undefined} />,
-                    )}
+                    {renderInlineMentions(displayContent, mentionByName, {
+                      allEntries: (siblings || []).filter(e => e.id !== entry.id),
+                      onOpenEntry,
+                      onSave: (next) => { onUpdate(entry.id, { content: next }); },
+                    })}
                   </p>
                 ) : (
                   <p className="font-merriweather text-sm text-text-dim italic">Sem conteúdo ainda. Clique para adicionar.</p>
