@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSubscription, openCheckout, STRIPE_PLANS, openCustomerPortal } from '@/hooks/useSubscription';
+import { useBetaStatus } from '@/hooks/useBetaStatus';
 import { useAuth } from '@/contexts/AuthContext';
 import { Progress } from '@/components/ui/progress';
-import { Lock, Sparkles, CreditCard, X, Leaf, BookOpenCheck, Droplet, Droplets, ArrowRight } from 'lucide-react';
+import { Lock, Sparkles, CreditCard, X, Leaf, BookOpenCheck, Droplet, Droplets, ArrowRight, Clock } from 'lucide-react';
 import { RechargePackageDialog } from '@/components/RechargePackageDialog';
 
 const DISMISS_KEY = 'adm_sub_banner_dismissed';
