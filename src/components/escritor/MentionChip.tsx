@@ -40,7 +40,6 @@ export const MentionChip: React.FC<Props> = React.memo(({ name, entry, onClick }
               : 'bg-gold/15 text-gold-light hover:bg-gold/25'
           }`}
         >
-          @${''/* keep zero-glyph */}{''}
           {name}
         </button>
       </HoverCardTrigger>
