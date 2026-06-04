@@ -34,11 +34,12 @@ interface BugReport {
 }
 
 const PLAN_CODES = [
-  { value: 'raiz_mensal', label: 'Raiz Mensal' },
-  { value: 'raiz_anual', label: 'Raiz Anual' },
-  { value: 'idriel_mensal', label: 'Idriel Mensal' },
-  { value: 'idriel_anual', label: 'Idriel Anual' },
+  { value: 'raiz_mensal', label: 'Raiz Mensal (30d sem cobrança)' },
+  { value: 'raiz_anual', label: 'Raiz Anual (365d sem cobrança)' },
+  { value: 'idriel_mensal', label: 'Idriel Mensal (30d sem cobrança)' },
+  { value: 'idriel_anual', label: 'Idriel Anual (365d sem cobrança)' },
   { value: 'raiz_vitalicio', label: 'Raiz Vitalício (gratuito)' },
+  { value: 'beta_raiz', label: 'Beta Raiz (30d + desconto Idriel)' },
   { value: 'none', label: 'Cancelar / Sem plano' },
 ];
 
