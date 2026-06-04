@@ -8,6 +8,7 @@ import { exportSingleEntry } from '@/lib/codexPdfExport';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ImageRepositioner } from '@/components/ImageRepositioner';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 
 interface Props {
   entry: CodexEntry;
