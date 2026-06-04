@@ -11,6 +11,7 @@ const DISMISS_KEY = 'adm_sub_banner_dismissed';
 
 export const SubscriptionBanner: React.FC = () => {
   const sub = useSubscription();
+  const beta = useBetaStatus();
   const { isAdmin } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
   const [rechargeOpen, setRechargeOpen] = useState(false);
