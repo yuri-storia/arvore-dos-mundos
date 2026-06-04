@@ -191,9 +191,11 @@ Analise as entradas do Codex e responda em português brasileiro. NÃO repita sa
 Uma ÚNICA frase poética de boas-vindas (máximo 2 linhas, sem emojis).
 
 ## Avaliação dos Frutos
-Para CADA um dos 11 Frutos, dê uma nota de 1 a 5 e um comentário de UMA linha. Formato exato:
-- **${FRUITS.map(f => `${f.name}**: 3/5 — [comentário breve, sem emojis]`).join('\n- **')}
-Se o fruto não tem entradas, dê 1 e diga que precisa ser desenvolvido.
+Para CADA um dos 11 Frutos, escreva UMA linha no formato EXATO abaixo, sem espaços extras dentro dos asteriscos e SEM emojis:
+- **Nome do Fruto**: N/5 — comentário breve
+Exemplo: - **Mapa do Mundo**: 3/5 — A geografia está bem definida.
+Liste os frutos nesta ordem: ${FRUITS.map(f => f.name).join(', ')}.
+Se o fruto não tem entradas, dê 1/5 e diga que precisa ser desenvolvido.
 
 ## Furos de Enredo
 Identifique contradições, lacunas lógicas ou informações que se contradizem entre fichas/artigos. Se não houver, diga brevemente.
