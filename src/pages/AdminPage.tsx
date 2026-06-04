@@ -461,14 +461,24 @@ const UserActionsMenu: React.FC<{ user: AdminUser; callerId: string; onChanged: 
               Nada é cobrado. Após expirar, o usuário poderá pagar normalmente para renovar.
               <br />Vitalício = Raiz sem expiração. Beta = 30d Raiz grátis + janela de desconto Idriel.
             </p>
-            <Button size="sm" className="mt-2 w-full bg-gold/20 hover:bg-gold/30 text-gold border border-gold/40" disabled={busy} onClick={async () => {
-              const days = parseInt(durationDays, 10);
-              const payload: any = { action: 'set_plan', user_id: user.id, plan_code: planCode };
-              if (days > 0) payload.duration_days = days;
-              if (await call(payload)) { toast.success('Plano atualizado'); onChanged(); setOpen(false); setDurationDays(''); }
-            }}>
-              Aplicar plano (sem cobrança)
-            </Button>
+            <ConfirmDialog
+              title="Aplicar alteração de plano?"
+              description={`Confirma alterar o plano de ${user.email} para "${PLAN_CODES.find(p => p.value === planCode)?.label || planCode}"${durationDays ? ` por ${durationDays} dias` : ''}? O plano atual será substituído imediatamente, sem cobrança.`}
+              confirmLabel="Aplicar plano"
+              variant="warning"
+              onConfirm={async () => {
+                const days = parseInt(durationDays, 10);
+                const payload: any = { action: 'set_plan', user_id: user.id, plan_code: planCode };
+                if (days > 0) payload.duration_days = days;
+                if (await call(payload)) { toast.success('Plano atualizado'); onChanged(); setOpen(false); setDurationDays(''); }
+              }}
+              trigger={
+                <Button size="sm" className="mt-2 w-full bg-gold/20 hover:bg-gold/30 text-gold border border-gold/40" disabled={busy}>
+                  Aplicar plano (sem cobrança)
+                </Button>
+              }
+            />
+
           </div>
 
           {/* Drops */}
