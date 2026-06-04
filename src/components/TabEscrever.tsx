@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useManuscript, type Chapter, type Scene } from '@/hooks/useManuscript';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useManuscript } from '@/hooks/useManuscript';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -8,14 +8,15 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Plus, Trash2, FileText, BookOpen,
-  PanelRightOpen, PanelRightClose, StickyNote, Search, BookMarked, PenLine,
-  LayoutGrid, Maximize, Minimize, ChevronRight, ChevronDown, Eye, Edit3, X,
+  PanelRightOpen, StickyNote, Search, BookMarked, PenLine,
+  LayoutGrid, ChevronRight, ChevronDown, X,
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import { MuralMode } from '@/components/escritor/MuralMode';
 import { DebouncedTextarea } from '@/components/escritor/DebouncedTextarea';
+import { ChapterEditor } from '@/components/escritor/ChapterEditor';
 import { PomodoroTimer } from '@/components/PomodoroTimer';
 import { ManuscriptExportMenu } from '@/components/ManuscriptExportMenu';
 import {
