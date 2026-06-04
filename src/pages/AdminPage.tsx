@@ -407,14 +407,33 @@ const UserActionsMenu: React.FC<{ user: AdminUser; callerId: string; onChanged: 
               <div className="text-[10px] text-text-dim">{user.is_admin ? 'Atualmente é admin' : 'Sem privilégios admin'}</div>
             </div>
             {user.is_admin ? (
-              <Button size="sm" variant="outline" disabled={busy || user.id === callerId} className="border-destructive/40 text-destructive hover:bg-destructive/10" onClick={async () => { if (await call({ action: 'revoke_admin', user_id: user.id })) { toast.success('Admin revogado'); onChanged(); } }}>
-                <ShieldOff className="w-3 h-3 mr-1" /> Revogar
-              </Button>
+              <ConfirmDialog
+                title="Revogar acesso admin?"
+                description={`Tem certeza que deseja revogar privilégios de administrador de ${user.email}? Esta pessoa perderá acesso ao painel admin imediatamente.`}
+                confirmLabel="Revogar admin"
+                variant="destructive"
+                onConfirm={async () => { if (await call({ action: 'revoke_admin', user_id: user.id })) { toast.success('Admin revogado'); onChanged(); } }}
+                trigger={
+                  <Button size="sm" variant="outline" disabled={busy || user.id === callerId} className="border-destructive/40 text-destructive hover:bg-destructive/10">
+                    <ShieldOff className="w-3 h-3 mr-1" /> Revogar
+                  </Button>
+                }
+              />
             ) : (
-              <Button size="sm" className="bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-background hover:opacity-90" disabled={busy} onClick={async () => { if (await call({ action: 'grant_admin', user_id: user.id })) { toast.success('Admin concedido'); onChanged(); } }}>
-                <Shield className="w-3 h-3 mr-1" /> Conceder admin
-              </Button>
+              <ConfirmDialog
+                title="Conceder acesso admin?"
+                description={`Tem certeza que deseja conceder privilégios completos de administrador a ${user.email}? Esta pessoa poderá alterar planos, conceder admin e gerenciar todos os usuários.`}
+                confirmLabel="Conceder admin"
+                variant="warning"
+                onConfirm={async () => { if (await call({ action: 'grant_admin', user_id: user.id })) { toast.success('Admin concedido'); onChanged(); } }}
+                trigger={
+                  <Button size="sm" className="bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-background hover:opacity-90" disabled={busy}>
+                    <Shield className="w-3 h-3 mr-1" /> Conceder admin
+                  </Button>
+                }
+              />
             )}
+
           </div>
 
           {/* Plan */}
@@ -442,14 +461,24 @@ const UserActionsMenu: React.FC<{ user: AdminUser; callerId: string; onChanged: 
               Nada é cobrado. Após expirar, o usuário poderá pagar normalmente para renovar.
               <br />Vitalício = Raiz sem expiração. Beta = 30d Raiz grátis + janela de desconto Idriel.
             </p>
-            <Button size="sm" className="mt-2 w-full bg-gold/20 hover:bg-gold/30 text-gold border border-gold/40" disabled={busy} onClick={async () => {
-              const days = parseInt(durationDays, 10);
-              const payload: any = { action: 'set_plan', user_id: user.id, plan_code: planCode };
-              if (days > 0) payload.duration_days = days;
-              if (await call(payload)) { toast.success('Plano atualizado'); onChanged(); setOpen(false); setDurationDays(''); }
-            }}>
-              Aplicar plano (sem cobrança)
-            </Button>
+            <ConfirmDialog
+              title="Aplicar alteração de plano?"
+              description={`Confirma alterar o plano de ${user.email} para "${PLAN_CODES.find(p => p.value === planCode)?.label || planCode}"${durationDays ? ` por ${durationDays} dias` : ''}? O plano atual será substituído imediatamente, sem cobrança.`}
+              confirmLabel="Aplicar plano"
+              variant="warning"
+              onConfirm={async () => {
+                const days = parseInt(durationDays, 10);
+                const payload: any = { action: 'set_plan', user_id: user.id, plan_code: planCode };
+                if (days > 0) payload.duration_days = days;
+                if (await call(payload)) { toast.success('Plano atualizado'); onChanged(); setOpen(false); setDurationDays(''); }
+              }}
+              trigger={
+                <Button size="sm" className="mt-2 w-full bg-gold/20 hover:bg-gold/30 text-gold border border-gold/40" disabled={busy}>
+                  Aplicar plano (sem cobrança)
+                </Button>
+              }
+            />
+
           </div>
 
           {/* Drops */}
