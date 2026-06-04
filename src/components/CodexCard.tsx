@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ImageRepositioner } from '@/components/ImageRepositioner';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
+import { buildEntriesByName, renderMentionChildren } from '@/components/escritor/MentionChip';
 
 interface Props {
   entry: CodexEntry;
