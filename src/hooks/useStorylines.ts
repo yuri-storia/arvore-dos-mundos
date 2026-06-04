@@ -58,21 +58,27 @@ export function useStorylines(worldId?: string) {
   useEffect(() => {
     if (!user || !worldId || loading) return;
     if (storylines.length === 0) {
+      if (creatingDefaultRef.current) return; // guarda contra dupla criação por re-render
+      creatingDefaultRef.current = true;
       (async () => {
-        const { data, error } = await supabase
-          .from('storylines')
-          .insert({ user_id: user.id, world_id: worldId, name: 'Sem título' })
-          .select().single();
-        if (error || !data) return;
-        const sl = data as Storyline;
-        // Seed default columns
-        const seed = DEFAULT_COLUMNS.map((c, i) => ({
-          storyline_id: sl.id, user_id: user.id,
-          title: c.title, color: c.color, sort_order: i,
-        }));
-        await supabase.from('storyline_columns').insert(seed);
-        setStorylines([sl]);
-        setActiveStoryline(sl);
+        try {
+          const { data, error } = await supabase
+            .from('storylines')
+            .insert({ user_id: user.id, world_id: worldId, name: 'Sem título' })
+            .select().single();
+          if (error || !data) return;
+          const sl = data as Storyline;
+          // Seed default columns
+          const seed = DEFAULT_COLUMNS.map((c, i) => ({
+            storyline_id: sl.id, user_id: user.id,
+            title: c.title, color: c.color, sort_order: i,
+          }));
+          await supabase.from('storyline_columns').insert(seed);
+          setStorylines([sl]);
+          setActiveStoryline(sl);
+        } finally {
+          // mantém true: já existe storyline; evita criação dupla mesmo em refetches
+        }
       })();
     } else if (!activeStoryline) {
       setActiveStoryline(storylines[0]);
