@@ -116,7 +116,10 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
         const optimized = await optimizeImage(file);
         const ext = optimized.name.split('.').pop() || 'webp';
         const path = `${user.id}/gallery-${crypto.randomUUID()}.${ext}`;
-        const { error } = await supabase.storage.from('codex-images').upload(path, optimized);
+        const { error } = await supabase.storage.from('codex-images').upload(path, optimized, {
+          cacheControl: '31536000',
+          contentType: optimized.type || 'image/webp',
+        });
         if (error) throw error;
         const { data: { publicUrl } } = supabase.storage.from('codex-images').getPublicUrl(path);
         newImages.push({
