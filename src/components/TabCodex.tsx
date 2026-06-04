@@ -589,6 +589,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                     onImageUpload={uploadImage}
                     onLightbox={setLightbox}
                     gallery={gallery}
+                    siblings={entries}
+                    onOpenEntry={(id) => setExpandedId(id)}
                   />
                 ))}
               </div>
