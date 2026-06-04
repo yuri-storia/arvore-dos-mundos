@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ImageRepositioner } from '@/components/ImageRepositioner';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
-import { buildEntriesByName, renderMentionChildren } from '@/components/escritor/MentionChip';
+import { buildEntriesByName, renderMentionChildren, tokenizeMentions, MentionChip } from '@/components/escritor/MentionChip';
 
 interface Props {
   entry: CodexEntry;
@@ -523,7 +523,13 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             ) : (
               <div className="cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }} title="Clique para editar">
                 {displayContent ? (
-                  <p className="font-merriweather text-[15px] text-foreground/95 whitespace-pre-wrap leading-[1.8]">{displayContent}</p>
+                  <p className="font-merriweather text-[15px] text-foreground/95 whitespace-pre-wrap leading-[1.8]">
+                    {tokenizeMentions(displayContent, mentionByName).map((p, i) =>
+                      p.type === 'text'
+                        ? <span key={i}>{p.value}</span>
+                        : <MentionChip key={i} name={p.value} entry={p.entry} onClick={p.entry && onOpenEntry ? () => onOpenEntry(p.entry!.id) : undefined} />,
+                    )}
+                  </p>
                 ) : (
                   <p className="font-merriweather text-sm text-text-dim italic">Sem conteúdo ainda. Clique para adicionar.</p>
                 )}

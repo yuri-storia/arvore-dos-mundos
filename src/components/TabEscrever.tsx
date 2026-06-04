@@ -17,6 +17,7 @@ import type { WorldRecord } from '@/hooks/useWorlds';
 import { MuralMode } from '@/components/escritor/MuralMode';
 import { DebouncedTextarea } from '@/components/escritor/DebouncedTextarea';
 import { ChapterEditor } from '@/components/escritor/ChapterEditor';
+import { MentionChip, buildEntriesByName, tokenizeMentions } from '@/components/escritor/MentionChip';
 import { PomodoroTimer } from '@/components/PomodoroTimer';
 import { ManuscriptExportMenu } from '@/components/ManuscriptExportMenu';
 import {
@@ -112,10 +113,20 @@ ReferencePanel.displayName = 'ReferencePanel';
 // ── Entry Preview Panel (right side, shown when a chip is clicked) ──
 const EntryPreviewPanel: React.FC<{
   entry: CodexEntry;
+  allEntries: CodexEntry[];
   onClose: () => void;
-}> = ({ entry, onClose }) => {
+  onJump: (id: string) => void;
+}> = React.memo(({ entry, allEntries, onClose, onJump }) => {
   const fruit = FRUITS.find(f => f.id === entry.fruit_id);
   const isFicha = entry.entry_type === 'ficha';
+  const byName = useMemo(
+    () => buildEntriesByName(allEntries.filter(e => e.id !== entry.id)),
+    [allEntries, entry.id],
+  );
+  const parts = useMemo(
+    () => entry.content ? tokenizeMentions(entry.content, byName) : [],
+    [entry.content, byName],
+  );
   return (
     <div className="flex flex-col h-full">
       <div className="p-3 border-b border-blue-bright/10 flex items-start justify-between gap-2">
@@ -139,16 +150,23 @@ const EntryPreviewPanel: React.FC<{
         </button>
       </div>
       {entry.image_url && (
-        <img src={entry.image_url} alt={entry.title} className="w-full h-[120px] object-cover" />
+        <img src={entry.image_url} alt={entry.title} className="w-full h-[120px] object-cover" loading="lazy" />
       )}
       <ScrollArea className="flex-1">
         <div className="p-3 text-xs text-foreground/85 font-merriweather leading-relaxed whitespace-pre-wrap">
-          {entry.content || <span className="italic text-text-dim">Sem conteúdo.</span>}
+          {parts.length > 0
+            ? parts.map((p, i) =>
+                p.type === 'text'
+                  ? <span key={i}>{p.value}</span>
+                  : <MentionChip key={i} name={p.value} entry={p.entry} onClick={p.entry ? () => onJump(p.entry!.id) : undefined} />,
+              )
+            : <span className="italic text-text-dim">Sem conteúdo.</span>}
         </div>
       </ScrollArea>
     </div>
   );
-};
+});
+EntryPreviewPanel.displayName = 'EntryPreviewPanel';
 
 // ── Main Component ──
 export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
@@ -445,7 +463,13 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           {showRefPanel && !isMobile && !zenMode && (
             <div className="w-[280px] shrink-0 bg-white/[0.02] rounded-lg border border-blue-bright/10 overflow-hidden">
               {previewEntry ? (
-                <EntryPreviewPanel entry={previewEntry} onClose={() => setPreviewEntry(null)} />
+                <EntryPreviewPanel
+                  entry={previewEntry}
+                  allEntries={entries}
+                  onClose={() => setPreviewEntry(null)}
+                  onJump={(id) => { const e = entries.find(x => x.id === id); if (e) setPreviewEntry(e); }}
+                />
+
               ) : (
                 <ReferencePanel entries={entries} onPreview={(e) => setPreviewEntry(e)} />
               )}
