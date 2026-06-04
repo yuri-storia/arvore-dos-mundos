@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -36,6 +36,7 @@ export function useStorylines(worldId?: string) {
   const [activeStoryline, setActiveStoryline] = useState<Storyline | null>(null);
   const [columns, setColumns] = useState<StorylineColumn[]>([]);
   const [loading, setLoading] = useState(true);
+  const creatingDefaultRef = useRef(false);
 
   // Fetch all storylines for the world
   const fetchStorylines = useCallback(async () => {
@@ -57,21 +58,27 @@ export function useStorylines(worldId?: string) {
   useEffect(() => {
     if (!user || !worldId || loading) return;
     if (storylines.length === 0) {
+      if (creatingDefaultRef.current) return; // guarda contra dupla criação por re-render
+      creatingDefaultRef.current = true;
       (async () => {
-        const { data, error } = await supabase
-          .from('storylines')
-          .insert({ user_id: user.id, world_id: worldId, name: 'Sem título' })
-          .select().single();
-        if (error || !data) return;
-        const sl = data as Storyline;
-        // Seed default columns
-        const seed = DEFAULT_COLUMNS.map((c, i) => ({
-          storyline_id: sl.id, user_id: user.id,
-          title: c.title, color: c.color, sort_order: i,
-        }));
-        await supabase.from('storyline_columns').insert(seed);
-        setStorylines([sl]);
-        setActiveStoryline(sl);
+        try {
+          const { data, error } = await supabase
+            .from('storylines')
+            .insert({ user_id: user.id, world_id: worldId, name: 'Sem título' })
+            .select().single();
+          if (error || !data) return;
+          const sl = data as Storyline;
+          // Seed default columns
+          const seed = DEFAULT_COLUMNS.map((c, i) => ({
+            storyline_id: sl.id, user_id: user.id,
+            title: c.title, color: c.color, sort_order: i,
+          }));
+          await supabase.from('storyline_columns').insert(seed);
+          setStorylines([sl]);
+          setActiveStoryline(sl);
+        } finally {
+          // mantém true: já existe storyline; evita criação dupla mesmo em refetches
+        }
       })();
     } else if (!activeStoryline) {
       setActiveStoryline(storylines[0]);

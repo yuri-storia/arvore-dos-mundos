@@ -87,11 +87,11 @@ export async function exportManuscriptDOCX(manuscript: Manuscript, chapters: Cha
 
   children.push(new Paragraph({ children: [new PageBreak()] }));
 
-  chapters.sort((a, b) => a.sort_order - b.sort_order).forEach((ch) => {
+  chapters.sort((a, b) => a.sort_order - b.sort_order).forEach((ch, idx) => {
     children.push(new Paragraph({
       heading: HeadingLevel.HEADING_1,
       spacing: { before: 400, after: 200 },
-      pageBreakBefore: children.length > 3,
+      pageBreakBefore: idx > 0,
       children: [new TextRun({ text: ch.title, bold: true, size: 36, font: 'Georgia' })],
     }));
 
@@ -132,16 +132,18 @@ export function exportManuscriptEPUB(manuscript: Manuscript, chapters: Chapter[]
 </head>
 <body>
 <div class="title-page">
-  <h1>${manuscript.title || 'Sem título'}</h1>
-  ${manuscript.synopsis ? `<p class="synopsis">${manuscript.synopsis}</p>` : ''}
+  <h1>${(manuscript.title || 'Sem título').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</h1>
+  ${manuscript.synopsis ? `<p class="synopsis">${manuscript.synopsis.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>` : ''}
 </div>
 `;
 
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
   chapters.sort((a, b) => a.sort_order - b.sort_order).forEach((ch) => {
-    html += `<h1>${ch.title}</h1>\n`;
+    html += `<h1>${esc(ch.title)}</h1>\n`;
     if (ch.content) {
       ch.content.split('\n').filter(p => p.trim()).forEach(para => {
-        html += `<p>${para}</p>\n`;
+        html += `<p>${esc(para)}</p>\n`;
       });
     }
   });

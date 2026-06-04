@@ -20,7 +20,15 @@ export function listSaves(): WorldSave[] {
 }
 
 function writeSaves(saves: WorldSave[]) {
-  localStorage.setItem(SAVES_KEY, JSON.stringify(saves));
+  try {
+    localStorage.setItem(SAVES_KEY, JSON.stringify(saves));
+  } catch (err) {
+    console.error('Erro ao salvar no localStorage:', err);
+    // Toast importado dinamicamente para evitar dependência circular em arquivo puro
+    import('sonner').then(({ toast }) => {
+      toast.error('Memória do navegador cheia. Exporte seus mundos e remova rascunhos antigos.');
+    }).catch(() => {});
+  }
 }
 
 export function saveWorld(state: AppState): WorldSave {

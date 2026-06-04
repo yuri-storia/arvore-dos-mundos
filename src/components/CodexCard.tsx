@@ -8,6 +8,7 @@ import { exportSingleEntry } from '@/lib/codexPdfExport';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ImageRepositioner } from '@/components/ImageRepositioner';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 
 interface Props {
   entry: CodexEntry;
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate, onDelete, onImageUpload, onLightbox, gallery }) => {
+  const planLimits = usePlanLimits();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(entry.title);
   const [content, setContent] = useState(entry.content);
@@ -68,6 +70,10 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
   const handleAiGenerate = async () => {
     if (!aiPrompt.trim()) return;
+    if (!planLimits.canUseAI) {
+      toast.error('A geração de imagens com IA está disponível apenas no plano Idriel.');
+      return;
+    }
     setGeneratingAi(true);
     try {
       let url: string;

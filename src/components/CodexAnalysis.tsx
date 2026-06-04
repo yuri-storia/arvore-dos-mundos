@@ -16,6 +16,7 @@ import idrielAvatar from '@/assets/idriel-avatar.png';
 
 interface Props {
   entries: CodexEntry[];
+  worldId: string;
   onClose: () => void;
 }
 
@@ -43,7 +44,7 @@ const LOADING_STEPS = [
   { message: 'Tecendo a sabedoria dos Frutos em minha avaliação…', delay: 21000 },
 ];
 
-export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
+export const CodexAnalysis: React.FC<Props> = ({ entries, worldId, onClose }) => {
   const [analysis, setAnalysis] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -63,17 +64,18 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, onClose }) => {
   const creditsRemaining = sub.creditLimit - sub.creditsUsed;
   const canAnalyze = planLimits.canUseAI && creditsRemaining >= ANALYSIS_COST;
 
-  // Fetch history on mount
+  // Fetch history on mount (escopado ao mundo ativo)
   const fetchHistory = useCallback(async () => {
-    if (!user) return;
+    if (!user || !worldId) { setHistoryLoading(false); return; }
     const { data, error: err } = await supabase
       .from('world_analyses')
       .select('*')
       .eq('user_id', user.id)
+      .eq('world_id', worldId)
       .order('created_at', { ascending: false });
     if (!err && data) setHistory(data as AnalysisRecord[]);
     setHistoryLoading(false);
-  }, [user]);
+  }, [user, worldId]);
 
   useEffect(() => { fetchHistory(); }, [fetchHistory]);
 
@@ -195,6 +197,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final com "— Idriel, ${IDRIEL_T
 
       await supabase.from('world_analyses').insert({
         user_id: user.id,
+        world_id: worldId,
         analysis_text: content,
         entry_count: entries.length,
         ficha_count: fichas,
