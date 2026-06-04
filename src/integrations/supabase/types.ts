@@ -377,6 +377,33 @@ export type Database = {
           },
         ]
       }
+      expiration_notifications_sent: {
+        Row: {
+          expires_at: string
+          id: string
+          notification_type: string
+          sent_at: string
+          subscription_id: string
+          user_id: string
+        }
+        Insert: {
+          expires_at: string
+          id?: string
+          notification_type: string
+          sent_at?: string
+          subscription_id: string
+          user_id: string
+        }
+        Update: {
+          expires_at?: string
+          id?: string
+          notification_type?: string
+          sent_at?: string
+          subscription_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       free_writings: {
         Row: {
           chapter_id: string | null
