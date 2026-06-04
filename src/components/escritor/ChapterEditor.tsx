@@ -5,6 +5,7 @@ import {
   Edit3, Eye, Maximize, Minimize, PanelRightOpen, PanelRightClose, ChevronRight,
 } from 'lucide-react';
 import { MentionChip, buildEntriesByName, tokenizeMentions } from './MentionChip';
+import { MentionTextarea } from './MentionTextarea';
 
 interface Props {
   chapter: Chapter;
@@ -32,8 +33,6 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
   const [content, setContent] = useState(chapter.content || '');
   const [title, setTitle] = useState(chapter.title);
   const [previewMode, setPreviewMode] = useState(false);
-  const [mention, setMention] = useState<{ active: boolean; query: string }>({ active: false, query: '' });
-  const taRef = useRef<HTMLTextAreaElement>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Sync when chapter changes (switching chapters)
@@ -49,40 +48,10 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
     saveTimerRef.current = setTimeout(() => onContentSave(value), 1500);
   }, [onContentSave]);
 
-  const handleContentChange = (value: string) => {
+  const handleContentChange = useCallback((value: string) => {
     setContent(value);
     debouncedSave(value);
-    const ta = taRef.current;
-    if (!ta) return;
-    const cursor = ta.selectionStart;
-    const before = value.substring(0, cursor);
-    const atMatch = before.match(/@(\w*)$/);
-    if (atMatch) setMention({ active: true, query: atMatch[1] });
-    else setMention(prev => prev.active ? { active: false, query: '' } : prev);
-  };
-
-  const mentionMatches = useMemo(() => {
-    if (!mention.active) return [];
-    const q = mention.query.toLowerCase();
-    return entries.filter(e => e.title.toLowerCase().includes(q)).slice(0, 8);
-  }, [mention, entries]);
-
-  const handleMentionSelect = (name: string) => {
-    if (!taRef.current) return;
-    const ta = taRef.current;
-    const cursor = ta.selectionStart;
-    const before = content.substring(0, cursor);
-    const atIdx = before.lastIndexOf('@');
-    const next = content.substring(0, atIdx) + `@${name}` + content.substring(cursor);
-    setContent(next);
-    debouncedSave(next);
-    setMention({ active: false, query: '' });
-    setTimeout(() => {
-      ta.focus();
-      const pos = atIdx + name.length + 1;
-      ta.setSelectionRange(pos, pos);
-    }, 0);
-  };
+  }, [debouncedSave]);
 
   const wordCount = useMemo(
     () => (content.trim() ? content.trim().split(/\s+/).length : 0),
@@ -155,26 +124,14 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
             {previewParts.length === 0 && <span className="text-text-dim/40 italic">Nada escrito ainda.</span>}
           </div>
         ) : (
-          <textarea
-            ref={taRef}
+          <MentionTextarea
+            entries={entries}
             value={content}
-            onChange={e => handleContentChange(e.target.value)}
-            placeholder="Comece a escrever seu capítulo aqui…&#10;&#10;Use @NomeDoPersonagem para inserir referências do Codex."
+            onChange={handleContentChange}
+            placeholder="Comece a escrever seu capítulo aqui…&#10;&#10;Use @NomeDoPersonagem para inserir referências do Codex. Ou selecione uma palavra e clique com o botão direito para vincular."
             className="w-full h-full resize-none bg-transparent text-foreground/90 font-merriweather text-sm leading-relaxed p-4 focus:outline-none placeholder:text-text-dim/30"
-            style={{ minHeight: '100%' }}
+            wrapperClassName="relative w-full h-full"
           />
-        )}
-        {mention.active && !previewMode && mentionMatches.length > 0 && (
-          <div className="absolute z-50 bg-[#0d1520] border border-blue-bright/20 rounded-lg shadow-xl py-1 min-w-[200px] max-w-[280px]"
-            style={{ top: 40, left: 20 }}>
-            {mentionMatches.map(e => (
-              <button key={e.id} onClick={() => handleMentionSelect(e.title)}
-                className="w-full text-left px-3 py-1.5 text-xs hover:bg-blue-bright/10 transition-colors flex items-center gap-2">
-                <span className={e.entry_type === 'ficha' ? 'text-blue-light' : 'text-gold-light'}>{e.title}</span>
-                <span className="text-[9px] text-text-dim">{e.entry_type}</span>
-              </button>
-            ))}
-          </div>
         )}
       </div>
     </>
