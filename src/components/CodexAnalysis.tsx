@@ -67,11 +67,12 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, worldId, onClose }) =>
   // Fetch history on mount (escopado ao mundo ativo)
   const fetchHistory = useCallback(async () => {
     if (!user || !worldId) { setHistoryLoading(false); return; }
+    // Inclui análises legadas (world_id NULL) salvas antes do escopo por mundo
     const { data, error: err } = await supabase
       .from('world_analyses')
       .select('*')
       .eq('user_id', user.id)
-      .eq('world_id', worldId)
+      .or(`world_id.eq.${worldId},world_id.is.null`)
       .order('created_at', { ascending: false });
     if (!err && data) setHistory(data as AnalysisRecord[]);
     setHistoryLoading(false);
