@@ -20,13 +20,54 @@ export const SubscriptionBanner: React.FC = () => {
   });
 
   if (sub.loading) return null;
-  // Admins don't need the banner
   if (isAdmin) return null;
 
   const handleDismiss = () => {
     setDismissed(true);
     try { sessionStorage.setItem(DISMISS_KEY, '1'); } catch {}
   };
+
+  // Expiration warning for Beta / manual / free plans expiring soon or already expired.
+  const endIso = sub.subscriptionEnd;
+  const daysToEnd = endIso ? Math.ceil((new Date(endIso).getTime() - Date.now()) / 86_400_000) : null;
+  const isBeta = beta.hasBeta && !beta.raizExpired;
+  const isExpiringSoon = daysToEnd !== null && daysToEnd <= 7 && daysToEnd >= 0;
+  const justExpired = daysToEnd !== null && daysToEnd < 0 && daysToEnd >= -14;
+
+  if (!dismissed && (isBeta || sub.subscribed) && (isExpiringSoon || justExpired)) {
+    const expired = justExpired;
+    return (
+      <div className="mx-auto max-w-[1060px] px-4 mb-4">
+        <div className={`rounded-lg p-4 border ${expired ? 'border-red-alert/50 bg-red-alert/[0.07]' : 'border-gold/40 bg-gold/[0.06]'}`}>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex items-start gap-2 flex-1 min-w-0">
+              <Clock className={`w-5 h-5 mt-0.5 ${expired ? 'text-red-alert' : 'text-gold-light'}`} strokeWidth={1.75} />
+              <div className="min-w-0">
+                <span className={`font-cinzel font-bold text-sm block ${expired ? 'text-red-alert' : 'text-gold-light'}`}>
+                  {isBeta
+                    ? (expired ? 'Seu Beta da Comunidade expirou' : `Seu Beta termina em ${daysToEnd} ${daysToEnd === 1 ? 'dia' : 'dias'}`)
+                    : (expired ? 'Seu acesso expirou' : `Seu acesso termina em ${daysToEnd} ${daysToEnd === 1 ? 'dia' : 'dias'}`)}
+                </span>
+                <span className="block text-[11px] text-text-secondary mt-1 font-merriweather">
+                  {expired
+                    ? 'Para continuar usando a Árvore dos Mundos, renove escolhendo um plano. A cobrança só acontece quando você confirma o pagamento.'
+                    : 'Quando o período acabar, você pode renovar escolhendo um plano. A cobrança só acontece quando você confirmar — nada é debitado automaticamente.'}
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link to="/planos" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-background hover:opacity-90 transition-opacity">
+                <Sparkles className="w-3 h-3" /> Ver planos
+              </Link>
+              <button onClick={handleDismiss} className="inline-flex items-center gap-1 px-2 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-white/10 text-text-dim hover:text-foreground transition-colors">
+                Lembrar depois
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleCheckout = async (plan: keyof typeof STRIPE_PLANS) => {
     setLoading(plan);
