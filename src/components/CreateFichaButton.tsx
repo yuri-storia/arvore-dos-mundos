@@ -12,14 +12,15 @@ interface Props {
   fieldValue: string;
   fieldLabel: string;
   fruitId: number;
+  worldId?: string;
   entryType?: 'ficha' | 'artigo';
   onCreated?: (action: 'codex' | 'continue') => void;
   children: React.ReactNode;
 }
 
-export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fruitId, entryType = 'ficha', onCreated, children }) => {
+export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fruitId, worldId, entryType = 'ficha', onCreated, children }) => {
   const { user } = useAuth();
-  const { entries, createEntry, updateEntry } = useCodexEntries();
+  const { entries, createEntry, updateEntry } = useCodexEntries(worldId);
   const [showMenu, setShowMenu] = useState(false);
   const [showAddTo, setShowAddTo] = useState(false);
   const [showTitleDialog, setShowTitleDialog] = useState(false);
