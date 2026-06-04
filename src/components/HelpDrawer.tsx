@@ -106,7 +106,7 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
       <button
         onClick={() => setOpen(true)}
         aria-label="Falar com Idriel"
-        className="group fixed top-4 right-4 sm:top-5 sm:right-6 lg:right-8 z-[140] flex items-center gap-3 pl-1.5 pr-3 sm:pr-4 py-1.5 rounded-full transition-all hover:-translate-y-0.5 active:scale-95 max-w-[calc(100vw-2rem)]"
+        className="group fixed top-3 right-4 sm:top-4 sm:right-6 lg:right-8 z-[140] flex items-center gap-3 pl-1.5 pr-3 sm:pr-4 py-1.5 rounded-full transition-all hover:-translate-y-0.5 active:scale-95 max-w-[calc(100vw-2rem)]"
         style={{
           background:
             'linear-gradient(135deg, hsl(220 50% 6%) 0%, hsl(220 45% 9%) 50%, hsl(34 35% 18%) 100%)',
