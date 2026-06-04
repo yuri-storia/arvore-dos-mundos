@@ -18,7 +18,7 @@ export const MentionChip: React.FC<Props> = React.memo(({ name, entry, onClick }
   if (!entry) {
     return (
       <span className="text-text-dim/60 italic" title="Referência não encontrada no Codex">
-        @{name}
+        {name}
       </span>
     );
   }
@@ -40,7 +40,7 @@ export const MentionChip: React.FC<Props> = React.memo(({ name, entry, onClick }
               : 'bg-gold/15 text-gold-light hover:bg-gold/25'
           }`}
         >
-          @{name}
+          {name}
         </button>
       </HoverCardTrigger>
       <HoverCardContent

@@ -3,6 +3,11 @@ import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Page
 import { saveAs } from 'file-saver';
 import type { Manuscript, Chapter, Scene } from '@/hooks/useManuscript';
 
+/** Strip `@` from mention tokens so exports show plain text only. */
+const stripMentions = (s: string) =>
+  s.replace(/@([A-Za-zÀ-ÿ0-9_\-]+(?:\s[A-Za-zÀ-ÿ0-9_\-]+)?)/g, '$1');
+
+
 // ── PDF Export ──
 export function exportManuscriptPDF(manuscript: Manuscript, chapters: Chapter[], _scenes?: Scene[]) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -49,7 +54,7 @@ export function exportManuscriptPDF(manuscript: Manuscript, chapters: Chapter[],
       doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(40, 40, 40);
-      const lines = doc.splitTextToSize(ch.content, maxW);
+      const lines = doc.splitTextToSize(stripMentions(ch.content), maxW);
       lines.forEach((line: string) => {
         checkPage(6);
         doc.text(line, margin, y);
@@ -96,7 +101,7 @@ export async function exportManuscriptDOCX(manuscript: Manuscript, chapters: Cha
     }));
 
     if (ch.content) {
-      ch.content.split('\n').forEach(para => {
+      stripMentions(ch.content).split('\n').forEach(para => {
         children.push(new Paragraph({
           spacing: { after: 120, line: 360 },
           children: [new TextRun({ text: para, size: 24, font: 'Georgia' })],
@@ -142,7 +147,7 @@ export function exportManuscriptEPUB(manuscript: Manuscript, chapters: Chapter[]
   chapters.sort((a, b) => a.sort_order - b.sort_order).forEach((ch) => {
     html += `<h1>${esc(ch.title)}</h1>\n`;
     if (ch.content) {
-      ch.content.split('\n').filter(p => p.trim()).forEach(para => {
+      stripMentions(ch.content).split('\n').filter(p => p.trim()).forEach(para => {
         html += `<p>${esc(para)}</p>\n`;
       });
     }

@@ -10,6 +10,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ImageRepositioner } from '@/components/ImageRepositioner';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { buildEntriesByName, renderMentionChildren, tokenizeMentions, MentionChip } from '@/components/escritor/MentionChip';
+import { MentionTextarea } from '@/components/escritor/MentionTextarea';
 
 interface Props {
   entry: CodexEntry;
@@ -298,11 +299,13 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                     {FRUITS.map(f => <option key={f.id} value={f.id}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</option>)}
                   </select>
                 </div>
-                <textarea
+                <MentionTextarea
+                  entries={(siblings || []).filter(e => e.id !== entry.id)}
                   value={content}
-                  onChange={e => setContent(e.target.value)}
+                  onChange={setContent}
                   rows={12}
-                  className="w-full bg-[rgba(4,12,24,0.6)] border border-accent/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather mb-3 focus:outline-none focus:border-accent/50 resize-y"
+                  wrapperClassName="relative w-full mb-3"
+                  className="w-full bg-[rgba(4,12,24,0.6)] border border-accent/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-accent/50 resize-y"
                   onClick={e => e.stopPropagation()}
                 />
               </>
@@ -512,11 +515,13 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                     {FRUITS.map(f => <option key={f.id} value={f.id}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</option>)}
                   </select>
                 </div>
-                <textarea
+                <MentionTextarea
+                  entries={(siblings || []).filter(e => e.id !== entry.id)}
                   value={content}
-                  onChange={e => setContent(e.target.value)}
+                  onChange={setContent}
                   rows={8}
-                  className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather mb-3 focus:outline-none focus:border-ring/50 resize-y"
+                  wrapperClassName="relative w-full mb-3"
+                  className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-ring/50 resize-y"
                   onClick={e => e.stopPropagation()}
                 />
               </>
