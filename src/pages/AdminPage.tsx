@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, memo, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Loader2, Plus, Shield, ShieldOff, Trash2, RefreshCw, Search, Bug, Users, Mail, Crown, Sparkles, Infinity as InfinityIcon, Download } from 'lucide-react';
+import { Loader2, Plus, Shield, ShieldOff, Trash2, RefreshCw, Search, Bug, Users, Mail, Crown, Sparkles, Infinity as InfinityIcon, Download, Clock, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -327,17 +327,30 @@ const UserRow = memo<UserRowProps>(({ user: u, callerId, onOpenDetail, onChanged
         {u.billing_cycle === 'BETA_FREE' && (
           <Badge variant="outline" className="text-[9px] border-gold/50 bg-gold/10 text-gold-light font-bold uppercase tracking-wider">Beta</Badge>
         )}
+        {u.billing_cycle === 'manual' && (
+          <Badge variant="outline" className="text-[9px] border-blue-bright/50 bg-blue-bright/10 text-blue-light font-bold uppercase tracking-wider">Manual</Badge>
+        )}
         {u.billing_cycle === 'lifetime' && (
           <Badge variant="outline" className="text-[9px] border-gold/50 bg-gold/10 text-gold font-bold uppercase tracking-wider">Vitalício</Badge>
         )}
+        {!u.plan_code && (
+          <Badge variant="outline" className="text-[9px] border-text-dim/40 bg-white/5 text-text-dim font-bold uppercase tracking-wider">Gratuito</Badge>
+        )}
       </div>
       {u.expires_at === null && u.plan_code === 'raiz_vitalicio' && <span className="block text-[9px] text-gold mt-0.5">sem expiração</span>}
-      {u.expires_at && (
-        <span className="block text-[9px] mt-0.5">
-          <span className="text-text-dim">até {fmtDate(u.expires_at).split(',')[0]} · </span>
-          <span className={`font-montserrat font-bold ${countdownTone(daysUntil(u.expires_at))}`}>{countdownLabel(daysUntil(u.expires_at))}</span>
-        </span>
-      )}
+      {u.expires_at && (() => {
+        const days = daysUntil(u.expires_at);
+        const expired = days !== null && days < 0;
+        const urgent = days !== null && days >= 0 && days <= 7;
+        return (
+          <span className={`mt-0.5 inline-flex items-center gap-1 text-[9px] ${expired ? 'px-1.5 py-0.5 rounded border border-red-alert/40 bg-red-alert/10' : urgent ? 'px-1.5 py-0.5 rounded border border-orange-400/40 bg-orange-400/10' : ''}`}>
+            {expired && <AlertCircle className="w-2.5 h-2.5 text-red-alert" />}
+            {urgent && !expired && <Clock className="w-2.5 h-2.5 text-orange-400 animate-pulse" />}
+            <span className="text-text-dim">até {fmtDate(u.expires_at).split(',')[0]} · </span>
+            <span className={`font-montserrat font-bold ${countdownTone(days)}`}>{countdownLabel(days)}</span>
+          </span>
+        );
+      })()}
     </td>
     <td className="px-3 py-2.5 text-right font-montserrat text-foreground">{u.has_idriel || u.plan_code === 'raiz_vitalicio' ? <InfinityIcon className="w-3.5 h-3.5 inline text-gold" /> : u.bonus_drops}</td>
     <td className="px-3 py-2.5 text-right text-xs text-text-secondary">{u.ai_text_month}/{u.ai_image_month}<span className="block text-[9px] text-text-dim">total {u.ai_text_total}/{u.ai_image_total}</span></td>
