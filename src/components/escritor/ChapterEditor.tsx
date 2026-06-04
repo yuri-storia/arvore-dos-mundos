@@ -132,6 +132,8 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
             placeholder="Comece a escrever seu capítulo aqui…&#10;&#10;Use @NomeDoPersonagem para inserir referências do Codex. Ou selecione uma palavra e clique com o botão direito para vincular."
             className="w-full h-full resize-none bg-transparent text-foreground/90 font-merriweather text-sm leading-relaxed p-4 focus:outline-none placeholder:text-text-dim/30"
             wrapperClassName="relative w-full h-full"
+            spellCheck
+            lang="pt-BR"
           />
         )}
       </div>
