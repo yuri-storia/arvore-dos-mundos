@@ -384,6 +384,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                         fieldValue={db[currentFruit]?.[field.id] || ''}
                         fieldLabel={field.label}
                         fruitId={currentFruit}
+                        worldId={currentSaveId || undefined}
                         entryType={entryType}
                         onCreated={(action) => action === 'codex' && onNavigateCodex?.()}
                       >
