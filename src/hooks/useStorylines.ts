@@ -36,6 +36,7 @@ export function useStorylines(worldId?: string) {
   const [activeStoryline, setActiveStoryline] = useState<Storyline | null>(null);
   const [columns, setColumns] = useState<StorylineColumn[]>([]);
   const [loading, setLoading] = useState(true);
+  const creatingDefaultRef = useRef(false);
 
   // Fetch all storylines for the world
   const fetchStorylines = useCallback(async () => {
