@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import PricingPage from "./pages/PricingPage";
 import ObrigadoPage from "./pages/ObrigadoPage";
+import BetaPage from "./pages/BetaPage";
 
 
 const queryClient = new QueryClient();
