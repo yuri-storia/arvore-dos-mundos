@@ -700,7 +700,13 @@ const PricingPage: React.FC = () => {
         </motion.div>
 
         {/* Closing */}
-        <div className="text-center pb-8">
+        <div className="text-center pb-8 space-y-3">
+          <a
+            href="/seguranca"
+            className="inline-block font-montserrat text-[10px] uppercase tracking-[0.3em] text-gold-champagne/80 hover:text-gold-champagne transition-colors"
+          >
+            Segurança & Privacidade
+          </a>
           <p className="font-montserrat text-[10px] uppercase tracking-[0.3em] text-text-secondary/60">
             Universo STORIA · Todos os direitos reservados
           </p>
