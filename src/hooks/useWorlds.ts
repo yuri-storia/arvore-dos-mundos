@@ -72,7 +72,11 @@ export function useWorlds() {
       .from('worlds')
       .update(updates as any)
       .eq('id', id);
-    if (error) { console.error(error); return; }
+    if (error) {
+      console.error(error);
+      toast.error('Não foi possível salvar o mundo. Verifique sua conexão e tente novamente.');
+      return;
+    }
     setWorlds(prev => prev.map(w => w.id === id ? { ...w, ...updates, updated_at: new Date().toISOString() } : w));
   }, []);
 
