@@ -558,6 +558,54 @@ export type Database = {
           },
         ]
       }
+      mfa_audit_log: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mfa_backup_codes: {
+        Row: {
+          code_hash: string
+          created_at: string
+          id: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string
+          id?: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string
+          id?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           cpf_cnpj: string | null
@@ -909,6 +957,10 @@ export type Database = {
     Functions: {
       add_bonus_drops: {
         Args: { _drops: number; _user_id: string }
+        Returns: undefined
+      }
+      admin_remove_mfa_factors: {
+        Args: { _user_id: string }
         Returns: undefined
       }
       admin_user_aggregates: {

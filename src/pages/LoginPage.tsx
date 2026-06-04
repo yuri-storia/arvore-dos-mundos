@@ -87,6 +87,10 @@ const LoginPage: React.FC = () => {
   const [forgotSent, setForgotSent] = useState(false);
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
   const [mfaCode, setMfaCode] = useState('');
+  const [mfaAttempts, setMfaAttempts] = useState(0);
+  const [recoveryMode, setRecoveryMode] = useState(false);
+  const [recoveryCode, setRecoveryCode] = useState('');
+  const [recoverySuccess, setRecoverySuccess] = useState(false);
   const [aalChecking, setAalChecking] = useState(true);
   const [needsMfa, setNeedsMfa] = useState(false);
 
@@ -167,11 +171,22 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const logMfaEventSafe = async (event: 'challenge_success' | 'challenge_failed') => {
+    if (!user) return;
+    try {
+      await supabase.from('mfa_audit_log').insert({
+        user_id: user.id,
+        event_type: event,
+        user_agent: navigator.userAgent.slice(0, 500),
+      });
+    } catch { /* never break the flow */ }
+  };
+
   const handleMfaVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!mfaFactorId) return;
     if (mfaCode.replace(/\s/g, '').length !== 6) {
-      setError('Digite o código de 6 dígitos.');
+      setError('Digite os 6 dígitos exibidos no seu app autenticador.');
       return;
     }
     setLoading(true);
@@ -179,7 +194,7 @@ const LoginPage: React.FC = () => {
     try {
       const { data: chal, error: chErr } = await supabase.auth.mfa.challenge({ factorId: mfaFactorId });
       if (chErr || !chal) {
-        setError('Erro ao gerar desafio. Tente novamente.');
+        setError('Não consegui gerar o desafio agora. Verifique sua conexão e tente novamente em alguns segundos.');
         setLoading(false);
         return;
       }
@@ -189,13 +204,59 @@ const LoginPage: React.FC = () => {
         code: mfaCode.replace(/\s/g, ''),
       });
       if (vErr) {
-        setError('Código inválido. Tente outro código do seu app.');
+        await logMfaEventSafe('challenge_failed');
+        const attempts = mfaAttempts + 1;
+        setMfaAttempts(attempts);
+        setMfaCode('');
+        if (attempts >= 3) {
+          setError(
+            'Código inválido após várias tentativas. Possíveis causas: (1) o relógio do seu celular está desajustado — ative "hora automática"; (2) você está usando o app autenticador de outra conta. Se perdeu acesso ao app, use um código de backup logo abaixo.'
+          );
+        } else {
+          setError('Código inválido. Aguarde o próximo código (eles mudam a cada 30 segundos) e tente novamente.');
+        }
         setLoading(false);
         return;
       }
+      await logMfaEventSafe('challenge_success');
       // Success — AuthProvider will pick up the session change
     } catch (e: any) {
-      setError(e.message || 'Erro inesperado.');
+      setError(e.message || 'Erro inesperado. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRecoveryRedeem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleaned = recoveryCode.trim().toUpperCase().replace(/\s/g, '');
+    if (!/^[A-Z2-9]{4}-?[A-Z2-9]{4}$/.test(cleaned)) {
+      setError('Formato inválido. O código tem 8 caracteres, no formato XXXX-XXXX.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const { data, error: fnErr } = await supabase.functions.invoke('mfa-recovery', {
+        body: { action: 'redeem', code: cleaned },
+      });
+      if (fnErr || !data?.ok) {
+        const code = (data?.error as string) || 'invalid_code';
+        if (code === 'already_used') {
+          setError('Este código de backup já foi utilizado. Tente outro código da sua lista.');
+        } else if (code === 'invalid_format') {
+          setError('Formato inválido. O código tem 8 caracteres, no formato XXXX-XXXX.');
+        } else {
+          setError('Código de backup não reconhecido. Verifique se digitou corretamente, com hífen.');
+        }
+        setLoading(false);
+        return;
+      }
+      setRecoverySuccess(true);
+      // Sign out so user re-authenticates fresh without the (now removed) MFA factor
+      await supabase.auth.signOut({ scope: 'local' });
+    } catch (e: any) {
+      setError(e.message || 'Erro inesperado. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -205,6 +266,9 @@ const LoginPage: React.FC = () => {
     await supabase.auth.signOut({ scope: 'local' });
     setMfaFactorId(null);
     setMfaCode('');
+    setMfaAttempts(0);
+    setRecoveryMode(false);
+    setRecoveryCode('');
     setError('');
   };
 
@@ -315,9 +379,57 @@ const LoginPage: React.FC = () => {
 
             <div className="mx-auto w-[60px] h-[2px] bg-gradient-to-r from-transparent via-blue-bright to-transparent mb-8" />
 
-            {mfaFactorId ? (
-              <form onSubmit={handleMfaVerify} className="space-y-4">
+            {recoverySuccess ? (
+              <div className="space-y-4 text-left">
+                <p className="text-emerald-300 font-montserrat font-semibold text-sm">
+                  Acesso recuperado com sucesso.
+                </p>
                 <p className="text-text-secondary font-montserrat text-xs leading-relaxed">
+                  Removemos o app autenticador anterior da sua conta. Entre novamente com seu e-mail e senha
+                  e, por segurança, reative a autenticação em dois fatores em <strong>Configurações</strong> logo após o login.
+                </p>
+                <button type="button" onClick={() => { setRecoverySuccess(false); setRecoveryMode(false); setMfaFactorId(null); setRecoveryCode(''); setMfaAttempts(0); setError(''); }}
+                  className="w-full px-6 py-3 rounded-lg bg-primary/80 hover:bg-primary transition-colors text-primary-foreground font-montserrat font-semibold text-sm">
+                  Voltar ao login
+                </button>
+              </div>
+            ) : mfaFactorId && recoveryMode ? (
+              <form onSubmit={handleRecoveryRedeem} className="space-y-4 text-left">
+                <div>
+                  <p className="text-foreground font-montserrat font-semibold text-sm mb-1">Recuperar acesso com código de backup</p>
+                  <p className="text-text-secondary font-montserrat text-xs leading-relaxed">
+                    Digite um dos códigos de backup que você guardou ao ativar o 2FA.
+                    Ao usá-lo, o app autenticador atual será removido e você deverá reconfigurar o 2FA após entrar.
+                  </p>
+                </div>
+                <input
+                  type="text"
+                  autoComplete="off"
+                  value={recoveryCode}
+                  onChange={e => setRecoveryCode(e.target.value.toUpperCase())}
+                  placeholder="XXXX-XXXX"
+                  maxLength={9}
+                  autoFocus
+                  className="w-full px-4 py-3 rounded-lg bg-foreground/[0.06] border border-blue-bright/15 text-foreground placeholder:text-text-dim font-mono text-center text-lg tracking-[0.2em] focus:outline-none focus:border-blue-bright/40 transition-colors"
+                />
+                <button type="submit" disabled={loading || recoveryCode.length < 8}
+                  className="w-full px-6 py-3 rounded-lg bg-gold/90 hover:bg-gold text-background font-montserrat font-semibold text-sm disabled:opacity-50 transition-colors">
+                  {loading ? 'Verificando…' : 'Recuperar acesso'}
+                </button>
+                <div className="flex items-center justify-between text-xs">
+                  <button type="button" onClick={() => { setRecoveryMode(false); setError(''); setRecoveryCode(''); }}
+                    className="text-blue-light font-montserrat hover:underline">
+                    Voltar ao código do app
+                  </button>
+                  <button type="button" onClick={handleMfaCancel}
+                    className="text-text-dim font-montserrat hover:text-foreground transition-colors">
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            ) : mfaFactorId ? (
+              <form onSubmit={handleMfaVerify} className="space-y-4 text-left">
+                <p className="text-text-secondary font-montserrat text-xs leading-relaxed text-center">
                   Sua conta está protegida por autenticação em dois fatores.
                   Digite o código de 6 dígitos exibido no seu app autenticador.
                 </p>
@@ -336,10 +448,16 @@ const LoginPage: React.FC = () => {
                   className="w-full px-6 py-3 rounded-lg bg-primary/80 hover:bg-primary transition-colors text-primary-foreground font-montserrat font-semibold text-sm disabled:opacity-50">
                   {loading ? 'Verificando…' : 'Verificar e entrar'}
                 </button>
-                <button type="button" onClick={handleMfaCancel}
-                  className="text-blue-light text-xs font-montserrat hover:underline">
-                  Cancelar e voltar ao login
-                </button>
+                <div className="flex items-center justify-between text-xs">
+                  <button type="button" onClick={() => { setRecoveryMode(true); setError(''); }}
+                    className="text-gold-light font-montserrat hover:underline">
+                    Perdi acesso ao app · usar código de backup
+                  </button>
+                  <button type="button" onClick={handleMfaCancel}
+                    className="text-text-dim font-montserrat hover:text-foreground transition-colors">
+                    Cancelar
+                  </button>
+                </div>
               </form>
             ) : forgotMode ? (
               forgotSent ? (
