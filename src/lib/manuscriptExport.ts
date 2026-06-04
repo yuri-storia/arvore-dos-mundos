@@ -147,7 +147,7 @@ export function exportManuscriptEPUB(manuscript: Manuscript, chapters: Chapter[]
   chapters.sort((a, b) => a.sort_order - b.sort_order).forEach((ch) => {
     html += `<h1>${esc(ch.title)}</h1>\n`;
     if (ch.content) {
-      ch.content.split('\n').filter(p => p.trim()).forEach(para => {
+      stripMentions(ch.content).split('\n').filter(p => p.trim()).forEach(para => {
         html += `<p>${esc(para)}</p>\n`;
       });
     }
