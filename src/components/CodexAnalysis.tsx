@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Trees, X, ScrollText, Trash2, Droplet, Droplets, Leaf, Sparkles, RefreshCw, Check } from 'lucide-react';
+import { Trees, X, ScrollText, Trash2, Droplet, Droplets, Leaf, Sparkles, RefreshCw, Check, Gem, AlertTriangle, Eye, Compass, Award, ArrowRight } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
 import { callAIText, friendlyAIError } from '@/lib/helpers';
@@ -108,12 +108,33 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, worldId, onClose }) =>
     return () => { if (revealTimerRef.current) clearInterval(revealTimerRef.current); };
   }, [isRevealing, analysis]);
 
+  // Sanitize AI output: strip emojis/decorative chars and convert star runs to "N/5"
+  const sanitizeAnalysis = (txt: string): string => {
+    if (!txt) return '';
+    let out = txt;
+    // Convert runs of star/diamond glyphs (optionally separated by spaces) into "N/5"
+    out = out.replace(/(?:[★☆✦✧✨⭐]\s*){1,5}/g, (m) => {
+      const n = (m.match(/[★✦✨⭐]/g) || []).length;
+      return n > 0 ? `${n}/5 ` : '';
+    });
+    // Strip emoji / pictographs / variation selectors
+    try {
+      out = out.replace(/[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu, '');
+    } catch {
+      out = out.replace(/[\u2600-\u27BF\uE000-\uF8FF\uD800-\uDBFF\uDC00-\uDFFF]/g, '');
+    }
+    // Collapse leftover double spaces created by removals
+    out = out.replace(/[ \t]{2,}/g, ' ').replace(/^\s*[-–—]\s*$/gm, '');
+    return out;
+  };
+
   // Compute visible text (snap to last complete line to avoid broken markdown)
   const displayedAnalysis = useMemo(() => {
-    if (!analysis) return '';
-    if (!isRevealing && revealedChars >= analysis.length) return analysis;
-    if (viewingHistoryId) return analysis; // history = instant
-    const slice = analysis.slice(0, revealedChars);
+    const full = sanitizeAnalysis(analysis);
+    if (!full) return '';
+    if (!isRevealing && revealedChars >= analysis.length) return full;
+    if (viewingHistoryId) return full; // history = instant
+    const slice = full.slice(0, revealedChars);
     const lastNewline = slice.lastIndexOf('\n');
     return lastNewline > 0 ? slice.slice(0, lastNewline) : slice;
   }, [analysis, revealedChars, isRevealing, viewingHistoryId]);
@@ -522,15 +543,63 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
                 components={{
                   h2: ({ children, ...props }) => {
                     const text = String(children);
+                    let Icon: any = Sparkles;
                     let colorClass = 'text-gold-light';
-                    if (text.includes('Furos')) colorClass = 'text-destructive';
-                    else if (text.includes('Inconsistências')) colorClass = 'text-orange-400';
-                    else if (text.includes('Expansão')) colorClass = 'text-emerald-400';
-                    else if (text.includes('Fortes')) colorClass = 'text-gold-light';
-                    else if (text.includes('Continuar')) colorClass = 'text-blue-light';
-                    else if (text.includes('Avaliação')) colorClass = 'text-gold-light';
-                    return <h2 className={`font-cinzel text-base font-bold mt-5 mb-2 ${colorClass}`} {...props}>{children}</h2>;
-                  }
+                    let accent = 'hsl(var(--gold-warm))';
+                    if (text.includes('Saudação')) { Icon = Gem; }
+                    else if (text.includes('Avaliação')) { Icon = Award; }
+                    else if (text.includes('Furos')) { Icon = Eye; colorClass = 'text-destructive'; accent = 'hsl(0 70% 55%)'; }
+                    else if (text.includes('Inconsistências')) { Icon = AlertTriangle; colorClass = 'text-orange-400'; accent = 'hsl(30 80% 55%)'; }
+                    else if (text.includes('Expansão')) { Icon = Compass; colorClass = 'text-emerald-400'; accent = 'hsl(150 60% 50%)'; }
+                    else if (text.includes('Fortes')) { Icon = Sparkles; }
+                    else if (text.includes('Continuar')) { Icon = ArrowRight; colorClass = 'text-blue-light'; accent = 'hsl(210 70% 65%)'; }
+                    return (
+                      <h2 className={`font-cinzel text-base font-bold mt-6 mb-3 flex items-center gap-2 uppercase tracking-wider ${colorClass}`} {...props}>
+                        <span
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-full shrink-0"
+                          style={{
+                            background: `linear-gradient(135deg, ${accent}33, transparent)`,
+                            border: `1px solid ${accent}66`,
+                            boxShadow: `0 0 14px ${accent}33`,
+                          }}
+                        >
+                          <Icon className="w-3.5 h-3.5" strokeWidth={1.75} />
+                        </span>
+                        <span>{children}</span>
+                        <span
+                          className="flex-1 h-px ml-1 opacity-60"
+                          style={{ background: `linear-gradient(to right, ${accent}55, transparent)` }}
+                        />
+                      </h2>
+                    );
+                  },
+                  strong: ({ children }) => {
+                    const text = String(children);
+                    const ratingMatch = text.match(/^(\d)\/5$/);
+                    if (ratingMatch) {
+                      const n = parseInt(ratingMatch[1], 10);
+                      return (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md align-middle mx-0.5"
+                          style={{
+                            background: 'linear-gradient(135deg, hsl(var(--gold-warm)/0.18), hsl(var(--gold-deep)/0.08))',
+                            border: '1px solid hsl(var(--gold-warm)/0.35)',
+                          }}>
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <span
+                              key={i}
+                              className="w-1.5 h-1.5 rounded-full"
+                              style={{
+                                background: i < n ? 'hsl(var(--gold-light))' : 'hsl(var(--gold-warm)/0.18)',
+                                boxShadow: i < n ? '0 0 4px hsl(var(--gold-warm)/0.6)' : 'none',
+                              }}
+                            />
+                          ))}
+                          <span className="text-[9px] font-montserrat font-bold tracking-wider text-gold-light ml-1">{n}/5</span>
+                        </span>
+                      );
+                    }
+                    return <strong className="text-gold-light font-bold">{children}</strong>;
+                  },
                 }}
               >
                 {displayedAnalysis}
