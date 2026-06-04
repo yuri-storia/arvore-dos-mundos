@@ -17,6 +17,7 @@ import type { WorldRecord } from '@/hooks/useWorlds';
 import { MuralMode } from '@/components/escritor/MuralMode';
 import { DebouncedTextarea } from '@/components/escritor/DebouncedTextarea';
 import { ChapterEditor } from '@/components/escritor/ChapterEditor';
+import { MentionChip, buildEntriesByName, tokenizeMentions } from '@/components/escritor/MentionChip';
 import { PomodoroTimer } from '@/components/PomodoroTimer';
 import { ManuscriptExportMenu } from '@/components/ManuscriptExportMenu';
 import {
