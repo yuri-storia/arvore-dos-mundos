@@ -145,6 +145,22 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   const handleImport = async () => {
     const selected = importEntryList.filter(e => importSelectedIds.includes(e.id));
     if (selected.length === 0) return;
+
+    // Respeitar limites do plano também na importação
+    const fichaCount = entries.filter(e => e.entry_type !== 'artigo').length;
+    const artigoCount = entries.filter(e => e.entry_type === 'artigo').length;
+    const incomingFichas = selected.filter(e => e.entry_type !== 'artigo').length;
+    const incomingArtigos = selected.filter(e => e.entry_type === 'artigo').length;
+
+    if (fichaCount + incomingFichas > planLimits.maxFichas) {
+      toast.error(`Importação excede o limite de ${planLimits.maxFichas} fichas do plano ${planLimits.planLabel}.`);
+      return;
+    }
+    if (artigoCount + incomingArtigos > planLimits.maxArtigos) {
+      toast.error(`Importação excede o limite de ${planLimits.maxArtigos} artigos do plano ${planLimits.planLabel}.`);
+      return;
+    }
+
     await importEntries(selected);
     resetCreate();
   };
