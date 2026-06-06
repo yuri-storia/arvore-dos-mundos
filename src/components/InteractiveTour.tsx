@@ -20,6 +20,7 @@ export interface TourStep {
   Icon: LucideIcon;
   tabToActivate?: TabType;
   tooltipPos?: 'right' | 'bottom' | 'left' | 'top' | 'center';
+  mobileCard?: 'top' | 'bottom' | 'auto';
   delay?: number;
   setFruit?: number;
   setMethod?: 'top-down' | 'bottom-up';
@@ -42,6 +43,7 @@ const TOUR_STEPS: TourStep[] = [
     title: 'Construir — a fundação do mundo',
     desc: 'Toque em "Construir" para acessar o jardim dos onze Frutos do worldbuilding.',
     Icon: Leaf,
+    mobileCard: 'top',
   },
   {
     type: 'highlight',
@@ -50,6 +52,7 @@ const TOUR_STEPS: TourStep[] = [
     desc: '"De Cima para Baixo" parte do panorama — mapa, cosmologia, história — até alcançar os detalhes. "De Baixo para Cima" nasce dos personagens e expande o mundo conforme a narrativa exige. Trate-os como guias: criadores experientes transitam livremente entre os Frutos.',
     Icon: Compass,
     tooltipPos: 'bottom',
+    mobileCard: 'bottom',
     delay: 400,
   },
   {
@@ -59,7 +62,9 @@ const TOUR_STEPS: TourStep[] = [
     desc: 'Selecione esta abordagem para observar como a ordem dos Frutos se reorganiza — colocando personagens e enredo antes do panorama geral.',
     Icon: Compass,
     tooltipPos: 'bottom',
+    mobileCard: 'bottom',
     delay: 200,
+    setMethod: 'bottom-up',
   },
   {
     type: 'highlight',
@@ -68,6 +73,7 @@ const TOUR_STEPS: TourStep[] = [
     desc: 'Cada card é um Fruto: um pilar do seu universo — mapa, história, culturas, magia, personagens e mais. O método sugere uma ordem, mas a colheita pode seguir a inspiração do momento.',
     Icon: Apple,
     tooltipPos: 'bottom',
+    mobileCard: 'auto',
     delay: 400,
     setFruit: 1,
   },
@@ -78,6 +84,7 @@ const TOUR_STEPS: TourStep[] = [
     desc: 'Dentro de cada Fruto, posso ser consultada sobre aquele pilar específico. Use as sugestões rápidas ou formule sua própria pergunta. Cada consulta consome 1 gota de Elixir e está disponível no plano Idriel.',
     Icon: Leaf,
     tooltipPos: 'top',
+    mobileCard: 'auto',
     delay: 200,
   },
 
@@ -89,6 +96,7 @@ const TOUR_STEPS: TourStep[] = [
     title: 'Codex — sua biblioteca viva',
     desc: 'Toque em "Codex" para acessar a biblioteca onde todo o conhecimento do seu mundo é catalogado.',
     Icon: BookOpen,
+    mobileCard: 'top',
   },
   {
     type: 'highlight',
@@ -97,6 +105,7 @@ const TOUR_STEPS: TourStep[] = [
     desc: 'Crie Fichas (com imagem, ideais para personagens, locais e itens) e Artigos (texto livre, para lore e regras). Tudo o que você registra nos Frutos aparece aqui automaticamente. Quando desejar, solicite uma Análise de Mundo — minha avaliação completa sobre o estado da sua criação.',
     Icon: ClipboardList,
     tooltipPos: 'left',
+    mobileCard: 'auto',
     delay: 400,
   },
 
@@ -108,6 +117,7 @@ const TOUR_STEPS: TourStep[] = [
     title: 'Escrever — a história ganha voz',
     desc: 'Toque em "Escrever" para entrar no espaço dedicado à sua narrativa.',
     Icon: Feather,
+    mobileCard: 'top',
   },
   {
     type: 'highlight',
@@ -116,6 +126,7 @@ const TOUR_STEPS: TourStep[] = [
     desc: 'Inicie um Manuscrito e organize-o em Capítulos, como em um livro. O editor traz verificador ortográfico nativo em português, atalho Ctrl+L para vincular qualquer palavra ao Codex e Ctrl+F para localizar trechos no texto. Ao concluir, exporte em PDF, Word ou formato e-book.',
     Icon: Book,
     tooltipPos: 'right',
+    mobileCard: 'auto',
     delay: 400,
   },
 
@@ -127,6 +138,7 @@ const TOUR_STEPS: TourStep[] = [
     title: 'Galeria — referências visuais',
     desc: 'Toque em "Galeria" para acessar o repositório visual do seu mundo.',
     Icon: Palette,
+    mobileCard: 'top',
   },
   {
     type: 'highlight',
@@ -135,6 +147,7 @@ const TOUR_STEPS: TourStep[] = [
     desc: 'Reúna concept arts, mapas e paisagens que inspiram seu mundo. Organize por Fruto para encontrar tudo com facilidade quando a criação pedir.',
     Icon: ImageIcon,
     tooltipPos: 'bottom',
+    mobileCard: 'auto',
     delay: 400,
   },
   {
@@ -144,6 +157,7 @@ const TOUR_STEPS: TourStep[] = [
     desc: 'Descreva a cena imaginada, escolha estilo e tom, e materializarei a imagem por meio de IA. Cada visão consome 5 gotas de Elixir e está disponível no plano Idriel.',
     Icon: Sparkles,
     tooltipPos: 'top',
+    mobileCard: 'auto',
     delay: 200,
   },
 
@@ -158,6 +172,7 @@ const TOUR_STEPS: TourStep[] = [
 
 const TOUR_STORAGE_KEY = 'adm_interactive_tour_done';
 const ONBOARDING_STORAGE_KEY = 'adm_onboarding_seen';
+const MOBILE_NAV_CLEARANCE = 84;
 
 function hasDoneTour(): boolean {
   try { return localStorage.getItem(TOUR_STORAGE_KEY) === 'true'; } catch { return false; }
@@ -167,7 +182,9 @@ function markTourDone() {
   try {
     localStorage.setItem(TOUR_STORAGE_KEY, 'true');
     localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify(['construir', 'codex', 'escrever', 'galeria']));
-  } catch {}
+  } catch {
+    // localStorage can be unavailable in private browsing; tour should still finish.
+  }
 }
 
 export { TOUR_STORAGE_KEY, hasDoneTour, markTourDone };
@@ -191,6 +208,20 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
   const rafRef = useRef<number>(0);
 
   const currentStep = TOUR_STEPS[step];
+  const mobileDocked = isMobile && currentStep.type !== 'intro' && currentStep.type !== 'outro';
+  const mobilePlacement: 'top' | 'bottom' = (() => {
+    if (!mobileDocked) return 'bottom';
+    if (currentStep.mobileCard && currentStep.mobileCard !== 'auto') return currentStep.mobileCard;
+    if (!targetRect || typeof window === 'undefined') return 'bottom';
+
+    const estimatedCardH = sheetH || Math.min(window.innerHeight * 0.42, 300);
+    const topSpace = targetRect.top;
+    const bottomSpace = window.innerHeight - targetRect.bottom - MOBILE_NAV_CLEARANCE;
+
+    if (bottomSpace >= estimatedCardH + 18) return 'bottom';
+    if (topSpace >= estimatedCardH + 18) return 'top';
+    return targetRect.top < window.innerHeight / 2 ? 'bottom' : 'top';
+  })();
 
   useEffect(() => {
     if (!active) return;
@@ -232,15 +263,19 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     if (!el) return;
     if (isMobile) {
       const r = el.getBoundingClientRect();
-      const reserved = (sheetH || Math.min(window.innerHeight * 0.5, 320)) + 24;
-      const safeH = Math.max(120, window.innerHeight - reserved);
-      const desiredTop = Math.max(72, 72 + (safeH - r.height) / 2);
+      const cardH = sheetH || Math.min(window.innerHeight * 0.42, 300);
+      const safeTop = mobilePlacement === 'top' ? cardH + 18 : 72;
+      const safeBottom = mobilePlacement === 'bottom'
+        ? window.innerHeight - cardH - 18
+        : window.innerHeight - MOBILE_NAV_CLEARANCE;
+      const safeH = Math.max(80, safeBottom - safeTop);
+      const desiredTop = safeTop + Math.max(0, (safeH - r.height) / 2);
       const delta = r.top - desiredTop;
       if (Math.abs(delta) > 4) window.scrollBy({ top: delta, behavior: 'smooth' });
     } else {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [active, step, delayWaiting, currentStep.target, isMobile, sheetH]);
+  }, [active, step, delayWaiting, currentStep.target, isMobile, sheetH, mobilePlacement]);
 
   // Measure the bottom sheet height on mobile so the scroll math is accurate.
   useEffect(() => {
@@ -271,7 +306,7 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     if (nextStep.setFruit !== undefined && setCurrentFruit) {
       setCurrentFruit(nextStep.setFruit);
     }
-    if (TOUR_STEPS[step].setMethod && setMethod && TOUR_STEPS[step].type !== 'click') {
+    if (TOUR_STEPS[step].setMethod && setMethod) {
       setMethod(TOUR_STEPS[step].setMethod!);
     }
     setAnimating(true);
@@ -390,9 +425,12 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
 
       {/* Tooltip / card */}
       {(() => {
-        const mobileDocked = isMobile && !isCenter;
         const wrapperClass = mobileDocked
-          ? `fixed z-[10001] left-0 right-0 bottom-0 px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 transition-transform duration-300 ${animating ? 'translate-y-4 opacity-0' : 'translate-y-0 opacity-100'}`
+          ? `fixed z-[10001] left-0 right-0 px-3 transition-transform duration-300 ${
+              mobilePlacement === 'top'
+                ? `top-0 pt-[max(12px,env(safe-area-inset-top))] pb-3 ${animating ? '-translate-y-4 opacity-0' : 'translate-y-0 opacity-100'}`
+                : `bottom-0 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] ${animating ? 'translate-y-4 opacity-0' : 'translate-y-0 opacity-100'}`
+            }`
           : `fixed z-[10001] transition-all duration-300 ${animating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`;
         const cardClass = mobileDocked
           ? 'relative rounded-2xl p-4 overflow-hidden w-full mx-auto max-w-[560px]'
@@ -412,7 +450,9 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
                   'linear-gradient(160deg, rgba(20,14,4,0.97) 0%, rgba(10,8,2,0.98) 55%, rgba(8,5,10,0.97) 100%)',
                 border: '1px solid hsl(var(--gold)/0.40)',
                 boxShadow: mobileDocked
-                  ? '0 -18px 50px rgba(0,0,0,0.7), 0 0 60px hsl(var(--gold-warm)/0.20), inset 0 1px 0 hsl(var(--gold-champagne)/0.22)'
+                  ? mobilePlacement === 'top'
+                    ? '0 18px 50px rgba(0,0,0,0.7), 0 0 60px hsl(var(--gold-warm)/0.20), inset 0 1px 0 hsl(var(--gold-champagne)/0.22)'
+                    : '0 -18px 50px rgba(0,0,0,0.7), 0 0 60px hsl(var(--gold-warm)/0.20), inset 0 1px 0 hsl(var(--gold-champagne)/0.22)'
                   : '0 30px 80px rgba(0,0,0,0.7), 0 0 80px hsl(var(--gold-warm)/0.18), inset 0 1px 0 hsl(var(--gold-champagne)/0.18)',
               }}
             >
