@@ -106,6 +106,49 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
     };
   }, [expandedId, setPersistedExpandedId]);
 
+  // Restore create-draft from localStorage when world changes
+  useEffect(() => {
+    if (!worldId) return;
+    try {
+      const raw = localStorage.getItem(CREATE_DRAFT_STORAGE(worldId));
+      if (!raw) return;
+      const draft = JSON.parse(raw) as CreateDraft;
+      if (draft.kind || draft.title || draft.content || draft.imageUrl || draft.fruit !== null) {
+        setCreateKind(draft.kind);
+        setNewTitle(draft.title || '');
+        setNewContent(draft.content || '');
+        setNewFruit(draft.fruit ?? null);
+        setNewImageUrl(draft.imageUrl || '');
+        setShowCreate(true);
+      }
+    } catch {
+      // Local storage may be unavailable in restricted browser modes.
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [worldId]);
+
+  // Persist create-draft whenever the user types
+  useEffect(() => {
+    if (!worldId) return;
+    const hasContent = !!(createKind || newTitle || newContent || newImageUrl || newFruit !== null);
+    try {
+      if (hasContent && showCreate) {
+        const draft: CreateDraft = {
+          kind: createKind,
+          title: newTitle,
+          content: newContent,
+          fruit: newFruit,
+          imageUrl: newImageUrl,
+        };
+        localStorage.setItem(CREATE_DRAFT_STORAGE(worldId), JSON.stringify(draft));
+      } else {
+        localStorage.removeItem(CREATE_DRAFT_STORAGE(worldId));
+      }
+    } catch {
+      // Local storage may be unavailable in restricted browser modes.
+    }
+  }, [worldId, showCreate, createKind, newTitle, newContent, newFruit, newImageUrl]);
+
   if (!user) {
     return (
       <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-12 text-center">
