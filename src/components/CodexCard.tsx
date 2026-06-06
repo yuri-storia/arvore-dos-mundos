@@ -103,10 +103,12 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
     return () => { if (autosaveTimer.current) clearTimeout(autosaveTimer.current); };
   }, [editing, title, content, editFruit, entry.id, onUpdate]);
 
-  // Flush on tab hide / before unload
+  // Persist draft locally on tab hide / page unload (no network calls, no
+  // browser confirmation prompts — we just snapshot to localStorage so the
+  // editor can rehydrate exactly where the user left off).
   useEffect(() => {
     if (!editing) return;
-    const flush = () => {
+    const snapshot = () => {
       const dirty = title !== lastSavedRef.current.title
         || content !== lastSavedRef.current.content
         || editFruit !== lastSavedRef.current.fruit_id;
@@ -115,25 +117,15 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
         const d: Draft = { title, content, fruit_id: editFruit, ts: Date.now() };
         localStorage.setItem(DRAFT_KEY(entry.id), JSON.stringify(d));
       } catch { /* ignore */ }
-      // Fire-and-forget save (cannot await on unload, but request is queued)
-      onUpdate(entry.id, { title, content, fruit_id: editFruit }).catch(() => {});
     };
-    const onVisibility = () => { if (document.visibilityState === 'hidden') flush(); };
-    const onBeforeUnload = (e: BeforeUnloadEvent) => {
-      const dirty = title !== lastSavedRef.current.title
-        || content !== lastSavedRef.current.content
-        || editFruit !== lastSavedRef.current.fruit_id;
-      if (dirty) { flush(); e.preventDefault(); e.returnValue = ''; }
-    };
+    const onVisibility = () => { if (document.visibilityState === 'hidden') snapshot(); };
     document.addEventListener('visibilitychange', onVisibility);
-    window.addEventListener('beforeunload', onBeforeUnload);
-    window.addEventListener('pagehide', flush);
+    window.addEventListener('pagehide', snapshot);
     return () => {
       document.removeEventListener('visibilitychange', onVisibility);
-      window.removeEventListener('beforeunload', onBeforeUnload);
-      window.removeEventListener('pagehide', flush);
+      window.removeEventListener('pagehide', snapshot);
     };
-  }, [editing, title, content, editFruit, entry.id, onUpdate]);
+  }, [editing, title, content, editFruit, entry.id]);
 
   const fruitInfo = entry.fruit_id !== null ? FRUITS.find(f => f.id === entry.fruit_id) : null;
 

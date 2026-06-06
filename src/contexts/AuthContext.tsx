@@ -54,33 +54,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const processSession = async (nextSession: Session | null, shouldValidateAccess: boolean) => {
-    setSession(nextSession);
-    setUser(nextSession?.user ?? null);
+  const currentUserIdRef = React.useRef<string | null>(null);
 
-    if (!nextSession?.user) {
+  const processSession = async (nextSession: Session | null, shouldValidateAccess: boolean) => {
+    const nextUser = nextSession?.user ?? null;
+    const nextId = nextUser?.id ?? null;
+    const userChanged = currentUserIdRef.current !== nextId;
+
+    // Always keep the latest session token (for API calls), but only update
+    // the user reference when the identity actually changes. This prevents
+    // downstream hooks (useCodexEntries, useWorlds, ...) from re-fetching
+    // whenever Supabase silently refreshes the token (e.g. on tab focus).
+    setSession(nextSession);
+    if (userChanged) {
+      currentUserIdRef.current = nextId;
+      setUser(nextUser);
+    }
+
+    if (!nextUser) {
       setIsAdmin(false);
       setAccessDenied(false);
       setLoading(false);
       return;
     }
 
+    // Only validate access / re-check admin on real identity changes.
+    if (!userChanged) {
+      setLoading(false);
+      return;
+    }
+
     if (shouldValidateAccess) {
-      const allowed = await checkAccess(nextSession.access_token);
+      const allowed = await checkAccess(nextSession!.access_token);
       if (!allowed) {
         setLoading(false);
         return;
       }
     }
 
-    await checkAdmin(nextSession.user.id);
+    await checkAdmin(nextUser.id);
     setLoading(false);
   };
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, nextSession) => {
-      const shouldValidateAccess =
-        event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION';
+      // TOKEN_REFRESHED fires whenever the tab regains focus and the token is
+      // silently renewed — do NOT revalidate access in that case, it's already
+      // been validated on SIGNED_IN / INITIAL_SESSION.
+      const shouldValidateAccess = event === 'SIGNED_IN' || event === 'INITIAL_SESSION';
 
       void processSession(nextSession, shouldValidateAccess);
     });
