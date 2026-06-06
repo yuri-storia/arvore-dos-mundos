@@ -389,132 +389,163 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
       )}
 
       {/* Tooltip / card */}
-      <div
-        className={`fixed z-[10001] transition-all duration-300 ${animating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
-        style={getTooltipStyle()}
-      >
-        <div
-          className={`relative rounded-2xl p-5 sm:p-6 overflow-hidden ${
-            isCenter ? 'w-[92vw] max-w-[500px]' : 'w-full sm:w-[380px] max-w-[90vw]'
-          }`}
-          style={{
-            background:
-              'linear-gradient(160deg, rgba(20,14,4,0.96) 0%, rgba(10,8,2,0.98) 55%, rgba(8,5,10,0.96) 100%)',
-            border: '1px solid hsl(var(--gold)/0.35)',
-            boxShadow:
-              '0 30px 80px rgba(0,0,0,0.7), 0 0 80px hsl(var(--gold-warm)/0.18), inset 0 1px 0 hsl(var(--gold-champagne)/0.18)',
-          }}
-        >
-          {/* Top ornamental glow */}
-          <span
-            className="pointer-events-none absolute inset-0 opacity-70"
-            style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, hsl(var(--gold-warm)/0.18) 0%, transparent 70%)' }}
-          />
-
-          <div className="relative">
-            {/* Header */}
-            <div className="flex items-center gap-3 mb-4">
-              <div className="relative shrink-0">
-                <div
-                  className="w-11 h-11 rounded-full overflow-hidden"
-                  style={{
-                    border: '1.5px solid hsl(var(--gold-champagne)/0.6)',
-                    boxShadow: '0 0 0 1px hsl(var(--gold-warm)/0.25), 0 0 18px hsl(var(--gold-warm)/0.35)',
-                  }}
-                >
-                  <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover" />
+      {(() => {
+        const mobileDocked = isMobile && !isCenter;
+        const wrapperClass = mobileDocked
+          ? `fixed z-[10001] left-0 right-0 bottom-0 px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 transition-transform duration-300 ${animating ? 'translate-y-4 opacity-0' : 'translate-y-0 opacity-100'}`
+          : `fixed z-[10001] transition-all duration-300 ${animating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`;
+        const cardClass = mobileDocked
+          ? 'relative rounded-2xl p-4 overflow-hidden w-full mx-auto max-w-[560px]'
+          : `relative rounded-2xl p-5 sm:p-6 overflow-hidden ${
+              isCenter ? 'w-[92vw] max-w-[500px]' : 'w-full sm:w-[380px] max-w-[90vw]'
+            }`;
+        return (
+          <div
+            ref={mobileDocked ? sheetRef : undefined}
+            className={wrapperClass}
+            style={mobileDocked ? undefined : getTooltipStyle()}
+          >
+            <div
+              className={cardClass}
+              style={{
+                background:
+                  'linear-gradient(160deg, rgba(20,14,4,0.97) 0%, rgba(10,8,2,0.98) 55%, rgba(8,5,10,0.97) 100%)',
+                border: '1px solid hsl(var(--gold)/0.40)',
+                boxShadow: mobileDocked
+                  ? '0 -18px 50px rgba(0,0,0,0.7), 0 0 60px hsl(var(--gold-warm)/0.20), inset 0 1px 0 hsl(var(--gold-champagne)/0.22)'
+                  : '0 30px 80px rgba(0,0,0,0.7), 0 0 80px hsl(var(--gold-warm)/0.18), inset 0 1px 0 hsl(var(--gold-champagne)/0.18)',
+              }}
+            >
+              {/* Mobile grab indicator */}
+              {mobileDocked && (
+                <div className="flex justify-center -mt-1 mb-2">
+                  <span className="block w-10 h-1 rounded-full bg-gold-champagne/40" />
                 </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <span className="font-cinzel font-bold text-[13px] bg-gradient-to-r from-gold-warm via-gold-champagne to-gold-cream bg-clip-text text-transparent block leading-tight">
-                  Idriel
-                </span>
-                <span className="font-montserrat text-[8px] text-gold-champagne/70 uppercase tracking-[0.22em]">
-                  Guardiã da Árvore
-                </span>
-              </div>
+              )}
+
+              {/* Top ornamental glow */}
               <span
-                className="text-[9px] font-montserrat font-bold text-gold-light/70 uppercase tracking-wider shrink-0 px-2 py-0.5 rounded-full"
-                style={{ background: 'hsl(var(--gold-warm)/0.08)', border: '1px solid hsl(var(--gold-warm)/0.18)' }}
-              >
-                {step + 1} de {TOUR_STEPS.length}
-              </span>
-            </div>
+                className="pointer-events-none absolute inset-0 opacity-70"
+                style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, hsl(var(--gold-warm)/0.18) 0%, transparent 70%)' }}
+              />
 
-            {/* Content */}
-            <div className="flex items-start gap-2.5 mb-5">
-              <currentStep.Icon className="w-5 h-5 shrink-0 text-gold-champagne mt-0.5" strokeWidth={1.5} />
-              <div className="flex-1 min-w-0">
-                <h4 className="font-cinzel font-bold text-[15px] text-foreground mb-1.5 leading-tight">
-                  {currentStep.title}
-                </h4>
-                <p className="font-merriweather italic text-[12.5px] text-text-secondary leading-relaxed">
-                  {currentStep.desc}
-                </p>
-              </div>
-            </div>
-
-            {/* Click instruction */}
-            {currentStep.type === 'click' && (
-              <div
-                className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg"
-                style={{
-                  background: 'linear-gradient(135deg, hsl(var(--gold-warm)/0.15) 0%, hsl(var(--gold-deep)/0.08) 100%)',
-                  border: '1px solid hsl(var(--gold)/0.30)',
-                }}
-              >
-                <Hand className="w-4 h-4 text-gold-champagne animate-bounce" strokeWidth={2} />
-                <span className="font-montserrat text-[11px] text-gold-light font-bold tracking-wide">
-                  Toque no destaque dourado para continuar
-                </span>
-              </div>
-            )}
-
-            {/* Progress + actions */}
-            <div className="flex items-center justify-between pt-3 border-t border-gold/15">
-              <div className="flex-1 mr-3">
-                <div className="h-[3px] bg-gold/10 rounded-full overflow-hidden">
+              <div className="relative">
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-3">
                   <div
-                    className="h-full rounded-full transition-all duration-500"
+                    className="w-10 h-10 rounded-full overflow-hidden shrink-0"
                     style={{
-                      width: `${((step + 1) / TOUR_STEPS.length) * 100}%`,
-                      background:
-                        'linear-gradient(90deg, hsl(var(--gold-deep)) 0%, hsl(var(--gold-warm)) 50%, hsl(var(--gold-champagne)) 100%)',
-                      boxShadow: '0 0 10px hsl(var(--gold-warm)/0.6)',
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  onClick={finish}
-                  className="text-[10px] font-montserrat text-text-dim hover:text-gold-champagne px-2 py-1 transition-colors uppercase tracking-wider"
-                >
-                  Pular
-                </button>
-                {hasNextButton && (
-                  <button
-                    onClick={currentStep.type === 'outro' ? finish : goNext}
-                    className="px-4 py-1.5 rounded-lg text-[11px] font-montserrat font-bold uppercase tracking-wider text-[#1a0f00] transition-all"
-                    style={{
-                      background:
-                        'linear-gradient(135deg, hsl(var(--gold-deep)) 0%, hsl(var(--gold-warm)) 50%, hsl(var(--gold)) 100%)',
-                      boxShadow:
-                        '0 4px 14px hsl(var(--gold-warm)/0.4), inset 0 1px 0 hsl(var(--gold-cream)/0.35)',
+                      border: '1.5px solid hsl(var(--gold-champagne)/0.6)',
+                      boxShadow: '0 0 0 1px hsl(var(--gold-warm)/0.25), 0 0 18px hsl(var(--gold-warm)/0.35)',
                     }}
                   >
-                    {currentStep.type === 'outro' ? (
-                      <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Começar</>
-                    ) : (
-                      <>Próximo <ArrowRight className="inline-block w-3.5 h-3.5 ml-1 align-[-0.15em]" strokeWidth={2} /></>
-                    )}
-                  </button>
+                    <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="font-cinzel font-bold text-[13px] bg-gradient-to-r from-gold-warm via-gold-champagne to-gold-cream bg-clip-text text-transparent block leading-tight">
+                      Idriel
+                    </span>
+                    <span className="font-montserrat text-[8px] text-gold-champagne/70 uppercase tracking-[0.22em]">
+                      Guardiã da Árvore
+                    </span>
+                  </div>
+                  <span
+                    className="text-[9px] font-montserrat font-bold text-gold-light/70 uppercase tracking-wider shrink-0 px-2 py-0.5 rounded-full"
+                    style={{ background: 'hsl(var(--gold-warm)/0.08)', border: '1px solid hsl(var(--gold-warm)/0.18)' }}
+                  >
+                    {step + 1}/{TOUR_STEPS.length}
+                  </span>
+                  {mobileDocked && (
+                    <button
+                      onClick={finish}
+                      aria-label="Fechar tour"
+                      className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center border border-gold/25 bg-black/40 text-gold-champagne/80 active:scale-95"
+                    >
+                      <X className="w-4 h-4" strokeWidth={2} />
+                    </button>
+                  )}
+                </div>
+
+                {/* Content */}
+                <div className="flex items-start gap-2.5 mb-4">
+                  <currentStep.Icon className="w-5 h-5 shrink-0 text-gold-champagne mt-0.5" strokeWidth={1.5} />
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-cinzel font-bold text-[15px] text-foreground mb-1.5 leading-tight">
+                      {currentStep.title}
+                    </h4>
+                    <p className={`font-merriweather italic text-text-secondary leading-relaxed ${mobileDocked ? 'text-[12px] max-h-[28vh] overflow-y-auto pr-1' : 'text-[12.5px]'}`}>
+                      {currentStep.desc}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Click instruction */}
+                {currentStep.type === 'click' && (
+                  <div
+                    className="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg"
+                    style={{
+                      background: 'linear-gradient(135deg, hsl(var(--gold-warm)/0.15) 0%, hsl(var(--gold-deep)/0.08) 100%)',
+                      border: '1px solid hsl(var(--gold)/0.30)',
+                    }}
+                  >
+                    <Hand className="w-4 h-4 text-gold-champagne animate-bounce shrink-0" strokeWidth={2} />
+                    <span className="font-montserrat text-[11px] text-gold-light font-bold tracking-wide">
+                      Toque no destaque dourado para continuar
+                    </span>
+                  </div>
                 )}
+
+                {/* Progress + actions */}
+                <div className={`flex items-center justify-between pt-3 border-t border-gold/15 ${mobileDocked ? 'gap-3' : ''}`}>
+                  <div className="flex-1 mr-3">
+                    <div className="h-[3px] bg-gold/10 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${((step + 1) / TOUR_STEPS.length) * 100}%`,
+                          background:
+                            'linear-gradient(90deg, hsl(var(--gold-deep)) 0%, hsl(var(--gold-warm)) 50%, hsl(var(--gold-champagne)) 100%)',
+                          boxShadow: '0 0 10px hsl(var(--gold-warm)/0.6)',
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {!mobileDocked && (
+                      <button
+                        onClick={finish}
+                        className="text-[10px] font-montserrat text-text-dim hover:text-gold-champagne px-2 py-1 transition-colors uppercase tracking-wider"
+                      >
+                        Pular
+                      </button>
+                    )}
+                    {hasNextButton && (
+                      <button
+                        onClick={currentStep.type === 'outro' ? finish : goNext}
+                        className={`rounded-lg font-montserrat font-bold uppercase tracking-wider text-[#1a0f00] transition-all active:scale-95 ${
+                          mobileDocked ? 'px-5 py-2.5 text-[12px] min-h-[44px]' : 'px-4 py-1.5 text-[11px]'
+                        }`}
+                        style={{
+                          background:
+                            'linear-gradient(135deg, hsl(var(--gold-deep)) 0%, hsl(var(--gold-warm)) 50%, hsl(var(--gold)) 100%)',
+                          boxShadow:
+                            '0 4px 14px hsl(var(--gold-warm)/0.4), inset 0 1px 0 hsl(var(--gold-cream)/0.35)',
+                        }}
+                      >
+                        {currentStep.type === 'outro' ? (
+                          <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Começar</>
+                        ) : (
+                          <>Próximo <ArrowRight className="inline-block w-3.5 h-3.5 ml-1 align-[-0.15em]" strokeWidth={2} /></>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        );
+      })()}
     </>
   );
 };
