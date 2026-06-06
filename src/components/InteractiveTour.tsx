@@ -20,6 +20,7 @@ export interface TourStep {
   Icon: LucideIcon;
   tabToActivate?: TabType;
   tooltipPos?: 'right' | 'bottom' | 'left' | 'top' | 'center';
+  mobileCard?: 'top' | 'bottom' | 'auto';
   delay?: number;
   setFruit?: number;
   setMethod?: 'top-down' | 'bottom-up';
@@ -42,6 +43,7 @@ const TOUR_STEPS: TourStep[] = [
     title: 'Construir — a fundação do mundo',
     desc: 'Toque em "Construir" para acessar o jardim dos onze Frutos do worldbuilding.',
     Icon: Leaf,
+    mobileCard: 'top',
   },
   {
     type: 'highlight',
@@ -50,6 +52,7 @@ const TOUR_STEPS: TourStep[] = [
     desc: '"De Cima para Baixo" parte do panorama — mapa, cosmologia, história — até alcançar os detalhes. "De Baixo para Cima" nasce dos personagens e expande o mundo conforme a narrativa exige. Trate-os como guias: criadores experientes transitam livremente entre os Frutos.',
     Icon: Compass,
     tooltipPos: 'bottom',
+    mobileCard: 'bottom',
     delay: 400,
   },
   {
@@ -59,7 +62,9 @@ const TOUR_STEPS: TourStep[] = [
     desc: 'Selecione esta abordagem para observar como a ordem dos Frutos se reorganiza — colocando personagens e enredo antes do panorama geral.',
     Icon: Compass,
     tooltipPos: 'bottom',
+    mobileCard: 'bottom',
     delay: 200,
+    setMethod: 'bottom-up',
   },
   {
     type: 'highlight',
@@ -68,6 +73,7 @@ const TOUR_STEPS: TourStep[] = [
     desc: 'Cada card é um Fruto: um pilar do seu universo — mapa, história, culturas, magia, personagens e mais. O método sugere uma ordem, mas a colheita pode seguir a inspiração do momento.',
     Icon: Apple,
     tooltipPos: 'bottom',
+    mobileCard: 'auto',
     delay: 400,
     setFruit: 1,
   },
@@ -78,6 +84,7 @@ const TOUR_STEPS: TourStep[] = [
     desc: 'Dentro de cada Fruto, posso ser consultada sobre aquele pilar específico. Use as sugestões rápidas ou formule sua própria pergunta. Cada consulta consome 1 gota de Elixir e está disponível no plano Idriel.',
     Icon: Leaf,
     tooltipPos: 'top',
+    mobileCard: 'auto',
     delay: 200,
   },
 
@@ -89,6 +96,7 @@ const TOUR_STEPS: TourStep[] = [
     title: 'Codex — sua biblioteca viva',
     desc: 'Toque em "Codex" para acessar a biblioteca onde todo o conhecimento do seu mundo é catalogado.',
     Icon: BookOpen,
+    mobileCard: 'top',
   },
   {
     type: 'highlight',
@@ -97,6 +105,7 @@ const TOUR_STEPS: TourStep[] = [
     desc: 'Crie Fichas (com imagem, ideais para personagens, locais e itens) e Artigos (texto livre, para lore e regras). Tudo o que você registra nos Frutos aparece aqui automaticamente. Quando desejar, solicite uma Análise de Mundo — minha avaliação completa sobre o estado da sua criação.',
     Icon: ClipboardList,
     tooltipPos: 'left',
+    mobileCard: 'auto',
     delay: 400,
   },
 
@@ -108,6 +117,7 @@ const TOUR_STEPS: TourStep[] = [
     title: 'Escrever — a história ganha voz',
     desc: 'Toque em "Escrever" para entrar no espaço dedicado à sua narrativa.',
     Icon: Feather,
+    mobileCard: 'top',
   },
   {
     type: 'highlight',
@@ -116,6 +126,7 @@ const TOUR_STEPS: TourStep[] = [
     desc: 'Inicie um Manuscrito e organize-o em Capítulos, como em um livro. O editor traz verificador ortográfico nativo em português, atalho Ctrl+L para vincular qualquer palavra ao Codex e Ctrl+F para localizar trechos no texto. Ao concluir, exporte em PDF, Word ou formato e-book.',
     Icon: Book,
     tooltipPos: 'right',
+    mobileCard: 'auto',
     delay: 400,
   },
 
@@ -127,6 +138,7 @@ const TOUR_STEPS: TourStep[] = [
     title: 'Galeria — referências visuais',
     desc: 'Toque em "Galeria" para acessar o repositório visual do seu mundo.',
     Icon: Palette,
+    mobileCard: 'top',
   },
   {
     type: 'highlight',
@@ -135,6 +147,7 @@ const TOUR_STEPS: TourStep[] = [
     desc: 'Reúna concept arts, mapas e paisagens que inspiram seu mundo. Organize por Fruto para encontrar tudo com facilidade quando a criação pedir.',
     Icon: ImageIcon,
     tooltipPos: 'bottom',
+    mobileCard: 'auto',
     delay: 400,
   },
   {
@@ -144,6 +157,7 @@ const TOUR_STEPS: TourStep[] = [
     desc: 'Descreva a cena imaginada, escolha estilo e tom, e materializarei a imagem por meio de IA. Cada visão consome 5 gotas de Elixir e está disponível no plano Idriel.',
     Icon: Sparkles,
     tooltipPos: 'top',
+    mobileCard: 'auto',
     delay: 200,
   },
 
