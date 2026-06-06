@@ -16,6 +16,7 @@ import { IdrielImportDialog } from '@/components/IdrielImportDialog';
 
 const FRUIT_ALL = -1;
 const FRUIT_NONE = -2; // sentinel for "no fruit" filter
+const EXPANDED_ENTRY_STORAGE = (worldId: string) => `adm_codex_expanded:${worldId}`;
 
 type EntryKind = 'ficha' | 'artigo';
 
@@ -55,12 +56,35 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
 
   const expandedEntry = entries.find(e => e.id === expandedId) || null;
 
+  const setPersistedExpandedId = (id: string | null) => {
+    setExpandedId(id);
+    if (!worldId) return;
+    try {
+      if (id) localStorage.setItem(EXPANDED_ENTRY_STORAGE(worldId), id);
+      else localStorage.removeItem(EXPANDED_ENTRY_STORAGE(worldId));
+    } catch {}
+  };
+
+  useEffect(() => {
+    if (!worldId || loading) return;
+    try {
+      const storedId = localStorage.getItem(EXPANDED_ENTRY_STORAGE(worldId));
+      if (!expandedId && storedId && entries.some(e => e.id === storedId)) {
+        setExpandedId(storedId);
+      }
+      if (expandedId && !entries.some(e => e.id === expandedId)) {
+        localStorage.removeItem(EXPANDED_ENTRY_STORAGE(worldId));
+        setExpandedId(null);
+      }
+    } catch {}
+  }, [worldId, loading, entries, expandedId]);
+
   useEffect(() => {
     if (!expandedId) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setExpandedId(null);
+      if (event.key === 'Escape') setPersistedExpandedId(null);
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => {
