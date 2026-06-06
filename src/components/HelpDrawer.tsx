@@ -66,12 +66,34 @@ const GREETING = 'Sou Idriel, élfica imortal e guardiã da Árvore dos Mundos. 
 
 interface Props { tab: string; }
 
+const ORB_POS_STORAGE = 'adm_idriel_orb_pos';
+const ORB_SIZE_FALLBACK = { w: 180, h: 60 };
+const DRAG_THRESHOLD = 5;
+
 export const HelpDrawer: React.FC<Props> = ({ tab }) => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [activeCategory, setActiveCategory] = useState(tab);
+  const [dragging, setDragging] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const heroVideoRef = useRef<HTMLVideoElement>(null);
+
+  const [orbPos, setOrbPos] = useState<{ x: number; y: number } | null>(() => {
+    try {
+      const raw = localStorage.getItem(ORB_POS_STORAGE);
+      if (!raw) return null;
+      const p = JSON.parse(raw);
+      if (typeof p?.x === 'number' && typeof p?.y === 'number') return p;
+    } catch { /* ignore */ }
+    return null;
+  });
+  const orbRef = useRef<HTMLButtonElement>(null);
+  const dragState = useRef<{
+    pointerId: number;
+    startX: number; startY: number;
+    originX: number; originY: number;
+    moved: boolean;
+  } | null>(null);
 
   const categories = Object.keys(FAQ);
 
@@ -87,12 +109,68 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
     }
   }, [messages]);
 
-  // Try to autoplay hero video when drawer opens
   useEffect(() => {
-    if (open && heroVideoRef.current) {
-      heroVideoRef.current.play().catch(() => {});
-    }
+    if (open && heroVideoRef.current) heroVideoRef.current.play().catch(() => {});
   }, [open]);
+
+  useEffect(() => {
+    try { if (orbPos) localStorage.setItem(ORB_POS_STORAGE, JSON.stringify(orbPos)); } catch { /* ignore */ }
+  }, [orbPos]);
+
+  useEffect(() => {
+    const onResize = () => {
+      setOrbPos(prev => {
+        if (!prev) return prev;
+        const w = orbRef.current?.offsetWidth ?? ORB_SIZE_FALLBACK.w;
+        const h = orbRef.current?.offsetHeight ?? ORB_SIZE_FALLBACK.h;
+        return {
+          x: Math.max(4, Math.min(prev.x, window.innerWidth - w - 4)),
+          y: Math.max(4, Math.min(prev.y, window.innerHeight - h - 4)),
+        };
+      });
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const rect = orbRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    dragState.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX, startY: e.clientY,
+      originX: rect.left, originY: rect.top,
+      moved: false,
+    };
+    try { orbRef.current?.setPointerCapture(e.pointerId); } catch { /* ignore */ }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const s = dragState.current;
+    if (!s || s.pointerId !== e.pointerId) return;
+    const dx = e.clientX - s.startX;
+    const dy = e.clientY - s.startY;
+    if (!s.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+    if (!s.moved) setDragging(true);
+    s.moved = true;
+    const w = orbRef.current?.offsetWidth ?? ORB_SIZE_FALLBACK.w;
+    const h = orbRef.current?.offsetHeight ?? ORB_SIZE_FALLBACK.h;
+    setOrbPos({
+      x: Math.max(4, Math.min(s.originX + dx, window.innerWidth - w - 4)),
+      y: Math.max(4, Math.min(s.originY + dy, window.innerHeight - h - 4)),
+    });
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const s = dragState.current;
+    if (!s || s.pointerId !== e.pointerId) return;
+    const wasDrag = s.moved;
+    dragState.current = null;
+    setDragging(false);
+    try { orbRef.current?.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
+    if (!wasDrag) setOpen(true);
+  };
 
   const handleAsk = (q: string, a: string) => {
     setMessages(prev => [...prev, { role: 'user', content: q }, { role: 'assistant', content: a }]);
@@ -102,12 +180,18 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
 
   return (
     <>
-      {/* === Floating Idriel orb (premium) === */}
+      {/* === Floating Idriel orb (premium, draggable) === */}
       <button
-        onClick={() => setOpen(true)}
-        aria-label="Falar com Idriel"
-        className="group fixed top-14 right-6 sm:right-8 z-[140] flex items-center gap-3 pl-1.5 pr-3 sm:pr-4 py-1.5 rounded-full transition-all hover:-translate-y-0.5 active:scale-95 max-w-[calc(100vw-4rem)]"
+        ref={orbRef}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        aria-label="Falar com Idriel (arraste para mover)"
+        title="Clique para abrir · arraste para mover"
+        className={`group fixed z-[140] flex items-center gap-3 pl-1.5 pr-3 sm:pr-4 py-1.5 rounded-full transition-shadow hover:-translate-y-0.5 active:scale-95 max-w-[calc(100vw-1rem)] touch-none select-none ${dragging ? 'cursor-grabbing' : 'cursor-grab'} ${orbPos ? '' : 'top-14 right-6 sm:right-8'}`}
         style={{
+          ...(orbPos ? { left: orbPos.x, top: orbPos.y } : null),
           background:
             'linear-gradient(135deg, hsl(var(--bg-deep)) 0%, hsl(var(--card)) 50%, hsl(var(--gold-deep) / 0.68) 100%)',
           border: '1px solid hsl(var(--gold-champagne) / 0.45)',
