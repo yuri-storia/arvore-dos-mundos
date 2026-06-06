@@ -488,9 +488,12 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 <button onClick={handleSave} className="px-4 py-1.5 bg-accent/80 hover:bg-accent text-accent-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
                   Salvar
                 </button>
-                <button onClick={() => { setEditing(false); setTitle(entry.title); setContent(entry.content); setEditFruit(entry.fruit_id); }} className="px-4 py-1.5 bg-secondary text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
+                <button onClick={() => { localStorage.removeItem(DRAFT_KEY(entry.id)); setEditing(false); setTitle(entry.title); setContent(entry.content); setEditFruit(entry.fruit_id); lastSavedRef.current = { title: entry.title, content: entry.content, fruit_id: entry.fruit_id }; setSaveState('idle'); }} className="px-4 py-1.5 bg-secondary text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
                   Cancelar
                 </button>
+                <span className="self-center text-[10px] font-montserrat text-text-dim italic">
+                  {saveState === 'saving' ? 'Salvando…' : saveState === 'dirty' ? 'Alterações não salvas' : saveState === 'saved' ? 'Salvo automaticamente' : ''}
+                </span>
               </>
             )}
             <button
