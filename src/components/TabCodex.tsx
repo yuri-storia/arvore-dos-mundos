@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
@@ -56,14 +56,14 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
 
   const expandedEntry = entries.find(e => e.id === expandedId) || null;
 
-  const setPersistedExpandedId = (id: string | null) => {
+  const setPersistedExpandedId = useCallback((id: string | null) => {
     setExpandedId(id);
     if (!worldId) return;
     try {
       if (id) localStorage.setItem(EXPANDED_ENTRY_STORAGE(worldId), id);
       else localStorage.removeItem(EXPANDED_ENTRY_STORAGE(worldId));
     } catch {}
-  };
+  }, [worldId]);
 
   useEffect(() => {
     if (!worldId || loading) return;
@@ -91,7 +91,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [expandedId]);
+  }, [expandedId, setPersistedExpandedId]);
 
   if (!user) {
     return (
