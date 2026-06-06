@@ -223,11 +223,34 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     return () => cancelAnimationFrame(rafRef.current);
   }, [active, measureTarget, delayWaiting]);
 
+  // Scroll target into view. On mobile we keep it inside the safe area
+  // ABOVE the bottom sheet, so the tooltip can never overlap the highlighted
+  // element / button.
   useEffect(() => {
     if (!active || delayWaiting || !currentStep.target) return;
     const el = document.querySelector(`[data-tour="${currentStep.target}"]`);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, [active, step, delayWaiting, currentStep.target]);
+    if (!el) return;
+    if (isMobile) {
+      const r = el.getBoundingClientRect();
+      const reserved = (sheetH || Math.min(window.innerHeight * 0.5, 320)) + 24;
+      const safeH = Math.max(120, window.innerHeight - reserved);
+      const desiredTop = Math.max(72, 72 + (safeH - r.height) / 2);
+      const delta = r.top - desiredTop;
+      if (Math.abs(delta) > 4) window.scrollBy({ top: delta, behavior: 'smooth' });
+    } else {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [active, step, delayWaiting, currentStep.target, isMobile, sheetH]);
+
+  // Measure the bottom sheet height on mobile so the scroll math is accurate.
+  useEffect(() => {
+    if (!isMobile || !sheetRef.current) { setSheetH(0); return; }
+    const el = sheetRef.current;
+    const ro = new ResizeObserver(() => setSheetH(el.offsetHeight));
+    ro.observe(el);
+    setSheetH(el.offsetHeight);
+    return () => ro.disconnect();
+  }, [isMobile, step, delayWaiting]);
 
   const finish = () => {
     markTourDone();
