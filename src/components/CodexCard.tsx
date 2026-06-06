@@ -27,12 +27,16 @@ interface Props {
   onOpenEntry?: (id: string) => void;
 }
 
+const DRAFT_KEY = (id: string) => `codex-draft:${id}`;
+type Draft = { title: string; content: string; fruit_id: number | null; ts: number };
+
 export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate, onDelete, onImageUpload, onLightbox, gallery, siblings, onOpenEntry }) => {
   const planLimits = usePlanLimits();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(entry.title);
   const [content, setContent] = useState(entry.content);
   const [editFruit, setEditFruit] = useState<number | null>(entry.fruit_id);
+  const [saveState, setSaveState] = useState<'idle' | 'dirty' | 'saving' | 'saved'>('idle');
   const [uploading, setUploading] = useState(false);
   const [showImageMenu, setShowImageMenu] = useState(false);
   const [showGalleryPicker, setShowGalleryPicker] = useState(false);
@@ -42,15 +46,104 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   const [showRepositioner, setShowRepositioner] = useState(false);
   const [imgPos, setImgPos] = useState<{ x: number; y: number }>(entry.image_position || { x: 50, y: 50 });
   const fileRef = useRef<HTMLInputElement>(null);
+  const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSavedRef = useRef({ title: entry.title, content: entry.content, fruit_id: entry.fruit_id });
 
   useEffect(() => {
     setImgPos(entry.image_position || { x: 50, y: 50 });
   }, [entry.id, entry.image_position]);
 
+  // Restore unsaved draft (e.g., after tab refresh / accidental collapse)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY(entry.id));
+      if (!raw) return;
+      const d: Draft = JSON.parse(raw);
+      const entryTs = new Date(entry.updated_at).getTime();
+      const hasDiff = d.title !== entry.title || d.content !== entry.content || d.fruit_id !== entry.fruit_id;
+      if (hasDiff && d.ts > entryTs) {
+        setTitle(d.title);
+        setContent(d.content);
+        setEditFruit(d.fruit_id);
+        setEditing(true);
+        setSaveState('dirty');
+        toast.info('Rascunho não salvo recuperado.');
+      } else {
+        localStorage.removeItem(DRAFT_KEY(entry.id));
+      }
+    } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entry.id]);
+
+  // Persist draft + debounced autosave while editing
+  useEffect(() => {
+    if (!editing) return;
+    const dirty = title !== lastSavedRef.current.title
+      || content !== lastSavedRef.current.content
+      || editFruit !== lastSavedRef.current.fruit_id;
+    if (!dirty) return;
+    setSaveState('dirty');
+    try {
+      const d: Draft = { title, content, fruit_id: editFruit, ts: Date.now() };
+      localStorage.setItem(DRAFT_KEY(entry.id), JSON.stringify(d));
+    } catch { /* quota */ }
+    if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+    autosaveTimer.current = setTimeout(async () => {
+      setSaveState('saving');
+      try {
+        await onUpdate(entry.id, { title, content, fruit_id: editFruit });
+        lastSavedRef.current = { title, content, fruit_id: editFruit };
+        localStorage.removeItem(DRAFT_KEY(entry.id));
+        setSaveState('saved');
+        setTimeout(() => setSaveState(s => (s === 'saved' ? 'idle' : s)), 1500);
+      } catch {
+        setSaveState('dirty');
+      }
+    }, 1200);
+    return () => { if (autosaveTimer.current) clearTimeout(autosaveTimer.current); };
+  }, [editing, title, content, editFruit, entry.id, onUpdate]);
+
+  // Flush on tab hide / before unload
+  useEffect(() => {
+    if (!editing) return;
+    const flush = () => {
+      const dirty = title !== lastSavedRef.current.title
+        || content !== lastSavedRef.current.content
+        || editFruit !== lastSavedRef.current.fruit_id;
+      if (!dirty) return;
+      try {
+        const d: Draft = { title, content, fruit_id: editFruit, ts: Date.now() };
+        localStorage.setItem(DRAFT_KEY(entry.id), JSON.stringify(d));
+      } catch { /* ignore */ }
+      // Fire-and-forget save (cannot await on unload, but request is queued)
+      onUpdate(entry.id, { title, content, fruit_id: editFruit }).catch(() => {});
+    };
+    const onVisibility = () => { if (document.visibilityState === 'hidden') flush(); };
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      const dirty = title !== lastSavedRef.current.title
+        || content !== lastSavedRef.current.content
+        || editFruit !== lastSavedRef.current.fruit_id;
+      if (dirty) { flush(); e.preventDefault(); e.returnValue = ''; }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('beforeunload', onBeforeUnload);
+    window.addEventListener('pagehide', flush);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('beforeunload', onBeforeUnload);
+      window.removeEventListener('pagehide', flush);
+    };
+  }, [editing, title, content, editFruit, entry.id, onUpdate]);
+
   const fruitInfo = entry.fruit_id !== null ? FRUITS.find(f => f.id === entry.fruit_id) : null;
 
   const handleSave = async () => {
+    if (autosaveTimer.current) { clearTimeout(autosaveTimer.current); autosaveTimer.current = null; }
+    setSaveState('saving');
     await onUpdate(entry.id, { title, content, fruit_id: editFruit });
+    lastSavedRef.current = { title, content, fruit_id: editFruit };
+    localStorage.removeItem(DRAFT_KEY(entry.id));
+    setSaveState('idle');
     setEditing(false);
   };
 
@@ -395,9 +488,12 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 <button onClick={handleSave} className="px-4 py-1.5 bg-accent/80 hover:bg-accent text-accent-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
                   Salvar
                 </button>
-                <button onClick={() => { setEditing(false); setTitle(entry.title); setContent(entry.content); setEditFruit(entry.fruit_id); }} className="px-4 py-1.5 bg-secondary text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
+                <button onClick={() => { localStorage.removeItem(DRAFT_KEY(entry.id)); setEditing(false); setTitle(entry.title); setContent(entry.content); setEditFruit(entry.fruit_id); lastSavedRef.current = { title: entry.title, content: entry.content, fruit_id: entry.fruit_id }; setSaveState('idle'); }} className="px-4 py-1.5 bg-secondary text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
                   Cancelar
                 </button>
+                <span className="self-center text-[10px] font-montserrat text-text-dim italic">
+                  {saveState === 'saving' ? 'Salvando…' : saveState === 'dirty' ? 'Alterações não salvas' : saveState === 'saved' ? 'Salvo automaticamente' : ''}
+                </span>
               </>
             )}
             <button
@@ -557,9 +653,12 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 <button onClick={handleSave} className="px-4 py-1.5 bg-primary hover:bg-ring text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
                   Salvar
                 </button>
-                <button onClick={() => { setEditing(false); setTitle(entry.title); setContent(entry.content); setEditFruit(entry.fruit_id); }} className="px-4 py-1.5 bg-secondary text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
+                <button onClick={() => { localStorage.removeItem(DRAFT_KEY(entry.id)); setEditing(false); setTitle(entry.title); setContent(entry.content); setEditFruit(entry.fruit_id); lastSavedRef.current = { title: entry.title, content: entry.content, fruit_id: entry.fruit_id }; setSaveState('idle'); }} className="px-4 py-1.5 bg-secondary text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
                   Cancelar
                 </button>
+                <span className="self-center text-[10px] font-montserrat text-text-dim italic">
+                  {saveState === 'saving' ? 'Salvando…' : saveState === 'dirty' ? 'Alterações não salvas' : saveState === 'saved' ? 'Salvo automaticamente' : ''}
+                </span>
               </>
             )}
             <button
