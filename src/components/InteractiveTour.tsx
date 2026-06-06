@@ -182,7 +182,9 @@ function markTourDone() {
   try {
     localStorage.setItem(TOUR_STORAGE_KEY, 'true');
     localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify(['construir', 'codex', 'escrever', 'galeria']));
-  } catch {}
+  } catch {
+    // localStorage can be unavailable in private browsing; tour should still finish.
+  }
 }
 
 export { TOUR_STORAGE_KEY, hasDoneTour, markTourDone };
