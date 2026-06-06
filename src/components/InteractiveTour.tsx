@@ -172,6 +172,7 @@ const TOUR_STEPS: TourStep[] = [
 
 const TOUR_STORAGE_KEY = 'adm_interactive_tour_done';
 const ONBOARDING_STORAGE_KEY = 'adm_onboarding_seen';
+const MOBILE_NAV_CLEARANCE = 84;
 
 function hasDoneTour(): boolean {
   try { return localStorage.getItem(TOUR_STORAGE_KEY) === 'true'; } catch { return false; }
@@ -205,6 +206,20 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
   const rafRef = useRef<number>(0);
 
   const currentStep = TOUR_STEPS[step];
+  const mobileDocked = isMobile && currentStep.type !== 'intro' && currentStep.type !== 'outro';
+  const mobilePlacement: 'top' | 'bottom' = (() => {
+    if (!mobileDocked) return 'bottom';
+    if (currentStep.mobileCard && currentStep.mobileCard !== 'auto') return currentStep.mobileCard;
+    if (!targetRect || typeof window === 'undefined') return 'bottom';
+
+    const estimatedCardH = sheetH || Math.min(window.innerHeight * 0.42, 300);
+    const topSpace = targetRect.top;
+    const bottomSpace = window.innerHeight - targetRect.bottom - MOBILE_NAV_CLEARANCE;
+
+    if (bottomSpace >= estimatedCardH + 18) return 'bottom';
+    if (topSpace >= estimatedCardH + 18) return 'top';
+    return targetRect.top < window.innerHeight / 2 ? 'bottom' : 'top';
+  })();
 
   useEffect(() => {
     if (!active) return;
@@ -246,15 +261,19 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     if (!el) return;
     if (isMobile) {
       const r = el.getBoundingClientRect();
-      const reserved = (sheetH || Math.min(window.innerHeight * 0.5, 320)) + 24;
-      const safeH = Math.max(120, window.innerHeight - reserved);
-      const desiredTop = Math.max(72, 72 + (safeH - r.height) / 2);
+      const cardH = sheetH || Math.min(window.innerHeight * 0.42, 300);
+      const safeTop = mobilePlacement === 'top' ? cardH + 18 : 72;
+      const safeBottom = mobilePlacement === 'bottom'
+        ? window.innerHeight - cardH - 18
+        : window.innerHeight - MOBILE_NAV_CLEARANCE;
+      const safeH = Math.max(80, safeBottom - safeTop);
+      const desiredTop = safeTop + Math.max(0, (safeH - r.height) / 2);
       const delta = r.top - desiredTop;
       if (Math.abs(delta) > 4) window.scrollBy({ top: delta, behavior: 'smooth' });
     } else {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [active, step, delayWaiting, currentStep.target, isMobile, sheetH]);
+  }, [active, step, delayWaiting, currentStep.target, isMobile, sheetH, mobilePlacement]);
 
   // Measure the bottom sheet height on mobile so the scroll math is accurate.
   useEffect(() => {
@@ -285,7 +304,7 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     if (nextStep.setFruit !== undefined && setCurrentFruit) {
       setCurrentFruit(nextStep.setFruit);
     }
-    if (TOUR_STEPS[step].setMethod && setMethod && TOUR_STEPS[step].type !== 'click') {
+    if (TOUR_STEPS[step].setMethod && setMethod) {
       setMethod(TOUR_STEPS[step].setMethod!);
     }
     setAnimating(true);
@@ -404,9 +423,12 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
 
       {/* Tooltip / card */}
       {(() => {
-        const mobileDocked = isMobile && !isCenter;
         const wrapperClass = mobileDocked
-          ? `fixed z-[10001] left-0 right-0 bottom-0 px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 transition-transform duration-300 ${animating ? 'translate-y-4 opacity-0' : 'translate-y-0 opacity-100'}`
+          ? `fixed z-[10001] left-0 right-0 px-3 transition-transform duration-300 ${
+              mobilePlacement === 'top'
+                ? `top-0 pt-[max(12px,env(safe-area-inset-top))] pb-3 ${animating ? '-translate-y-4 opacity-0' : 'translate-y-0 opacity-100'}`
+                : `bottom-0 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] ${animating ? 'translate-y-4 opacity-0' : 'translate-y-0 opacity-100'}`
+            }`
           : `fixed z-[10001] transition-all duration-300 ${animating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`;
         const cardClass = mobileDocked
           ? 'relative rounded-2xl p-4 overflow-hidden w-full mx-auto max-w-[560px]'
@@ -426,7 +448,9 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
                   'linear-gradient(160deg, rgba(20,14,4,0.97) 0%, rgba(10,8,2,0.98) 55%, rgba(8,5,10,0.97) 100%)',
                 border: '1px solid hsl(var(--gold)/0.40)',
                 boxShadow: mobileDocked
-                  ? '0 -18px 50px rgba(0,0,0,0.7), 0 0 60px hsl(var(--gold-warm)/0.20), inset 0 1px 0 hsl(var(--gold-champagne)/0.22)'
+                  ? mobilePlacement === 'top'
+                    ? '0 18px 50px rgba(0,0,0,0.7), 0 0 60px hsl(var(--gold-warm)/0.20), inset 0 1px 0 hsl(var(--gold-champagne)/0.22)'
+                    : '0 -18px 50px rgba(0,0,0,0.7), 0 0 60px hsl(var(--gold-warm)/0.20), inset 0 1px 0 hsl(var(--gold-champagne)/0.22)'
                   : '0 30px 80px rgba(0,0,0,0.7), 0 0 80px hsl(var(--gold-warm)/0.18), inset 0 1px 0 hsl(var(--gold-champagne)/0.18)',
               }}
             >
