@@ -579,14 +579,14 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                     key={entry.id}
                     entry={entry}
                     expanded={false}
-                    onToggle={() => setExpandedId(entry.id)}
+                    onToggle={() => setPersistedExpandedId(entry.id)}
                     onUpdate={updateEntry}
                     onDelete={deleteEntry}
                     onImageUpload={uploadImage}
                     onLightbox={setLightbox}
                     gallery={gallery}
                     siblings={entries}
-                    onOpenEntry={(id) => setExpandedId(id)}
+                    onOpenEntry={setPersistedExpandedId}
                   />
                 ))}
               </div>
@@ -607,14 +607,14 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                     key={entry.id}
                     entry={entry}
                     expanded={false}
-                    onToggle={() => setExpandedId(entry.id)}
+                    onToggle={() => setPersistedExpandedId(entry.id)}
                     onUpdate={updateEntry}
                     onDelete={deleteEntry}
                     onImageUpload={uploadImage}
                     onLightbox={setLightbox}
                     gallery={gallery}
                     siblings={entries}
-                    onOpenEntry={(id) => setExpandedId(id)}
+                    onOpenEntry={setPersistedExpandedId}
                   />
                 ))}
               </div>
@@ -628,21 +628,21 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
               role="dialog"
               aria-modal="true"
               onMouseDown={(e) => {
-                if (e.target === e.currentTarget) setExpandedId(null);
+                if (e.target === e.currentTarget) setPersistedExpandedId(null);
               }}
             >
               <div className="w-full max-w-[900px]" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
                 <CodexCard
                   entry={expandedEntry}
                   expanded={true}
-                  onToggle={() => setExpandedId(null)}
+                  onToggle={() => setPersistedExpandedId(null)}
                   onUpdate={updateEntry}
-                  onDelete={async (id) => { await deleteEntry(id); setExpandedId(null); }}
+                  onDelete={async (id) => { await deleteEntry(id); setPersistedExpandedId(null); }}
                   onImageUpload={uploadImage}
                   onLightbox={setLightbox}
                   gallery={gallery}
                   siblings={entries}
-                  onOpenEntry={(id) => setExpandedId(id)}
+                  onOpenEntry={setPersistedExpandedId}
                 />
               </div>
             </div>,
