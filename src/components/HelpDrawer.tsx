@@ -180,12 +180,18 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
 
   return (
     <>
-      {/* === Floating Idriel orb (premium) === */}
+      {/* === Floating Idriel orb (premium, draggable) === */}
       <button
-        onClick={() => setOpen(true)}
-        aria-label="Falar com Idriel"
-        className="group fixed top-14 right-6 sm:right-8 z-[140] flex items-center gap-3 pl-1.5 pr-3 sm:pr-4 py-1.5 rounded-full transition-all hover:-translate-y-0.5 active:scale-95 max-w-[calc(100vw-4rem)]"
+        ref={orbRef}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        aria-label="Falar com Idriel (arraste para mover)"
+        title="Clique para abrir · arraste para mover"
+        className={`group fixed z-[140] flex items-center gap-3 pl-1.5 pr-3 sm:pr-4 py-1.5 rounded-full transition-shadow hover:-translate-y-0.5 active:scale-95 max-w-[calc(100vw-1rem)] touch-none select-none ${dragging ? 'cursor-grabbing' : 'cursor-grab'} ${orbPos ? '' : 'top-14 right-6 sm:right-8'}`}
         style={{
+          ...(orbPos ? { left: orbPos.x, top: orbPos.y } : null),
           background:
             'linear-gradient(135deg, hsl(var(--bg-deep)) 0%, hsl(var(--card)) 50%, hsl(var(--gold-deep) / 0.68) 100%)',
           border: '1px solid hsl(var(--gold-champagne) / 0.45)',
