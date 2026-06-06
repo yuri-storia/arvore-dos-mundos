@@ -19,6 +19,8 @@ const FRUIT_NONE = -2; // sentinel for "no fruit" filter
 const EXPANDED_ENTRY_STORAGE = (worldId: string) => `adm_codex_expanded:${worldId}`;
 const CREATE_DRAFT_STORAGE = (worldId: string) => `adm_codex_create_draft:${worldId}`;
 
+type EntryKind = 'ficha' | 'artigo';
+
 interface CreateDraft {
   kind: EntryKind | null;
   title: string;
@@ -26,8 +28,6 @@ interface CreateDraft {
   fruit: number | null;
   imageUrl: string;
 }
-
-type EntryKind = 'ficha' | 'artigo';
 
 interface Props {
   gallery: GalleryImage[];
