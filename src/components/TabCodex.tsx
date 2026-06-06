@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
@@ -16,6 +16,7 @@ import { IdrielImportDialog } from '@/components/IdrielImportDialog';
 
 const FRUIT_ALL = -1;
 const FRUIT_NONE = -2; // sentinel for "no fruit" filter
+const EXPANDED_ENTRY_STORAGE = (worldId: string) => `adm_codex_expanded:${worldId}`;
 
 type EntryKind = 'ficha' | 'artigo';
 
@@ -55,19 +56,46 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
 
   const expandedEntry = entries.find(e => e.id === expandedId) || null;
 
+  const setPersistedExpandedId = useCallback((id: string | null) => {
+    setExpandedId(id);
+    if (!worldId) return;
+    try {
+      if (id) localStorage.setItem(EXPANDED_ENTRY_STORAGE(worldId), id);
+      else localStorage.removeItem(EXPANDED_ENTRY_STORAGE(worldId));
+    } catch {
+      // Local storage may be unavailable in restricted browser modes.
+    }
+  }, [worldId]);
+
+  useEffect(() => {
+    if (!worldId || loading) return;
+    try {
+      const storedId = localStorage.getItem(EXPANDED_ENTRY_STORAGE(worldId));
+      if (!expandedId && storedId && entries.some(e => e.id === storedId)) {
+        setExpandedId(storedId);
+      }
+      if (expandedId && !entries.some(e => e.id === expandedId)) {
+        localStorage.removeItem(EXPANDED_ENTRY_STORAGE(worldId));
+        setExpandedId(null);
+      }
+    } catch {
+      // Local storage may be unavailable in restricted browser modes.
+    }
+  }, [worldId, loading, entries, expandedId]);
+
   useEffect(() => {
     if (!expandedId) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setExpandedId(null);
+      if (event.key === 'Escape') setPersistedExpandedId(null);
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [expandedId]);
+  }, [expandedId, setPersistedExpandedId]);
 
   if (!user) {
     return (
@@ -555,14 +583,14 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                     key={entry.id}
                     entry={entry}
                     expanded={false}
-                    onToggle={() => setExpandedId(entry.id)}
+                    onToggle={() => setPersistedExpandedId(entry.id)}
                     onUpdate={updateEntry}
                     onDelete={deleteEntry}
                     onImageUpload={uploadImage}
                     onLightbox={setLightbox}
                     gallery={gallery}
                     siblings={entries}
-                    onOpenEntry={(id) => setExpandedId(id)}
+                    onOpenEntry={setPersistedExpandedId}
                   />
                 ))}
               </div>
@@ -583,14 +611,14 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                     key={entry.id}
                     entry={entry}
                     expanded={false}
-                    onToggle={() => setExpandedId(entry.id)}
+                    onToggle={() => setPersistedExpandedId(entry.id)}
                     onUpdate={updateEntry}
                     onDelete={deleteEntry}
                     onImageUpload={uploadImage}
                     onLightbox={setLightbox}
                     gallery={gallery}
                     siblings={entries}
-                    onOpenEntry={(id) => setExpandedId(id)}
+                    onOpenEntry={setPersistedExpandedId}
                   />
                 ))}
               </div>
@@ -604,21 +632,21 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
               role="dialog"
               aria-modal="true"
               onMouseDown={(e) => {
-                if (e.target === e.currentTarget) setExpandedId(null);
+                if (e.target === e.currentTarget) setPersistedExpandedId(null);
               }}
             >
               <div className="w-full max-w-[900px]" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
                 <CodexCard
                   entry={expandedEntry}
                   expanded={true}
-                  onToggle={() => setExpandedId(null)}
+                  onToggle={() => setPersistedExpandedId(null)}
                   onUpdate={updateEntry}
-                  onDelete={async (id) => { await deleteEntry(id); setExpandedId(null); }}
+                  onDelete={async (id) => { await deleteEntry(id); setPersistedExpandedId(null); }}
                   onImageUpload={uploadImage}
                   onLightbox={setLightbox}
                   gallery={gallery}
                   siblings={entries}
-                  onOpenEntry={(id) => setExpandedId(id)}
+                  onOpenEntry={setPersistedExpandedId}
                 />
               </div>
             </div>,

@@ -24,14 +24,25 @@ import type { AppState, TabType, MethodType, GalleryImage } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 
 const LAST_WORLD_STORAGE = 'adm_last_world';
+const LAST_TAB_STORAGE = 'adm_last_tab';
+const APP_TABS: TabType[] = ['construir', 'codex', 'galeria', 'escrever'];
 
-const createNewState = (): AppState => ({
+const getStoredActiveTab = (): TabType => {
+  try {
+    const stored = localStorage.getItem(LAST_TAB_STORAGE) as TabType | null;
+    return stored && APP_TABS.includes(stored) ? stored : 'construir';
+  } catch {
+    return 'construir';
+  }
+};
+
+const createNewState = (activeTab: TabType = 'construir'): AppState => ({
   worldName: '',
   db: {},
   currentFruit: 0,
   method: 'top-down',
   gallery: [],
-  activeTab: 'construir',
+  activeTab,
   apiKey: '',
   generatedPrompt: '',
   currentSaveId: '',
@@ -42,7 +53,7 @@ const Index = () => {
   const isMobile = useIsMobile();
   const { worlds, createWorld, updateWorld, deleteWorld } = useWorlds();
   const planLimits = usePlanLimits();
-  const [state, setState] = useState<AppState>(createNewState);
+  const [state, setState] = useState<AppState>(() => createNewState(getStoredActiveTab()));
   const [tourActive, setTourActive] = useState(false);
   const [showTourPrompt, setShowTourPrompt] = useState(false);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -73,7 +84,9 @@ const Index = () => {
           currentFruit: 0,
         }));
       }
-    } catch {}
+    } catch {
+      // Local storage may be unavailable in restricted browser modes.
+    }
   }, [worlds, user]);
 
   const setActiveTab = useCallback((tab: TabType) => setState(s => ({ ...s, activeTab: tab })), []);
@@ -98,8 +111,18 @@ const Index = () => {
     try {
       if (state.currentSaveId) localStorage.setItem(LAST_WORLD_STORAGE, state.currentSaveId);
       else localStorage.removeItem(LAST_WORLD_STORAGE);
-    } catch {}
+    } catch {
+      // Local storage may be unavailable in restricted browser modes.
+    }
   }, [state.currentSaveId]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(LAST_TAB_STORAGE, state.activeTab);
+    } catch {
+      // Local storage may be unavailable in restricted browser modes.
+    }
+  }, [state.activeTab]);
 
   // Auto-save to database
   useEffect(() => {
