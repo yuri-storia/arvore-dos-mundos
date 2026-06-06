@@ -84,7 +84,9 @@ const Index = () => {
           currentFruit: 0,
         }));
       }
-    } catch {}
+    } catch {
+      // Local storage may be unavailable in restricted browser modes.
+    }
   }, [worlds, user]);
 
   const setActiveTab = useCallback((tab: TabType) => setState(s => ({ ...s, activeTab: tab })), []);
@@ -109,13 +111,17 @@ const Index = () => {
     try {
       if (state.currentSaveId) localStorage.setItem(LAST_WORLD_STORAGE, state.currentSaveId);
       else localStorage.removeItem(LAST_WORLD_STORAGE);
-    } catch {}
+    } catch {
+      // Local storage may be unavailable in restricted browser modes.
+    }
   }, [state.currentSaveId]);
 
   useEffect(() => {
     try {
       localStorage.setItem(LAST_TAB_STORAGE, state.activeTab);
-    } catch {}
+    } catch {
+      // Local storage may be unavailable in restricted browser modes.
+    }
   }, [state.activeTab]);
 
   // Auto-save to database

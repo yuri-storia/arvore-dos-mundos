@@ -62,7 +62,9 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
     try {
       if (id) localStorage.setItem(EXPANDED_ENTRY_STORAGE(worldId), id);
       else localStorage.removeItem(EXPANDED_ENTRY_STORAGE(worldId));
-    } catch {}
+    } catch {
+      // Local storage may be unavailable in restricted browser modes.
+    }
   }, [worldId]);
 
   useEffect(() => {
@@ -76,7 +78,9 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
         localStorage.removeItem(EXPANDED_ENTRY_STORAGE(worldId));
         setExpandedId(null);
       }
-    } catch {}
+    } catch {
+      // Local storage may be unavailable in restricted browser modes.
+    }
   }, [worldId, loading, entries, expandedId]);
 
   useEffect(() => {
