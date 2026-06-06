@@ -17,6 +17,15 @@ import { IdrielImportDialog } from '@/components/IdrielImportDialog';
 const FRUIT_ALL = -1;
 const FRUIT_NONE = -2; // sentinel for "no fruit" filter
 const EXPANDED_ENTRY_STORAGE = (worldId: string) => `adm_codex_expanded:${worldId}`;
+const CREATE_DRAFT_STORAGE = (worldId: string) => `adm_codex_create_draft:${worldId}`;
+
+interface CreateDraft {
+  kind: EntryKind | null;
+  title: string;
+  content: string;
+  fruit: number | null;
+  imageUrl: string;
+}
 
 type EntryKind = 'ficha' | 'artigo';
 
