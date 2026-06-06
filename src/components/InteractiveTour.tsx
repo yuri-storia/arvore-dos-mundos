@@ -181,10 +181,13 @@ interface Props {
 }
 
 export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTab, setCurrentFruit, setMethod }) => {
+  const isMobile = useIsMobile();
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [animating, setAnimating] = useState(false);
   const [delayWaiting, setDelayWaiting] = useState(false);
+  const [sheetH, setSheetH] = useState(0);
+  const sheetRef = useRef<HTMLDivElement | null>(null);
   const rafRef = useRef<number>(0);
 
   const currentStep = TOUR_STEPS[step];
