@@ -17,8 +17,17 @@ import { IdrielImportDialog } from '@/components/IdrielImportDialog';
 const FRUIT_ALL = -1;
 const FRUIT_NONE = -2; // sentinel for "no fruit" filter
 const EXPANDED_ENTRY_STORAGE = (worldId: string) => `adm_codex_expanded:${worldId}`;
+const CREATE_DRAFT_STORAGE = (worldId: string) => `adm_codex_create_draft:${worldId}`;
 
 type EntryKind = 'ficha' | 'artigo';
+
+interface CreateDraft {
+  kind: EntryKind | null;
+  title: string;
+  content: string;
+  fruit: number | null;
+  imageUrl: string;
+}
 
 interface Props {
   gallery: GalleryImage[];
@@ -96,6 +105,49 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [expandedId, setPersistedExpandedId]);
+
+  // Restore create-draft from localStorage when world changes
+  useEffect(() => {
+    if (!worldId) return;
+    try {
+      const raw = localStorage.getItem(CREATE_DRAFT_STORAGE(worldId));
+      if (!raw) return;
+      const draft = JSON.parse(raw) as CreateDraft;
+      if (draft.kind || draft.title || draft.content || draft.imageUrl || draft.fruit !== null) {
+        setCreateKind(draft.kind);
+        setNewTitle(draft.title || '');
+        setNewContent(draft.content || '');
+        setNewFruit(draft.fruit ?? null);
+        setNewImageUrl(draft.imageUrl || '');
+        setShowCreate(true);
+      }
+    } catch {
+      // Local storage may be unavailable in restricted browser modes.
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [worldId]);
+
+  // Persist create-draft whenever the user types
+  useEffect(() => {
+    if (!worldId) return;
+    const hasContent = !!(createKind || newTitle || newContent || newImageUrl || newFruit !== null);
+    try {
+      if (hasContent && showCreate) {
+        const draft: CreateDraft = {
+          kind: createKind,
+          title: newTitle,
+          content: newContent,
+          fruit: newFruit,
+          imageUrl: newImageUrl,
+        };
+        localStorage.setItem(CREATE_DRAFT_STORAGE(worldId), JSON.stringify(draft));
+      } else {
+        localStorage.removeItem(CREATE_DRAFT_STORAGE(worldId));
+      }
+    } catch {
+      // Local storage may be unavailable in restricted browser modes.
+    }
+  }, [worldId, showCreate, createKind, newTitle, newContent, newFruit, newImageUrl]);
 
   if (!user) {
     return (
