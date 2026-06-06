@@ -128,7 +128,18 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   }, [worldId]);
 
   // Persist create-draft whenever the user types
+  const createDraftRef = useRef<CreateDraft & { showCreate: boolean }>({
+    kind: null, title: '', content: '', fruit: null, imageUrl: '', showCreate: false,
+  });
   useEffect(() => {
+    createDraftRef.current = {
+      kind: createKind,
+      title: newTitle,
+      content: newContent,
+      fruit: newFruit,
+      imageUrl: newImageUrl,
+      showCreate,
+    };
     if (!worldId) return;
     const hasContent = !!(createKind || newTitle || newContent || newImageUrl || newFruit !== null);
     try {
@@ -148,6 +159,34 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
       // Local storage may be unavailable in restricted browser modes.
     }
   }, [worldId, showCreate, createKind, newTitle, newContent, newFruit, newImageUrl]);
+
+  // Synchronous flush on tab hide / refresh / close so nothing is lost
+  useEffect(() => {
+    if (!worldId) return;
+    const flush = () => {
+      const d = createDraftRef.current;
+      const hasContent = !!(d.kind || d.title || d.content || d.imageUrl || d.fruit !== null);
+      try {
+        if (hasContent && d.showCreate) {
+          const draft: CreateDraft = {
+            kind: d.kind, title: d.title, content: d.content, fruit: d.fruit, imageUrl: d.imageUrl,
+          };
+          localStorage.setItem(CREATE_DRAFT_STORAGE(worldId), JSON.stringify(draft));
+        }
+      } catch {
+        // Local storage may be unavailable in restricted browser modes.
+      }
+    };
+    const onVisibility = () => { if (document.visibilityState === 'hidden') flush(); };
+    window.addEventListener('pagehide', flush);
+    window.addEventListener('beforeunload', flush);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      window.removeEventListener('beforeunload', flush);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [worldId]);
 
   if (!user) {
     return (
