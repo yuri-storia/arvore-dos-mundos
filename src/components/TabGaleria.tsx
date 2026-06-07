@@ -554,6 +554,16 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                 </div>
               </div>
 
+              <div className="mt-4 pt-4 border-t border-gold/10">
+                <ImageReferencePicker
+                  value={pickedRefs}
+                  onChange={setPickedRefs}
+                  gallery={gallery}
+                  codexEntries={codexEntries}
+                  max={3}
+                />
+              </div>
+
               <div className="flex flex-wrap items-center gap-3 mt-5">
                 <button
                   onClick={handleCreatePrompt}
