@@ -213,6 +213,17 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
               className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50"
             />
           </div>
+
+          {/* Midjourney-style reference picker */}
+          <div className="pt-2 border-t border-gold/10">
+            <ImageReferencePicker
+              value={pickedRefs}
+              onChange={setPickedRefs}
+              gallery={gallery}
+              codexEntries={codexEntries}
+              max={3}
+            />
+          </div>
         </div>
 
         {/* Action buttons */}
