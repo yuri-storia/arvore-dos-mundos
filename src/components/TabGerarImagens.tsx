@@ -68,13 +68,44 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
     }
   };
 
+  // Build consistency references: codex entries with images first, then gallery uploads.
+  const referencePack = useMemo(() => {
+    const codexImageUrls = codexEntries
+      .filter(e => !!e.image_url)
+      .slice(0, 5)
+      .map(e => e.image_url as string);
+    const galleryImageUrls = gallery
+      .filter(g => g.status !== 'unsorted')
+      .slice(0, 5)
+      .map(g => g.src);
+    const imageUrls = Array.from(new Set([...codexImageUrls, ...galleryImageUrls])).slice(0, 5);
+
+    const codexText = codexEntries.slice(0, 25).map(e => {
+      const t = (e.entry_type === 'ficha' ? 'Ficha' : 'Artigo');
+      return `- [${t}] ${e.title}: ${(e.content || '').replace(/\s+/g, ' ').slice(0, 240)}`;
+    }).join('\n');
+    const worldCtx = (() => {
+      const parts: string[] = [];
+      if (worldName) parts.push(`World: ${worldName}`);
+      FRUITS.slice(0, 6).forEach(f => {
+        const data = db[f.id];
+        if (!data) return;
+        const vals = f.fields.map(ff => data[ff.id]).filter(Boolean);
+        if (vals.length > 0) parts.push(`${f.name}: ${vals.join('; ')}`);
+      });
+      return parts.join('\n');
+    })();
+    const referenceText = [worldCtx, codexText && `Codex canon:\n${codexText}`].filter(Boolean).join('\n\n').slice(0, 4000);
+    return { imageUrls, referenceText };
+  }, [codexEntries, gallery, worldName, db]);
+
   const handleGenerate = async () => {
     if (!planLimits.canUseAI) { setError('Idriel precisa do plano mensal para materializar visões. Faça o upgrade!'); return; }
     if (!generatedPrompt) return;
     setError('');
     setLoading2(true);
     try {
-      const url = await callAIImage(generatedPrompt);
+      const url = await callAIImageConsistent(generatedPrompt, referencePack.imageUrls, referencePack.referenceText);
       setGeneratedImage(url);
     } catch (e: any) {
       setError(e.message);
