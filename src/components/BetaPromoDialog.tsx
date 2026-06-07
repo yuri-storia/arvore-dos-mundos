@@ -98,7 +98,7 @@ export const BetaPromoDialog: React.FC = () => {
                     Condição especial Idriel
                   </p>
                   <p className="font-merriweather text-xs text-text-secondary leading-relaxed">
-                    Ao fim dos 30 dias, você poderá adquirir até <strong className="text-gold-light">3 acessos avulsos a Idriel por R$ 19,90</strong> cada (metade do valor) — válidos por 150 dias.
+                    Ao fim dos 30 dias, você terá <strong className="text-gold-light">7 dias</strong> para garantir <strong className="text-gold-light">3 meses de Idriel por R$ 19,90/mês</strong> (em vez de R$ 39,90). Depois desse prazo, a oferta expira e o plano fica pausado — seu conteúdo permanece salvo.
                   </p>
                 </div>
               </div>
