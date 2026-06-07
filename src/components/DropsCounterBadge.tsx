@@ -261,6 +261,9 @@ export const DropsCounterBadge: React.FC = () => {
     );
   }
 
+  // Sem Idriel — não mostra CTA para beta testers (eles têm oferta especial ao fim dos 30 dias)
+  if (beta.hasBeta && !beta.raizExpired) return null;
+
   // Sem Idriel
   return (
     <>
