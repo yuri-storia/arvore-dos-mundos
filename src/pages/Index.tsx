@@ -67,6 +67,14 @@ const Index = () => {
     }
   }, [user]);
 
+  // Allow other components (e.g. HelpDrawer) to start the tour on demand
+  useEffect(() => {
+    const handler = () => setTourActive(true);
+    window.addEventListener('adm:start-tour', handler);
+    return () => window.removeEventListener('adm:start-tour', handler);
+  }, []);
+
+
   // When worlds load, restore the last active world
   useEffect(() => {
     if (initialLoadDone.current || !user || worlds.length === 0) return;
