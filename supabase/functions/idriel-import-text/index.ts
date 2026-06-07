@@ -49,16 +49,12 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Importing pesa: cobra como 5 chamadas de texto (~5 gotas)
-    for (let i = 0; i < 5; i++) {
-      const { data: q } = await adminClient.rpc("check_ai_quota", { _user_id: userId, _type: "text" });
-      if (!q?.allowed) {
-        return new Response(JSON.stringify({ error: "Créditos insuficientes para importar (custo: 5 gotas).", quota: q }), {
-          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      // We'll increment once per gota below; here we just validate cap
-      break;
+    // Importing pesa: cobra como 5 chamadas de texto (~5 gotas). Validamos o cap UMA vez antes.
+    const { data: q } = await adminClient.rpc("check_ai_quota", { _user_id: userId, _type: "text" });
+    if (!q?.allowed) {
+      return new Response(JSON.stringify({ error: "Créditos insuficientes para importar (custo: 5 gotas).", quota: q }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     let body: unknown;
