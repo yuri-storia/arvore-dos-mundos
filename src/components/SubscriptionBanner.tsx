@@ -113,9 +113,6 @@ export const SubscriptionBanner: React.FC = () => {
 
   // Beta acabou e janela promocional também terminou — plano pausado, somente exportação
   if (beta.hasBeta && beta.promoExpired && !sub.subscribed) {
-    if (dismissed) {
-      // permite reabrir via /planos; mantém aviso visível pelo menos uma sessão
-    }
     return (
       <div className="mx-auto max-w-[1060px] px-4 mb-4">
         <div className="rounded-lg p-4 border border-red-alert/40 bg-red-alert/[0.07]">
