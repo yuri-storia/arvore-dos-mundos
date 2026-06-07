@@ -11,7 +11,9 @@ export interface BetaStatus {
   idrielChargesLeft: number;
   daysLeft: number;        // days remaining on Raiz beta (>=0)
   raizExpired: boolean;    // raiz beta period ended
-  promoStillValid: boolean; // can still claim discounted Idriel
+  promoStillValid: boolean; // pode resgatar Idriel a R$ 19,90/mês x 3
+  promoDaysLeft: number;   // dias restantes da janela de resgate (após Raiz expirar)
+  promoExpired: boolean;   // janela de 7 dias terminou sem resgate
 }
 
 const EMPTY: BetaStatus = {
@@ -24,6 +26,8 @@ const EMPTY: BetaStatus = {
   daysLeft: 0,
   raizExpired: false,
   promoStillValid: false,
+  promoDaysLeft: 0,
+  promoExpired: false,
 };
 
 function diffDays(target: Date): number {
