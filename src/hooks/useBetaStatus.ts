@@ -60,6 +60,8 @@ export function useBetaStatus(): BetaStatus {
     const now = new Date();
     const used = data.idriel_charges_used || 0;
 
+    const raizExpired = raizUntil.getTime() < now.getTime();
+    const promoStillValid = idrielUntil.getTime() > now.getTime() && used < 3;
     setStatus({
       loading: false,
       hasBeta: true,
@@ -68,8 +70,10 @@ export function useBetaStatus(): BetaStatus {
       idrielChargesUsed: used,
       idrielChargesLeft: Math.max(0, 3 - used),
       daysLeft: diffDays(raizUntil),
-      raizExpired: raizUntil.getTime() < now.getTime(),
-      promoStillValid: idrielUntil.getTime() > now.getTime() && used < 3,
+      raizExpired,
+      promoStillValid,
+      promoDaysLeft: diffDays(idrielUntil),
+      promoExpired: raizExpired && !promoStillValid,
     });
   }, [user]);
 
