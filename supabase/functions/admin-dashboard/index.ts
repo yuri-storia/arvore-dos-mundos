@@ -124,10 +124,8 @@ Deno.serve(async (req) => {
             { onConflict: "code" }
           );
 
-          await supa.from("subscriptions").update({ status: "cancelled", cancelled_at: now.toISOString() })
-            .eq("user_id", targetId).eq("status", "active");
-
-          const { error: subErr } = await supa.from("subscriptions").insert({
+          // subscriptions has UNIQUE(user_id), so upsert on user_id instead of insert.
+          const { error: subErr } = await supa.from("subscriptions").upsert({
             user_id: targetId,
             plan: "pro",
             plan_code: "raiz_mensal",
@@ -136,9 +134,10 @@ Deno.serve(async (req) => {
             billing_cycle: "BETA_FREE",
             started_at: now.toISOString(),
             expires_at: raizUntil,
+            cancelled_at: null,
             environment: "manual",
             asaas_subscription_id: `beta_admin_${targetId}_${now.getTime()}`,
-          });
+          }, { onConflict: "user_id" });
           if (subErr) return json({ error: subErr.message }, 500);
 
           const { error: redErr } = await supa.from("beta_redemptions").upsert({
@@ -163,10 +162,8 @@ Deno.serve(async (req) => {
         else if (isAnnual) expiresAt = new Date(now.getTime() + 365 * 86400_000).toISOString();
         else expiresAt = new Date(now.getTime() + 30 * 86400_000).toISOString();
 
-        await supa.from("subscriptions").update({ status: "cancelled", cancelled_at: now.toISOString() })
-          .eq("user_id", targetId).eq("status", "active");
-
-        const { error } = await supa.from("subscriptions").insert({
+        // subscriptions has UNIQUE(user_id), so upsert on user_id instead of insert.
+        const { error } = await supa.from("subscriptions").upsert({
           user_id: targetId,
           plan: "pro",
           plan_code: planCode,
@@ -175,8 +172,10 @@ Deno.serve(async (req) => {
           billing_cycle: isLifetime ? "lifetime" : (isAnnual ? "YEARLY" : "MONTHLY"),
           started_at: now.toISOString(),
           expires_at: expiresAt,
+          cancelled_at: null,
           environment: "manual",
-        });
+          asaas_subscription_id: `manual_admin_${targetId}_${now.getTime()}`,
+        }, { onConflict: "user_id" });
         if (error) return json({ error: error.message }, 500);
         return json({ ok: true, expires_at: expiresAt });
       }
