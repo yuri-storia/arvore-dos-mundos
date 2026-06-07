@@ -180,6 +180,8 @@ export const SubscriptionBanner: React.FC = () => {
               </button>
             </div>
           </div>
+        </div>
+      </div>
     );
   }
 
