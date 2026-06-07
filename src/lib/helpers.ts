@@ -146,9 +146,22 @@ export async function callAIImage(prompt: string) {
 }
 
 // Generate an image using Codex references (text + up to 5 image URLs) for consistency.
-export async function callAIImageConsistent(prompt: string, referenceImageUrls: string[] = [], referenceText = ''): Promise<string> {
+// Accepts both plain canon URLs (legacy) and structured per-reference intents (Midjourney-style).
+export type ImageRefIntent = 'estilo' | 'composicao' | 'ambientacao' | 'personagem' | 'paleta';
+export interface StructuredImageRef { url: string; intent: ImageRefIntent }
+export async function callAIImageConsistent(
+  prompt: string,
+  referenceImageUrls: string[] = [],
+  referenceText = '',
+  references: StructuredImageRef[] = []
+): Promise<string> {
   const { data, error } = await supabase.functions.invoke('ai-image-consistent', {
-    body: { prompt, referenceImageUrls: referenceImageUrls.slice(0, 5), referenceText: referenceText.slice(0, 4000) },
+    body: {
+      prompt,
+      referenceImageUrls: referenceImageUrls.slice(0, 5),
+      referenceText: referenceText.slice(0, 4000),
+      references: references.slice(0, 5),
+    },
   });
   if (error) await throwInvokeError(error, 'Erro ao gerar imagem consistente');
   if (data?.error) throw new Error(data.error);

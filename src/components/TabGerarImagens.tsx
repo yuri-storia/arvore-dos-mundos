@@ -6,6 +6,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useCodexEntries } from '@/hooks/useCodexEntries';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { BugReportDialog } from '@/components/BugReportDialog';
+import { ImageReferencePicker, type PickedReference } from '@/components/ImageReferencePicker';
 import type { AppState } from '@/lib/data';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 
@@ -25,6 +26,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   const [imgType, setImgType] = useState(IMAGE_TYPE_OPTIONS[0]);
   const [tone, setTone] = useState(TONE_OPTIONS[0]);
   const [extras, setExtras] = useState('');
+  const [pickedRefs, setPickedRefs] = useState<PickedReference[]>([]);
   const [loading1, setLoading1] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [generatedImage, setGeneratedImage] = useState('');
@@ -68,8 +70,8 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
     }
   };
 
-  // Build consistency references: codex entries with images first, then gallery uploads.
-  const referencePack = useMemo(() => {
+  // Auto canon: codex text + (when user didn't pick references) up to 5 codex/gallery images.
+  const autoPack = useMemo(() => {
     const codexImageUrls = codexEntries
       .filter(e => !!e.image_url)
       .slice(0, 5)
@@ -105,7 +107,11 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
     setError('');
     setLoading2(true);
     try {
-      const url = await callAIImageConsistent(generatedPrompt, referencePack.imageUrls, referencePack.referenceText);
+      // If the user picked structured refs, send those (Midjourney-style intents).
+      // Otherwise fall back to the auto canon pack so the world still informs the image.
+      const structured = pickedRefs.map(r => ({ url: r.url, intent: r.intent }));
+      const legacyUrls = structured.length > 0 ? [] : autoPack.imageUrls;
+      const url = await callAIImageConsistent(generatedPrompt, legacyUrls, autoPack.referenceText, structured);
       setGeneratedImage(url);
     } catch (e: any) {
       setError(e.message);
@@ -205,6 +211,17 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
               onChange={e => setExtras(e.target.value)}
               placeholder="Cores, elementos obrigatórios, atmosfera…"
               className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50"
+            />
+          </div>
+
+          {/* Midjourney-style reference picker */}
+          <div className="pt-2 border-t border-gold/10">
+            <ImageReferencePicker
+              value={pickedRefs}
+              onChange={setPickedRefs}
+              gallery={gallery}
+              codexEntries={codexEntries}
+              max={3}
             />
           </div>
         </div>

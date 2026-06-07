@@ -14,6 +14,7 @@ import { useIdrielJobs } from '@/contexts/IdrielJobsContext';
 import idrielAvatar from '@/assets/idriel-avatar.png';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sparkles, Lock, ChevronDown, ChevronUp, Trash2, Palette, Leaf, ScrollText, Trees, X, Inbox, Save, Apple, BarChart3, Check, ClipboardCopy, ArrowDown, RotateCw, Image as ImageIcon } from 'lucide-react';
+import { ImageReferencePicker, type PickedReference } from '@/components/ImageReferencePicker';
 import type { AppState } from '@/lib/data';
 
 interface Props {
@@ -48,6 +49,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const [imgType, setImgType] = useState(IMAGE_TYPE_OPTIONS[0]);
   const [tone, setTone] = useState(TONE_OPTIONS[0]);
   const [extras, setExtras] = useState('');
+  const [pickedRefs, setPickedRefs] = useState<PickedReference[]>([]);
   const [generatedImage, setGeneratedImage] = useState('');
   const promptJobKey = worldId ? `idriel:promptJob:${worldId}` : null;
   const imageJobKey = worldId ? `idriel:imageJob:${worldId}` : null;
@@ -223,11 +225,13 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
     setActiveVisionId(vision?.id || null);
     const jobId = `idriel-image-${Date.now()}`;
     setActiveImageJobId(jobId);
+    const structured = pickedRefs.map(r => ({ url: r.url, intent: r.intent }));
+    const legacyUrls = structured.length > 0 ? [] : codexReferenceImageUrls;
     idrielJobs.run({
       id: jobId,
       kind: 'image',
       label: `Materializando: ${desc.slice(0, 40)}`,
-      task: () => callAIImageConsistent(generatedPrompt, codexReferenceImageUrls, codexContext),
+      task: () => callAIImageConsistent(generatedPrompt, legacyUrls, codexContext, structured),
     });
   };
 
@@ -548,6 +552,16 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                     className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50"
                   />
                 </div>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-gold/10">
+                <ImageReferencePicker
+                  value={pickedRefs}
+                  onChange={setPickedRefs}
+                  gallery={gallery}
+                  codexEntries={codexEntries}
+                  max={3}
+                />
               </div>
 
               <div className="flex flex-wrap items-center gap-3 mt-5">
