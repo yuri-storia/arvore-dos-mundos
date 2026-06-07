@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Droplet, Crown, Infinity as InfinityIcon, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useBetaStatus } from '@/hooks/useBetaStatus';
 import { RechargePackageDialog } from '@/components/RechargePackageDialog';
 import { UpgradeIdrielDialog } from '@/components/UpgradeIdrielDialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
