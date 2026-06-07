@@ -327,7 +327,10 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
               <span className="sm:hidden">+ Nova</span>
             </button>
             {showCreate && !createKind && !showImport && (
-              <div className="absolute right-0 top-full mt-1 z-50 w-[240px] card-glass rounded-lg p-3 shadow-lg border border-blue-bright/30 animate-fadeUp">
+              <div
+                className="absolute right-0 top-full mt-1 z-50 w-[240px] rounded-lg p-3 shadow-2xl border border-blue-bright/40 animate-fadeUp"
+                style={{ background: 'hsl(var(--bg-deep) / 0.98)', backdropFilter: 'blur(16px)' }}
+              >
                 <h4 className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-blue-light mb-2">Tipo de entrada</h4>
                 {(() => {
                   const fichaCount = entries.filter(e => e.entry_type !== 'artigo').length;
