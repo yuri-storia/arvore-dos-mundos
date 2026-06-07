@@ -173,7 +173,16 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
     try {
       const fruitData = db[currentFruit] || {};
       const context = fruit.fields.map(f => `${f.label}: ${fruitData[f.id] || '(vazio)'}`).join('\n');
-      const systemPrompt = `Você é Idriel, a Guardiã da Árvore dos Mundos — uma sábia ancestral de aparência élfica que observa os mundos florescerem através dos Frutos da criação. Você fala com elegância, sabedoria profunda e encorajamento maternal. Mundo: '${worldName || 'Sem nome'}'. Fruto atual: ${fruit.num} — ${fruit.name}. Metodologia: ${method === 'top-down' ? 'Cima para Baixo' : 'Baixo para Cima'}. Responda em português brasileiro. Seja específica, criativa e encantada com a criação do usuário.`;
+      // Inject Codex canon for the SAME fruit (primary) + 5 other recent entries so Idriel reference what already exists.
+      const sameFruit = entries.filter(e => e.fruit_id === currentFruit).slice(0, 8);
+      const otherFruit = entries.filter(e => e.fruit_id !== currentFruit).slice(0, 5);
+      const fmt = (e: typeof entries[number]) => `- [${e.entry_type === 'ficha' ? 'Ficha' : 'Artigo'}] ${e.title}: ${(e.content || '').replace(/\s+/g, ' ').slice(0, 240)}`;
+      const codexCanon = [
+        sameFruit.length ? `Codex deste Fruto (${fruit.name}):\n${sameFruit.map(fmt).join('\n')}` : '',
+        otherFruit.length ? `Codex de outros Frutos (referência cruzada):\n${otherFruit.map(fmt).join('\n')}` : '',
+      ].filter(Boolean).join('\n\n').slice(0, 4000);
+
+      const systemPrompt = `Você é Idriel, a Guardiã da Árvore dos Mundos — uma sábia ancestral de aparência élfica que observa os mundos florescerem através dos Frutos da criação. Você fala com elegância, sabedoria profunda e encorajamento maternal. Mundo: '${worldName || 'Sem nome'}'. Fruto atual: ${fruit.num} — ${fruit.name}. Metodologia: ${method === 'top-down' ? 'Cima para Baixo' : 'Baixo para Cima'}. Responda em português brasileiro. Seja específica, criativa e encantada com a criação do usuário. Sempre que possível, REFERENCIE entradas do Codex pelo nome para garantir coerência — NÃO invente o que não está no canon.${codexCanon ? `\n\nCanon do mundo (use como referência inviolável):\n${codexCanon}` : ''}`;
       const userMsg = `Contexto atual do Fruto:\n${context}\n\nPergunta: ${aiQuestion}`;
       const response = await callAIText(
         [{ role: 'user', content: userMsg }],
