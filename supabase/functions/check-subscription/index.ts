@@ -26,11 +26,13 @@ Deno.serve(async (req) => {
     }
     const userId = claims.claims.sub as string;
 
+    const nowIso = new Date().toISOString();
     const { data: sub } = await supa
       .from("subscriptions")
       .select("plan_code, has_idriel, expires_at, status")
       .eq("user_id", userId)
       .eq("status", "active")
+      .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
       .order("started_at", { ascending: false })
       .limit(1)
       .maybeSingle();
