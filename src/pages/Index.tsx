@@ -201,6 +201,7 @@ const Index = () => {
 
         <SubscriptionBanner />
         <BetaPromoDialog />
+        <BetaExpiryToast />
         <TabNav activeTab={state.activeTab} setActiveTab={setActiveTab} />
         {!tourActive && <OnboardingTips tab={state.activeTab} />}
         <HelpDrawer tab={state.activeTab} />
