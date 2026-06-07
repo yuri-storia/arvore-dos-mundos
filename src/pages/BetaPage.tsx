@@ -81,10 +81,10 @@ const BetaPage: React.FC = () => {
                   Plano <strong className="text-gold-light">Raiz gratuito</strong> até <strong>{fmt(result.raiz_granted_until)}</strong>.
                 </li>
                 <li className="flex gap-2"><Sparkles className="w-4 h-4 text-gold-champagne shrink-0 mt-0.5" />
-                  Depois disso, até <strong>3 cobranças avulsas</strong> de Idriel por <strong className="text-gold-light">R$ 19,90</strong> cada, válidas até <strong>{fmt(result.idriel_discount_until)}</strong>.
+                  Depois disso, <strong>7 dias</strong> (até <strong>{fmt(result.idriel_discount_until)}</strong>) para garantir <strong className="text-gold-light">3 meses de Idriel por R$ 19,90/mês</strong> (em vez de R$ 39,90).
                 </li>
                 <li className="flex gap-2"><Sparkles className="w-4 h-4 text-gold-champagne shrink-0 mt-0.5" />
-                  Em seguida, preço normal: R$ 19,90/mês Raiz ou R$ 39,90/mês Idriel.
+                  Sem resgate no prazo, o plano fica pausado: o conteúdo permanece salvo e a exportação segue liberada.
                 </li>
               </ul>
               <div className="flex flex-col sm:flex-row gap-2 justify-center">
