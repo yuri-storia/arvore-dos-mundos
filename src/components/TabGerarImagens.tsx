@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Lock, Leaf, Sparkles, Bug, Check, ClipboardCopy, Save, ArrowDown } from 'lucide-react';
 import { STYLE_OPTIONS, IMAGE_TYPE_OPTIONS, TONE_OPTIONS, FRUITS, GalleryImage } from '@/lib/data';
-import { callAIText, callAIImage, friendlyAIError } from '@/lib/helpers';
+import { callAIText, callAIImageConsistent, friendlyAIError } from '@/lib/helpers';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useCodexEntries } from '@/hooks/useCodexEntries';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { BugReportDialog } from '@/components/BugReportDialog';
 import type { AppState } from '@/lib/data';
@@ -15,9 +16,10 @@ interface Props {
 }
 
 export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, addToGallery }) => {
-  const { worldName, db, generatedPrompt } = state;
+  const { worldName, db, generatedPrompt, gallery, currentSaveId } = state;
   const sub = useSubscription();
   const planLimits = usePlanLimits();
+  const { entries: codexEntries } = useCodexEntries(currentSaveId);
   const [desc, setDesc] = useState('');
   const [style, setStyle] = useState(STYLE_OPTIONS[0]);
   const [imgType, setImgType] = useState(IMAGE_TYPE_OPTIONS[0]);
@@ -66,13 +68,44 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
     }
   };
 
+  // Build consistency references: codex entries with images first, then gallery uploads.
+  const referencePack = useMemo(() => {
+    const codexImageUrls = codexEntries
+      .filter(e => !!e.image_url)
+      .slice(0, 5)
+      .map(e => e.image_url as string);
+    const galleryImageUrls = gallery
+      .filter(g => g.status !== 'unsorted')
+      .slice(0, 5)
+      .map(g => g.src);
+    const imageUrls = Array.from(new Set([...codexImageUrls, ...galleryImageUrls])).slice(0, 5);
+
+    const codexText = codexEntries.slice(0, 25).map(e => {
+      const t = (e.entry_type === 'ficha' ? 'Ficha' : 'Artigo');
+      return `- [${t}] ${e.title}: ${(e.content || '').replace(/\s+/g, ' ').slice(0, 240)}`;
+    }).join('\n');
+    const worldCtx = (() => {
+      const parts: string[] = [];
+      if (worldName) parts.push(`World: ${worldName}`);
+      FRUITS.slice(0, 6).forEach(f => {
+        const data = db[f.id];
+        if (!data) return;
+        const vals = f.fields.map(ff => data[ff.id]).filter(Boolean);
+        if (vals.length > 0) parts.push(`${f.name}: ${vals.join('; ')}`);
+      });
+      return parts.join('\n');
+    })();
+    const referenceText = [worldCtx, codexText && `Codex canon:\n${codexText}`].filter(Boolean).join('\n\n').slice(0, 4000);
+    return { imageUrls, referenceText };
+  }, [codexEntries, gallery, worldName, db]);
+
   const handleGenerate = async () => {
     if (!planLimits.canUseAI) { setError('Idriel precisa do plano mensal para materializar visões. Faça o upgrade!'); return; }
     if (!generatedPrompt) return;
     setError('');
     setLoading2(true);
     try {
-      const url = await callAIImage(generatedPrompt);
+      const url = await callAIImageConsistent(generatedPrompt, referencePack.imageUrls, referencePack.referenceText);
       setGeneratedImage(url);
     } catch (e: any) {
       setError(e.message);
