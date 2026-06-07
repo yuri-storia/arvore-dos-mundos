@@ -79,8 +79,8 @@ Deno.serve(async (req) => {
 
     const now = Date.now();
     const raizUntil = new Date(now + 30 * 24 * 60 * 60 * 1000).toISOString();
-    // Janela para os 3 meses promocionais de Idriel após o mês de Raiz (30+90+30 de folga)
-    const idrielDiscountUntil = new Date(now + 150 * 24 * 60 * 60 * 1000).toISOString();
+    // Janela curta de resgate: 7 dias após o fim do Raiz para garantir Idriel a R$ 19,90/mês x 3.
+    const idrielDiscountUntil = new Date(now + 37 * 24 * 60 * 60 * 1000).toISOString();
 
     // Cria/atualiza assinatura Raiz beta
     await supa.from("subscriptions").insert({

@@ -260,15 +260,22 @@ Deno.serve(async (req) => {
           cancelled_at: null,
           updated_at: new Date().toISOString(),
         }, { onConflict: "user_id" });
-        // Incrementa charges_used
+        // Incrementa charges_used e estende a janela promocional para os próximos 35 dias,
+        // permitindo as próximas cobranças mensais a R$ 19,90 dentro do plano de 3 meses.
         const { data: red } = await supa
           .from("beta_redemptions")
-          .select("idriel_charges_used")
+          .select("idriel_charges_used, idriel_discount_until")
           .eq("user_id", userId)
           .maybeSingle();
         if (red) {
+          const nextWindow = new Date(Date.now() + 35 * 24 * 60 * 60 * 1000).toISOString();
+          const currentEnd = red.idriel_discount_until ? new Date(red.idriel_discount_until).getTime() : 0;
+          const extended = currentEnd > Date.parse(nextWindow) ? red.idriel_discount_until : nextWindow;
           await supa.from("beta_redemptions")
-            .update({ idriel_charges_used: (red.idriel_charges_used || 0) + 1 })
+            .update({
+              idriel_charges_used: (red.idriel_charges_used || 0) + 1,
+              idriel_discount_until: extended,
+            })
             .eq("user_id", userId);
         }
       }

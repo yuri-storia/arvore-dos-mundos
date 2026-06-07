@@ -69,6 +69,75 @@ export const SubscriptionBanner: React.FC = () => {
     );
   }
 
+  // Beta acabou e janela promocional de 7 dias está ativa — oferta R$ 19,90/mês x 3
+  if (beta.hasBeta && beta.raizExpired && beta.promoStillValid) {
+    return (
+      <div className="mx-auto max-w-[1060px] px-4 mb-4">
+        <div
+          className="rounded-xl border border-gold/50 p-4 sm:p-5 relative overflow-hidden"
+          style={{
+            background: 'radial-gradient(120% 100% at 50% 0%, rgba(218,165,32,0.18) 0%, rgba(2,7,13,0.92) 70%), #02070d',
+            boxShadow: '0 12px 36px -12px rgba(218,165,32,0.35), 0 0 0 1px rgba(218,165,32,0.10) inset',
+          }}
+        >
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent opacity-70" />
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <div className="flex items-start gap-2.5 flex-1 min-w-0">
+              <Sparkles className="w-5 h-5 text-gold-champagne shrink-0 mt-0.5" strokeWidth={1.75} />
+              <div className="min-w-0">
+                <p className="font-cinzel font-bold text-sm sm:text-base text-gold-light leading-tight">
+                  Sua oferta especial Idriel está ativa
+                </p>
+                <p className="text-[11px] sm:text-xs text-text-secondary mt-1 font-merriweather leading-relaxed">
+                  Garanta <strong className="text-gold-light">3 meses de Idriel por R$ 19,90/mês</strong> (em vez de R$ 39,90). Após o prazo, o plano fica pausado — seu conteúdo permanece salvo, mas só será possível exportar.
+                </p>
+                <p className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-montserrat font-bold uppercase tracking-wider text-red-alert">
+                  <Clock className="w-3 h-3" />
+                  {beta.promoDaysLeft > 0
+                    ? `${beta.promoDaysLeft} ${beta.promoDaysLeft === 1 ? 'dia restante' : 'dias restantes'} para garantir`
+                    : 'Oferta expira hoje'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => openCheckout('beta_idriel_avulso')}
+              className="shrink-0 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full text-[11px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-background hover:shadow-[0_0_22px_rgba(218,165,32,0.45)] transition-all whitespace-nowrap"
+            >
+              <Sparkles className="w-3.5 h-3.5" /> Garantir por R$ 19,90/mês
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Beta acabou e janela promocional também terminou — plano pausado, somente exportação
+  if (beta.hasBeta && beta.promoExpired && !sub.subscribed) {
+    return (
+      <div className="mx-auto max-w-[1060px] px-4 mb-4">
+        <div className="rounded-lg p-4 border border-red-alert/40 bg-red-alert/[0.07]">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-start gap-2 flex-1 min-w-0">
+              <Lock className="w-5 h-5 mt-0.5 text-red-alert shrink-0" strokeWidth={1.75} />
+              <div className="min-w-0">
+                <span className="font-cinzel font-bold text-sm block text-red-alert">
+                  Seu beta terminou — plano pausado
+                </span>
+                <span className="block text-[11px] text-text-secondary mt-1 font-merriweather leading-relaxed">
+                  Todo o conteúdo que você criou está salvo. Para adicionar novos mundos, fichas ou artigos, escolha um plano. A exportação continua liberada.
+                </span>
+              </div>
+            </div>
+            <Link to="/planos" className="shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-background hover:opacity-90 transition-opacity whitespace-nowrap">
+              <Sparkles className="w-3 h-3" /> Ver planos
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+
   const handleCheckout = async (plan: keyof typeof STRIPE_PLANS) => {
     setLoading(plan);
     try {

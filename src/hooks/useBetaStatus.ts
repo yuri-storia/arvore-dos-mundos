@@ -11,7 +11,9 @@ export interface BetaStatus {
   idrielChargesLeft: number;
   daysLeft: number;        // days remaining on Raiz beta (>=0)
   raizExpired: boolean;    // raiz beta period ended
-  promoStillValid: boolean; // can still claim discounted Idriel
+  promoStillValid: boolean; // pode resgatar Idriel a R$ 19,90/mês x 3
+  promoDaysLeft: number;   // dias restantes da janela de resgate (após Raiz expirar)
+  promoExpired: boolean;   // janela de 7 dias terminou sem resgate
 }
 
 const EMPTY: BetaStatus = {
@@ -24,6 +26,8 @@ const EMPTY: BetaStatus = {
   daysLeft: 0,
   raizExpired: false,
   promoStillValid: false,
+  promoDaysLeft: 0,
+  promoExpired: false,
 };
 
 function diffDays(target: Date): number {
@@ -56,6 +60,8 @@ export function useBetaStatus(): BetaStatus {
     const now = new Date();
     const used = data.idriel_charges_used || 0;
 
+    const raizExpired = raizUntil.getTime() < now.getTime();
+    const promoStillValid = idrielUntil.getTime() > now.getTime() && used < 3;
     setStatus({
       loading: false,
       hasBeta: true,
@@ -64,8 +70,10 @@ export function useBetaStatus(): BetaStatus {
       idrielChargesUsed: used,
       idrielChargesLeft: Math.max(0, 3 - used),
       daysLeft: diffDays(raizUntil),
-      raizExpired: raizUntil.getTime() < now.getTime(),
-      promoStillValid: idrielUntil.getTime() > now.getTime() && used < 3,
+      raizExpired,
+      promoStillValid,
+      promoDaysLeft: diffDays(idrielUntil),
+      promoExpired: raizExpired && !promoStillValid,
     });
   }, [user]);
 
