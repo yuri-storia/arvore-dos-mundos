@@ -162,15 +162,17 @@ export const SubscriptionBanner: React.FC = () => {
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={() => handleCheckout('idriel_mensal')}
-                disabled={!!loading}
-                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/[0.12] transition-all whitespace-nowrap"
-              >
-                <Sparkles className="w-3 h-3" />
-                <span className="sm:hidden">Desbloquear Idriel</span>
-                <span className="hidden sm:inline">Desbloquear Idriel — R$ 39,90/mês</span>
-              </button>
+              {!(beta.hasBeta && !beta.raizExpired) && (
+                <button
+                  onClick={() => handleCheckout('idriel_mensal')}
+                  disabled={!!loading}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/[0.12] transition-all whitespace-nowrap"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  <span className="sm:hidden">Desbloquear Idriel</span>
+                  <span className="hidden sm:inline">Desbloquear Idriel — R$ 39,90/mês</span>
+                </button>
+              )}
               <button
                 onClick={async () => { try { await openCustomerPortal(); } catch {} }}
                 className="inline-flex items-center gap-1 px-2 py-2 sm:py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-white/10 text-text-dim hover:text-foreground transition-colors shrink-0"
