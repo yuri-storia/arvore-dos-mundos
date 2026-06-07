@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Lock, Leaf, Sparkles, Bug, Check, ClipboardCopy, Save, ArrowDown } from 'lucide-react';
 import { STYLE_OPTIONS, IMAGE_TYPE_OPTIONS, TONE_OPTIONS, FRUITS, GalleryImage } from '@/lib/data';
-import { callAIText, callAIImage, friendlyAIError } from '@/lib/helpers';
+import { callAIText, callAIImageConsistent, friendlyAIError } from '@/lib/helpers';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useCodexEntries } from '@/hooks/useCodexEntries';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { BugReportDialog } from '@/components/BugReportDialog';
 import type { AppState } from '@/lib/data';
