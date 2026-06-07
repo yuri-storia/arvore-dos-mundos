@@ -322,7 +322,30 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
                   Sua guia élfica entre os Frutos
                 </SheetDescription>
               </div>
+
+              {/* Start guided tour CTA */}
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  // Defer so the drawer closes before the tour spotlight starts
+                  setTimeout(() => window.dispatchEvent(new Event('adm:start-tour')), 220);
+                }}
+                aria-label="Iniciar tour guiado pela Árvore dos Mundos"
+                title="Tour guiado pela Árvore dos Mundos"
+                className="group absolute bottom-3 right-3 inline-flex items-center gap-1.5 sm:gap-2 pl-2.5 pr-3 py-1.5 sm:py-2 rounded-full font-cinzel font-bold text-[10.5px] sm:text-[11.5px] uppercase tracking-[0.14em] text-[#1a0f00] transition-transform hover:-translate-y-0.5 active:scale-95"
+                style={{
+                  background:
+                    'linear-gradient(135deg, hsl(46 95% 78%) 0%, hsl(42 90% 62%) 45%, hsl(34 80% 48%) 100%)',
+                  border: '1px solid hsl(46 95% 82% / 0.85)',
+                  boxShadow:
+                    '0 6px 18px hsl(34 80% 20% / 0.55), 0 0 22px hsl(42 95% 60% / 0.35), inset 0 1px 0 hsl(46 100% 92% / 0.7)',
+                }}
+              >
+                <Compass className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2.25} />
+                <span className="whitespace-nowrap">Fazer o Tour</span>
+              </button>
             </div>
+
           </div>
 
           {/* === Category chips === */}
