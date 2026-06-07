@@ -18,11 +18,13 @@ export const BetaPromoDialog: React.FC = () => {
     if (beta.loading || !beta.hasBeta || !user) return;
 
     const infoKey = `adm_beta_promo_info_seen_${user.id}`;
+    // Janela de resgate: lembramos UMA vez por sessão para não ser repetitivo,
+    // mas reaparece em sessões novas até o usuário resgatar ou perder o prazo.
     const expiredKey = `adm_beta_promo_expired_seen_${user.id}`;
 
     if (beta.raizExpired && beta.promoStillValid) {
       try {
-        if (localStorage.getItem(expiredKey) !== '1') {
+        if (sessionStorage.getItem(expiredKey) !== '1') {
           setVariant('expired');
           return;
         }
@@ -41,10 +43,11 @@ export const BetaPromoDialog: React.FC = () => {
   if (!variant || !user) return null;
 
   const close = () => {
-    const key = variant === 'info'
-      ? `adm_beta_promo_info_seen_${user.id}`
-      : `adm_beta_promo_expired_seen_${user.id}`;
-    try { localStorage.setItem(key, '1'); } catch {}
+    if (variant === 'info' && user) {
+      try { localStorage.setItem(`adm_beta_promo_info_seen_${user.id}`, '1'); } catch {}
+    } else if (variant === 'expired' && user) {
+      try { sessionStorage.setItem(`adm_beta_promo_expired_seen_${user.id}`, '1'); } catch {}
+    }
     setVariant(null);
   };
 
