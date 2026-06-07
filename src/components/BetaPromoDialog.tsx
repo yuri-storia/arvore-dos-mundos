@@ -123,15 +123,25 @@ export const BetaPromoDialog: React.FC = () => {
             <h2 className="font-cinzel font-bold text-2xl text-gradient-gold mb-2">
               Idriel aguarda você
             </h2>
-            <p className="font-merriweather italic text-sm text-text-secondary mb-5 leading-relaxed">
+            <p className="font-merriweather italic text-sm text-text-secondary mb-4 leading-relaxed">
               Seu período beta do plano Raiz terminou — mas guardei uma promessa para você.
             </p>
 
+            <div className="rounded-xl border border-red-alert/40 bg-red-alert/[0.08] p-3 mb-4 flex items-center justify-center gap-2">
+              <Clock className="w-4 h-4 text-red-alert" />
+              <p className="font-montserrat font-bold text-[11px] uppercase tracking-wider text-red-alert">
+                {beta.promoDaysLeft > 0
+                  ? <>Você tem <span className="tabular-nums">{beta.promoDaysLeft}</span> {beta.promoDaysLeft === 1 ? 'dia' : 'dias'} para garantir</>
+                  : 'Última chance — oferta expira hoje'}
+              </p>
+            </div>
+
             <div className="rounded-xl border border-gold/40 bg-gradient-to-br from-gold/15 to-gold/[0.04] p-4 mb-5">
-              <p className="font-cinzel text-sm text-gold-light mb-2">Sua condição especial</p>
-              <p className="font-montserrat font-bold text-3xl text-gradient-gold mb-1">R$ 19,90</p>
-              <p className="text-[11px] text-text-dim font-montserrat uppercase tracking-wider">
-                Acesso avulso a Idriel · {beta.idrielChargesLeft} de 3 restantes
+              <p className="font-cinzel text-sm text-gold-light mb-1">Sua condição especial</p>
+              <p className="font-montserrat font-bold text-3xl text-gradient-gold mb-0">R$ 19,90<span className="text-base text-gold-light/80">/mês</span></p>
+              <p className="text-[11px] text-text-dim font-montserrat uppercase tracking-wider line-through opacity-70">de R$ 39,90/mês</p>
+              <p className="text-[11px] text-gold-light/90 font-montserrat uppercase tracking-wider mt-2">
+                3 meses de Idriel · {beta.idrielChargesLeft} de 3 disponíveis
               </p>
             </div>
 
@@ -140,7 +150,7 @@ export const BetaPromoDialog: React.FC = () => {
               className="w-full px-5 py-3 rounded-full bg-gradient-to-r from-gold to-gold-light text-background text-xs font-montserrat font-bold uppercase tracking-wider hover:shadow-[0_0_28px_rgba(218,165,32,0.5)] transition-all mb-2"
             >
               <Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" />
-              Resgatar Idriel por R$ 19,90
+              Garantir Idriel por R$ 19,90/mês
             </button>
             <button
               onClick={close}
