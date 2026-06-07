@@ -47,9 +47,23 @@ Deno.serve(async (req) => {
     const bonusDrops = bal?.bonus_drops ?? 0;
 
     if (!sub) {
+      // Não há assinatura ativa válida — mas se já existiu alguma (mesmo expirada),
+      // devolvemos `plan_code` para que o front trate como "plano expirado" (read-only).
+      const { data: latest } = await supa
+        .from("subscriptions")
+        .select("plan_code, expires_at")
+        .eq("user_id", userId)
+        .order("started_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
       return new Response(JSON.stringify({
-        subscribed: false, plan: null, has_idriel: false, has_template: false,
-        subscription_end: null, bonus_drops: bonusDrops,
+        subscribed: false,
+        plan: null,
+        plan_code: latest?.plan_code ?? null,
+        has_idriel: false,
+        has_template: false,
+        subscription_end: latest?.expires_at ?? null,
+        bonus_drops: bonusDrops,
       }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
