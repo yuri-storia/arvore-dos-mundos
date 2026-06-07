@@ -26,6 +26,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   const [imgType, setImgType] = useState(IMAGE_TYPE_OPTIONS[0]);
   const [tone, setTone] = useState(TONE_OPTIONS[0]);
   const [extras, setExtras] = useState('');
+  const [pickedRefs, setPickedRefs] = useState<PickedReference[]>([]);
   const [loading1, setLoading1] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [generatedImage, setGeneratedImage] = useState('');
@@ -69,8 +70,8 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
     }
   };
 
-  // Build consistency references: codex entries with images first, then gallery uploads.
-  const referencePack = useMemo(() => {
+  // Auto canon: codex text + (when user didn't pick references) up to 5 codex/gallery images.
+  const autoPack = useMemo(() => {
     const codexImageUrls = codexEntries
       .filter(e => !!e.image_url)
       .slice(0, 5)
@@ -106,7 +107,11 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
     setError('');
     setLoading2(true);
     try {
-      const url = await callAIImageConsistent(generatedPrompt, referencePack.imageUrls, referencePack.referenceText);
+      // If the user picked structured refs, send those (Midjourney-style intents).
+      // Otherwise fall back to the auto canon pack so the world still informs the image.
+      const structured = pickedRefs.map(r => ({ url: r.url, intent: r.intent }));
+      const legacyUrls = structured.length > 0 ? [] : autoPack.imageUrls;
+      const url = await callAIImageConsistent(generatedPrompt, legacyUrls, autoPack.referenceText, structured);
       setGeneratedImage(url);
     } catch (e: any) {
       setError(e.message);
