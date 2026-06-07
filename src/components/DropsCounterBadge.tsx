@@ -124,6 +124,7 @@ const ElixirBar: React.FC<{
 export const DropsCounterBadge: React.FC = () => {
   const { user, isAdmin } = useAuth();
   const sub = useSubscription();
+  const beta = useBetaStatus();
   const [showRecharge, setShowRecharge] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
 
