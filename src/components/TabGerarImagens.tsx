@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Lock, Leaf, Sparkles, Bug, Check, ClipboardCopy, Save, ArrowDown } from 'lucide-react';
 import { STYLE_OPTIONS, IMAGE_TYPE_OPTIONS, TONE_OPTIONS, FRUITS, GalleryImage } from '@/lib/data';
-import { callAIText, callAIImageConsistent, friendlyAIError } from '@/lib/helpers';
+import { callAIText, callAIImage, callAIImageConsistent, friendlyAIError, type ImageQuality } from '@/lib/helpers';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useCodexEntries } from '@/hooks/useCodexEntries';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
@@ -27,6 +27,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   const [tone, setTone] = useState(TONE_OPTIONS[0]);
   const [extras, setExtras] = useState('');
   const [pickedRefs, setPickedRefs] = useState<PickedReference[]>([]);
+  const [quality, setQuality] = useState<ImageQuality>('standard');
   const [loading1, setLoading1] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [generatedImage, setGeneratedImage] = useState('');
@@ -107,11 +108,17 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
     setError('');
     setLoading2(true);
     try {
-      // If the user picked structured refs, send those (Midjourney-style intents).
-      // Otherwise fall back to the auto canon pack so the world still informs the image.
-      const structured = pickedRefs.map(r => ({ url: r.url, intent: r.intent }));
-      const legacyUrls = structured.length > 0 ? [] : autoPack.imageUrls;
-      const url = await callAIImageConsistent(generatedPrompt, legacyUrls, autoPack.referenceText, structured);
+      let url: string;
+      if (quality === 'standard') {
+        // Padrão: usa referências do Codex para consistência canônica (Nano Banana Pro)
+        const structured = pickedRefs.map(r => ({ url: r.url, intent: r.intent }));
+        const legacyUrls = structured.length > 0 ? [] : autoPack.imageUrls;
+        url = await callAIImageConsistent(generatedPrompt, legacyUrls, autoPack.referenceText, structured);
+      } else {
+        // Rascunho (Nano Banana 2, 1 gota) e Qualidade Máxima (GPT Image 2, 15 gotas)
+        // não usam referências — modo livre/cinematográfico
+        url = await callAIImage(generatedPrompt, quality);
+      }
       setGeneratedImage(url);
     } catch (e: any) {
       setError(e.message);
