@@ -387,7 +387,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                     </button>
                     <ConfirmDialog
                       trigger={
-                        <button className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all" title="Excluir capítulo">
+                        <button aria-label="Excluir capítulo" className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all" title="Excluir capítulo">
                           <Trash2 className="w-3 h-3" />
                         </button>
                       }

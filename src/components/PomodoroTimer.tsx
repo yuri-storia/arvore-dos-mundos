@@ -152,7 +152,7 @@ export const PomodoroTimer: React.FC<Props> = ({ className }) => {
         {(running || seconds !== focusMin * 60 || phase !== 'focus' || cycle !== 1) && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <button onClick={cancelSession} className="p-1 text-text-dim hover:text-red-alert transition-colors">
+              <button onClick={cancelSession} aria-label="Cancelar sessão" className="p-1 text-text-dim hover:text-red-alert transition-colors">
                 <Square className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
@@ -162,7 +162,7 @@ export const PomodoroTimer: React.FC<Props> = ({ className }) => {
 
         <Popover>
           <PopoverTrigger asChild>
-            <button className="p-1 text-text-dim hover:text-foreground transition-colors">
+            <button aria-label="Configurações do Pomodoro" className="p-1 text-text-dim hover:text-foreground transition-colors">
               <Settings2 className="w-3.5 h-3.5" />
             </button>
           </PopoverTrigger>

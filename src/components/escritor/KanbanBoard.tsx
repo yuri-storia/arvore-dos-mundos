@@ -203,7 +203,7 @@ export const KanbanBoard: React.FC<Props> = ({
           </SelectContent>
         </Select>
 
-        <button onClick={onCreateStoryline} className="p-1 rounded text-blue-light hover:bg-blue-bright/10" title="Nova storyline">
+        <button onClick={onCreateStoryline} aria-label="Nova storyline" className="p-1 rounded text-blue-light hover:bg-blue-bright/10" title="Nova storyline">
           <Plus className="w-3.5 h-3.5" />
         </button>
 
@@ -217,10 +217,10 @@ export const KanbanBoard: React.FC<Props> = ({
                 className="h-7 px-2 text-xs bg-white/[0.05] border border-blue-bright/20 rounded focus:outline-none"
                 autoFocus
               />
-              <button onClick={saveStorylineName} className="p-1 text-green-400 hover:text-green-300"><Check className="w-3.5 h-3.5" /></button>
+              <button onClick={saveStorylineName} aria-label="Salvar nome da storyline" className="p-1 text-green-400 hover:text-green-300"><Check className="w-3.5 h-3.5" /></button>
             </div>
           ) : (
-            <button onClick={startEditStoryline} className="p-1 rounded text-text-dim hover:text-foreground" title="Renomear storyline">
+            <button onClick={startEditStoryline} aria-label="Renomear storyline" className="p-1 rounded text-text-dim hover:text-foreground" title="Renomear storyline">
               <Pencil className="w-3 h-3" />
             </button>
           )
@@ -290,7 +290,7 @@ export const KanbanBoard: React.FC<Props> = ({
                         className="flex-1 min-w-0 h-6 px-1.5 text-xs bg-white/[0.06] border border-white/15 rounded focus:outline-none"
                         autoFocus
                       />
-                      <button onClick={saveEditingCol} className="p-0.5 text-green-400"><Check className="w-3 h-3" /></button>
+                      <button onClick={saveEditingCol} aria-label="Salvar coluna" className="p-0.5 text-green-400"><Check className="w-3 h-3" /></button>
                     </div>
                   ) : (
                     <button onClick={() => startEditingCol(col)} className="text-xs font-montserrat font-bold truncate text-left flex-1 hover:text-blue-light transition-colors" title="Clique para renomear">
