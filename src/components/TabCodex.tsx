@@ -389,7 +389,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                   className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors"
                 >
                   <span className="font-montserrat font-bold text-xs text-foreground inline-flex items-center gap-1.5"><Library className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />Importar com Idriel</span>
-                  <span className="text-[10px] text-text-dim font-merriweather">Extrair fichas/artigos de um PDF, DOCX ou texto (5 gotas)</span>
+                  <span className="text-[10px] text-text-dim font-merriweather">Extrair fichas/artigos de um PDF, DOCX ou texto (1 gota)</span>
                 </button>
                 <button onClick={resetCreate} className="absolute top-1 right-1 w-5 h-5 rounded-full text-text-dim hover:text-foreground flex items-center justify-center" aria-label="Fechar"><X className="w-3.5 h-3.5" strokeWidth={2} /></button>
               </div>

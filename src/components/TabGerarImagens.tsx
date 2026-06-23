@@ -239,9 +239,9 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {([
-                { id: 'draft' as ImageQuality, label: 'Rascunho', cost: '1 gota', desc: 'Esboço rápido em segundos (Nano Banana 2). Sem referências do Codex.' },
+                { id: 'draft' as ImageQuality, label: 'Rascunho', cost: '2 gotas', desc: 'Esboço rápido em segundos (Nano Banana 2). Sem referências do Codex.' },
                 { id: 'standard' as ImageQuality, label: 'Padrão', cost: '5 gotas', desc: 'Qualidade épica com canon do Codex (Nano Banana Pro). Recomendado.' },
-                { id: 'premium' as ImageQuality, label: 'Qualidade Máxima', cost: '15 gotas', desc: 'Cinematográfico, para capas e retratos definitivos (GPT Image 2 — pode levar até 2 min).' },
+                { id: 'premium' as ImageQuality, label: 'Qualidade Máxima', cost: '15 gotas', desc: 'Cinematográfico, para capas e retratos definitivos (GPT Image 2). Vale a pena esperar — pode levar até 2 min.' },
               ]).map(opt => (
                 <button
                   key={opt.id}
