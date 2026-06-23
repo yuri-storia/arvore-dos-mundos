@@ -482,19 +482,35 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                   </div>
                 </div>
 
-                {/* Powers preview */}
-                <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto mb-5">
-                  {[
-                    { Icon: Palette, label: 'Gerar imagens', cost: '5 gotas' },
-                    { Icon: BarChart3, label: 'Análise do mundo', cost: '2 gotas' },
-                    { Icon: Leaf, label: 'Consultar Idriel', cost: '1 gota' },
-                  ].map(p => (
-                    <div key={p.label} className="rounded-lg p-2.5 bg-gold/[0.04] border border-gold/10 opacity-70">
-                      <p.Icon className="w-5 h-5 mb-1 text-gold-light/80" strokeWidth={1.75} />
-                      <p className="text-[10px] font-montserrat font-bold text-gold-light/80">{p.label}</p>
-                      <p className="text-[9px] text-text-dim">{p.cost}</p>
-                    </div>
-                  ))}
+                {/* Powers preview — image generation tiers + análise */}
+                <div className="max-w-md mx-auto mb-3">
+                  <p className="text-[10px] uppercase tracking-wider text-gold-light/80 font-montserrat font-bold mb-2">Visões de Idriel — 3 níveis</p>
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    {[
+                      { Icon: Leaf, label: 'Rascunho', cost: '1 gota', hint: 'Esboço rápido' },
+                      { Icon: Palette, label: 'Padrão', cost: '5 gotas', hint: 'Canon do Codex' },
+                      { Icon: Sparkles, label: 'Qualidade Máxima', cost: '15 gotas', hint: 'Cinematográfico' },
+                    ].map(p => (
+                      <div key={p.label} className="rounded-lg p-2.5 bg-gold/[0.04] border border-gold/10 opacity-80">
+                        <p.Icon className="w-5 h-5 mb-1 text-gold-light/80" strokeWidth={1.75} />
+                        <p className="text-[10px] font-montserrat font-bold text-gold-light/90 leading-tight">{p.label}</p>
+                        <p className="text-[9px] text-gold-light/70 font-bold">{p.cost}</p>
+                        <p className="text-[9px] text-text-dim leading-tight">{p.hint}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { Icon: BarChart3, label: 'Análise do mundo', cost: '1 gota' },
+                      { Icon: Leaf, label: 'Consultar Idriel', cost: '1 gota' },
+                    ].map(p => (
+                      <div key={p.label} className="rounded-lg p-2.5 bg-gold/[0.04] border border-gold/10 opacity-70">
+                        <p.Icon className="w-5 h-5 mb-1 text-gold-light/80" strokeWidth={1.75} />
+                        <p className="text-[10px] font-montserrat font-bold text-gold-light/80">{p.label}</p>
+                        <p className="text-[9px] text-text-dim">{p.cost}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <button
