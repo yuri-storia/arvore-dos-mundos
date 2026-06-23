@@ -34,11 +34,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
   const [title, setTitle] = useState(chapter.title);
   const [previewMode, setPreviewMode] = useState(false);
   const [spellcheckOn, setSpellcheckOn] = useState(true);
-  const [findOpen, setFindOpen] = useState(false);
-  const [findQuery, setFindQuery] = useState('');
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const findInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setContent(chapter.content || '');
@@ -57,10 +53,10 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
     debouncedSave(value);
   }, [debouncedSave]);
 
-  const wordCount = useMemo(
-    () => (content.trim() ? content.trim().split(/\s+/).length : 0),
-    [content],
-  );
+  const wordCount = useMemo(() => {
+    const text = isHTML(content) ? stripHTML(content) : content;
+    return text.trim() ? text.trim().split(/\s+/).length : 0;
+  }, [content]);
 
   const handleTitleBlur = () => {
     if (title.trim() && title !== chapter.title) onTitleSave(title.trim());
@@ -69,56 +65,13 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
   const byName = useMemo(() => buildEntriesByName(entries), [entries]);
 
   const previewNodes = useMemo(
-    () => previewMode ? renderInlineMentions(content, byName, {
+    () => (previewMode && !isHTML(content)) ? renderInlineMentions(content, byName, {
       allEntries: entries,
       onOpenEntry: (id) => { const e = entries.find(x => x.id === id); if (e) onPreviewEntry(e); },
       onSave: (next) => handleContentChange(next),
     }) : null,
     [previewMode, content, byName, entries, onPreviewEntry, handleContentChange],
   );
-
-  // ---- Find (Ctrl+F) ----
-  const findNext = useCallback((dir: 1 | -1 = 1) => {
-    const q = findQuery;
-    if (!q) return;
-    const ta = textareaRef.current;
-    if (!ta) return;
-    const hay = content.toLowerCase();
-    const needle = q.toLowerCase();
-    if (dir === 1) {
-      const from = ta.selectionEnd ?? 0;
-      let idx = hay.indexOf(needle, from);
-      if (idx === -1) idx = hay.indexOf(needle, 0);
-      if (idx === -1) return;
-      ta.focus();
-      ta.setSelectionRange(idx, idx + needle.length);
-    } else {
-      const from = (ta.selectionStart ?? 0) - 1;
-      let idx = from >= 0 ? hay.lastIndexOf(needle, from) : -1;
-      if (idx === -1) idx = hay.lastIndexOf(needle);
-      if (idx === -1) return;
-      ta.focus();
-      ta.setSelectionRange(idx, idx + needle.length);
-    }
-  }, [findQuery, content]);
-
-  const matchCount = useMemo(() => {
-    if (!findQuery) return 0;
-    const hay = content.toLowerCase();
-    const n = findQuery.toLowerCase();
-    if (!n) return 0;
-    let i = 0, c = 0;
-    while ((i = hay.indexOf(n, i)) !== -1) { c++; i += n.length; }
-    return c;
-  }, [findQuery, content]);
-
-  const handleEditorKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
-      e.preventDefault();
-      setFindOpen(true);
-      setTimeout(() => findInputRef.current?.focus(), 0);
-    }
-  }, []);
 
   return (
     <>
@@ -133,36 +86,23 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
           value={title}
           onChange={e => setTitle(e.target.value)}
           onBlur={handleTitleBlur}
+          lang="pt-BR"
+          spellCheck
           className="bg-transparent font-montserrat font-bold text-sm text-foreground border-none focus:outline-none flex-1 min-w-0"
           placeholder="Título do capítulo"
         />
         <span className="text-[11px] font-mono text-text-dim bg-white/[0.04] px-2 py-0.5 rounded">{wordCount} palavras</span>
 
-        {/* Spellcheck toggle — premium metallic green when on */}
         <button
           onClick={() => setSpellcheckOn(v => !v)}
           title={spellcheckOn ? 'Corretor ortográfico (PT-BR) ativo — clique para desativar' : 'Corretor desativado — clique para ativar'}
           className={`p-1.5 rounded transition-all border ${
             spellcheckOn
-              ? 'border-emerald-400/40 text-emerald-300 bg-gradient-to-b from-emerald-400/20 via-emerald-500/10 to-emerald-700/20 shadow-[0_0_12px_-2px_rgba(52,211,153,0.55),inset_0_1px_0_rgba(255,255,255,0.08)] hover:from-emerald-400/30 hover:to-emerald-700/30'
+              ? 'border-emerald-400/40 text-emerald-300 bg-gradient-to-b from-emerald-400/20 via-emerald-500/10 to-emerald-700/20 shadow-[0_0_12px_-2px_rgba(52,211,153,0.55),inset_0_1px_0_rgba(255,255,255,0.08)]'
               : 'border-white/10 text-text-dim hover:text-foreground hover:bg-white/[0.05]'
           }`}
         >
           <SpellCheck2 className="w-4 h-4" />
-        </button>
-
-        {/* Find toggle */}
-        <button
-          onClick={() => {
-            setFindOpen(v => !v);
-            if (!findOpen) setTimeout(() => findInputRef.current?.focus(), 0);
-          }}
-          title="Buscar no capítulo (Ctrl+F)"
-          className={`p-1.5 rounded transition-colors ${
-            findOpen ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground hover:bg-white/[0.05]'
-          }`}
-        >
-          <Search className="w-4 h-4" />
         </button>
 
         <div className="flex items-center bg-white/[0.03] rounded border border-blue-bright/10 p-0.5">
@@ -173,7 +113,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
           </button>
           <button onClick={() => setPreviewMode(true)}
             className={`px-1.5 py-0.5 rounded text-[10px] flex items-center gap-1 transition-colors ${previewMode ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'}`}
-            title="Pré-visualizar com chips">
+            title="Pré-visualizar">
             <Eye className="w-3 h-3" />
           </button>
         </div>
@@ -191,62 +131,29 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
         )}
       </div>
 
-      {/* Find bar */}
-      {findOpen && (
-        <div className="px-3 py-2 border-b border-blue-bright/10 bg-white/[0.02] flex items-center gap-2">
-          <Search className="w-3.5 h-3.5 text-text-dim shrink-0" />
-          <input
-            ref={findInputRef}
-            value={findQuery}
-            onChange={e => setFindQuery(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter') { e.preventDefault(); findNext(e.shiftKey ? -1 : 1); }
-              if (e.key === 'Escape') { e.preventDefault(); setFindOpen(false); textareaRef.current?.focus(); }
-            }}
-            placeholder="Buscar no capítulo…"
-            className="flex-1 bg-transparent text-xs text-foreground focus:outline-none placeholder:text-text-dim/40"
-          />
-          <span className="text-[10px] font-mono text-text-dim min-w-[3rem] text-right">
-            {findQuery ? `${matchCount} ${matchCount === 1 ? 'ocorr.' : 'ocorrs.'}` : ''}
-          </span>
-          <button onClick={() => findNext(-1)} disabled={!matchCount}
-            title="Anterior (Shift+Enter)"
-            className="p-1 rounded text-text-dim hover:text-foreground hover:bg-white/[0.05] disabled:opacity-30">
-            <ChevronUp className="w-3.5 h-3.5" />
-          </button>
-          <button onClick={() => findNext(1)} disabled={!matchCount}
-            title="Próximo (Enter)"
-            className="p-1 rounded text-text-dim hover:text-foreground hover:bg-white/[0.05] disabled:opacity-30">
-            <ChevronDown className="w-3.5 h-3.5" />
-          </button>
-          <button onClick={() => { setFindOpen(false); textareaRef.current?.focus(); }}
-            title="Fechar (Esc)"
-            className="p-1 rounded text-text-dim hover:text-foreground hover:bg-white/[0.05]">
-            <X className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
-
       {/* Editor body */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative overflow-hidden">
         {previewMode ? (
-          <div className="w-full h-full overflow-y-auto p-4 font-merriweather text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
-            {previewNodes && previewNodes.length > 0
-              ? previewNodes
-              : <span className="text-text-dim/40 italic">Nada escrito ainda.</span>}
+          <div className="w-full h-full overflow-y-auto p-4">
+            {isHTML(content) ? (
+              <RichTextView value={content} />
+            ) : previewNodes && previewNodes.length > 0 ? (
+              <div className="font-merriweather text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
+                {previewNodes}
+              </div>
+            ) : (
+              <span className="text-text-dim/40 italic">Nada escrito ainda.</span>
+            )}
           </div>
         ) : (
-          <MentionTextarea
-            ref={textareaRef}
+          <RichTextEditor
             entries={entries}
             value={content}
             onChange={handleContentChange}
-            onKeyDown={handleEditorKeyDown}
-            placeholder="Comece a escrever seu capítulo aqui…&#10;&#10;Use @NomeDoPersonagem para inserir referências do Codex. Selecione e Ctrl+L para vincular. Ctrl+F para buscar."
-            className="w-full h-full resize-none bg-transparent text-foreground/90 font-merriweather text-sm leading-relaxed p-4 focus:outline-none placeholder:text-text-dim/30"
-            wrapperClassName="relative w-full h-full"
+            placeholder="Comece a escrever seu capítulo aqui… Use @ para inserir referências do Codex (ou Ctrl+L)."
             spellCheck={spellcheckOn}
             lang="pt-BR"
+            minHeight="100%"
           />
         )}
       </div>
