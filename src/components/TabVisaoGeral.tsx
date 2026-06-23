@@ -51,17 +51,22 @@ export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrent
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 mb-6">
         {[
           { label: 'Frutos Iniciados', value: started },
-          { label: 'Completos', value: complete },
-          { label: 'Campos Preenchidos', value: stats.filled },
-          { label: 'Progresso Total', value: `${stats.pct}%` },
+          { label: 'Frutos Avaliados', value: hasAnalysis ? `${ratedFruits}/11` : '—' },
+          { label: 'Avaliação Idriel', value: hasAnalysis ? `${avgScore.toFixed(1)}/5` : '—' },
+          { label: 'Progresso (estrelas)', value: hasAnalysis ? `${Math.round((avgScore / 5) * 100)}%` : '—' },
           { label: 'Imagens na Galeria', value: gallery.length },
         ].map(s => (
           <div key={s.label} className="card-glass rounded-lg p-3 sm:p-4 text-center">
-            <div className="font-cinzel font-bold text-xl sm:text-2xl text-blue-bright mb-1">{s.value}</div>
+            <div className={`font-cinzel font-bold text-xl sm:text-2xl mb-1 ${typeof s.value === 'string' && s.value === '—' ? 'text-text-dim' : 'text-gold-light'}`}>{s.value}</div>
             <div className="text-[10px] sm:text-[11px] text-text-dim font-montserrat uppercase tracking-wider">{s.label}</div>
           </div>
         ))}
       </div>
+      {!hasAnalysis && (
+        <p className="text-[11px] text-text-dim italic text-center mb-6 -mt-3">
+          O progresso agora vem da <strong className="text-gold-light not-italic">Análise da Idriel</strong>. Gere uma análise no Codex para acompanhar suas estrelas.
+        </p>
+      )}
 
       {/* World summary */}
       {summaryFields.length > 0 && (
