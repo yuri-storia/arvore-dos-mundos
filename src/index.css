@@ -50,7 +50,7 @@
     --blue-bright: 207 90% 61%;
     --blue-light: 210 84% 69%;
     --blue-glow: 207 89% 78%;
-    --gold: 34 38% 52%;
+    --gold: 38 55% 62%;
     --gold-light: 38 48% 70%;
     --gold-deep: 28 32% 28%;
     --gold-bronze: 30 30% 42%;
@@ -76,12 +76,19 @@
   * {
     @apply border-border;
   }
+  /* Escala-raiz responsiva por viewport — mobile mantém 16px (evita zoom iOS), tablet 16.5px, desktop 17px. */
   html { font-size: 16px; }
+  @media (min-width: 768px) { html { font-size: 16.5px; } }
+  @media (min-width: 1024px) { html { font-size: 17px; } }
+  /* Preferência do usuário (Confortável / Padrão / Compacto) sobrepõe o default. */
+  html.font-size-comfortable { font-size: 18px !important; }
+  html.font-size-default     { font-size: 17px !important; }
+  html.font-size-compact     { font-size: 15.5px !important; }
   body {
     @apply bg-background text-foreground;
     font-family: 'Amiri', 'Merriweather', Georgia, serif;
     font-size: 1rem;
-    line-height: 1.65;
+    line-height: 1.7;
     background-color: hsl(var(--bg-deep));
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
@@ -91,19 +98,25 @@
     font-family: 'Cinzel', serif;
     font-weight: 700;
     letter-spacing: 0.01em;
-    line-height: 1.15;
+    line-height: 1.18;
   }
-  h1 { font-size: clamp(2rem, 4.4vw + 0.5rem, 3.75rem); }
-  h2 { font-size: clamp(1.6rem, 2.6vw + 0.5rem, 2.5rem); }
-  h3 { font-size: clamp(1.25rem, 1.4vw + 0.6rem, 1.6rem); }
-  h4 { font-size: clamp(1.1rem, 1vw + 0.6rem, 1.3rem); }
-  p, li { line-height: 1.7; }
-  /* Mínimo de legibilidade para Amiri (serif precisa de mais corpo) */
-  p { font-size: clamp(0.95rem, 0.5vw + 0.85rem, 1.0625rem); }
+  h1 { font-size: clamp(2.1rem, 4.4vw + 0.5rem, 3.75rem); }
+  h2 { font-size: clamp(1.7rem, 2.6vw + 0.5rem, 2.5rem); }
+  h3 { font-size: clamp(1.35rem, 1.4vw + 0.6rem, 1.7rem); }
+  h4 { font-size: clamp(1.15rem, 1vw + 0.6rem, 1.35rem); }
+  p, li { line-height: 1.75; }
+  /* Piso mínimo de leitura — sobe ~6% para conforto. */
+  p { font-size: clamp(1rem, 0.5vw + 0.9rem, 1.125rem); }
   small, .text-xs, .text-\[10px\], .text-\[11px\] {
     /* Pequenos só em chrome de UI — Amiri serif fica ilegível abaixo de 12px */
     font-family: 'Montserrat', sans-serif;
     letter-spacing: 0.02em;
+  }
+  /* Foco visível consistente (a11y) — anel dourado suave em todo elemento interativo. */
+  :focus-visible {
+    outline: 2px solid hsl(var(--gold-light));
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 }
 
@@ -113,12 +126,12 @@
 .font-merriweather { font-family: 'Merriweather', serif; }
 .font-amiri { font-family: 'Amiri', 'Merriweather', Georgia, serif; }
 
-/* Escala tipográfica utilitária (corpo legível) */
-.text-body-lg { font-size: clamp(1.0625rem, 0.4vw + 0.95rem, 1.2rem); line-height: 1.7; }
-.text-body    { font-size: clamp(0.9375rem, 0.4vw + 0.85rem, 1.0625rem); line-height: 1.7; }
-.text-body-sm { font-size: 0.9375rem; line-height: 1.6; }
-.text-ui      { font-family: 'Montserrat', sans-serif; font-size: 0.75rem; letter-spacing: 0.08em; }
-.text-ui-xs   { font-family: 'Montserrat', sans-serif; font-size: 0.6875rem; letter-spacing: 0.16em; text-transform: uppercase; }
+/* Escala tipográfica utilitária (corpo legível) — piso elevado p/ legibilidade. */
+.text-body-lg { font-size: clamp(1.125rem, 0.4vw + 1rem, 1.25rem); line-height: 1.75; }
+.text-body    { font-size: clamp(1rem, 0.4vw + 0.9rem, 1.125rem); line-height: 1.75; }
+.text-body-sm { font-size: 1rem; line-height: 1.65; }
+.text-ui      { font-family: 'Montserrat', sans-serif; font-size: 0.8125rem; letter-spacing: 0.08em; }
+.text-ui-xs   { font-family: 'Montserrat', sans-serif; font-size: 0.75rem; letter-spacing: 0.16em; text-transform: uppercase; }
 
 /* Premium gold — bronze → champagne → cream */
 .text-gradient-gold {
