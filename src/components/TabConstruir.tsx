@@ -20,8 +20,9 @@ import { Textarea } from '@/components/ui/textarea';
 import type { AppState } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useNavigate } from 'react-router-dom';
-import { History, Trash2, Trees, Leaf, Sparkles, Check, Image as ImageIcon, Save, ScrollText, ArrowLeft, ArrowRight, HelpCircle, BookOpen, Feather, RefreshCw } from 'lucide-react';
+import { History, Trash2, Trees, Leaf, Sparkles, Check, Image as ImageIcon, Save, ScrollText, ArrowLeft, ArrowRight, HelpCircle, BookOpen, Feather, RefreshCw, Star } from 'lucide-react';
 import { toast } from 'sonner';
+import { useLatestAnalysis } from '@/hooks/useLatestAnalysis';
 
 interface Props {
   state: AppState;
