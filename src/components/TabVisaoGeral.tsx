@@ -1,9 +1,10 @@
 import React from 'react';
-import { PencilLine, FileDown } from 'lucide-react';
+import { PencilLine, FileDown, Star } from 'lucide-react';
 import { FRUITS, getOrderedFruits } from '@/lib/data';
 import { getFruitProgress, getFruitsStarted, getFruitsComplete, getTotalProgress, exportWorldMarkdown } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
 import type { AppState, TabType } from '@/lib/data';
+import { useLatestAnalysis } from '@/hooks/useLatestAnalysis';
 
 interface Props {
   state: AppState;
@@ -12,11 +13,18 @@ interface Props {
 }
 
 export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrentFruit }) => {
-  const { db, worldName, method, gallery } = state;
+  const { db, worldName, method, gallery, currentSaveId } = state;
   const stats = getTotalProgress(db);
   const started = getFruitsStarted(db);
   const complete = getFruitsComplete(db);
   const orderedFruits = getOrderedFruits(method);
+  const { data: latestAnalysis } = useLatestAnalysis(currentSaveId);
+  const fruitScores = latestAnalysis?.fruit_scores || {};
+  const ratedFruits = FRUITS.filter(f => (fruitScores[String(f.id)] ?? 0) > 0).length;
+  const avgScore = ratedFruits > 0
+    ? FRUITS.reduce((acc, f) => acc + (fruitScores[String(f.id)] ?? 0), 0) / FRUITS.length
+    : 0;
+  const hasAnalysis = !!latestAnalysis && ratedFruits > 0;
 
   const summaryFields = [
     { label: 'Regiões', value: db[0]?.continents },
@@ -43,17 +51,22 @@ export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrent
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 mb-6">
         {[
           { label: 'Frutos Iniciados', value: started },
-          { label: 'Completos', value: complete },
-          { label: 'Campos Preenchidos', value: stats.filled },
-          { label: 'Progresso Total', value: `${stats.pct}%` },
+          { label: 'Frutos Avaliados', value: hasAnalysis ? `${ratedFruits}/11` : '—' },
+          { label: 'Avaliação Idriel', value: hasAnalysis ? `${avgScore.toFixed(1)}/5` : '—' },
+          { label: 'Progresso (estrelas)', value: hasAnalysis ? `${Math.round((avgScore / 5) * 100)}%` : '—' },
           { label: 'Imagens na Galeria', value: gallery.length },
         ].map(s => (
           <div key={s.label} className="card-glass rounded-lg p-3 sm:p-4 text-center">
-            <div className="font-cinzel font-bold text-xl sm:text-2xl text-blue-bright mb-1">{s.value}</div>
+            <div className={`font-cinzel font-bold text-xl sm:text-2xl mb-1 ${typeof s.value === 'string' && s.value === '—' ? 'text-text-dim' : 'text-gold-light'}`}>{s.value}</div>
             <div className="text-[10px] sm:text-[11px] text-text-dim font-montserrat uppercase tracking-wider">{s.label}</div>
           </div>
         ))}
       </div>
+      {!hasAnalysis && (
+        <p className="text-[11px] text-text-dim italic text-center mb-6 -mt-3">
+          O progresso agora vem da <strong className="text-gold-light not-italic">Análise da Idriel</strong>. Gere uma análise no Codex para acompanhar suas estrelas.
+        </p>
+      )}
 
       {/* World summary */}
       {summaryFields.length > 0 && (
@@ -70,14 +83,14 @@ export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrent
         </div>
       )}
 
-      {/* Fruit progress grid */}
+      {/* Fruit progress grid — agora baseado na análise da Idriel */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 mb-6">
         {orderedFruits.map(f => {
-          const p = getFruitProgress(db, f.id);
-          const status = p.filled === p.total ? 'complete' : p.filled > 0 ? 'partial' : 'empty';
-          const borderColor = status === 'complete' ? 'border-l-blue-bright' : status === 'partial' ? 'border-l-gold' : 'border-l-transparent';
-          const barColor = status === 'complete' ? 'bg-blue-bright' : status === 'partial' ? 'bg-gold' : 'bg-secondary';
-          const barW = p.total ? (p.filled / p.total) * 100 : 0;
+          const score = fruitScores[String(f.id)] ?? 0;
+          const status = score >= 5 ? 'mastered' : score >= 3 ? 'good' : score > 0 ? 'partial' : 'empty';
+          const borderColor = status === 'mastered' ? 'border-l-gold-light' : status === 'good' ? 'border-l-gold' : status === 'partial' ? 'border-l-gold/60' : 'border-l-transparent';
+          const barColor = status === 'mastered' ? 'bg-gold-light' : status === 'good' ? 'bg-gold' : status === 'partial' ? 'bg-gold/50' : 'bg-secondary';
+          const barW = (score / 5) * 100;
           const coverImage = FRUIT_IMAGES[f.id];
 
           return (
@@ -99,13 +112,19 @@ export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrent
                 <div className={`h-full ${barColor} rounded-full transition-all`} style={{ width: `${barW}%` }} />
               </div>
               <div className="flex justify-between items-center relative">
-                <span className="text-[10px] text-text-dim">{p.filled} de {p.total}</span>
+                <span className="inline-flex items-center gap-0.5">
+                  {[1,2,3,4,5].map(i => (
+                    <Star key={i} className="w-2.5 h-2.5" strokeWidth={1.5}
+                      style={{ color: 'hsl(var(--gold-light))', fill: i <= score ? 'hsl(var(--gold-light))' : 'transparent' }} />
+                  ))}
+                </span>
                 <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${
-                  status === 'complete' ? 'bg-blue-bright/20 text-blue-light' :
-                  status === 'partial' ? 'bg-gold/20 text-gold-light' :
+                  status === 'mastered' ? 'bg-gold-light/20 text-gold-light' :
+                  status === 'good' ? 'bg-gold/20 text-gold-light' :
+                  status === 'partial' ? 'bg-gold/10 text-gold-light/80' :
                   'bg-secondary text-text-dim'
                 }`}>
-                  {status === 'complete' ? 'Completo' : status === 'partial' ? 'Em andamento' : 'Não iniciado'}
+                  {status === 'mastered' ? 'Maduro' : status === 'good' ? 'Vigoroso' : status === 'partial' ? 'Em flor' : hasAnalysis ? 'Não avaliado' : 'Sem análise'}
                 </span>
               </div>
             </button>

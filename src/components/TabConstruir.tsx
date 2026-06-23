@@ -20,8 +20,9 @@ import { Textarea } from '@/components/ui/textarea';
 import type { AppState } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useNavigate } from 'react-router-dom';
-import { History, Trash2, Trees, Leaf, Sparkles, Check, Image as ImageIcon, Save, ScrollText, ArrowLeft, ArrowRight, HelpCircle, BookOpen, Feather, RefreshCw } from 'lucide-react';
+import { History, Trash2, Trees, Leaf, Sparkles, Check, Image as ImageIcon, Save, ScrollText, ArrowLeft, ArrowRight, HelpCircle, BookOpen, Feather, RefreshCw, Star } from 'lucide-react';
 import { toast } from 'sonner';
+import { useLatestAnalysis } from '@/hooks/useLatestAnalysis';
 
 interface Props {
   state: AppState;
@@ -159,10 +160,16 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   };
 
   const orderedFruits = getOrderedFruits(method);
+  const { data: latestAnalysis } = useLatestAnalysis(currentSaveId);
+  const fruitScores = latestAnalysis?.fruit_scores || {};
+  const ratedFruits = FRUITS.filter(f => (fruitScores[String(f.id)] ?? 0) > 0).length;
+  const avgScore = ratedFruits > 0
+    ? FRUITS.reduce((acc, f) => acc + (fruitScores[String(f.id)] ?? 0), 0) / FRUITS.length
+    : 0;
+  const pct = Math.round((avgScore / 5) * 100);
+  const hasAnalysis = !!latestAnalysis && ratedFruits > 0;
+  // Legacy field-based stats kept as fallback
   const fruitsStarted = FRUITS.filter(f => getFruitProgress(db, f.id).filled > 0).length;
-  const totalPct = FRUITS.reduce((acc, f) => acc + getFruitProgress(db, f.id).filled, 0);
-  const totalFields = FRUITS.reduce((acc, f) => acc + f.fields.length, 0);
-  const pct = totalFields ? Math.round((totalPct / totalFields) * 100) : 0;
 
   const fruit = FRUITS[currentFruit];
   const currentOrderIndex = orderedFruits.findIndex(f => f.id === currentFruit);
@@ -244,26 +251,38 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
         </p>
       </div>
 
-      {/* Progress bar */}
+      {/* Progress bar — agora baseado na Análise da Idriel */}
       <div className="mb-5">
         <div className="relative h-[3px] bg-secondary rounded-full overflow-hidden mb-1">
           <div
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-main to-blue-bright rounded-full shadow-[0_0_10px_rgba(33,150,243,0.5)]"
-            style={{ width: `${pct}%`, transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)' }}
+            className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ${hasAnalysis ? 'bg-gradient-to-r from-gold-deep via-gold to-gold-light shadow-[0_0_10px_hsl(var(--gold-warm)/0.55)]' : 'bg-gradient-to-r from-blue-main to-blue-bright shadow-[0_0_10px_rgba(33,150,243,0.4)]'}`}
+            style={{ width: `${hasAnalysis ? pct : Math.round((fruitsStarted / FRUITS.length) * 100)}%` }}
           />
         </div>
-        <div className="flex justify-between text-xs text-text-dim">
-          <span>{fruitsStarted} de 11 frutos iniciados</span>
-          <span className="text-blue-light font-bold">{pct}%</span>
+        <div className="flex justify-between items-center text-xs text-text-dim gap-2 flex-wrap">
+          {hasAnalysis ? (
+            <>
+              <span className="flex items-center gap-1.5">
+                <Star className="w-3 h-3 text-gold-light" fill="currentColor" />
+                <span>Avaliação Idriel: <strong className="text-gold-light">{avgScore.toFixed(1)}/5</strong> · {ratedFruits}/11 Frutos avaliados</span>
+              </span>
+              <span className="text-gold-light font-bold">{pct}%</span>
+            </>
+          ) : (
+            <>
+              <span>{fruitsStarted} de 11 Frutos iniciados · <em className="text-text-dim/70">sem análise da Idriel ainda</em></span>
+              <span className="text-blue-light font-bold">— </span>
+            </>
+          )}
         </div>
       </div>
 
       {/* Fruit grid */}
       <div data-tour="fruit-grid" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 mb-6">
         {orderedFruits.map((f, idx) => {
-          const fp = getFruitProgress(db, f.id);
+          const score = fruitScores[String(f.id)] ?? 0;
           const isActive = currentFruit === f.id;
-          const isComplete = fp.filled === fp.total;
+          const isMastered = score >= 5;
           const coverImage = FRUIT_IMAGES[f.id];
           return (
             <button
@@ -301,12 +320,21 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               <div className="absolute bottom-0 left-0 right-0 p-2">
                 <span className="font-cinzel text-[10px] sm:text-xs text-blue-light block">{f.num}</span>
                 <span className="font-montserrat font-bold text-[11px] sm:text-xs text-foreground uppercase leading-tight block">{f.name}</span>
-                {fp.filled > 0 && !isComplete && (
-                  <span className="text-[9px] sm:text-[10px] text-gold-light">{fp.filled}/{fp.total} campos</span>
+                {score > 0 ? (
+                  <span className="inline-flex items-center gap-0.5 mt-0.5">
+                    {[1,2,3,4,5].map(i => (
+                      <Star key={i} className="w-2.5 h-2.5" strokeWidth={1.5}
+                        style={{ color: 'hsl(var(--gold-light))', fill: i <= score ? 'hsl(var(--gold-light))' : 'transparent' }} />
+                    ))}
+                  </span>
+                ) : hasAnalysis ? (
+                  <span className="text-[9px] sm:text-[10px] text-text-dim/70 italic">não avaliado</span>
+                ) : (
+                  <span className="text-[9px] sm:text-[10px] text-text-dim/70 italic">sem análise</span>
                 )}
               </div>
-              {isComplete && (
-                <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center text-white"><Check className="w-3 h-3" strokeWidth={3} /></div>
+              {isMastered && (
+                <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-gradient-to-br from-gold-light to-gold-deep flex items-center justify-center text-background shadow-[0_0_8px_hsl(var(--gold-warm)/0.6)]"><Star className="w-3 h-3" strokeWidth={2.5} fill="currentColor" /></div>
               )}
               <div className={`absolute bottom-0 left-0 right-0 h-[2px] bg-blue-bright transition-transform origin-left ${isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
             </button>

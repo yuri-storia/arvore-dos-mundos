@@ -908,6 +908,7 @@ export type Database = {
           created_at: string
           entry_count: number
           ficha_count: number
+          fruit_scores: Json
           id: string
           user_id: string
           world_id: string | null
@@ -919,6 +920,7 @@ export type Database = {
           created_at?: string
           entry_count?: number
           ficha_count?: number
+          fruit_scores?: Json
           id?: string
           user_id: string
           world_id?: string | null
@@ -930,6 +932,7 @@ export type Database = {
           created_at?: string
           entry_count?: number
           ficha_count?: number
+          fruit_scores?: Json
           id?: string
           user_id?: string
           world_id?: string | null

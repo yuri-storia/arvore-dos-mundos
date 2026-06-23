@@ -10,6 +10,9 @@ import {
 } from 'lucide-react';
 import { FRUITS } from '@/lib/data';
 import { PomodoroTimer } from '@/components/PomodoroTimer';
+import { RichTextEditor, type RichTextEditorRef } from '@/components/editor/RichTextEditor';
+
+const stripHTML = (s: string) => (s || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 
 
 // ── Reference Panel ──
@@ -82,7 +85,7 @@ export const FreeWritingView: React.FC<Props> = ({ worldId, entries }) => {
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
   const [showRef, setShowRef] = useState(true);
-  const editorRef = useRef<HTMLTextAreaElement>(null);
+  const editorRef = useRef<RichTextEditorRef>(null);
   const saveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const active = useMemo(() => writings.find(w => w.id === activeId), [writings, activeId]);
@@ -103,15 +106,13 @@ export const FreeWritingView: React.FC<Props> = ({ worldId, entries }) => {
 
   const handleInsert = (name: string) => {
     if (!editorRef.current || !activeId) return;
-    const ta = editorRef.current;
-    const pos = ta.selectionStart;
-    const nc = content.substring(0, pos) + `@${name} ` + content.substring(pos);
-    setContent(nc);
-    debouncedSave(activeId, nc);
-    setTimeout(() => ta.focus(), 0);
+    editorRef.current.insertText(`@${name} `);
   };
 
-  const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
+  const wordCount = useMemo(() => {
+    const text = stripHTML(content);
+    return text ? text.split(/\s+/).length : 0;
+  }, [content]);
 
   return (
     <div className="flex h-full gap-3">
@@ -163,9 +164,16 @@ export const FreeWritingView: React.FC<Props> = ({ worldId, entries }) => {
                 {showRef ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
               </button>
             </div>
-            <textarea ref={editorRef} value={content} onChange={e => handleChange(e.target.value)}
-              placeholder="Escreva livremente…&#10;&#10;Use @NomeDoPersonagem para referências."
-              className="flex-1 w-full resize-none bg-transparent text-foreground/90 font-merriweather text-sm leading-relaxed p-4 focus:outline-none placeholder:text-text-dim/30" />
+            <div className="flex-1 overflow-hidden">
+              <RichTextEditor
+                ref={editorRef}
+                entries={entries}
+                value={content}
+                onChange={handleChange}
+                placeholder="Escreva livremente… Use @ para mencionar entradas do Codex (ou Ctrl+L)."
+                minHeight="100%"
+              />
+            </div>
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-center p-8">

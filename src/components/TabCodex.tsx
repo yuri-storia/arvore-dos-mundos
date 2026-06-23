@@ -13,6 +13,7 @@ import type { WorldRecord } from '@/hooks/useWorlds';
 import { Lock, BookOpen, Search, FileDown, ClipboardList, PencilLine, Inbox, Library, X, Globe, Check, Apple, Loader2, FolderUp, Trees } from 'lucide-react';
 import { toast } from 'sonner';
 import { IdrielImportDialog } from '@/components/IdrielImportDialog';
+import { RichTextEditor } from '@/components/editor/RichTextEditor';
 
 const FRUIT_ALL = -1;
 const FRUIT_NONE = -2; // sentinel for "no fruit" filter
@@ -616,7 +617,15 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
 
           <div className="mb-3">
             <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Conteúdo</label>
-            <textarea value={newContent} onChange={e => setNewContent(e.target.value)} placeholder={createKind === 'artigo' ? 'Escreva livremente seu artigo…' : 'Descreva livremente…'} rows={createKind === 'artigo' ? 8 : 5} className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-ring/50 resize-y" />
+            <div className="border border-blue-bright/15 rounded-md overflow-hidden bg-[rgba(4,12,24,0.6)]">
+              <RichTextEditor
+                entries={entries}
+                value={newContent}
+                onChange={setNewContent}
+                placeholder={createKind === 'artigo' ? 'Escreva livremente seu artigo… Use @ para mencionar entradas.' : 'Descreva livremente… Use @ para mencionar entradas.'}
+                minHeight={createKind === 'artigo' ? '260px' : '180px'}
+              />
+            </div>
           </div>
 
           <div className="flex gap-2">

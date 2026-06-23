@@ -1,0 +1,1 @@
+ALTER TABLE public.world_analyses ADD COLUMN IF NOT EXISTS fruit_scores jsonb NOT NULL DEFAULT '{}'::jsonb;
