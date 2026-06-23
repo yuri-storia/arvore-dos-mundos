@@ -164,9 +164,16 @@ export const FreeWritingView: React.FC<Props> = ({ worldId, entries }) => {
                 {showRef ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
               </button>
             </div>
-            <textarea ref={editorRef} value={content} onChange={e => handleChange(e.target.value)}
-              placeholder="Escreva livremente…&#10;&#10;Use @NomeDoPersonagem para referências."
-              className="flex-1 w-full resize-none bg-transparent text-foreground/90 font-merriweather text-sm leading-relaxed p-4 focus:outline-none placeholder:text-text-dim/30" />
+            <div className="flex-1 overflow-hidden">
+              <RichTextEditor
+                ref={editorRef}
+                entries={entries}
+                value={content}
+                onChange={handleChange}
+                placeholder="Escreva livremente… Use @ para mencionar entradas do Codex (ou Ctrl+L)."
+                minHeight="100%"
+              />
+            </div>
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-center p-8">
