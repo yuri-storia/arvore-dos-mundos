@@ -156,7 +156,29 @@ const ToolBtn: React.FC<{ active?: boolean; disabled?: boolean; onClick: () => v
 const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobile }) => {
   const [colorOpen, setColorOpen] = useState(false);
   const [hlOpen, setHlOpen] = useState(false);
+  const colorWrapRef = useRef<HTMLDivElement>(null);
+  const hlWrapRef = useRef<HTMLDivElement>(null);
   const can = editor;
+
+  // Close popovers on outside click / Escape
+  useEffect(() => {
+    if (!colorOpen && !hlOpen) return;
+    const onDown = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (colorOpen && colorWrapRef.current && !colorWrapRef.current.contains(t)) setColorOpen(false);
+      if (hlOpen && hlWrapRef.current && !hlWrapRef.current.contains(t)) setHlOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setColorOpen(false); setHlOpen(false); }
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [colorOpen, hlOpen]);
+
   return (
     <div className={`rich-toolbar ${mobile ? 'is-mobile' : ''}`}>
       <div className="rich-group">
@@ -176,7 +198,7 @@ const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobil
         <ToolBtn title="Tachado" active={can.isActive('strike')} onClick={() => can.chain().focus().toggleStrike().run()}><Strikethrough className="w-4 h-4" /></ToolBtn>
       </div>
       <div className="rich-group rich-color-group">
-        <div className="rich-color-wrap">
+        <div className="rich-color-wrap" ref={colorWrapRef}>
           <ToolBtn title="Cor do texto" onClick={() => { setColorOpen(o => !o); setHlOpen(false); }}><Palette className="w-4 h-4" /></ToolBtn>
           {colorOpen && (
             <div className="rich-popover" onMouseDown={e => e.preventDefault()}>
@@ -190,7 +212,7 @@ const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobil
             </div>
           )}
         </div>
-        <div className="rich-color-wrap">
+        <div className="rich-color-wrap" ref={hlWrapRef}>
           <ToolBtn title="Realce" onClick={() => { setHlOpen(o => !o); setColorOpen(false); }}><Highlighter className="w-4 h-4" /></ToolBtn>
           {hlOpen && (
             <div className="rich-popover" onMouseDown={e => e.preventDefault()}>
@@ -233,7 +255,17 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
   const entriesRef = useRef<CodexEntry[]>(entries);
   useEffect(() => { entriesRef.current = entries; }, [entries]);
   const [focused, setFocused] = useState(false);
-  const isMobile = useMemo(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches, []);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
+  );
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(max-width: 768px)');
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   const initialHTML = useMemo(() => plainTextToHtml(value), []); // eslint-disable-line
 
@@ -280,7 +312,16 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
       onChange(editor.getHTML());
     },
     onFocus: () => setFocused(true),
-    onBlur: () => setTimeout(() => setFocused(false), 200),
+    onBlur: () => {
+      // Defer to allow focus to land on a toolbar button. If focus moved
+      // somewhere outside the editor container, hide the floating bar.
+      setTimeout(() => {
+        const active = document.activeElement;
+        if (!containerRef.current || !active || !containerRef.current.contains(active)) {
+          setFocused(false);
+        }
+      }, 120);
+    },
   });
 
   // External value sync (e.g. switching chapters/entries)
@@ -300,7 +341,7 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
   if (!editor) return null;
 
   return (
-    <div className="rich-editor" id={editorId}>
+    <div className={`rich-editor ${isMobile && focused ? 'has-mobile-floating' : ''}`} id={editorId} ref={containerRef}>
       {!compact && <Toolbar editor={editor} />}
       <BubbleMenu editor={editor} className="rich-bubble">
         <ToolBtn title="Negrito" active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()}><Bold className="w-3.5 h-3.5" /></ToolBtn>
