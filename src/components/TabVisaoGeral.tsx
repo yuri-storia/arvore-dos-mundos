@@ -83,14 +83,14 @@ export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrent
         </div>
       )}
 
-      {/* Fruit progress grid */}
+      {/* Fruit progress grid — agora baseado na análise da Idriel */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 mb-6">
         {orderedFruits.map(f => {
-          const p = getFruitProgress(db, f.id);
-          const status = p.filled === p.total ? 'complete' : p.filled > 0 ? 'partial' : 'empty';
-          const borderColor = status === 'complete' ? 'border-l-blue-bright' : status === 'partial' ? 'border-l-gold' : 'border-l-transparent';
-          const barColor = status === 'complete' ? 'bg-blue-bright' : status === 'partial' ? 'bg-gold' : 'bg-secondary';
-          const barW = p.total ? (p.filled / p.total) * 100 : 0;
+          const score = fruitScores[String(f.id)] ?? 0;
+          const status = score >= 5 ? 'mastered' : score >= 3 ? 'good' : score > 0 ? 'partial' : 'empty';
+          const borderColor = status === 'mastered' ? 'border-l-gold-light' : status === 'good' ? 'border-l-gold' : status === 'partial' ? 'border-l-gold/60' : 'border-l-transparent';
+          const barColor = status === 'mastered' ? 'bg-gold-light' : status === 'good' ? 'bg-gold' : status === 'partial' ? 'bg-gold/50' : 'bg-secondary';
+          const barW = (score / 5) * 100;
           const coverImage = FRUIT_IMAGES[f.id];
 
           return (
@@ -112,13 +112,19 @@ export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrent
                 <div className={`h-full ${barColor} rounded-full transition-all`} style={{ width: `${barW}%` }} />
               </div>
               <div className="flex justify-between items-center relative">
-                <span className="text-[10px] text-text-dim">{p.filled} de {p.total}</span>
+                <span className="inline-flex items-center gap-0.5">
+                  {[1,2,3,4,5].map(i => (
+                    <Star key={i} className="w-2.5 h-2.5" strokeWidth={1.5}
+                      style={{ color: 'hsl(var(--gold-light))', fill: i <= score ? 'hsl(var(--gold-light))' : 'transparent' }} />
+                  ))}
+                </span>
                 <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${
-                  status === 'complete' ? 'bg-blue-bright/20 text-blue-light' :
-                  status === 'partial' ? 'bg-gold/20 text-gold-light' :
+                  status === 'mastered' ? 'bg-gold-light/20 text-gold-light' :
+                  status === 'good' ? 'bg-gold/20 text-gold-light' :
+                  status === 'partial' ? 'bg-gold/10 text-gold-light/80' :
                   'bg-secondary text-text-dim'
                 }`}>
-                  {status === 'complete' ? 'Completo' : status === 'partial' ? 'Em andamento' : 'Não iniciado'}
+                  {status === 'mastered' ? 'Maduro' : status === 'good' ? 'Vigoroso' : status === 'partial' ? 'Em flor' : hasAnalysis ? 'Não avaliado' : 'Sem análise'}
                 </span>
               </div>
             </button>
