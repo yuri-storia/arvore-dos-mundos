@@ -487,7 +487,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                   <p className="text-[10px] uppercase tracking-wider text-gold-light/80 font-montserrat font-bold mb-2">Visões de Idriel — 3 níveis</p>
                   <div className="grid grid-cols-3 gap-2 mb-3">
                     {[
-                      { Icon: Leaf, label: 'Rascunho', cost: '1 gota', hint: 'Esboço rápido' },
+                      { Icon: Leaf, label: 'Rascunho', cost: '2 gotas', hint: 'Esboço rápido' },
                       { Icon: Palette, label: 'Padrão', cost: '5 gotas', hint: 'Canon do Codex' },
                       { Icon: Sparkles, label: 'Qualidade Máxima', cost: '15 gotas', hint: 'Cinematográfico' },
                     ].map(p => (

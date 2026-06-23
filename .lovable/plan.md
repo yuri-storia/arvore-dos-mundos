@@ -1,65 +1,99 @@
-# Plano: Legibilidade + Refinos da Auditoria
 
-Seis frentes, executáveis em sequência. Começo pela legibilidade (impacto imediato no beta), depois os 5 itens da auditoria.
+# Plano de Ajustes Pós-Auditoria
 
-## 1. Aumentar legibilidade (feedback do beta tester)
+Cinco frentes, ordenadas por impacto e velocidade. Tudo escopado em **uma sessão de build**.
 
-**Diagnóstico:** base do `html` em 16px e 384 ocorrências de `text-xs`/`text-sm` em componentes. O problema é mais de escala secundária (badges, labels, descrições) do que do body em si.
+---
 
-**Ações:**
-- `html { font-size: 17px }` em desktop (≥1024px) e `16.5px` em tablet. Mobile permanece 16px (iOS evita zoom). Ganho global ≈6%.
-- Subir o piso das utilitárias tipográficas em `index.css`:
-  - `p` → `clamp(1rem, 0.5vw + 0.9rem, 1.125rem)`
-  - `.text-body-sm` → `1rem` (era 0.9375rem)
-  - `.text-ui` → `0.8125rem` (era 0.75)
-  - `.text-ui-xs` → `0.75rem` (era 0.6875)
-- Auditar e reescrever os usos críticos de `text-xs` em conteúdo (não em chips/badges decorativos): CodexCard meta, TabConstruir descrições dos frutos, FichaCard, sidebar do Escritor, IdrielChat mensagens, ManuscriptOutline. Converter para `text-sm` ou `.text-body-sm`.
-- Editor TipTap: `prose-base` → `prose-lg` no `RichTextView` e `RichTextEditor` (já está, validar). Garantir `line-height: 1.75` no manuscrito.
-- Adicionar **alternador de tamanho de fonte** no menu de perfil (3 níveis: Confortável / Padrão / Compacto) salvando preferência em `localStorage` e aplicando via classe no `<html>`. Atende quem ainda quer mais e quem preferia compacto.
+## 1. Padronizar copy das gotas (P1 — impacto alto, esforço baixo)
 
-## 2. Acessibilidade (item 1 da auditoria)
+A migração para 3 níveis de imagem + redução da análise para 1 gota não foi refletida em 6 telas de texto. Hoje o usuário lê informações conflitantes em diferentes lugares.
 
-- `aria-label` em todos os botões somente-ícone (auditoria via `rg "Button[^>]*size=\"icon\""`). Foco em AppHeader, CodexCard actions, ChapterEditor toolbar, ImageReferencePicker, GalleryItem.
-- Corrigir contraste do dourado: `--gold` de `hsl(45 85% 55%)` para `hsl(45 85% 62%)` apenas em uso de texto (manter brilho em bordas/glow via novo token `--gold-glow` = valor antigo).
-- `focus-visible` outline dourado consistente (`outline: 2px solid hsl(var(--gold-light)); outline-offset: 2px`).
-- `lang="pt-BR"` no `<html>` (validar).
+**Onde corrigir:**
+- `src/components/HelpDrawer.tsx` — 4 menções (FAQ de imagem, Elixir, análise, upgrade)
+- `src/components/OnboardingBanner.tsx` — bloco "Textos consomem 1, imagens 5, análise 2"
+- `src/components/InteractiveTour.tsx` — passo "Visões de Idriel" (5 gotas) e "Consultar Idriel"
+- `src/components/OnboardingTips.tsx` — duas dicas com custos
+- `src/pages/PricingPage.tsx` — FAQ "O que é o Elixir dos Mundos?"
+- `src/components/IdrielImportDialog.tsx` — texto "custo: 5 gotas"
 
-## 3. Tablet (item 2)
+**Texto-padrão a usar (referência única):**
+> "Gerar imagem: **Rascunho 2 gotas · Padrão 5 gotas · Qualidade Máxima 15 gotas**. Texto e consulta a Idriel: **1 gota**. Análise do mundo: **1 gota**. Importar documento: **1 gota**."
 
-- Auditoria de breakpoints `md:` vs `lg:` em: TabGaleria (grid 2→3→4), TabEscrever (sidebar colapsa em md), TabCodex (grid de fichas), TabConstruir (cards de frutos em 2 colunas no md).
-- Adicionar breakpoint `lg:` onde só existia `md:` para evitar layouts apertados em 768-1024px.
-- Validar com `preview_ui--set_preview_device_viewport` em tablet.
+---
 
-## 4. Streaming de respostas Idriel (item 3)
+## 2. Corrigir bilhetagem do Idriel Import (P2 — bug real)
 
-- Migrar `idriel-help` e `ai-text` para SSE: trocar `generateContent` por `generateContentStream` do Gemini.
-- Edge function: retornar `Response` com `text/event-stream`, `ReadableStream`, headers CORS preservados.
-- Cliente: helper `callAIStream` em `src/lib/ai.ts` que retorna `AsyncIterable<string>`. IdrielChat e CodexAnalysis renderizam token-a-token.
-- Manter `callAI` síncrono para chamadas curtas (importação, scoring estruturado).
+`IdrielImportDialog` promete cobrar **5 gotas**, mas o edge function `idriel-import-text` chama `_type: "text"` na cota, que custa **1 gota**. A UI mente sobre o preço.
 
-## 5. Justificativa por fruto na análise (item 4)
+**Decisão a confirmar com você:** o import processa até 200K caracteres com Gemini 3 Flash Preview. O custo real de tokens justifica **3 gotas** (preço justo). Recomendo:
+- Atualizar `idriel-import-text/index.ts` para checar/incrementar uma nova chave `text_heavy` que custa 3 gotas
+- OU manter 1 gota e atualizar a UI para refletir o preço real (mais simples, sem mudança de schema)
 
-- `world_analyses.fruit_scores` (já existe) ganha shape `{ [frutoId]: { score: number, excerpt: string } }`.
-- Parser em `CodexAnalysis` captura o parágrafo que antecede o "N/5" e salva no `excerpt`.
-- `TabConstruir`: estrela agora é botão → abre `Popover` com o trecho da análise + botão "Reanalisar este fruto".
+→ Vou propor a **opção simples (1 gota)** porque é coerente com o custo real de inferência do Gemini Flash.
 
-## 6. Rate-limit + retry com backoff (item 5)
+---
 
-- Tabela `ai_rate_limits (user_id, function_name, window_start, request_count)` com policy de upsert via security-definer.
-- Edge functions chamam `check_rate_limit(user_id, fn, limit, window_seconds)` no topo. Limites sugeridos: ai-text 20/min, ai-image 6/min, ai-image-consistent 4/min, idriel-help 30/min.
-- Cliente: `callAI*` envolvido em retry exponencial (1s, 2s, 4s) só para 429/503/timeout. Toast amigável quando estourar o teto: "Idriel precisa respirar — tente em N segundos".
+## 3. Ajustar preço do Rascunho para evitar margem negativa (P6)
 
-## 7. Revisão final
+O nível Rascunho (Nano Banana 2 a ~R$0,21) está cobrando 1 gota (R$0,18) → **margem negativa**.
 
-- `tsgo` + smoke test Playwright das rotas críticas (login, criar mundo, abrir codex, gerar imagem, analisar mundo).
-- Atualizar `mem://design/typography` com a nova escala.
+**Ação:** subir Rascunho para **2 gotas** (R$0,36 → margem 42%).
 
-## Detalhes técnicos
+**Onde mudar:**
+- `supabase/functions/ai-image/index.ts`: `image_draft` → adicionar lógica de custo 2 (ou usar nova chave `image_draft` no SQL com custo 2)
+- Migration: ajustar `check_ai_quota` para `image_draft` custar 2 em vez de 1
+- `src/components/TabGerarImagens.tsx`: rótulo "1 gota" → "2 gotas"
+- `src/components/TabGaleria.tsx`: rótulo "1 gota" → "2 gotas"
+- Copy unificada (item 1) já reflete os 2 gotas
 
-**Arquivos novos:** `src/hooks/useFontSize.ts`, `src/lib/aiStream.ts`, `src/components/FontSizeToggle.tsx`, `supabase/migrations/<ts>_rate_limits.sql`.
+---
 
-**Arquivos editados (principais):** `src/index.css`, `tailwind.config.ts` (nenhum — escala vem do CSS), `src/components/AppHeader.tsx`, `src/components/TabConstruir.tsx`, `src/components/CodexCard.tsx`, `src/components/CodexAnalysis.tsx`, `src/components/IdrielChat.tsx`, `src/components/escritor/ChapterEditor.tsx`, `src/components/TabGaleria.tsx`, `src/components/TabCodex.tsx`, `supabase/functions/idriel-help/index.ts`, `supabase/functions/ai-text/index.ts`.
+## 4. Streaming progressivo no GPT Image 2 (P3 — UX premium)
 
-**Ordem de execução:** 1 (legibilidade) → 2 (a11y) → 3 (tablet) → 5 (justificativas) → 4 (streaming) → 6 (rate-limit). Streaming e rate-limit no fim porque mexem em edge functions e exigem teste mais cuidadoso.
+Hoje "Qualidade Máxima" mostra apenas um spinner por até 2 min. A documentação Lovable suporta SSE com `partial_images: 1` que entrega previews progressivos com blur.
 
-**Fora do escopo:** version history e side-by-side review (mencionados na auditoria mas não pedidos agora).
+**Estratégia:**
+- Reescrever o ramo `quality === "premium"` em `ai-image/index.ts` para pedir `stream: true, partial_images: 1`
+- Encaminhar o stream SSE direto ao cliente (sem buffer no backend) com `Content-Type: text/event-stream`
+- Em `helpers.ts`, criar `callAIImageStreaming(prompt, quality, onFrame)` usando `fetch` direto (não `supabase.functions.invoke`, que não streama) com a URL construída a partir de `import.meta.env.VITE_SUPABASE_PROJECT_ID` + token Supabase
+- Adicionar parser `eventsource-parser` (já documentado) com `flushSync` para evitar batching React
+- Em `TabGerarImagens.tsx`, exibir frames com `className={isFinal ? "blur-0" : "blur-2xl"}` para vender o efeito "ainda carregando"
+
+**Risco:** complexidade média. Se preferir, posso deixar para uma sessão dedicada e neste momento apenas melhorar a copy do loading ("Pode levar até 2 minutos — vale a pena").
+
+---
+
+## 5. Limpeza técnica (debt rápida)
+
+- **Remover `console.log/warn/error`** em hooks de produção (23 ocorrências em 7 hooks: `useCodexEntries`, `useWorlds`, `useSubscription`, `useManuscript`, `useIdrielVisions`, `useStorylineCards`, `useIdrielHistory`). Manter apenas `console.error` em catch blocks que realmente precisam.
+- Não vou tocar nos `: any` types nem nos warnings de SECURITY DEFINER nesta sessão — escopo separado.
+
+---
+
+## Itens deferidos (não entram nesta sessão)
+
+- **Rate limit por usuário** (P5): backend Lovable não tem primitivo padrão; trataria como dívida para infra dedicada.
+- **Fallback automático Pro → Draft** em erro 5xx (P4): só vale com telemetria mostrando taxa de falha relevante.
+- **Tipagem dos `: any`** críticos (LoginPage, useWorlds, RichTextEditor, CodexAnalysis): sessão de refactor à parte.
+- **Sweep de tablet (768–1024px)** e **contraste WCAG** dos `text-text-dim`: sessão de a11y dedicada.
+
+---
+
+## Ordem de execução proposta
+
+1. **Migration**: ajustar `check_ai_quota` para `image_draft = 2`
+2. **Backend**: `ai-image/index.ts` (custo) + decisão sobre streaming GPT Image 2
+3. **Frontend**: atualizar 8 arquivos de copy (item 1 + 3) numa rajada paralela
+4. **Limpeza**: remover console.logs dos hooks
+5. **Deploy edge functions** afetadas
+
+**Tempo estimado:** 1 sessão de build, ~15–20 edições paralelas.
+
+---
+
+## Decisões para você confirmar
+
+1. **Idriel Import**: mantém **1 gota** (real) ou cobra **3 gotas** (introduz `text_heavy` no schema)?
+2. **Streaming GPT Image 2**: entra agora (mais complexo) ou fica para próxima sessão (apenas melhoro a copy do loading)?
+3. **Rascunho a 2 gotas**: confirmo o reajuste?

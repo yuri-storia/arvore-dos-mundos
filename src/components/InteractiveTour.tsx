@@ -154,7 +154,7 @@ const TOUR_STEPS: TourStep[] = [
     type: 'highlight',
     target: 'visoes-idriel',
     title: 'Visões de Idriel — geração de imagens',
-    desc: 'Descreva a cena imaginada, escolha estilo e tom, e materializarei a imagem por meio de IA. Cada visão consome 5 gotas de Elixir e está disponível no plano Idriel.',
+    desc: 'Descreva a cena imaginada, escolha estilo, tom e o nível de qualidade — Rascunho (2 gotas), Padrão (5 gotas) ou Qualidade Máxima (15 gotas) — e materializarei a imagem por meio de IA. Disponível no plano Idriel.',
     Icon: Sparkles,
     tooltipPos: 'top',
     mobileCard: 'auto',
