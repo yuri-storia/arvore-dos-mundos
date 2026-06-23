@@ -156,7 +156,29 @@ const ToolBtn: React.FC<{ active?: boolean; disabled?: boolean; onClick: () => v
 const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobile }) => {
   const [colorOpen, setColorOpen] = useState(false);
   const [hlOpen, setHlOpen] = useState(false);
+  const colorWrapRef = useRef<HTMLDivElement>(null);
+  const hlWrapRef = useRef<HTMLDivElement>(null);
   const can = editor;
+
+  // Close popovers on outside click / Escape
+  useEffect(() => {
+    if (!colorOpen && !hlOpen) return;
+    const onDown = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (colorOpen && colorWrapRef.current && !colorWrapRef.current.contains(t)) setColorOpen(false);
+      if (hlOpen && hlWrapRef.current && !hlWrapRef.current.contains(t)) setHlOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setColorOpen(false); setHlOpen(false); }
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [colorOpen, hlOpen]);
+
   return (
     <div className={`rich-toolbar ${mobile ? 'is-mobile' : ''}`}>
       <div className="rich-group">
@@ -176,7 +198,7 @@ const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobil
         <ToolBtn title="Tachado" active={can.isActive('strike')} onClick={() => can.chain().focus().toggleStrike().run()}><Strikethrough className="w-4 h-4" /></ToolBtn>
       </div>
       <div className="rich-group rich-color-group">
-        <div className="rich-color-wrap">
+        <div className="rich-color-wrap" ref={colorWrapRef}>
           <ToolBtn title="Cor do texto" onClick={() => { setColorOpen(o => !o); setHlOpen(false); }}><Palette className="w-4 h-4" /></ToolBtn>
           {colorOpen && (
             <div className="rich-popover" onMouseDown={e => e.preventDefault()}>
@@ -190,7 +212,7 @@ const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobil
             </div>
           )}
         </div>
-        <div className="rich-color-wrap">
+        <div className="rich-color-wrap" ref={hlWrapRef}>
           <ToolBtn title="Realce" onClick={() => { setHlOpen(o => !o); setColorOpen(false); }}><Highlighter className="w-4 h-4" /></ToolBtn>
           {hlOpen && (
             <div className="rich-popover" onMouseDown={e => e.preventDefault()}>
