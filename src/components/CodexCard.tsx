@@ -10,7 +10,9 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ImageRepositioner } from '@/components/ImageRepositioner';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { buildEntriesByName, renderMentionChildren, renderInlineMentions } from '@/components/escritor/MentionChip';
-import { MentionTextarea } from '@/components/escritor/MentionTextarea';
+import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor';
+
+const isHTMLContent = (s: string) => /^\s*<(p|div|h[1-6]|ul|ol|blockquote|pre|span|strong|em)[\s>]/i.test(s || '');
 
 interface Props {
   entry: CodexEntry;
@@ -390,16 +392,15 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                     {FRUITS.map(f => <option key={f.id} value={f.id}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</option>)}
                   </select>
                 </div>
-                <MentionTextarea
-                  entries={(siblings || []).filter(e => e.id !== entry.id)}
-                  value={content}
-                  onChange={setContent}
-                  rows={12}
-                  wrapperClassName="relative w-full mb-3"
-                  className="w-full bg-[rgba(4,12,24,0.6)] border border-accent/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-accent/50 resize-y"
-                  onClick={e => e.stopPropagation()}
-                  spellCheck={false}
-                />
+                <div className="mb-3 border border-accent/20 rounded-md overflow-hidden bg-[rgba(4,12,24,0.6)]" onClick={e => e.stopPropagation()}>
+                  <RichTextEditor
+                    entries={(siblings || []).filter(e => e.id !== entry.id)}
+                    value={content}
+                    onChange={setContent}
+                    placeholder="Escreva o conteúdo do artigo… Use @ para mencionar outras entradas."
+                    minHeight="320px"
+                  />
+                </div>
               </>
             ) : (
               <div className="flex gap-5">
@@ -428,7 +429,9 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
                 {/* Article body with sections */}
                 <div ref={contentRef} className="flex-1 pr-2 cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }} title="Clique para editar">
-                  {sections.length > 0 ? (
+                  {displayContent && isHTMLContent(displayContent) ? (
+                    <RichTextView value={displayContent} />
+                  ) : sections.length > 0 ? (
                     sections.map(s => (
                       <div key={s.id} data-section={s.id} className="mb-5">
                         {s.title && (
@@ -610,27 +613,30 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                     {FRUITS.map(f => <option key={f.id} value={f.id}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</option>)}
                   </select>
                 </div>
-                <MentionTextarea
-                  entries={(siblings || []).filter(e => e.id !== entry.id)}
-                  value={content}
-                  onChange={setContent}
-                  rows={8}
-                  wrapperClassName="relative w-full mb-3"
-                  className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-ring/50 resize-y"
-                  onClick={e => e.stopPropagation()}
-                  spellCheck={false}
-                />
+                <div className="mb-3 border border-blue-bright/15 rounded-md overflow-hidden bg-[rgba(4,12,24,0.6)]" onClick={e => e.stopPropagation()}>
+                  <RichTextEditor
+                    entries={(siblings || []).filter(e => e.id !== entry.id)}
+                    value={content}
+                    onChange={setContent}
+                    placeholder="Descreva esta ficha… Use @ para mencionar outras entradas."
+                    minHeight="220px"
+                  />
+                </div>
               </>
             ) : (
               <div className="cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }} title="Clique para editar">
                 {displayContent ? (
-                  <p className="font-merriweather text-[15px] text-foreground/95 whitespace-pre-wrap leading-[1.8]">
-                    {renderInlineMentions(displayContent, mentionByName, {
-                      allEntries: (siblings || []).filter(e => e.id !== entry.id),
-                      onOpenEntry,
-                      onSave: (next) => { onUpdate(entry.id, { content: next }); },
-                    })}
-                  </p>
+                  isHTMLContent(displayContent) ? (
+                    <RichTextView value={displayContent} />
+                  ) : (
+                    <p className="font-merriweather text-[15px] text-foreground/95 whitespace-pre-wrap leading-[1.8]">
+                      {renderInlineMentions(displayContent, mentionByName, {
+                        allEntries: (siblings || []).filter(e => e.id !== entry.id),
+                        onOpenEntry,
+                        onSave: (next) => { onUpdate(entry.id, { content: next }); },
+                      })}
+                    </p>
+                  )
                 ) : (
                   <p className="font-merriweather text-sm text-text-dim italic">Sem conteúdo ainda. Clique para adicionar.</p>
                 )}

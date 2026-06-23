@@ -3,10 +3,13 @@ import type { Chapter } from '@/hooks/useManuscript';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import {
   Edit3, Eye, Maximize, Minimize, PanelRightOpen, PanelRightClose, ChevronRight,
-  SpellCheck2, Search, X, ChevronUp, ChevronDown,
+  SpellCheck2,
 } from 'lucide-react';
 import { buildEntriesByName, renderInlineMentions } from './MentionChip';
-import { MentionTextarea } from './MentionTextarea';
+import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor';
+
+const isHTML = (s: string) => /^\s*<(p|div|h[1-6]|ul|ol|blockquote)[\s>]/i.test(s || '');
+const stripHTML = (s: string) => (s || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 
 interface Props {
   chapter: Chapter;

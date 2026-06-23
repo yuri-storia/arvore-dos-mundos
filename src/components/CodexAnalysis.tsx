@@ -267,6 +267,10 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
         systemPrompt
       );
 
+      // Parse per-fruit scores out of Idriel's response so the fruit grid can use them
+      const { parseFruitScoresFromAnalysis } = await import('@/hooks/useLatestAnalysis');
+      const fruitScores = parseFruitScoresFromAnalysis(content);
+
       // Save to history
       const fichas = entries.filter(e => e.entry_type === 'ficha').length;
       const artigos = entries.filter(e => e.entry_type === 'artigo').length;
@@ -280,6 +284,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
         ficha_count: fichas,
         artigo_count: artigos,
         covered_fruits: coveredFruits,
+        fruit_scores: fruitScores as any,
       });
 
       setAnalysis(content);

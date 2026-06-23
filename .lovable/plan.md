@@ -1,80 +1,102 @@
-
 ## Escopo
 
-Três entregas independentes em uma única implementação.
+Vou implementar uma reformulação grande do sistema de escrita e revisar a arquitetura de IA. Pelo tamanho, divido em 5 frentes claras.
 
 ---
 
-### 1. Barra contadora de gotas no AppHeader
+### 1. Editor Rico estilo Google Docs (Manuscrito, Fichas, Artigos, Escrita Livre)
 
-Componente novo `DropsCounterBadge` colado ao lado do `UserMenu` no `AppHeader`. Sempre visível (desktop + mobile).
+Hoje usamos `<textarea>` puro. Vou migrar para **TipTap** (ProseMirror) com extensões:
+- StarterKit (negrito, itálico, listas, headings)
+- Underline, Strike, TextAlign (left/center/right/justify)
+- Color + Highlight (paleta de cores para caractere e fundo)
+- Indent customizado (recuo de parágrafo via Tab/Shift+Tab)
+- Placeholder, CharacterCount
+- Mention (`@` para Codex) — substitui o sistema atual
 
-Conteúdo:
-- Ícone de gota dourada + número `X / 100` (uso mensal Idriel) **ou** `X gotas` (recargas avulsas).
-- Para usuários **Idriel** (mensal ou anual): mostra `restantes do mês + bônus`, com botão **"Adquirir Elixir"** que abre o `RechargePackageDialog` existente.
-- Para usuários **sem Idriel** (Semente ou Raiz): mostra "Sem acesso à Idriel" com botão **"Upgrade Idriel"** que abre o novo `UpgradeIdrielDialog`.
-- Para **admin**: mostra "∞" sem botão.
+**Toolbar adaptativa**:
+- **Desktop/Tablet**: barra fixa no topo do editor com grupos: Estilo (H1/H2/H3/parágrafo) · Formato (B/I/U/S) · Cor (texto/fundo) · Alinhamento · Listas · Recuo · Inserir (`@` menção)
+- **Mobile**: barra **flutuante** ancorada acima do teclado virtual (CSS `position: fixed; bottom: env(keyboard-inset-height)`), compacta com scroll horizontal. Em seleção de texto também aparece um *bubble menu* contextual (TipTap BubbleMenu) com B/I/U + cor.
 
-Detecção via `usePlanLimits` + `useSubscription` (já trazem `hasIdriel`, `plan_code`, `bonus_drops`, `creditsUsed`).
+Componente único `RichTextEditor.tsx` reutilizado em:
+- `TabEscrever` (manuscrito por capítulos)
+- `TabCodex` (fichas e artigos — campo content)
+- `escritor/` (escrita livre)
 
----
+Persistência: HTML (compatível com export PDF/DOCX/Kindle atual). Migração transparente — textos antigos (texto puro) carregam como `<p>` simples.
 
-### 2. UpgradeIdrielDialog + cobrança Asaas
+### 2. Fix seleção de texto no mobile
 
-Novo componente `UpgradeIdrielDialog` que detecta o `plan_code` atual e mostra **apenas os caminhos aplicáveis**:
+Causa provável: `user-select: none` herdado de containers (cards, sidebar) ou handlers `onTouchStart` que cancelam o long-press. Vou:
+- Adicionar `user-select: text; -webkit-user-select: text; -webkit-touch-callout: default` explicitamente no editor e em parágrafos do Codex
+- Remover `touch-action: none` indevido
+- Garantir que wrappers de drag (kanban de arcos) não capturem long-press dentro do editor
 
-| Plano atual | Opção(ões) mostrada(s) | Cobrança |
-|---|---|---|
-| `raiz_mensal` | Idriel mensal (1º mês R$20, depois R$39,90) **ou** Idriel anual promocional R$329 | 2 fluxos |
-| `raiz_anual` | Idriel anual (diferença R$200) | 1 fluxo |
-| sem plano (Semente) | Redireciona para `/planos` | — |
-| Idriel | Dialog não abre (usuário já tem) | — |
+### 3. Corretor ortográfico
 
-**Estratégia de cobrança no Asaas** (a mais limpa que respeita "nova assinatura com 1ª parcela diferenciada"):
+- Garantir `spellCheck={true}` e `lang="pt-BR"` no editor (TipTap suporta nativo via `contenteditable`)
+- Adicionar `lang="pt-BR"` no `<html>` (provavelmente já existe) e em todos os campos de texto livre (títulos, descrições)
 
-- **Mensal R$20 → R$39,90/mês**: cria charge avulso de R$20 (`DETACHED`, PIX+cartão) e, no webhook ao confirmar pagamento, cria a `subscription` Idriel R$39,90 com `nextDueDate = hoje + 30 dias`. Cancela a assinatura Raiz mensal antiga.
-- **Anual promocional R$329**: charge avulso `DETACHED` R$329. Webhook ativa Idriel com `expires_at = hoje + 365d` e cria subscription `YEARLY` R$397 com `nextDueDate = hoje + 365d`. Cancela Raiz antiga.
-- **Anual→Anual diferença R$200**: charge avulso `DETACHED` R$200. Webhook estende `expires_at` para `+365d a partir do fim do ciclo Raiz atual` (ou hoje + 365d, o que for maior), marca `has_idriel=true`, cria subscription `YEARLY` R$397 com `nextDueDate` igual ao novo `expires_at`. Não cancela Raiz anual — substitui.
+### 4. Sistema de menção `@` / `Ctrl+L`
 
-Implementação:
-- **Frontend**: novo dialog + função `openUpgradeCheckout(upgradeCode)` em `useSubscription.ts`.
-- **Edge function nova** `asaas-create-upgrade-checkout/index.ts` — análoga à `asaas-create-checkout` mas com SKUs internos: `upgrade_raiz_mensal_to_idriel_mensal`, `upgrade_raiz_mensal_to_idriel_anual`, `upgrade_raiz_anual_to_idriel_anual`. Cria charge `DETACHED` e grava `plan_code = <upgrade_code>` em `asaas_payments` para o webhook reconhecer.
-- **Webhook**: adicionar ramo `if (plan_code.startsWith('upgrade_'))` que, ao receber `PAYMENT_CONFIRMED`/`PAYMENT_RECEIVED`, executa a transição correspondente (cancela sub antiga via Asaas API + cria nova + atualiza tabela `subscriptions`).
+Migrar para `@tiptap/extension-mention` com suggestion popup:
+- Lista entradas do Codex do mundo atual em tempo real (filtra por título)
+- Insere chip clicável que linka para a ficha
+- Atalho `Ctrl+L` (e `Cmd+L`) abre o mesmo popup via comando do editor
+- Mantém renderização em HTML exportável (link `#codex/{id}` + data-attr)
 
-Validação server-side: edge function recupera o `plan_code` ativo do usuário antes de criar o checkout para rejeitar combinações inválidas (ex.: usuário Semente tentando comprar upgrade).
+### 5. Progresso dos Frutos ligado à Análise de Idriel
 
----
+Hoje o badge "X entradas" em `FruitGuideBlock`/`TabConstruir` conta `codex_entries` por `fruit`. Vou:
+- **Resetar** essa contagem visual
+- Adicionar coluna `fruit_scores` (jsonb) em `world_analyses` OU usar as 6 seções semânticas já retornadas pela análise → mapear cada seção para 1-2 frutos
+- Cada fruto exibe **estrela 0-5** vinda da última análise daquele mundo (em vez de contagem)
+- Quando não há análise, mostra estado "Sem análise ainda — gere uma análise para ver seu progresso"
+- Botão direto "Analisar mundo (1 gota)" no card de cada fruto sem análise
 
-### 3. Tokens gold premium em "/" (landing)
+### 6. Review da arquitetura de IA + bugs
 
-Em `src/pages/Index.tsx`:
-- Trocar todas as classes `bg-yellow-*`, `text-yellow-*`, `border-yellow-*`, `from-yellow-*`, `to-yellow-*`, `hover:bg-yellow-*` por tokens semânticos `gold` / `gold-light` / `gold-deep` / `gold-warm` (já definidos em `tailwind.config.ts`).
-- Aplicar gradient `from-gold via-gold-warm to-gold-deep` nos CTAs principais.
-- Manter aspectos amarelos APENAS se forem `red-alert` ou outro token semântico de aviso (não é o caso atual — varredura prévia confirmará).
-
----
-
-## Detalhes técnicos
-
-**Migração DB**: não precisa de migração nova — `subscriptions.plan_code`, `asaas_payments.plan_code` e `user_credit_balance.bonus_drops` já existem.
-
-**Webhook idempotente**: já checa `asaas_payment_id` único; novos upgrades reusam mesma lógica.
-
-**Cancelamento da sub antiga via Asaas**: usar `DELETE /v3/subscriptions/{id}` (já temos `asaas-cancel-subscription` como referência). Buscar `asaas_subscription_id` em `subscriptions` do usuário antes de cancelar.
-
-**UI**: dialog usa `ConfirmDialog` aesthetic existente, com bloco destacando "Condição especial" para o R$329 e o R$20-primeiro-mês.
-
-**Não toca em**: `asaas-create-checkout` (compras novas continuam iguais), `RechargePackageDialog` (já funcional).
+- Rodar lint/typecheck em todas as edge functions (`ai-text`, `ai-image`, `ai-image-consistent`, `idriel-help`, `idriel-import-text`)
+- Validar: cota (`check_ai_quota`), incremento (`increment_ai_usage`), injeção de Codex, refs estruturadas, fallback de erro padronizado
+- Garantir que toda chamada client passa por `callAI*` helpers (sem fetch direto)
+- Confirmar toasts de erro consistentes (mensagens em pt-BR, sem stack)
+- Logs estruturados nas functions para debug
 
 ---
 
-## Ordem de execução
+### Detalhes técnicos
 
-1. Substituir tokens amarelos em `Index.tsx` (mais barato, sem dependência).
-2. Criar `UpgradeIdrielDialog` + `DropsCounterBadge`.
-3. Plugar no `AppHeader`.
-4. Edge function `asaas-create-upgrade-checkout`.
-5. Estender `asaas-webhook` com ramo de upgrades.
-6. Adicionar `openUpgradeCheckout` em `useSubscription.ts`.
+**Dependências novas**:
+```
+@tiptap/react @tiptap/starter-kit @tiptap/extension-underline 
+@tiptap/extension-text-align @tiptap/extension-color 
+@tiptap/extension-text-style @tiptap/extension-highlight
+@tiptap/extension-placeholder @tiptap/extension-character-count
+@tiptap/extension-mention @tiptap/suggestion
+tippy.js
+```
 
-Confirma que posso seguir nessa direção?
+**Arquivos criados**:
+- `src/components/editor/RichTextEditor.tsx`
+- `src/components/editor/EditorToolbar.tsx`
+- `src/components/editor/MobileFloatingToolbar.tsx`
+- `src/components/editor/MentionList.tsx` + `mentionSuggestion.ts`
+- `src/components/editor/editor.css`
+
+**Arquivos editados**:
+- `TabEscrever.tsx`, `TabCodex.tsx`, `escritor/*` (substituir textarea)
+- `TabConstruir.tsx`, `FruitGuideBlock.tsx` (progresso por análise)
+- `ManuscriptExportMenu.tsx` (já recebe HTML — mínimo ajuste)
+- Edge functions: pequenos hardenings
+
+**Migration**:
+- (Opcional) `ALTER TABLE world_analyses ADD COLUMN fruit_scores jsonb` — só se decidirmos persistir score por fruto separadamente. Caso contrário derivamos do JSON existente.
+
+---
+
+### Fora de escopo desta leva
+- Refazer export DOCX para preservar cores/alinhamento avançado (pode ser próxima leva se quiser)
+- Histórico de versões do editor
+- Comentários inline (estilo Google Docs)
+
+Confirma que posso prosseguir com tudo acima? Se quiser cortar alguma frente (ex.: adiar mention para depois), me diz antes que eu começo.
