@@ -231,6 +231,38 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
               max={3}
             />
           </div>
+
+          {/* Quality tier selector */}
+          <div className="pt-3 border-t border-gold/10">
+            <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-2">
+              Nível da Visão
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {([
+                { id: 'draft' as ImageQuality, label: 'Rascunho', cost: '1 gota', desc: 'Esboço rápido em segundos (Nano Banana 2). Sem referências do Codex.' },
+                { id: 'standard' as ImageQuality, label: 'Padrão', cost: '5 gotas', desc: 'Qualidade épica com canon do Codex (Nano Banana Pro). Recomendado.' },
+                { id: 'premium' as ImageQuality, label: 'Qualidade Máxima', cost: '15 gotas', desc: 'Cinematográfico, para capas e retratos definitivos (GPT Image 2 — pode levar até 2 min).' },
+              ]).map(opt => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setQuality(opt.id)}
+                  aria-pressed={quality === opt.id}
+                  className={`text-left rounded-md border p-3 transition-all ${
+                    quality === opt.id
+                      ? 'border-gold bg-gold/[0.08] shadow-[0_0_12px_rgba(218,165,32,0.25)]'
+                      : 'border-gold/15 hover:border-gold/40 bg-[rgba(4,12,24,0.4)]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-cinzel text-sm text-foreground">{opt.label}</span>
+                    <span className={`text-[10px] font-montserrat font-bold uppercase tracking-wider ${quality === opt.id ? 'text-gold-light' : 'text-text-dim'}`}>{opt.cost}</span>
+                  </div>
+                  <p className="font-merriweather text-[11px] text-text-dim leading-snug">{opt.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Action buttons */}
