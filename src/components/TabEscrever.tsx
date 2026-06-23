@@ -148,7 +148,7 @@ const EntryPreviewPanel: React.FC<{
             {entry.title}
           </h3>
         </div>
-        <button onClick={onClose} className="p-1 text-text-dim hover:text-foreground" title="Fechar">
+        <button onClick={onClose} aria-label="Fechar" className="p-1 text-text-dim hover:text-foreground" title="Fechar">
           <X className="w-3.5 h-3.5" />
         </button>
       </div>

@@ -115,7 +115,7 @@ const KanbanCard: React.FC<{
         </div>
         <ConfirmDialog
           trigger={
-            <button className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all" title="Excluir card">
+            <button aria-label="Excluir card" className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all" title="Excluir card">
               <X className="w-3 h-3" />
             </button>
           }
@@ -247,7 +247,7 @@ export const KanbanBoard: React.FC<Props> = ({
         {activeStoryline && storylines.length > 1 && (
           <ConfirmDialog
             trigger={
-              <button className="p-1 text-text-dim hover:text-red-alert ml-1" title="Excluir storyline">
+              <button aria-label="Excluir storyline" className="p-1 text-text-dim hover:text-red-alert ml-1" title="Excluir storyline">
                 <X className="w-3.5 h-3.5" />
               </button>
             }
@@ -301,7 +301,7 @@ export const KanbanBoard: React.FC<Props> = ({
                   {columns.length > 1 && (
                     <ConfirmDialog
                       trigger={
-                        <button className="p-0.5 text-text-dim hover:text-red-alert" title="Excluir coluna">
+                        <button aria-label="Excluir coluna" className="p-0.5 text-text-dim hover:text-red-alert" title="Excluir coluna">
                           <X className="w-3 h-3" />
                         </button>
                       }
