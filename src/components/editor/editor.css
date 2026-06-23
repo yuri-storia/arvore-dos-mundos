@@ -197,6 +197,15 @@
 @supports (bottom: env(keyboard-inset-height)) {
   .rich-mobile-floating { bottom: env(keyboard-inset-height, 0); }
 }
+/* Reserve space so the floating bar never covers the last lines */
+.rich-editor.has-mobile-floating .ProseMirror {
+  padding-bottom: 96px;
+}
+@supports (bottom: env(keyboard-inset-height)) {
+  .rich-editor.has-mobile-floating .ProseMirror {
+    padding-bottom: calc(96px + env(keyboard-inset-height, 0));
+  }
+}
 
 /* Mention popup (tippy) */
 .tippy-box[data-theme~='arvore-mention'] {
