@@ -13,11 +13,18 @@ interface Props {
 }
 
 export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrentFruit }) => {
-  const { db, worldName, method, gallery } = state;
+  const { db, worldName, method, gallery, currentSaveId } = state;
   const stats = getTotalProgress(db);
   const started = getFruitsStarted(db);
   const complete = getFruitsComplete(db);
   const orderedFruits = getOrderedFruits(method);
+  const { data: latestAnalysis } = useLatestAnalysis(currentSaveId);
+  const fruitScores = latestAnalysis?.fruit_scores || {};
+  const ratedFruits = FRUITS.filter(f => (fruitScores[String(f.id)] ?? 0) > 0).length;
+  const avgScore = ratedFruits > 0
+    ? FRUITS.reduce((acc, f) => acc + (fruitScores[String(f.id)] ?? 0), 0) / FRUITS.length
+    : 0;
+  const hasAnalysis = !!latestAnalysis && ratedFruits > 0;
 
   const summaryFields = [
     { label: 'Regiões', value: db[0]?.continents },
