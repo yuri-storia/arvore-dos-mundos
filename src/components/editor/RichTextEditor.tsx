@@ -312,7 +312,16 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
       onChange(editor.getHTML());
     },
     onFocus: () => setFocused(true),
-    onBlur: () => setTimeout(() => setFocused(false), 200),
+    onBlur: () => {
+      // Defer to allow focus to land on a toolbar button. If focus moved
+      // somewhere outside the editor container, hide the floating bar.
+      setTimeout(() => {
+        const active = document.activeElement;
+        if (!containerRef.current || !active || !containerRef.current.contains(active)) {
+          setFocused(false);
+        }
+      }, 120);
+    },
   });
 
   // External value sync (e.g. switching chapters/entries)
