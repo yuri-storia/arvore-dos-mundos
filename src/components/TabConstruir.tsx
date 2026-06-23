@@ -259,9 +259,29 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
             style={{ width: `${pct}%`, transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)' }}
           />
         </div>
-        <div className="flex justify-between text-xs text-text-dim">
-          <span>{fruitsStarted} de 11 frutos iniciados</span>
-          <span className="text-blue-light font-bold">{pct}%</span>
+      {/* Progress bar — agora baseado na Análise da Idriel */}
+      <div className="mb-5">
+        <div className="relative h-[3px] bg-secondary rounded-full overflow-hidden mb-1">
+          <div
+            className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ${hasAnalysis ? 'bg-gradient-to-r from-gold-deep via-gold to-gold-light shadow-[0_0_10px_hsl(var(--gold-warm)/0.55)]' : 'bg-gradient-to-r from-blue-main to-blue-bright shadow-[0_0_10px_rgba(33,150,243,0.4)]'}`}
+            style={{ width: `${hasAnalysis ? pct : Math.round((fruitsStarted / FRUITS.length) * 100)}%` }}
+          />
+        </div>
+        <div className="flex justify-between items-center text-xs text-text-dim gap-2 flex-wrap">
+          {hasAnalysis ? (
+            <>
+              <span className="flex items-center gap-1.5">
+                <Star className="w-3 h-3 text-gold-light" fill="currentColor" />
+                <span>Avaliação Idriel: <strong className="text-gold-light">{avgScore.toFixed(1)}/5</strong> · {ratedFruits}/11 Frutos avaliados</span>
+              </span>
+              <span className="text-gold-light font-bold">{pct}%</span>
+            </>
+          ) : (
+            <>
+              <span>{fruitsStarted} de 11 Frutos iniciados · <em className="text-text-dim/70">sem análise da Idriel ainda</em></span>
+              <span className="text-blue-light font-bold">— </span>
+            </>
+          )}
         </div>
       </div>
 
