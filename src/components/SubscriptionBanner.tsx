@@ -155,7 +155,7 @@ export const SubscriptionBanner: React.FC = () => {
     return (
       <div className="mx-auto max-w-[1060px] px-4 mb-4">
         <div className="card-glass rounded-lg p-4 border border-gold/30 relative">
-          <button onClick={handleDismiss} className="absolute top-2 right-2 p-1 text-text-dim/50 hover:text-foreground transition-colors z-10" title="Fechar">
+          <button onClick={handleDismiss} aria-label="Fechar aviso" className="absolute top-2 right-2 p-1 text-text-dim/50 hover:text-foreground transition-colors z-10" title="Fechar">
             <X className="w-3.5 h-3.5" />
           </button>
           <div className="flex flex-col gap-3">
@@ -204,7 +204,7 @@ export const SubscriptionBanner: React.FC = () => {
     return (
       <div className="mx-auto max-w-[1060px] px-4 mb-4">
         <div className="rounded-lg p-3 border border-blue-bright/20 bg-blue-bright/[0.06] relative">
-          <button onClick={handleDismiss} className="absolute top-2 right-2 p-1 text-text-dim/50 hover:text-foreground transition-colors z-10" title="Fechar">
+          <button onClick={handleDismiss} aria-label="Fechar aviso" className="absolute top-2 right-2 p-1 text-text-dim/50 hover:text-foreground transition-colors z-10" title="Fechar">
             <X className="w-3.5 h-3.5" />
           </button>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

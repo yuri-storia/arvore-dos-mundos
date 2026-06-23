@@ -78,7 +78,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
       {/* Header */}
       <div className="p-3 border-b border-blue-bright/10 flex items-center gap-2">
         {isMobile && onBack && (
-          <button onClick={onBack} className="p-1 text-text-dim hover:text-foreground">
+          <button onClick={onBack} aria-label="Voltar" className="p-1 text-text-dim hover:text-foreground">
             <ChevronRight className="w-4 h-4 rotate-180" />
           </button>
         )}

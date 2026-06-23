@@ -148,7 +148,7 @@ const EntryPreviewPanel: React.FC<{
             {entry.title}
           </h3>
         </div>
-        <button onClick={onClose} className="p-1 text-text-dim hover:text-foreground" title="Fechar">
+        <button onClick={onClose} aria-label="Fechar" className="p-1 text-text-dim hover:text-foreground" title="Fechar">
           <X className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -387,7 +387,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                     </button>
                     <ConfirmDialog
                       trigger={
-                        <button className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all" title="Excluir capítulo">
+                        <button aria-label="Excluir capítulo" className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all" title="Excluir capítulo">
                           <Trash2 className="w-3 h-3" />
                         </button>
                       }
