@@ -251,14 +251,6 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
         </p>
       </div>
 
-      {/* Progress bar */}
-      <div className="mb-5">
-        <div className="relative h-[3px] bg-secondary rounded-full overflow-hidden mb-1">
-          <div
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-main to-blue-bright rounded-full shadow-[0_0_10px_rgba(33,150,243,0.5)]"
-            style={{ width: `${pct}%`, transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)' }}
-          />
-        </div>
       {/* Progress bar — agora baseado na Análise da Idriel */}
       <div className="mb-5">
         <div className="relative h-[3px] bg-secondary rounded-full overflow-hidden mb-1">
