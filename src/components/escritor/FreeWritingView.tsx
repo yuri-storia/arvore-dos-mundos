@@ -10,6 +10,9 @@ import {
 } from 'lucide-react';
 import { FRUITS } from '@/lib/data';
 import { PomodoroTimer } from '@/components/PomodoroTimer';
+import { RichTextEditor, type RichTextEditorRef } from '@/components/editor/RichTextEditor';
+
+const stripHTML = (s: string) => (s || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 
 
 // ── Reference Panel ──
