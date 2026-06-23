@@ -37,6 +37,8 @@ export type Database = {
           created_at: string
           id: string
           image_count: number
+          image_draft_count: number
+          image_premium_count: number
           month: string
           text_count: number
           updated_at: string
@@ -46,6 +48,8 @@ export type Database = {
           created_at?: string
           id?: string
           image_count?: number
+          image_draft_count?: number
+          image_premium_count?: number
           month: string
           text_count?: number
           updated_at?: string
@@ -55,6 +59,8 @@ export type Database = {
           created_at?: string
           id?: string
           image_count?: number
+          image_draft_count?: number
+          image_premium_count?: number
           month?: string
           text_count?: number
           updated_at?: string
