@@ -160,10 +160,16 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   };
 
   const orderedFruits = getOrderedFruits(method);
+  const { data: latestAnalysis } = useLatestAnalysis(currentSaveId);
+  const fruitScores = latestAnalysis?.fruit_scores || {};
+  const ratedFruits = FRUITS.filter(f => (fruitScores[String(f.id)] ?? 0) > 0).length;
+  const avgScore = ratedFruits > 0
+    ? FRUITS.reduce((acc, f) => acc + (fruitScores[String(f.id)] ?? 0), 0) / FRUITS.length
+    : 0;
+  const pct = Math.round((avgScore / 5) * 100);
+  const hasAnalysis = !!latestAnalysis && ratedFruits > 0;
+  // Legacy field-based stats kept as fallback
   const fruitsStarted = FRUITS.filter(f => getFruitProgress(db, f.id).filled > 0).length;
-  const totalPct = FRUITS.reduce((acc, f) => acc + getFruitProgress(db, f.id).filled, 0);
-  const totalFields = FRUITS.reduce((acc, f) => acc + f.fields.length, 0);
-  const pct = totalFields ? Math.round((totalPct / totalFields) * 100) : 0;
 
   const fruit = FRUITS[currentFruit];
   const currentOrderIndex = orderedFruits.findIndex(f => f.id === currentFruit);
