@@ -136,9 +136,10 @@ export async function callAIText(messages: { role: string; content: string }[], 
   return data?.content || '';
 }
 
-export async function callAIImage(prompt: string) {
+export type ImageQuality = 'draft' | 'standard' | 'premium';
+export async function callAIImage(prompt: string, quality: ImageQuality = 'standard') {
   const { data, error } = await supabase.functions.invoke('ai-image', {
-    body: { prompt },
+    body: { prompt, quality },
   });
   if (error) await throwInvokeError(error, 'Erro ao gerar imagem');
   if (data?.error) throw new Error(data.error);
