@@ -280,9 +280,9 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       {/* Fruit grid */}
       <div data-tour="fruit-grid" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 mb-6">
         {orderedFruits.map((f, idx) => {
-          const fp = getFruitProgress(db, f.id);
+          const score = fruitScores[String(f.id)] ?? 0;
           const isActive = currentFruit === f.id;
-          const isComplete = fp.filled === fp.total;
+          const isMastered = score >= 5;
           const coverImage = FRUIT_IMAGES[f.id];
           return (
             <button
@@ -320,12 +320,21 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               <div className="absolute bottom-0 left-0 right-0 p-2">
                 <span className="font-cinzel text-[10px] sm:text-xs text-blue-light block">{f.num}</span>
                 <span className="font-montserrat font-bold text-[11px] sm:text-xs text-foreground uppercase leading-tight block">{f.name}</span>
-                {fp.filled > 0 && !isComplete && (
-                  <span className="text-[9px] sm:text-[10px] text-gold-light">{fp.filled}/{fp.total} campos</span>
+                {score > 0 ? (
+                  <span className="inline-flex items-center gap-0.5 mt-0.5">
+                    {[1,2,3,4,5].map(i => (
+                      <Star key={i} className="w-2.5 h-2.5" strokeWidth={1.5}
+                        style={{ color: 'hsl(var(--gold-light))', fill: i <= score ? 'hsl(var(--gold-light))' : 'transparent' }} />
+                    ))}
+                  </span>
+                ) : hasAnalysis ? (
+                  <span className="text-[9px] sm:text-[10px] text-text-dim/70 italic">não avaliado</span>
+                ) : (
+                  <span className="text-[9px] sm:text-[10px] text-text-dim/70 italic">sem análise</span>
                 )}
               </div>
-              {isComplete && (
-                <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center text-white"><Check className="w-3 h-3" strokeWidth={3} /></div>
+              {isMastered && (
+                <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-gradient-to-br from-gold-light to-gold-deep flex items-center justify-center text-background shadow-[0_0_8px_hsl(var(--gold-warm)/0.6)]"><Star className="w-3 h-3" strokeWidth={2.5} fill="currentColor" /></div>
               )}
               <div className={`absolute bottom-0 left-0 right-0 h-[2px] bg-blue-bright transition-transform origin-left ${isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
             </button>
