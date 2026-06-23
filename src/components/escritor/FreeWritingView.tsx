@@ -85,7 +85,7 @@ export const FreeWritingView: React.FC<Props> = ({ worldId, entries }) => {
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
   const [showRef, setShowRef] = useState(true);
-  const editorRef = useRef<HTMLTextAreaElement>(null);
+  const editorRef = useRef<RichTextEditorRef>(null);
   const saveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const active = useMemo(() => writings.find(w => w.id === activeId), [writings, activeId]);
@@ -106,15 +106,13 @@ export const FreeWritingView: React.FC<Props> = ({ worldId, entries }) => {
 
   const handleInsert = (name: string) => {
     if (!editorRef.current || !activeId) return;
-    const ta = editorRef.current;
-    const pos = ta.selectionStart;
-    const nc = content.substring(0, pos) + `@${name} ` + content.substring(pos);
-    setContent(nc);
-    debouncedSave(activeId, nc);
-    setTimeout(() => ta.focus(), 0);
+    editorRef.current.insertText(`@${name} `);
   };
 
-  const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
+  const wordCount = useMemo(() => {
+    const text = stripHTML(content);
+    return text ? text.split(/\s+/).length : 0;
+  }, [content]);
 
   return (
     <div className="flex h-full gap-3">
