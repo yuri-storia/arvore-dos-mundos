@@ -1,13 +1,13 @@
 /**
- * Lazy loader for the Hunspell PT (Brazilian) dictionary + nspell instance.
+ * Lazy loader for the Hunspell PT-BR dictionary.
  *
- * The dictionary files (~5MB total) are imported as Vite asset URLs so they
- * are code-split and only fetched the first time the user enables the
- * spell checker. After the first call, the parsed nspell instance is cached
- * in module scope.
+ * The first implementation used `nspell`, but the PT dictionary used by the app
+ * takes too long to parse with it in the browser and the checker never became
+ * usable for real users. `typo-js` supports the same Hunspell files and was
+ * verified against the current dictionary with valid/invalid PT-BR words.
  */
-// @ts-ignore - nspell ships no TypeScript types
-import nspell from 'nspell';
+// @ts-ignore - typo-js ships no TypeScript declarations.
+import Typo from 'typo-js';
 // Dictionary files live in `public/dictionaries/pt/` so the browser can fetch
 // them as plain static assets (no bundler import map gymnastics required).
 const AFF_URL = '/dictionaries/pt/index.aff';
@@ -43,20 +43,20 @@ export async function loadSpellChecker(): Promise<SpellChecker> {
   if (loadingPromise) return loadingPromise;
   loadingPromise = (async () => {
     const [aff, dic] = await Promise.all([fetchText(AFF_URL), fetchText(DIC_URL)]);
-    const instance = nspell({ aff, dic });
+    const instance = new Typo('pt_BR', aff, dic, { platform: 'any' });
     // Seed the user's personal dictionary.
     for (const w of getCustomWords()) {
-      try { instance.add(w); } catch { /* ignore */ }
+      try { instance.dictionaryTable.set(w, null); } catch { /* ignore */ }
     }
     const checker: SpellChecker = {
       correct: (w: string) => {
-        try { return instance.correct(w); } catch { return true; }
+        try { return instance.check(w); } catch { return true; }
       },
       suggest: (w: string) => {
-        try { return instance.suggest(w) as string[]; } catch { return []; }
+        try { return instance.suggest(w, 5) as string[]; } catch { return []; }
       },
       add: (w: string) => {
-        try { instance.add(w); } catch { /* ignore */ }
+        try { instance.dictionaryTable.set(w, null); } catch { /* ignore */ }
       },
     };
     cached = checker;
