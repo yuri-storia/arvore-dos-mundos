@@ -1,99 +1,49 @@
+## Objetivo
 
-# Plano de Ajustes Pós-Auditoria
+Tornar o corretor ortográfico PT-BR **automático e embutido** — sem depender de configuração do navegador, sistema operacional ou teclado do usuário. O escritor liga/desliga em um único botão, e tudo o mais acontece sozinho (como no Google Docs).
 
-Cinco frentes, ordenadas por impacto e velocidade. Tudo escopado em **uma sessão de build**.
+## O que muda para o usuário
 
----
+- Um único botão na barra do `ChapterEditor` (já existe) liga/desliga o corretor.
+- Quando ligado: palavras erradas aparecem **sublinhadas em vermelho ondulado** no editor, mesmo se o navegador não tiver dicionário PT-BR.
+- **Clique com botão direito** sobre uma palavra sublinhada abre um menu com até 5 sugestões + "Adicionar ao meu dicionário" + "Ignorar".
+- Quando desligado: o sublinhado some imediatamente e nada interfere na digitação.
+- O popover de "ajuda" e as instruções de "ative no Chrome/iOS/Android" são **removidos** — não fazem mais sentido, já que o corretor é nosso.
 
-## 1. Padronizar copy das gotas (P1 — impacto alto, esforço baixo)
+## Como funciona por baixo (seção técnica)
 
-A migração para 3 níveis de imagem + redução da análise para 1 gota não foi refletida em 6 telas de texto. Hoje o usuário lê informações conflitantes em diferentes lugares.
+1. **Dicionário Hunspell PT-BR** carregado uma única vez via `nspell` + `dictionary-pt-br` (lazy, dinâmico — só baixa quando o usuário liga o corretor pela primeira vez na sessão; ~1-2MB cacheado pelo browser).
+2. Nova extensão Tiptap `SpellcheckPtBr` que:
+   - Usa `ProseMirror DecorationSet` para sublinhar tokens desconhecidos (regex que ignora HTML, menções `@Codex`, URLs, números e palavras com maiúsculas — substantivos próprios).
+   - Recalcula só nos parágrafos afetados a cada transação (debounced 250ms) — não trava em capítulos longos.
+   - Atributo HTML nativo `spellcheck="false"` no contenteditable para **desligar o corretor do navegador** e evitar sublinhado duplicado/conflito.
+3. Menu de contexto próprio (`SpellSuggestionsMenu`): captura `contextmenu` sobre `.spell-error`, posiciona um popover Radix com `nspell.suggest(word).slice(0,5)`, e aplica a substituição via `editor.chain().insertContentAt(range, suggestion).run()`.
+4. **Dicionário pessoal do usuário** persistido em `localStorage` (`adm-spell-custom-pt-br`) — palavras adicionadas viram parte do `nspell` na próxima checagem.
+5. Estado do toggle persistido em `localStorage` (`adm-spell-enabled`) — começa **ligado** por padrão.
 
-**Onde corrigir:**
-- `src/components/HelpDrawer.tsx` — 4 menções (FAQ de imagem, Elixir, análise, upgrade)
-- `src/components/OnboardingBanner.tsx` — bloco "Textos consomem 1, imagens 5, análise 2"
-- `src/components/InteractiveTour.tsx` — passo "Visões de Idriel" (5 gotas) e "Consultar Idriel"
-- `src/components/OnboardingTips.tsx` — duas dicas com custos
-- `src/pages/PricingPage.tsx` — FAQ "O que é o Elixir dos Mundos?"
-- `src/components/IdrielImportDialog.tsx` — texto "custo: 5 gotas"
+## Estrutura de arquivos
 
-**Texto-padrão a usar (referência única):**
-> "Gerar imagem: **Rascunho 2 gotas · Padrão 5 gotas · Qualidade Máxima 15 gotas**. Texto e consulta a Idriel: **1 gota**. Análise do mundo: **1 gota**. Importar documento: **1 gota**."
+- **novo** `src/components/editor/spellcheck/loadDictionary.ts` — loader lazy do `dictionary-pt-br` + `nspell`, com cache em módulo.
+- **novo** `src/components/editor/spellcheck/SpellcheckExtension.ts` — extensão Tiptap (Plugin + DecorationSet + worker debounce).
+- **novo** `src/components/editor/spellcheck/SpellSuggestionsMenu.tsx` — popover de sugestões e ações.
+- **novo** `src/components/editor/spellcheck/customDictionary.ts` — get/add/remove no localStorage.
+- **editado** `src/components/editor/RichTextEditor.tsx` — registra a extensão quando `spellCheck=true`; força `spellcheck="false"` no atributo nativo do EditorView; renderiza o `SpellSuggestionsMenu`.
+- **editado** `src/components/editor/editor.css` — `.spell-error { text-decoration: underline wavy #ef4444; text-decoration-skip-ink: none; }`.
+- **editado** `src/components/escritor/ChapterEditor.tsx` — remove o botão de ajuda (`HelpCircle`) e o `SpellcheckHelpPopover`; mantém só o botão verde liga/desliga; persiste o estado em localStorage; mostra um pequeno spinner no botão enquanto o dicionário baixa pela primeira vez.
 
----
+## Dependências novas
 
-## 2. Corrigir bilhetagem do Idriel Import (P2 — bug real)
+- `nspell` (~30KB)
+- `dictionary-pt-br` (afixos + dicionário Hunspell oficial; carregado sob demanda)
 
-`IdrielImportDialog` promete cobrar **5 gotas**, mas o edge function `idriel-import-text` chama `_type: "text"` na cota, que custa **1 gota**. A UI mente sobre o preço.
+## Riscos e mitigações
 
-**Decisão a confirmar com você:** o import processa até 200K caracteres com Gemini 3 Flash Preview. O custo real de tokens justifica **3 gotas** (preço justo). Recomendo:
-- Atualizar `idriel-import-text/index.ts` para checar/incrementar uma nova chave `text_heavy` que custa 3 gotas
-- OU manter 1 gota e atualizar a UI para refletir o preço real (mais simples, sem mudança de schema)
+- **Tamanho do dicionário**: lazy-load + cache do browser; não afeta tempo de boot.
+- **Performance em capítulos longos**: debounce 250ms + checagem apenas dos parágrafos alterados (usando `tr.mapping` para detectar ranges).
+- **Conflito com corretor nativo**: forçamos `spellcheck="false"` enquanto o nosso está ativo. Quando o usuário desliga, restauramos `spellcheck="true"` para quem tiver dicionário no navegador (fallback gracioso).
+- **Mobile**: o teclado virtual continua oferecendo autocorreção do sistema; nosso sublinhado aparece igual no toque longo (menu de contexto via `touchstart` longo → mesmo `SpellSuggestionsMenu`).
 
-→ Vou propor a **opção simples (1 gota)** porque é coerente com o custo real de inferência do Gemini Flash.
+## Fora de escopo
 
----
-
-## 3. Ajustar preço do Rascunho para evitar margem negativa (P6)
-
-O nível Rascunho (Nano Banana 2 a ~R$0,21) está cobrando 1 gota (R$0,18) → **margem negativa**.
-
-**Ação:** subir Rascunho para **2 gotas** (R$0,36 → margem 42%).
-
-**Onde mudar:**
-- `supabase/functions/ai-image/index.ts`: `image_draft` → adicionar lógica de custo 2 (ou usar nova chave `image_draft` no SQL com custo 2)
-- Migration: ajustar `check_ai_quota` para `image_draft` custar 2 em vez de 1
-- `src/components/TabGerarImagens.tsx`: rótulo "1 gota" → "2 gotas"
-- `src/components/TabGaleria.tsx`: rótulo "1 gota" → "2 gotas"
-- Copy unificada (item 1) já reflete os 2 gotas
-
----
-
-## 4. Streaming progressivo no GPT Image 2 (P3 — UX premium)
-
-Hoje "Qualidade Máxima" mostra apenas um spinner por até 2 min. A documentação Lovable suporta SSE com `partial_images: 1` que entrega previews progressivos com blur.
-
-**Estratégia:**
-- Reescrever o ramo `quality === "premium"` em `ai-image/index.ts` para pedir `stream: true, partial_images: 1`
-- Encaminhar o stream SSE direto ao cliente (sem buffer no backend) com `Content-Type: text/event-stream`
-- Em `helpers.ts`, criar `callAIImageStreaming(prompt, quality, onFrame)` usando `fetch` direto (não `supabase.functions.invoke`, que não streama) com a URL construída a partir de `import.meta.env.VITE_SUPABASE_PROJECT_ID` + token Supabase
-- Adicionar parser `eventsource-parser` (já documentado) com `flushSync` para evitar batching React
-- Em `TabGerarImagens.tsx`, exibir frames com `className={isFinal ? "blur-0" : "blur-2xl"}` para vender o efeito "ainda carregando"
-
-**Risco:** complexidade média. Se preferir, posso deixar para uma sessão dedicada e neste momento apenas melhorar a copy do loading ("Pode levar até 2 minutos — vale a pena").
-
----
-
-## 5. Limpeza técnica (debt rápida)
-
-- **Remover `console.log/warn/error`** em hooks de produção (23 ocorrências em 7 hooks: `useCodexEntries`, `useWorlds`, `useSubscription`, `useManuscript`, `useIdrielVisions`, `useStorylineCards`, `useIdrielHistory`). Manter apenas `console.error` em catch blocks que realmente precisam.
-- Não vou tocar nos `: any` types nem nos warnings de SECURITY DEFINER nesta sessão — escopo separado.
-
----
-
-## Itens deferidos (não entram nesta sessão)
-
-- **Rate limit por usuário** (P5): backend Lovable não tem primitivo padrão; trataria como dívida para infra dedicada.
-- **Fallback automático Pro → Draft** em erro 5xx (P4): só vale com telemetria mostrando taxa de falha relevante.
-- **Tipagem dos `: any`** críticos (LoginPage, useWorlds, RichTextEditor, CodexAnalysis): sessão de refactor à parte.
-- **Sweep de tablet (768–1024px)** e **contraste WCAG** dos `text-text-dim`: sessão de a11y dedicada.
-
----
-
-## Ordem de execução proposta
-
-1. **Migration**: ajustar `check_ai_quota` para `image_draft = 2`
-2. **Backend**: `ai-image/index.ts` (custo) + decisão sobre streaming GPT Image 2
-3. **Frontend**: atualizar 8 arquivos de copy (item 1 + 3) numa rajada paralela
-4. **Limpeza**: remover console.logs dos hooks
-5. **Deploy edge functions** afetadas
-
-**Tempo estimado:** 1 sessão de build, ~15–20 edições paralelas.
-
----
-
-## Decisões para você confirmar
-
-1. **Idriel Import**: mantém **1 gota** (real) ou cobra **3 gotas** (introduz `text_heavy` no schema)?
-2. **Streaming GPT Image 2**: entra agora (mais complexo) ou fica para próxima sessão (apenas melhoro a copy do loading)?
-3. **Rascunho a 2 gotas**: confirmo o reajuste?
+- Gramática (concordância, regência) — só ortografia.
+- Sincronizar dicionário pessoal entre dispositivos — fica em localStorage por enquanto.
