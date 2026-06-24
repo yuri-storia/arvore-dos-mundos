@@ -170,6 +170,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
             spellCheck={spellcheckOn}
             lang="pt-BR"
             minHeight="100%"
+            saveStatus={saveStatus}
           />
         )}
       </div>
