@@ -313,11 +313,12 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
         protocols: ['http', 'https', 'mailto'],
         HTMLAttributes: { class: 'rich-link', rel: 'noopener noreferrer nofollow', target: '_blank' },
       }),
-      Image.configure({
+      ResizableImage.configure({
         inline: false,
         allowBase64: true,
         HTMLAttributes: { class: 'rich-image' },
-      }) && undefined as never, // placeholder removed below
+      }),
+
 
       Mention.configure({
         HTMLAttributes: { class: 'rich-mention' },
