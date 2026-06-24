@@ -34,8 +34,9 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
   const [content, setContent] = useState(chapter.content || '');
   const [title, setTitle] = useState(chapter.title);
   const [previewMode, setPreviewMode] = useState(false);
-  const [spellcheckOn, setSpellcheckOn] = useState(true);
-  const [showSpellHelp, setShowSpellHelp] = useState(false);
+  const [spellcheckOn, setSpellcheckOn] = useState<boolean>(() => {
+    try { return localStorage.getItem('adm-spell-enabled') !== '0'; } catch { return true; }
+  });
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
