@@ -40,10 +40,24 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
   const [spellcheckOn, setSpellcheckOn] = useState<boolean>(() => {
     try { return localStorage.getItem('adm-spell-enabled') !== '0'; } catch { return true; }
   });
+  const [spellStatus, setSpellStatus] = useState<SpellLoadStatus>(() => getSpellStatus());
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const errorToastIdRef = useRef<string | number | null>(null);
+  const spellToastIdRef = useRef<string | number | null>(null);
+
+  // Subscribe to dictionary load status so the toggle reflects loading/ready/error.
+  useEffect(() => onSpellStatusChange(setSpellStatus), []);
+
+  // Eager preload: start fetching the PT-BR dictionary as soon as the editor
+  // mounts with the corrector enabled. By the time the user finishes the first
+  // sentence, the checker is usually ready. Silent — no toast on autoload.
+  useEffect(() => {
+    if (!spellcheckOn) return;
+    if (getSpellStatus() === 'ready' || getSpellStatus() === 'loading') return;
+    loadSpellChecker().catch(() => { /* surfaces via status listener */ });
+  }, [spellcheckOn]);
 
   useEffect(() => {
     setContent(chapter.content || '');
