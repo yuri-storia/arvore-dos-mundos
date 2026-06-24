@@ -22,6 +22,9 @@ import {
   Minus, Plus, GripVertical,
 } from 'lucide-react';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
+import { SpellcheckPtBr } from './spellcheck/SpellcheckExtension';
+import { loadSpellChecker, getSpellChecker } from './spellcheck/loadDictionary';
+import { SpellSuggestionsMenu, type SpellSuggestionTarget } from './spellcheck/SpellSuggestionsMenu';
 import './editor.css';
 
 /* ----- Image extension with width + align attrs (resize / align controls) ----- */
