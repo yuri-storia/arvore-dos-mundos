@@ -317,7 +317,8 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
         inline: false,
         allowBase64: true,
         HTMLAttributes: { class: 'rich-image' },
-      }),
+      }) && undefined as never, // placeholder removed below
+
       Mention.configure({
         HTMLAttributes: { class: 'rich-mention' },
         renderText: ({ node }) => `@${node.attrs.label ?? node.attrs.id}`,
