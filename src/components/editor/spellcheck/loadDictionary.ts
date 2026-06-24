@@ -6,7 +6,7 @@
  * spell checker. After the first call, the parsed nspell instance is cached
  * in module scope.
  */
-// @ts-expect-error - no types
+// @ts-ignore - nspell ships no TypeScript types
 import nspell from 'nspell';
 // Vite: import the binary asset URLs (will be served as static files).
 import affUrl from 'dictionary-pt/index.aff?url';
