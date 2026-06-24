@@ -37,9 +37,6 @@ function shouldSkipWord(word: string): boolean {
   if (/\d/.test(word)) return true;
   // Skip ALL CAPS abbreviations (USA, RPG, etc).
   if (word === word.toUpperCase() && word.length <= 6) return true;
-  // Skip proper-noun-looking words (start with capital and have a lowercase letter after).
-  // Authors often use invented names; flagging them would create noise.
-  if (/^[A-ZÀ-ÖØ-Þ][a-zà-öø-ÿ]/.test(word)) return true;
   if (isIgnoredForSession(word.toLowerCase())) return true;
   return false;
 }
@@ -60,6 +57,11 @@ function computeDecorations(doc: PMNode): DecorationSet {
       const word = match[0];
       if (shouldSkipWord(word)) continue;
       if (checker.correct(word)) continue;
+      // Accept capitalised forms whose lowercase variant is in the dictionary
+      // (e.g. sentence-initial "Casa"). This prevents flagging valid words that
+      // happen to start a sentence, while still catching real typos like "Cassa".
+      const lower = word.toLowerCase();
+      if (lower !== word && checker.correct(lower)) continue;
       const from = pos + match.index;
       const to = from + word.length;
       decos.push(
