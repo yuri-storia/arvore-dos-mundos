@@ -26,11 +26,12 @@ let loadingPromise: Promise<SpellChecker> | null = null;
 async function fetchText(url: string): Promise<string> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to load dictionary asset: ${url}`);
-  // Hunspell PT files are ISO-8859-1 encoded (declared in the .aff via
-  // `SET ISO8859-1`). Decoding as UTF-8 would corrupt accented characters
-  // and break every lookup involving "á", "ç", "ã", etc.
+  // The Hunspell PT files declare `SET UTF-8`. We must decode them as text
+  // before handing them to nspell — passing a Uint8Array makes nspell call
+  // `.toString()` on it, which in the browser yields "171,187,..." instead
+  // of UTF-8 characters and silently destroys the dictionary.
   const buf = await res.arrayBuffer();
-  return new TextDecoder('iso-8859-1').decode(buf);
+  return new TextDecoder('utf-8').decode(buf);
 }
 
 export function getSpellChecker(): SpellChecker | null {
