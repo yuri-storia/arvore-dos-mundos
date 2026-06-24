@@ -324,6 +324,45 @@ textarea, .mention-textarea, [contenteditable="true"] {
   margin: 0 2px;
 }
 .rich-image-bubble { padding: 4px 6px; }
+.rich-image-bubble .rich-image-pct {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 22px;
+  padding: 0 4px;
+  font-size: 10px;
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: 0.03em;
+  color: hsl(var(--blue-light));
+  background: hsl(var(--blue-bright) / 0.1);
+  border: 1px solid hsl(var(--blue-bright) / 0.25);
+  border-radius: 4px;
+  user-select: none;
+}
+.rich-image-bubble .rich-image-range {
+  width: 90px;
+  height: 4px;
+  margin: 0 4px;
+  accent-color: hsl(var(--blue-bright));
+  cursor: pointer;
+}
+.rich-image-drag-hint {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  color: hsl(var(--text-dim));
+  cursor: grab;
+  opacity: 0.7;
+}
+.rich-image-drag-hint:hover { opacity: 1; color: hsl(var(--blue-light)); }
+
+/* Draggable image affordance — show a grab cursor on hover/selection. */
+.ProseMirror img.rich-image { cursor: grab; }
+.ProseMirror img.rich-image:active { cursor: grabbing; }
+.ProseMirror .ProseMirror-selectednode { cursor: grab; }
 
 /* Save indicator (bottom-right floating chip) */
 .rich-save-indicator {

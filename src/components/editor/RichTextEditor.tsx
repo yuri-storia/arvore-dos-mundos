@@ -19,12 +19,15 @@ import {
   List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Indent, Outdent,
   Palette, Highlighter, AtSign, Undo, Redo, Pilcrow, Eraser,
   Check, Loader2, CircleAlert, HelpCircle, Maximize2, Minimize2, X,
+  Minus, Plus, GripVertical,
 } from 'lucide-react';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import './editor.css';
 
 /* ----- Image extension with width + align attrs (resize / align controls) ----- */
 const ResizableImage = Image.extend({
+  // Enable native ProseMirror drag handle so users can reorder images by dragging.
+  draggable: true,
   addAttributes() {
     return {
       ...this.parent?.(),
@@ -41,6 +44,15 @@ const ResizableImage = Image.extend({
     };
   },
 });
+
+/** Parse a width string ("60%", "320px", null) into a percent number (10-100). */
+function parseWidthPercent(w: string | null | undefined): number {
+  if (!w) return 100;
+  const m = /([\d.]+)\s*%/.exec(w);
+  if (m) return Math.round(Number(m[1]));
+  return 100;
+}
+function clampPct(n: number) { return Math.max(10, Math.min(100, Math.round(n))); }
 
 export interface RichTextEditorRef {
   focus: () => void;
@@ -184,7 +196,17 @@ const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobil
   const hlWrapRef = useRef<HTMLDivElement>(null);
   const can = editor;
 
-  // Close popovers on outside click / Escape
+  // Force re-render on editor transactions so active/disabled states stay in sync.
+  const [, force] = useState(0);
+  useEffect(() => {
+    const handler = () => force(n => n + 1);
+    editor.on('transaction', handler);
+    editor.on('selectionUpdate', handler);
+    return () => {
+      editor.off('transaction', handler);
+      editor.off('selectionUpdate', handler);
+    };
+  }, [editor]);
   useEffect(() => {
     if (!colorOpen && !hlOpen) return;
     const onDown = (e: MouseEvent) => {
@@ -206,8 +228,8 @@ const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobil
   return (
     <div className={`rich-toolbar ${mobile ? 'is-mobile' : ''}`}>
       <div className="rich-group">
-        <ToolBtn title="Desfazer (Ctrl+Z)" onClick={() => can.chain().focus().undo().run()}><Undo className="w-4 h-4" /></ToolBtn>
-        <ToolBtn title="Refazer (Ctrl+Shift+Z)" onClick={() => can.chain().focus().redo().run()}><Redo className="w-4 h-4" /></ToolBtn>
+        <ToolBtn title="Desfazer (Ctrl+Z)" disabled={!can.can().undo()} onClick={() => can.chain().focus().undo().run()}><Undo className="w-4 h-4" /></ToolBtn>
+        <ToolBtn title="Refazer (Ctrl+Shift+Z)" disabled={!can.can().redo()} onClick={() => can.chain().focus().redo().run()}><Redo className="w-4 h-4" /></ToolBtn>
       </div>
       <div className="rich-group">
         <ToolBtn title="Parágrafo" active={can.isActive('paragraph')} onClick={() => can.chain().focus().setParagraph().run()}><Pilcrow className="w-4 h-4" /></ToolBtn>
@@ -273,19 +295,65 @@ const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobil
 
 /* ---------------------------- Image controls ---------------------------- */
 const ImageControls: React.FC<{ editor: Editor }> = ({ editor }) => {
+  // Re-render on any editor transaction so width/align reflect current node attrs.
+  const [, force] = useState(0);
+  useEffect(() => {
+    const handler = () => force(n => n + 1);
+    editor.on('selectionUpdate', handler);
+    editor.on('transaction', handler);
+    return () => {
+      editor.off('selectionUpdate', handler);
+      editor.off('transaction', handler);
+    };
+  }, [editor]);
+
+  const attrs = editor.getAttributes('image') as { width?: string | null; align?: string };
+  const currentPct = parseWidthPercent(attrs.width);
+  const currentAlign = (attrs.align as 'left' | 'center' | 'right') || 'center';
+
   const setSize = (w: string | null) => editor.chain().focus().updateAttributes('image', { width: w }).run();
-  const setAlign = (a: 'left' | 'center' | 'right') => editor.chain().focus().updateAttributes('image', { align: a }).run();
+  const setPct = (pct: number) => setSize(`${clampPct(pct)}%`);
+  const stepPct = (delta: number) => setPct(currentPct + delta);
+  const setAlign = (a: 'left' | 'center' | 'right') =>
+    editor.chain().focus().updateAttributes('image', { align: a }).run();
   const remove = () => editor.chain().focus().deleteSelection().run();
+
+  const canUndo = editor.can().undo();
+  const canRedo = editor.can().redo();
+
   return (
     <>
-      <ToolBtn title="Pequena (25%)" onClick={() => setSize('25%')}><Minimize2 className="w-3.5 h-3.5" /></ToolBtn>
-      <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => setSize('50%')} title="Média (50%)" className="rich-toolbtn" style={{ fontSize: 10, width: 30 }}>50%</button>
-      <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => setSize('75%')} title="Grande (75%)" className="rich-toolbtn" style={{ fontSize: 10, width: 30 }}>75%</button>
-      <ToolBtn title="Tamanho original (100%)" onClick={() => setSize(null)}><Maximize2 className="w-3.5 h-3.5" /></ToolBtn>
+      <ToolBtn title="Desfazer (Ctrl+Z)" disabled={!canUndo} onClick={() => editor.chain().focus().undo().run()}><Undo className="w-3.5 h-3.5" /></ToolBtn>
+      <ToolBtn title="Refazer (Ctrl+Shift+Z)" disabled={!canRedo} onClick={() => editor.chain().focus().redo().run()}><Redo className="w-3.5 h-3.5" /></ToolBtn>
       <span className="rich-bubble-sep" />
-      <ToolBtn title="Alinhar à esquerda" onClick={() => setAlign('left')}><AlignLeft className="w-3.5 h-3.5" /></ToolBtn>
-      <ToolBtn title="Centralizar" onClick={() => setAlign('center')}><AlignCenter className="w-3.5 h-3.5" /></ToolBtn>
-      <ToolBtn title="Alinhar à direita" onClick={() => setAlign('right')}><AlignRight className="w-3.5 h-3.5" /></ToolBtn>
+      <span className="rich-image-drag-hint" title="Arraste a imagem pelo corpo do parágrafo para reordenar">
+        <GripVertical className="w-3.5 h-3.5" />
+      </span>
+      <span className="rich-bubble-sep" />
+      <ToolBtn title="Pequena (25%)" active={currentPct === 25} onClick={() => setPct(25)}><Minimize2 className="w-3.5 h-3.5" /></ToolBtn>
+      <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => setPct(50)} title="Média (50%)" className={`rich-toolbtn ${currentPct === 50 ? 'is-active' : ''}`} style={{ fontSize: 10, width: 30 }}>50%</button>
+      <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => setPct(75)} title="Grande (75%)" className={`rich-toolbtn ${currentPct === 75 ? 'is-active' : ''}`} style={{ fontSize: 10, width: 30 }}>75%</button>
+      <ToolBtn title="Tamanho original (100%)" active={currentPct === 100 && !attrs.width} onClick={() => setSize(null)}><Maximize2 className="w-3.5 h-3.5" /></ToolBtn>
+      <span className="rich-bubble-sep" />
+      <ToolBtn title="Diminuir 5%" disabled={currentPct <= 10} onClick={() => stepPct(-5)}><Minus className="w-3.5 h-3.5" /></ToolBtn>
+      <span className="rich-image-pct" title="Largura atual">{currentPct}%</span>
+      <ToolBtn title="Aumentar 5%" disabled={currentPct >= 100} onClick={() => stepPct(5)}><Plus className="w-3.5 h-3.5" /></ToolBtn>
+      <input
+        type="range"
+        min={10}
+        max={100}
+        step={5}
+        value={currentPct}
+        onMouseDown={e => e.stopPropagation()}
+        onChange={e => setPct(Number(e.target.value))}
+        className="rich-image-range"
+        title="Ajuste fino de largura"
+        aria-label="Largura da imagem"
+      />
+      <span className="rich-bubble-sep" />
+      <ToolBtn title="Alinhar à esquerda" active={currentAlign === 'left'} onClick={() => setAlign('left')}><AlignLeft className="w-3.5 h-3.5" /></ToolBtn>
+      <ToolBtn title="Centralizar" active={currentAlign === 'center'} onClick={() => setAlign('center')}><AlignCenter className="w-3.5 h-3.5" /></ToolBtn>
+      <ToolBtn title="Alinhar à direita" active={currentAlign === 'right'} onClick={() => setAlign('right')}><AlignRight className="w-3.5 h-3.5" /></ToolBtn>
       <span className="rich-bubble-sep" />
       <ToolBtn title="Remover imagem" onClick={remove}><X className="w-3.5 h-3.5" /></ToolBtn>
     </>
