@@ -218,8 +218,8 @@ const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobil
   return (
     <div className={`rich-toolbar ${mobile ? 'is-mobile' : ''}`}>
       <div className="rich-group">
-        <ToolBtn title="Desfazer (Ctrl+Z)" onClick={() => can.chain().focus().undo().run()}><Undo className="w-4 h-4" /></ToolBtn>
-        <ToolBtn title="Refazer (Ctrl+Shift+Z)" onClick={() => can.chain().focus().redo().run()}><Redo className="w-4 h-4" /></ToolBtn>
+        <ToolBtn title="Desfazer (Ctrl+Z)" disabled={!can.can().undo()} onClick={() => can.chain().focus().undo().run()}><Undo className="w-4 h-4" /></ToolBtn>
+        <ToolBtn title="Refazer (Ctrl+Shift+Z)" disabled={!can.can().redo()} onClick={() => can.chain().focus().redo().run()}><Redo className="w-4 h-4" /></ToolBtn>
       </div>
       <div className="rich-group">
         <ToolBtn title="Parágrafo" active={can.isActive('paragraph')} onClick={() => can.chain().focus().setParagraph().run()}><Pilcrow className="w-4 h-4" /></ToolBtn>
