@@ -212,3 +212,64 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
   );
 });
 ChapterEditor.displayName = 'ChapterEditor';
+
+/* ---------------------- Spellcheck help popover ---------------------- */
+const SpellcheckHelpPopover: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [onClose]);
+  return (
+    <div
+      ref={ref}
+      className="absolute top-full right-0 mt-2 z-50 w-[320px] p-4 rounded-lg border border-blue-bright/30 bg-[rgba(4,10,22,0.98)] shadow-[0_8px_28px_rgba(0,0,0,0.6)] backdrop-blur-md text-xs"
+      role="dialog"
+      aria-label="Como ativar o corretor PT-BR"
+    >
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <h4 className="font-cinzel text-gold-light text-sm">Corretor ortográfico (PT-BR)</h4>
+        <button onClick={onClose} aria-label="Fechar" className="text-text-dim hover:text-foreground">
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+      <p className="text-text-dim mb-3 leading-relaxed">
+        A Árvore dos Mundos já marca o editor como <code className="text-blue-light">lang="pt-BR"</code>.
+        Se as palavras erradas não aparecerem sublinhadas, ative o dicionário no seu dispositivo:
+      </p>
+      <ul className="space-y-2 text-text-dim">
+        <li>
+          <strong className="text-foreground">Chrome / Edge (desktop):</strong> <em>Configurações → Idiomas → Verificação ortográfica</em>,
+          ative e adicione <strong>Português (Brasil)</strong>.
+        </li>
+        <li>
+          <strong className="text-foreground">Firefox:</strong> clique com o botão direito no editor →
+          <em> Idiomas → Português (Brasil)</em> e marque <em>Verificar ortografia</em>.
+        </li>
+        <li>
+          <strong className="text-foreground">Safari (macOS):</strong> <em>Editar → Ortografia e gramática → Verificar ortografia ao digitar</em>.
+        </li>
+        <li>
+          <strong className="text-foreground">iPad / iPhone:</strong> <em>Ajustes → Geral → Teclado</em> e ative
+          <em> Verificar ortografia</em> e <em>Autocorreção</em>. Adicione o teclado <strong>Português (Brasil)</strong>.
+        </li>
+        <li>
+          <strong className="text-foreground">Android / tablet:</strong> <em>Configurações → Sistema → Idiomas e entrada → Corretor ortográfico</em>.
+          Em alguns Gboard: <em>Preferências → Corretor ortográfico</em>.
+        </li>
+      </ul>
+      <p className="text-[10px] text-text-dim/70 mt-3 italic">
+        Observação: no tablet/celular o navegador depende do dicionário do sistema —
+        sem teclado/idioma PT-BR instalado, as marcações não aparecem.
+      </p>
+    </div>
+  );
+};
