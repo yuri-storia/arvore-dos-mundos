@@ -255,12 +255,15 @@ const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobil
 /* ------------------------------- Editor ------------------------------- */
 export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
   value, onChange, entries = [], placeholder, spellCheck = true, lang = 'pt-BR',
-  autoFocus, className, minHeight, compact, editorId,
+  autoFocus, className, minHeight, compact, editorId, saveStatus,
 }, ref) => {
   const entriesRef = useRef<CodexEntry[]>(entries);
   useEffect(() => { entriesRef.current = entries; }, [entries]);
   const [focused, setFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<Editor | null>(null);
+  const isTypingRef = useRef(false);
+  const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
   );
@@ -284,6 +287,18 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Placeholder.configure({ placeholder: placeholder || 'Comece a escrever…' }),
       CharacterCount,
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+        linkOnPaste: true,
+        protocols: ['http', 'https', 'mailto'],
+        HTMLAttributes: { class: 'rich-link', rel: 'noopener noreferrer nofollow', target: '_blank' },
+      }),
+      Image.configure({
+        inline: false,
+        allowBase64: true,
+        HTMLAttributes: { class: 'rich-image' },
+      }),
       Mention.configure({
         HTMLAttributes: { class: 'rich-mention' },
         renderText: ({ node }) => `@${node.attrs.label ?? node.attrs.id}`,
@@ -302,24 +317,66 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
         class: `rich-content ${className || ''}`,
         spellcheck: spellCheck ? 'true' : 'false',
         lang,
+        translate: 'no',
+        autocorrect: 'on',
+        autocapitalize: 'sentences',
         ...(minHeight ? { style: `min-height:${minHeight}` } : {}),
       },
-      handleKeyDown(view, event) {
+      handleKeyDown(_view, event) {
         if ((event.ctrlKey || event.metaKey) && (event.key === 'l' || event.key === 'L')) {
           event.preventDefault();
-          editor?.chain().focus().insertContent('@').run();
+          editorRef.current?.chain().focus().insertContent('@').run();
           return true;
         }
         return false;
       },
+      // Handle pasted images (from clipboard or screenshot) as inline base64.
+      handlePaste(_view, event) {
+        const items = event.clipboardData?.items;
+        if (!items) return false;
+        for (const item of Array.from(items)) {
+          if (item.type.startsWith('image/')) {
+            const file = item.getAsFile();
+            if (!file) continue;
+            event.preventDefault();
+            const reader = new FileReader();
+            reader.onload = () => {
+              const src = reader.result as string;
+              editorRef.current?.chain().focus().setImage({ src, alt: file.name || 'imagem' }).run();
+            };
+            reader.readAsDataURL(file);
+            return true;
+          }
+        }
+        return false;
+      },
+      // Allow drag & drop of image files.
+      handleDrop(_view, event) {
+        const files = event.dataTransfer?.files;
+        if (!files || files.length === 0) return false;
+        const imgs = Array.from(files).filter(f => f.type.startsWith('image/'));
+        if (imgs.length === 0) return false;
+        event.preventDefault();
+        imgs.forEach(file => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const src = reader.result as string;
+            editorRef.current?.chain().focus().setImage({ src, alt: file.name || 'imagem' }).run();
+          };
+          reader.readAsDataURL(file);
+        });
+        return true;
+      },
     },
     onUpdate: ({ editor }) => {
+      // Flag local typing so external sync doesn't fight the cursor.
+      isTypingRef.current = true;
+      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+      typingTimerRef.current = setTimeout(() => { isTypingRef.current = false; }, 600);
       onChange(editor.getHTML());
     },
     onFocus: () => setFocused(true),
     onBlur: () => {
-      // Defer to allow focus to land on a toolbar button. If focus moved
-      // somewhere outside the editor container, hide the floating bar.
       setTimeout(() => {
         const active = document.activeElement;
         if (!containerRef.current || !active || !containerRef.current.contains(active)) {
@@ -329,18 +386,33 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
     },
   });
 
-  // External value sync (e.g. switching chapters/entries)
+  // Keep editor ref always pointing at latest instance.
+  useEffect(() => { editorRef.current = editor; }, [editor]);
+
+  // External value sync (e.g. switching chapters/entries).
+  // Only apply when not actively typing and HTML really differs — prevents
+  // cursor jumps during autosave roundtrips.
   useEffect(() => {
     if (!editor) return;
+    if (isTypingRef.current) return;
     const current = editor.getHTML();
     const next = plainTextToHtml(value);
-    if (next !== current) editor.commands.setContent(next || '<p></p>', { emitUpdate: false });
+    if (next === current) return;
+    // Preserve selection where possible.
+    const { from, to } = editor.state.selection;
+    editor.commands.setContent(next || '<p></p>', { emitUpdate: false });
+    try {
+      const size = editor.state.doc.content.size;
+      const safeFrom = Math.min(from, size);
+      const safeTo = Math.min(to, size);
+      editor.commands.setTextSelection({ from: safeFrom, to: safeTo });
+    } catch { /* ignore */ }
   }, [value, editor]);
 
   useImperativeHandle(ref, () => ({
-    focus: () => editor?.commands.focus(),
-    getHTML: () => editor?.getHTML() || '',
-    insertText: (t: string) => editor?.chain().focus().insertContent(t).run(),
+    focus: () => editorRef.current?.commands.focus(),
+    getHTML: () => editorRef.current?.getHTML() || '',
+    insertText: (t: string) => editorRef.current?.chain().focus().insertContent(t).run(),
   }), [editor]);
 
   if (!editor) return null;
@@ -356,6 +428,7 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
         <ToolBtn title="Mencionar" onClick={() => editor.chain().focus().insertContent('@').run()}><AtSign className="w-3.5 h-3.5" /></ToolBtn>
       </BubbleMenu>
       <EditorContent editor={editor} />
+      {saveStatus && saveStatus !== 'idle' && <SaveIndicator status={saveStatus} />}
       {isMobile && focused && (
         <div className="rich-mobile-floating">
           <Toolbar editor={editor} mobile />
