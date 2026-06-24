@@ -605,6 +605,13 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
       </BubbleMenu>
       <EditorContent editor={editor} />
       {saveStatus && saveStatus !== 'idle' && <SaveIndicator status={saveStatus} />}
+      {spellTarget && (
+        <SpellSuggestionsMenu
+          editor={editor}
+          target={spellTarget}
+          onClose={() => setSpellTarget(null)}
+        />
+      )}
       {isMobile && focused && (
         <div className="rich-mobile-floating">
           <Toolbar editor={editor} mobile />
