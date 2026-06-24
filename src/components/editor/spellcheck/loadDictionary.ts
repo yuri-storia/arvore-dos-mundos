@@ -23,11 +23,14 @@ export interface SpellChecker {
 let cached: SpellChecker | null = null;
 let loadingPromise: Promise<SpellChecker> | null = null;
 
-async function fetchBytes(url: string): Promise<Uint8Array> {
+async function fetchText(url: string): Promise<string> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to load dictionary asset: ${url}`);
+  // Hunspell PT files are ISO-8859-1 encoded (declared in the .aff via
+  // `SET ISO8859-1`). Decoding as UTF-8 would corrupt accented characters
+  // and break every lookup involving "á", "ç", "ã", etc.
   const buf = await res.arrayBuffer();
-  return new Uint8Array(buf);
+  return new TextDecoder('iso-8859-1').decode(buf);
 }
 
 export function getSpellChecker(): SpellChecker | null {
@@ -38,7 +41,7 @@ export async function loadSpellChecker(): Promise<SpellChecker> {
   if (cached) return cached;
   if (loadingPromise) return loadingPromise;
   loadingPromise = (async () => {
-    const [aff, dic] = await Promise.all([fetchBytes(AFF_URL), fetchBytes(DIC_URL)]);
+    const [aff, dic] = await Promise.all([fetchText(AFF_URL), fetchText(DIC_URL)]);
     const instance = nspell({ aff, dic });
     // Seed the user's personal dictionary.
     for (const w of getCustomWords()) {
