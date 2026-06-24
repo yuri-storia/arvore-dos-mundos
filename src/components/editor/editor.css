@@ -279,3 +279,55 @@ textarea, .mention-textarea, [contenteditable="true"] {
   user-select: text !important;
   -webkit-touch-callout: default !important;
 }
+
+/* Links inserted via paste / autolink */
+.ProseMirror a.rich-link, .rich-content a.rich-link {
+  color: hsl(var(--blue-light));
+  text-decoration: underline;
+  text-decoration-color: hsl(var(--blue-bright) / 0.5);
+  text-underline-offset: 2px;
+  cursor: pointer;
+  word-break: break-word;
+}
+.ProseMirror a.rich-link:hover, .rich-content a.rich-link:hover {
+  color: hsl(var(--blue-bright));
+  text-decoration-color: hsl(var(--blue-bright));
+}
+
+/* Pasted/dragged images */
+.ProseMirror img.rich-image, .rich-content img.rich-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0.6em auto;
+  border-radius: 6px;
+  border: 1px solid hsl(var(--blue-bright) / 0.2);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+/* Save indicator (bottom-right floating chip) */
+.rich-save-indicator {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: 0.02em;
+  border-radius: 999px;
+  background: rgba(4, 10, 22, 0.85);
+  border: 1px solid hsl(var(--blue-bright) / 0.25);
+  color: hsl(var(--text-dim));
+  backdrop-filter: blur(6px);
+  z-index: 30;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.rich-save-indicator.rich-save-saving { color: hsl(var(--blue-light)); border-color: hsl(var(--blue-bright) / 0.35); }
+.rich-save-indicator.rich-save-saved  { color: #7FFFC2; border-color: rgba(127, 255, 194, 0.35); }
+.rich-save-indicator.rich-save-error  { color: #FF8FA3; border-color: rgba(255, 143, 163, 0.45); }
+/* Reserve some bottom-right space so the chip doesn't sit over text */
+.rich-editor .ProseMirror { padding-right: 16px; }
