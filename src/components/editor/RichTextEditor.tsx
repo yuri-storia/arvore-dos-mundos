@@ -429,7 +429,8 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
     editorProps: {
       attributes: {
         class: `rich-content ${className || ''}`,
-        spellcheck: spellCheck ? 'true' : 'false',
+        // Our own checker handles spelling — disable native to avoid double underlines.
+        spellcheck: 'false',
         lang,
         translate: 'no',
         autocorrect: 'on',
