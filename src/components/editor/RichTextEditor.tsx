@@ -18,10 +18,29 @@ import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough, Heading1, Heading2, Heading3,
   List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Indent, Outdent,
   Palette, Highlighter, AtSign, Undo, Redo, Pilcrow, Eraser,
-  Check, Loader2, CircleAlert,
+  Check, Loader2, CircleAlert, HelpCircle, Maximize2, Minimize2, X,
 } from 'lucide-react';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import './editor.css';
+
+/* ----- Image extension with width + align attrs (resize / align controls) ----- */
+const ResizableImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: null,
+        parseHTML: (el) => (el as HTMLElement).style.width || (el as HTMLElement).getAttribute('width') || null,
+        renderHTML: (attrs) => (attrs.width ? { style: `width: ${attrs.width}` } : {}),
+      },
+      align: {
+        default: 'center',
+        parseHTML: (el) => (el as HTMLElement).getAttribute('data-align') || 'center',
+        renderHTML: (attrs) => ({ 'data-align': attrs.align || 'center' }),
+      },
+    };
+  },
+});
 
 export interface RichTextEditorRef {
   focus: () => void;
