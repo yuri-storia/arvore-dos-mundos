@@ -265,9 +265,30 @@ const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobil
         <ToolBtn title="Diminuir recuo (Shift+Tab)" onClick={() => can.chain().focus().liftListItem('listItem').run()}><Outdent className="w-4 h-4" /></ToolBtn>
       </div>
       <div className="rich-group">
-        <ToolBtn title="Mencionar Codex (@ ou Ctrl+L)" onClick={() => can.chain().focus().insertContent('@').run()}><AtSign className="w-4 h-4" /></ToolBtn>
+        <ToolBtn title="Mencionar Codex (@) — Ctrl+L foca o editor com segurança e abre o seletor" onClick={() => can.chain().focus().insertContent('@').run()}><AtSign className="w-4 h-4" /></ToolBtn>
       </div>
     </div>
+  );
+};
+
+/* ---------------------------- Image controls ---------------------------- */
+const ImageControls: React.FC<{ editor: Editor }> = ({ editor }) => {
+  const setSize = (w: string | null) => editor.chain().focus().updateAttributes('image', { width: w }).run();
+  const setAlign = (a: 'left' | 'center' | 'right') => editor.chain().focus().updateAttributes('image', { align: a }).run();
+  const remove = () => editor.chain().focus().deleteSelection().run();
+  return (
+    <>
+      <ToolBtn title="Pequena (25%)" onClick={() => setSize('25%')}><Minimize2 className="w-3.5 h-3.5" /></ToolBtn>
+      <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => setSize('50%')} title="Média (50%)" className="rich-toolbtn" style={{ fontSize: 10, width: 30 }}>50%</button>
+      <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => setSize('75%')} title="Grande (75%)" className="rich-toolbtn" style={{ fontSize: 10, width: 30 }}>75%</button>
+      <ToolBtn title="Tamanho original (100%)" onClick={() => setSize(null)}><Maximize2 className="w-3.5 h-3.5" /></ToolBtn>
+      <span className="rich-bubble-sep" />
+      <ToolBtn title="Alinhar à esquerda" onClick={() => setAlign('left')}><AlignLeft className="w-3.5 h-3.5" /></ToolBtn>
+      <ToolBtn title="Centralizar" onClick={() => setAlign('center')}><AlignCenter className="w-3.5 h-3.5" /></ToolBtn>
+      <ToolBtn title="Alinhar à direita" onClick={() => setAlign('right')}><AlignRight className="w-3.5 h-3.5" /></ToolBtn>
+      <span className="rich-bubble-sep" />
+      <ToolBtn title="Remover imagem" onClick={remove}><X className="w-3.5 h-3.5" /></ToolBtn>
+    </>
   );
 };
 
