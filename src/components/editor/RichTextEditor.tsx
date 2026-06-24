@@ -10,12 +10,15 @@ import { Highlight } from '@tiptap/extension-highlight';
 import { Placeholder } from '@tiptap/extension-placeholder';
 import { CharacterCount } from '@tiptap/extension-character-count';
 import { Mention } from '@tiptap/extension-mention';
+import { Link } from '@tiptap/extension-link';
+import { Image } from '@tiptap/extension-image';
 import tippy, { type Instance } from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough, Heading1, Heading2, Heading3,
   List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Indent, Outdent,
   Palette, Highlighter, AtSign, Undo, Redo, Pilcrow, Eraser,
+  Check, Loader2, CircleAlert,
 } from 'lucide-react';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import './editor.css';
