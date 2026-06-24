@@ -125,8 +125,21 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
 
         <div className="relative flex items-center gap-0.5">
           <button
-            onClick={() => setSpellcheckOn(v => !v)}
-            title={spellcheckOn ? 'Corretor ortográfico (PT-BR) ativo — clique para desativar' : 'Corretor desativado — clique para ativar'}
+            onClick={() => {
+              setSpellcheckOn(v => {
+                const next = !v;
+                try { localStorage.setItem('adm-spell-enabled', next ? '1' : '0'); } catch { /* ignore */ }
+                toast.info(next
+                  ? 'Corretor ortográfico ativado.'
+                  : 'Corretor ortográfico desativado.');
+                return next;
+              });
+            }}
+            title={spellcheckOn
+              ? 'Corretor ortográfico (PT-BR) ativo — clique para desativar. Clique com o botão direito numa palavra sublinhada para ver sugestões.'
+              : 'Corretor desativado — clique para ativar'}
+            aria-pressed={spellcheckOn}
+            aria-label="Alternar corretor ortográfico"
             className={`p-1.5 rounded transition-all border ${
               spellcheckOn
                 ? 'border-emerald-400/40 text-emerald-300 bg-gradient-to-b from-emerald-400/20 via-emerald-500/10 to-emerald-700/20 shadow-[0_0_12px_-2px_rgba(52,211,153,0.55),inset_0_1px_0_rgba(255,255,255,0.08)]'
@@ -135,15 +148,6 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
           >
             <SpellCheck2 className="w-4 h-4" />
           </button>
-          <button
-            onClick={() => setShowSpellHelp(v => !v)}
-            title="Como ativar o corretor PT-BR no seu navegador / tablet / celular"
-            className="p-1 rounded text-text-dim hover:text-foreground hover:bg-white/[0.05] transition-colors"
-            aria-label="Ajuda do corretor ortográfico"
-          >
-            <HelpCircle className="w-3.5 h-3.5" />
-          </button>
-          {showSpellHelp && <SpellcheckHelpPopover onClose={() => setShowSpellHelp(false)} />}
         </div>
 
         <button
