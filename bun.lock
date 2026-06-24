@@ -56,7 +56,7 @@
         "clsx": "^2.1.1",
         "cmdk": "^1.1.1",
         "date-fns": "^3.6.0",
-        "dictionary-pt-br": "^3.0.0",
+        "dictionary-pt": "^4.0.0",
         "docx": "^9.5.0",
         "embla-carousel-react": "^8.6.0",
         "file-saver": "^2.0.5",
@@ -785,7 +785,7 @@
 
     "devlop": ["devlop@1.1.0", "", { "dependencies": { "dequal": "^2.0.0" } }, "sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA=="],
 
-    "dictionary-pt-br": ["dictionary-pt-br@3.0.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/dictionary-pt-br/-/dictionary-pt-br-3.0.0.tgz", {}, "sha512-04zDhjSSrCmKNgMUb/ENK8c12qJvpoa1kGjcJeiy41mrme8ypzBYS9qC+HfLd+kG41ubMekEVGLRbwsMA5NXBg=="],
+    "dictionary-pt": ["dictionary-pt@4.0.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/dictionary-pt/-/dictionary-pt-4.0.0.tgz", {}, "sha512-ryJRhAtsaunBWw9grYXmVFftfab8+BCQ5wwh7fUzWO0oYEeMuR1lW2ubu1AHdvxOL32XP+u5wW/XhbFuoFuq8Q=="],
 
     "didyoumean": ["didyoumean@1.2.2", "", {}, "sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw=="],
 
