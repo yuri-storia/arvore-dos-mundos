@@ -106,7 +106,10 @@ export const SpellSuggestionsMenu: React.FC<Props> = ({ editor, target, onClose 
       {!checker && (
         <div className="spell-menu-empty">Carregando dicionário…</div>
       )}
-      {checker && suggestions.length === 0 && (
+      {checker && loading && (
+        <div className="spell-menu-empty">Buscando sugestões…</div>
+      )}
+      {checker && !loading && suggestions.length === 0 && (
         <div className="spell-menu-empty">Sem sugestões.</div>
       )}
       {suggestions.map((s) => (
