@@ -38,7 +38,7 @@ export async function loadSpellChecker(): Promise<SpellChecker> {
   if (cached) return cached;
   if (loadingPromise) return loadingPromise;
   loadingPromise = (async () => {
-    const [aff, dic] = await Promise.all([fetchBytes(affUrl), fetchBytes(dicUrl)]);
+    const [aff, dic] = await Promise.all([fetchBytes(AFF_URL), fetchBytes(DIC_URL)]);
     const instance = nspell({ aff, dic });
     // Seed the user's personal dictionary.
     for (const w of getCustomWords()) {
