@@ -187,7 +187,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
                     ? 'Carregando dicionário PT-BR… o corretor ficará ativo em instantes.'
                     : spellStatus === 'error'
                       ? 'Falha ao carregar o dicionário. Clique para tentar novamente.'
-                      : 'Corretor ortográfico (PT-BR) ativo — clique para desativar. Clique com o botão direito numa palavra sublinhada para ver sugestões.')
+                      : 'Corretor ortográfico (PT-BR) ativo — clique para desativar. Clique com o botão direito (ou Ctrl+Shift+;) numa palavra sublinhada para ver sugestões.')
                 : 'Corretor desativado — clique para ativar'
             }
             aria-pressed={spellcheckOn}

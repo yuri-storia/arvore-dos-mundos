@@ -20,7 +20,7 @@ import {
   Minus, Plus, GripVertical,
 } from 'lucide-react';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
-import { SpellcheckPtBr } from './spellcheck/SpellcheckExtension';
+import { SpellcheckPtBr, spellcheckPluginKey } from './spellcheck/SpellcheckExtension';
 import { loadSpellChecker, getSpellChecker } from './spellcheck/loadDictionary';
 import { SpellSuggestionsMenu, type SpellSuggestionTarget } from './spellcheck/SpellSuggestionsMenu';
 import './editor.css';
@@ -569,6 +569,56 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
     };
     dom.addEventListener('contextmenu', onContext);
     return () => dom.removeEventListener('contextmenu', onContext);
+  }, [editor]);
+
+  // Keyboard shortcut: Ctrl+Shift+;  (or Cmd+Shift+; on macOS) opens the
+  // spell suggestion menu for the misspelled word under (or nearest to) the
+  // cursor — keyboard-only flow, no mouse required.
+  useEffect(() => {
+    if (!editor) return;
+    const dom = editor.view.dom as HTMLElement;
+    const onKey = (e: KeyboardEvent) => {
+      const mod = e.ctrlKey || e.metaKey;
+      // `;` is reported as ';' (or 'Semicolon' on `code`). Some layouts emit
+      // ':' when Shift is held — accept both.
+      const isSemicolon = e.key === ';' || e.key === ':' || e.code === 'Semicolon';
+      if (!mod || !e.shiftKey || !isSemicolon) return;
+
+      const pluginState: any = spellcheckPluginKey.getState(editor.state);
+      const decoSet = pluginState?.decorations;
+      if (!decoSet) return;
+      const sel = editor.state.selection;
+      const caret = sel.from;
+      // Look for a decoration that contains the caret; if none, take the
+      // closest one within ±1 char (covers caret sitting at the word edge).
+      let found = decoSet.find(caret, caret);
+      if (!found || found.length === 0) {
+        found = decoSet.find(Math.max(0, caret - 1), caret + 1);
+      }
+      if (!found || found.length === 0) return;
+      const deco = found[0];
+      const word = (deco as any).type?.attrs?.['data-word']
+        || editor.state.doc.textBetween(deco.from, deco.to, ' ', ' ');
+      if (!word) return;
+      e.preventDefault();
+      // Anchor the menu to the word's screen rect (caret coords are unreliable
+      // when nothing is selected).
+      try {
+        const start = editor.view.coordsAtPos(deco.from);
+        const end = editor.view.coordsAtPos(deco.to);
+        setSpellTarget({
+          word,
+          from: deco.from,
+          to: deco.to,
+          x: (start.left + end.right) / 2,
+          y: end.bottom + 4,
+        });
+      } catch {
+        setSpellTarget({ word, from: deco.from, to: deco.to, x: 0, y: 0 });
+      }
+    };
+    dom.addEventListener('keydown', onKey);
+    return () => dom.removeEventListener('keydown', onKey);
   }, [editor]);
 
   useImperativeHandle(ref, () => ({
