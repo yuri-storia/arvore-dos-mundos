@@ -8,9 +8,10 @@
  */
 // @ts-ignore - nspell ships no TypeScript types
 import nspell from 'nspell';
-// Vite: import the binary asset URLs (will be served as static files).
-import affUrl from 'dictionary-pt/index.aff?url';
-import dicUrl from 'dictionary-pt/index.dic?url';
+// Dictionary files live in `public/dictionaries/pt/` so the browser can fetch
+// them as plain static assets (no bundler import map gymnastics required).
+const AFF_URL = '/dictionaries/pt/index.aff';
+const DIC_URL = '/dictionaries/pt/index.dic';
 import { getCustomWords } from './customDictionary';
 
 export interface SpellChecker {
