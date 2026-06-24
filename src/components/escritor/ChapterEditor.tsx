@@ -3,8 +3,9 @@ import type { Chapter } from '@/hooks/useManuscript';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import {
   Edit3, Eye, Maximize, Minimize, PanelRightOpen, PanelRightClose, ChevronRight,
-  SpellCheck2,
+  SpellCheck2, HelpCircle, Keyboard, X,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { buildEntriesByName, renderInlineMentions } from './MentionChip';
 import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor';
 
