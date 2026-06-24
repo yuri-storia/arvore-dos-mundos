@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState, useImperativeHandle, useCa
 import { useEditor, EditorContent, ReactRenderer, type Editor } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
-import { Underline } from '@tiptap/extension-underline';
 import { TextAlign } from '@tiptap/extension-text-align';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
@@ -10,7 +9,6 @@ import { Highlight } from '@tiptap/extension-highlight';
 import { Placeholder } from '@tiptap/extension-placeholder';
 import { CharacterCount } from '@tiptap/extension-character-count';
 import { Mention } from '@tiptap/extension-mention';
-import { Link } from '@tiptap/extension-link';
 import { Image } from '@tiptap/extension-image';
 import tippy, { type Instance } from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
@@ -390,21 +388,22 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
-      Underline,
+      StarterKit.configure({
+        heading: { levels: [1, 2, 3] },
+        link: {
+          openOnClick: false,
+          autolink: true,
+          linkOnPaste: true,
+          protocols: ['http', 'https', 'mailto'],
+          HTMLAttributes: { class: 'rich-link', rel: 'noopener noreferrer nofollow', target: '_blank' },
+        },
+      }),
       TextStyle,
       Color,
       Highlight.configure({ multicolor: true }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Placeholder.configure({ placeholder: placeholder || 'Comece a escrever…' }),
       CharacterCount,
-      Link.configure({
-        openOnClick: false,
-        autolink: true,
-        linkOnPaste: true,
-        protocols: ['http', 'https', 'mailto'],
-        HTMLAttributes: { class: 'rich-link', rel: 'noopener noreferrer nofollow', target: '_blank' },
-      }),
       ResizableImage.configure({
         inline: false,
         allowBase64: true,
