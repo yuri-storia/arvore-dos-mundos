@@ -1,82 +1,90 @@
 /**
  * Tiptap / ProseMirror extension that decorates misspelled PT-BR words.
  *
- * Design notes:
- *  - We never modify the document. We only render Decorations (inline spans
- *    with the `.spell-error` class). This keeps the model clean and the
- *    decorations vanish the moment the extension is disabled.
- *  - The dictionary is loaded lazily by the consumer (RichTextEditor calls
- *    `loadSpellChecker()` when the user toggles the feature on). Until the
- *    checker is ready, this plugin renders nothing — the editor still works.
- *  - Recomputation is debounced (250ms) so heavy chapters don't lag while
- *    the user is typing.
+ * Architecture:
+ *  - Pure decorations (no doc mutation). They disappear the instant the user
+ *    disables the feature.
+ *  - The actual Hunspell check happens inside a Web Worker (see
+ *    `loadDictionary.ts` → `spellWorker.ts`). The extension keeps an in-memory
+ *    word→verdict cache so steady-state typing stays cheap.
+ *  - Recomputation is debounced (250ms) so heavy chapters don't lag.
+ *  - We skip code marks, code blocks, links, mentions and URL-shaped tokens.
  */
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import type { EditorState, Transaction } from '@tiptap/pm/state';
 import type { Node as PMNode } from '@tiptap/pm/model';
-import { getSpellChecker } from './loadDictionary';
+import { getSpellChecker, goodCache, badCache } from './loadDictionary';
 import { isIgnoredForSession } from './customDictionary';
 
 export const spellcheckPluginKey = new PluginKey('spellcheckPtBr');
 
 // Letters (incl. accents) + apostrophe + hyphen.
 const WORD_REGEX = /[\p{L}][\p{L}\p{M}'\u2019-]*/gu;
+const URL_LIKE = /(^https?:\/\/)|(^www\.)|([\w-]+\.[\w-]+\/)/i;
 
 interface PluginState {
   enabled: boolean;
   decorations: DecorationSet;
-  /** Marker used to detect when we should recompute (doc change, enable, version bump). */
   version: number;
 }
 
 function shouldSkipWord(word: string): boolean {
   if (word.length < 2) return true;
-  // Skip numbers and tokens that contain digits.
   if (/\d/.test(word)) return true;
-  // Skip ALL CAPS abbreviations (USA, RPG, etc).
   if (word === word.toUpperCase() && word.length <= 6) return true;
+  if (URL_LIKE.test(word)) return true;
   if (isIgnoredForSession(word.toLowerCase())) return true;
   return false;
 }
 
-function computeDecorations(doc: PMNode): DecorationSet {
-  const checker = getSpellChecker();
-  if (!checker) return DecorationSet.empty;
+interface Candidate { word: string; from: number; to: number; }
 
-  const decos: Decoration[] = [];
-  doc.descendants((node, pos) => {
+function collectCandidates(doc: PMNode): Candidate[] {
+  const out: Candidate[] = [];
+  doc.descendants((node, pos, parent) => {
     if (!node.isText || !node.text) return;
-    // Don't check inside mentions, code, or links — the parent node is not text,
-    // so descendants() already skips them.
+    // Skip text inside code blocks.
+    if (parent && parent.type.name === 'codeBlock') return;
+    // Skip text that carries the `code` or `link` mark.
+    if (node.marks.some(m => m.type.name === 'code' || m.type.name === 'link')) return;
     const text = node.text;
     let match: RegExpExecArray | null;
     WORD_REGEX.lastIndex = 0;
     while ((match = WORD_REGEX.exec(text)) !== null) {
       const word = match[0];
       if (shouldSkipWord(word)) continue;
-      if (checker.correct(word)) continue;
-      // Accept capitalised forms whose lowercase variant is in the dictionary
-      // (e.g. sentence-initial "Casa"). This prevents flagging valid words that
-      // happen to start a sentence, while still catching real typos like "Cassa".
-      const lower = word.toLowerCase();
-      if (lower !== word && checker.correct(lower)) continue;
-      const from = pos + match.index;
-      const to = from + word.length;
-      decos.push(
-        Decoration.inline(from, to, {
-          class: 'spell-error',
-          'data-word': word,
-        }),
-      );
+      out.push({ word, from: pos + match.index, to: pos + match.index + word.length });
     }
   });
-  return DecorationSet.create(doc, decos);
+  return out;
+}
+
+/**
+ * Build the DecorationSet using only the in-memory caches.
+ * Words that are still unknown to the cache are returned as `unknownWords` so
+ * the async layer can ask the worker about them and then re-render.
+ */
+function buildFromCache(candidates: Candidate[]): { decorations: Decoration[]; unknownWords: string[] } {
+  const decorations: Decoration[] = [];
+  const unknown = new Set<string>();
+  for (const c of candidates) {
+    if (goodCache.has(c.word)) continue;
+    const lower = c.word.toLowerCase();
+    if (lower !== c.word && goodCache.has(lower)) continue;
+
+    if (badCache.has(c.word) && !(lower !== c.word && goodCache.has(lower))) {
+      decorations.push(Decoration.inline(c.from, c.to, { class: 'spell-error', 'data-word': c.word }));
+      continue;
+    }
+    unknown.add(c.word);
+    if (lower !== c.word) unknown.add(lower);
+  }
+  return { decorations, unknownWords: [...unknown] };
 }
 
 export interface SpellcheckOptions {
-  /** Whether the plugin is initially enabled. */
   enabled: boolean;
 }
 
@@ -125,17 +133,53 @@ export const SpellcheckPtBr = Extension.create<SpellcheckOptions>({
   addProseMirrorPlugins() {
     const extension = this;
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    let pendingCheck: number = 0;
+
+    const recompute = (view: any) => {
+      const pluginState = spellcheckPluginKey.getState(view.state);
+      if (!pluginState?.enabled) return;
+      const candidates = collectCandidates(view.state.doc);
+      const { decorations, unknownWords } = buildFromCache(candidates);
+
+      const apply = (decos: Decoration[]) => {
+        if (view.isDestroyed) return;
+        const set = DecorationSet.create(view.state.doc, decos);
+        view.dispatch(view.state.tr.setMeta(spellcheckPluginKey, {
+          type: 'apply-decorations',
+          decorations: set,
+        }));
+      };
+      apply(decorations);
+
+      if (unknownWords.length === 0) return;
+      const checker = getSpellChecker();
+      if (!checker) return;
+      const myToken = ++pendingCheck;
+      checker.checkBatch(unknownWords).then((bad) => {
+        if (myToken !== pendingCheck) return; // stale
+        const badSet = new Set(bad);
+        for (const w of unknownWords) {
+          if (badSet.has(w)) badCache.add(w);
+          else goodCache.add(w);
+        }
+        // Re-collect from the now-current doc and rebuild decorations.
+        if (view.isDestroyed) return;
+        const fresh = collectCandidates(view.state.doc);
+        const { decorations: full } = buildFromCache(fresh);
+        apply(full);
+      }).catch(() => { /* ignore */ });
+    };
 
     return [
       new Plugin<PluginState>({
         key: spellcheckPluginKey,
         state: {
-          init: (_cfg, _state): PluginState => ({
+          init: (): PluginState => ({
             enabled: extension.options.enabled,
             decorations: DecorationSet.empty,
             version: 0,
           }),
-          apply(tr: Transaction, prev: PluginState, _old: EditorState, newState: EditorState): PluginState {
+          apply(tr: Transaction, prev: PluginState, _old: EditorState, _newState: EditorState): PluginState {
             const meta = tr.getMeta(spellcheckPluginKey);
             let enabled = prev.enabled;
             let version = prev.version;
@@ -143,19 +187,12 @@ export const SpellcheckPtBr = Extension.create<SpellcheckOptions>({
 
             if (meta?.type === 'set-enabled') {
               enabled = !!meta.enabled;
-              if (!enabled) {
-                return { enabled: false, decorations: DecorationSet.empty, version };
-              }
-              // When toggling on, compute synchronously if the checker is ready.
-              decorations = computeDecorations(newState.doc);
-              version += 1;
-              return { enabled, decorations, version };
+              if (!enabled) return { enabled: false, decorations: DecorationSet.empty, version };
+              return { enabled, decorations, version: version + 1 };
             }
             if (meta?.type === 'refresh') {
               if (!enabled) return prev;
-              decorations = computeDecorations(newState.doc);
-              version += 1;
-              return { enabled, decorations, version };
+              return { enabled, decorations, version: version + 1 };
             }
             if (meta?.type === 'apply-decorations') {
               if (!enabled) return prev;
@@ -176,27 +213,18 @@ export const SpellcheckPtBr = Extension.create<SpellcheckOptions>({
           },
         },
         view(editorView) {
-          const scheduleRecompute = () => {
+          const schedule = () => {
             if (debounceTimer) clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-              const pluginState = spellcheckPluginKey.getState(editorView.state);
-              if (!pluginState?.enabled) return;
-              const decorations = computeDecorations(editorView.state.doc);
-              editorView.dispatch(
-                editorView.state.tr.setMeta(spellcheckPluginKey, {
-                  type: 'apply-decorations',
-                  decorations,
-                }),
-              );
-            }, 250);
+            debounceTimer = setTimeout(() => recompute(editorView), 250);
           };
           return {
             update(view, prevState) {
               const pluginState = spellcheckPluginKey.getState(view.state);
               if (!pluginState?.enabled) return;
-              if (!view.state.doc.eq(prevState.doc)) {
-                scheduleRecompute();
-              }
+              const prevPlugin = spellcheckPluginKey.getState(prevState);
+              const docChanged = !view.state.doc.eq(prevState.doc);
+              const versionBumped = prevPlugin && pluginState.version !== prevPlugin.version;
+              if (docChanged || versionBumped) schedule();
             },
             destroy() {
               if (debounceTimer) clearTimeout(debounceTimer);

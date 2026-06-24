@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Editor } from '@tiptap/react';
 import { Check, Plus, EyeOff } from 'lucide-react';
@@ -23,7 +23,20 @@ interface Props {
 export const SpellSuggestionsMenu: React.FC<Props> = ({ editor, target, onClose }) => {
   const ref = useRef<HTMLDivElement>(null);
   const checker = getSpellChecker();
-  const suggestions = checker ? checker.suggest(target.word).slice(0, 5) : [];
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [loading, setLoading] = useState<boolean>(!!checker);
+
+  useEffect(() => {
+    let alive = true;
+    if (!checker) { setLoading(false); return; }
+    setLoading(true);
+    checker.suggest(target.word).then((r) => {
+      if (!alive) return;
+      setSuggestions(r.slice(0, 5));
+      setLoading(false);
+    }).catch(() => { if (alive) setLoading(false); });
+    return () => { alive = false; };
+  }, [checker, target.word]);
 
   // Close on outside click / Escape.
   useEffect(() => {
