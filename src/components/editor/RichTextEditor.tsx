@@ -418,7 +418,7 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
   if (!editor) return null;
 
   return (
-    <div className={`rich-editor ${isMobile && focused ? 'has-mobile-floating' : ''}`} id={editorId} ref={containerRef}>
+    <div className={`rich-editor ${isMobile && focused ? 'has-mobile-floating' : ''}`} id={editorId} ref={containerRef} lang={lang}>
       {!compact && <Toolbar editor={editor} />}
       <BubbleMenu editor={editor} className="rich-bubble">
         <ToolBtn title="Negrito" active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()}><Bold className="w-3.5 h-3.5" /></ToolBtn>
