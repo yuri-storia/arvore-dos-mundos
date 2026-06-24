@@ -34,18 +34,34 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
   const [title, setTitle] = useState(chapter.title);
   const [previewMode, setPreviewMode] = useState(false);
   const [spellcheckOn, setSpellcheckOn] = useState(true);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setContent(chapter.content || '');
     setTitle(chapter.title);
+    setSaveStatus('idle');
   }, [chapter.id]); // eslint-disable-line
 
-  useEffect(() => () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current); }, []);
+  useEffect(() => () => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+  }, []);
 
   const debouncedSave = useCallback((value: string) => {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => onContentSave(value), 1500);
+    saveTimerRef.current = setTimeout(async () => {
+      setSaveStatus('saving');
+      try {
+        await Promise.resolve(onContentSave(value));
+        setSaveStatus('saved');
+        if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+        savedTimerRef.current = setTimeout(() => setSaveStatus('idle'), 1800);
+      } catch {
+        setSaveStatus('error');
+      }
+    }, 1500);
   }, [onContentSave]);
 
   const handleContentChange = useCallback((value: string) => {
@@ -154,6 +170,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
             spellCheck={spellcheckOn}
             lang="pt-BR"
             minHeight="100%"
+            saveStatus={saveStatus}
           />
         )}
       </div>
