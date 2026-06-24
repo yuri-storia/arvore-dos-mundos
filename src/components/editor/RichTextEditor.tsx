@@ -19,6 +19,7 @@ import {
   List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Indent, Outdent,
   Palette, Highlighter, AtSign, Undo, Redo, Pilcrow, Eraser,
   Check, Loader2, CircleAlert, HelpCircle, Maximize2, Minimize2, X,
+  Minus, Plus, GripVertical,
 } from 'lucide-react';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import './editor.css';
