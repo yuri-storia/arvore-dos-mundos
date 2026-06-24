@@ -303,7 +303,27 @@ textarea, .mention-textarea, [contenteditable="true"] {
   border-radius: 6px;
   border: 1px solid hsl(var(--blue-bright) / 0.2);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: outline 0.15s ease;
 }
+.ProseMirror img.rich-image.ProseMirror-selectednode {
+  outline: 2px solid hsl(var(--blue-bright));
+  outline-offset: 2px;
+}
+.ProseMirror img.rich-image[data-align="left"],
+.rich-content img.rich-image[data-align="left"] { margin-left: 0; margin-right: auto; }
+.ProseMirror img.rich-image[data-align="right"],
+.rich-content img.rich-image[data-align="right"] { margin-left: auto; margin-right: 0; }
+.ProseMirror img.rich-image[data-align="center"],
+.rich-content img.rich-image[data-align="center"] { margin-left: auto; margin-right: auto; }
+
+/* Bubble menu separator */
+.rich-bubble-sep {
+  width: 1px;
+  height: 18px;
+  background: hsl(var(--blue-bright) / 0.25);
+  margin: 0 2px;
+}
+.rich-image-bubble { padding: 4px 6px; }
 
 /* Save indicator (bottom-right floating chip) */
 .rich-save-indicator {

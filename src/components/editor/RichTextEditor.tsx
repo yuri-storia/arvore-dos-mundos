@@ -18,10 +18,29 @@ import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough, Heading1, Heading2, Heading3,
   List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Indent, Outdent,
   Palette, Highlighter, AtSign, Undo, Redo, Pilcrow, Eraser,
-  Check, Loader2, CircleAlert,
+  Check, Loader2, CircleAlert, HelpCircle, Maximize2, Minimize2, X,
 } from 'lucide-react';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import './editor.css';
+
+/* ----- Image extension with width + align attrs (resize / align controls) ----- */
+const ResizableImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: null,
+        parseHTML: (el) => (el as HTMLElement).style.width || (el as HTMLElement).getAttribute('width') || null,
+        renderHTML: (attrs) => (attrs.width ? { style: `width: ${attrs.width}` } : {}),
+      },
+      align: {
+        default: 'center',
+        parseHTML: (el) => (el as HTMLElement).getAttribute('data-align') || 'center',
+        renderHTML: (attrs) => ({ 'data-align': attrs.align || 'center' }),
+      },
+    };
+  },
+});
 
 export interface RichTextEditorRef {
   focus: () => void;
@@ -246,9 +265,30 @@ const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobil
         <ToolBtn title="Diminuir recuo (Shift+Tab)" onClick={() => can.chain().focus().liftListItem('listItem').run()}><Outdent className="w-4 h-4" /></ToolBtn>
       </div>
       <div className="rich-group">
-        <ToolBtn title="Mencionar Codex (@ ou Ctrl+L)" onClick={() => can.chain().focus().insertContent('@').run()}><AtSign className="w-4 h-4" /></ToolBtn>
+        <ToolBtn title="Mencionar Codex (@) — Ctrl+L foca o editor com segurança e abre o seletor" onClick={() => can.chain().focus().insertContent('@').run()}><AtSign className="w-4 h-4" /></ToolBtn>
       </div>
     </div>
+  );
+};
+
+/* ---------------------------- Image controls ---------------------------- */
+const ImageControls: React.FC<{ editor: Editor }> = ({ editor }) => {
+  const setSize = (w: string | null) => editor.chain().focus().updateAttributes('image', { width: w }).run();
+  const setAlign = (a: 'left' | 'center' | 'right') => editor.chain().focus().updateAttributes('image', { align: a }).run();
+  const remove = () => editor.chain().focus().deleteSelection().run();
+  return (
+    <>
+      <ToolBtn title="Pequena (25%)" onClick={() => setSize('25%')}><Minimize2 className="w-3.5 h-3.5" /></ToolBtn>
+      <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => setSize('50%')} title="Média (50%)" className="rich-toolbtn" style={{ fontSize: 10, width: 30 }}>50%</button>
+      <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => setSize('75%')} title="Grande (75%)" className="rich-toolbtn" style={{ fontSize: 10, width: 30 }}>75%</button>
+      <ToolBtn title="Tamanho original (100%)" onClick={() => setSize(null)}><Maximize2 className="w-3.5 h-3.5" /></ToolBtn>
+      <span className="rich-bubble-sep" />
+      <ToolBtn title="Alinhar à esquerda" onClick={() => setAlign('left')}><AlignLeft className="w-3.5 h-3.5" /></ToolBtn>
+      <ToolBtn title="Centralizar" onClick={() => setAlign('center')}><AlignCenter className="w-3.5 h-3.5" /></ToolBtn>
+      <ToolBtn title="Alinhar à direita" onClick={() => setAlign('right')}><AlignRight className="w-3.5 h-3.5" /></ToolBtn>
+      <span className="rich-bubble-sep" />
+      <ToolBtn title="Remover imagem" onClick={remove}><X className="w-3.5 h-3.5" /></ToolBtn>
+    </>
   );
 };
 
@@ -294,11 +334,13 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
         protocols: ['http', 'https', 'mailto'],
         HTMLAttributes: { class: 'rich-link', rel: 'noopener noreferrer nofollow', target: '_blank' },
       }),
-      Image.configure({
+      ResizableImage.configure({
         inline: false,
         allowBase64: true,
         HTMLAttributes: { class: 'rich-image' },
       }),
+
+
       Mention.configure({
         HTMLAttributes: { class: 'rich-mention' },
         renderText: ({ node }) => `@${node.attrs.label ?? node.attrs.id}`,
@@ -420,12 +462,25 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
   return (
     <div className={`rich-editor ${isMobile && focused ? 'has-mobile-floating' : ''}`} id={editorId} ref={containerRef} lang={lang}>
       {!compact && <Toolbar editor={editor} />}
-      <BubbleMenu editor={editor} className="rich-bubble">
+      <BubbleMenu
+        editor={editor}
+        pluginKey="rich-text-bubble"
+        className="rich-bubble"
+        shouldShow={({ editor, from, to }) => from !== to && !editor.isActive('image')}
+      >
         <ToolBtn title="Negrito" active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()}><Bold className="w-3.5 h-3.5" /></ToolBtn>
         <ToolBtn title="Itálico" active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()}><Italic className="w-3.5 h-3.5" /></ToolBtn>
         <ToolBtn title="Sublinhado" active={editor.isActive('underline')} onClick={() => editor.chain().focus().toggleUnderline().run()}><UnderlineIcon className="w-3.5 h-3.5" /></ToolBtn>
         <ToolBtn title="Realce" active={editor.isActive('highlight')} onClick={() => editor.chain().focus().toggleHighlight({ color: '#3A2E12' }).run()}><Highlighter className="w-3.5 h-3.5" /></ToolBtn>
         <ToolBtn title="Mencionar" onClick={() => editor.chain().focus().insertContent('@').run()}><AtSign className="w-3.5 h-3.5" /></ToolBtn>
+      </BubbleMenu>
+      <BubbleMenu
+        editor={editor}
+        pluginKey="rich-image-bubble"
+        className="rich-bubble rich-image-bubble"
+        shouldShow={({ editor }) => editor.isActive('image')}
+      >
+        <ImageControls editor={editor} />
       </BubbleMenu>
       <EditorContent editor={editor} />
       {saveStatus && saveStatus !== 'idle' && <SaveIndicator status={saveStatus} />}
