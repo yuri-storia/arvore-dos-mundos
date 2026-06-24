@@ -3,7 +3,7 @@ import type { Chapter } from '@/hooks/useManuscript';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import {
   Edit3, Eye, Maximize, Minimize, PanelRightOpen, PanelRightClose, ChevronRight,
-  SpellCheck2, HelpCircle, Keyboard, X,
+  SpellCheck2, Keyboard,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { buildEntriesByName, renderInlineMentions } from './MentionChip';
@@ -34,8 +34,9 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
   const [content, setContent] = useState(chapter.content || '');
   const [title, setTitle] = useState(chapter.title);
   const [previewMode, setPreviewMode] = useState(false);
-  const [spellcheckOn, setSpellcheckOn] = useState(true);
-  const [showSpellHelp, setShowSpellHelp] = useState(false);
+  const [spellcheckOn, setSpellcheckOn] = useState<boolean>(() => {
+    try { return localStorage.getItem('adm-spell-enabled') !== '0'; } catch { return true; }
+  });
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -124,8 +125,21 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
 
         <div className="relative flex items-center gap-0.5">
           <button
-            onClick={() => setSpellcheckOn(v => !v)}
-            title={spellcheckOn ? 'Corretor ortográfico (PT-BR) ativo — clique para desativar' : 'Corretor desativado — clique para ativar'}
+            onClick={() => {
+              setSpellcheckOn(v => {
+                const next = !v;
+                try { localStorage.setItem('adm-spell-enabled', next ? '1' : '0'); } catch { /* ignore */ }
+                toast.info(next
+                  ? 'Corretor ortográfico ativado.'
+                  : 'Corretor ortográfico desativado.');
+                return next;
+              });
+            }}
+            title={spellcheckOn
+              ? 'Corretor ortográfico (PT-BR) ativo — clique para desativar. Clique com o botão direito numa palavra sublinhada para ver sugestões.'
+              : 'Corretor desativado — clique para ativar'}
+            aria-pressed={spellcheckOn}
+            aria-label="Alternar corretor ortográfico"
             className={`p-1.5 rounded transition-all border ${
               spellcheckOn
                 ? 'border-emerald-400/40 text-emerald-300 bg-gradient-to-b from-emerald-400/20 via-emerald-500/10 to-emerald-700/20 shadow-[0_0_12px_-2px_rgba(52,211,153,0.55),inset_0_1px_0_rgba(255,255,255,0.08)]'
@@ -134,15 +148,6 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
           >
             <SpellCheck2 className="w-4 h-4" />
           </button>
-          <button
-            onClick={() => setShowSpellHelp(v => !v)}
-            title="Como ativar o corretor PT-BR no seu navegador / tablet / celular"
-            className="p-1 rounded text-text-dim hover:text-foreground hover:bg-white/[0.05] transition-colors"
-            aria-label="Ajuda do corretor ortográfico"
-          >
-            <HelpCircle className="w-3.5 h-3.5" />
-          </button>
-          {showSpellHelp && <SpellcheckHelpPopover onClose={() => setShowSpellHelp(false)} />}
         </div>
 
         <button
@@ -213,63 +218,3 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
 });
 ChapterEditor.displayName = 'ChapterEditor';
 
-/* ---------------------- Spellcheck help popover ---------------------- */
-const SpellcheckHelpPopover: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const onDown = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
-    };
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [onClose]);
-  return (
-    <div
-      ref={ref}
-      className="absolute top-full right-0 mt-2 z-50 w-[320px] p-4 rounded-lg border border-blue-bright/30 bg-[rgba(4,10,22,0.98)] shadow-[0_8px_28px_rgba(0,0,0,0.6)] backdrop-blur-md text-xs"
-      role="dialog"
-      aria-label="Como ativar o corretor PT-BR"
-    >
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <h4 className="font-cinzel text-gold-light text-sm">Corretor ortográfico (PT-BR)</h4>
-        <button onClick={onClose} aria-label="Fechar" className="text-text-dim hover:text-foreground">
-          <X className="w-3.5 h-3.5" />
-        </button>
-      </div>
-      <p className="text-text-dim mb-3 leading-relaxed">
-        A Árvore dos Mundos já marca o editor como <code className="text-blue-light">lang="pt-BR"</code>.
-        Se as palavras erradas não aparecerem sublinhadas, ative o dicionário no seu dispositivo:
-      </p>
-      <ul className="space-y-2 text-text-dim">
-        <li>
-          <strong className="text-foreground">Chrome / Edge (desktop):</strong> <em>Configurações → Idiomas → Verificação ortográfica</em>,
-          ative e adicione <strong>Português (Brasil)</strong>.
-        </li>
-        <li>
-          <strong className="text-foreground">Firefox:</strong> clique com o botão direito no editor →
-          <em> Idiomas → Português (Brasil)</em> e marque <em>Verificar ortografia</em>.
-        </li>
-        <li>
-          <strong className="text-foreground">Safari (macOS):</strong> <em>Editar → Ortografia e gramática → Verificar ortografia ao digitar</em>.
-        </li>
-        <li>
-          <strong className="text-foreground">iPad / iPhone:</strong> <em>Ajustes → Geral → Teclado</em> e ative
-          <em> Verificar ortografia</em> e <em>Autocorreção</em>. Adicione o teclado <strong>Português (Brasil)</strong>.
-        </li>
-        <li>
-          <strong className="text-foreground">Android / tablet:</strong> <em>Configurações → Sistema → Idiomas e entrada → Corretor ortográfico</em>.
-          Em alguns Gboard: <em>Preferências → Corretor ortográfico</em>.
-        </li>
-      </ul>
-      <p className="text-[10px] text-text-dim/70 mt-3 italic">
-        Observação: no tablet/celular o navegador depende do dicionário do sistema —
-        sem teclado/idioma PT-BR instalado, as marcações não aparecem.
-      </p>
-    </div>
-  );
-};
