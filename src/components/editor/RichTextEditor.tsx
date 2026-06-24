@@ -410,6 +410,7 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
         allowBase64: true,
         HTMLAttributes: { class: 'rich-image' },
       }),
+      SpellcheckPtBr.configure({ enabled: false }),
 
 
       Mention.configure({
