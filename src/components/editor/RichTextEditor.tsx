@@ -524,6 +524,54 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
     } catch { /* ignore */ }
   }, [value, editor]);
 
+  /* ---------------- Spellcheck (PT-BR) lifecycle ---------------- */
+  const [spellTarget, setSpellTarget] = useState<SpellSuggestionTarget | null>(null);
+
+  // Toggle our extension whenever `spellCheck` prop changes, lazy-loading the
+  // dictionary the first time it goes on.
+  useEffect(() => {
+    if (!editor) return;
+    let cancelled = false;
+    if (spellCheck) {
+      if (getSpellChecker()) {
+        editor.commands.setSpellcheckEnabled(true);
+        editor.commands.refreshSpellcheck();
+      } else {
+        loadSpellChecker()
+          .then(() => {
+            if (cancelled || editor.isDestroyed) return;
+            editor.commands.setSpellcheckEnabled(true);
+            editor.commands.refreshSpellcheck();
+          })
+          .catch(() => { /* silent — feature degrades gracefully */ });
+      }
+    } else {
+      editor.commands.setSpellcheckEnabled(false);
+    }
+    return () => { cancelled = true; };
+  }, [editor, spellCheck]);
+
+  // Right-click on a misspelled word → open our suggestion menu (overrides
+  // the browser's native menu so the experience is uniform on every OS).
+  useEffect(() => {
+    if (!editor) return;
+    const dom = editor.view.dom as HTMLElement;
+    const onContext = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      const el = target?.closest('.spell-error') as HTMLElement | null;
+      if (!el) return;
+      const word = el.getAttribute('data-word') || el.textContent || '';
+      if (!word) return;
+      // Map DOM node → ProseMirror range.
+      const pos = editor.view.posAtDOM(el, 0);
+      if (pos < 0) return;
+      e.preventDefault();
+      setSpellTarget({ word, from: pos, to: pos + word.length, x: e.clientX, y: e.clientY });
+    };
+    dom.addEventListener('contextmenu', onContext);
+    return () => dom.removeEventListener('contextmenu', onContext);
+  }, [editor]);
+
   useImperativeHandle(ref, () => ({
     focus: () => editorRef.current?.commands.focus(),
     getHTML: () => editorRef.current?.getHTML() || '',
