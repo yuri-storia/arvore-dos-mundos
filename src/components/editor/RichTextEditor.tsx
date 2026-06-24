@@ -196,7 +196,17 @@ const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobil
   const hlWrapRef = useRef<HTMLDivElement>(null);
   const can = editor;
 
-  // Close popovers on outside click / Escape
+  // Force re-render on editor transactions so active/disabled states stay in sync.
+  const [, force] = useState(0);
+  useEffect(() => {
+    const handler = () => force(n => n + 1);
+    editor.on('transaction', handler);
+    editor.on('selectionUpdate', handler);
+    return () => {
+      editor.off('transaction', handler);
+      editor.off('selectionUpdate', handler);
+    };
+  }, [editor]);
   useEffect(() => {
     if (!colorOpen && !hlOpen) return;
     const onDown = (e: MouseEvent) => {
