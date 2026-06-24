@@ -441,12 +441,25 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
   return (
     <div className={`rich-editor ${isMobile && focused ? 'has-mobile-floating' : ''}`} id={editorId} ref={containerRef} lang={lang}>
       {!compact && <Toolbar editor={editor} />}
-      <BubbleMenu editor={editor} className="rich-bubble">
+      <BubbleMenu
+        editor={editor}
+        pluginKey="rich-text-bubble"
+        className="rich-bubble"
+        shouldShow={({ editor, from, to }) => from !== to && !editor.isActive('image')}
+      >
         <ToolBtn title="Negrito" active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()}><Bold className="w-3.5 h-3.5" /></ToolBtn>
         <ToolBtn title="Itálico" active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()}><Italic className="w-3.5 h-3.5" /></ToolBtn>
         <ToolBtn title="Sublinhado" active={editor.isActive('underline')} onClick={() => editor.chain().focus().toggleUnderline().run()}><UnderlineIcon className="w-3.5 h-3.5" /></ToolBtn>
         <ToolBtn title="Realce" active={editor.isActive('highlight')} onClick={() => editor.chain().focus().toggleHighlight({ color: '#3A2E12' }).run()}><Highlighter className="w-3.5 h-3.5" /></ToolBtn>
         <ToolBtn title="Mencionar" onClick={() => editor.chain().focus().insertContent('@').run()}><AtSign className="w-3.5 h-3.5" /></ToolBtn>
+      </BubbleMenu>
+      <BubbleMenu
+        editor={editor}
+        pluginKey="rich-image-bubble"
+        className="rich-bubble rich-image-bubble"
+        shouldShow={({ editor }) => editor.isActive('image')}
+      >
+        <ImageControls editor={editor} />
       </BubbleMenu>
       <EditorContent editor={editor} />
       {saveStatus && saveStatus !== 'idle' && <SaveIndicator status={saveStatus} />}
