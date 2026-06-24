@@ -25,6 +25,8 @@ import './editor.css';
 
 /* ----- Image extension with width + align attrs (resize / align controls) ----- */
 const ResizableImage = Image.extend({
+  // Enable native ProseMirror drag handle so users can reorder images by dragging.
+  draggable: true,
   addAttributes() {
     return {
       ...this.parent?.(),
@@ -41,6 +43,15 @@ const ResizableImage = Image.extend({
     };
   },
 });
+
+/** Parse a width string ("60%", "320px", null) into a percent number (10-100). */
+function parseWidthPercent(w: string | null | undefined): number {
+  if (!w) return 100;
+  const m = /([\d.]+)\s*%/.exec(w);
+  if (m) return Math.round(Number(m[1]));
+  return 100;
+}
+function clampPct(n: number) { return Math.max(10, Math.min(100, Math.round(n))); }
 
 export interface RichTextEditorRef {
   focus: () => void;
