@@ -1,30 +1,35 @@
 /**
- * Lazy loader for the Hunspell PT-BR dictionary.
+ * Spellchecker bootstrap. Loads the Hunspell PT-BR dictionary, parses it inside
+ * a Web Worker (so the main thread stays responsive), and exposes a thin async
+ * API to the rest of the app.
  *
- * The first implementation used `nspell`, but the PT dictionary used by the app
- * takes too long to parse with it in the browser and the checker never became
- * usable for real users. `typo-js` supports the same Hunspell files and was
- * verified against the current dictionary with valid/invalid PT-BR words.
+ * Two-layer cache:
+ *   1. IndexedDB caches the raw `.aff`/`.dic` text → avoids re-downloading ~5MB.
+ *   2. In-memory `goodCache`/`badCache` Sets → avoid re-roundtripping every
+ *      keystroke; the extension feeds them as it checks words.
  */
-// @ts-ignore - typo-js ships no TypeScript declarations.
-import Typo from 'typo-js';
-// Dictionary files live in `public/dictionaries/pt/` so the browser can fetch
-// them as plain static assets (no bundler import map gymnastics required).
+import { getCustomWords } from './customDictionary';
+import { getCachedDict, putCachedDict } from './dictCache';
+
 const AFF_URL = '/dictionaries/pt/index.aff';
 const DIC_URL = '/dictionaries/pt/index.dic';
-import { getCustomWords } from './customDictionary';
 
 export interface SpellChecker {
-  correct: (word: string) => boolean;
-  suggest: (word: string) => string[];
-  add: (word: string) => void;
+  /** Returns the subset of `words` the checker considers misspelled. */
+  checkBatch: (words: string[]) => Promise<string[]>;
+  suggest: (word: string) => Promise<string[]>;
+  add: (word: string) => Promise<void>;
 }
 
+export type SpellLoadStatus = 'idle' | 'loading' | 'ready' | 'error';
+
+let worker: Worker | null = null;
+let nextReqId = 1;
+const pending = new Map<number, { resolve: (v: any) => void; reject: (e: any) => void }>();
 let cached: SpellChecker | null = null;
 let loadingPromise: Promise<SpellChecker> | null = null;
 let lastError: Error | null = null;
 
-export type SpellLoadStatus = 'idle' | 'loading' | 'ready' | 'error';
 const listeners = new Set<(s: SpellLoadStatus) => void>();
 let status: SpellLoadStatus = 'idle';
 function setStatus(s: SpellLoadStatus) {
@@ -37,19 +42,38 @@ export function onSpellStatusChange(fn: (s: SpellLoadStatus) => void): () => voi
   return () => { listeners.delete(fn); };
 }
 export function getSpellLoadError(): Error | null { return lastError; }
+export function getSpellChecker(): SpellChecker | null { return cached; }
+
+/** In-memory caches shared with the extension — keep them on this module so
+ *  toggling the feature off/on inside the same session is instant. */
+export const goodCache = new Set<string>();
+export const badCache = new Set<string>();
+
+function request<T>(type: string, payload: any): Promise<T> {
+  if (!worker) return Promise.reject(new Error('worker-not-ready'));
+  const id = nextReqId++;
+  return new Promise<T>((resolve, reject) => {
+    pending.set(id, { resolve, reject });
+    worker!.postMessage({ id, type, payload });
+  });
+}
 
 async function fetchText(url: string): Promise<string> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to load dictionary asset: ${url}`);
-  // The Hunspell PT files declare `SET UTF-8`. Decode as text before handing
-  // them to typo-js — passing a Uint8Array makes it call `.toString()` on it,
-  // which in the browser yields "171,187,..." and destroys the dictionary.
   const buf = await res.arrayBuffer();
   return new TextDecoder('utf-8').decode(buf);
 }
 
-export function getSpellChecker(): SpellChecker | null {
-  return cached;
+async function loadDictFiles(): Promise<{ aff: string; dic: string }> {
+  const cachedDict = await getCachedDict();
+  if (cachedDict && cachedDict.aff && cachedDict.dic) {
+    return { aff: cachedDict.aff, dic: cachedDict.dic };
+  }
+  const [aff, dic] = await Promise.all([fetchText(AFF_URL), fetchText(DIC_URL)]);
+  // Fire-and-forget; failure to cache is fine.
+  void putCachedDict({ aff, dic, savedAt: Date.now() });
+  return { aff, dic };
 }
 
 export async function loadSpellChecker(): Promise<SpellChecker> {
@@ -58,15 +82,39 @@ export async function loadSpellChecker(): Promise<SpellChecker> {
   setStatus('loading');
   loadingPromise = (async () => {
     try {
-      const [aff, dic] = await Promise.all([fetchText(AFF_URL), fetchText(DIC_URL)]);
-      const instance = new Typo('pt_BR', aff, dic, { platform: 'any' });
-      for (const w of getCustomWords()) {
-        try { instance.dictionaryTable.set(w, null); } catch { /* ignore */ }
-      }
+      // Spawn worker (Vite resolves the URL at build time).
+      worker = new Worker(new URL('./spellWorker.ts', import.meta.url), { type: 'module' });
+      worker.onmessage = (e: MessageEvent<any>) => {
+        const { id, ok, result, error } = e.data || {};
+        const slot = pending.get(id);
+        if (!slot) return;
+        pending.delete(id);
+        if (ok) slot.resolve(result);
+        else slot.reject(new Error(error || 'worker-error'));
+      };
+      worker.onerror = (e) => {
+        lastError = new Error(e.message || 'worker-error');
+        setStatus('error');
+      };
+
+      const { aff, dic } = await loadDictFiles();
+      await request<void>('init', { aff, dic, custom: getCustomWords() });
+
       const checker: SpellChecker = {
-        correct: (w: string) => { try { return instance.check(w); } catch { return true; } },
-        suggest: (w: string) => { try { return instance.suggest(w, 5) as string[]; } catch { return []; } },
-        add: (w: string) => { try { instance.dictionaryTable.set(w, null); } catch { /* ignore */ } },
+        checkBatch: async (words: string[]) => {
+          if (words.length === 0) return [];
+          try { return await request<string[]>('check', { words }); }
+          catch { return []; }
+        },
+        suggest: async (word: string) => {
+          try { return await request<string[]>('suggest', { word }); }
+          catch { return []; }
+        },
+        add: async (word: string) => {
+          goodCache.add(word);
+          badCache.delete(word);
+          try { await request<void>('add', { word }); } catch { /* ignore */ }
+        },
       };
       cached = checker;
       loadingPromise = null;
