@@ -439,6 +439,21 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
 });
 RichTextEditor.displayName = 'RichTextEditor';
 
+/* ---------------------------- Save indicator ---------------------------- */
+const SaveIndicator: React.FC<{ status: 'saving' | 'saved' | 'error' }> = ({ status }) => {
+  const map = {
+    saving: { icon: <Loader2 className="w-3 h-3 animate-spin" />, label: 'Salvando…', cls: 'rich-save-saving' },
+    saved:  { icon: <Check className="w-3 h-3" />,                label: 'Salvo',     cls: 'rich-save-saved'  },
+    error:  { icon: <CircleAlert className="w-3 h-3" />,          label: 'Erro ao salvar', cls: 'rich-save-error' },
+  } as const;
+  const cfg = map[status];
+  return (
+    <div className={`rich-save-indicator ${cfg.cls}`} role="status" aria-live="polite">
+      {cfg.icon}<span>{cfg.label}</span>
+    </div>
+  );
+};
+
 /** Plain HTML viewer for saved content (read-only) */
 export const RichTextView: React.FC<{ value: string; className?: string }> = ({ value, className }) => {
   const html = useMemo(() => plainTextToHtml(value || ''), [value]);
