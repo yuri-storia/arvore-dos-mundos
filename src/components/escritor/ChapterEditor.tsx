@@ -35,9 +35,11 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
   const [title, setTitle] = useState(chapter.title);
   const [previewMode, setPreviewMode] = useState(false);
   const [spellcheckOn, setSpellcheckOn] = useState(true);
+  const [showSpellHelp, setShowSpellHelp] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const errorToastIdRef = useRef<string | number | null>(null);
 
   useEffect(() => {
     setContent(chapter.content || '');
@@ -57,10 +59,20 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
       try {
         await Promise.resolve(onContentSave(value));
         setSaveStatus('saved');
+        // Discreet success toast (replaces any prior error toast).
+        if (errorToastIdRef.current != null) {
+          toast.dismiss(errorToastIdRef.current);
+          errorToastIdRef.current = null;
+        }
+        toast.success('Capítulo salvo', { duration: 1500 });
         if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
         savedTimerRef.current = setTimeout(() => setSaveStatus('idle'), 1800);
-      } catch {
+      } catch (err) {
         setSaveStatus('error');
+        errorToastIdRef.current = toast.error('Erro ao salvar capítulo', {
+          description: 'Verifique sua conexão. Tentaremos novamente na próxima alteração.',
+          duration: 5000,
+        });
       }
     }, 1500);
   }, [onContentSave]);
