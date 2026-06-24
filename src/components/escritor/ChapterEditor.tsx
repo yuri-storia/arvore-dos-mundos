@@ -122,17 +122,38 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
         />
         <span className="text-[11px] font-mono text-text-dim bg-white/[0.04] px-2 py-0.5 rounded">{wordCount} palavras</span>
 
+        <div className="relative flex items-center gap-0.5">
+          <button
+            onClick={() => setSpellcheckOn(v => !v)}
+            title={spellcheckOn ? 'Corretor ortográfico (PT-BR) ativo — clique para desativar' : 'Corretor desativado — clique para ativar'}
+            className={`p-1.5 rounded transition-all border ${
+              spellcheckOn
+                ? 'border-emerald-400/40 text-emerald-300 bg-gradient-to-b from-emerald-400/20 via-emerald-500/10 to-emerald-700/20 shadow-[0_0_12px_-2px_rgba(52,211,153,0.55),inset_0_1px_0_rgba(255,255,255,0.08)]'
+                : 'border-white/10 text-text-dim hover:text-foreground hover:bg-white/[0.05]'
+            }`}
+          >
+            <SpellCheck2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setShowSpellHelp(v => !v)}
+            title="Como ativar o corretor PT-BR no seu navegador / tablet / celular"
+            className="p-1 rounded text-text-dim hover:text-foreground hover:bg-white/[0.05] transition-colors"
+            aria-label="Ajuda do corretor ortográfico"
+          >
+            <HelpCircle className="w-3.5 h-3.5" />
+          </button>
+          {showSpellHelp && <SpellcheckHelpPopover onClose={() => setShowSpellHelp(false)} />}
+        </div>
+
         <button
-          onClick={() => setSpellcheckOn(v => !v)}
-          title={spellcheckOn ? 'Corretor ortográfico (PT-BR) ativo — clique para desativar' : 'Corretor desativado — clique para ativar'}
-          className={`p-1.5 rounded transition-all border ${
-            spellcheckOn
-              ? 'border-emerald-400/40 text-emerald-300 bg-gradient-to-b from-emerald-400/20 via-emerald-500/10 to-emerald-700/20 shadow-[0_0_12px_-2px_rgba(52,211,153,0.55),inset_0_1px_0_rgba(255,255,255,0.08)]'
-              : 'border-white/10 text-text-dim hover:text-foreground hover:bg-white/[0.05]'
-          }`}
+          title="Atalho: Ctrl + L — foca o editor com segurança e abre o seletor do Codex"
+          className="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] text-text-dim border border-white/10 hover:text-foreground hover:bg-white/[0.05] transition-colors"
+          onClick={() => toast.info('Use Ctrl + L para focar o editor e abrir o seletor do Codex (@).')}
         >
-          <SpellCheck2 className="w-4 h-4" />
+          <Keyboard className="w-3 h-3" />
+          <span className="font-mono">Ctrl + L</span>
         </button>
+
 
         <div className="flex items-center bg-white/[0.03] rounded border border-blue-bright/10 p-0.5">
           <button onClick={() => setPreviewMode(false)}
