@@ -469,7 +469,7 @@ const ChatBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
           boxShadow: '0 4px 14px hsl(220 80% 2% / 0.55)',
         }}
       >
-        <div className="font-amiri text-[13.5px] text-foreground leading-relaxed prose prose-invert prose-sm max-w-none [&_p]:mb-1.5 [&_p:last-child]:mb-0 [&_strong]:text-gold-champagne">
+        <div className="font-amiri text-[13px] text-foreground leading-relaxed prose prose-invert prose-sm max-w-none [&_p]:text-[13px] [&_p]:leading-[1.55] [&_p]:mb-1.5 [&_p:last-child]:mb-0 [&_strong]:text-gold-champagne">
           <ReactMarkdown>{message.content}</ReactMarkdown>
         </div>
       </div>
