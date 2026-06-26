@@ -117,10 +117,13 @@ export function useSpellSuggestions() {
 
       const res = await send("lookup", word);
       if (res.error) {
-        return { correct: true, suggestions: [], degraded: true };
+        // Fail closed: if the local dictionary is temporarily unavailable,
+        // never tell the user that an unchecked word is correct. This avoids
+        // the misleading "Palavra grafada corretamente" state seen in the UI.
+        return { correct: false, suggestions: [], degraded: true };
       }
       const result: SpellLookupResult = {
-        correct: res.correct !== false,
+        correct: res.correct === true,
         suggestions: Array.isArray(res.suggestions) ? res.suggestions : [],
       };
       if (cacheRef.current.size >= CACHE_MAX) {
