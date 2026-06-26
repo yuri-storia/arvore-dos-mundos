@@ -296,6 +296,11 @@ const SpellPopover: React.FC<PopoverProps> = ({
 
       {!loading && result && !result.correct && (
         <>
+          {result.reason && (
+            <div className="px-3 py-1.5 text-[11px] leading-snug text-amber-200/90 bg-amber-500/[0.06] border-b border-amber-500/15">
+              {result.reason}
+            </div>
+          )}
           {result.suggestions.length === 0 ? (
             <div className="px-3 py-2 text-text-dim text-[12px]">
               Sem sugestões disponíveis.
@@ -320,6 +325,7 @@ const SpellPopover: React.FC<PopoverProps> = ({
           )}
         </>
       )}
+
 
       <div className="border-t border-white/5 mt-0.5 pt-0.5">
         <button

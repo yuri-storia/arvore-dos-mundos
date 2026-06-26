@@ -4,12 +4,16 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { listCustomWords } from "./customDictionary";
+import { getContextHint } from "./contextRules";
 
 export interface SpellLookupResult {
   correct: boolean;
   suggestions: string[];
   degraded?: boolean;
+  /** Justificativa quando a marcação veio da camada de regras contextuais. */
+  reason?: string;
 }
+
 
 const CACHE_MAX = 1000;
 
@@ -104,37 +108,60 @@ export function useSpellSuggestions() {
   const lookup = useCallback(
     async (
       word: string,
-      _before: string,
-      _after: string,
+      before: string,
+      after: string,
     ): Promise<SpellLookupResult> => {
+      // 1. Camada contextual (depende de before/after, então não usa cache por palavra).
+      const hint = getContextHint(word, before, after);
+
+      // 2. Consulta dicionário (com cache por palavra).
       const key = word.toLowerCase();
-      const cached = cacheRef.current.get(key);
-      if (cached) {
+      let dictResult: SpellLookupResult | null = cacheRef.current.get(key) ?? null;
+      if (dictResult) {
         cacheRef.current.delete(key);
-        cacheRef.current.set(key, cached);
-        return cached;
+        cacheRef.current.set(key, dictResult);
+      } else {
+        const res = await send("lookup", word);
+        if (res.error) {
+          // Falha-fechado: nunca afirmar correto quando o motor está indisponível.
+          if (hint) {
+            return {
+              correct: false,
+              suggestions: [hint.suggestion].filter(Boolean),
+              reason: hint.reason,
+              degraded: true,
+            };
+          }
+          return { correct: false, suggestions: [], degraded: true };
+        }
+        dictResult = {
+          correct: res.correct === true,
+          suggestions: Array.isArray(res.suggestions) ? res.suggestions : [],
+        };
+        if (cacheRef.current.size >= CACHE_MAX) {
+          const firstKey = cacheRef.current.keys().next().value;
+          if (firstKey) cacheRef.current.delete(firstKey);
+        }
+        cacheRef.current.set(key, dictResult);
       }
 
-      const res = await send("lookup", word);
-      if (res.error) {
-        // Fail closed: if the local dictionary is temporarily unavailable,
-        // never tell the user that an unchecked word is correct. This avoids
-        // the misleading "Palavra grafada corretamente" state seen in the UI.
-        return { correct: false, suggestions: [], degraded: true };
+      // 3. Combina: hint contextual sempre prevalece (palavra existe no dicionário,
+      //    mas foi usada no contexto errado).
+      if (hint) {
+        const merged = [hint.suggestion, ...dictResult.suggestions].filter(
+          (s, i, arr) => s && arr.indexOf(s) === i,
+        );
+        return {
+          correct: false,
+          suggestions: merged,
+          reason: hint.reason,
+        };
       }
-      const result: SpellLookupResult = {
-        correct: res.correct === true,
-        suggestions: Array.isArray(res.suggestions) ? res.suggestions : [],
-      };
-      if (cacheRef.current.size >= CACHE_MAX) {
-        const firstKey = cacheRef.current.keys().next().value;
-        if (firstKey) cacheRef.current.delete(firstKey);
-      }
-      cacheRef.current.set(key, result);
-      return result;
+      return dictResult;
     },
     [],
   );
+
 
   return { lookup };
 }
