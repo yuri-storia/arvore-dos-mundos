@@ -394,9 +394,14 @@ textarea, .mention-textarea, [contenteditable="true"] {
 /* ------------------------- PT-BR spell checker ------------------------- */
 .ProseMirror .spell-error {
   text-decoration: underline wavy #ef4444;
+  text-decoration-thickness: 2px;
   text-decoration-skip-ink: none;
-  text-underline-offset: 2px;
-  cursor: context-menu;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.ProseMirror .spell-error:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-radius: 2px;
 }
 .spell-menu {
   z-index: 1000;

@@ -28,6 +28,7 @@ import {
   useSpellSuggestions,
   type SpellLookupResult,
 } from "./useSpellSuggestions";
+import { isSpellcheckEnabled } from "./spellcheckSettings";
 
 interface PopoverState {
   hit: WordHit;
@@ -35,6 +36,8 @@ interface PopoverState {
   x: number;
   y: number;
 }
+
+const HOVER_DELAY_MS = 350;
 
 export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
   children,
@@ -44,21 +47,12 @@ export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
   const [loading, setLoading] = useState(false);
   const { lookup } = useSpellSuggestions();
   const requestIdRef = useRef(0);
+  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hoverTargetRef = useRef<HTMLElement | null>(null);
 
-  // Right-click handler — captured to win over Radix/Tiptap menus.
-  useEffect(() => {
-    const onContext = (e: MouseEvent) => {
-      // Allow Shift+RightClick to fall through to the native browser menu —
-      // power-user escape hatch for "Inspect", "Copy link", etc.
-      if (e.shiftKey) return;
-      const hit = wordAtPoint(e);
-      if (!hit) return;
-      // Skip words already in the user's personal dictionary.
-      if (isCustomWord(hit.word)) return;
-
-      e.preventDefault();
-      e.stopPropagation();
-      setPop({ hit, x: e.clientX, y: e.clientY });
+  const openFor = useCallback(
+    (hit: WordHit, x: number, y: number) => {
+      setPop({ hit, x, y });
       setResult(null);
       setLoading(true);
 
@@ -71,11 +65,94 @@ export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
         .finally(() => {
           if (reqId === requestIdRef.current) setLoading(false);
         });
+    },
+    [lookup],
+  );
+
+  // Right-click handler — captured to win over Radix/Tiptap menus.
+  useEffect(() => {
+    const onContext = (e: MouseEvent) => {
+      if (!isSpellcheckEnabled()) return;
+      // Allow Shift+RightClick to fall through to the native browser menu —
+      // power-user escape hatch for "Inspect", "Copy link", etc.
+      if (e.shiftKey) return;
+      const hit = wordAtPoint(e);
+      if (!hit) return;
+      // Skip words already in the user's personal dictionary.
+      if (isCustomWord(hit.word)) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      openFor(hit, e.clientX, e.clientY);
     };
     document.addEventListener("contextmenu", onContext, true);
     return () =>
       document.removeEventListener("contextmenu", onContext, true);
-  }, [lookup]);
+  }, [openFor]);
+
+  // Left-click on a misspelled word (`.spell-error` decoration) — instant popover.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (!isSpellcheckEnabled()) return;
+      if (e.button !== 0) return;
+      const target = e.target as HTMLElement | null;
+      const errEl = target?.closest?.(".spell-error") as HTMLElement | null;
+      if (!errEl) return;
+      const hit = wordAtPoint(e);
+      if (!hit) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const rect = errEl.getBoundingClientRect();
+      openFor(hit, rect.left, rect.bottom + 4);
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, [openFor]);
+
+  // Hover on a misspelled word → open after a short delay.
+  useEffect(() => {
+    const cancelHover = () => {
+      if (hoverTimerRef.current) {
+        clearTimeout(hoverTimerRef.current);
+        hoverTimerRef.current = null;
+      }
+      hoverTargetRef.current = null;
+    };
+    const onOver = (e: MouseEvent) => {
+      if (!isSpellcheckEnabled()) return;
+      const target = e.target as HTMLElement | null;
+      const errEl = target?.closest?.(".spell-error") as HTMLElement | null;
+      if (!errEl) return;
+      if (hoverTargetRef.current === errEl) return;
+      cancelHover();
+      hoverTargetRef.current = errEl;
+      const x = e.clientX;
+      const y = e.clientY;
+      hoverTimerRef.current = setTimeout(() => {
+        // Synthesize a mouse event at the captured coords to reuse wordAtPoint.
+        const fakeEvent = { target: errEl, clientX: x, clientY: y } as unknown as MouseEvent;
+        const hit = wordAtPoint(fakeEvent);
+        if (!hit) return;
+        const rect = errEl.getBoundingClientRect();
+        openFor(hit, rect.left, rect.bottom + 4);
+      }, HOVER_DELAY_MS);
+    };
+    const onOut = (e: MouseEvent) => {
+      const related = e.relatedTarget as HTMLElement | null;
+      // Stay alive when moving into the popover itself.
+      if (related?.closest?.("[data-spellcheck-popover]")) return;
+      if (!hoverTargetRef.current) return;
+      if (hoverTargetRef.current.contains(related as Node)) return;
+      cancelHover();
+    };
+    document.addEventListener("mouseover", onOver);
+    document.addEventListener("mouseout", onOut);
+    return () => {
+      document.removeEventListener("mouseover", onOver);
+      document.removeEventListener("mouseout", onOut);
+      cancelHover();
+    };
+  }, [openFor]);
 
   // Close on click / Escape / scroll.
   useEffect(() => {

@@ -12,6 +12,7 @@ import type { EditorState, Transaction } from "@tiptap/pm/state";
 import type { Node as PMNode } from "@tiptap/pm/model";
 import { checkManyWords } from "@/lib/spellcheck/useSpellSuggestions";
 import { isCustomWord } from "@/lib/spellcheck/customDictionary";
+import { isSpellcheckEnabled } from "@/lib/spellcheck/spellcheckSettings";
 
 const WORD_RE = /[\p{L}\p{M}][\p{L}\p{M}'\-]*/gu;
 
@@ -68,6 +69,7 @@ function buildDecorations(
   doc: PMNode,
   cache: Map<string, boolean>,
 ): DecorationSet {
+  if (!isSpellcheckEnabled()) return DecorationSet.empty;
   const decos: Decoration[] = [];
   const seen = collectWords(doc);
   for (const h of seen) {
@@ -110,6 +112,12 @@ export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>(
     const scheduleCheck = (view: { state: EditorState; dispatch: (tr: Transaction) => void }) => {
       if (timer) clearTimeout(timer);
       timer = setTimeout(async () => {
+        // Honor runtime toggle: if disabled, just clear and bail.
+        if (!isSpellcheckEnabled()) {
+          const tr = view.state.tr.setMeta(key, { recompute: true });
+          view.dispatch(tr);
+          return;
+        }
         if (inflight) {
           // Re-schedule if another batch is still running
           scheduleCheck(view);
@@ -176,10 +184,13 @@ export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>(
           },
         },
         view(view) {
-          // Kick off initial check + react to custom dictionary changes.
+          // Kick off initial check + react to custom dictionary changes
+          // and to the global on/off toggle.
           scheduleCheck(view);
           const onDictChanged = () => scheduleCheck(view);
+          const onToggleChanged = () => scheduleCheck(view);
           window.addEventListener("spellcheck:custom-dict-changed", onDictChanged);
+          window.addEventListener("spellcheck:enabled-changed", onToggleChanged);
           return {
             update(v, prevState) {
               if (!v.state.doc.eq(prevState.doc)) {
@@ -189,6 +200,7 @@ export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>(
             destroy() {
               if (timer) clearTimeout(timer);
               window.removeEventListener("spellcheck:custom-dict-changed", onDictChanged);
+              window.removeEventListener("spellcheck:enabled-changed", onToggleChanged);
             },
           };
         },
