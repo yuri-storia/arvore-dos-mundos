@@ -35,6 +35,28 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   const [error, setError] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState('Todos');
+  const [elapsed, setElapsed] = useState(0);
+  const startedAtRef = React.useRef<number | null>(null);
+
+  // Tempo estimado por nível (segundos)
+  const estimateSeconds = quality === 'draft' ? 5 : quality === 'standard' ? 25 : 120;
+
+  // Cronômetro de geração (somente quando loading2 ativo)
+  React.useEffect(() => {
+    if (!loading2) {
+      startedAtRef.current = null;
+      setElapsed(0);
+      return;
+    }
+    startedAtRef.current = Date.now();
+    setElapsed(0);
+    const id = window.setInterval(() => {
+      if (startedAtRef.current) {
+        setElapsed(Math.floor((Date.now() - startedAtRef.current) / 1000));
+      }
+    }, 500);
+    return () => window.clearInterval(id);
+  }, [loading2]);
 
   const creditsLeft = sub.creditLimit - sub.creditsUsed;
 
