@@ -11,6 +11,7 @@ import { ImageRepositioner } from '@/components/ImageRepositioner';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { buildEntriesByName, renderMentionChildren, renderInlineMentions } from '@/components/escritor/MentionChip';
 import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor';
+import { htmlToPlainText } from '@/lib/htmlToText';
 
 const isHTMLContent = (s: string) => /^\s*<(p|div|h[1-6]|ul|ol|blockquote|pre|span|strong|em)[\s>]/i.test(s || '');
 
@@ -291,7 +292,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             </div>
             <h3 className="font-cinzel font-bold text-base text-foreground mb-2">{entry.title}</h3>
             {displayContent && (
-              <p className="font-merriweather text-xs text-foreground/85 line-clamp-4 whitespace-pre-wrap leading-relaxed">{displayContent}</p>
+              <p className="font-merriweather text-xs text-foreground/85 line-clamp-4 whitespace-pre-wrap leading-relaxed">{htmlToPlainText(displayContent)}</p>
             )}
           </div>
         </div>
@@ -328,7 +329,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
           </div>
           <h3 className="font-cinzel font-bold text-sm text-foreground mb-1">{entry.title}</h3>
           {displayContent && (
-            <p className="font-merriweather text-xs text-foreground/85 line-clamp-3 whitespace-pre-wrap">{displayContent}</p>
+            <p className="font-merriweather text-xs text-foreground/85 line-clamp-3 whitespace-pre-wrap">{htmlToPlainText(displayContent)}</p>
           )}
         </div>
       </div>

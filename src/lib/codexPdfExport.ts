@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import { FRUITS } from '@/lib/data';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
+import { htmlToPlainText } from '@/lib/htmlToText';
 
 // ─── Colors ──────────────────────────────────────
 const BG: [number, number, number] = [4, 12, 17];
@@ -61,8 +62,10 @@ function ensureSpace(ctx: PdfCtx, needed: number) {
 
 // ─── Strip markdown for plain text rendering ────
 function stripMarkdown(text: string): string {
-  return text
-    .replace(/^__magictype__\n?/, '')
+  // Conteúdo do Codex pode vir como HTML (RichTextEditor) ou Markdown. Primeiro
+  // achatamos qualquer HTML em texto puro com parágrafos preservados.
+  const base = htmlToPlainText(text).replace(/^__magictype__\n?/, '');
+  return base
     .replace(/^#{1,6}\s+/gm, '') // strip heading markers
     .replace(/\*\*(.+?)\*\*/g, '$1') // bold
     .replace(/\*(.+?)\*/g, '$1') // italic

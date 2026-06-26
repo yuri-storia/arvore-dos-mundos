@@ -6,9 +6,14 @@ import {
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 import type { Manuscript, Chapter, Scene } from '@/hooks/useManuscript';
+import { htmlToPlainText } from '@/lib/htmlToText';
 
 /** Strip `@` glyph from mention tokens so exports show plain text only. */
 const stripMentions = (s: string) => s.replace(/@(?=[A-Za-zÀ-ÿ0-9_\-])/g, '');
+
+/** Converte conteúdo do capítulo (HTML do Tiptap) em texto puro para export. */
+const chapterPlain = (s: string | null | undefined) =>
+  stripMentions(htmlToPlainText(s));
 
 const slug = (s: string) =>
   (s || 'manuscrito').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -143,7 +148,7 @@ export function exportManuscriptPDF(manuscript: Manuscript, chapters: Chapter[],
       const indent = 5; // recuo de 1ª linha
 
       setBody();
-      const paragraphs = stripMentions(ch.content)
+      const paragraphs = chapterPlain(ch.content)
         .split(/\n\s*\n/) // parágrafos separados por linha em branco
         .map(p => p.replace(/\s+/g, ' ').trim())
         .filter(p => p.length > 0);
@@ -266,7 +271,7 @@ export async function exportManuscriptDOCX(manuscript: Manuscript, chapters: Cha
     }));
 
     if (ch.content) {
-      const paragraphs = stripMentions(ch.content)
+      const paragraphs = chapterPlain(ch.content)
         .split(/\n\s*\n/)
         .map(p => p.replace(/\s+/g, ' ').trim())
         .filter(p => p.length > 0);
@@ -337,7 +342,7 @@ function uuid(): string {
 
 function chapterXhtml(title: string, content: string, isCover = false): string {
   const paragraphs = content
-    ? stripMentions(content)
+    ? chapterPlain(content)
         .split(/\n\s*\n/)
         .map(p => p.replace(/\s+/g, ' ').trim())
         .filter(p => p.length > 0)
