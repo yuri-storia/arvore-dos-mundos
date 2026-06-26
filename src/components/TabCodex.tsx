@@ -803,6 +803,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
       <IdrielImportDialog
         open={showIdrielImport}
         onOpenChange={setShowIdrielImport}
+        worldId={worldId}
+        existingEntries={entries.map(e => ({ id: e.id, title: e.title, fruit_id: e.fruit_id ?? null }))}
         remaining={(() => {
           const fichaCount = entries.filter(e => e.entry_type !== 'artigo').length;
           const artigoCount = entries.filter(e => e.entry_type === 'artigo').length;
@@ -817,16 +819,20 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
           return fichaCount < planLimits.maxFichas || artigoCount < planLimits.maxArtigos;
         }}
         onCreate={async (items) => {
+          const created: Array<{ id: string; title: string; fruit_id?: number | null }> = [];
           for (const it of items) {
-            await createEntry({
+            const res = await createEntry({
               title: it.title,
               content: it.content,
               entry_type: it.entry_type,
               fruit_id: it.fruit_id,
             });
+            if (res) created.push({ id: res.id, title: res.title, fruit_id: res.fruit_id });
           }
+          return created;
         }}
       />
+
     </div>
   );
 };

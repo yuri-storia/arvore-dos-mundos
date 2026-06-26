@@ -278,6 +278,7 @@ export async function importTextWithIdriel(
   text: string,
   sourceType: 'pdf' | 'docx' | 'txt' | 'texto' = 'texto',
   onProgress?: ImportProgressCallback,
+  excludeTitles?: string[],
 ): Promise<ImportedSuggestion[]> {
   emit(onProgress, 'uploading', 20);
   let synthetic = 20;
@@ -288,7 +289,7 @@ export async function importTextWithIdriel(
   }, 700);
   try {
     const { data, error } = await supabase.functions.invoke('idriel-import-text', {
-      body: { text, sourceType },
+      body: { text, sourceType, excludeTitles },
     });
     if (error) await throwInvokeError(error, 'Erro ao analisar texto');
     if (data?.error) throw new Error(data.error);
@@ -299,16 +300,13 @@ export async function importTextWithIdriel(
   }
 }
 
-/**
- * Envia o arquivo binário (PDF) para Idriel ler nativamente via Gemini multimodal.
- * Não extrai texto no cliente — o modelo "lê" o PDF inteiro (inclui OCR de páginas escaneadas).
- */
-export async function importFileWithIdriel(
-  file: File,
+/** Codifica um ArrayBuffer/Uint8Array em base64 emitindo progresso. */
+export async function encodeFileBase64(
+  source: File | Blob | ArrayBuffer,
   onProgress?: ImportProgressCallback,
-): Promise<ImportedSuggestion[]> {
+): Promise<string> {
   emit(onProgress, 'reading', 5);
-  const buf = await file.arrayBuffer();
+  const buf = source instanceof ArrayBuffer ? source : await (source as Blob).arrayBuffer();
   emit(onProgress, 'encoding', 15);
   const bytes = new Uint8Array(buf);
   let binary = '';
@@ -320,7 +318,19 @@ export async function importFileWithIdriel(
       emit(onProgress, 'encoding', 15 + (i / total) * 20);
     }
   }
-  const fileData = btoa(binary);
+  return btoa(binary);
+}
+
+/**
+ * Envia o arquivo binário (PDF) para Idriel ler nativamente via Gemini multimodal.
+ * Não extrai texto no cliente — o modelo "lê" o PDF inteiro (inclui OCR de páginas escaneadas).
+ */
+export async function importFileWithIdriel(
+  file: File,
+  onProgress?: ImportProgressCallback,
+  excludeTitles?: string[],
+): Promise<ImportedSuggestion[]> {
+  const fileData = await encodeFileBase64(file, onProgress);
   emit(onProgress, 'uploading', 40);
 
   // Server-side phases não têm progresso real — sintetizamos avanço suave.
@@ -338,6 +348,7 @@ export async function importFileWithIdriel(
         fileName: file.name,
         mimeType: file.type || 'application/pdf',
         fileData,
+        excludeTitles,
       },
     });
     if (error) await throwInvokeError(error, 'Erro ao analisar arquivo');
@@ -348,6 +359,47 @@ export async function importFileWithIdriel(
     clearInterval(interval);
   }
 }
+
+/**
+ * Reanalisa um PDF previamente salvo no bucket privado `idriel-imports`,
+ * baixando do storage e enviando à edge function. Aceita lista de títulos a excluir.
+ */
+export async function importStoredPdfWithIdriel(
+  storagePath: string,
+  fileName: string,
+  onProgress?: ImportProgressCallback,
+  excludeTitles?: string[],
+): Promise<ImportedSuggestion[]> {
+  emit(onProgress, 'reading', 3);
+  const { data: blob, error } = await supabase.storage.from('idriel-imports').download(storagePath);
+  if (error || !blob) throw new Error('Não foi possível recuperar o documento (talvez tenha expirado).');
+  const fileData = await encodeFileBase64(blob, onProgress);
+  emit(onProgress, 'uploading', 40);
+  let synthetic = 40;
+  const interval = setInterval(() => {
+    synthetic = Math.min(synthetic + 1.5, 90);
+    const phase: ImportProgressPhase = synthetic < 60 ? 'uploading' : synthetic < 80 ? 'ocr' : 'extracting';
+    emit(onProgress, phase, synthetic);
+  }, 800);
+  try {
+    const { data, error: invokeErr } = await supabase.functions.invoke('idriel-import-text', {
+      body: {
+        sourceType: 'pdf',
+        fileName,
+        mimeType: 'application/pdf',
+        fileData,
+        excludeTitles,
+      },
+    });
+    if (invokeErr) await throwInvokeError(invokeErr, 'Erro ao reanalisar arquivo');
+    if (data?.error) throw new Error(data.error);
+    emit(onProgress, 'done', 100);
+    return (data?.entries || []) as ImportedSuggestion[];
+  } finally {
+    clearInterval(interval);
+  }
+}
+
 
 // Summarize an Idriel response into clean prose suitable for a Codex entry
 export async function summarizeIdrielResponse(response: string, kind: 'ficha' | 'artigo'): Promise<string> {

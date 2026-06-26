@@ -499,6 +499,59 @@ export type Database = {
         }
         Relationships: []
       }
+      idriel_imports: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          pasted_text: string | null
+          source_kind: string
+          source_name: string
+          source_size: number
+          storage_path: string | null
+          suggestions: Json
+          updated_at: string
+          user_id: string
+          world_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          pasted_text?: string | null
+          source_kind: string
+          source_name: string
+          source_size?: number
+          storage_path?: string | null
+          suggestions?: Json
+          updated_at?: string
+          user_id: string
+          world_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          pasted_text?: string | null
+          source_kind?: string
+          source_name?: string
+          source_size?: number
+          storage_path?: string | null
+          suggestions?: Json
+          updated_at?: string
+          user_id?: string
+          world_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idriel_imports_world_id_fkey"
+            columns: ["world_id"]
+            isOneToOne: false
+            referencedRelation: "worlds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       idriel_suggestions: {
         Row: {
           created_at: string
