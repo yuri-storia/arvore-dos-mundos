@@ -43,16 +43,28 @@ void boot().catch((err) => {
 
 interface InMsg {
   id: number;
-  type: "check" | "suggest" | "lookup" | "add" | "ready";
+  type: "check" | "checkMany" | "suggest" | "lookup" | "add" | "ready";
   word?: string;
+  words?: string[];
 }
 
 self.addEventListener("message", async (ev: MessageEvent<InMsg>) => {
-  const { id, type, word } = ev.data || ({} as InMsg);
+  const { id, type, word, words } = ev.data || ({} as InMsg);
   try {
     const s = await boot();
     if (type === "ready") {
       (self as unknown as Worker).postMessage({ id, ready: true });
+      return;
+    }
+    if (type === "checkMany") {
+      const list = Array.isArray(words) ? words : [];
+      const results: Record<string, boolean> = {};
+      for (const w of list) {
+        if (!w) continue;
+        if (results[w] !== undefined) continue;
+        try { results[w] = s.correct(w); } catch { results[w] = true; }
+      }
+      (self as unknown as Worker).postMessage({ id, results });
       return;
     }
     if (!word) {
