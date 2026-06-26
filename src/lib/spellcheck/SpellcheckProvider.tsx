@@ -32,12 +32,39 @@ import { isSpellcheckEnabled } from "./spellcheckSettings";
 
 interface PopoverState {
   hit: WordHit;
-  // Where to position the popover on screen.
   x: number;
   y: number;
+  /** Preencher quando vier de uma decoração da IA (multi-palavra). */
+  prefilled?: SpellLookupResult & { kind: "ai-warning" | "ai-spelling" };
 }
 
 const HOVER_DELAY_MS = 350;
+
+/** Constrói um WordHit a partir de um elemento .spell-warning/.spell-error com data-ai-* */
+function hitFromAIElement(el: HTMLElement): WordHit | null {
+  const text = el.textContent ?? "";
+  if (!text.trim()) return null;
+  const rect = el.getBoundingClientRect();
+  const replace = (next: string) => {
+    // Localiza o textNode dentro do elemento e substitui o conteúdo completo.
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const first = walker.nextNode() as Text | null;
+    if (first) {
+      // Junta todo o texto em um nó só e substitui.
+      const parent = first.parentNode!;
+      // Remove demais nós de texto.
+      let n = walker.nextNode();
+      while (n) {
+        const next = walker.nextNode();
+        n.parentNode?.removeChild(n);
+        n = next;
+      }
+      first.textContent = next;
+      parent.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    }
+  };
+  return { word: text, before: "", after: "", replace, rect };
+}
 
 export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
   children,
@@ -51,8 +78,13 @@ export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
   const hoverTargetRef = useRef<HTMLElement | null>(null);
 
   const openFor = useCallback(
-    (hit: WordHit, x: number, y: number) => {
-      setPop({ hit, x, y });
+    (hit: WordHit, x: number, y: number, prefilled?: PopoverState["prefilled"]) => {
+      setPop({ hit, x, y, prefilled });
+      if (prefilled) {
+        setResult(prefilled);
+        setLoading(false);
+        return;
+      }
       setResult(null);
       setLoading(true);
 
@@ -69,18 +101,55 @@ export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
     [lookup],
   );
 
+  /** Tenta extrair issue da IA do elemento sob o cursor. */
+  const aiHitFor = useCallback((el: HTMLElement | null) => {
+    if (!el) return null;
+    const target = el.closest(".spell-warning, .spell-ai") as HTMLElement | null;
+    if (!target) return null;
+    const hit = hitFromAIElement(target);
+    if (!hit) return null;
+    let suggestions: string[] = [];
+    try {
+      const raw = target.getAttribute("data-ai-suggestions") || "[]";
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) suggestions = arr.filter((s) => typeof s === "string");
+    } catch { /* noop */ }
+    const reason = target.getAttribute("data-ai-reason") || "";
+    const type = target.getAttribute("data-ai-type") || "grammar";
+    return {
+      hit,
+      target,
+      prefilled: {
+        correct: false,
+        suggestions,
+        reason,
+        kind: type === "spelling" ? ("ai-spelling" as const) : ("ai-warning" as const),
+      } satisfies PopoverState["prefilled"],
+    };
+  }, []);
+
+
   // Right-click handler — captured to win over Radix/Tiptap menus.
   useEffect(() => {
     const onContext = (e: MouseEvent) => {
       if (!isSpellcheckEnabled()) return;
-      // Allow Shift+RightClick to fall through to the native browser menu —
-      // power-user escape hatch for "Inspect", "Copy link", etc.
       if (e.shiftKey) return;
+      const target = e.target as HTMLElement | null;
+
+      // Caso 1: clique sobre uma marcação da IA (gramática/estilo, amarelo).
+      const ai = aiHitFor(target);
+      if (ai) {
+        e.preventDefault();
+        e.stopPropagation();
+        const rect = ai.target.getBoundingClientRect();
+        openFor(ai.hit, rect.left, rect.bottom + 4, ai.prefilled);
+        return;
+      }
+
+      // Caso 2: palavra normal (dicionário/contexto).
       const hit = wordAtPoint(e);
       if (!hit) return;
-      // Skip words already in the user's personal dictionary.
       if (isCustomWord(hit.word)) return;
-
       e.preventDefault();
       e.stopPropagation();
       openFor(hit, e.clientX, e.clientY);
@@ -88,14 +157,24 @@ export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
     document.addEventListener("contextmenu", onContext, true);
     return () =>
       document.removeEventListener("contextmenu", onContext, true);
-  }, [openFor]);
+  }, [openFor, aiHitFor]);
 
-  // Left-click on a misspelled word (`.spell-error` decoration) — instant popover.
+  // Left-click em qualquer decoração de erro → abre popover.
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       if (!isSpellcheckEnabled()) return;
       if (e.button !== 0) return;
       const target = e.target as HTMLElement | null;
+
+      const ai = aiHitFor(target);
+      if (ai) {
+        e.preventDefault();
+        e.stopPropagation();
+        const rect = ai.target.getBoundingClientRect();
+        openFor(ai.hit, rect.left, rect.bottom + 4, ai.prefilled);
+        return;
+      }
+
       const errEl = target?.closest?.(".spell-error") as HTMLElement | null;
       if (!errEl) return;
       const hit = wordAtPoint(e);
@@ -107,9 +186,9 @@ export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
     };
     document.addEventListener("click", onClick, true);
     return () => document.removeEventListener("click", onClick, true);
-  }, [openFor]);
+  }, [openFor, aiHitFor]);
 
-  // Hover on a misspelled word → open after a short delay.
+  // Hover → abre após delay.
   useEffect(() => {
     const cancelHover = () => {
       if (hoverTimerRef.current) {
@@ -121,7 +200,7 @@ export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
     const onOver = (e: MouseEvent) => {
       if (!isSpellcheckEnabled()) return;
       const target = e.target as HTMLElement | null;
-      const errEl = target?.closest?.(".spell-error") as HTMLElement | null;
+      const errEl = target?.closest?.(".spell-error, .spell-warning") as HTMLElement | null;
       if (!errEl) return;
       if (hoverTargetRef.current === errEl) return;
       cancelHover();
@@ -129,7 +208,12 @@ export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
       const x = e.clientX;
       const y = e.clientY;
       hoverTimerRef.current = setTimeout(() => {
-        // Synthesize a mouse event at the captured coords to reuse wordAtPoint.
+        const ai = aiHitFor(errEl);
+        if (ai) {
+          const rect = ai.target.getBoundingClientRect();
+          openFor(ai.hit, rect.left, rect.bottom + 4, ai.prefilled);
+          return;
+        }
         const fakeEvent = { target: errEl, clientX: x, clientY: y } as unknown as MouseEvent;
         const hit = wordAtPoint(fakeEvent);
         if (!hit) return;
@@ -139,7 +223,6 @@ export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
     };
     const onOut = (e: MouseEvent) => {
       const related = e.relatedTarget as HTMLElement | null;
-      // Stay alive when moving into the popover itself.
       if (related?.closest?.("[data-spellcheck-popover]")) return;
       if (!hoverTargetRef.current) return;
       if (hoverTargetRef.current.contains(related as Node)) return;
@@ -152,7 +235,8 @@ export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
       document.removeEventListener("mouseout", onOut);
       cancelHover();
     };
-  }, [openFor]);
+  }, [openFor, aiHitFor]);
+
 
   // Close on click / Escape / scroll.
   useEffect(() => {

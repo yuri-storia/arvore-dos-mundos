@@ -392,6 +392,7 @@ textarea, .mention-textarea, [contenteditable="true"] {
 .rich-editor .ProseMirror { padding-right: 16px; }
 
 /* ------------------------- PT-BR spell checker ------------------------- */
+/* Vermelho: ortografia (dicionário local + regras + spelling da IA). */
 .ProseMirror .spell-error {
   text-decoration: underline wavy #ef4444;
   text-decoration-thickness: 2px;
@@ -401,6 +402,18 @@ textarea, .mention-textarea, [contenteditable="true"] {
 }
 .ProseMirror .spell-error:hover {
   background: rgba(239, 68, 68, 0.08);
+  border-radius: 2px;
+}
+/* Amarelo: gramática/estilo da IA (palavra existe, mas há problema contextual). */
+.ProseMirror .spell-warning {
+  text-decoration: underline wavy #f4c430;
+  text-decoration-thickness: 2px;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.ProseMirror .spell-warning:hover {
+  background: rgba(244, 196, 48, 0.10);
   border-radius: 2px;
 }
 .spell-menu {
