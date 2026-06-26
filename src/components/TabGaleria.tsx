@@ -347,7 +347,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
               {unsorted.length} aguardando
             </span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
             {unsorted.map(img => (
               <div key={img.id} className="group relative rounded-lg overflow-hidden border border-gold/30 bg-background/40">
                 <img
@@ -404,7 +404,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
           {filteredSorted.map(img => (
             <div
               key={img.id}
