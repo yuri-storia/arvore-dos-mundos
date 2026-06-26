@@ -104,9 +104,16 @@ serve(async (req) => {
       fileData,      // base64 (sem prefixo data:) — opcional
       mimeType,      // ex: application/pdf
       fileName,      // opcional, p/ contexto no prompt
+      excludeTitles, // string[] — títulos já existentes no Codex (modo "buscar o que falta")
     } = body as Record<string, unknown>;
 
     const kind = typeof sourceType === "string" ? sourceType : "texto";
+    const exclude = Array.isArray(excludeTitles)
+      ? (excludeTitles as unknown[]).filter(t => typeof t === "string" && (t as string).trim().length > 0).slice(0, 200) as string[]
+      : [];
+    const excludeBlock = exclude.length > 0
+      ? `\n\nIMPORTANTE — Entidades JÁ catalogadas no Codex deste mundo (NÃO repita, NÃO crie versões com nomes parecidos delas). Foque exclusivamente em entidades ainda não listadas abaixo:\n${exclude.map(t => `- ${t}`).join("\n")}`
+      : "";
     const userContent: Array<Record<string, unknown>> = [];
 
     // — Caminho multimodal (PDF nativo) —
@@ -119,7 +126,7 @@ serve(async (req) => {
       }
       userContent.push({
         type: "text",
-        text: `Tipo da fonte: ${kind}${typeof fileName === "string" ? ` (arquivo: ${fileName})` : ""}.\nLeia o documento anexado e extraia as entradas de Codex.`,
+        text: `Tipo da fonte: ${kind}${typeof fileName === "string" ? ` (arquivo: ${fileName})` : ""}.\nLeia o documento anexado e extraia as entradas de Codex.${excludeBlock}`,
       });
       userContent.push({
         type: "file",
@@ -135,11 +142,12 @@ serve(async (req) => {
       }
       userContent.push({
         type: "text",
-        text: `Tipo da fonte: ${kind}.\n\n--- INÍCIO DO TEXTO ---\n${text}\n--- FIM DO TEXTO ---`,
+        text: `Tipo da fonte: ${kind}.${excludeBlock}\n\n--- INÍCIO DO TEXTO ---\n${text}\n--- FIM DO TEXTO ---`,
       });
     } else {
       return new Response(JSON.stringify({ error: "Envie 'fileData'+'mimeType' (PDF) ou 'text' com 50+ caracteres." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
