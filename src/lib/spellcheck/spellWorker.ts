@@ -164,13 +164,18 @@ async function boot(): Promise<SpellInstance> {
   if (spell) return spell;
   if (bootPromise) return bootPromise;
   bootPromise = (async () => {
+    console.debug("[spellWorker] boot start");
     const [affRes, dicRes] = await Promise.all([fetch(affUrl), fetch(dicUrl)]);
+    console.debug("[spellWorker] dict responses", affRes.status, dicRes.status);
     if (!affRes.ok || !dicRes.ok) {
       throw new Error(`PT-BR dictionary failed to load (${affRes.status}/${dicRes.status})`);
     }
     const [aff, dic] = await Promise.all([affRes.arrayBuffer(), dicRes.arrayBuffer()]);
+    console.debug("[spellWorker] dict buffers", aff.byteLength, dic.byteLength);
     const asm = await loadHunspellWasm();
+    console.debug("[spellWorker] wasm loaded");
     const hunspell = createHunspellInstance(asm, aff, dic);
+    console.debug("[spellWorker] hunspell created");
 
     spell = {
       correct: (w: string) => hunspell.spell(w),
