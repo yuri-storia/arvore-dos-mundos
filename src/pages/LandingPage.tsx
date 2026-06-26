@@ -55,7 +55,7 @@ const LandingPage: React.FC = () => {
         <div
           aria-hidden
           className="absolute inset-0 -z-10 bg-cover bg-center opacity-[0.35]"
-          style={{ backgroundImage: `url(${(heroPoster as any).default || (heroPoster as any).src || ''})` }}
+          style={{ backgroundImage: `url(${heroPoster.url})` }}
         />
         <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-[#02070d]/40 via-[#02070d]/80 to-[#02070d]" />
 
