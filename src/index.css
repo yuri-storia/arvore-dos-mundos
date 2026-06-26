@@ -340,3 +340,25 @@
 .mention-textarea:focus {
   caret-color: hsl(var(--gold-light));
 }
+
+/* Codex overlay — animação de troca entre fichas/artigos */
+@keyframes codexSlideInRight {
+  0%   { opacity: 0; transform: translateX(36px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes codexSlideInLeft {
+  0%   { opacity: 0; transform: translateX(-36px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes codexFadeIn {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+.codex-slide-in-right { animation: codexSlideInRight 280ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.codex-slide-in-left  { animation: codexSlideInLeft  280ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.codex-fade-in        { animation: codexFadeIn       220ms ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .codex-slide-in-right,
+  .codex-slide-in-left,
+  .codex-fade-in { animation: none; }
+}

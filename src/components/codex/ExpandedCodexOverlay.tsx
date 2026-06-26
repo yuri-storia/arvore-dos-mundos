@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { CodexCard } from '@/components/CodexCard';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
@@ -22,9 +22,13 @@ interface Props {
   onOpenEntry: (id: string) => void;
 }
 
-const SWIPE_THRESHOLD = 70;        // px horizontal movement to trigger
-const SWIPE_MAX_VERTICAL = 60;     // px max vertical drift
-const SWIPE_MAX_DURATION = 600;    // ms
+// Swipe sensitivity — stricter to evitar trocas acidentais durante rolagem.
+const SWIPE_MIN_DISTANCE = 90;       // px horizontais mínimos
+const SWIPE_FAST_DISTANCE = 130;     // px que dispensam checagem de velocidade
+const SWIPE_MIN_VELOCITY = 0.35;     // px/ms — gesto precisa ser "intencional"
+const SWIPE_MAX_VERTICAL = 50;       // drift vertical máximo
+const SWIPE_MIN_DURATION = 40;       // ms — descarta toques instantâneos
+const SWIPE_MAX_DURATION = 600;      // ms
 
 export const ExpandedCodexOverlay: React.FC<Props> = ({
   entry, prevEntry, nextEntry, navIndex, navTotal,
@@ -33,6 +37,25 @@ export const ExpandedCodexOverlay: React.FC<Props> = ({
 }) => {
   const touchStart = useRef<{ x: number; y: number; t: number } | null>(null);
   const [dragDx, setDragDx] = useState(0);
+  const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
+
+  // Reseta a direção da animação ao destravar para a próxima troca.
+  useEffect(() => {
+    if (!direction) return;
+    const id = window.setTimeout(() => setDirection(null), 320);
+    return () => window.clearTimeout(id);
+  }, [direction, entry.id]);
+
+  const triggerPrev = () => {
+    if (!prevEntry || !onGoPrev) return;
+    setDirection('prev');
+    onGoPrev();
+  };
+  const triggerNext = () => {
+    if (!nextEntry || !onGoNext) return;
+    setDirection('next');
+    onGoNext();
+  };
 
   const isInteractive = (target: EventTarget | null) => {
     const el = target as HTMLElement | null;
@@ -51,18 +74,30 @@ export const ExpandedCodexOverlay: React.FC<Props> = ({
     const t = e.touches[0];
     const dx = t.clientX - touchStart.current.x;
     const dy = Math.abs(t.clientY - touchStart.current.y);
-    if (dy < SWIPE_MAX_VERTICAL) setDragDx(dx);
+    // Só acompanha visualmente se o gesto for claramente horizontal.
+    if (dy < SWIPE_MAX_VERTICAL && Math.abs(dx) > 8) setDragDx(dx);
   };
-  const onTouchEnd: React.TouchEventHandler = (e) => {
+  const onTouchEnd: React.TouchEventHandler = () => {
     if (!touchStart.current) { setDragDx(0); return; }
-    const dt = Date.now() - touchStart.current.t;
+    const dt = Math.max(1, Date.now() - touchStart.current.t);
     const dx = dragDx;
     touchStart.current = null;
     setDragDx(0);
-    if (dt > SWIPE_MAX_DURATION) return;
-    if (dx <= -SWIPE_THRESHOLD && nextEntry && onGoNext) onGoNext();
-    else if (dx >= SWIPE_THRESHOLD && prevEntry && onGoPrev) onGoPrev();
+    if (dt < SWIPE_MIN_DURATION || dt > SWIPE_MAX_DURATION) return;
+    const absDx = Math.abs(dx);
+    const velocity = absDx / dt;
+    const passed = absDx >= SWIPE_FAST_DISTANCE
+      || (absDx >= SWIPE_MIN_DISTANCE && velocity >= SWIPE_MIN_VELOCITY);
+    if (!passed) return;
+    if (dx < 0) triggerNext();
+    else triggerPrev();
   };
+
+  const animationClass = direction === 'next'
+    ? 'codex-slide-in-right'
+    : direction === 'prev'
+      ? 'codex-slide-in-left'
+      : 'codex-fade-in';
 
   return (
     <div
@@ -75,7 +110,7 @@ export const ExpandedCodexOverlay: React.FC<Props> = ({
       {prevEntry && (
         <button
           type="button"
-          onClick={onGoPrev}
+          onClick={triggerPrev}
           aria-label={`Entrada anterior: ${prevEntry.title}`}
           title={`← ${prevEntry.title}`}
           className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full items-center justify-center
@@ -90,7 +125,7 @@ export const ExpandedCodexOverlay: React.FC<Props> = ({
       {nextEntry && (
         <button
           type="button"
-          onClick={onGoNext}
+          onClick={triggerNext}
           aria-label={`Próxima entrada: ${nextEntry.title}`}
           title={`${nextEntry.title} →`}
           className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full items-center justify-center
@@ -113,18 +148,20 @@ export const ExpandedCodexOverlay: React.FC<Props> = ({
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        <CodexCard
-          entry={entry}
-          expanded={true}
-          onToggle={onClose}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-          onImageUpload={onImageUpload}
-          onLightbox={onLightbox}
-          gallery={gallery}
-          siblings={siblings}
-          onOpenEntry={onOpenEntry}
-        />
+        <div key={entry.id} className={animationClass}>
+          <CodexCard
+            entry={entry}
+            expanded={true}
+            onToggle={onClose}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+            onImageUpload={onImageUpload}
+            onLightbox={onLightbox}
+            gallery={gallery}
+            siblings={siblings}
+            onOpenEntry={onOpenEntry}
+          />
+        </div>
 
         {/* Position indicator + mobile hint */}
         {navTotal > 1 && (
