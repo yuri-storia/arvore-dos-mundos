@@ -32,6 +32,27 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_rate_limits: {
+        Row: {
+          count: number
+          function_name: string
+          user_id: string
+          window_start: string
+        }
+        Insert: {
+          count?: number
+          function_name: string
+          user_id: string
+          window_start: string
+        }
+        Update: {
+          count?: number
+          function_name?: string
+          user_id?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       ai_usage: {
         Row: {
           created_at: string
@@ -1062,6 +1083,10 @@ export type Database = {
       }
       check_ai_quota: {
         Args: { _type: string; _user_id: string }
+        Returns: Json
+      }
+      check_rate_limit: {
+        Args: { _function: string; _max_per_min: number; _user_id: string }
         Returns: Json
       }
       get_plan_limits: {
