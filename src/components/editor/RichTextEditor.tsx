@@ -10,6 +10,7 @@ import { Placeholder } from '@tiptap/extension-placeholder';
 import { CharacterCount } from '@tiptap/extension-character-count';
 import { Mention } from '@tiptap/extension-mention';
 import { Image } from '@tiptap/extension-image';
+import { SpellcheckExtension } from './SpellcheckExtension';
 import tippy, { type Instance } from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import {
@@ -418,18 +419,20 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
         ],
         suggestion: { char: '@', ...createMentionSuggestion(() => entriesRef.current) },
       }),
+      SpellcheckExtension.configure({ enabled: spellCheck !== false }),
     ],
     content: initialHTML,
     autofocus: autoFocus,
     editorProps: {
       attributes: {
         class: `rich-content ${className || ''}`,
-        // Native browser spellcheck (PT-BR) — sublinhado vermelho instantâneo.
-        // O menu de sugestões customizado é fornecido pelo SpellcheckProvider global.
-        spellcheck: spellCheck === false ? 'false' : 'true',
+        // Native browser spellcheck is disabled because PT-BR is rarely
+        // installed on user devices. Underlines are rendered by our own
+        // `SpellcheckExtension` using the bundled nspell PT-BR dictionary.
+        spellcheck: 'false',
         lang,
         translate: 'no',
-        autocorrect: 'on',
+        autocorrect: 'off',
         autocapitalize: 'sentences',
         ...(minHeight ? { style: `min-height:${minHeight}` } : {}),
       },
