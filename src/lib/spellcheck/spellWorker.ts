@@ -11,9 +11,7 @@
 
 // Vite resolves these to URLs of the static files served from /node_modules.
 // They are fetched as raw bytes at worker boot.
-// @ts-expect-error - Vite ?url import
 import affUrl from "dictionary-pt/index.aff?url";
-// @ts-expect-error - Vite ?url import
 import dicUrl from "dictionary-pt/index.dic?url";
 import NSpell from "nspell";
 

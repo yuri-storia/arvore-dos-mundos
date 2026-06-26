@@ -3,7 +3,7 @@
 // Mantém um cache LRU local para respostas instantâneas em palavras repetidas.
 
 import { useCallback, useEffect, useRef } from "react";
-import { getCustomWords } from "./customDictionary";
+import { listCustomWords } from "./customDictionary";
 
 export interface SpellLookupResult {
   correct: boolean;
@@ -41,7 +41,7 @@ function getWorker(): Worker {
   });
   // Sincroniza palavras do dicionário pessoal já gravadas.
   try {
-    for (const w of getCustomWords()) {
+    for (const w of listCustomWords()) {
       workerSingleton.postMessage({ id: nextId++, type: "add", word: w });
     }
   } catch {
