@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { IdrielJobsProvider } from "@/contexts/IdrielJobsContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { SpellcheckProvider } from "@/lib/spellcheck/SpellcheckProvider";
 
 // Lazy-loaded pages (Sprint 1 / P0 #3: route-level code splitting)
 const Index = lazy(() => import("./pages/Index"));
@@ -50,22 +51,24 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <IdrielJobsProvider>
-            <Suspense fallback={<RouteFallback />}>
-              <Routes>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/inicio" element={<Navigate to="/planos" replace />} />
-                <Route path="/reset-password" element={<ResetPasswordPage />} />
-                <Route path="/" element={<HomeRoute />} />
-                <Route path="/app" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-                <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
-                <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-                <Route path="/planos" element={<PricingPage />} />
-                <Route path="/obrigado" element={<ObrigadoPage />} />
-                <Route path="/beta" element={<BetaPage />} />
-                <Route path="/seguranca" element={<SegurancaPage />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
+            <SpellcheckProvider>
+              <Suspense fallback={<RouteFallback />}>
+                <Routes>
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/inicio" element={<Navigate to="/planos" replace />} />
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
+                  <Route path="/" element={<HomeRoute />} />
+                  <Route path="/app" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+                  <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+                  <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+                  <Route path="/planos" element={<PricingPage />} />
+                  <Route path="/obrigado" element={<ObrigadoPage />} />
+                  <Route path="/beta" element={<BetaPage />} />
+                  <Route path="/seguranca" element={<SegurancaPage />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </SpellcheckProvider>
           </IdrielJobsProvider>
         </AuthProvider>
       </BrowserRouter>

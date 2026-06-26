@@ -20,9 +20,6 @@ import {
   Minus, Plus, GripVertical,
 } from 'lucide-react';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
-import { SpellcheckPtBr, spellcheckPluginKey } from './spellcheck/SpellcheckExtension';
-import { loadSpellChecker, getSpellChecker } from './spellcheck/loadDictionary';
-import { SpellSuggestionsMenu, type SpellSuggestionTarget } from './spellcheck/SpellSuggestionsMenu';
 import './editor.css';
 
 /* ----- Image extension with width + align attrs (resize / align controls) ----- */
@@ -409,7 +406,6 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
         allowBase64: true,
         HTMLAttributes: { class: 'rich-image' },
       }),
-      SpellcheckPtBr.configure({ enabled: false }),
 
 
       Mention.configure({
@@ -428,8 +424,9 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
     editorProps: {
       attributes: {
         class: `rich-content ${className || ''}`,
-        // Our own checker handles spelling — disable native to avoid double underlines.
-        spellcheck: 'false',
+        // Native browser spellcheck (PT-BR) — sublinhado vermelho instantâneo.
+        // O menu de sugestões customizado é fornecido pelo SpellcheckProvider global.
+        spellcheck: spellCheck === false ? 'false' : 'true',
         lang,
         translate: 'no',
         autocorrect: 'on',
