@@ -96,8 +96,9 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   // Ordered list of entries used for prev/next nav inside the expanded overlay.
   // Matches visual order: fichas first, then artigos.
   const navList = React.useMemo(() => {
-    const fichas = filteredHelper(entries, filterFruits).filter(e => e.entry_type === 'ficha');
-    const artigos = filteredHelper(entries, filterFruits).filter(e => e.entry_type === 'artigo');
+    const visible = entries.filter(e => filterFruits.length === 0 || filterFruits.includes(e.fruit_id ?? FRUIT_NONE));
+    const fichas = visible.filter(e => e.entry_type === 'ficha');
+    const artigos = visible.filter(e => e.entry_type === 'artigo');
     return [...fichas, ...artigos];
   }, [entries, filterFruits]);
 
