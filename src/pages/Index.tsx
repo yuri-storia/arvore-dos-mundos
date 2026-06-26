@@ -178,20 +178,24 @@ const Index = () => {
     }
   }, [user, state, createWorld, worlds.length, planLimits]);
 
-  const handleLoadWorld = useCallback((world: WorldRecord) => {
+  const handleLoadWorld = useCallback(async (world: WorldRecord) => {
+    // Se o card da lista veio leve (sem db/gallery), busca o payload completo.
+    const needsFull = !world.db || Object.keys(world.db).length === 0;
+    const full = needsFull ? await loadWorldFull(world.id) : world;
+    const data = full || world;
     setState(prev => ({
       ...prev,
-      worldName: world.name,
-      db: world.db,
-      method: world.method,
-      gallery: world.gallery,
+      worldName: data.name,
+      db: data.db,
+      method: data.method,
+      gallery: data.gallery,
       currentFruit: 0,
-      currentSaveId: world.id,
+      currentSaveId: data.id,
       generatedPrompt: '',
       activeTab: 'construir',
     }));
-    toast.success(`"${world.name}" carregado!`);
-  }, []);
+    toast.success(`"${data.name}" carregado!`);
+  }, [loadWorldFull]);
 
   const handleNewWorld = useCallback(() => {
     setState(createNewState());
