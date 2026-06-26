@@ -170,13 +170,16 @@ export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>(
               };
             }
             if (tr.docChanged) {
-              // Map existing decorations forward so they don't visually lag.
+              // Immediate cache-only rebuild so already-known misspellings
+              // (including newly typed words present in the cache) underline
+              // without waiting for the next worker batch.
               return {
-                decorations: value.decorations.map(tr.mapping, tr.doc),
+                decorations: buildDecorations(newState.doc, verdictCache),
                 version: value.version,
               };
             }
             return value;
+
           },
         },
         props: {
