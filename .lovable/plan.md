@@ -1,49 +1,106 @@
-## Objetivo
+## Plano de Correções — Árvore dos Mundos
+Ordem: **impacto no usuário/receita × esforço**. Itens P0 são bloqueadores ou brechas de receita; P3 são polimentos.
 
-Tornar o corretor ortográfico PT-BR **automático e embutido** — sem depender de configuração do navegador, sistema operacional ou teclado do usuário. O escritor liga/desliga em um único botão, e tudo o mais acontece sozinho (como no Google Docs).
+---
 
-## O que muda para o usuário
+### 🔴 P0 — Crítico (receita, segurança, bugs visíveis)
 
-- Um único botão na barra do `ChapterEditor` (já existe) liga/desliga o corretor.
-- Quando ligado: palavras erradas aparecem **sublinhadas em vermelho ondulado** no editor, mesmo se o navegador não tiver dicionário PT-BR.
-- **Clique com botão direito** sobre uma palavra sublinhada abre um menu com até 5 sugestões + "Adicionar ao meu dicionário" + "Ignorar".
-- Quando desligado: o sublinhado some imediatamente e nada interfere na digitação.
-- O popover de "ajuda" e as instruções de "ative no Chrome/iOS/Android" são **removidos** — não fazem mais sentido, já que o corretor é nosso.
+**1. Enforcement server-side de `usePlanLimits`**
+Hoje os limites de plano (mundos, capítulos, Codex) são validados no cliente. Risco direto de evasão de receita.
+→ Mover validação para Edge Functions / RPCs com `SECURITY DEFINER` que checam `subscription_tier` antes de `INSERT`. Manter `usePlanLimits` apenas como UX.
 
-## Como funciona por baixo (seção técnica)
+**2. Webhook de pagamento sem observabilidade**
+Falhas em webhooks (Stripe/Paddle) hoje passam silenciosas → assinante paga e não recebe acesso.
+→ Adicionar Sentry (ou log estruturado em `webhook_events` com status `failed`) + alerta admin. Endpoint de replay manual.
 
-1. **Dicionário Hunspell PT-BR** carregado uma única vez via `nspell` + `dictionary-pt-br` (lazy, dinâmico — só baixa quando o usuário liga o corretor pela primeira vez na sessão; ~1-2MB cacheado pelo browser).
-2. Nova extensão Tiptap `SpellcheckPtBr` que:
-   - Usa `ProseMirror DecorationSet` para sublinhar tokens desconhecidos (regex que ignora HTML, menções `@Codex`, URLs, números e palavras com maiúsculas — substantivos próprios).
-   - Recalcula só nos parágrafos afetados a cada transação (debounced 250ms) — não trava em capítulos longos.
-   - Atributo HTML nativo `spellcheck="false"` no contenteditable para **desligar o corretor do navegador** e evitar sublinhado duplicado/conflito.
-3. Menu de contexto próprio (`SpellSuggestionsMenu`): captura `contextmenu` sobre `.spell-error`, posiciona um popover Radix com `nspell.suggest(word).slice(0,5)`, e aplica a substituição via `editor.chain().insertContentAt(range, suggestion).run()`.
-4. **Dicionário pessoal do usuário** persistido em `localStorage` (`adm-spell-custom-pt-br`) — palavras adicionadas viram parte do `nspell` na próxima checagem.
-5. Estado do toggle persistido em `localStorage` (`adm-spell-enabled`) — começa **ligado** por padrão.
+**3. Lazy-loading de rotas no `App.tsx`**
+Bundle inicial carrega Construir + Codex + Galeria + Escritor + Editor Tiptap + Worker do corretor de uma vez. LCP alto, principalmente em mobile.
+→ `React.lazy` por tab + `<Suspense>` com skeleton dourado. Ganho esperado: -40% bundle inicial.
 
-## Estrutura de arquivos
+**4. Code-splitting do Tiptap + dicionário PT-BR**
+~5MB de dicionário e extensões Tiptap entram mesmo em quem só está no Construir.
+→ Dynamic import do `RichTextEditor` e do `spellWorker` somente ao abrir um capítulo.
 
-- **novo** `src/components/editor/spellcheck/loadDictionary.ts` — loader lazy do `dictionary-pt-br` + `nspell`, com cache em módulo.
-- **novo** `src/components/editor/spellcheck/SpellcheckExtension.ts` — extensão Tiptap (Plugin + DecorationSet + worker debounce).
-- **novo** `src/components/editor/spellcheck/SpellSuggestionsMenu.tsx` — popover de sugestões e ações.
-- **novo** `src/components/editor/spellcheck/customDictionary.ts` — get/add/remove no localStorage.
-- **editado** `src/components/editor/RichTextEditor.tsx` — registra a extensão quando `spellCheck=true`; força `spellcheck="false"` no atributo nativo do EditorView; renderiza o `SpellSuggestionsMenu`.
-- **editado** `src/components/editor/editor.css` — `.spell-error { text-decoration: underline wavy #ef4444; text-decoration-skip-ink: none; }`.
-- **editado** `src/components/escritor/ChapterEditor.tsx` — remove o botão de ajuda (`HelpCircle`) e o `SpellcheckHelpPopover`; mantém só o botão verde liga/desliga; persiste o estado em localStorage; mostra um pequeno spinner no botão enquanto o dicionário baixa pela primeira vez.
+---
 
-## Dependências novas
+### 🟠 P1 — Alto impacto
 
-- `nspell` (~30KB)
-- `dictionary-pt-br` (afixos + dicionário Hunspell oficial; carregado sob demanda)
+**5. Landing pública em `/`**
+Hoje `/` redireciona para login. Sem porta de entrada SEO/orgânica.
+→ Reaproveitar a landing existente em `mem://marketing/landing-page-and-conversion`, mover para rota pública, CTAs para `/login` e `/planos`. Meta tags, OG, JSON-LD.
 
-## Riscos e mitigações
+**6. Loading UX da geração Premium (GPT Image 2 ~2min)**
+Usuário acha que travou. Risco de duplo clique = duplo débito.
+→ Botão disabled + barra de progresso indeterminada com mensagens rotativas ("Idriel está pintando os detalhes…"), timeout claro, retry idempotente via `request_id`.
 
-- **Tamanho do dicionário**: lazy-load + cache do browser; não afeta tempo de boot.
-- **Performance em capítulos longos**: debounce 250ms + checagem apenas dos parágrafos alterados (usando `tr.mapping` para detectar ranges).
-- **Conflito com corretor nativo**: forçamos `spellcheck="false"` enquanto o nosso está ativo. Quando o usuário desliga, restauramos `spellcheck="true"` para quem tiver dicionário no navegador (fallback gracioso).
-- **Mobile**: o teclado virtual continua oferecendo autocorreção do sistema; nosso sublinhado aparece igual no toque longo (menu de contexto via `touchstart` longo → mesmo `SpellSuggestionsMenu`).
+**7. Auditoria de breakpoints tablet (768–1024px)**
+Galeria, Escritor e Codex quebram nessa faixa (apontado na auditoria original).
+→ Pass sistemático trocando `md:` por `lg:` onde a densidade está alta; testar em 820×1180 (iPad Air).
 
-## Fora de escopo
+**8. Justificativas das notas dos Frutos**
+Análise dá 0–5 sem mostrar de onde veio. Reduz confiança pedagógica.
+→ Edge function `analyze-world` já retorna texto; persistir `excerpts: [{fruto, trecho, justificativa}]` em `world_analyses` e exibir no modal de cada Fruto.
 
-- Gramática (concordância, regência) — só ortografia.
-- Sincronizar dicionário pessoal entre dispositivos — fica em localStorage por enquanto.
+---
+
+### 🟡 P2 — Médio (qualidade percebida)
+
+**9. Streaming SSE para Idriel (chat + análise)**
+Hoje a resposta aparece de uma vez após 8–15s.
+→ Migrar `idriel-help` e `analyze-world` para resposta em stream (já usamos Gemini 3 Flash, suporta SSE nativo). Token-by-token na UI.
+
+**10. Rate limiting e retry nas Edge Functions de IA**
+Sem proteção contra abuso ou picos. Falhas transientes do gateway quebram UX.
+→ Rate limit por `user_id` em tabela `ai_rate_limits` (janela deslizante). Retry exponencial (3x) em 429/5xx no cliente do gateway.
+
+**11. Busca global cross-world**
+Apontado na auditoria. Usuário com 3+ mundos não consegue encontrar onde citou um personagem.
+→ `pg_trgm` + RPC `search_all(query, user_id)` retornando hits em Codex/Capítulos/Frutos com snippet.
+
+**12. Cobertura completa de `aria-label` + contraste**
+Já fizemos uma passagem; faltam Galeria (cards de imagem), Codex (filtros), modais de exportação.
+→ Auditoria automatizada via `@axe-core/playwright` em CI e correção dos achados.
+
+---
+
+### 🟢 P3 — Polimento
+
+**13. Cache de assets no Vite/CDN**
+Headers `Cache-Control: immutable` para `/assets/*` hasheados; revisar headers no Hostinger.
+
+**14. Skeleton states consistentes**
+Codex e Galeria piscam vazios antes de renderizar. Adicionar skeletons dourados padronizados.
+
+**15. Onboarding tour — revisão de copy**
+Após mudanças de custo (1/2/5/15 gotas) e novo corretor automático, alguns passos do tour estão desatualizados.
+
+**16. Telemetria de produto**
+Hoje sem visão de funil (signup → 1º mundo → 1ª análise → assinatura). Adicionar PostHog ou eventos próprios em `analytics_events`.
+
+---
+
+### Ordem de execução sugerida (sprints curtos)
+
+```text
+Sprint 1 (2-3 dias) — Receita & Performance
+  └─ P0 #1 enforcement   ├─ P0 #3 lazy routes
+  └─ P0 #2 webhook obs   └─ P0 #4 split Tiptap
+
+Sprint 2 (2-3 dias) — Conversão & UX crítica
+  └─ P1 #5 landing pública
+  └─ P1 #6 loading Premium
+  └─ P1 #7 tablet pass
+
+Sprint 3 (2 dias) — Confiança na IA
+  └─ P1 #8 justificativas
+  └─ P2 #9 streaming SSE
+  └─ P2 #10 rate limit + retry
+
+Sprint 4 (2 dias) — Qualidade & descoberta
+  └─ P2 #11 busca global
+  └─ P2 #12 a11y sweep
+  └─ P3 #13–#16
+```
+
+### Recomendação
+Começar pelo **Sprint 1** — protege receita (#1, #2) e dá ganho de performance imediato (#3, #4) mexendo em poucos arquivos (`App.tsx`, `vite.config.ts`, RPCs Supabase e webhook handler). Posso seguir direto por aí assim que aprovar.
