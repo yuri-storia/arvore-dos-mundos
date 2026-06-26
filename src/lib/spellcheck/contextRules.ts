@@ -57,7 +57,7 @@ const RULES: Rule[] = [
   {
     id: "sessao->secao",
     pattern:
-      /\b(?<w>sess[ãa]o|sess[õo]es)\b\s+(?:de|do|da|dos|das)\s+(?:livro|c[óo]digo|lei|jornal|revista|site|loja|artigo|cap[íi]tulo|documento|texto|p[áa]gina|not[íi]cias|esportes|economia|brinquedos|eletr[ôo]nicos|comentários)/giud,
+      /\b(?<w>sess[ãa]o|sess[õo]es)\b\s+(?:de|do|da|dos|das)\s+(?:livro|c[óo]digo|lei|jornal|revista|site|loja|artigo|cap[íi]tulo|documento|texto|p[áa]gina|not[íi]cias|esportes|economia|brinquedos|eletr[ôo]nicos|comentários)/giu,
     suggest: (m) => (/s$/i.test(m) ? "seções" : "seção"),
     reason:
       '"Sessão" = período/reunião (ex.: sessão de cinema). Para divisão/parte use "seção".',
@@ -67,7 +67,7 @@ const RULES: Rule[] = [
   {
     id: "secao->sessao",
     pattern:
-      /\b(?<w>se[çc][ãa]o|se[çc][õo]es)\b\s+(?:de|do|da|dos|das)\s+(?:cinema|fotos?|terapia|treino|abertura|encerramento|julgamento|cinema|espiritismo|tortura|aut[óo]grafos?|perguntas)/giud,
+      /\b(?<w>se[çc][ãa]o|se[çc][õo]es)\b\s+(?:de|do|da|dos|das)\s+(?:cinema|fotos?|terapia|treino|abertura|encerramento|julgamento|cinema|espiritismo|tortura|aut[óo]grafos?|perguntas)/giu,
     suggest: (m) => (/s$/i.test(m) ? "sessões" : "sessão"),
     reason:
       '"Seção" = parte/divisão. Para período/encontro use "sessão" (ex.: sessão de cinema).',
@@ -77,7 +77,7 @@ const RULES: Rule[] = [
   {
     id: "trafego->trafico",
     pattern:
-      /\b(?<w>tr[áa]fego)\b\s+(?:de|d[oa]s?)\s+(?:drogas?|armas?|pessoas?|influ[êe]ncia|[óo]rg[ãa]os?|animais|escravos?|entorpecentes?)/giud,
+      /\b(?<w>tr[áa]fego)\b\s+(?:de|d[oa]s?)\s+(?:drogas?|armas?|pessoas?|influ[êe]ncia|[óo]rg[ãa]os?|animais|escravos?|entorpecentes?)/giu,
     suggest: "tráfico",
     reason:
       '"Tráfego" = movimento (de veículos, dados). Para comércio ilegal use "tráfico".',
@@ -87,7 +87,7 @@ const RULES: Rule[] = [
   {
     id: "trafico->trafego",
     pattern:
-      /\b(?<w>tr[áa]fico)\b\s+(?:de|d[oa]s?)\s+(?:ve[íi]culos?|carros?|dados|rede|internet|a[ée]reo|rodovi[áa]rio|mar[íi]timo|urbano|pedestres?)/giud,
+      /\b(?<w>tr[áa]fico)\b\s+(?:de|d[oa]s?)\s+(?:ve[íi]culos?|carros?|dados|rede|internet|a[ée]reo|rodovi[áa]rio|mar[íi]timo|urbano|pedestres?)/giu,
     suggest: "tráfego",
     reason:
       '"Tráfico" = comércio ilegal. Para fluxo de veículos/dados use "tráfego".',
@@ -97,7 +97,7 @@ const RULES: Rule[] = [
   {
     id: "eminente->iminente",
     pattern:
-      /\b(?<w>eminente)\b\s+(?:perigo|risco|colapso|chegada|amea[çc]a|guerra|cat[áa]strofe|fal[êe]ncia|morte|queda)/giud,
+      /\b(?<w>eminente)\b\s+(?:perigo|risco|colapso|chegada|amea[çc]a|guerra|cat[áa]strofe|fal[êe]ncia|morte|queda)/giu,
     suggest: "iminente",
     reason:
       '"Eminente" = ilustre, notável. Para algo prestes a ocorrer use "iminente".',
@@ -107,7 +107,7 @@ const RULES: Rule[] = [
   {
     id: "iminente->eminente",
     pattern:
-      /\b(?<w>iminente)\b\s+(?:jurista|professora?|cientista|pol[íi]tico|figura|personalidade|escritor[a]?|m[ée]dic[oa]|pensador[a]?|fil[óo]sof[oa])/giud,
+      /\b(?<w>iminente)\b\s+(?:jurista|professora?|cientista|pol[íi]tico|figura|personalidade|escritor[a]?|m[ée]dic[oa]|pensador[a]?|fil[óo]sof[oa])/giu,
     suggest: "eminente",
     reason:
       '"Iminente" = prestes a ocorrer. Para pessoa notável/ilustre use "eminente".',
@@ -116,7 +116,7 @@ const RULES: Rule[] = [
   // 7. afim → a fim (de)  (intenção/propósito)
   {
     id: "afim->a-fim-de",
-    pattern: /\b(?<w>afim)\b\s+de\b/giud,
+    pattern: /\b(?<w>afim)\b\s+de\b/giu,
     suggest: "a fim",
     reason:
       '"Afim" = semelhante (almas afins). Para indicar intenção use "a fim de".',
@@ -126,7 +126,7 @@ const RULES: Rule[] = [
   {
     id: "a-anos-atras->ha",
     pattern:
-      /\b(?<w>a)\b\s+\d+\s+(?:minutos?|horas?|dias?|semanas?|meses|anos?|s[ée]culos?|d[ée]cadas?)\s+atr[áa]s\b/giud,
+      /\b(?<w>a)\b\s+\d+\s+(?:minutos?|horas?|dias?|semanas?|meses|anos?|s[ée]culos?|d[ée]cadas?)\s+atr[áa]s\b/giu,
     suggest: "há",
     reason:
       'Para tempo decorrido use o verbo "haver": "há 5 anos" (não "a 5 anos atrás").',
@@ -136,7 +136,7 @@ const RULES: Rule[] = [
   {
     id: "ha-atras-redundante",
     pattern:
-      /\bh[áa]\s+\d+\s+(?:minutos?|horas?|dias?|semanas?|meses|anos?|s[ée]culos?|d[ée]cadas?)\s+(?<w>atr[áa]s)\b/giud,
+      /\bh[áa]\s+\d+\s+(?:minutos?|horas?|dias?|semanas?|meses|anos?|s[ée]culos?|d[ée]cadas?)\s+(?<w>atr[áa]s)\b/giu,
     suggest: "",
     reason:
       'Redundância: "há" já indica passado. Prefira "há 5 anos" em vez de "há 5 anos atrás".',
@@ -146,7 +146,7 @@ const RULES: Rule[] = [
   {
     id: "viajem->viagem",
     pattern:
-      /\b(?:boa|m[áa]|minha|sua|nossa|tua|essa|esta|aquela|uma|a|toda|primeira|[úu]ltima)\s+(?<w>viajem)\b/giud,
+      /\b(?:boa|m[áa]|minha|sua|nossa|tua|essa|esta|aquela|uma|a|toda|primeira|[úu]ltima)\s+(?<w>viajem)\b/giu,
     suggest: "viagem",
     reason:
       '"Viagem" é substantivo; "viajem" é forma do verbo viajar (que eles viajem).',
@@ -156,7 +156,7 @@ const RULES: Rule[] = [
   {
     id: "ratificar->retificar",
     pattern:
-      /\b(?<w>ratific(?:ar|ou|ando|a|am|aram|ado|ada|ados|adas))\b\s+(?:o|a|os|as|um|uma)?\s*(?:erro|engano|equ[íi]voco|informa[çc][ãa]o|dado|c[áa]lculo|texto|nome|endere[çc]o)/giud,
+      /\b(?<w>ratific(?:ar|ou|ando|a|am|aram|ado|ada|ados|adas))\b\s+(?:o|a|os|as|um|uma)?\s*(?:erro|engano|equ[íi]voco|informa[çc][ãa]o|dado|c[áa]lculo|texto|nome|endere[çc]o)/giu,
     suggest: (m) => m.replace(/^rat/i, (s) => (s === "RAT" ? "RET" : "ret")),
     reason:
       '"Ratificar" = confirmar. Para corrigir/consertar use "retificar".',
@@ -166,7 +166,7 @@ const RULES: Rule[] = [
   {
     id: "descriminar->discriminar",
     pattern:
-      /\b(?<w>descrimin(?:ar|ou|ando|a|am|aram|ado|ada|ados|adas))\b\s+(?:por|contra|entre|os|as|um|uma|todos|todas|pessoas|negros|mulheres|minorias)/giud,
+      /\b(?<w>descrimin(?:ar|ou|ando|a|am|aram|ado|ada|ados|adas))\b\s+(?:por|contra|entre|os|as|um|uma|todos|todas|pessoas|negros|mulheres|minorias)/giu,
     suggest: (m) => m.replace(/^des/i, (s) => (s === "DES" ? "DIS" : "dis")),
     reason:
       '"Descriminar" = retirar do rol de crimes. Para distinguir/segregar use "discriminar".',
@@ -176,7 +176,7 @@ const RULES: Rule[] = [
   {
     id: "comprimento->cumprimento",
     pattern:
-      /\b(?<w>comprimentos?)\b\s+(?:cordia(?:l|is)|caloros[oa]s?|sinceros?|amig[áa]veis?|formais?|do|da|de|aos?|às?|para)/giud,
+      /\b(?<w>comprimentos?)\b\s+(?:cordia(?:l|is)|caloros[oa]s?|sinceros?|amig[áa]veis?|formais?|do|da|de|aos?|às?|para)/giu,
     suggest: (m) => (/s$/i.test(m) ? "cumprimentos" : "cumprimento"),
     reason:
       '"Comprimento" = medida/extensão. Para saudação use "cumprimento".',
@@ -186,7 +186,7 @@ const RULES: Rule[] = [
   {
     id: "cumprimento->comprimento",
     pattern:
-      /\b(?<w>cumprimentos?)\b\s+(?:de|d[oa])\s+(?:onda|cabo|fio|barra|mesa|pe[çc]a|terreno|sala|tubo|r[ée]gua)/giud,
+      /\b(?<w>cumprimentos?)\b\s+(?:de|d[oa])\s+(?:onda|cabo|fio|barra|mesa|pe[çc]a|terreno|sala|tubo|r[ée]gua)/giu,
     suggest: (m) => (/s$/i.test(m) ? "comprimentos" : "comprimento"),
     reason:
       '"Cumprimento" = saudação ou ato de cumprir. Para medida use "comprimento".',
@@ -195,7 +195,7 @@ const RULES: Rule[] = [
   // 15. "ao encontro de" vs "de encontro a" — marca quando vem "contra"/"oposi[çc][ãa]o"
   {
     id: "ao-encontro-contra",
-    pattern: /\b(?<w>ao\s+encontro)\b\s+(?:de|do|da|dos|das)\s+(?:meus|seus|nossos|suas)?\s*(?:cr[íi]ticas?|interesses\s+opostos|oposi[çc][ãa]o)/giud,
+    pattern: /\b(?<w>ao\s+encontro)\b\s+(?:de|do|da|dos|das)\s+(?:meus|seus|nossos|suas)?\s*(?:cr[íi]ticas?|interesses\s+opostos|oposi[çc][ãa]o)/giu,
     suggest: "de encontro",
     reason:
       '"Ao encontro de" = a favor. Para oposição/choque use "de encontro a".',
@@ -204,7 +204,7 @@ const RULES: Rule[] = [
   // 16. mal → mau  (substantivo/adjetivo masculino após verbo de ligação ou artigo)
   {
     id: "mal->mau-adj",
-    pattern: /\b(?:um|esse|este|aquele|do|de|todo|nenhum)\s+(?<w>mal)\s+(?:car[áa]ter|humor|aluno|exemplo|sujeito|cheiro|gosto|hábito|momento|pressentimento|marido|pai)/giud,
+    pattern: /\b(?:um|esse|este|aquele|do|de|todo|nenhum)\s+(?<w>mal)\s+(?:car[áa]ter|humor|aluno|exemplo|sujeito|cheiro|gosto|hábito|momento|pressentimento|marido|pai)/giu,
     suggest: "mau",
     reason:
       '"Mal" é advérbio/substantivo (oposto de bem). Como adjetivo (oposto de bom) use "mau".',
@@ -214,7 +214,7 @@ const RULES: Rule[] = [
   {
     id: "mau->mal-adv",
     pattern:
-      /\b(?:passar|sentir|dormir|comer|escrever|falar|cantar|jogar|cheirar|ficar|sair|ir|fazer|agir|comportar(?:-se)?)\s+(?<w>mau)\b/giud,
+      /\b(?:passar|sentir|dormir|comer|escrever|falar|cantar|jogar|cheirar|ficar|sair|ir|fazer|agir|comportar(?:-se)?)\s+(?<w>mau)\b/giu,
     suggest: "mal",
     reason:
       '"Mau" é adjetivo (oposto de bom). Como advérbio (oposto de bem) use "mal".',
