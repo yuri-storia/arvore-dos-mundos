@@ -106,6 +106,11 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    const rl = await checkRateLimit(adminClient, userId, "idriel-help", 10);
+    if (rl) return rl;
+
+
+
     const today = new Date().toISOString().split("T")[0];
     const { data: usageRow } = await adminClient
       .from("idriel_help_usage")
