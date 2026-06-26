@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { Trees, X, ScrollText, Trash2, Droplet, Droplets, Leaf, Sparkles, RefreshCw, Check, Gem, AlertTriangle, Eye, Compass, Award, ArrowRight, Star } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
-import { callAIText, friendlyAIError } from '@/lib/helpers';
+import { callAITextStream, friendlyAIError } from '@/lib/helpers';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
