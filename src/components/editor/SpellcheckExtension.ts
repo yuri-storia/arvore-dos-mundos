@@ -12,6 +12,7 @@ import type { EditorState, Transaction } from "@tiptap/pm/state";
 import type { Node as PMNode } from "@tiptap/pm/model";
 import { checkManyWords } from "@/lib/spellcheck/useSpellSuggestions";
 import { isCustomWord } from "@/lib/spellcheck/customDictionary";
+import { isSpellcheckEnabled } from "@/lib/spellcheck/spellcheckSettings";
 
 const WORD_RE = /[\p{L}\p{M}][\p{L}\p{M}'\-]*/gu;
 
