@@ -249,10 +249,12 @@ const Index = () => {
         )}
 
         <main>
-          {state.activeTab === 'construir' && <TabConstruir state={state} updateField={updateField} setCurrentFruit={setCurrentFruit} setMethod={setMethod} onNavigateCodex={() => setActiveTab('codex')} />}
-          {state.activeTab === 'codex' && <TabCodex gallery={state.gallery} worldId={state.currentSaveId} worlds={worlds} />}
-          {state.activeTab === 'escrever' && <TabEscrever worldId={state.currentSaveId} worlds={worlds} />}
-          {state.activeTab === 'galeria' && <TabGaleria gallery={state.gallery} setGallery={setGallery} state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />}
+          <React.Suspense fallback={<TabFallback />}>
+            {state.activeTab === 'construir' && <TabConstruir state={state} updateField={updateField} setCurrentFruit={setCurrentFruit} setMethod={setMethod} onNavigateCodex={() => setActiveTab('codex')} />}
+            {state.activeTab === 'codex' && <TabCodex gallery={state.gallery} worldId={state.currentSaveId} worlds={worlds} />}
+            {state.activeTab === 'escrever' && <TabEscrever worldId={state.currentSaveId} worlds={worlds} />}
+            {state.activeTab === 'galeria' && <TabGaleria gallery={state.gallery} setGallery={setGallery} state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />}
+          </React.Suspense>
         </main>
 
         <footer className={`text-center py-8 opacity-40 ${isMobile ? 'pb-24' : 'pb-8'}`}>
