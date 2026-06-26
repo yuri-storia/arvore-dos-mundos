@@ -190,7 +190,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
         <DialogHeader>
           <DialogTitle className="font-cinzel text-gold inline-flex items-center gap-2"><Library className="w-4 h-4" strokeWidth={1.75} />Importar com Idriel</DialogTitle>
           <DialogDescription className="text-foreground/70">
-            Idriel lê seu texto e sugere fichas e artigos para o Codex (custo: 1 gota).
+            Idriel lê o documento inteiro (PDF nativo com OCR) e sugere fichas e artigos para o Codex (custo: 5 gotas).
           </DialogDescription>
         </DialogHeader>
 
