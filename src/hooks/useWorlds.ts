@@ -53,8 +53,8 @@ export function useWorlds() {
       id: data.id,
       name: data.name,
       method: data.method as MethodType,
-      db: (data.db || {}) as Record<number, Record<string, string>>,
-      gallery: (data.gallery || []) as GalleryImage[],
+      db: (data.db || {}) as unknown as Record<number, Record<string, string>>,
+      gallery: (data.gallery || []) as unknown as GalleryImage[],
       updated_at: data.updated_at,
     };
   }, []);
