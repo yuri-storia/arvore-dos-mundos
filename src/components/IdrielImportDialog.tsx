@@ -28,6 +28,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
   const [pendingPdf, setPendingPdf] = useState<File | null>(null);
   const [suggestions, setSuggestions] = useState<ImportedSuggestion[]>([]);
   const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [progress, setProgress] = useState<ImportProgress | null>(null);
 
   const reset = () => {
     setStep('upload');
