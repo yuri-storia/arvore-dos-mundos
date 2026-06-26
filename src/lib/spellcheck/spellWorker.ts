@@ -15,6 +15,13 @@ const affUrl = "/dict/pt-br.aff";
 const dicUrl = "/dict/pt-br.dic";
 const runtimeUrl = "/dict/hunspell.js";
 
+self.addEventListener("error", (event) => {
+  console.error("[spellWorker] uncaught error", event.message, event.filename, event.lineno);
+});
+self.addEventListener("unhandledrejection", (event) => {
+  console.error("[spellWorker] unhandled rejection", event.reason);
+});
+
 type RuntimeModuleFactory = (module: Record<string, unknown>) => HunspellAsmModule;
 
 type HunspellAsmModule = Record<string, unknown> & {
@@ -106,6 +113,7 @@ async function loadHunspellWasm(): Promise<HunspellAsmModule> {
   const initialized = await asmModule.initializeRuntime(20000);
   console.debug("[spellWorker] runtime initialized", initialized);
   if (!initialized) throw new Error("Timeout initializing Hunspell runtime");
+  console.debug("[spellWorker] returning asm");
   return asmModule;
 }
 
