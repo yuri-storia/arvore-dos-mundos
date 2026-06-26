@@ -98,16 +98,17 @@ export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>(
 
   addOptions() {
     return {
-      debounceMs: 350,
+      debounceMs: 120,
       enabled: true,
     };
   },
 
   addProseMirrorPlugins() {
     if (!this.options.enabled) return [];
-    const debounceMs = this.options.debounceMs ?? 350;
+    const debounceMs = this.options.debounceMs ?? 120;
     let timer: ReturnType<typeof setTimeout> | null = null;
     let inflight = false;
+
 
     const scheduleCheck = (view: { state: EditorState; dispatch: (tr: Transaction) => void }) => {
       if (timer) clearTimeout(timer);
