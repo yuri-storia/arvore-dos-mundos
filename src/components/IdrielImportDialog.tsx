@@ -279,7 +279,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
               <Button
                 onClick={pendingPdf ? handleAnalyze : (fileName ? handleAnalyze : handlePasteAnalyze)}
                 disabled={analyzing || extracting || (!pendingPdf && extractedText.trim().length < 50)}
-                className="bg-gold text-background hover:bg-gold/90"
+                className="relative overflow-hidden bg-gradient-to-r from-amber-400 via-gold to-amber-500 text-background hover:from-amber-300 hover:via-gold hover:to-amber-400 font-cinzel tracking-wide shadow-[0_6px_24px_-6px_rgba(212,175,55,0.75)] hover:shadow-[0_10px_30px_-6px_rgba(212,175,55,0.9)] border border-gold/70 transition-all"
               >
                 {analyzing ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Idriel está lendo...</> : <><Sparkles className="h-4 w-4 mr-2" /> Analisar com Idriel</>}
               </Button>
