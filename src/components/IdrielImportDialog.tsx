@@ -230,11 +230,18 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
               {extractedText.length.toLocaleString('pt-BR')} / 200.000 caracteres
             </div>
 
+            {pendingPdf && (
+              <div className="text-xs text-gold/80 bg-gold/[0.06] border border-gold/20 rounded-md p-2 flex items-start gap-2">
+                <Sparkles className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                <span>Idriel vai ler este PDF inteiro — incluindo páginas escaneadas (OCR). Sem corte de tamanho.</span>
+              </div>
+            )}
+
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={() => handleClose(false)} disabled={analyzing}>Cancelar</Button>
               <Button
-                onClick={fileName ? handleAnalyze : handlePasteAnalyze}
-                disabled={analyzing || extracting || extractedText.trim().length < 50}
+                onClick={pendingPdf ? handleAnalyze : (fileName ? handleAnalyze : handlePasteAnalyze)}
+                disabled={analyzing || extracting || (!pendingPdf && extractedText.trim().length < 50)}
                 className="bg-gold text-background hover:bg-gold/90"
               >
                 {analyzing ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Idriel está lendo...</> : <><Sparkles className="h-4 w-4 mr-2" /> Analisar com Idriel</>}
