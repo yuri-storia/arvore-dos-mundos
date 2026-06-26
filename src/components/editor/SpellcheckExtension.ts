@@ -1,9 +1,15 @@
 // Tiptap extension that renders PT-BR misspellings with a red wavy underline
-// using our own nspell-based Web Worker dictionary. Does NOT depend on the
-// browser's native spellcheck (which often lacks PT-BR support).
+// (orthography, via local Hunspell worker) and AI-detected grammar/style
+// issues with a yellow wavy underline.
 //
-// Right-click suggestions are handled by the global SpellcheckProvider via
-// wordAtPoint.ts; this extension is purely responsible for the visual marker.
+// Three passes are merged into one DecorationSet:
+//   1. Dicionário local (rápido, off-line)      → .spell-error            (vermelho)
+//   2. Regras contextuais determinísticas       → .spell-error.spell-context (vermelho)
+//   3. Revisor IA por parágrafo (Gemini Flash)  → .spell-error (spelling) +
+//                                                 .spell-warning (grammar/style)
+//
+// Right-click / left-click / hover suggestions are handled by the global
+// SpellcheckProvider via wordAtPoint.ts; this extension is purely visual.
 
 import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
@@ -14,6 +20,11 @@ import { checkManyWords } from "@/lib/spellcheck/useSpellSuggestions";
 import { isCustomWord } from "@/lib/spellcheck/customDictionary";
 import { isSpellcheckEnabled } from "@/lib/spellcheck/spellcheckSettings";
 import { findContextIssues } from "@/lib/spellcheck/contextRules";
+import {
+  getCachedIssues,
+  reviewParagraph,
+  type AIIssue,
+} from "@/lib/spellcheck/aiReviewer";
 
 
 const WORD_RE = /[\p{L}\p{M}][\p{L}\p{M}'\-]*/gu;
@@ -32,19 +43,17 @@ function rememberVerdict(word: string, correct: boolean) {
 
 interface PluginState {
   decorations: DecorationSet;
-  version: number; // increments each time we recompute
+  version: number;
 }
 
 const key = new PluginKey<PluginState>("spellcheck-decorations");
 
-// Skip words shorter than this to avoid false positives & noise.
 const MIN_WORD_LEN = 2;
 
-// Words that are likely proper nouns / numbers we don't want flagged.
 function shouldSkip(word: string): boolean {
   if (word.length < MIN_WORD_LEN) return true;
   if (/^\d/.test(word)) return true;
-  if (/^[A-ZÁÉÍÓÚÂÊÔÃÕÇ]{2,}$/.test(word)) return true; // ALL CAPS acronyms
+  if (/^[A-ZÁÉÍÓÚÂÊÔÃÕÇ]{2,}$/.test(word)) return true;
   if (isCustomWord(word)) return true;
   return false;
 }
@@ -67,12 +76,59 @@ function collectWords(doc: PMNode): Array<{ word: string; from: number; to: numb
   return hits;
 }
 
+// Coleta blocos de parágrafo para revisão por IA. Concatena nós de texto
+// do mesmo bloco e guarda a posição inicial do bloco (start) para mapear
+// offsets de volta ao documento.
+interface ParaBlock {
+  text: string;
+  start: number; // posição (PM) do primeiro caractere de texto do bloco
+  textNodes: Array<{ pos: number; text: string }>;
+}
+
+function collectParagraphs(doc: PMNode): ParaBlock[] {
+  const blocks: ParaBlock[] = [];
+  doc.descendants((node, pos) => {
+    if (!node.isTextblock) return undefined;
+    if (node.childCount === 0) return false;
+    const textNodes: Array<{ pos: number; text: string }> = [];
+    let combined = "";
+    let firstPos = -1;
+    node.descendants((child, offset) => {
+      if (child.isText && child.text) {
+        const absPos = pos + 1 + offset;
+        if (firstPos < 0) firstPos = absPos;
+        textNodes.push({ pos: absPos, text: child.text });
+        combined += child.text;
+      }
+    });
+    if (combined.trim().length >= 4 && firstPos >= 0) {
+      blocks.push({ text: combined, start: firstPos, textNodes });
+    }
+    return false; // não desça mais — textblock é folha lógica para nós
+  });
+  return blocks;
+}
+
+// Mapeia um offset (relativo ao texto concatenado do bloco) para a posição
+// absoluta no doc, atravessando múltiplos nós de texto.
+function offsetToDocPos(block: ParaBlock, offset: number): number {
+  let remaining = offset;
+  for (const n of block.textNodes) {
+    if (remaining <= n.text.length) return n.pos + remaining;
+    remaining -= n.text.length;
+  }
+  // Fim do último nó.
+  const last = block.textNodes[block.textNodes.length - 1];
+  return last ? last.pos + last.text.length : block.start;
+}
+
 function buildDecorations(
   doc: PMNode,
   cache: Map<string, boolean>,
 ): DecorationSet {
   if (!isSpellcheckEnabled()) return DecorationSet.empty;
   const decos: Decoration[] = [];
+
   // Pass 1: dicionário (palavras inexistentes).
   const seen = collectWords(doc);
   for (const h of seen) {
@@ -86,7 +142,8 @@ function buildDecorations(
       );
     }
   }
-  // Pass 2: regras contextuais (palavras corretas usadas no sentido errado).
+
+  // Pass 2: regras contextuais determinísticas.
   doc.descendants((node, pos) => {
     if (!node.isText || !node.text) return;
     const issues = findContextIssues(node.text);
@@ -102,15 +159,43 @@ function buildDecorations(
       );
     }
   });
+
+  // Pass 3: issues da IA, lidas do cache (não dispara rede aqui — quem
+  // dispara é o scheduler em scheduleCheck()).
+  const blocks = collectParagraphs(doc);
+  for (const b of blocks) {
+    const issues = getCachedIssues(b.text);
+    if (!issues || issues.length === 0) continue;
+    for (const it of issues) {
+      const from = offsetToDocPos(b, it.offset);
+      const to = offsetToDocPos(b, it.offset + it.length);
+      if (to <= from) continue;
+      const cls = it.type === "spelling"
+        ? "spell-error spell-ai"
+        : `spell-warning spell-${it.type}`;
+      decos.push(
+        Decoration.inline(from, to, {
+          class: cls,
+          spellcheck: "false",
+          "data-ai-suggestions": JSON.stringify(it.suggestions || []),
+          "data-ai-reason": it.reason || "",
+          "data-ai-type": it.type,
+        }),
+      );
+    }
+  }
+
   return DecorationSet.create(doc, decos);
 }
 
 
 export interface SpellcheckExtensionOptions {
-  /** Debounce window in ms before running the next dictionary lookup batch. */
   debounceMs?: number;
-  /** Set to false to completely disable (e.g. for plaintext-only fields). */
   enabled?: boolean;
+  /** Habilita a camada de revisão por IA (gramática/estilo). */
+  aiReview?: boolean;
+  /** Debounce extra antes de chamar a IA (espera o usuário pausar). */
+  aiDebounceMs?: number;
 }
 
 export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>({
@@ -120,27 +205,53 @@ export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>(
     return {
       debounceMs: 120,
       enabled: true,
+      aiReview: true,
+      aiDebounceMs: 1500,
     };
   },
 
   addProseMirrorPlugins() {
     if (!this.options.enabled) return [];
     const debounceMs = this.options.debounceMs ?? 120;
+    const aiDebounceMs = this.options.aiDebounceMs ?? 1500;
+    const aiEnabled = this.options.aiReview !== false;
     let timer: ReturnType<typeof setTimeout> | null = null;
+    let aiTimer: ReturnType<typeof setTimeout> | null = null;
     let inflight = false;
 
+    const scheduleAI = (view: { state: EditorState; dispatch: (tr: Transaction) => void }) => {
+      if (!aiEnabled) return;
+      if (aiTimer) clearTimeout(aiTimer);
+      aiTimer = setTimeout(async () => {
+        if (!isSpellcheckEnabled()) return;
+        const blocks = collectParagraphs(view.state.doc);
+        // Limita revisão a parágrafos sem cache para não saturar a API.
+        const targets = blocks.filter((b) => getCachedIssues(b.text) === null)
+          .slice(0, 6);
+        if (targets.length === 0) return;
+        // Disparos em paralelo (cap 3).
+        const chunks: ParaBlock[][] = [];
+        for (let i = 0; i < targets.length; i += 3) {
+          chunks.push(targets.slice(i, i + 3));
+        }
+        for (const chunk of chunks) {
+          await Promise.all(chunk.map((b) => reviewParagraph(b.text)));
+          // Rebuild incremental após cada lote para feedback rápido.
+          const tr = view.state.tr.setMeta(key, { recompute: true });
+          view.dispatch(tr);
+        }
+      }, aiDebounceMs);
+    };
 
     const scheduleCheck = (view: { state: EditorState; dispatch: (tr: Transaction) => void }) => {
       if (timer) clearTimeout(timer);
       timer = setTimeout(async () => {
-        // Honor runtime toggle: if disabled, just clear and bail.
         if (!isSpellcheckEnabled()) {
           const tr = view.state.tr.setMeta(key, { recompute: true });
           view.dispatch(tr);
           return;
         }
         if (inflight) {
-          // Re-schedule if another batch is still running
           scheduleCheck(view);
           return;
         }
@@ -151,14 +262,13 @@ export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>(
           if (!verdictCache.has(k)) unknown.add(h.word);
         }
         if (unknown.size === 0) {
-          // Even if no new lookups needed, re-build (custom dict may have changed)
           const tr = view.state.tr.setMeta(key, { recompute: true });
           view.dispatch(tr);
+          scheduleAI(view);
           return;
         }
         inflight = true;
         try {
-          // Worker can handle a few thousand words per batch easily.
           const results = await checkManyWords(Array.from(unknown));
           for (const w of Object.keys(results)) {
             rememberVerdict(w, results[w]);
@@ -170,6 +280,7 @@ export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>(
         }
         const tr = view.state.tr.setMeta(key, { recompute: true });
         view.dispatch(tr);
+        scheduleAI(view);
       }, debounceMs);
     };
 
@@ -190,16 +301,12 @@ export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>(
               };
             }
             if (tr.docChanged) {
-              // Immediate cache-only rebuild so already-known misspellings
-              // (including newly typed words present in the cache) underline
-              // without waiting for the next worker batch.
               return {
                 decorations: buildDecorations(newState.doc, verdictCache),
                 version: value.version,
               };
             }
             return value;
-
           },
         },
         props: {
@@ -208,8 +315,6 @@ export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>(
           },
         },
         view(view) {
-          // Kick off initial check + react to custom dictionary changes
-          // and to the global on/off toggle.
           scheduleCheck(view);
           const onDictChanged = () => scheduleCheck(view);
           const onToggleChanged = () => scheduleCheck(view);
@@ -223,6 +328,7 @@ export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>(
             },
             destroy() {
               if (timer) clearTimeout(timer);
+              if (aiTimer) clearTimeout(aiTimer);
               window.removeEventListener("spellcheck:custom-dict-changed", onDictChanged);
               window.removeEventListener("spellcheck:enabled-changed", onToggleChanged);
             },
