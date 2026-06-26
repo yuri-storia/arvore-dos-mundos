@@ -18,11 +18,3 @@ declare module "nspell" {
   export default NSpell;
 }
 
-declare module "dictionary-pt/index.aff?url" {
-  const url: string;
-  export default url;
-}
-declare module "dictionary-pt/index.dic?url" {
-  const url: string;
-  export default url;
-}
