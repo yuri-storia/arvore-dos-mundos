@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { extractTextFromFile, type ImportSourceType } from '@/lib/textExtractor';
-import { importTextWithIdriel, type ImportedSuggestion } from '@/lib/helpers';
+import { importTextWithIdriel, importFileWithIdriel, type ImportedSuggestion } from '@/lib/helpers';
 import { FRUITS } from '@/lib/data';
 import { toast } from 'sonner';
 import { Loader2, Upload, Sparkles, FileText, Library, Paperclip, ArrowLeft } from 'lucide-react';
@@ -24,6 +24,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
   const [extractedText, setExtractedText] = useState('');
   const [sourceType, setSourceType] = useState<ImportSourceType>('texto');
   const [fileName, setFileName] = useState('');
+  const [pendingPdf, setPendingPdf] = useState<File | null>(null);
   const [suggestions, setSuggestions] = useState<ImportedSuggestion[]>([]);
   const [selected, setSelected] = useState<Set<number>>(new Set());
 
@@ -32,6 +33,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
     setExtractedText('');
     setSourceType('texto');
     setFileName('');
+    setPendingPdf(null);
     setSuggestions([]);
     setSelected(new Set());
     setExtracting(false);
@@ -45,8 +47,21 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
   };
 
   const handleFile = async (file: File) => {
-    if (file.size > 20 * 1024 * 1024) { toast.error('Arquivo muito grande (máx. 20MB).'); return; }
+    if (file.size > 15 * 1024 * 1024) { toast.error('Arquivo muito grande (máx. 15MB).'); return; }
     setFileName(file.name);
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+
+    // PDFs vão direto pra Idriel em modo multimodal — sem extração no cliente.
+    if (isPdf) {
+      setPendingPdf(file);
+      setExtractedText('');
+      setSourceType('pdf');
+      toast.success('PDF pronto. Idriel vai ler o documento inteiro com OCR.');
+      return;
+    }
+
+    // DOCX / TXT / MD continuam com extração local (Gemini não lê DOCX nativo).
+    setPendingPdf(null);
     setExtracting(true);
     try {
       const { text, sourceType } = await extractTextFromFile(file);
@@ -73,7 +88,44 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
   };
 
   const handleAnalyze = async () => {
+    if (pendingPdf) {
+      await runPdfAnalysis(pendingPdf);
+      return;
+    }
     await runAnalysis(extractedText, sourceType);
+  };
+
+  const finalizeAnalysis = (result: ImportedSuggestion[]) => {
+    if (!Array.isArray(result) || result.length === 0) {
+      toast.warning('Idriel não encontrou entradas relevantes neste documento. Tente um trecho mais descritivo.');
+      return;
+    }
+    const valid = result.filter(e =>
+      e && (e.type === 'ficha' || e.type === 'artigo') &&
+      typeof e.title === 'string' && e.title.trim().length > 0 &&
+      typeof e.summary === 'string' && e.summary.trim().length > 0 &&
+      typeof e.fruit_id === 'number' && e.fruit_id >= 0 && e.fruit_id <= 10
+    );
+    if (valid.length === 0) {
+      toast.warning('As sugestões retornadas não são válidas. Tente novamente.');
+      return;
+    }
+    setSuggestions(valid);
+    setSelected(new Set(valid.map((_, i) => i)));
+    setStep('review');
+  };
+
+  const runPdfAnalysis = async (file: File) => {
+    setAnalyzing(true);
+    try {
+      const result = await importFileWithIdriel(file);
+      finalizeAnalysis(result);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erro ao analisar arquivo';
+      toast.error(msg);
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   const runAnalysis = async (text: string, src: ImportSourceType) => {
@@ -81,31 +133,14 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
       toast.error('Texto muito curto (mínimo 50 caracteres).');
       return;
     }
-    if (text.length > 200000) {
-      toast.error('Texto muito longo (máximo 200.000 caracteres).');
+    if (text.length > 400000) {
+      toast.error('Texto muito longo (máximo 400.000 caracteres).');
       return;
     }
     setAnalyzing(true);
     try {
       const result = await importTextWithIdriel(text, src);
-      if (!Array.isArray(result) || result.length === 0) {
-        toast.warning('Idriel não encontrou entradas relevantes neste texto. Tente um trecho mais descritivo.');
-        return;
-      }
-      // Validate each entry shape
-      const valid = result.filter(e =>
-        e && (e.type === 'ficha' || e.type === 'artigo') &&
-        typeof e.title === 'string' && e.title.trim().length > 0 &&
-        typeof e.summary === 'string' && e.summary.trim().length > 0 &&
-        typeof e.fruit_id === 'number' && e.fruit_id >= 0 && e.fruit_id <= 10
-      );
-      if (valid.length === 0) {
-        toast.warning('As sugestões retornadas não são válidas. Tente novamente.');
-        return;
-      }
-      setSuggestions(valid);
-      setSelected(new Set(valid.map((_, i) => i)));
-      setStep('review');
+      finalizeAnalysis(result);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Erro ao analisar texto';
       toast.error(msg);
