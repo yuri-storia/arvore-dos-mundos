@@ -40,7 +40,12 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    // Anti-burst: 20 chamadas/min por usuário.
+    const rl = await checkRateLimit(adminClient, userId, "ai-text", 20);
+    if (rl) return rl;
+
     const { data: quota } = await adminClient.rpc("check_ai_quota", { _user_id: userId, _type: "text" });
+
     if (!quota?.allowed) {
       const reason = quota?.reason || "unknown";
       const messages: Record<string, string> = {
