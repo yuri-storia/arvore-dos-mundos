@@ -13,7 +13,7 @@
 // Use the Brazil-specific VERO dictionary instead of generic Portuguese.
 const affUrl = "/dict/pt-br.aff";
 const dicUrl = "/dict/pt-br.dic";
-const runtimeUrl = "/dict/hunspell-runtime.mjs";
+const runtimeUrl = "/dict/hunspell.js";
 
 type RuntimeModuleFactory = (module: Record<string, unknown>) => HunspellAsmModule;
 
@@ -76,11 +76,19 @@ async function loadHunspellWasm(): Promise<HunspellAsmModule> {
   // The published `hunspell-asm` ESM entry currently breaks under Vite workers:
   // its UMD runtime is converted into a module namespace object, so the loader
   // calls it as a function and fails with `runtimeModule is not a function`.
-  // Import the same Emscripten runtime as a static public module with an explicit
-  // default export and initialize it ourselves.
-  const runtimeMod = (await import(/* @vite-ignore */ runtimeUrl)) as {
+  // Fetch the same Emscripten runtime from /public and import it through a Blob
+  // URL with an explicit ESM default export. Direct `import('/dict/...')` is
+  // intentionally blocked by Vite during development.
+  const runtimeRes = await fetch(runtimeUrl);
+  if (!runtimeRes.ok) throw new Error(`Hunspell runtime failed to load (${runtimeRes.status})`);
+  const runtimeSource = `${await runtimeRes.text()}\nexport default Module;\n`;
+  const runtimeBlobUrl = URL.createObjectURL(
+    new Blob([runtimeSource], { type: "text/javascript" }),
+  );
+  const runtimeMod = (await import(/* @vite-ignore */ runtimeBlobUrl)) as {
     default?: RuntimeModuleFactory;
   };
+  URL.revokeObjectURL(runtimeBlobUrl);
   const runtimeFactory = runtimeMod.default;
   if (typeof runtimeFactory !== "function") {
     throw new Error("Hunspell runtime failed to load");
