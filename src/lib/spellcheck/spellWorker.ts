@@ -1,6 +1,6 @@
-// Web Worker that runs a Hunspell-compatible PT-BR spellchecker (nspell)
-// fully offline using a bundled dictionary. No AI, no network calls beyond
-// fetching the static dictionary asset shipped with the app.
+// Web Worker that runs the real Hunspell engine for Portuguese (Brazil)
+// fully offline using a bundled PT-BR dictionary. No AI, no network calls
+// beyond fetching the static dictionary assets shipped with the app.
 //
 // Messages:
 //   { id, type: "check",  word }                       → { id, correct }
@@ -9,10 +9,13 @@
 //   { id, type: "add",    word }                       → { id, ok }
 //   { id, type: "ready" }                              → { id, ready }
 
+import { loadModule } from "hunspell-asm";
+import type { Hunspell } from "hunspell-asm";
+
 // Dictionary files are shipped as static assets under /public/dict/.
-const affUrl = "/dict/pt.aff";
-const dicUrl = "/dict/pt.dic";
-import NSpell from "nspell";
+// Use the Brazil-specific VERO dictionary instead of generic Portuguese.
+const affUrl = "/dict/pt-br.aff";
+const dicUrl = "/dict/pt-br.dic";
 
 type SpellInstance = {
   correct: (w: string) => boolean;
@@ -28,8 +31,20 @@ async function boot(): Promise<SpellInstance> {
   if (bootPromise) return bootPromise;
   bootPromise = (async () => {
     const [affRes, dicRes] = await Promise.all([fetch(affUrl), fetch(dicUrl)]);
-    const [aff, dic] = await Promise.all([affRes.text(), dicRes.text()]);
-    spell = NSpell({ aff, dic }) as unknown as SpellInstance;
+    if (!affRes.ok || !dicRes.ok) {
+      throw new Error(`PT-BR dictionary failed to load (${affRes.status}/${dicRes.status})`);
+    }
+    const [aff, dic] = await Promise.all([affRes.arrayBuffer(), dicRes.arrayBuffer()]);
+    const factory = await loadModule({ timeout: 20000 });
+    const affPath = factory.mountBuffer(new Uint8Array(aff), "pt-br.aff");
+    const dicPath = factory.mountBuffer(new Uint8Array(dic), "pt-br.dic");
+    const hunspell: Hunspell = factory.create(affPath, dicPath);
+
+    spell = {
+      correct: (w: string) => hunspell.spell(w),
+      suggest: (w: string) => hunspell.suggest(w),
+      add: (w: string) => hunspell.addWord(w),
+    };
     return spell;
   })();
   return bootPromise;
@@ -62,7 +77,7 @@ self.addEventListener("message", async (ev: MessageEvent<InMsg>) => {
       for (const w of list) {
         if (!w) continue;
         if (results[w] !== undefined) continue;
-        try { results[w] = s.correct(w); } catch { results[w] = true; }
+        try { results[w] = s.correct(w); } catch { results[w] = false; }
       }
       (self as unknown as Worker).postMessage({ id, results });
       return;
