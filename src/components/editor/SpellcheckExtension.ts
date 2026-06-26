@@ -112,6 +112,12 @@ export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>(
     const scheduleCheck = (view: { state: EditorState; dispatch: (tr: Transaction) => void }) => {
       if (timer) clearTimeout(timer);
       timer = setTimeout(async () => {
+        // Honor runtime toggle: if disabled, just clear and bail.
+        if (!isSpellcheckEnabled()) {
+          const tr = view.state.tr.setMeta(key, { recompute: true });
+          view.dispatch(tr);
+          return;
+        }
         if (inflight) {
           // Re-schedule if another batch is still running
           scheduleCheck(view);
