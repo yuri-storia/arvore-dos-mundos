@@ -254,6 +254,34 @@ export async function importTextWithIdriel(text: string, sourceType: 'pdf' | 'do
   return (data?.entries || []) as ImportedSuggestion[];
 }
 
+/**
+ * Envia o arquivo binário (PDF) para Idriel ler nativamente via Gemini multimodal.
+ * Não extrai texto no cliente — o modelo "lê" o PDF inteiro (inclui OCR de páginas escaneadas).
+ */
+export async function importFileWithIdriel(file: File): Promise<ImportedSuggestion[]> {
+  const buf = await file.arrayBuffer();
+  // base64 chunked p/ não estourar call stack em PDFs grandes
+  const bytes = new Uint8Array(buf);
+  let binary = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)));
+  }
+  const fileData = btoa(binary);
+
+  const { data, error } = await supabase.functions.invoke('idriel-import-text', {
+    body: {
+      sourceType: 'pdf',
+      fileName: file.name,
+      mimeType: file.type || 'application/pdf',
+      fileData,
+    },
+  });
+  if (error) await throwInvokeError(error, 'Erro ao analisar arquivo');
+  if (data?.error) throw new Error(data.error);
+  return (data?.entries || []) as ImportedSuggestion[];
+}
+
 // Summarize an Idriel response into clean prose suitable for a Codex entry
 export async function summarizeIdrielResponse(response: string, kind: 'ficha' | 'artigo'): Promise<string> {
   const sysPrompt = `Você é um editor enxuto. Resuma o conselho de worldbuilding a seguir em ${kind === 'ficha' ? '2-4 parágrafos curtos e diretos, focados nos fatos e ideias concretas (não inclua perguntas retóricas, vocativos como "querido criador" ou linguagem mística)' : '3-5 parágrafos objetivos e bem estruturados (sem trejeitos místicos, vocativos ou repetições). Use um título ## para cada seção temática quando houver mais de uma ideia clara'}. Responda em português brasileiro. NÃO use prefácios — entregue apenas o resumo limpo.`;
