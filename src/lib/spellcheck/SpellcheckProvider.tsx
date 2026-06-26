@@ -20,7 +20,7 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import { Loader2, Plus, X, SpellCheck2, CheckCircle2 } from "lucide-react";
+import { Loader2, Plus, X, SpellCheck2, CheckCircle2, Sparkles } from "lucide-react";
 import { wordAtPoint, type WordHit } from "./wordAtPoint";
 import { addCustomWord, isCustomWord } from "./customDictionary";
 import {
@@ -32,12 +32,39 @@ import { isSpellcheckEnabled } from "./spellcheckSettings";
 
 interface PopoverState {
   hit: WordHit;
-  // Where to position the popover on screen.
   x: number;
   y: number;
+  /** Preencher quando vier de uma decoração da IA (multi-palavra). */
+  prefilled?: SpellLookupResult & { kind: "ai-warning" | "ai-spelling" };
 }
 
 const HOVER_DELAY_MS = 350;
+
+/** Constrói um WordHit a partir de um elemento .spell-warning/.spell-error com data-ai-* */
+function hitFromAIElement(el: HTMLElement): WordHit | null {
+  const text = el.textContent ?? "";
+  if (!text.trim()) return null;
+  const rect = el.getBoundingClientRect();
+  const replace = (next: string) => {
+    // Localiza o textNode dentro do elemento e substitui o conteúdo completo.
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const first = walker.nextNode() as Text | null;
+    if (first) {
+      // Junta todo o texto em um nó só e substitui.
+      const parent = first.parentNode!;
+      // Remove demais nós de texto.
+      let n = walker.nextNode();
+      while (n) {
+        const next = walker.nextNode();
+        n.parentNode?.removeChild(n);
+        n = next;
+      }
+      first.textContent = next;
+      parent.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    }
+  };
+  return { word: text, before: "", after: "", replace, rect };
+}
 
 export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
   children,
@@ -51,8 +78,13 @@ export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
   const hoverTargetRef = useRef<HTMLElement | null>(null);
 
   const openFor = useCallback(
-    (hit: WordHit, x: number, y: number) => {
-      setPop({ hit, x, y });
+    (hit: WordHit, x: number, y: number, prefilled?: PopoverState["prefilled"]) => {
+      setPop({ hit, x, y, prefilled });
+      if (prefilled) {
+        setResult(prefilled);
+        setLoading(false);
+        return;
+      }
       setResult(null);
       setLoading(true);
 
@@ -68,6 +100,34 @@ export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
     },
     [lookup],
   );
+
+  /** Tenta extrair issue da IA do elemento sob o cursor. */
+  const aiHitFor = useCallback((el: HTMLElement | null) => {
+    if (!el) return null;
+    const target = el.closest(".spell-warning, .spell-ai") as HTMLElement | null;
+    if (!target) return null;
+    const hit = hitFromAIElement(target);
+    if (!hit) return null;
+    let suggestions: string[] = [];
+    try {
+      const raw = target.getAttribute("data-ai-suggestions") || "[]";
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) suggestions = arr.filter((s) => typeof s === "string");
+    } catch { /* noop */ }
+    const reason = target.getAttribute("data-ai-reason") || "";
+    const type = target.getAttribute("data-ai-type") || "grammar";
+    return {
+      hit,
+      target,
+      prefilled: {
+        correct: false,
+        suggestions,
+        reason,
+        kind: type === "spelling" ? ("ai-spelling" as const) : ("ai-warning" as const),
+      } satisfies PopoverState["prefilled"],
+    };
+  }, []);
+
 
   // Right-click handler — captured to win over Radix/Tiptap menus.
   useEffect(() => {
