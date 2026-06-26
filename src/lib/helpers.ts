@@ -136,6 +136,75 @@ export async function callAIText(messages: { role: string; content: string }[], 
   return data?.content || '';
 }
 
+/**
+ * Streaming via SSE para reduzir latência percebida. Chama `ai-text` com
+ * `stream:true` e dispara `onChunk(textoAcumulado)` a cada delta.
+ * Usa fetch direto pois `supabase.functions.invoke` não suporta streams.
+ */
+export async function callAITextStream(
+  messages: { role: string; content: string }[],
+  systemPrompt: string | undefined,
+  onChunk: (accumulated: string, delta: string) => void,
+  signal?: AbortSignal,
+): Promise<string> {
+  const { data: sess } = await supabase.auth.getSession();
+  const token = sess?.session?.access_token;
+  if (!token) throw new Error('Sessão expirada. Faça login novamente.');
+
+  const url = `${(import.meta as any).env.VITE_SUPABASE_URL}/functions/v1/ai-text`;
+  const apikey = (import.meta as any).env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      ...(apikey ? { apikey } : {}),
+    },
+    body: JSON.stringify({ messages, systemPrompt, stream: true }),
+    signal,
+  });
+
+  if (!res.ok) {
+    let msg = `AI error: ${res.status}`;
+    try {
+      const errBody = await res.json();
+      if (errBody?.error) msg = String(errBody.error);
+    } catch { /* ignore */ }
+    throw new Error(msg);
+  }
+  if (!res.body) throw new Error('Stream vazio da IA.');
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let acc = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    // SSE: events separados por \n\n, cada linha começa com "data: "
+    let sep;
+    while ((sep = buffer.indexOf('\n\n')) !== -1) {
+      const event = buffer.slice(0, sep);
+      buffer = buffer.slice(sep + 2);
+      for (const line of event.split('\n')) {
+        if (!line.startsWith('data:')) continue;
+        const payload = line.slice(5).trim();
+        if (!payload || payload === '[DONE]') continue;
+        try {
+          const json = JSON.parse(payload);
+          const delta = json?.choices?.[0]?.delta?.content
+            || json?.choices?.[0]?.message?.content
+            || '';
+          if (delta) { acc += delta; onChunk(acc, delta); }
+        } catch { /* keep going */ }
+      }
+    }
+  }
+  return acc;
+}
+
+
 export type ImageQuality = 'draft' | 'standard' | 'premium';
 export async function callAIImage(prompt: string, quality: ImageQuality = 'standard') {
   const { data, error } = await supabase.functions.invoke('ai-image', {
