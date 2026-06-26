@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import { FRUITS } from '@/lib/data';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
+import { htmlToPlainText } from '@/lib/htmlToText';
 
 // ─── Colors ──────────────────────────────────────
 const BG: [number, number, number] = [4, 12, 17];
