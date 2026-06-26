@@ -9,10 +9,9 @@
 //   { id, type: "add",    word }                       → { id, ok }
 //   { id, type: "ready" }                              → { id, ready }
 
-// Vite resolves these to URLs of the static files served from /node_modules.
-// They are fetched as raw bytes at worker boot.
-import affUrl from "dictionary-pt/index.aff?url";
-import dicUrl from "dictionary-pt/index.dic?url";
+// Dictionary files are shipped as static assets under /public/dict/.
+const affUrl = "/dict/pt.aff";
+const dicUrl = "/dict/pt.dic";
 import NSpell from "nspell";
 
 type SpellInstance = {
