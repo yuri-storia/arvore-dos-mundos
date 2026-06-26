@@ -20,7 +20,7 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import { Loader2, Plus, X, SpellCheck2, CheckCircle2, Sparkles } from "lucide-react";
+import { Loader2, Plus, X, SpellCheck2, CheckCircle2 } from "lucide-react";
 import { wordAtPoint, type WordHit } from "./wordAtPoint";
 import { addCustomWord, isCustomWord } from "./customDictionary";
 import {
