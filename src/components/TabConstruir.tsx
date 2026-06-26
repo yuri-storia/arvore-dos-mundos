@@ -22,7 +22,7 @@ import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useNavigate } from 'react-router-dom';
 import { History, Trash2, Trees, Leaf, Sparkles, Check, Image as ImageIcon, Save, ScrollText, ArrowLeft, ArrowRight, HelpCircle, BookOpen, Feather, RefreshCw, Star } from 'lucide-react';
 import { toast } from 'sonner';
-import { useLatestAnalysis } from '@/hooks/useLatestAnalysis';
+import { useLatestAnalysis, getFruitScore, getFruitDetail } from '@/hooks/useLatestAnalysis';
 
 interface Props {
   state: AppState;
@@ -162,12 +162,13 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   const orderedFruits = getOrderedFruits(method);
   const { data: latestAnalysis } = useLatestAnalysis(currentSaveId);
   const fruitScores = latestAnalysis?.fruit_scores || {};
-  const ratedFruits = FRUITS.filter(f => (fruitScores[String(f.id)] ?? 0) > 0).length;
+  const ratedFruits = FRUITS.filter(f => getFruitScore(fruitScores, f.id) > 0).length;
   const avgScore = ratedFruits > 0
-    ? FRUITS.reduce((acc, f) => acc + (fruitScores[String(f.id)] ?? 0), 0) / FRUITS.length
+    ? FRUITS.reduce((acc, f) => acc + getFruitScore(fruitScores, f.id), 0) / FRUITS.length
     : 0;
   const pct = Math.round((avgScore / 5) * 100);
   const hasAnalysis = !!latestAnalysis && ratedFruits > 0;
+
   // Legacy field-based stats kept as fallback
   const fruitsStarted = FRUITS.filter(f => getFruitProgress(db, f.id).filled > 0).length;
 
@@ -280,13 +281,20 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       {/* Fruit grid */}
       <div data-tour="fruit-grid" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-3 mb-6">
         {orderedFruits.map((f, idx) => {
-          const score = fruitScores[String(f.id)] ?? 0;
+          const score = getFruitScore(fruitScores, f.id);
+          const detail = getFruitDetail(fruitScores, f.id);
+          const justification = detail?.justification;
+          const evidence = detail?.evidence;
+          const tooltip = justification
+            ? `${justification}${evidence?.length ? `\n\nEvidência: ${evidence.join(', ')}` : ''}`
+            : undefined;
           const isActive = currentFruit === f.id;
           const isMastered = score >= 5;
           const coverImage = FRUIT_IMAGES[f.id];
           return (
             <button
               key={f.id}
+              title={tooltip}
               onClick={() => {
                 selectFruit(f.id);
                 if (isMobile) {
@@ -332,6 +340,11 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 ) : (
                   <span className="text-[9px] sm:text-[10px] text-text-dim/70 italic">sem análise</span>
                 )}
+                {justification && (
+                  <span className="block text-[9px] text-gold-champagne/80 italic mt-1 line-clamp-2 leading-tight">
+                    {justification}
+                  </span>
+                )}
               </div>
               {isMastered && (
                 <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-gradient-to-br from-gold-light to-gold-deep flex items-center justify-center text-background shadow-[0_0_8px_hsl(var(--gold-warm)/0.6)]"><Star className="w-3 h-3" strokeWidth={2.5} fill="currentColor" /></div>
@@ -340,6 +353,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
             </button>
           );
         })}
+
       </div>
 
       {/* Fruit panel */}

@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -36,7 +38,11 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    const rl = await checkRateLimit(adminClient, userId, "ai-image-consistent", 6);
+    if (rl) return rl;
+
     const { data: quota } = await adminClient.rpc("check_ai_quota", { _user_id: userId, _type: "image" });
+
     if (!quota?.allowed) {
       const reason = quota?.reason || "unknown";
       const messages: Record<string, string> = {

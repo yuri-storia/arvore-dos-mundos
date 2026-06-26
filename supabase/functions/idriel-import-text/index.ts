@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -49,8 +51,12 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    const rl = await checkRateLimit(adminClient, userId, "idriel-import-text", 3);
+    if (rl) return rl;
+
     // Importing pesa: cobra como 5 chamadas de texto (~5 gotas). Validamos o cap UMA vez antes.
     const { data: q } = await adminClient.rpc("check_ai_quota", { _user_id: userId, _type: "text" });
+
     if (!q?.allowed) {
       return new Response(JSON.stringify({ error: "Créditos insuficientes para importar (custo: 5 gotas).", quota: q }), {
         status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },

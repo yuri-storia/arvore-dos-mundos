@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -38,7 +40,12 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    // Anti-burst: 20 chamadas/min por usuário.
+    const rl = await checkRateLimit(adminClient, userId, "ai-text", 20);
+    if (rl) return rl;
+
     const { data: quota } = await adminClient.rpc("check_ai_quota", { _user_id: userId, _type: "text" });
+
     if (!quota?.allowed) {
       const reason = quota?.reason || "unknown";
       const messages: Record<string, string> = {
@@ -62,7 +69,7 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Invalid request body" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const { messages, systemPrompt } = body as Record<string, unknown>;
+    const { messages, systemPrompt, stream: wantStream } = body as Record<string, unknown>;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0 || messages.length > 50) {
       return new Response(JSON.stringify({ error: "messages must be an array with 1-50 items" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -86,6 +93,8 @@ serve(async (req) => {
     }
     aiMessages.push(...messages);
 
+    const isStream = wantStream === true;
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -96,6 +105,7 @@ serve(async (req) => {
         model: "google/gemini-3-flash-preview",
         messages: aiMessages,
         max_tokens: 4096,
+        ...(isStream ? { stream: true } : {}),
       }),
     });
 
@@ -113,6 +123,38 @@ serve(async (req) => {
       const t = await response.text();
       console.error("AI gateway error:", response.status, t);
       throw new Error(`AI error: ${response.status}`);
+    }
+
+    if (isStream && response.body) {
+      // Repassa SSE direto, contabilizando uso ao final.
+      const upstream = response.body;
+      const stream = new ReadableStream({
+        async start(controller) {
+          const reader = upstream.getReader();
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              controller.enqueue(value);
+            }
+          } catch (err) {
+            console.error("stream forward error", err);
+          } finally {
+            try {
+              await adminClient.rpc("increment_ai_usage", { _user_id: userId, _type: "text" });
+            } catch (e) { console.error("increment_ai_usage failed", e); }
+            controller.close();
+          }
+        },
+      });
+      return new Response(stream, {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache, no-transform",
+          "Connection": "keep-alive",
+        },
+      });
     }
 
     const responseText = await response.text();
@@ -135,6 +177,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({ content, quota }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (e) {
     console.error("ai-text error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {

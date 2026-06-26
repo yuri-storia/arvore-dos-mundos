@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { Trees, X, ScrollText, Trash2, Droplet, Droplets, Leaf, Sparkles, RefreshCw, Check, Gem, AlertTriangle, Eye, Compass, Award, ArrowRight, Star } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
-import { callAIText, friendlyAIError } from '@/lib/helpers';
+import { callAITextStream, friendlyAIError } from '@/lib/helpers';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
@@ -239,10 +239,16 @@ Uma ÚNICA frase poética de boas-vindas (máximo 2 linhas, sem emojis).
 
 ## Avaliação dos Frutos
 Para CADA um dos 11 Frutos, escreva UMA linha no formato EXATO abaixo, sem espaços extras dentro dos asteriscos e SEM emojis:
-- **Nome do Fruto**: N/5 — comentário breve
-Exemplo: - **Mapa do Mundo**: 3/5 — A geografia está bem definida.
-Liste os frutos nesta ordem: ${FRUITS.map(f => f.name).join(', ')}.
-Se o fruto não tem entradas, dê 1/5 e diga que precisa ser desenvolvido.
+- **Nome do Fruto**: N/5 — justificativa breve em 1 frase (até 140 caracteres). (Entrada citada 1, Entrada citada 2)
+
+Regras da linha:
+- A justificativa deve apontar O QUE motivou a nota (ex.: "Geografia clara, falta clima"; "Sem fichas de espécies"; "Sistema sem regras de custo").
+- Entre parênteses no fim, cite 1 a 3 TÍTULOS exatos de fichas/artigos do Codex que embasam a nota — separados por vírgula. Se não houver nada relevante, omita os parênteses.
+- Liste os frutos nesta ordem: ${FRUITS.map(f => f.name).join(', ')}.
+- Se o fruto não tem entradas, dê 1/5 com justificativa "Sem entradas — pilar a desenvolver" e omita parênteses.
+
+Exemplo:
+- **Mapa do Mundo**: 3/5 — Geografia clara, falta detalhamento climático e fronteiras políticas. (Reino de Lyrr, Mar de Vetra)
 
 ## Furos de Enredo
 Identifique contradições, lacunas lógicas ou informações que se contradizem entre fichas/artigos. Se não houver, diga brevemente.
@@ -262,9 +268,14 @@ Liste 3 ações concretas e prioritárias, ordenadas por importância. Priorize 
 Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${IDRIEL_TITLE}".`;
 
     try {
-      const content = await callAIText(
+      const content = await callAITextStream(
         [{ role: 'user', content: `Aqui estão todas as entradas do meu Codex:\n\n${buildPrompt()}` }],
-        systemPrompt
+        systemPrompt,
+        (acc) => {
+          // Atualiza progressivamente para reduzir latência percebida.
+          setAnalysis(acc);
+          setRevealedChars(acc.length);
+        }
       );
 
       // Parse per-fruit scores out of Idriel's response so the fruit grid can use them
@@ -288,9 +299,10 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
       });
 
       setAnalysis(content);
-      setRevealedChars(0);
-      setIsRevealing(true);
+      setRevealedChars(content.length);
+      setIsRevealing(false);
       fetchHistory();
+
     } catch (e: any) {
       const f = friendlyAIError(e?.message || '');
       setError(`${f.title} ${f.hint}`);
