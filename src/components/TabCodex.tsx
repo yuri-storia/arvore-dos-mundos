@@ -764,29 +764,23 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
 
           {/* Expanded card — custom isolated layer so drag/click events never reach the page behind it */}
           {expandedEntry && createPortal(
-            <div
-              className="fixed inset-0 z-[220] flex items-center justify-center bg-background/85 p-3 backdrop-blur-sm sm:p-6"
-              role="dialog"
-              aria-modal="true"
-              onMouseDown={(e) => {
-                if (e.target === e.currentTarget) setPersistedExpandedId(null);
-              }}
-            >
-              <div className="w-full max-w-[900px]" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
-                <CodexCard
-                  entry={expandedEntry}
-                  expanded={true}
-                  onToggle={() => setPersistedExpandedId(null)}
-                  onUpdate={updateEntry}
-                  onDelete={async (id) => { await deleteEntry(id); setPersistedExpandedId(null); }}
-                  onImageUpload={uploadImage}
-                  onLightbox={setLightbox}
-                  gallery={gallery}
-                  siblings={entries}
-                  onOpenEntry={setPersistedExpandedId}
-                />
-              </div>
-            </div>,
+            <ExpandedCodexOverlay
+              entry={expandedEntry}
+              prevEntry={prevEntry}
+              nextEntry={nextEntry}
+              navIndex={navIndex}
+              navTotal={navList.length}
+              onClose={() => setPersistedExpandedId(null)}
+              onGoPrev={prevEntry ? () => setPersistedExpandedId(prevEntry.id) : undefined}
+              onGoNext={nextEntry ? () => setPersistedExpandedId(nextEntry.id) : undefined}
+              onUpdate={updateEntry}
+              onDelete={async (id) => { await deleteEntry(id); setPersistedExpandedId(null); }}
+              onImageUpload={uploadImage}
+              onLightbox={setLightbox}
+              gallery={gallery}
+              siblings={entries}
+              onOpenEntry={setPersistedExpandedId}
+            />,
             document.body
           )}
         </>
