@@ -41,6 +41,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
     setExtracting(false);
     setAnalyzing(false);
     setCreating(false);
+    setProgress(null);
   };
 
   const handleClose = (v: boolean) => {
