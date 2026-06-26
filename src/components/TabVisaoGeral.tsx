@@ -87,11 +87,12 @@ export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrent
       {/* Fruit progress grid — agora baseado na análise da Idriel */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 mb-6">
         {orderedFruits.map(f => {
-          const score = fruitScores[String(f.id)] ?? 0;
+          const score = getFruitScore(fruitScores, f.id);
           const status = score >= 5 ? 'mastered' : score >= 3 ? 'good' : score > 0 ? 'partial' : 'empty';
           const borderColor = status === 'mastered' ? 'border-l-gold-light' : status === 'good' ? 'border-l-gold' : status === 'partial' ? 'border-l-gold/60' : 'border-l-transparent';
           const barColor = status === 'mastered' ? 'bg-gold-light' : status === 'good' ? 'bg-gold' : status === 'partial' ? 'bg-gold/50' : 'bg-secondary';
           const barW = (score / 5) * 100;
+
           const coverImage = FRUIT_IMAGES[f.id];
 
           return (
