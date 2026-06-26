@@ -93,19 +93,45 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
     }
   }, [worldId, loading, entries, expandedId]);
 
+  // Ordered list of entries used for prev/next nav inside the expanded overlay.
+  // Matches visual order: fichas first, then artigos.
+  const navList = React.useMemo(() => {
+    const fichas = filteredHelper(entries, filterFruits).filter(e => e.entry_type === 'ficha');
+    const artigos = filteredHelper(entries, filterFruits).filter(e => e.entry_type === 'artigo');
+    return [...fichas, ...artigos];
+  }, [entries, filterFruits]);
+
+  const navIndex = expandedId ? navList.findIndex(e => e.id === expandedId) : -1;
+  const prevEntry = navIndex > 0 ? navList[navIndex - 1] : null;
+  const nextEntry = navIndex >= 0 && navIndex < navList.length - 1 ? navList[navIndex + 1] : null;
+
   useEffect(() => {
     if (!expandedId) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    const isTypingInField = () => {
+      const el = document.activeElement as HTMLElement | null;
+      if (!el) return false;
+      const tag = el.tagName;
+      return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
+    };
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setPersistedExpandedId(null);
+      if (event.key === 'Escape') { setPersistedExpandedId(null); return; }
+      if (isTypingInField()) return;
+      if (event.key === 'ArrowLeft' && prevEntry) {
+        event.preventDefault();
+        setPersistedExpandedId(prevEntry.id);
+      } else if (event.key === 'ArrowRight' && nextEntry) {
+        event.preventDefault();
+        setPersistedExpandedId(nextEntry.id);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [expandedId, setPersistedExpandedId]);
+  }, [expandedId, setPersistedExpandedId, prevEntry, nextEntry]);
 
   // Restore create-draft from localStorage when world changes
   useEffect(() => {
