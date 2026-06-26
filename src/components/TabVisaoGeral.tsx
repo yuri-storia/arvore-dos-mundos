@@ -4,7 +4,7 @@ import { FRUITS, getOrderedFruits } from '@/lib/data';
 import { getFruitProgress, getFruitsStarted, getFruitsComplete, getTotalProgress, exportWorldMarkdown } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
 import type { AppState, TabType } from '@/lib/data';
-import { useLatestAnalysis } from '@/hooks/useLatestAnalysis';
+import { useLatestAnalysis, getFruitScore } from '@/hooks/useLatestAnalysis';
 
 interface Props {
   state: AppState;
