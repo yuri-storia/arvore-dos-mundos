@@ -108,5 +108,5 @@ export function useWorlds() {
     toast.success('Mundo excluído');
   }, []);
 
-  return { worlds, loading, createWorld, updateWorld, deleteWorld, refetch: fetchWorlds };
+  return { worlds, loading, createWorld, updateWorld, deleteWorld, loadWorldFull, refetch: fetchWorlds };
 }
