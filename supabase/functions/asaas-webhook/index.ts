@@ -111,6 +111,12 @@ async function sendWelcomeEmail(payload: {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
+  // Observabilidade: registramos um evento mesmo antes de processar para
+  // garantir que nenhum webhook fique "invisível" em caso de exceção.
+  let logSupa: ReturnType<typeof createClient> | null = null;
+  let webhookLogId: string | null = null;
+  let rawPayload: any = null;
+
   try {
     const expectedToken = Deno.env.get("ASAAS_WEBHOOK_TOKEN");
     if (!expectedToken) {
@@ -128,10 +134,25 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
       { auth: { persistSession: false } }
     );
+    logSupa = supa;
 
     const event = await req.json();
+    rawPayload = event;
     const eventType: string = event.event || "";
     const payment = event.payment;
+
+    // Log inicial — status "received"
+    try {
+      const { data: logged } = await supa.from("webhook_events").insert({
+        source: "asaas",
+        event_type: eventType || "unknown",
+        external_id: payment?.id || event?.subscription?.id || null,
+        status: "received",
+        payload: event,
+      }).select("id").maybeSingle();
+      webhookLogId = logged?.id ?? null;
+    } catch (e) { console.warn("webhook_events insert failed:", e); }
+
 
     // Subscription lifecycle (sem payment)
     if (eventType.startsWith("SUBSCRIPTION_")) {
