@@ -4,12 +4,16 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { listCustomWords } from "./customDictionary";
+import { getContextHint } from "./contextRules";
 
 export interface SpellLookupResult {
   correct: boolean;
   suggestions: string[];
   degraded?: boolean;
+  /** Justificativa quando a marcação veio da camada de regras contextuais. */
+  reason?: string;
 }
+
 
 const CACHE_MAX = 1000;
 
