@@ -203,26 +203,30 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
 
         {step === 'upload' && (
           <div className="space-y-4">
-            <div className="border border-dashed border-stroke rounded-lg p-6 text-center">
-              <Upload className="mx-auto h-8 w-8 text-gold mb-2" />
-              <label className="cursor-pointer">
-                <span className="font-merriweather text-foreground/90">
-                  <>{fileName ? <span className="inline-flex items-center gap-1.5"><Paperclip className="w-3.5 h-3.5" strokeWidth={1.75} />{fileName}</span> : 'Clique para enviar PDF, DOCX, TXT ou MD'}</>
-                </span>
-                <input
-                  type="file"
-                  accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown"
-                  className="hidden"
-                  onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
-                  disabled={extracting || analyzing}
-                />
-              </label>
-              {extracting && (
-                <div className="mt-3 flex items-center justify-center gap-2 text-foreground/70 text-sm">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Extraindo texto...
-                </div>
-              )}
-            </div>
+            <label className={`group relative block cursor-pointer rounded-xl overflow-hidden border border-gold/60 bg-gradient-to-br from-gold/25 via-gold/10 to-amber-700/20 px-6 py-7 text-center shadow-[0_8px_30px_-12px_rgba(212,175,55,0.5)] transition-all hover:from-gold/35 hover:via-gold/20 hover:to-amber-600/25 hover:shadow-[0_12px_40px_-10px_rgba(212,175,55,0.7)] hover:border-gold focus-within:ring-2 focus-within:ring-gold/70 ${(extracting || analyzing) ? 'opacity-60 pointer-events-none' : ''}`}>
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,215,128,0.18),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Upload className="mx-auto h-9 w-9 text-gold mb-2 drop-shadow-[0_2px_8px_rgba(212,175,55,0.6)]" strokeWidth={1.75} />
+              <span className="font-cinzel text-gold text-base tracking-wide block">
+                {fileName ? (
+                  <span className="inline-flex items-center gap-1.5"><Paperclip className="w-4 h-4" strokeWidth={1.75} />{fileName}</span>
+                ) : (
+                  'Clique para enviar PDF, DOCX, TXT ou MD'
+                )}
+              </span>
+              <span className="block text-[11px] text-foreground/60 mt-1.5 font-merriweather">Até 15MB · OCR nativo para PDFs escaneados</span>
+              <input
+                type="file"
+                accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown"
+                className="hidden"
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+                disabled={extracting || analyzing}
+              />
+            </label>
+            {extracting && (
+              <div className="flex items-center justify-center gap-2 text-foreground/70 text-sm">
+                <Loader2 className="h-4 w-4 animate-spin" /> Extraindo texto...
+              </div>
+            )}
 
             <div className="text-center text-sm text-foreground/60">— ou cole texto diretamente —</div>
 
