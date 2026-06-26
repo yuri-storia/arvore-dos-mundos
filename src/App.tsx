@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Lazy-loaded pages (Sprint 1 / P0 #3: route-level code splitting)
 const Index = lazy(() => import("./pages/Index"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
