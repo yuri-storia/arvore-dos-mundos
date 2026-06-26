@@ -69,6 +69,7 @@ function buildDecorations(
   doc: PMNode,
   cache: Map<string, boolean>,
 ): DecorationSet {
+  if (!isSpellcheckEnabled()) return DecorationSet.empty;
   const decos: Decoration[] = [];
   const seen = collectWords(doc);
   for (const h of seen) {
