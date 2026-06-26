@@ -278,7 +278,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       </div>
 
       {/* Fruit grid */}
-      <div data-tour="fruit-grid" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 mb-6">
+      <div data-tour="fruit-grid" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-3 mb-6">
         {orderedFruits.map((f, idx) => {
           const score = fruitScores[String(f.id)] ?? 0;
           const isActive = currentFruit === f.id;

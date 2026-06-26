@@ -4,12 +4,13 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { IdrielJobsProvider } from "@/contexts/IdrielJobsContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Lazy-loaded pages (Sprint 1 / P0 #3: route-level code splitting)
 const Index = lazy(() => import("./pages/Index"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
@@ -32,6 +33,15 @@ const RouteFallback = () => (
   </div>
 );
 
+// Root: landing page for guests, app for authenticated users
+const HomeRoute = () => {
+  const { user, loading } = useAuth();
+  if (loading) return <RouteFallback />;
+  return user ? <ProtectedRoute><Index /></ProtectedRoute> : <LandingPage />;
+};
+
+
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -45,7 +55,8 @@ const App = () => (
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/inicio" element={<Navigate to="/planos" replace />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
-                <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+                <Route path="/" element={<HomeRoute />} />
+                <Route path="/app" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                 <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                 <Route path="/planos" element={<PricingPage />} />

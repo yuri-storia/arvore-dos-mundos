@@ -35,6 +35,28 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   const [error, setError] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState('Todos');
+  const [elapsed, setElapsed] = useState(0);
+  const startedAtRef = React.useRef<number | null>(null);
+
+  // Tempo estimado por nível (segundos)
+  const estimateSeconds = quality === 'draft' ? 5 : quality === 'standard' ? 25 : 120;
+
+  // Cronômetro de geração (somente quando loading2 ativo)
+  React.useEffect(() => {
+    if (!loading2) {
+      startedAtRef.current = null;
+      setElapsed(0);
+      return;
+    }
+    startedAtRef.current = Date.now();
+    setElapsed(0);
+    const id = window.setInterval(() => {
+      if (startedAtRef.current) {
+        setElapsed(Math.floor((Date.now() - startedAtRef.current) / 1000));
+      }
+    }, 500);
+    return () => window.clearInterval(id);
+  }, [loading2]);
 
   const creditsLeft = sub.creditLimit - sub.creditsUsed;
 
@@ -314,10 +336,24 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
           );
         })()}
 
-      {(loading1 || loading2) && (
+      {(loading1 || loading2) && (() => {
+          const pct = loading1
+            ? 60
+            : Math.min(95, Math.round((elapsed / Math.max(estimateSeconds, 1)) * 100));
+          const remaining = Math.max(0, estimateSeconds - elapsed);
+          const fmt = (s: number) => s >= 60 ? `${Math.floor(s/60)}m ${s%60}s` : `${s}s`;
+          const qualityLabel = quality === 'draft' ? 'Rascunho' : quality === 'standard' ? 'Padrão' : 'Qualidade Máxima';
+          const phaseCopy = loading1
+            ? 'Idriel está tecendo a essência da sua visão…'
+            : quality === 'premium'
+              ? 'GPT Image 2 está pintando cada detalhe à mão — a melhor visão demora um pouco mais.'
+              : quality === 'standard'
+                ? 'Nano Banana Pro está canalizando o canon do seu Codex…'
+                : 'Nano Banana 2 está esboçando rapidamente…';
+          return (
           <div className="mt-4 animate-fadeUp">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="relative shrink-0">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="relative shrink-0 mt-1">
                 {[...Array(8)].map((_, i) => (
                   <span
                     key={i}
@@ -335,33 +371,44 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
                   <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
                 </div>
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1 mb-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce" />
                   <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-2" />
                   <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-3" />
                   <span className="ml-2 font-merriweather italic text-xs text-gold-light">
-                    {loading1 ? 'Idriel está tecendo a essência da sua visão…' : 'O Elixir dos Mundos flui… sua visão está tomando forma…'}
+                    {phaseCopy}
                   </span>
                 </div>
-                {/* Animated progress bar */}
-                <div className="w-full h-1.5 bg-gold/10 rounded-full overflow-hidden">
+                {/* Progress bar (real para etapa 2, indicativa para etapa 1) */}
+                <div className="w-full h-1.5 bg-gold/10 rounded-full overflow-hidden" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Progresso da geração">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-gold/60 via-gold to-gold/60 animate-[shimmer_2s_ease-in-out_infinite]"
+                    className="h-full rounded-full bg-gradient-to-r from-gold/60 via-gold to-gold/60"
                     style={{
-                      width: loading1 ? '60%' : '80%',
-                      transition: 'width 3s ease-out',
+                      width: `${pct}%`,
+                      transition: 'width 1s ease-out',
                       backgroundSize: '200% 100%',
+                      animation: 'shimmer 2s ease-in-out infinite',
                     }}
                   />
                 </div>
-                <p className="text-[9px] text-text-dim/50 mt-1 font-montserrat">
-                  {loading1 ? 'Etapa 1/2 — Criando prompt otimizado' : 'Etapa 2/2 — Gerando imagem (pode levar até 30s)'}
-                </p>
+                <div className="flex flex-wrap items-center justify-between gap-2 mt-1.5">
+                  <p className="text-[10px] text-text-dim font-montserrat">
+                    {loading1
+                      ? 'Etapa 1/2 — Criando prompt otimizado'
+                      : `Etapa 2/2 — Nível ${qualityLabel} · decorrido ${fmt(elapsed)}${remaining > 0 ? ` · ~${fmt(remaining)} restantes` : ' · finalizando…'}`}
+                  </p>
+                  {loading2 && quality === 'premium' && (
+                    <p className="text-[10px] text-gold-light/80 font-merriweather italic">
+                      Pode levar até ~2 min. Você pode trocar de aba sem perder o progresso.
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        )}
+          );
+        })()}
       </div>
 
       {/* Generated prompt */}
