@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { extractTextFromFile, type ImportSourceType } from '@/lib/textExtractor';
-import { importTextWithIdriel, importFileWithIdriel, type ImportedSuggestion } from '@/lib/helpers';
+import { importTextWithIdriel, importFileWithIdriel, type ImportedSuggestion, type ImportProgress } from '@/lib/helpers';
 import { FRUITS } from '@/lib/data';
 import { toast } from 'sonner';
 import { Loader2, Upload, Sparkles, FileText, Library, Paperclip, ArrowLeft } from 'lucide-react';
