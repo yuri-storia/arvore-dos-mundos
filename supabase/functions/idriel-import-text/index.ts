@@ -179,7 +179,7 @@ serve(async (req) => {
       typeof e.title === "string" && e.title.length > 0 && e.title.length <= 200 &&
       typeof e.summary === "string" && e.summary.length > 0 && e.summary.length <= 5000 &&
       typeof e.fruit_id === "number" && e.fruit_id >= 0 && e.fruit_id <= 10
-    ).slice(0, 30);
+    ).slice(0, 40);
 
     // Cobra 5 gotas (5 chamadas de texto) — uma vez que tudo deu certo
     for (let i = 0; i < 5; i++) {
