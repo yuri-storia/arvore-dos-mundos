@@ -281,13 +281,20 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       {/* Fruit grid */}
       <div data-tour="fruit-grid" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-3 mb-6">
         {orderedFruits.map((f, idx) => {
-          const score = fruitScores[String(f.id)] ?? 0;
+          const score = getFruitScore(fruitScores, f.id);
+          const detail = getFruitDetail(fruitScores, f.id);
+          const justification = detail?.justification;
+          const evidence = detail?.evidence;
+          const tooltip = justification
+            ? `${justification}${evidence?.length ? `\n\nEvidência: ${evidence.join(', ')}` : ''}`
+            : undefined;
           const isActive = currentFruit === f.id;
           const isMastered = score >= 5;
           const coverImage = FRUIT_IMAGES[f.id];
           return (
             <button
               key={f.id}
+              title={tooltip}
               onClick={() => {
                 selectFruit(f.id);
                 if (isMobile) {
@@ -333,6 +340,11 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 ) : (
                   <span className="text-[9px] sm:text-[10px] text-text-dim/70 italic">sem análise</span>
                 )}
+                {justification && (
+                  <span className="block text-[9px] text-gold-champagne/80 italic mt-1 line-clamp-2 leading-tight">
+                    {justification}
+                  </span>
+                )}
               </div>
               {isMastered && (
                 <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-gradient-to-br from-gold-light to-gold-deep flex items-center justify-center text-background shadow-[0_0_8px_hsl(var(--gold-warm)/0.6)]"><Star className="w-3 h-3" strokeWidth={2.5} fill="currentColor" /></div>
@@ -341,6 +353,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
             </button>
           );
         })}
+
       </div>
 
       {/* Fruit panel */}
