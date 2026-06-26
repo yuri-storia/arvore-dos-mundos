@@ -1,99 +1,106 @@
-# Plano: Corretor Ortográfico v2 + Correções da Auditoria
+# Auditoria: Importar com Idriel + Exportar Manuscrito
 
-## Parte 1 — Corretor Ortográfico (reconstrução do zero)
+## Diagnóstico atual
 
-### Diagnóstico do atual
-O corretor baseado em `typo-js` + Web Worker + dicionário PT-BR de 4,5 MB nunca funcionou de forma consistente no editor. A inicialização é lenta, o worker às vezes não responde, os sublinhados raramente aparecem e o menu de sugestões depende de um pipeline frágil que silenciosamente falha. Vamos **remover** essa camada inteira.
+### Importar com Idriel
+- **Como funciona hoje:** o arquivo é processado **no navegador** com `pdfjs-dist` (PDF) e `mammoth` (DOCX), virando uma string de até 200 KB. Essa string vai como `text` para a edge function `idriel-import-text`, que manda no Gemini 3 Flash.
+- **Problemas reais:**
+  1. Extração local perde estrutura (tabelas, hierarquia de títulos, ordem de blocos em PDFs com colunas).
+  2. PDFs escaneados/imagéticos viram texto vazio — sem OCR.
+  3. Corte rígido em 200 KB descarta documentos longos antes da IA decidir o que importa.
+  4. Mammoth devolve só "raw text", então estilos de capítulo do DOCX somem.
 
-### Nova arquitetura (modelada em Google Docs / Notion AI)
-
-Estratégia híbrida em duas camadas, ativada automaticamente em **todo o site**:
-
-**Camada 1 — Sublinhado nativo do navegador (instantâneo, zero custo)**
-- Ativar `spellcheck="true"` e `lang="pt-BR"` em todo o documento (`<html lang="pt-BR">` já existe).
-- Em `index.css`, garantir que `textarea`, `input[type=text]` e `[contenteditable]` herdem `spellcheck`.
-- No Tiptap (`RichTextEditor`), forçar `editorProps.attributes = { spellcheck: 'true', lang: 'pt-BR' }`.
-- Isso já entrega o sublinhado vermelho clássico para o usuário sem nenhum download de dicionário.
-
-**Camada 2 — Menu de sugestões customizado via IA (substitui o nativo)**
-- Criar Edge Function `supabase/functions/ai-spellcheck/index.ts` usando **Gemini 3 Flash** (rápido, ~150ms, custo desprezível — não consome gotas).
-- Input: palavra + ~80 caracteres de contexto antes/depois.
-- Output JSON: `{ correct: boolean, suggestions: string[] (top 5), reason?: string }`.
-- Cache LRU em memória (Map de 500 entradas) por palavra+contexto, para evitar requisições repetidas ao digitar.
-- Rate-limit já existente: 30/min/usuário.
-
-**Componente global `<SpellcheckProvider />`**
-- Montado uma vez em `App.tsx`.
-- Registra um único `contextmenu` listener global.
-- Ao clicar com botão direito:
-  1. Detecta a palavra sob o cursor (em `input`/`textarea` via `selectionStart`, em `contenteditable` via `Range`/`caretRangeFromPoint`).
-  2. Previne o menu nativo (`e.preventDefault()`).
-  3. Mostra um popover dourado (estilo grimório) com spinner enquanto chama `ai-spellcheck`.
-  4. Lista até 5 sugestões clicáveis + opções **"Adicionar ao dicionário"** e **"Ignorar"**.
-  5. Ao escolher: substitui a palavra preservando capitalização e cursor.
-- Dicionário pessoal persistido em `localStorage` (`spellcheck-custom-words`) — palavras adicionadas nunca mais aparecem como erro/menu.
-
-**Cobertura**
-- Aba **Escrever** (Tiptap): ✅ ativado por padrão.
-- Aba **Construir** (Frutos, descrições): ✅ via provider global.
-- Aba **Codex** (fichas, artigos): ✅ via provider global.
-- Aba **Galeria** (legendas, prompts): ✅ via provider global.
-- Modais de cadastro de mundo, perfil, etc.: ✅ via provider global.
-- Opt-out: atributo `data-no-spellcheck` em campos sensíveis (e-mail, senha, código).
-
-### Arquivos a criar / remover
-**Remover:** `src/components/editor/spellcheck/` inteiro (`spellWorker.ts`, `loadDictionary.ts`, `dictCache.ts`, `SpellcheckExtension.ts`, `SpellSuggestionsMenu.tsx`, `customDictionary.ts`). Remover dependência `typo-js`.
-
-**Criar:**
-- `supabase/functions/ai-spellcheck/index.ts` — endpoint Gemini Flash.
-- `src/lib/spellcheck/SpellcheckProvider.tsx` — listener global + popover.
-- `src/lib/spellcheck/useSpellSuggestions.ts` — hook com cache LRU.
-- `src/lib/spellcheck/customDictionary.ts` — wrapper localStorage.
-- `src/lib/spellcheck/wordAtPoint.ts` — utilitário cross-input/contenteditable.
-
-**Alterar:**
-- `src/App.tsx` — montar `<SpellcheckProvider />`.
-- `src/components/editor/RichTextEditor.tsx` — remover extensão antiga, adicionar `spellcheck=true` no editorProps.
-- `src/components/escritor/ChapterEditor.tsx` e `MentionTextarea.tsx` — remover referências antigas.
+### Exportar Manuscrito
+- **PDF (`jsPDF`):** fonte Helvetica padrão, sem capítulo em página dedicada bonita, sem cabeçalho/rodapé, sem numeração, sem sumário, sem capitular, parágrafos sem recuo, quebras de linha pobres. Visualmente "rascunho".
+- **DOCX (`docx`):** já está OK, só falta afinar para parecer um Google Docs limpo (Calibri/Arial, margens padrão, espaçamento 1.15, parágrafos com recuo, numeração de página, sumário).
+- **Kindle (HTML):** entrega um `.html`, não um `.epub`. O KDP aceita HTML mas a experiência é instável; quem importa pelo Kindle Previewer espera `.epub` válido (com `mimetype`, `META-INF/container.xml`, `OEBPS/content.opf`, `toc.ncx`, `nav.xhtml`). Sem isso, a chance de o livro reprovar na validação da Amazon é alta.
 
 ---
 
-## Parte 2 — Cronograma de Correções da Auditoria
+## Mudanças propostas
 
-Sprint dedicado, executado após o corretor.
+### 1. Idriel passa a "ler" o documento de verdade (multimodal)
 
-### 🔴 Crítico
-1. **Upload de imagens coladas no editor** — atualmente vão como base64 no HTML.
-   - Em `RichTextEditor.tsx`, interceptar `paste`/`drop` de `image/*`, fazer upload para o bucket `manuscript-images` via `supabase.storage`, e inserir a URL pública. Limite: 5 MB, conversão para WebP via canvas (reaproveitar `imageOptimization.ts`).
+Em vez de extrair texto no cliente, enviar o **arquivo binário** direto para o Gemini via Lovable AI Gateway, igual aos chats de IA modernos.
 
-2. **Feedback de erro no autosave de capítulos** — `updateChapter` não retorna Promise, toasts de erro nunca disparam.
-   - Refatorar `updateChapter` em `useChapters` para `async` retornando Promise.
-   - Em `ChapterEditor.tsx`, `await` e `try/catch` real com toast "Não foi possível salvar — tentando novamente em 5s" + retry exponencial (3 tentativas).
+- **Modelo:** continuar em `google/gemini-3-flash-preview` (suporta PDF nativo, contexto de ~1M tokens, custo baixo). **Não precisa subir para Pro** — o Flash já lê PDFs longos com qualidade muito boa. Se um dia quisermos qualidade máxima em livros densos, ativamos `google/gemini-3-pro-preview` num toggle "Análise profunda" (custa ~10× mais).
+- **Fluxo novo:**
+  1. Cliente lê o arquivo como base64 (sem extrair texto).
+  2. Envia para `idriel-import-text` como `{ file_data, mime_type, filename }`.
+  3. Edge function monta a chamada multimodal:
+     ```
+     content: [
+       { type: "text", text: "<prompt curadora>" },
+       { type: "file", file: { filename, file_data: "data:application/pdf;base64,..." } }
+     ]
+     ```
+  4. Gemini lê o documento internamente (inclui OCR de páginas escaneadas) e devolve o JSON de entradas.
+- **Limites:** aceitar até **20 MB** por upload (limite do gateway). DOCX continua sendo convertido para texto no servidor (Gemini não lê DOCX nativo) — mas sem corte de 200 KB. PDF e TXT/MD vão diretos.
+- **Custo:** mesma cobrança atual (5 gotas por importação). PDFs grandes consomem mais tokens internos, mas continua dentro da margem.
 
-### 🟡 Importante
-3. **Extensão Underline ausente no Tiptap** — botão "Sublinhado" hoje é no-op.
-   - Instalar `@tiptap/extension-underline`, registrar em `RichTextEditor.tsx`, ligar o botão da toolbar.
+### 2. Exportar PDF — diagramação de livro
 
-4. **Renderização de Markdown da Idriel** — respostas aparecem com `**bold**` cru.
-   - Usar `react-markdown` (já é candidato natural) no `TabConstruir.tsx` e `CodexAnalysis.tsx` para a saída da IA, com plugin `remark-gfm`.
+Migrar de `jsPDF` puro para **`pdfmake`** (já leve, controle fino de tipografia) ou manter `jsPDF` com layout artesanal. Recomendo `pdfmake`.
 
-### 🟢 Polimento
-5. **Bubble Menu de imagem em telas estreitas** — sem clamp horizontal.
-   - Adicionar `tippyOptions={{ maxWidth: 'calc(100vw - 32px)', placement: 'top' }}` no `BubbleMenu` de imagens em `RichTextEditor.tsx`.
+Entregar:
+- **Capa:** título centralizado em serifada grande, autor opcional, sinopse em itálico abaixo, separador ornamental.
+- **Sumário automático** com número de página real.
+- **Página de capítulo:** título em página ímpar, espaço respirado no topo, número do capítulo discreto acima.
+- **Corpo:** fonte serifada (Lora/Merriweather embarcada), tamanho 11pt, entrelinha 1.45, parágrafos com recuo de 1ª linha (sem linha em branco entre eles, padrão livro), justificado com hifenização básica.
+- **Cabeçalho:** título do livro (versais) à esquerda, título do capítulo à direita.
+- **Rodapé:** numeração centralizada, começando depois do sumário.
+- **Quebras:** capítulo sempre começa em página nova; última linha de parágrafo não fica órfã isolada (controle de `widows/orphans`).
 
-6. **Telemetria leve de qualidade do corretor** — tabela `spellcheck_feedback` (palavra, sugestão_aceita, ignorada) para iterar prompts. *(Adiar para após validação do usuário.)*
+### 3. Exportar DOCX — padrão Google Docs limpo
+
+Ajustes no `docx` atual:
+- Fonte **Calibri 11pt** (default do Word/Docs) ou Georgia 11pt se quisermos serifa.
+- Margens 2,54 cm (1 pol).
+- Espaçamento de linha **1.15**, espaço depois do parágrafo de 8pt.
+- Estilo `Heading 1` para capítulos (entra automático no painel de navegação do Word/Docs).
+- Recuo de primeira linha de 1,25 cm nos parágrafos do corpo.
+- Numeração de página no rodapé.
+- Sumário (`TableOfContents`) na 2ª página, atualizável no Word.
+
+### 4. Exportar Kindle/EPUB — `.epub` real, validado
+
+Substituir o HTML por um **EPUB 3** real, gerado client-side:
+- Estrutura mínima EPUB3: `mimetype` (sem compressão), `META-INF/container.xml`, `OEBPS/content.opf` (manifest + spine + metadata Dublin Core), `OEBPS/nav.xhtml` (TOC navegável), `OEBPS/toc.ncx` (compat. Kindle antigo), 1 XHTML por capítulo.
+- Metadados completos: `dc:title`, `dc:creator`, `dc:language=pt-BR`, `dc:identifier` (UUID), `dc:date`.
+- CSS embarcado com tipografia de e-book (serifada, line-height 1.6, indent em parágrafos, capítulos sempre em nova página via `page-break-before`).
+- Capa opcional (se o manuscrito tiver imagem futuramente).
+- Empacotamento via **`jszip`** (já está no projeto pelas dependências do docx) — gera `.epub` válido.
+- Resultado: passa no **EPUB Validator** (epubcheck) e importa limpo no **Kindle Direct Publishing** e no **Kindle Previewer**.
+
+Manter o HTML como fallback opcional? Não — substituir totalmente. `.epub` é o que o KDP recomenda.
 
 ---
-
-## Ordem de execução proposta
-1. **Hoje (esta tarefa):** Parte 1 inteira — corretor novo funcionando em todo o site.
-2. **Próxima tarefa:** itens 🔴 1 e 2 (storage + autosave robusto).
-3. **Depois:** itens 🟡 3 e 4 (underline + markdown).
-4. **Polimento final:** item 🟢 5.
 
 ## Detalhes técnicos
-- Edge function `ai-spellcheck` usa o gateway Lovable AI com `google/gemini-3-flash-preview`, `response_format: json_object`, prompt curto pedindo JSON estrito. Sem incremento em `ai_usage` (custo absorvido — é UX essencial, não feature premium).
-- Popover usa `@radix-ui/react-popover` (já instalado) posicionado em `clientX`/`clientY` via `virtualReference`.
-- Detecção de palavra: regex `/[\p{L}\p{M}'-]+/gu` para suportar acentos e hífens portugueses.
-- Preservação de capitalização: se palavra original começa maiúscula → capitalizar sugestão; se toda maiúscula → upper.
-- Provider escuta `contextmenu` na fase de captura para preceder menus de bibliotecas (Tiptap, Radix).
+
+- **Arquivos a alterar:**
+  - `src/components/IdrielImportDialog.tsx` — parar de chamar `extractTextFromFile`; passar a ler `file.arrayBuffer()` → base64 e enviar `{ file_data, mime_type, filename }`.
+  - `src/lib/textExtractor.ts` — manter só para `.docx`/`.txt`/`.md` (Gemini não lê DOCX nativo); PDF vai cru.
+  - `supabase/functions/idriel-import-text/index.ts` — aceitar payload novo, montar mensagem multimodal quando `mime_type === application/pdf`, manter fluxo de texto para DOCX/TXT, subir o cap de tamanho para 15 MB.
+  - `src/lib/manuscriptExport.ts` — reescrever `exportManuscriptPDF` (via `pdfmake`) e `exportManuscriptEPUB` (via `jszip`), ajustar `exportManuscriptDOCX`.
+  - `package.json` — adicionar `pdfmake` e `jszip` (se ainda não estiver direto).
+
+- **Custos LLM:** sem mudança no preço por importação (5 gotas). PDFs muito grandes podem estourar contexto — vamos limitar upload a 15 MB e ~300 páginas no prompt.
+
+- **Riscos:**
+  - `pdfmake` adiciona ~300 KB ao bundle do editor. Mitigação: import dinâmico só quando o usuário clicar em "Exportar PDF".
+  - Geração de EPUB no cliente é CPU-light, sem risco.
+  - Multimodal no Gateway: já documentado e suportado para `google/*` via `type: file`.
+
+---
+
+## Ordem de execução
+
+1. **Idriel multimodal** (cliente + edge function) — entrega leitura nativa de PDF, fim do limite de 200 KB.
+2. **EPUB real** — vital pro Kindle, prioridade alta.
+3. **PDF diagramado** — `pdfmake` com capa, sumário, cabeçalho/rodapé, tipografia de livro.
+4. **DOCX afinado** — ajustes finos de estilo.
+
+Cada etapa é independente e validável: testo importação de um PDF longo, exporto um manuscrito de exemplo nos 3 formatos e abro no Kindle Previewer + Word + leitor de PDF.
+
+Posso seguir nessa ordem?
