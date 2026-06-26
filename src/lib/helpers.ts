@@ -245,41 +245,108 @@ export interface ImportedSuggestion {
   fruit_id: number;
   summary: string;
 }
-export async function importTextWithIdriel(text: string, sourceType: 'pdf' | 'docx' | 'txt' | 'texto' = 'texto'): Promise<ImportedSuggestion[]> {
-  const { data, error } = await supabase.functions.invoke('idriel-import-text', {
-    body: { text, sourceType },
-  });
-  if (error) await throwInvokeError(error, 'Erro ao analisar texto');
-  if (data?.error) throw new Error(data.error);
-  return (data?.entries || []) as ImportedSuggestion[];
+export type ImportProgressPhase =
+  | 'reading'      // lendo arquivo no navegador
+  | 'encoding'     // codificando base64
+  | 'uploading'    // enviando para Idriel
+  | 'ocr'          // Idriel lendo/transcrevendo (OCR no servidor)
+  | 'extracting'   // estruturando fichas/artigos
+  | 'done';
+
+export interface ImportProgress {
+  phase: ImportProgressPhase;
+  pct: number;          // 0..100
+  label: string;        // texto pt-BR pronto para UI
+}
+
+export type ImportProgressCallback = (p: ImportProgress) => void;
+
+const phaseLabels: Record<ImportProgressPhase, string> = {
+  reading: 'Lendo o arquivo...',
+  encoding: 'Preparando o documento...',
+  uploading: 'Enviando para Idriel...',
+  ocr: 'Idriel está lendo o documento (OCR e leitura)...',
+  extracting: 'Estruturando fichas, personagens e artigos...',
+  done: 'Concluído.',
+};
+
+const emit = (cb: ImportProgressCallback | undefined, phase: ImportProgressPhase, pct: number) => {
+  cb?.({ phase, pct: Math.max(0, Math.min(100, Math.round(pct))), label: phaseLabels[phase] });
+};
+
+export async function importTextWithIdriel(
+  text: string,
+  sourceType: 'pdf' | 'docx' | 'txt' | 'texto' = 'texto',
+  onProgress?: ImportProgressCallback,
+): Promise<ImportedSuggestion[]> {
+  emit(onProgress, 'uploading', 20);
+  let synthetic = 20;
+  const interval = setInterval(() => {
+    synthetic = Math.min(synthetic + 2, 88);
+    const phase: ImportProgressPhase = synthetic < 55 ? 'uploading' : synthetic < 78 ? 'ocr' : 'extracting';
+    emit(onProgress, phase, synthetic);
+  }, 700);
+  try {
+    const { data, error } = await supabase.functions.invoke('idriel-import-text', {
+      body: { text, sourceType },
+    });
+    if (error) await throwInvokeError(error, 'Erro ao analisar texto');
+    if (data?.error) throw new Error(data.error);
+    emit(onProgress, 'done', 100);
+    return (data?.entries || []) as ImportedSuggestion[];
+  } finally {
+    clearInterval(interval);
+  }
 }
 
 /**
  * Envia o arquivo binário (PDF) para Idriel ler nativamente via Gemini multimodal.
  * Não extrai texto no cliente — o modelo "lê" o PDF inteiro (inclui OCR de páginas escaneadas).
  */
-export async function importFileWithIdriel(file: File): Promise<ImportedSuggestion[]> {
+export async function importFileWithIdriel(
+  file: File,
+  onProgress?: ImportProgressCallback,
+): Promise<ImportedSuggestion[]> {
+  emit(onProgress, 'reading', 5);
   const buf = await file.arrayBuffer();
-  // base64 chunked p/ não estourar call stack em PDFs grandes
+  emit(onProgress, 'encoding', 15);
   const bytes = new Uint8Array(buf);
   let binary = '';
   const chunk = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunk) {
+  const total = bytes.length;
+  for (let i = 0; i < total; i += chunk) {
     binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)));
+    if (i % (chunk * 16) === 0) {
+      emit(onProgress, 'encoding', 15 + (i / total) * 20);
+    }
   }
   const fileData = btoa(binary);
+  emit(onProgress, 'uploading', 40);
 
-  const { data, error } = await supabase.functions.invoke('idriel-import-text', {
-    body: {
-      sourceType: 'pdf',
-      fileName: file.name,
-      mimeType: file.type || 'application/pdf',
-      fileData,
-    },
-  });
-  if (error) await throwInvokeError(error, 'Erro ao analisar arquivo');
-  if (data?.error) throw new Error(data.error);
-  return (data?.entries || []) as ImportedSuggestion[];
+  // Server-side phases não têm progresso real — sintetizamos avanço suave.
+  let synthetic = 40;
+  const interval = setInterval(() => {
+    synthetic = Math.min(synthetic + 1.5, 90);
+    const phase: ImportProgressPhase = synthetic < 60 ? 'uploading' : synthetic < 80 ? 'ocr' : 'extracting';
+    emit(onProgress, phase, synthetic);
+  }, 800);
+
+  try {
+    const { data, error } = await supabase.functions.invoke('idriel-import-text', {
+      body: {
+        sourceType: 'pdf',
+        fileName: file.name,
+        mimeType: file.type || 'application/pdf',
+        fileData,
+      },
+    });
+    if (error) await throwInvokeError(error, 'Erro ao analisar arquivo');
+    if (data?.error) throw new Error(data.error);
+    emit(onProgress, 'done', 100);
+    return (data?.entries || []) as ImportedSuggestion[];
+  } finally {
+    clearInterval(interval);
+  }
 }
 
 // Summarize an Idriel response into clean prose suitable for a Codex entry

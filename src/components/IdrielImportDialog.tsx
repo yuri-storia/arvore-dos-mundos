@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Progress } from '@/components/ui/progress';
 import { extractTextFromFile, type ImportSourceType } from '@/lib/textExtractor';
-import { importTextWithIdriel, importFileWithIdriel, type ImportedSuggestion } from '@/lib/helpers';
+import { importTextWithIdriel, importFileWithIdriel, type ImportedSuggestion, type ImportProgress } from '@/lib/helpers';
 import { FRUITS } from '@/lib/data';
 import { toast } from 'sonner';
 import { Loader2, Upload, Sparkles, FileText, Library, Paperclip, ArrowLeft } from 'lucide-react';
@@ -27,6 +28,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
   const [pendingPdf, setPendingPdf] = useState<File | null>(null);
   const [suggestions, setSuggestions] = useState<ImportedSuggestion[]>([]);
   const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [progress, setProgress] = useState<ImportProgress | null>(null);
 
   const reset = () => {
     setStep('upload');
@@ -39,6 +41,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
     setExtracting(false);
     setAnalyzing(false);
     setCreating(false);
+    setProgress(null);
   };
 
   const handleClose = (v: boolean) => {
@@ -117,14 +120,16 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
 
   const runPdfAnalysis = async (file: File) => {
     setAnalyzing(true);
+    setProgress({ phase: 'reading', pct: 0, label: 'Lendo o arquivo...' });
     try {
-      const result = await importFileWithIdriel(file);
+      const result = await importFileWithIdriel(file, setProgress);
       finalizeAnalysis(result);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Erro ao analisar arquivo';
       toast.error(msg);
     } finally {
       setAnalyzing(false);
+      setProgress(null);
     }
   };
 
@@ -138,14 +143,16 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
       return;
     }
     setAnalyzing(true);
+    setProgress({ phase: 'uploading', pct: 10, label: 'Enviando para Idriel...' });
     try {
-      const result = await importTextWithIdriel(text, src);
+      const result = await importTextWithIdriel(text, src, setProgress);
       finalizeAnalysis(result);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Erro ao analisar texto';
       toast.error(msg);
     } finally {
       setAnalyzing(false);
+      setProgress(null);
     }
   };
 
@@ -236,6 +243,32 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
                 <span>Idriel vai ler este PDF inteiro — incluindo páginas escaneadas (OCR). Sem corte de tamanho.</span>
               </div>
             )}
+
+            {progress && (
+              <div className="space-y-2 rounded-md border border-gold/25 bg-gold/[0.04] p-3" role="status" aria-live="polite">
+                <div className="flex items-center justify-between text-xs text-foreground/80">
+                  <span className="inline-flex items-center gap-1.5 font-cinzel text-gold">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    {progress.label}
+                  </span>
+                  <span className="tabular-nums">{progress.pct}%</span>
+                </div>
+                <Progress value={progress.pct} className="h-1.5 bg-background/60" />
+                <div className="flex flex-wrap gap-1 text-[10px] text-foreground/55">
+                  {(['reading','encoding','uploading','ocr','extracting','done'] as const).map((p, i, arr) => {
+                    const order = arr.indexOf(progress.phase);
+                    const active = i <= order;
+                    const labels = ['Upload','Preparo','Envio','Leitura/OCR','Extração','Preview'];
+                    return (
+                      <span key={p} className={active ? 'text-gold' : 'text-foreground/40'}>
+                        {labels[i]}{i < arr.length - 1 ? ' ›' : ''}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
 
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={() => handleClose(false)} disabled={analyzing}>Cancelar</Button>

@@ -24,14 +24,24 @@ const FRUITS_HINT = `Frutos disponíveis (use o id):
 const SYSTEM_PROMPT = `Você é Idriel, uma curadora de worldbuilding. Leia o documento enviado pelo criador e identifique entradas de Codex que podem ser criadas a partir dele. Retorne SOMENTE JSON válido no formato exato:
 {"entries":[{"type":"ficha"|"artigo","title":"...","fruit_id":0..10,"summary":"..."}]}
 
-Regras:
+Regras gerais:
 - "ficha" = entidade concreta e visual (personagem, local, criatura, objeto). Resumo curto, factual.
 - "artigo" = conceito amplo (sistema, cultura, lore, evento). Resumo em 2-4 parágrafos.
 - Title máximo 80 caracteres.
 - Summary máximo 1500 caracteres por entrada, em português brasileiro.
-- Crie entre 3 e 25 entradas (priorize qualidade e cobertura do documento).
-- NÃO invente conteúdo: extraia apenas o que está no documento.
+- Crie entre 5 e 30 entradas (priorize qualidade, cobertura e PERSONAGENS).
+- NÃO invente conteúdo: extraia apenas o que está no documento. Quando uma informação não estiver explícita, omita o campo no resumo (não preencha com suposições).
 - Use fruit_id correto.
+
+PRIORIDADE ALTA — Personagens citados:
+- Faça uma varredura DEDICADA atrás de TODOS os personagens nomeados ou descritos no documento (protagonistas, secundários, mencionados de passagem, antagonistas, figuras históricas, divindades, NPCs, narradores em primeira pessoa, povos-personagens).
+- Para CADA personagem identificado, gere uma ficha (type="ficha", fruit_id=9 — Personagens), mesmo quando aparecer brevemente. É melhor errar para mais do que omitir.
+- O título da ficha deve ser o nome próprio do personagem (sem títulos genéricos como "O Rei" se o nome existir no texto).
+- O resumo da ficha de personagem deve, quando o texto fornecer, cobrir nesta ordem: identidade e papel na história, aparência física, traços de personalidade, motivações/objetivos, relações com outros personagens, arco/eventos-chave em que aparece. Use bullet-like prose curta e factual, não invente.
+- Se houver dúvida se um termo é personagem ou conceito (ex.: "O Guardião"), trate como personagem quando agir, falar ou for descrito como ser; trate como artigo (ex.: fruit_id 8) quando for cargo/instituição abstrata.
+
+Cobertura dos pilares de worldbuilding (após os personagens):
+- Gere fichas/artigos cobrindo os demais frutos quando o documento mencionar: locais (0), governo e facções (1), eventos da linha do tempo (2), costumes/cultura (3), magia/tecnologia (4), criaturas (5), economia (6), línguas (7), mitologia e religião (8), conflitos e tramas (10).
 
 ${FRUITS_HINT}`;
 
@@ -169,7 +179,7 @@ serve(async (req) => {
       typeof e.title === "string" && e.title.length > 0 && e.title.length <= 200 &&
       typeof e.summary === "string" && e.summary.length > 0 && e.summary.length <= 5000 &&
       typeof e.fruit_id === "number" && e.fruit_id >= 0 && e.fruit_id <= 10
-    ).slice(0, 30);
+    ).slice(0, 40);
 
     // Cobra 5 gotas (5 chamadas de texto) — uma vez que tudo deu certo
     for (let i = 0; i < 5; i++) {
