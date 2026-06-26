@@ -236,26 +236,20 @@ export function findContextIssues(text: string): ContextIssue[] {
     // Defensive cap to prevent pathological inputs from spinning.
     let safety = 0;
     while ((m = r.pattern.exec(text)) !== null && safety++ < 2000) {
-      // `d` flag fornece `indices` por grupo. Em runtimes sem suporte caímos no fallback.
-      const grpIdx = (m as unknown as { indices?: { groups?: Record<string, [number, number]> } })
-        .indices?.groups?.w;
-      let from: number;
-      let to: number;
-      let word: string;
-      if (grpIdx) {
-        [from, to] = grpIdx;
-        word = text.slice(from, to);
-      } else {
-        // Fallback: localiza o grupo nomeado dentro do match completo.
-        const groups = (m as RegExpExecArray & { groups?: Record<string, string> }).groups;
-        const w = groups?.w;
-        if (!w) continue;
-        const rel = m[0].indexOf(w);
-        if (rel < 0) continue;
-        from = m.index + rel;
-        to = from + w.length;
-        word = w;
+      const groups = (m as RegExpExecArray & { groups?: Record<string, string> }).groups;
+      const w = groups?.w;
+      if (!w) {
+        if (m.index === r.pattern.lastIndex) r.pattern.lastIndex++;
+        continue;
       }
+      const rel = m[0].indexOf(w);
+      if (rel < 0) {
+        if (m.index === r.pattern.lastIndex) r.pattern.lastIndex++;
+        continue;
+      }
+      const from = m.index + rel;
+      const to = from + w.length;
+      const word = w;
       const suggestion =
         typeof r.suggest === "function"
           ? matchCase(word, r.suggest(word))
@@ -268,9 +262,9 @@ export function findContextIssues(text: string): ContextIssue[] {
         reason: r.reason,
         ruleId: r.id,
       });
-      // Garante avanço mesmo em matches de largura zero (improvável aqui).
       if (m.index === r.pattern.lastIndex) r.pattern.lastIndex++;
     }
+
   }
   return out;
 }
