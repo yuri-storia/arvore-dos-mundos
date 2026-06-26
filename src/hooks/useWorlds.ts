@@ -8,6 +8,7 @@ export interface WorldRecord {
   id: string;
   name: string;
   method: MethodType;
+  // db/gallery são carregados sob demanda (lazy) para tornar a listagem instantânea.
   db: Record<number, Record<string, string>>;
   gallery: GalleryImage[];
   updated_at: string;
@@ -20,23 +21,43 @@ export function useWorlds() {
 
   const fetchWorlds = useCallback(async () => {
     if (!user) { setWorlds([]); setLoading(false); return; }
+    // Listagem leve: NÃO trazer os JSONs pesados (db, gallery).
+    // Esses campos podem ter centenas de KB cada e travam a tela inicial.
     const { data, error } = await supabase
       .from('worlds')
-      .select('*')
+      .select('id, name, method, updated_at')
       .order('updated_at', { ascending: false });
     if (error) { console.error(error); toast.error('Erro ao carregar mundos'); }
     else setWorlds((data as any[]).map(d => ({
       id: d.id,
       name: d.name,
       method: d.method as MethodType,
-      db: (d.db || {}) as Record<number, Record<string, string>>,
-      gallery: (d.gallery || []) as GalleryImage[],
+      db: {},
+      gallery: [],
       updated_at: d.updated_at,
     })));
     setLoading(false);
   }, [user]);
 
   useEffect(() => { fetchWorlds(); }, [fetchWorlds]);
+
+  // Carrega o payload completo (db + gallery) apenas do mundo ativo.
+  const loadWorldFull = useCallback(async (id: string): Promise<WorldRecord | null> => {
+    const { data, error } = await supabase
+      .from('worlds')
+      .select('id, name, method, updated_at, db, gallery')
+      .eq('id', id)
+      .maybeSingle();
+    if (error || !data) { if (error) console.error(error); return null; }
+    return {
+      id: data.id,
+      name: data.name,
+      method: data.method as MethodType,
+      db: (data.db || {}) as Record<number, Record<string, string>>,
+      gallery: (data.gallery || []) as GalleryImage[],
+      updated_at: data.updated_at,
+    };
+  }, []);
 
   const createWorld = useCallback(async (state: AppState): Promise<WorldRecord | null> => {
     if (!user) return null;
