@@ -1,84 +1,117 @@
-// Hook that calls the `ai-spellcheck` edge function and caches results in a
-// bounded LRU map. Returns a stable `lookup` function and a request counter
-// used by callers that want to cancel stale lookups.
+// Hook que conversa com o Web Worker do nspell (dicionário PT bundled).
+// Sem chamadas de IA. Sem rede além do bundle estático do dicionário.
+// Mantém um cache LRU local para respostas instantâneas em palavras repetidas.
 
-import { useCallback, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useCallback, useEffect, useRef } from "react";
+import { getCustomWords } from "./customDictionary";
 
 export interface SpellLookupResult {
   correct: boolean;
   suggestions: string[];
-  reason?: string;
   degraded?: boolean;
 }
 
-const CACHE_MAX = 500;
+const CACHE_MAX = 1000;
 
-function makeKey(word: string, before: string, after: string) {
-  // Trim context to a small window — enough to disambiguate homophones
-  // without exploding cache cardinality.
-  const b = before.slice(-30);
-  const a = after.slice(0, 30);
-  return `${word.toLowerCase()}|${b}|${a}`;
+// Singleton worker — uma instância para toda a aplicação.
+let workerSingleton: Worker | null = null;
+let nextId = 1;
+const pending = new Map<
+  number,
+  (msg: { correct?: boolean; suggestions?: string[]; error?: string }) => void
+>();
+
+function getWorker(): Worker {
+  if (workerSingleton) return workerSingleton;
+  workerSingleton = new Worker(
+    new URL("./spellWorker.ts", import.meta.url),
+    { type: "module" },
+  );
+  workerSingleton.addEventListener("message", (ev: MessageEvent) => {
+    const { id } = ev.data || {};
+    const cb = pending.get(id);
+    if (cb) {
+      pending.delete(id);
+      cb(ev.data);
+    }
+  });
+  workerSingleton.addEventListener("error", (e) => {
+    // eslint-disable-next-line no-console
+    console.warn("[spellcheck] worker error", e.message);
+  });
+  // Sincroniza palavras do dicionário pessoal já gravadas.
+  try {
+    for (const w of getCustomWords()) {
+      workerSingleton.postMessage({ id: nextId++, type: "add", word: w });
+    }
+  } catch {
+    /* noop */
+  }
+  return workerSingleton;
+}
+
+function send(
+  type: "check" | "suggest" | "lookup" | "add",
+  word: string,
+): Promise<{ correct?: boolean; suggestions?: string[]; error?: string }> {
+  return new Promise((resolve) => {
+    const id = nextId++;
+    pending.set(id, resolve);
+    getWorker().postMessage({ id, type, word });
+    // Timeout defensivo para não vazar promises se o worker travar.
+    setTimeout(() => {
+      if (pending.has(id)) {
+        pending.delete(id);
+        resolve({ error: "timeout" });
+      }
+    }, 4000);
+  });
+}
+
+export function addWordToWorker(word: string) {
+  try {
+    getWorker().postMessage({ id: nextId++, type: "add", word });
+  } catch {
+    /* noop */
+  }
 }
 
 export function useSpellSuggestions() {
   const cacheRef = useRef<Map<string, SpellLookupResult>>(new Map());
-  const inflightRef = useRef<Map<string, Promise<SpellLookupResult>>>(new Map());
+
+  // Pré-aquece o worker no primeiro mount.
+  useEffect(() => {
+    getWorker();
+  }, []);
 
   const lookup = useCallback(
     async (
       word: string,
-      before: string,
-      after: string,
+      _before: string,
+      _after: string,
     ): Promise<SpellLookupResult> => {
-      const key = makeKey(word, before, after);
+      const key = word.toLowerCase();
       const cached = cacheRef.current.get(key);
       if (cached) {
-        // LRU touch
         cacheRef.current.delete(key);
         cacheRef.current.set(key, cached);
         return cached;
       }
-      const pending = inflightRef.current.get(key);
-      if (pending) return pending;
 
-      const promise = (async () => {
-        try {
-          const { data, error } = await supabase.functions.invoke(
-            "ai-spellcheck",
-            { body: { word, before, after } },
-          );
-          if (error) {
-            return { correct: true, suggestions: [], degraded: true };
-          }
-          const result: SpellLookupResult = {
-            correct: data?.correct !== false,
-            suggestions: Array.isArray(data?.suggestions)
-              ? data.suggestions.slice(0, 5)
-              : [],
-            reason: data?.reason,
-            degraded: !!data?.degraded,
-          };
-          // Cache only confident answers.
-          if (!result.degraded) {
-            if (cacheRef.current.size >= CACHE_MAX) {
-              const firstKey = cacheRef.current.keys().next().value;
-              if (firstKey) cacheRef.current.delete(firstKey);
-            }
-            cacheRef.current.set(key, result);
-          }
-          return result;
-        } catch (err) {
-          console.warn("spellcheck lookup failed", err);
-          return { correct: true, suggestions: [], degraded: true };
-        } finally {
-          inflightRef.current.delete(key);
-        }
-      })();
-
-      inflightRef.current.set(key, promise);
-      return promise;
+      const res = await send("lookup", word);
+      if (res.error) {
+        return { correct: true, suggestions: [], degraded: true };
+      }
+      const result: SpellLookupResult = {
+        correct: res.correct !== false,
+        suggestions: Array.isArray(res.suggestions) ? res.suggestions : [],
+      };
+      if (cacheRef.current.size >= CACHE_MAX) {
+        const firstKey = cacheRef.current.keys().next().value;
+        if (firstKey) cacheRef.current.delete(firstKey);
+      }
+      cacheRef.current.set(key, result);
+      return result;
     },
     [],
   );
