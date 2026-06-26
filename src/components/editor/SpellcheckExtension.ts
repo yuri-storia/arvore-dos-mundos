@@ -73,6 +73,7 @@ function buildDecorations(
 ): DecorationSet {
   if (!isSpellcheckEnabled()) return DecorationSet.empty;
   const decos: Decoration[] = [];
+  // Pass 1: dicionário (palavras inexistentes).
   const seen = collectWords(doc);
   for (const h of seen) {
     const verdict = cache.get(h.word.toLowerCase());
@@ -85,8 +86,25 @@ function buildDecorations(
       );
     }
   }
+  // Pass 2: regras contextuais (palavras corretas usadas no sentido errado).
+  doc.descendants((node, pos) => {
+    if (!node.isText || !node.text) return;
+    const issues = findContextIssues(node.text);
+    for (const i of issues) {
+      decos.push(
+        Decoration.inline(pos + i.from, pos + i.to, {
+          class: "spell-error spell-context",
+          spellcheck: "false",
+          "data-context-suggestion": i.suggestion,
+          "data-context-reason": i.reason,
+          "data-context-rule": i.ruleId,
+        }),
+      );
+    }
+  });
   return DecorationSet.create(doc, decos);
 }
+
 
 export interface SpellcheckExtensionOptions {
   /** Debounce window in ms before running the next dictionary lookup batch. */
