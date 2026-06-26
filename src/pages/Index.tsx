@@ -87,24 +87,28 @@ const Index = () => {
   useEffect(() => {
     if (initialLoadDone.current || !user || worlds.length === 0) return;
     initialLoadDone.current = true;
-    try {
-      const lastId = localStorage.getItem(LAST_WORLD_STORAGE);
-      const target = lastId ? worlds.find(w => w.id === lastId) : worlds[0];
-      if (target) {
+    (async () => {
+      try {
+        const lastId = localStorage.getItem(LAST_WORLD_STORAGE);
+        const target = lastId ? worlds.find(w => w.id === lastId) : worlds[0];
+        if (!target) return;
+        // Otimização: faz fetch sob demanda do payload pesado (db + gallery).
+        const full = await loadWorldFull(target.id);
+        const data = full || target;
         setState(prev => ({
           ...prev,
-          worldName: target.name,
-          db: target.db,
-          method: target.method,
-          gallery: target.gallery,
-          currentSaveId: target.id,
+          worldName: data.name,
+          db: data.db,
+          method: data.method,
+          gallery: data.gallery,
+          currentSaveId: data.id,
           currentFruit: 0,
         }));
+      } catch {
+        // Local storage may be unavailable in restricted browser modes.
       }
-    } catch {
-      // Local storage may be unavailable in restricted browser modes.
-    }
-  }, [worlds, user]);
+    })();
+  }, [worlds, user, loadWorldFull]);
 
   const setActiveTab = useCallback((tab: TabType) => setState(s => ({ ...s, activeTab: tab })), []);
   const setWorldName = useCallback((worldName: string) => setState(s => ({ ...s, worldName })), []);
