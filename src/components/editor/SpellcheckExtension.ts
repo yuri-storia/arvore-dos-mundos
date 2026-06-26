@@ -98,16 +98,17 @@ export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>(
 
   addOptions() {
     return {
-      debounceMs: 350,
+      debounceMs: 120,
       enabled: true,
     };
   },
 
   addProseMirrorPlugins() {
     if (!this.options.enabled) return [];
-    const debounceMs = this.options.debounceMs ?? 350;
+    const debounceMs = this.options.debounceMs ?? 120;
     let timer: ReturnType<typeof setTimeout> | null = null;
     let inflight = false;
+
 
     const scheduleCheck = (view: { state: EditorState; dispatch: (tr: Transaction) => void }) => {
       if (timer) clearTimeout(timer);
@@ -169,13 +170,16 @@ export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>(
               };
             }
             if (tr.docChanged) {
-              // Map existing decorations forward so they don't visually lag.
+              // Immediate cache-only rebuild so already-known misspellings
+              // (including newly typed words present in the cache) underline
+              // without waiting for the next worker batch.
               return {
-                decorations: value.decorations.map(tr.mapping, tr.doc),
+                decorations: buildDecorations(newState.doc, verdictCache),
                 version: value.version,
               };
             }
             return value;
+
           },
         },
         props: {
