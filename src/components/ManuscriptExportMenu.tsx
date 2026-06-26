@@ -27,9 +27,9 @@ const EXPORT_OPTIONS = [
   },
   {
     id: 'kindle' as const,
-    label: 'Kindle / E-book (.html)',
+    label: 'Kindle / EPUB (.epub)',
     icon: BookOpen,
-    desc: 'HTML formatado pronto para importar no Kindle Direct Publishing (KDP) da Amazon ou converter em .epub.',
+    desc: 'EPUB 3 válido, importável diretamente no Kindle Direct Publishing (KDP), Kindle Previewer e Apple Books.',
   },
 ];
 
@@ -90,7 +90,7 @@ export const ManuscriptExportMenu: React.FC<Props> = ({ manuscript, chapters, sc
                   <li>Cada capítulo tenha título e conteúdo</li>
                   <li>A sinopse do manuscrito esteja preenchida (aparece na capa)</li>
                 </ul>
-                <p><strong>Para Kindle:</strong> O arquivo HTML pode ser importado diretamente no <a href="https://kdp.amazon.com" target="_blank" rel="noopener" className="text-blue-light underline">Kindle Direct Publishing</a> ou convertido para .epub com o <a href="https://calibre-ebook.com" target="_blank" rel="noopener" className="text-blue-light underline">Calibre</a>.</p>
+                <p><strong>Para Kindle:</strong> Geramos um <code>.epub</code> válido (EPUB 3 com sumário navegável). Faça upload direto no <a href="https://kdp.amazon.com" target="_blank" rel="noopener" className="text-blue-light underline">Kindle Direct Publishing</a> ou abra no <a href="https://www.amazon.com/Kindle-Previewer/b?node=21381691011" target="_blank" rel="noopener" className="text-blue-light underline">Kindle Previewer</a> para conferir antes de publicar.</p>
               </div>
             )}
 
