@@ -52,6 +52,12 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    // Anti-burst: 6 imagens/min por usuário (qualquer qualidade).
+    const rl = await checkRateLimit(adminClient, userId, "ai-image", 6);
+    if (rl) return rl;
+
+
+
     let body: unknown;
     try {
       body = await req.json();
