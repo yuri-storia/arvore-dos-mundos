@@ -123,8 +123,34 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
         />
         <span className="text-[11px] font-mono text-text-dim bg-white/[0.04] px-2 py-0.5 rounded">{wordCount} palavras</span>
 
-        {/* Spellcheck nativo PT-BR + menu global de sugestões: sempre ativo.
-            Clique com o botão direito numa palavra sublinhada para corrigir. */}
+        {/* Liga/desliga do corretor ortográfico PT-BR. */}
+        <button
+          type="button"
+          onClick={() => {
+            const next = !spellOn;
+            setSpellOn(next);
+            toast.message(
+              next ? 'Corretor ortográfico ativado' : 'Corretor ortográfico desativado',
+              { duration: 1600 },
+            );
+          }}
+          aria-pressed={spellOn}
+          aria-label={spellOn ? 'Desativar corretor ortográfico' : 'Ativar corretor ortográfico'}
+          title={
+            spellOn
+              ? 'Corretor ortográfico: ATIVADO (clique para desativar)'
+              : 'Corretor ortográfico: DESATIVADO (clique para ativar)'
+          }
+          className={`hidden md:inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] border transition-colors ${
+            spellOn
+              ? 'border-emerald-400/40 text-emerald-300 bg-emerald-400/[0.06] hover:bg-emerald-400/[0.12]'
+              : 'border-white/10 text-text-dim hover:text-foreground hover:bg-white/[0.05]'
+          }`}
+        >
+          <SpellCheck2 className="w-3 h-3" />
+          <span className="font-mono">{spellOn ? 'ABC ✓' : 'ABC'}</span>
+        </button>
+
 
 
         <button
