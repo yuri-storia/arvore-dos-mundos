@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { listCustomWords } from "./customDictionary";
 import { getContextHint } from "./contextRules";
+import { rerankSuggestions } from "./bigrams";
 
 export interface SpellLookupResult {
   correct: boolean;
