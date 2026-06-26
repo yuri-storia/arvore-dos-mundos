@@ -36,6 +36,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
   const [title, setTitle] = useState(chapter.title);
   const [previewMode, setPreviewMode] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [spellOn, setSpellOn] = useSpellcheckEnabled();
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const errorToastIdRef = useRef<string | number | null>(null);
