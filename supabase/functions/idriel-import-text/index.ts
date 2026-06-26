@@ -21,6 +21,23 @@ const FRUITS_HINT = `Frutos disponíveis (use o id):
 9 = Personagens
 10 = Narrativa & Conflitos`;
 
+const SYSTEM_PROMPT = `Você é Idriel, uma curadora de worldbuilding. Leia o documento enviado pelo criador e identifique entradas de Codex que podem ser criadas a partir dele. Retorne SOMENTE JSON válido no formato exato:
+{"entries":[{"type":"ficha"|"artigo","title":"...","fruit_id":0..10,"summary":"..."}]}
+
+Regras:
+- "ficha" = entidade concreta e visual (personagem, local, criatura, objeto). Resumo curto, factual.
+- "artigo" = conceito amplo (sistema, cultura, lore, evento). Resumo em 2-4 parágrafos.
+- Title máximo 80 caracteres.
+- Summary máximo 1500 caracteres por entrada, em português brasileiro.
+- Crie entre 3 e 25 entradas (priorize qualidade e cobertura do documento).
+- NÃO invente conteúdo: extraia apenas o que está no documento.
+- Use fruit_id correto.
+
+${FRUITS_HINT}`;
+
+// ~15 MB cap on base64 payloads (gateway accepts up to 20MB; deixa folga p/ JSON overhead)
+const MAX_BASE64_BYTES = 20 * 1024 * 1024;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -71,27 +88,48 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Invalid request body" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const { text, sourceType } = body as Record<string, unknown>;
-    if (!text || typeof text !== "string" || text.length < 50 || text.length > 200000) {
-      return new Response(JSON.stringify({ error: "text must be a string with 50-200000 chars" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
+    const {
+      text,
+      sourceType,
+      fileData,      // base64 (sem prefixo data:) — opcional
+      mimeType,      // ex: application/pdf
+      fileName,      // opcional, p/ contexto no prompt
+    } = body as Record<string, unknown>;
+
     const kind = typeof sourceType === "string" ? sourceType : "texto";
+    const userContent: Array<Record<string, unknown>> = [];
 
-    const systemPrompt = `Você é Idriel, uma curadora de worldbuilding. Receba o texto enviado pelo criador e identifique entradas de Codex que podem ser criadas a partir dele. Retorne SOMENTE JSON válido no formato exato:
-{"entries":[{"type":"ficha"|"artigo","title":"...","fruit_id":0..10,"summary":"..."}]}
-
-Regras:
-- "ficha" = entidade concreta e visual (personagem, local, criatura, objeto). Resumo curto, factual.
-- "artigo" = conceito amplo (sistema, cultura, lore, evento). Resumo em 2-4 parágrafos.
-- Title máximo 80 caracteres.
-- Summary máximo 1500 caracteres por entrada, em português brasileiro.
-- Crie entre 3 e 20 entradas (priorize qualidade).
-- NÃO invente conteúdo: extraia apenas o que está no texto.
-- Use fruit_id correto.
-
-${FRUITS_HINT}
-
-Tipo da fonte: ${kind}.`;
+    // — Caminho multimodal (PDF nativo) —
+    if (typeof fileData === "string" && fileData.length > 0 && typeof mimeType === "string") {
+      if (fileData.length > MAX_BASE64_BYTES) {
+        return new Response(JSON.stringify({ error: "Arquivo muito grande (máx. ~15 MB)." }), { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      if (mimeType !== "application/pdf") {
+        return new Response(JSON.stringify({ error: "Apenas PDF é suportado em modo multimodal." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      userContent.push({
+        type: "text",
+        text: `Tipo da fonte: ${kind}${typeof fileName === "string" ? ` (arquivo: ${fileName})` : ""}.\nLeia o documento anexado e extraia as entradas de Codex.`,
+      });
+      userContent.push({
+        type: "file",
+        file: {
+          filename: typeof fileName === "string" ? fileName : "documento.pdf",
+          file_data: `data:${mimeType};base64,${fileData}`,
+        },
+      });
+    } else if (typeof text === "string" && text.length >= 50) {
+      // — Caminho texto (DOCX/TXT/MD/colado) —
+      if (text.length > 400000) {
+        return new Response(JSON.stringify({ error: "Texto muito longo (máx. 400.000 caracteres)." }), { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      userContent.push({
+        type: "text",
+        text: `Tipo da fonte: ${kind}.\n\n--- INÍCIO DO TEXTO ---\n${text}\n--- FIM DO TEXTO ---`,
+      });
+    } else {
+      return new Response(JSON.stringify({ error: "Envie 'fileData'+'mimeType' (PDF) ou 'text' com 50+ caracteres." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -99,8 +137,8 @@ Tipo da fonte: ${kind}.`;
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: text.slice(0, 200000) },
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: userContent },
         ],
         response_format: { type: "json_object" },
         max_tokens: 8192,
@@ -124,7 +162,7 @@ Tipo da fonte: ${kind}.`;
     let parsed: { entries?: Array<{ type: string; title: string; fruit_id: number; summary: string }> } = {};
     try { parsed = JSON.parse(content); } catch {
       console.error("invalid JSON from model:", content.slice(0, 300));
-      throw new Error("A IA não retornou um JSON válido. Tente de novo com um texto mais limpo.");
+      throw new Error("A IA não retornou um JSON válido. Tente de novo com um documento mais limpo.");
     }
     const entries = (parsed.entries || []).filter(e =>
       e && (e.type === "ficha" || e.type === "artigo") &&
