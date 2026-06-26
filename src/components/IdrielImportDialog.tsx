@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Progress } from '@/components/ui/progress';
 import { extractTextFromFile, type ImportSourceType } from '@/lib/textExtractor';
 import { importTextWithIdriel, importFileWithIdriel, type ImportedSuggestion } from '@/lib/helpers';
 import { FRUITS } from '@/lib/data';
