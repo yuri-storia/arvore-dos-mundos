@@ -148,7 +148,7 @@ export function exportManuscriptPDF(manuscript: Manuscript, chapters: Chapter[],
       const indent = 5; // recuo de 1ª linha
 
       setBody();
-      const paragraphs = stripMentions(ch.content)
+      const paragraphs = chapterPlain(ch.content)
         .split(/\n\s*\n/) // parágrafos separados por linha em branco
         .map(p => p.replace(/\s+/g, ' ').trim())
         .filter(p => p.length > 0);
@@ -271,7 +271,7 @@ export async function exportManuscriptDOCX(manuscript: Manuscript, chapters: Cha
     }));
 
     if (ch.content) {
-      const paragraphs = stripMentions(ch.content)
+      const paragraphs = chapterPlain(ch.content)
         .split(/\n\s*\n/)
         .map(p => p.replace(/\s+/g, ' ').trim())
         .filter(p => p.length > 0);
@@ -342,7 +342,7 @@ function uuid(): string {
 
 function chapterXhtml(title: string, content: string, isCover = false): string {
   const paragraphs = content
-    ? stripMentions(content)
+    ? chapterPlain(content)
         .split(/\n\s*\n/)
         .map(p => p.replace(/\s+/g, ' ').trim())
         .filter(p => p.length > 0)
