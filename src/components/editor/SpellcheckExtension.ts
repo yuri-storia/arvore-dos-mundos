@@ -184,10 +184,13 @@ export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>(
           },
         },
         view(view) {
-          // Kick off initial check + react to custom dictionary changes.
+          // Kick off initial check + react to custom dictionary changes
+          // and to the global on/off toggle.
           scheduleCheck(view);
           const onDictChanged = () => scheduleCheck(view);
+          const onToggleChanged = () => scheduleCheck(view);
           window.addEventListener("spellcheck:custom-dict-changed", onDictChanged);
+          window.addEventListener("spellcheck:enabled-changed", onToggleChanged);
           return {
             update(v, prevState) {
               if (!v.state.doc.eq(prevState.doc)) {
@@ -197,6 +200,7 @@ export const SpellcheckExtension = Extension.create<SpellcheckExtensionOptions>(
             destroy() {
               if (timer) clearTimeout(timer);
               window.removeEventListener("spellcheck:custom-dict-changed", onDictChanged);
+              window.removeEventListener("spellcheck:enabled-changed", onToggleChanged);
             },
           };
         },
