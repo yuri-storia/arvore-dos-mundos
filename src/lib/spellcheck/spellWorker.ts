@@ -1,0 +1,89 @@
+// Web Worker that runs a Hunspell-compatible PT-BR spellchecker (nspell)
+// fully offline using a bundled dictionary. No AI, no network calls beyond
+// fetching the static dictionary asset shipped with the app.
+//
+// Messages:
+//   { id, type: "check",  word }                       → { id, correct }
+//   { id, type: "suggest", word }                      → { id, suggestions }
+//   { id, type: "lookup", word }                       → { id, correct, suggestions }
+//   { id, type: "add",    word }                       → { id, ok }
+//   { id, type: "ready" }                              → { id, ready }
+
+// Vite resolves these to URLs of the static files served from /node_modules.
+// They are fetched as raw bytes at worker boot.
+import affUrl from "dictionary-pt/index.aff?url";
+import dicUrl from "dictionary-pt/index.dic?url";
+import NSpell from "nspell";
+
+type SpellInstance = {
+  correct: (w: string) => boolean;
+  suggest: (w: string) => string[];
+  add: (w: string) => void;
+};
+
+let spell: SpellInstance | null = null;
+let bootPromise: Promise<SpellInstance> | null = null;
+
+async function boot(): Promise<SpellInstance> {
+  if (spell) return spell;
+  if (bootPromise) return bootPromise;
+  bootPromise = (async () => {
+    const [affRes, dicRes] = await Promise.all([fetch(affUrl), fetch(dicUrl)]);
+    const [aff, dic] = await Promise.all([affRes.text(), dicRes.text()]);
+    spell = NSpell({ aff, dic }) as unknown as SpellInstance;
+    return spell;
+  })();
+  return bootPromise;
+}
+
+// Warm up immediately so the first user request is fast.
+void boot().catch((err) => {
+  // eslint-disable-next-line no-console
+  console.error("[spellWorker] failed to boot", err);
+});
+
+interface InMsg {
+  id: number;
+  type: "check" | "suggest" | "lookup" | "add" | "ready";
+  word?: string;
+}
+
+self.addEventListener("message", async (ev: MessageEvent<InMsg>) => {
+  const { id, type, word } = ev.data || ({} as InMsg);
+  try {
+    const s = await boot();
+    if (type === "ready") {
+      (self as unknown as Worker).postMessage({ id, ready: true });
+      return;
+    }
+    if (!word) {
+      (self as unknown as Worker).postMessage({ id, error: "missing word" });
+      return;
+    }
+    if (type === "check") {
+      (self as unknown as Worker).postMessage({ id, correct: s.correct(word) });
+    } else if (type === "suggest") {
+      (self as unknown as Worker).postMessage({
+        id,
+        suggestions: s.suggest(word).slice(0, 6),
+      });
+    } else if (type === "lookup") {
+      const correct = s.correct(word);
+      (self as unknown as Worker).postMessage({
+        id,
+        correct,
+        suggestions: correct ? [] : s.suggest(word).slice(0, 6),
+      });
+    } else if (type === "add") {
+      s.add(word);
+      (self as unknown as Worker).postMessage({ id, ok: true });
+    }
+  } catch (err) {
+    (self as unknown as Worker).postMessage({
+      id,
+      error: (err as Error)?.message ?? "spell error",
+    });
+  }
+});
+
+export {};

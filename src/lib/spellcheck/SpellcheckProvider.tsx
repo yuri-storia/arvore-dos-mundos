@@ -24,6 +24,7 @@ import { Loader2, Plus, X, SpellCheck2, CheckCircle2 } from "lucide-react";
 import { wordAtPoint, type WordHit } from "./wordAtPoint";
 import { addCustomWord, isCustomWord } from "./customDictionary";
 import {
+  addWordToWorker,
   useSpellSuggestions,
   type SpellLookupResult,
 } from "./useSpellSuggestions";
@@ -112,6 +113,7 @@ export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
   const addToDict = useCallback(() => {
     if (!pop) return;
     addCustomWord(pop.hit.word);
+    addWordToWorker(pop.hit.word);
     setPop(null);
   }, [pop]);
 
@@ -238,14 +240,6 @@ const SpellPopover: React.FC<PopoverProps> = ({
                 </li>
               ))}
             </ul>
-          )}
-          {result.reason && (
-            <div
-              className="px-3 pt-1 pb-1.5 text-[11px] text-text-dim/80 italic border-t border-white/5 mt-0.5"
-              title={result.reason}
-            >
-              {result.reason}
-            </div>
           )}
         </>
       )}
