@@ -6,9 +6,14 @@ import {
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 import type { Manuscript, Chapter, Scene } from '@/hooks/useManuscript';
+import { htmlToPlainText } from '@/lib/htmlToText';
 
 /** Strip `@` glyph from mention tokens so exports show plain text only. */
 const stripMentions = (s: string) => s.replace(/@(?=[A-Za-zÀ-ÿ0-9_\-])/g, '');
+
+/** Converte conteúdo do capítulo (HTML do Tiptap) em texto puro para export. */
+const chapterPlain = (s: string | null | undefined) =>
+  stripMentions(htmlToPlainText(s));
 
 const slug = (s: string) =>
   (s || 'manuscrito').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
