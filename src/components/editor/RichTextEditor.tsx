@@ -20,9 +20,6 @@ import {
   Minus, Plus, GripVertical,
 } from 'lucide-react';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
-import { SpellcheckPtBr, spellcheckPluginKey } from './spellcheck/SpellcheckExtension';
-import { loadSpellChecker, getSpellChecker } from './spellcheck/loadDictionary';
-import { SpellSuggestionsMenu, type SpellSuggestionTarget } from './spellcheck/SpellSuggestionsMenu';
 import './editor.css';
 
 /* ----- Image extension with width + align attrs (resize / align controls) ----- */
@@ -409,7 +406,6 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
         allowBase64: true,
         HTMLAttributes: { class: 'rich-image' },
       }),
-      SpellcheckPtBr.configure({ enabled: false }),
 
 
       Mention.configure({
@@ -428,8 +424,9 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
     editorProps: {
       attributes: {
         class: `rich-content ${className || ''}`,
-        // Our own checker handles spelling — disable native to avoid double underlines.
-        spellcheck: 'false',
+        // Native browser spellcheck (PT-BR) — sublinhado vermelho instantâneo.
+        // O menu de sugestões customizado é fornecido pelo SpellcheckProvider global.
+        spellcheck: spellCheck === false ? 'false' : 'true',
         lang,
         translate: 'no',
         autocorrect: 'on',
@@ -523,103 +520,9 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
     } catch { /* ignore */ }
   }, [value, editor]);
 
-  /* ---------------- Spellcheck (PT-BR) lifecycle ---------------- */
-  const [spellTarget, setSpellTarget] = useState<SpellSuggestionTarget | null>(null);
+  /* Spellcheck: nativo do navegador (PT-BR) + menu global de sugestões via
+     SpellcheckProvider. Não há mais ciclo de vida específico aqui. */
 
-  // Toggle our extension whenever `spellCheck` prop changes, lazy-loading the
-  // dictionary the first time it goes on.
-  useEffect(() => {
-    if (!editor) return;
-    let cancelled = false;
-    if (spellCheck) {
-      if (getSpellChecker()) {
-        editor.commands.setSpellcheckEnabled(true);
-        editor.commands.refreshSpellcheck();
-      } else {
-        loadSpellChecker()
-          .then(() => {
-            if (cancelled || editor.isDestroyed) return;
-            editor.commands.setSpellcheckEnabled(true);
-            editor.commands.refreshSpellcheck();
-          })
-          .catch(() => { /* silent — feature degrades gracefully */ });
-      }
-    } else {
-      editor.commands.setSpellcheckEnabled(false);
-    }
-    return () => { cancelled = true; };
-  }, [editor, spellCheck]);
-
-  // Right-click on a misspelled word → open our suggestion menu (overrides
-  // the browser's native menu so the experience is uniform on every OS).
-  useEffect(() => {
-    if (!editor) return;
-    const dom = editor.view.dom as HTMLElement;
-    const onContext = (e: MouseEvent) => {
-      const target = e.target as HTMLElement | null;
-      const el = target?.closest('.spell-error') as HTMLElement | null;
-      if (!el) return;
-      const word = el.getAttribute('data-word') || el.textContent || '';
-      if (!word) return;
-      // Map DOM node → ProseMirror range.
-      const pos = editor.view.posAtDOM(el, 0);
-      if (pos < 0) return;
-      e.preventDefault();
-      setSpellTarget({ word, from: pos, to: pos + word.length, x: e.clientX, y: e.clientY });
-    };
-    dom.addEventListener('contextmenu', onContext);
-    return () => dom.removeEventListener('contextmenu', onContext);
-  }, [editor]);
-
-  // Keyboard shortcut: Ctrl+Shift+;  (or Cmd+Shift+; on macOS) opens the
-  // spell suggestion menu for the misspelled word under (or nearest to) the
-  // cursor — keyboard-only flow, no mouse required.
-  useEffect(() => {
-    if (!editor) return;
-    const dom = editor.view.dom as HTMLElement;
-    const onKey = (e: KeyboardEvent) => {
-      const mod = e.ctrlKey || e.metaKey;
-      // `;` is reported as ';' (or 'Semicolon' on `code`). Some layouts emit
-      // ':' when Shift is held — accept both.
-      const isSemicolon = e.key === ';' || e.key === ':' || e.code === 'Semicolon';
-      if (!mod || !e.shiftKey || !isSemicolon) return;
-
-      const pluginState: any = spellcheckPluginKey.getState(editor.state);
-      const decoSet = pluginState?.decorations;
-      if (!decoSet) return;
-      const sel = editor.state.selection;
-      const caret = sel.from;
-      // Look for a decoration that contains the caret; if none, take the
-      // closest one within ±1 char (covers caret sitting at the word edge).
-      let found = decoSet.find(caret, caret);
-      if (!found || found.length === 0) {
-        found = decoSet.find(Math.max(0, caret - 1), caret + 1);
-      }
-      if (!found || found.length === 0) return;
-      const deco = found[0];
-      const word = (deco as any).type?.attrs?.['data-word']
-        || editor.state.doc.textBetween(deco.from, deco.to, ' ', ' ');
-      if (!word) return;
-      e.preventDefault();
-      // Anchor the menu to the word's screen rect (caret coords are unreliable
-      // when nothing is selected).
-      try {
-        const start = editor.view.coordsAtPos(deco.from);
-        const end = editor.view.coordsAtPos(deco.to);
-        setSpellTarget({
-          word,
-          from: deco.from,
-          to: deco.to,
-          x: (start.left + end.right) / 2,
-          y: end.bottom + 4,
-        });
-      } catch {
-        setSpellTarget({ word, from: deco.from, to: deco.to, x: 0, y: 0 });
-      }
-    };
-    dom.addEventListener('keydown', onKey);
-    return () => dom.removeEventListener('keydown', onKey);
-  }, [editor]);
 
   useImperativeHandle(ref, () => ({
     focus: () => editorRef.current?.commands.focus(),
@@ -654,13 +557,7 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
       </BubbleMenu>
       <EditorContent editor={editor} />
       {saveStatus && saveStatus !== 'idle' && <SaveIndicator status={saveStatus} />}
-      {spellTarget && (
-        <SpellSuggestionsMenu
-          editor={editor}
-          target={spellTarget}
-          onClose={() => setSpellTarget(null)}
-        />
-      )}
+
       {isMobile && focused && (
         <div className="rich-mobile-floating">
           <Toolbar editor={editor} mobile />
