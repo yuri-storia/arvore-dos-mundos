@@ -79,23 +79,32 @@ async function loadHunspellWasm(): Promise<HunspellAsmModule> {
   // Fetch the same Emscripten runtime from /public and import it through a Blob
   // URL with an explicit ESM default export. Direct `import('/dict/...')` is
   // intentionally blocked by Vite during development.
+  console.debug("[spellWorker] fetch runtime");
   const runtimeRes = await fetch(runtimeUrl);
+  console.debug("[spellWorker] runtime response", runtimeRes.status);
   if (!runtimeRes.ok) throw new Error(`Hunspell runtime failed to load (${runtimeRes.status})`);
-  const runtimeSource = `${await runtimeRes.text()}\nexport default Module;\n`;
+  const runtimeText = await runtimeRes.text();
+  console.debug("[spellWorker] runtime text", runtimeText.length);
+  const runtimeSource = `${runtimeText}\nexport default Module;\n`;
   const runtimeBlobUrl = URL.createObjectURL(
     new Blob([runtimeSource], { type: "text/javascript" }),
   );
+  console.debug("[spellWorker] import runtime blob");
   const runtimeMod = (await import(/* @vite-ignore */ runtimeBlobUrl)) as {
     default?: RuntimeModuleFactory;
   };
+  console.debug("[spellWorker] runtime imported", typeof runtimeMod.default);
   URL.revokeObjectURL(runtimeBlobUrl);
   const runtimeFactory = runtimeMod.default;
   if (typeof runtimeFactory !== "function") {
     throw new Error("Hunspell runtime failed to load");
   }
 
+  console.debug("[spellWorker] create runtime module");
   const asmModule = runtimeFactory(createRuntimeModule());
+  console.debug("[spellWorker] init runtime");
   const initialized = await asmModule.initializeRuntime(20000);
+  console.debug("[spellWorker] runtime initialized", initialized);
   if (!initialized) throw new Error("Timeout initializing Hunspell runtime");
   return asmModule;
 }
