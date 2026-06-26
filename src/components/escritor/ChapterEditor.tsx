@@ -121,72 +121,9 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
         />
         <span className="text-[11px] font-mono text-text-dim bg-white/[0.04] px-2 py-0.5 rounded">{wordCount} palavras</span>
 
-        <div className="relative flex items-center gap-0.5">
-          <button
-            onClick={() => {
-              setSpellcheckOn(v => {
-                const next = !v;
-                try { localStorage.setItem('adm-spell-enabled', next ? '1' : '0'); } catch { /* ignore */ }
-                if (next) {
-                  if (getSpellStatus() === 'ready') {
-                    toast.success('Corretor ortográfico ativado.', { duration: 2000 });
-                  } else {
-                    // Show a persistent loading toast that we update on resolution.
-                    if (spellToastIdRef.current != null) toast.dismiss(spellToastIdRef.current);
-                    spellToastIdRef.current = toast.loading('Carregando dicionário PT-BR…', {
-                      description: 'Primeira ativação pode levar alguns segundos.',
-                    });
-                    loadSpellChecker()
-                      .then(() => {
-                        if (spellToastIdRef.current != null) {
-                          toast.success('Corretor ortográfico pronto.', {
-                            id: spellToastIdRef.current, duration: 2000,
-                          });
-                          spellToastIdRef.current = null;
-                        }
-                      })
-                      .catch(() => {
-                        if (spellToastIdRef.current != null) {
-                          toast.error('Não foi possível carregar o dicionário.', {
-                            id: spellToastIdRef.current,
-                            description: 'Verifique sua conexão e tente novamente.',
-                            duration: 5000,
-                          });
-                          spellToastIdRef.current = null;
-                        }
-                      });
-                  }
-                } else {
-                  toast.info('Corretor ortográfico desativado.', { duration: 1500 });
-                }
-                return next;
-              });
-            }}
-            title={
-              spellcheckOn
-                ? (spellStatus === 'loading'
-                    ? 'Carregando dicionário PT-BR… o corretor ficará ativo em instantes.'
-                    : spellStatus === 'error'
-                      ? 'Falha ao carregar o dicionário. Clique para tentar novamente.'
-                      : 'Corretor ortográfico (PT-BR) ativo — clique para desativar. Clique com o botão direito (ou Ctrl+Shift+;) numa palavra sublinhada para ver sugestões.')
-                : 'Corretor desativado — clique para ativar'
-            }
-            aria-pressed={spellcheckOn}
-            aria-busy={spellcheckOn && spellStatus === 'loading'}
-            aria-label="Alternar corretor ortográfico"
-            className={`p-1.5 rounded transition-all border ${
-              spellcheckOn
-                ? (spellStatus === 'error'
-                    ? 'border-red-400/40 text-red-300 bg-red-500/10'
-                    : 'border-emerald-400/40 text-emerald-300 bg-gradient-to-b from-emerald-400/20 via-emerald-500/10 to-emerald-700/20 shadow-[0_0_12px_-2px_rgba(52,211,153,0.55),inset_0_1px_0_rgba(255,255,255,0.08)]')
-                : 'border-white/10 text-text-dim hover:text-foreground hover:bg-white/[0.05]'
-            }`}
-          >
-            {spellcheckOn && spellStatus === 'loading'
-              ? <Loader2 className="w-4 h-4 animate-spin" />
-              : <SpellCheck2 className="w-4 h-4" />}
-          </button>
-        </div>
+        {/* Spellcheck nativo PT-BR + menu global de sugestões: sempre ativo.
+            Clique com o botão direito numa palavra sublinhada para corrigir. */}
+
 
         <button
           title="Atalho: Ctrl + L — foca o editor com segurança e abre o seletor do Codex"
@@ -244,7 +181,6 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
             value={content}
             onChange={handleContentChange}
             placeholder="Comece a escrever seu capítulo aqui… Use @ para inserir referências do Codex (ou Ctrl+L)."
-            spellCheck={spellcheckOn}
             lang="pt-BR"
             minHeight="100%"
             saveStatus={saveStatus}
