@@ -11,6 +11,7 @@ import { ImageRepositioner } from '@/components/ImageRepositioner';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { buildEntriesByName, renderMentionChildren, renderInlineMentions } from '@/components/escritor/MentionChip';
 import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor';
+import { htmlToPlainText } from '@/lib/htmlToText';
 
 const isHTMLContent = (s: string) => /^\s*<(p|div|h[1-6]|ul|ol|blockquote|pre|span|strong|em)[\s>]/i.test(s || '');
 
