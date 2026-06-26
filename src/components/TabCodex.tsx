@@ -10,10 +10,11 @@ import { exportSingleEntry, exportFruitEntries, exportSelectedFruits, exportAllE
 import { CodexAnalysis } from '@/components/CodexAnalysis';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { WorldRecord } from '@/hooks/useWorlds';
-import { Lock, BookOpen, Search, FileDown, ClipboardList, PencilLine, Inbox, Library, X, Globe, Check, Apple, Loader2, FolderUp, Trees } from 'lucide-react';
+import { Lock, BookOpen, Search, FileDown, ClipboardList, PencilLine, Inbox, Library, X, Globe, Check, Apple, Loader2, FolderUp, Trees, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { IdrielImportDialog } from '@/components/IdrielImportDialog';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
+import { ExpandedCodexOverlay } from '@/components/codex/ExpandedCodexOverlay';
 
 const FRUIT_ALL = -1;
 const FRUIT_NONE = -2; // sentinel for "no fruit" filter
@@ -93,19 +94,46 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
     }
   }, [worldId, loading, entries, expandedId]);
 
+  // Ordered list of entries used for prev/next nav inside the expanded overlay.
+  // Matches visual order: fichas first, then artigos.
+  const navList = React.useMemo(() => {
+    const visible = entries.filter(e => filterFruits.length === 0 || filterFruits.includes(e.fruit_id ?? FRUIT_NONE));
+    const fichas = visible.filter(e => e.entry_type === 'ficha');
+    const artigos = visible.filter(e => e.entry_type === 'artigo');
+    return [...fichas, ...artigos];
+  }, [entries, filterFruits]);
+
+  const navIndex = expandedId ? navList.findIndex(e => e.id === expandedId) : -1;
+  const prevEntry = navIndex > 0 ? navList[navIndex - 1] : null;
+  const nextEntry = navIndex >= 0 && navIndex < navList.length - 1 ? navList[navIndex + 1] : null;
+
   useEffect(() => {
     if (!expandedId) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    const isTypingInField = () => {
+      const el = document.activeElement as HTMLElement | null;
+      if (!el) return false;
+      const tag = el.tagName;
+      return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
+    };
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setPersistedExpandedId(null);
+      if (event.key === 'Escape') { setPersistedExpandedId(null); return; }
+      if (isTypingInField()) return;
+      if (event.key === 'ArrowLeft' && prevEntry) {
+        event.preventDefault();
+        setPersistedExpandedId(prevEntry.id);
+      } else if (event.key === 'ArrowRight' && nextEntry) {
+        event.preventDefault();
+        setPersistedExpandedId(nextEntry.id);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [expandedId, setPersistedExpandedId]);
+  }, [expandedId, setPersistedExpandedId, prevEntry, nextEntry]);
 
   // Restore create-draft from localStorage when world changes
   useEffect(() => {
@@ -737,29 +765,23 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
 
           {/* Expanded card — custom isolated layer so drag/click events never reach the page behind it */}
           {expandedEntry && createPortal(
-            <div
-              className="fixed inset-0 z-[220] flex items-center justify-center bg-background/85 p-3 backdrop-blur-sm sm:p-6"
-              role="dialog"
-              aria-modal="true"
-              onMouseDown={(e) => {
-                if (e.target === e.currentTarget) setPersistedExpandedId(null);
-              }}
-            >
-              <div className="w-full max-w-[900px]" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
-                <CodexCard
-                  entry={expandedEntry}
-                  expanded={true}
-                  onToggle={() => setPersistedExpandedId(null)}
-                  onUpdate={updateEntry}
-                  onDelete={async (id) => { await deleteEntry(id); setPersistedExpandedId(null); }}
-                  onImageUpload={uploadImage}
-                  onLightbox={setLightbox}
-                  gallery={gallery}
-                  siblings={entries}
-                  onOpenEntry={setPersistedExpandedId}
-                />
-              </div>
-            </div>,
+            <ExpandedCodexOverlay
+              entry={expandedEntry}
+              prevEntry={prevEntry}
+              nextEntry={nextEntry}
+              navIndex={navIndex}
+              navTotal={navList.length}
+              onClose={() => setPersistedExpandedId(null)}
+              onGoPrev={prevEntry ? () => setPersistedExpandedId(prevEntry.id) : undefined}
+              onGoNext={nextEntry ? () => setPersistedExpandedId(nextEntry.id) : undefined}
+              onUpdate={updateEntry}
+              onDelete={async (id) => { await deleteEntry(id); setPersistedExpandedId(null); }}
+              onImageUpload={uploadImage}
+              onLightbox={setLightbox}
+              gallery={gallery}
+              siblings={entries}
+              onOpenEntry={setPersistedExpandedId}
+            />,
             document.body
           )}
         </>
