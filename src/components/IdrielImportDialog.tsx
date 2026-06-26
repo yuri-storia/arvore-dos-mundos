@@ -120,14 +120,16 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
 
   const runPdfAnalysis = async (file: File) => {
     setAnalyzing(true);
+    setProgress({ phase: 'reading', pct: 0, label: 'Lendo o arquivo...' });
     try {
-      const result = await importFileWithIdriel(file);
+      const result = await importFileWithIdriel(file, setProgress);
       finalizeAnalysis(result);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Erro ao analisar arquivo';
       toast.error(msg);
     } finally {
       setAnalyzing(false);
+      setProgress(null);
     }
   };
 
@@ -141,14 +143,16 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
       return;
     }
     setAnalyzing(true);
+    setProgress({ phase: 'uploading', pct: 10, label: 'Enviando para Idriel...' });
     try {
-      const result = await importTextWithIdriel(text, src);
+      const result = await importTextWithIdriel(text, src, setProgress);
       finalizeAnalysis(result);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Erro ao analisar texto';
       toast.error(msg);
     } finally {
       setAnalyzing(false);
+      setProgress(null);
     }
   };
 
