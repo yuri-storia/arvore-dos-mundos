@@ -60,7 +60,7 @@ const createNewState = (activeTab: TabType = 'construir'): AppState => ({
 const Index = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
-  const { worlds, createWorld, updateWorld, deleteWorld } = useWorlds();
+  const { worlds, createWorld, updateWorld, deleteWorld, loadWorldFull } = useWorlds();
   const planLimits = usePlanLimits();
   const [state, setState] = useState<AppState>(() => createNewState(getStoredActiveTab()));
   const [tourActive, setTourActive] = useState(false);
