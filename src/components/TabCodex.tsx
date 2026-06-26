@@ -104,8 +104,13 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   }, [entries, filterFruits]);
 
   const navIndex = expandedId ? navList.findIndex(e => e.id === expandedId) : -1;
-  const prevEntry = navIndex > 0 ? navList[navIndex - 1] : null;
-  const nextEntry = navIndex >= 0 && navIndex < navList.length - 1 ? navList[navIndex + 1] : null;
+  // Circular navigation: wrap around at the ends so o usuário nunca fica "preso".
+  const prevEntry = navIndex >= 0 && navList.length > 1
+    ? navList[(navIndex - 1 + navList.length) % navList.length]
+    : null;
+  const nextEntry = navIndex >= 0 && navList.length > 1
+    ? navList[(navIndex + 1) % navList.length]
+    : null;
 
   useEffect(() => {
     if (!expandedId) return;
