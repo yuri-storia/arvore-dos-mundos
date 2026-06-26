@@ -239,14 +239,6 @@ const SpellPopover: React.FC<PopoverProps> = ({
               ))}
             </ul>
           )}
-          {result.reason && (
-            <div
-              className="px-3 pt-1 pb-1.5 text-[11px] text-text-dim/80 italic border-t border-white/5 mt-0.5"
-              title={result.reason}
-            >
-              {result.reason}
-            </div>
-          )}
         </>
       )}
 
