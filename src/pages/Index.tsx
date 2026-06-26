@@ -60,7 +60,7 @@ const createNewState = (activeTab: TabType = 'construir'): AppState => ({
 const Index = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
-  const { worlds, createWorld, updateWorld, deleteWorld } = useWorlds();
+  const { worlds, createWorld, updateWorld, deleteWorld, loadWorldFull } = useWorlds();
   const planLimits = usePlanLimits();
   const [state, setState] = useState<AppState>(() => createNewState(getStoredActiveTab()));
   const [tourActive, setTourActive] = useState(false);
@@ -87,24 +87,28 @@ const Index = () => {
   useEffect(() => {
     if (initialLoadDone.current || !user || worlds.length === 0) return;
     initialLoadDone.current = true;
-    try {
-      const lastId = localStorage.getItem(LAST_WORLD_STORAGE);
-      const target = lastId ? worlds.find(w => w.id === lastId) : worlds[0];
-      if (target) {
+    (async () => {
+      try {
+        const lastId = localStorage.getItem(LAST_WORLD_STORAGE);
+        const target = lastId ? worlds.find(w => w.id === lastId) : worlds[0];
+        if (!target) return;
+        // Otimização: faz fetch sob demanda do payload pesado (db + gallery).
+        const full = await loadWorldFull(target.id);
+        const data = full || target;
         setState(prev => ({
           ...prev,
-          worldName: target.name,
-          db: target.db,
-          method: target.method,
-          gallery: target.gallery,
-          currentSaveId: target.id,
+          worldName: data.name,
+          db: data.db,
+          method: data.method,
+          gallery: data.gallery,
+          currentSaveId: data.id,
           currentFruit: 0,
         }));
+      } catch {
+        // Local storage may be unavailable in restricted browser modes.
       }
-    } catch {
-      // Local storage may be unavailable in restricted browser modes.
-    }
-  }, [worlds, user]);
+    })();
+  }, [worlds, user, loadWorldFull]);
 
   const setActiveTab = useCallback((tab: TabType) => setState(s => ({ ...s, activeTab: tab })), []);
   const setWorldName = useCallback((worldName: string) => setState(s => ({ ...s, worldName })), []);
@@ -174,20 +178,24 @@ const Index = () => {
     }
   }, [user, state, createWorld, worlds.length, planLimits]);
 
-  const handleLoadWorld = useCallback((world: WorldRecord) => {
+  const handleLoadWorld = useCallback(async (world: WorldRecord) => {
+    // Se o card da lista veio leve (sem db/gallery), busca o payload completo.
+    const needsFull = !world.db || Object.keys(world.db).length === 0;
+    const full = needsFull ? await loadWorldFull(world.id) : world;
+    const data = full || world;
     setState(prev => ({
       ...prev,
-      worldName: world.name,
-      db: world.db,
-      method: world.method,
-      gallery: world.gallery,
+      worldName: data.name,
+      db: data.db,
+      method: data.method,
+      gallery: data.gallery,
       currentFruit: 0,
-      currentSaveId: world.id,
+      currentSaveId: data.id,
       generatedPrompt: '',
       activeTab: 'construir',
     }));
-    toast.success(`"${world.name}" carregado!`);
-  }, []);
+    toast.success(`"${data.name}" carregado!`);
+  }, [loadWorldFull]);
 
   const handleNewWorld = useCallback(() => {
     setState(createNewState());
