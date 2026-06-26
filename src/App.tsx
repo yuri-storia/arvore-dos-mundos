@@ -55,7 +55,8 @@ const App = () => (
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/inicio" element={<Navigate to="/planos" replace />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
-                <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+                <Route path="/" element={<HomeRoute />} />
+                <Route path="/app" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                 <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                 <Route path="/planos" element={<PricingPage />} />
