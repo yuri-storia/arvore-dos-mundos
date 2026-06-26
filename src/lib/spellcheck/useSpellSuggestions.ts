@@ -68,6 +68,23 @@ function send(
   });
 }
 
+export function checkManyWords(words: string[]): Promise<Record<string, boolean>> {
+  return new Promise((resolve) => {
+    const id = nextId++;
+    pending.set(id, (msg) => {
+      const r = (msg as { results?: Record<string, boolean> }).results;
+      resolve(r || {});
+    });
+    getWorker().postMessage({ id, type: "checkMany", words });
+    setTimeout(() => {
+      if (pending.has(id)) {
+        pending.delete(id);
+        resolve({});
+      }
+    }, 8000);
+  });
+}
+
 export function addWordToWorker(word: string) {
   try {
     getWorker().postMessage({ id: nextId++, type: "add", word });
