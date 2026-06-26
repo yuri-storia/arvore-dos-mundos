@@ -20,10 +20,11 @@ export const TabVisaoGeral: React.FC<Props> = ({ state, setActiveTab, setCurrent
   const orderedFruits = getOrderedFruits(method);
   const { data: latestAnalysis } = useLatestAnalysis(currentSaveId);
   const fruitScores = latestAnalysis?.fruit_scores || {};
-  const ratedFruits = FRUITS.filter(f => (fruitScores[String(f.id)] ?? 0) > 0).length;
+  const ratedFruits = FRUITS.filter(f => getFruitScore(fruitScores, f.id) > 0).length;
   const avgScore = ratedFruits > 0
-    ? FRUITS.reduce((acc, f) => acc + (fruitScores[String(f.id)] ?? 0), 0) / FRUITS.length
+    ? FRUITS.reduce((acc, f) => acc + getFruitScore(fruitScores, f.id), 0) / FRUITS.length
     : 0;
+
   const hasAnalysis = !!latestAnalysis && ratedFruits > 0;
 
   const summaryFields = [
