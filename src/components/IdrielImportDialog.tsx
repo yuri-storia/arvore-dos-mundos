@@ -244,6 +244,32 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, onCrea
               </div>
             )}
 
+            {progress && (
+              <div className="space-y-2 rounded-md border border-gold/25 bg-gold/[0.04] p-3" role="status" aria-live="polite">
+                <div className="flex items-center justify-between text-xs text-foreground/80">
+                  <span className="inline-flex items-center gap-1.5 font-cinzel text-gold">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    {progress.label}
+                  </span>
+                  <span className="tabular-nums">{progress.pct}%</span>
+                </div>
+                <Progress value={progress.pct} className="h-1.5 bg-background/60" />
+                <div className="flex flex-wrap gap-1 text-[10px] text-foreground/55">
+                  {(['reading','encoding','uploading','ocr','extracting','done'] as const).map((p, i, arr) => {
+                    const order = arr.indexOf(progress.phase);
+                    const active = i <= order;
+                    const labels = ['Upload','Preparo','Envio','Leitura/OCR','Extração','Preview'];
+                    return (
+                      <span key={p} className={active ? 'text-gold' : 'text-foreground/40'}>
+                        {labels[i]}{i < arr.length - 1 ? ' ›' : ''}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={() => handleClose(false)} disabled={analyzing}>Cancelar</Button>
               <Button
