@@ -146,10 +146,13 @@ export function useSpellSuggestions() {
         cacheRef.current.set(key, dictResult);
       }
 
-      // 3. Combina: hint contextual sempre prevalece (palavra existe no dicionário,
+      // 3. Reordena sugestões do dicionário com base em bigramas do contexto.
+      const reranked = rerankSuggestions(dictResult.suggestions, before, after);
+
+      // 4. Combina: hint contextual sempre prevalece (palavra existe no dicionário,
       //    mas foi usada no contexto errado).
       if (hint) {
-        const merged = [hint.suggestion, ...dictResult.suggestions].filter(
+        const merged = [hint.suggestion, ...reranked].filter(
           (s, i, arr) => s && arr.indexOf(s) === i,
         );
         return {
@@ -158,7 +161,7 @@ export function useSpellSuggestions() {
           reason: hint.reason,
         };
       }
-      return dictResult;
+      return { ...dictResult, suggestions: reranked };
     },
     [],
   );
