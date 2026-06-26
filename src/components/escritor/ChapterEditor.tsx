@@ -3,14 +3,11 @@ import type { Chapter } from '@/hooks/useManuscript';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import {
   Edit3, Eye, Maximize, Minimize, PanelRightOpen, PanelRightClose, ChevronRight,
-  SpellCheck2, Keyboard, Loader2,
+  Keyboard,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { buildEntriesByName, renderInlineMentions } from './MentionChip';
 import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor';
-import {
-  loadSpellChecker, getSpellStatus, onSpellStatusChange, type SpellLoadStatus,
-} from '@/components/editor/spellcheck/loadDictionary';
 
 const isHTML = (s: string) => /^\s*<(p|div|h[1-6]|ul|ol|blockquote)[\s>]/i.test(s || '');
 const stripHTML = (s: string) => (s || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
@@ -37,27 +34,11 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
   const [content, setContent] = useState(chapter.content || '');
   const [title, setTitle] = useState(chapter.title);
   const [previewMode, setPreviewMode] = useState(false);
-  const [spellcheckOn, setSpellcheckOn] = useState<boolean>(() => {
-    try { return localStorage.getItem('adm-spell-enabled') !== '0'; } catch { return true; }
-  });
-  const [spellStatus, setSpellStatus] = useState<SpellLoadStatus>(() => getSpellStatus());
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const errorToastIdRef = useRef<string | number | null>(null);
-  const spellToastIdRef = useRef<string | number | null>(null);
 
-  // Subscribe to dictionary load status so the toggle reflects loading/ready/error.
-  useEffect(() => onSpellStatusChange(setSpellStatus), []);
-
-  // Eager preload: start fetching the PT-BR dictionary as soon as the editor
-  // mounts with the corrector enabled. By the time the user finishes the first
-  // sentence, the checker is usually ready. Silent — no toast on autoload.
-  useEffect(() => {
-    if (!spellcheckOn) return;
-    if (getSpellStatus() === 'ready' || getSpellStatus() === 'loading') return;
-    loadSpellChecker().catch(() => { /* surfaces via status listener */ });
-  }, [spellcheckOn]);
 
   useEffect(() => {
     setContent(chapter.content || '');
