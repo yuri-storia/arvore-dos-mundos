@@ -15,13 +15,6 @@ const affUrl = "/dict/pt-br.aff";
 const dicUrl = "/dict/pt-br.dic";
 const runtimeUrl = "/dict/hunspell.js";
 
-self.addEventListener("error", (event) => {
-  console.error("[spellWorker] uncaught error", event.message, event.filename, event.lineno);
-});
-self.addEventListener("unhandledrejection", (event) => {
-  console.error("[spellWorker] unhandled rejection", event.reason);
-});
-
 type RuntimeModuleFactory = (module: Record<string, unknown>) => HunspellAsmModule;
 
 type HunspellAsmModule = Record<string, unknown> & {
@@ -79,42 +72,36 @@ function createRuntimeModule(): HunspellAsmModule {
   return module;
 }
 
-async function loadHunspellWasm(): Promise<HunspellAsmModule> {
+async function loadHunspellWasm(): Promise<{ asm: HunspellAsmModule }> {
   // The published `hunspell-asm` ESM entry currently breaks under Vite workers:
   // its UMD runtime is converted into a module namespace object, so the loader
   // calls it as a function and fails with `runtimeModule is not a function`.
   // Fetch the same Emscripten runtime from /public and import it through a Blob
   // URL with an explicit ESM default export. Direct `import('/dict/...')` is
   // intentionally blocked by Vite during development.
-  console.debug("[spellWorker] fetch runtime");
   const runtimeRes = await fetch(runtimeUrl);
-  console.debug("[spellWorker] runtime response", runtimeRes.status);
   if (!runtimeRes.ok) throw new Error(`Hunspell runtime failed to load (${runtimeRes.status})`);
   const runtimeText = await runtimeRes.text();
-  console.debug("[spellWorker] runtime text", runtimeText.length);
   const runtimeSource = `${runtimeText}\nexport default Module;\n`;
   const runtimeBlobUrl = URL.createObjectURL(
     new Blob([runtimeSource], { type: "text/javascript" }),
   );
-  console.debug("[spellWorker] import runtime blob");
   const runtimeMod = (await import(/* @vite-ignore */ runtimeBlobUrl)) as {
     default?: RuntimeModuleFactory;
   };
-  console.debug("[spellWorker] runtime imported", typeof runtimeMod.default);
   URL.revokeObjectURL(runtimeBlobUrl);
   const runtimeFactory = runtimeMod.default;
   if (typeof runtimeFactory !== "function") {
     throw new Error("Hunspell runtime failed to load");
   }
 
-  console.debug("[spellWorker] create runtime module");
   const asmModule = runtimeFactory(createRuntimeModule());
-  console.debug("[spellWorker] init runtime");
   const initialized = await asmModule.initializeRuntime(20000);
-  console.debug("[spellWorker] runtime initialized", initialized);
   if (!initialized) throw new Error("Timeout initializing Hunspell runtime");
-  console.debug("[spellWorker] returning asm");
-  return asmModule;
+  // Emscripten modules can expose a `.then` function. Returning them directly
+  // from an async function makes Promise resolution treat them as thenables,
+  // which can hang the worker. Wrap the module in a plain object.
+  return { asm: asmModule };
 }
 
 function withUtf8<T>(asm: HunspellAsmModule, values: string[], fn: (...ptrs: number[]) => T): T {
@@ -181,18 +168,13 @@ async function boot(): Promise<SpellInstance> {
   if (spell) return spell;
   if (bootPromise) return bootPromise;
   bootPromise = (async () => {
-    console.debug("[spellWorker] boot start");
     const [affRes, dicRes] = await Promise.all([fetch(affUrl), fetch(dicUrl)]);
-    console.debug("[spellWorker] dict responses", affRes.status, dicRes.status);
     if (!affRes.ok || !dicRes.ok) {
       throw new Error(`PT-BR dictionary failed to load (${affRes.status}/${dicRes.status})`);
     }
     const [aff, dic] = await Promise.all([affRes.arrayBuffer(), dicRes.arrayBuffer()]);
-    console.debug("[spellWorker] dict buffers", aff.byteLength, dic.byteLength);
-    const asm = await loadHunspellWasm();
-    console.debug("[spellWorker] wasm loaded");
+    const { asm } = await loadHunspellWasm();
     const hunspell = createHunspellInstance(asm, aff, dic);
-    console.debug("[spellWorker] hunspell created");
 
     spell = {
       correct: (w: string) => hunspell.spell(w),
