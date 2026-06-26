@@ -12,10 +12,18 @@ import { InteractiveTour, hasDoneTour, TOUR_STORAGE_KEY } from '@/components/Int
 
 import { WorldNameInput } from '@/components/WorldNameInput';
 import { TabNav } from '@/components/TabNav';
-import { TabConstruir } from '@/components/TabConstruir';
-import { TabCodex } from '@/components/TabCodex';
-import { TabGaleria } from '@/components/TabGaleria';
-import { TabEscrever } from '@/components/TabEscrever';
+// Sprint 1 / P0 #3+#4: lazy-load tabs so o bundle inicial não inclui
+// Tiptap, dicionário PT-BR, gerador de imagem etc. até serem necessários.
+const TabConstruir = React.lazy(() => import('@/components/TabConstruir').then(m => ({ default: m.TabConstruir })));
+const TabCodex     = React.lazy(() => import('@/components/TabCodex').then(m => ({ default: m.TabCodex })));
+const TabGaleria   = React.lazy(() => import('@/components/TabGaleria').then(m => ({ default: m.TabGaleria })));
+const TabEscrever  = React.lazy(() => import('@/components/TabEscrever').then(m => ({ default: m.TabEscrever })));
+
+const TabFallback = () => (
+  <div role="status" aria-label="Carregando aba" className="flex items-center justify-center py-24">
+    <div className="h-8 w-8 rounded-full border-2 border-[hsl(var(--gold))] border-t-transparent animate-spin" />
+  </div>
+);
 import { useWorlds, type WorldRecord } from '@/hooks/useWorlds';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -241,10 +249,12 @@ const Index = () => {
         )}
 
         <main>
-          {state.activeTab === 'construir' && <TabConstruir state={state} updateField={updateField} setCurrentFruit={setCurrentFruit} setMethod={setMethod} onNavigateCodex={() => setActiveTab('codex')} />}
-          {state.activeTab === 'codex' && <TabCodex gallery={state.gallery} worldId={state.currentSaveId} worlds={worlds} />}
-          {state.activeTab === 'escrever' && <TabEscrever worldId={state.currentSaveId} worlds={worlds} />}
-          {state.activeTab === 'galeria' && <TabGaleria gallery={state.gallery} setGallery={setGallery} state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />}
+          <React.Suspense fallback={<TabFallback />}>
+            {state.activeTab === 'construir' && <TabConstruir state={state} updateField={updateField} setCurrentFruit={setCurrentFruit} setMethod={setMethod} onNavigateCodex={() => setActiveTab('codex')} />}
+            {state.activeTab === 'codex' && <TabCodex gallery={state.gallery} worldId={state.currentSaveId} worlds={worlds} />}
+            {state.activeTab === 'escrever' && <TabEscrever worldId={state.currentSaveId} worlds={worlds} />}
+            {state.activeTab === 'galeria' && <TabGaleria gallery={state.gallery} setGallery={setGallery} state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />}
+          </React.Suspense>
         </main>
 
         <footer className={`text-center py-8 opacity-40 ${isMobile ? 'pb-24' : 'pb-8'}`}>
