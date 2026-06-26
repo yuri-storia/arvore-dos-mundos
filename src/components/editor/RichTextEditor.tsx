@@ -10,6 +10,7 @@ import { Placeholder } from '@tiptap/extension-placeholder';
 import { CharacterCount } from '@tiptap/extension-character-count';
 import { Mention } from '@tiptap/extension-mention';
 import { Image } from '@tiptap/extension-image';
+import { SpellcheckExtension } from './SpellcheckExtension';
 import tippy, { type Instance } from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import {
