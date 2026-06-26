@@ -329,7 +329,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
           </div>
           <h3 className="font-cinzel font-bold text-sm text-foreground mb-1">{entry.title}</h3>
           {displayContent && (
-            <p className="font-merriweather text-xs text-foreground/85 line-clamp-3 whitespace-pre-wrap">{displayContent}</p>
+            <p className="font-merriweather text-xs text-foreground/85 line-clamp-3 whitespace-pre-wrap">{htmlToPlainText(displayContent)}</p>
           )}
         </div>
       </div>
