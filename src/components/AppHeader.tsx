@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import heroVideo from '@/assets/arvore-hero-bg.mp4.asset.json';
-import heroPoster from '@/assets/arvore-mundos-hero.png.asset.json';
+import heroVideo from '@/assets/arvore-hero-bg-720.mp4.asset.json';
+import heroPoster from '@/assets/arvore-mundos-hero.webp.asset.json';
 import { UserMenu } from '@/components/UserMenu';
 import { FRUITS } from '@/lib/data';
 import { Pencil, ChevronDown, FolderOpen, Plus, Trash2, ArrowDown } from 'lucide-react';
@@ -138,7 +138,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="none"
             aria-hidden="true"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent from-20% via-[#02070d]/70 via-60% to-[#02070d]" />

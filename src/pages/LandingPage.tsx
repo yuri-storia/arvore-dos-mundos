@@ -5,7 +5,7 @@ import {
   Sparkles, Leaf, Crown, BookOpen, Library, Map, Image as ImageIcon,
   Feather, Wand2, ShieldCheck, ArrowRight, LogIn, Check,
 } from 'lucide-react';
-import heroPoster from '@/assets/arvore-mundos-hero.png.asset.json';
+import heroPoster from '@/assets/arvore-mundos-hero.webp.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
 
 const fadeUp = {
@@ -52,10 +52,13 @@ const LandingPage: React.FC = () => {
 
       {/* Hero */}
       <section className="relative isolate overflow-hidden">
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-10 bg-cover bg-center opacity-[0.35]"
-          style={{ backgroundImage: `url(${heroPoster.url})` }}
+        <img
+          src={heroPoster.url}
+          alt=""
+          aria-hidden="true"
+          fetchPriority="high"
+          decoding="async"
+          className="absolute inset-0 -z-10 w-full h-full object-cover object-center opacity-[0.35]"
         />
         <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-[#02070d]/40 via-[#02070d]/80 to-[#02070d]" />
 
