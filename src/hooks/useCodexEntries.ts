@@ -61,7 +61,8 @@ export function useCodexEntries(worldId?: string) {
   }, [qc, worldId]);
 
   const createEntry = useCallback(async (entry: { title: string; content: string; image_url?: string; entry_type: string; fruit_id?: number | null }) => {
-    if (!user || !worldId) return null;
+    if (!user) { toast.error('Faça login para criar fichas'); return null; }
+    if (!worldId) { toast.error('Selecione ou crie um mundo antes de salvar a ficha'); return null; }
     if (entry.title && entry.title.length > 200) { toast.error('Título muito longo (máximo 200 caracteres)'); return null; }
     if (entry.content && entry.content.length > 50000) { toast.error('Conteúdo muito longo (máximo 50.000 caracteres)'); return null; }
     const { data, error } = await supabase
@@ -69,11 +70,12 @@ export function useCodexEntries(worldId?: string) {
       .insert({ ...entry, user_id: user.id, world_id: worldId })
       .select()
       .single();
-    if (error) { toast.error('Erro ao criar ficha'); console.error(error); return null; }
+    if (error) { toast.error(`Erro ao criar ficha: ${error.message}`); console.error(error); return null; }
     qc.setQueryData(CODEX_KEY(worldId), (old: CodexEntry[] = []) => [data as any, ...old]);
-    toast.success('Ficha criada!');
+    toast.success(entry.entry_type === 'artigo' ? 'Artigo criado!' : 'Ficha criada!');
     return data as unknown as CodexEntry;
   }, [user, worldId, qc]);
+
 
   const updateEntry = useCallback(async (id: string, updates: Partial<Pick<CodexEntry, 'title' | 'content' | 'image_url' | 'entry_type' | 'fruit_id' | 'image_position'>>) => {
     if (updates.title && updates.title.length > 200) { toast.error('Título muito longo (máximo 200 caracteres)'); return; }

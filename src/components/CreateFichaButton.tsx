@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Save, ArrowLeft, X, ClipboardList, PencilLine, Sparkles, BookOpen, Feather } from 'lucide-react';
+import { toast } from 'sonner';
+import { Save, ArrowLeft, X, ClipboardList, PencilLine, Sparkles, BookOpen, Feather, Loader2 } from 'lucide-react';
+
 import { FRUITS } from '@/lib/data';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
@@ -27,7 +29,9 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
   const [customTitle, setCustomTitle] = useState('');
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [createdEntryName, setCreatedEntryName] = useState('');
+  const [saving, setSaving] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     if (!showMenu) return;
@@ -63,20 +67,31 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
   };
 
   const handleConfirmCreate = async () => {
+    if (saving) return;
     const title = customTitle.trim() || fieldLabel;
-    const entry = await createEntry({ 
-      title, 
-      content: fieldValue, 
-      entry_type: isFicha ? 'ficha' : 'artigo', 
-      fruit_id: fruitId 
-    });
-    setShowTitleDialog(false);
-    setShowMenu(false);
-    if (entry) {
-      setCreatedEntryName(title);
-      setShowSuccessDialog(true);
+    if (!title) { toast.error('Dê um título à ficha antes de criar'); return; }
+    if (!worldId) { toast.error('Selecione ou crie um mundo antes de salvar a ficha'); return; }
+    setSaving(true);
+    try {
+      const entry = await createEntry({
+        title,
+        content: fieldValue,
+        entry_type: isFicha ? 'ficha' : 'artigo',
+        fruit_id: fruitId,
+      });
+      if (entry) {
+        setShowTitleDialog(false);
+        setShowMenu(false);
+        setCreatedEntryName(title);
+        setShowSuccessDialog(true);
+      }
+      // Em caso de erro, o hook já dispara toast e mantemos o dialog aberto
+      // para o usuário tentar de novo sem perder o que digitou.
+    } finally {
+      setSaving(false);
     }
   };
+
 
   const handleSuccessAction = (action: 'codex' | 'continue') => {
     setShowSuccessDialog(false);
@@ -139,15 +154,23 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
                       <button
                         key={e.id}
                         onClick={async () => {
-                          const separator = e.content ? '\n\n---\n\n' : '';
-                          await updateEntry(e.id, { content: `${e.content}${separator}**${fieldLabel}:**\n${fieldValue}` });
-                          setShowAddTo(false);
-                          setShowMenu(false);
+                          try {
+                            const separator = e.content ? '\n\n---\n\n' : '';
+                            await updateEntry(e.id, { content: `${e.content}${separator}**${fieldLabel}:**\n${fieldValue}` });
+                            toast.success(`Adicionado a "${e.title}"`);
+                          } catch (err) {
+                            toast.error('Não foi possível atualizar a ficha');
+                            console.error(err);
+                          } finally {
+                            setShowAddTo(false);
+                            setShowMenu(false);
+                          }
                         }}
                         className="w-full text-left px-2 py-1.5 rounded hover:bg-blue-bright/10 transition-colors"
                       >
                         <span className="text-xs text-foreground font-montserrat font-bold block">{fruitInfo?.icon} {e.title}</span>
                       </button>
+
                     );
                   })}
                 </div>
@@ -180,13 +203,14 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
             className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50"
           />
           <DialogFooter className="gap-2">
-            <Button variant="ghost" onClick={() => setShowTitleDialog(false)} className="text-text-dim">
+            <Button variant="ghost" onClick={() => setShowTitleDialog(false)} disabled={saving} className="text-text-dim">
               Cancelar
             </Button>
-            <Button onClick={handleConfirmCreate} className="bg-blue-main hover:bg-blue-bright text-foreground">
-              Criar
+            <Button onClick={handleConfirmCreate} disabled={saving} className="bg-blue-main hover:bg-blue-bright text-foreground">
+              {saving ? (<><Loader2 className="inline-block w-3.5 h-3.5 mr-1.5 animate-spin align-[-0.15em]" />Criando…</>) : 'Criar'}
             </Button>
           </DialogFooter>
+
         </DialogContent>
       </Dialog>
 
