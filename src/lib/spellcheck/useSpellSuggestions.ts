@@ -2,7 +2,7 @@
 // Sem chamadas de IA. Sem rede além do bundle estático do dicionário.
 // Mantém um cache LRU local para respostas instantâneas em palavras repetidas.
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { listCustomWords } from "./customDictionary";
 import { getContextHint } from "./contextRules";
 import { rerankSuggestions } from "./bigrams";
@@ -101,10 +101,11 @@ export function addWordToWorker(word: string) {
 export function useSpellSuggestions() {
   const cacheRef = useRef<Map<string, SpellLookupResult>>(new Map());
 
-  // Pré-aquece o worker no primeiro mount.
-  useEffect(() => {
-    getWorker();
-  }, []);
+  // Sprint 5: carregamento sob demanda. O worker só é instanciado quando
+  // `lookup` é chamado pela primeira vez (clique/hover sobre uma palavra),
+  // evitando baixar Hunspell WASM + dicionário VERO no boot da aba Escrever.
+
+
 
   const lookup = useCallback(
     async (
