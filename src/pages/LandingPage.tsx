@@ -163,9 +163,9 @@ const LandingPage: React.FC = () => {
 
       {/* ============================== 1. HERO ============================= */}
       <section className="relative isolate overflow-hidden min-h-[92vh] flex items-center">
-        {/* Vídeo de fundo — Árvore animada */}
+        {/* Vídeo de fundo — Árvore animada (mais visível, brilho/saturação ajustados) */}
         <video
-          className="absolute inset-0 -z-20 w-full h-full object-cover"
+          className="absolute inset-0 -z-20 w-full h-full object-cover scale-[1.08]"
           src={heroVideo.url}
           poster={hero1280.url}
           autoPlay
@@ -174,6 +174,9 @@ const LandingPage: React.FC = () => {
           playsInline
           preload="metadata"
           aria-hidden="true"
+          style={{
+            filter: 'brightness(1.12) contrast(1.05) saturate(1.15)',
+          }}
         />
         {/* Fallback image (caso o vídeo não carregue) */}
         <img
@@ -185,53 +188,64 @@ const LandingPage: React.FC = () => {
           alt=""
           aria-hidden="true"
           decoding="async"
-          className="absolute inset-0 -z-30 w-full h-full object-cover object-center"
+          className="absolute inset-0 -z-30 w-full h-full object-cover object-center scale-[1.08]"
+          style={{
+            filter: 'brightness(1.12) contrast(1.05) saturate(1.15)',
+          }}
         />
-        {/* Vinheta radial dourada premium */}
+        {/* Vinheta radial — preserva legibilidade, mas revela mais o vídeo */}
         <div
           aria-hidden
           className="absolute inset-0 -z-10 pointer-events-none"
           style={{
             background:
-              'radial-gradient(ellipse at center, hsl(214 80% 3% / 0.35) 0%, hsl(214 80% 3% / 0.78) 65%, #02070d 100%)',
+              'radial-gradient(ellipse at center, hsl(214 80% 3% / 0.18) 0%, hsl(214 80% 3% / 0.55) 55%, hsl(214 80% 3% / 0.92) 100%)',
           }}
         />
-        {/* Glow dourado sutil ao centro */}
+        {/* Glow dourado sutil ao centro — mais contido para não mascarar o vídeo */}
         <div
           aria-hidden
-          className="absolute inset-0 -z-10 pointer-events-none opacity-70"
+          className="absolute inset-0 -z-10 pointer-events-none opacity-50"
           style={{
             background:
-              'radial-gradient(ellipse 60% 50% at 50% 45%, hsl(38 60% 45% / 0.22) 0%, transparent 70%)',
+              'radial-gradient(ellipse 55% 42% at 50% 45%, hsl(38 60% 45% / 0.18) 0%, transparent 70%)',
           }}
         />
         {/* Fade inferior p/ próxima seção */}
         <div
           aria-hidden
-          className="absolute inset-x-0 bottom-0 h-48 -z-10 pointer-events-none"
+          className="absolute inset-x-0 bottom-0 h-56 -z-10 pointer-events-none"
           style={{
             background:
-              'linear-gradient(to bottom, transparent 0%, rgba(2,7,13,0.6) 50%, #02070d 100%)',
+              'linear-gradient(to bottom, transparent 0%, rgba(2,7,13,0.45) 45%, #02070d 100%)',
           }}
         />
 
         <div className="relative w-full max-w-5xl mx-auto px-4 sm:px-6 pt-24 sm:pt-28 lg:pt-32 pb-20 sm:pb-28 text-center">
           <motion.div initial="hidden" animate="show" variants={fadeUp}>
             <span
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold-warm/40 bg-gold-deep/15 backdrop-blur-sm text-[10px] font-montserrat font-bold uppercase tracking-[0.24em] text-gold-champagne mb-7"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold-warm/40 bg-gold-deep/20 backdrop-blur-sm text-[10px] font-montserrat font-bold uppercase tracking-[0.24em] text-gold-champagne mb-7 shadow-[0_4px_24px_rgba(0,0,0,0.45)]"
             >
               <Sparkles className="w-3 h-3" strokeWidth={1.75} /> Mais de 1.500 exemplares vendidos
             </span>
 
             <h1
-              className="font-cinzel font-bold text-[clamp(2rem,4.6vw,3.6rem)] leading-[1.08] mb-6 mx-auto max-w-4xl drop-shadow-[0_2px_30px_rgba(0,0,0,0.75)]"
+              className="font-cinzel font-bold text-[clamp(2rem,4.6vw,3.6rem)] leading-[1.08] mb-6 mx-auto max-w-4xl"
+              style={{
+                textShadow: '0 2px 28px rgba(2,7,13,0.95), 0 1px 8px rgba(2,7,13,0.85)',
+              }}
             >
               Crie Mundos Fantásticos com a{' '}
               <span className="text-gradient-gold">Plataforma Definitiva</span>{' '}
               de Worldbuilding.
             </h1>
 
-            <p className="font-merriweather text-base sm:text-lg lg:text-xl text-text-secondary leading-relaxed mb-9 max-w-2xl mx-auto drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+            <p
+              className="font-merriweather text-base sm:text-lg lg:text-xl text-text-secondary leading-relaxed mb-9 max-w-2xl mx-auto"
+              style={{
+                textShadow: '0 2px 20px rgba(2,7,13,0.95), 0 1px 6px rgba(2,7,13,0.85)',
+              }}
+            >
               Construa universos profundos e coerentes com os <strong className="text-foreground">11 Frutos</strong>,
               organize tudo em um <strong className="text-foreground">Codex vivo</strong> e
               escreva suas histórias com a assistência de <strong className="text-foreground">Idriel</strong> —
@@ -256,13 +270,16 @@ const LandingPage: React.FC = () => {
               </button>
               <a
                 href="#tour"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl border border-gold-warm/50 bg-[rgba(4,12,24,0.5)] backdrop-blur-sm text-gold-champagne hover:bg-gold/[0.1] font-montserrat font-bold uppercase text-[11px] tracking-[0.22em] transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl border border-gold-warm/50 bg-[rgba(2,7,13,0.55)] backdrop-blur-sm text-gold-champagne hover:bg-gold/[0.12] font-montserrat font-bold uppercase text-[11px] tracking-[0.22em] transition-colors shadow-[0_4px_24px_rgba(0,0,0,0.35)]"
               >
                 <Play className="w-3.5 h-3.5" strokeWidth={2.25} /> Ver a plataforma por dentro
               </a>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-7 text-[11px] font-montserrat text-text-dim uppercase tracking-wider">
+            <div
+              className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-7 text-[11px] font-montserrat text-text-dim uppercase tracking-wider"
+              style={{ textShadow: '0 1px 10px rgba(2,7,13,0.85)' }}
+            >
               <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={2} /> 14 dias de experiência completa</span>
               <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={2} /> Sem cartão</span>
               <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={2} /> Seus conteúdos continuam sendo seus</span>
