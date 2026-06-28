@@ -33,12 +33,6 @@ const RouteFallback = () => (
   </div>
 );
 
-// Root: landing page for guests, app for authenticated users
-const HomeRoute = () => {
-  const { user, loading } = useAuth();
-  if (loading) return <RouteFallback />;
-  return user ? <ProtectedRoute><Index /></ProtectedRoute> : <LandingPage />;
-};
 
 
 
