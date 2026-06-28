@@ -483,9 +483,30 @@ const LandingPage: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-10 lg:gap-16 items-center mb-12">
             <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="relative mx-auto lg:mx-0">
-              <div className="absolute -inset-6 bg-gold/10 blur-3xl rounded-full -z-10" />
-              <div className="w-56 h-56 sm:w-72 sm:h-72 rounded-full overflow-hidden border-2 border-gold/40 shadow-[0_0_60px_rgba(218,165,32,0.35)]">
-                <img src={idrielPoster} alt="Idriel, a co-autora élfica" className="w-full h-full object-cover object-top" loading="lazy" />
+              <div
+                aria-hidden
+                className="absolute -inset-8 rounded-full blur-3xl -z-10"
+                style={{ background: 'radial-gradient(circle, hsl(38 60% 45% / 0.35) 0%, transparent 70%)' }}
+              />
+              <div
+                className="w-60 h-60 sm:w-80 sm:h-80 rounded-full overflow-hidden"
+                style={{
+                  border: '2px solid hsl(34 42% 58% / 0.6)',
+                  boxShadow:
+                    '0 0 80px hsl(38 60% 45% / 0.45), 0 0 0 1px hsl(var(--gold-bronze) / 0.4), inset 0 1px 0 hsl(var(--gold-cream) / 0.2)',
+                }}
+              >
+                <video
+                  className="w-full h-full object-cover object-top"
+                  src={idrielVideo.url}
+                  poster={idrielPoster}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="none"
+                  aria-label="Idriel, a anfitriã élfica da Árvore dos Mundos"
+                />
               </div>
             </motion.div>
             <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} custom={1}>
