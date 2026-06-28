@@ -17,7 +17,6 @@ const AdminPage = lazy(() => import("./pages/AdminPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
-const PricingPage = lazy(() => import("./pages/PricingPage"));
 const ObrigadoPage = lazy(() => import("./pages/ObrigadoPage"));
 const BetaPage = lazy(() => import("./pages/BetaPage"));
 const SegurancaPage = lazy(() => import("./pages/SegurancaPage"));
@@ -61,7 +60,7 @@ const App = () => (
                   <Route path="/app" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                   <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-                  <Route path="/planos" element={<PricingPage />} />
+                  <Route path="/planos" element={<Navigate to="/#planos" replace />} />
                   <Route path="/obrigado" element={<ObrigadoPage />} />
                   <Route path="/beta" element={<BetaPage />} />
                   <Route path="/seguranca" element={<SegurancaPage />} />

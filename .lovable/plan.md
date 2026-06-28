@@ -1,81 +1,52 @@
+# Plano: unificar landing pública
 
-# Plano de Otimização de Desempenho
+## Objetivo
+Ter **uma única página pública** que explique o app para visitantes não logados, usando a copy enviada. Hoje existem duas (`/` LandingPage e `/planos` PricingPage). A nova landing absorve tudo, e `/planos` passa a ser uma âncora dentro dela.
 
-Objetivo: reduzir o tempo percebido de carregamento da homepage, da lista de mundos e das 4 abas (Construir, Codex, Escrever, Galeria), atacando os 3 gargalos medidos: (1) assets pesados, (2) queries trazendo dados grandes desnecessariamente, (3) fetches duplicados entre abas.
+## Estrutura da nova `LandingPage.tsx`
+12 blocos, na ordem da copy:
 
----
+1. **Hero** — headline, subhead, dois CTAs, microcopy de 14 dias, placeholder de vídeo (12–18s, loop, sem áudio) com poster estático já existente (`hero` WebP responsivo).
+2. **O Problema** — comparativo "Antes / Com a Árvore dos Mundos" em duas colunas.
+3. **Como Funciona** — 4 cards (Plante / Cultive / Organize / Escreva) + placeholder vídeo tour (60–90s).
+4. **11 Frutos** — texto + lista de benefícios do Fruto + selo "1.500 exemplares vendidos" + placeholder microvídeo (20–30s).
+5. **Codex** — bullets + placeholder vídeo (20–30s).
+6. **Idriel** — manifesto "sugere, você decide" + bloco "Análise de Mundo" + placeholder vídeo (35–50s).
+7. **Ofício Completo** — 4 sub-blocos (Manuscritos, Storylines, Galeria/Mapas, Ferramentas de Foco) + placeholder vídeo (30–40s).
+8. **Importação** — bloco renderizado condicionalmente via flag `FEATURE_IMPORT_PUBLIC = true` (default `true`, já que existe); fácil de esconder se precisar. Placeholder vídeo (30–45s).
+9. **Segurança** — 6 compromissos em cards + botão "Conhecer nossa estrutura" → `/seguranca`. Sem promessas absolutas (segue diretriz da copy).
+10. **Provas** — duas seções de depoimentos com placeholders ("Depoimentos do e-book" e "Beta testers"). Renderizados como cards vazios com nota editorial até serem preenchidos.
+11. **Planos** — toggle Mensal/Anual, dois cards (Raiz / Idriel destacado como "Experiência Completa"), accordion de recargas, explicação do Elixir. **Substitui** a PricingPage atual.
+12. **FAQ + Fechamento** — accordion com as 12 perguntas, encerramento poético + dois CTAs finais.
 
-## Sprint 1 — Assets pesados (impacto imediato no FCP/LCP)
+## Rotas
+- `/` — nova LandingPage unificada (visitantes) / `Index` (logados). Mantém `HomeRoute`.
+- `/planos` — **redireciona** para `/#planos` (âncora no Bloco 11). Mantém o link externo que já existe em e-mails/anúncios.
+- `/login`, `/seguranca`, `/beta`, `/obrigado` — inalteradas.
+- `PricingPage.tsx` — removida do roteador (arquivo mantido por ora caso precise reverter, mas pode ser apagado depois).
 
-1. Comprimir `idriel-avatar.png` (2 MB) → WebP 512px (~40 KB).
-2. Comprimir `tree-bg-blur.png` (515 KB) → WebP (~80 KB).
-3. Adicionar `loading="lazy"` e `decoding="async"` em todos os `<img>` da Galeria e dos lightboxes do Codex que ainda não têm.
-4. Adicionar `<link rel="preload" as="image">` para o hero da Landing e `poster` no `<video>` do herói.
+## Placeholders reservados
+Componente `<VideoPlaceholder label="..." spec="..." />` reutilizável: card escuro com borda dourada tracejada, ícone de play, título do vídeo e a especificação resumida (duração + o que mostrar). Some automaticamente quando recebe a prop `src`. Isso deixa claro o que falta produzir sem quebrar o layout.
 
-Ganho esperado: −1,9 MB no primeiro paint da área logada; FCP da landing −0,4 a −1 s.
+Placeholders para depoimentos: `<TestimonialPlaceholder kind="ebook" | "beta" />` com nota "Em curadoria — depoimentos serão adicionados após seleção."
 
----
-
-## Sprint 2 — Slim queries (corta picos de 6,5 s no Codex)
-
-5. `useCodexEntries` passa a listar sem o campo `content`:
-   `select('id, title, image_url, entry_type, fruit_id, world_id, image_position, updated_at, created_at')`.
-6. Novo método `fetchEntryContent(id)` para carregar `content` sob demanda ao abrir uma ficha.
-7. `useManuscript` passa a listar capítulos sem `content` e `notes` (apenas metadados + `word_count`); `content` é carregado quando o capítulo é aberto no editor.
-
-Ganho esperado: payload da listagem do Codex cai de ~MBs para dezenas de KB; elimina picos de 700 ms–6,5 s.
-
----
-
-## Sprint 3 — Cache compartilhado entre abas (corta 75% das chamadas)
-
-8. Migrar `useCodexEntries`, `useWorlds` e `useSubscription` para React Query (já instalado), com chaves estáveis (`['codex', worldId]`, `['worlds']`, `['subscription', userId]`).
-9. `staleTime` agressivo: `codex` 30 s, `worlds` 60 s, `subscription` 60 s.
-10. Resultado: quando o usuário troca entre Construir → Codex → Galeria → Escrever, todos consomem o mesmo cache em vez de refazer o `SELECT`.
-
-Ganho esperado: chamadas a `subscriptions` caem de 195k para ~5k; chamadas ao Codex caem ~75 %.
-
----
-
-## Sprint 4 — Autosave mais leve do mundo
-
-11. Diff no autosave: só envia para o `UPDATE worlds` os campos que mudaram desde a última gravação (evita reescrever `db` + `gallery` inteiros a cada 2 s quando só o nome mudou).
-12. Debounce do autosave subindo de 2 s para 3 s quando o payload é grande (>200 KB).
-
-Ganho esperado: tempo médio do `UPDATE worlds` cai de 14 ms para <5 ms; pico de 703 ms vira raro.
-
----
-
-## Sprint 5 — Carregamento sob demanda do corretor
-
-13. Hunspell WASM + dicionário VERO passam a carregar somente quando o usuário ativar o toggle "Corretor" no editor (já existe no `ChapterEditor`). Hoje carrega no boot da aba Escrever.
-
-Ganho esperado: TTI da aba Escrever −300 a −600 ms em mobile.
-
----
+## Design
+Reuso integral do sistema atual (cores grimório, Cinzel/Merriweather/Montserrat, `card-glass`, gold tokens). Sem nova paleta. Animações `framer-motion` no padrão já usado.
 
 ## Detalhes técnicos
+- Substituir `src/pages/LandingPage.tsx` pela nova versão (12 seções, componentes internos pequenos).
+- Adicionar redirect `/planos` → `/#planos` em `App.tsx`.
+- Remover import de `PricingPage` do `App.tsx`.
+- Componente de planos lê toggle mensal/anual via `useState`; CTAs dos planos apontam para `/login?next=checkout&plan=raiz|idriel` (mantém o fluxo de checkout existente — sem mexer em lógica de cobrança).
+- Bloco Importação atrás de constante local `SHOW_IMPORT_BLOCK = true`.
+- SEO: atualizar `<title>` e `<meta description>` em `index.html` para refletir a página única (1.500 exemplares, 11 Frutos, 14 dias grátis).
+- Acessibilidade: cada placeholder de vídeo com `role="img"` + `aria-label` descritivo; FAQ usa `<Accordion>` shadcn (já tem foco/teclado).
 
-- Sem mudanças de schema do banco (índices já existem: `idx_codex_entries_world_updated`, `idx_worlds_user_updated`, `idx_chapters_manuscript_sort`).
-- Sem mudanças nas Edge Functions.
-- Mudanças concentradas em: `src/hooks/useCodexEntries.ts`, `src/hooks/useManuscript.ts`, `src/hooks/useWorlds.ts`, `src/hooks/useSubscription.ts`, `src/pages/Index.tsx`, `src/components/TabCodex.tsx`, `src/components/TabGaleria.tsx`, `src/components/escritor/ChapterEditor.tsx`, `src/lib/spellcheck/SpellcheckProvider.tsx`, `index.html` e `src/pages/LandingPage.tsx`.
-- Imagens: `imagegen--edit_image` para gerar WebP otimizado de `idriel-avatar.png` e `tree-bg-blur.png`, ou regerar via pipeline manual com `sharp`/`squoosh`.
+## O que **não** vou fazer agora
+- Não vou produzir os vídeos — ficam como placeholders visuais claros.
+- Não vou criar/editar a página `/seguranca` (já existe; só linko).
+- Não vou mexer em preços/checkout/edge functions.
+- Não vou apagar `PricingPage.tsx` no mesmo passo (só removo do router) — apago depois que você confirmar.
 
----
-
-## Riscos e mitigação
-
-- Slim do `select` no Codex: cards que mostram preview do conteúdo precisam migrar para `fetchEntryContent` no `onClick` — verificar `CodexCard.tsx` antes de remover o campo.
-- React Query: invalidar cache em todo `create/update/delete` para a UI continuar otimista.
-- Diff de autosave: comparar por referência via `useRef` da última versão salva.
-
----
-
-## Critério de sucesso
-
-- LCP da homepage logada cai ≥ 40 % em conexão 4G simulada.
-- Pico de query em `codex_entries` cai de 6,5 s para <500 ms.
-- Chamadas a `subscriptions` em 24 h caem ≥ 90 %.
-- Troca entre abas sem novos fetches visíveis no Network.
-
-Após aprovação, executo na ordem Sprint 1 → 5 e reporto os resultados ao final de cada sprint.
+## Entrega
+Um único PR de frontend: nova `LandingPage.tsx` + ajuste de rotas + meta tags.
