@@ -224,7 +224,7 @@ const LandingPage: React.FC = () => {
             </span>
 
             <h1
-              className="font-cinzel font-bold text-[clamp(2.2rem,5.6vw,4.4rem)] leading-[1.05] mb-6 mx-auto max-w-4xl drop-shadow-[0_2px_30px_rgba(0,0,0,0.75)]"
+              className="font-cinzel font-bold text-[clamp(2rem,4.6vw,3.6rem)] leading-[1.08] mb-6 mx-auto max-w-4xl drop-shadow-[0_2px_30px_rgba(0,0,0,0.75)]"
             >
               Crie Mundos Fantásticos com a{' '}
               <span className="text-gradient-gold">Plataforma Definitiva</span>{' '}
