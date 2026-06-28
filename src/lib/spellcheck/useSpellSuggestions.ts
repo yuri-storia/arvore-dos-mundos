@@ -2,7 +2,7 @@
 // Sem chamadas de IA. Sem rede além do bundle estático do dicionário.
 // Mantém um cache LRU local para respostas instantâneas em palavras repetidas.
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { listCustomWords } from "./customDictionary";
 import { getContextHint } from "./contextRules";
 import { rerankSuggestions } from "./bigrams";
