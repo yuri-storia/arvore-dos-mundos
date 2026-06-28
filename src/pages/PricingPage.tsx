@@ -9,7 +9,10 @@ import {
 import { openCheckout, PLANS } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import heroVideo from '@/assets/arvore-hero-bg-720.mp4.asset.json';
-import heroPoster from '@/assets/arvore-mundos-hero.webp.asset.json';
+import heroPoster from '@/assets/arvore-mundos-hero-960.webp.asset.json';
+import hero640 from '@/assets/arvore-mundos-hero-640.webp.asset.json';
+import hero1280 from '@/assets/arvore-mundos-hero-1280.webp.asset.json';
+import hero1600 from '@/assets/arvore-mundos-hero-1600.webp.asset.json';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
 
