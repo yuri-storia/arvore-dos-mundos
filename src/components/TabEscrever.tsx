@@ -284,17 +284,20 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
       <div className={`flex items-center gap-3 mb-4 flex-wrap transition-opacity duration-300 ${zenMode ? 'opacity-0 hover:opacity-100 h-0 overflow-hidden hover:h-auto hover:overflow-visible' : ''}`}>
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <PenLine className="w-4 h-4 text-blue-light shrink-0" />
-          {/* Manuscript switcher */}
+          {/* Manuscript title (editável) + switcher */}
+          <input
+            value={manuscriptTitleLocal}
+            onChange={e => handleManuscriptTitleChange(e.target.value)}
+            aria-label="Nome do manuscrito"
+            className="bg-transparent font-cinzel font-bold text-lg text-foreground border-none focus:outline-none focus:ring-1 focus:ring-blue-bright/40 rounded px-1 min-w-0 max-w-[260px] cursor-text"
+            placeholder="Título do manuscrito"
+          />
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-1.5 min-w-0 group">
-              <input
-                value={manuscriptTitleLocal}
-                onChange={e => handleManuscriptTitleChange(e.target.value)}
-                onClick={e => e.stopPropagation()}
-                className="bg-transparent font-cinzel font-bold text-lg text-foreground border-none focus:outline-none min-w-0 max-w-[260px] cursor-text"
-                placeholder="Título do manuscrito"
-              />
-              <ChevronDown className="w-3.5 h-3.5 text-text-dim group-hover:text-foreground transition-colors shrink-0" />
+            <DropdownMenuTrigger
+              aria-label="Trocar manuscrito"
+              className="p-1 rounded hover:bg-white/[0.05] text-text-dim hover:text-foreground transition-colors shrink-0"
+            >
+              <ChevronDown className="w-3.5 h-3.5" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[240px]">
               <p className="text-[9px] uppercase font-montserrat text-text-dim px-2 py-1">Manuscritos deste mundo</p>
@@ -326,6 +329,26 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+
+        {/* Dialog: criar novo manuscrito (precisa estar montado também quando já há um ativo) */}
+        <Dialog open={showNamePrompt} onOpenChange={setShowNamePrompt}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="font-cinzel">Novo Manuscrito</DialogTitle>
+            </DialogHeader>
+            <div className="py-3">
+              <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1.5">Nome do manuscrito</label>
+              <Input value={newManuscriptName} onChange={e => setNewManuscriptName(e.target.value)}
+                placeholder="Ex: Crônicas de Ellerya" autoFocus
+                onKeyDown={e => e.key === 'Enter' && handleCreateManuscriptWithName()} />
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setShowNamePrompt(false)}>Cancelar</Button>
+              <Button onClick={handleCreateManuscriptWithName} className="bg-blue-bright/20 text-blue-light border border-blue-bright/30">Criar</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         <div className="flex items-center gap-1 shrink-0">
           {/* Mode switcher */}
           <div data-tour="write-modes" className="flex items-center bg-white/[0.03] rounded-md border border-blue-bright/10 p-0.5">
