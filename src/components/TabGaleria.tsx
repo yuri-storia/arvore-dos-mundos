@@ -272,7 +272,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-gold/50 shadow-[0_0_12px_rgba(218,165,32,0.3)] shrink-0">
-            <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+            <img loading="lazy" decoding="async" src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
           </div>
           <div>
             <h1 className="font-cinzel font-bold text-xl sm:text-2xl text-foreground mb-0.5 inline-flex items-center gap-2.5"><Palette className="w-6 h-6 text-gold-champagne" strokeWidth={1.75} />Galeria de Visões</h1>
@@ -350,7 +350,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
             {unsorted.map(img => (
               <div key={img.id} className="group relative rounded-lg overflow-hidden border border-gold/30 bg-background/40">
-                <img
+                <img loading="lazy" decoding="async"
                   src={img.src}
                   alt={img.name}
                   className="w-full h-[100px] sm:h-[120px] object-cover cursor-zoom-in"
@@ -410,7 +410,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
               key={img.id}
               className="group relative rounded-lg overflow-hidden border border-gold/15 hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(218,165,32,0.15)] transition-all"
             >
-              <img
+              <img loading="lazy" decoding="async"
                 src={img.src}
                 alt={img.name}
                 className="w-full h-[100px] sm:h-[136px] object-cover cursor-zoom-in"
@@ -475,7 +475,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                 </h3>
                 <div className="max-w-md mx-auto mb-5">
                   <div className="flex items-start gap-3 text-left bg-gold/[0.04] rounded-lg p-3 border border-gold/10">
-                    <img src={idrielAvatar} alt="Idriel" className="w-8 h-8 rounded-full border border-gold/30 shrink-0 mt-0.5" />
+                    <img loading="lazy" decoding="async" src={idrielAvatar} alt="Idriel" className="w-8 h-8 rounded-full border border-gold/30 shrink-0 mt-0.5" />
                     <p className="font-merriweather text-sm text-text-secondary leading-relaxed italic">
                       "Querido criador, o Elixir dos Mundos flui dentro deste Fruto. Com ele, posso materializar as visões do seu mundo em imagens, analisar sua criação e guiá-lo com toda minha sabedoria. Basta colher o Fruto."
                     </p>
@@ -604,7 +604,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                   <div className="flex items-center gap-3 mb-3">
                     <div className="relative shrink-0">
                       <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gold/60 shadow-[0_0_16px_rgba(218,165,32,0.4)]">
-                        <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+                        <img loading="lazy" decoding="async" src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
                       </div>
                     </div>
                     <div className="flex-1">
@@ -651,7 +651,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
           {generatedImage && !loading2 && (
             <div className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20">
               <span className="font-cinzel text-[10px] text-gold-light mb-3 inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3" strokeWidth={1.75} />Visão materializada pelo Elixir dos Mundos</span>
-              <img src={generatedImage} alt="Visão de Idriel" className="w-full max-w-[512px] mx-auto rounded-lg mb-4" />
+              <img loading="lazy" decoding="async" src={generatedImage} alt="Visão de Idriel" className="w-full max-w-[512px] mx-auto rounded-lg mb-4" />
               <div className="flex flex-wrap gap-2 justify-center">
                 <button onClick={() => { setSaveCat('Todos'); setShowSaveModal(true); }} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors">
                   <><Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Guardar na Galeria</>
@@ -681,7 +681,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                   {visions.map(v => (
                     <div key={v.id} className="flex gap-3 rounded-md border border-gold/10 bg-background/40 p-3">
                       {v.image_url ? (
-                        <img
+                        <img loading="lazy" decoding="async"
                           src={v.image_url}
                           alt={v.description}
                           className="w-20 h-20 object-cover rounded cursor-zoom-in flex-shrink-0"
