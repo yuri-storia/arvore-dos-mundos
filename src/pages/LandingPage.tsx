@@ -234,14 +234,24 @@ const LandingPage: React.FC = () => {
             </span>
 
             <h1
-              className="font-cinzel font-bold text-[clamp(2rem,4.6vw,3.6rem)] leading-[1.08] mb-6 mx-auto max-w-4xl drop-shadow-[0_2px_30px_rgba(0,0,0,0.75)]"
+              className="font-cinzel font-bold text-[clamp(2rem,4.6vw,3.6rem)] leading-[1.08] mb-6 mx-auto max-w-4xl"
+              style={{
+                textShadow:
+                  '0 2px 30px rgba(0,0,0,0.85), 0 1px 12px rgba(0,0,0,0.7), 0 0 60px rgba(0,0,0,0.55)',
+              }}
             >
               Crie Mundos Fantásticos com a{' '}
               <span className="text-gradient-gold">Plataforma Definitiva</span>{' '}
               de Worldbuilding.
             </h1>
 
-            <p className="font-merriweather text-base sm:text-lg lg:text-xl text-text-secondary leading-relaxed mb-9 max-w-2xl mx-auto drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+            <p
+              className="font-merriweather text-base sm:text-lg lg:text-xl text-text-secondary leading-relaxed mb-9 max-w-2xl mx-auto"
+              style={{
+                textShadow:
+                  '0 2px 18px rgba(0,0,0,0.85), 0 1px 6px rgba(0,0,0,0.7), 0 0 30px rgba(0,0,0,0.5)',
+              }}
+            >
               Construa universos profundos e coerentes com os <strong className="text-foreground">11 Frutos</strong>,
               organize tudo em um <strong className="text-foreground">Codex vivo</strong> e
               escreva suas histórias com a assistência de <strong className="text-foreground">Idriel</strong> —
