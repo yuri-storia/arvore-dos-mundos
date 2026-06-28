@@ -118,7 +118,7 @@ const LoginPage: React.FC = () => {
   }, [user]);
 
   if (!authLoading && !aalChecking && user && !accessDenied && !needsMfa) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/app" replace />;
   }
 
   const handleGoogleLogin = async () => {
