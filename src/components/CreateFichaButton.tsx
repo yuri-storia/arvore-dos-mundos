@@ -67,20 +67,31 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
   };
 
   const handleConfirmCreate = async () => {
+    if (saving) return;
     const title = customTitle.trim() || fieldLabel;
-    const entry = await createEntry({ 
-      title, 
-      content: fieldValue, 
-      entry_type: isFicha ? 'ficha' : 'artigo', 
-      fruit_id: fruitId 
-    });
-    setShowTitleDialog(false);
-    setShowMenu(false);
-    if (entry) {
-      setCreatedEntryName(title);
-      setShowSuccessDialog(true);
+    if (!title) { toast.error('Dê um título à ficha antes de criar'); return; }
+    if (!worldId) { toast.error('Selecione ou crie um mundo antes de salvar a ficha'); return; }
+    setSaving(true);
+    try {
+      const entry = await createEntry({
+        title,
+        content: fieldValue,
+        entry_type: isFicha ? 'ficha' : 'artigo',
+        fruit_id: fruitId,
+      });
+      if (entry) {
+        setShowTitleDialog(false);
+        setShowMenu(false);
+        setCreatedEntryName(title);
+        setShowSuccessDialog(true);
+      }
+      // Em caso de erro, o hook já dispara toast e mantemos o dialog aberto
+      // para o usuário tentar de novo sem perder o que digitou.
+    } finally {
+      setSaving(false);
     }
   };
+
 
   const handleSuccessAction = (action: 'codex' | 'continue') => {
     setShowSuccessDialog(false);
