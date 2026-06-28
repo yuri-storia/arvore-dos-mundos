@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Save, ArrowLeft, X, ClipboardList, PencilLine, Sparkles, BookOpen, Feather } from 'lucide-react';
+import { toast } from 'sonner';
+import { Save, ArrowLeft, X, ClipboardList, PencilLine, Sparkles, BookOpen, Feather, Loader2 } from 'lucide-react';
+
 import { FRUITS } from '@/lib/data';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
