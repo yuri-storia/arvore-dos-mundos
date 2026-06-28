@@ -152,10 +152,10 @@ const LandingPage: React.FC = () => {
               Perguntas
             </a>
             <Link
-              to="/login"
+              to={user ? '/app' : '/login'}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/[0.08] transition-colors"
             >
-              <LogIn className="w-3.5 h-3.5" strokeWidth={1.75} /> Entrar
+              <LogIn className="w-3.5 h-3.5" strokeWidth={1.75} /> {user ? 'Abrir App' : 'Entrar'}
             </Link>
           </nav>
         </div>
