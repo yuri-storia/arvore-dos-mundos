@@ -9,7 +9,10 @@ import {
 import { openCheckout, PLANS } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import heroVideo from '@/assets/arvore-hero-bg-720.mp4.asset.json';
-import heroPoster from '@/assets/arvore-mundos-hero.webp.asset.json';
+import heroPoster from '@/assets/arvore-mundos-hero-960.webp.asset.json';
+import hero640 from '@/assets/arvore-mundos-hero-640.webp.asset.json';
+import hero1280 from '@/assets/arvore-mundos-hero-1280.webp.asset.json';
+import hero1600 from '@/assets/arvore-mundos-hero-1600.webp.asset.json';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
 
@@ -99,6 +102,10 @@ const PricingPage: React.FC = () => {
         />
         <img
           src={heroPoster.url}
+          srcSet={`${hero640.url} 640w, ${heroPoster.url} 960w, ${hero1280.url} 1280w, ${hero1600.url} 1600w`}
+          sizes="100vw"
+          width={1600}
+          height={900}
           alt=""
           className="absolute inset-0 w-full h-full object-cover -z-10"
           aria-hidden="true"
