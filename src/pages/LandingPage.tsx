@@ -5,7 +5,7 @@ import {
   Sparkles, Leaf, Crown, BookOpen, Library, Map, Image as ImageIcon,
   Feather, Wand2, ShieldCheck, ArrowRight, LogIn, Check,
 } from 'lucide-react';
-import heroPoster from '@/assets/arvore-mundos-hero.webp.asset.json';
+
 import hero640 from '@/assets/arvore-mundos-hero-640.webp.asset.json';
 import hero960 from '@/assets/arvore-mundos-hero-960.webp.asset.json';
 import hero1280 from '@/assets/arvore-mundos-hero-1280.webp.asset.json';
