@@ -163,7 +163,7 @@ const LandingPage: React.FC = () => {
 
       {/* ============================== 1. HERO ============================= */}
       <section className="relative isolate overflow-hidden min-h-[92vh] flex items-center">
-        {/* Vídeo de fundo — Árvore animada */}
+        {/* Vídeo de fundo — Árvore animada (brilho e cor intensificados) */}
         <video
           className="absolute inset-0 -z-20 w-full h-full object-cover"
           src={heroVideo.url}
@@ -174,6 +174,7 @@ const LandingPage: React.FC = () => {
           playsInline
           preload="metadata"
           aria-hidden="true"
+          style={{ filter: 'brightness(1.85) contrast(1.15) saturate(1.3)' }}
         />
         {/* Fallback image (caso o vídeo não carregue) */}
         <img
@@ -187,31 +188,40 @@ const LandingPage: React.FC = () => {
           decoding="async"
           className="absolute inset-0 -z-30 w-full h-full object-cover object-center"
         />
-        {/* Vinheta radial dourada premium */}
+        {/* Vinheta radial: mantém luz no centro, fecha as bordes */}
         <div
           aria-hidden
           className="absolute inset-0 -z-10 pointer-events-none"
           style={{
             background:
-              'radial-gradient(ellipse at center, hsl(214 80% 3% / 0.35) 0%, hsl(214 80% 3% / 0.78) 65%, #02070d 100%)',
+              'radial-gradient(ellipse at 50% 40%, transparent 0%, hsl(214 80% 3% / 0.22) 60%, hsl(214 80% 3% / 0.88) 92%, #02070d 100%)',
           }}
         />
-        {/* Glow dourado sutil ao centro */}
+        {/* Faixa de legibilidade horizontal atrás do texto — libera luz acima e abaixo */}
         <div
           aria-hidden
-          className="absolute inset-0 -z-10 pointer-events-none opacity-70"
+          className="absolute inset-0 -z-10 pointer-events-none"
           style={{
             background:
-              'radial-gradient(ellipse 60% 50% at 50% 45%, hsl(38 60% 45% / 0.22) 0%, transparent 70%)',
+              'linear-gradient(to bottom, transparent 0%, transparent 34%, hsl(214 80% 3% / 0.52) 44%, hsl(214 80% 3% / 0.52) 66%, transparent 78%)',
+          }}
+        />
+        {/* Halo de luz dourado pulsante — simula o brilho do vídeo atrás da headline */}
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 pointer-events-none animate-gold-blink"
+          style={{
+            background:
+              'radial-gradient(ellipse 80% 52% at 50% 42%, hsl(38 60% 45% / 0.55) 0%, hsl(38 55% 52% / 0.22) 38%, transparent 65%)',
           }}
         />
         {/* Fade inferior p/ próxima seção */}
         <div
           aria-hidden
-          className="absolute inset-x-0 bottom-0 h-48 -z-10 pointer-events-none"
+          className="absolute inset-x-0 bottom-0 h-52 -z-10 pointer-events-none"
           style={{
             background:
-              'linear-gradient(to bottom, transparent 0%, rgba(2,7,13,0.6) 50%, #02070d 100%)',
+              'linear-gradient(to bottom, transparent 0%, rgba(2,7,13,0.55) 45%, #02070d 100%)',
           }}
         />
 
@@ -224,14 +234,24 @@ const LandingPage: React.FC = () => {
             </span>
 
             <h1
-              className="font-cinzel font-bold text-[clamp(2rem,4.6vw,3.6rem)] leading-[1.08] mb-6 mx-auto max-w-4xl drop-shadow-[0_2px_30px_rgba(0,0,0,0.75)]"
+              className="font-cinzel font-bold text-[clamp(2rem,4.6vw,3.6rem)] leading-[1.08] mb-6 mx-auto max-w-4xl"
+              style={{
+                textShadow:
+                  '0 2px 30px rgba(0,0,0,0.85), 0 1px 12px rgba(0,0,0,0.7), 0 0 60px rgba(0,0,0,0.55)',
+              }}
             >
               Crie Mundos Fantásticos com a{' '}
               <span className="text-gradient-gold">Plataforma Definitiva</span>{' '}
               de Worldbuilding.
             </h1>
 
-            <p className="font-merriweather text-base sm:text-lg lg:text-xl text-text-secondary leading-relaxed mb-9 max-w-2xl mx-auto drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+            <p
+              className="font-merriweather text-base sm:text-lg lg:text-xl text-text-secondary leading-relaxed mb-9 max-w-2xl mx-auto"
+              style={{
+                textShadow:
+                  '0 2px 18px rgba(0,0,0,0.85), 0 1px 6px rgba(0,0,0,0.7), 0 0 30px rgba(0,0,0,0.5)',
+              }}
+            >
               Construa universos profundos e coerentes com os <strong className="text-foreground">11 Frutos</strong>,
               organize tudo em um <strong className="text-foreground">Codex vivo</strong> e
               escreva suas histórias com a assistência de <strong className="text-foreground">Idriel</strong> —
