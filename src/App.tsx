@@ -54,9 +54,9 @@ const App = () => (
               <Suspense fallback={<RouteFallback />}>
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
-                  <Route path="/inicio" element={<Navigate to="/planos" replace />} />
                   <Route path="/reset-password" element={<ResetPasswordPage />} />
-                  <Route path="/" element={<HomeRoute />} />
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/inicio" element={<Navigate to="/" replace />} />
                   <Route path="/app" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                   <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
