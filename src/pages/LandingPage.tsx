@@ -236,7 +236,7 @@ const LandingPage: React.FC = () => {
               }}
             >
               Crie Mundos Fantásticos com a{' '}
-              <span className="text-gradient-gold">Plataforma Definitiva</span>{' '}
+              <span className="text-gradient-gold-hero">Plataforma Definitiva</span>{' '}
               de Worldbuilding.
             </h1>
 
