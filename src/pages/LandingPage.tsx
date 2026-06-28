@@ -163,7 +163,7 @@ const LandingPage: React.FC = () => {
 
       {/* ============================== 1. HERO ============================= */}
       <section className="relative isolate overflow-hidden min-h-[92vh] flex items-center">
-        {/* Vídeo de fundo — Árvore animada (brilho máximo para impacto) */}
+        {/* Vídeo de fundo — Árvore animada (brilho e cor intensificados) */}
         <video
           className="absolute inset-0 -z-20 w-full h-full object-cover"
           src={heroVideo.url}
@@ -174,7 +174,7 @@ const LandingPage: React.FC = () => {
           playsInline
           preload="metadata"
           aria-hidden="true"
-          style={{ filter: 'brightness(2.0) contrast(1.25) saturate(1.25)' }}
+          style={{ filter: 'brightness(1.85) contrast(1.15) saturate(1.3)' }}
         />
         {/* Fallback image (caso o vídeo não carregue) */}
         <img
@@ -188,31 +188,31 @@ const LandingPage: React.FC = () => {
           decoding="async"
           className="absolute inset-0 -z-30 w-full h-full object-cover object-center"
         />
-        {/* Vinheta radial: mantém o vídeo visível no centro, fecha só as bordas */}
+        {/* Vinheta radial: mantém luz no centro, fecha as bordes */}
         <div
           aria-hidden
           className="absolute inset-0 -z-10 pointer-events-none"
           style={{
             background:
-              'radial-gradient(ellipse at 50% 40%, transparent 0%, hsl(214 80% 3% / 0.28) 55%, hsl(214 80% 3% / 0.85) 90%, #02070d 100%)',
+              'radial-gradient(ellipse at 50% 40%, transparent 0%, hsl(214 80% 3% / 0.22) 60%, hsl(214 80% 3% / 0.88) 92%, #02070d 100%)',
           }}
         />
-        {/* Máscara de legibilidade focada no texto: escurece a faixa da headline e libera luz ao redor */}
+        {/* Faixa de legibilidade horizontal atrás do texto — libera luz acima e abaixo */}
         <div
           aria-hidden
           className="absolute inset-0 -z-10 pointer-events-none"
           style={{
             background:
-              'radial-gradient(ellipse 85% 44% at 50% 42%, hsl(214 80% 3% / 0.62) 0%, hsl(214 80% 3% / 0.22) 50%, transparent 78%)',
+              'linear-gradient(to bottom, transparent 0%, transparent 34%, hsl(214 80% 3% / 0.52) 44%, hsl(214 80% 3% / 0.52) 66%, transparent 78%)',
           }}
         />
-        {/* Glow dourado intenso ao centro */}
+        {/* Halo de luz dourado pulsante — simula o brilho do vídeo atrás da headline */}
         <div
           aria-hidden
-          className="absolute inset-0 -z-10 pointer-events-none opacity-100"
+          className="absolute inset-0 -z-10 pointer-events-none animate-gold-blink"
           style={{
             background:
-              'radial-gradient(ellipse 78% 60% at 50% 42%, hsl(38 60% 45% / 0.45) 0%, hsl(38 60% 45% / 0.16) 42%, transparent 68%)',
+              'radial-gradient(ellipse 80% 52% at 50% 42%, hsl(38 60% 45% / 0.55) 0%, hsl(38 55% 52% / 0.22) 38%, transparent 65%)',
           }}
         />
         {/* Fade inferior p/ próxima seção */}
