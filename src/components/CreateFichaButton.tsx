@@ -154,15 +154,23 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
                       <button
                         key={e.id}
                         onClick={async () => {
-                          const separator = e.content ? '\n\n---\n\n' : '';
-                          await updateEntry(e.id, { content: `${e.content}${separator}**${fieldLabel}:**\n${fieldValue}` });
-                          setShowAddTo(false);
-                          setShowMenu(false);
+                          try {
+                            const separator = e.content ? '\n\n---\n\n' : '';
+                            await updateEntry(e.id, { content: `${e.content}${separator}**${fieldLabel}:**\n${fieldValue}` });
+                            toast.success(`Adicionado a "${e.title}"`);
+                          } catch (err) {
+                            toast.error('Não foi possível atualizar a ficha');
+                            console.error(err);
+                          } finally {
+                            setShowAddTo(false);
+                            setShowMenu(false);
+                          }
                         }}
                         className="w-full text-left px-2 py-1.5 rounded hover:bg-blue-bright/10 transition-colors"
                       >
                         <span className="text-xs text-foreground font-montserrat font-bold block">{fruitInfo?.icon} {e.title}</span>
                       </button>
+
                     );
                   })}
                 </div>
