@@ -3,7 +3,7 @@ import { Sparkles, ScrollText, X, MessageCircle, Compass } from 'lucide-react';
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import ReactMarkdown from 'react-markdown';
-import idrielAvatar from '@/assets/idriel-avatar.png';
+import idrielAvatar from '@/assets/idriel-avatar.webp';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 
 interface ChatMessage {

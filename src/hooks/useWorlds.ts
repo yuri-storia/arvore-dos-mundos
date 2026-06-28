@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useRef } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -14,32 +15,36 @@ export interface WorldRecord {
   updated_at: string;
 }
 
+const WORLDS_KEY = (uid: string | undefined) => ['worlds', uid] as const;
+
 export function useWorlds() {
   const { user } = useAuth();
-  const [worlds, setWorlds] = useState<WorldRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+  const qc = useQueryClient();
+  // Cache da última versão salva por worldId — usado pelo diff do autosave
+  // para evitar reescrever campos pesados (db, gallery) quando só o nome muda.
+  const lastSavedRef = useRef<Record<string, { name: string; method: MethodType; db: unknown; gallery: unknown }>>({});
 
-  const fetchWorlds = useCallback(async () => {
-    if (!user) { setWorlds([]); setLoading(false); return; }
-    // Listagem leve: NÃO trazer os JSONs pesados (db, gallery).
-    // Esses campos podem ter centenas de KB cada e travam a tela inicial.
-    const { data, error } = await supabase
-      .from('worlds')
-      .select('id, name, method, updated_at')
-      .order('updated_at', { ascending: false });
-    if (error) { console.error(error); toast.error('Erro ao carregar mundos'); }
-    else setWorlds((data as any[]).map(d => ({
-      id: d.id,
-      name: d.name,
-      method: d.method as MethodType,
-      db: {},
-      gallery: [],
-      updated_at: d.updated_at,
-    })));
-    setLoading(false);
-  }, [user]);
-
-  useEffect(() => { fetchWorlds(); }, [fetchWorlds]);
+  const { data: worlds = [], isLoading: loading, refetch } = useQuery({
+    queryKey: WORLDS_KEY(user?.id),
+    enabled: !!user,
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    queryFn: async (): Promise<WorldRecord[]> => {
+      const { data, error } = await supabase
+        .from('worlds')
+        .select('id, name, method, updated_at')
+        .order('updated_at', { ascending: false });
+      if (error) { console.error(error); toast.error('Erro ao carregar mundos'); return []; }
+      return (data as any[]).map(d => ({
+        id: d.id,
+        name: d.name,
+        method: d.method as MethodType,
+        db: {},
+        gallery: [],
+        updated_at: d.updated_at,
+      }));
+    },
+  });
 
   // Carrega o payload completo (db + gallery) apenas do mundo ativo.
   const loadWorldFull = useCallback(async (id: string): Promise<WorldRecord | null> => {
@@ -49,7 +54,7 @@ export function useWorlds() {
       .eq('id', id)
       .maybeSingle();
     if (error || !data) { if (error) console.error(error); return null; }
-    return {
+    const rec: WorldRecord = {
       id: data.id,
       name: data.name,
       method: data.method as MethodType,
@@ -57,6 +62,9 @@ export function useWorlds() {
       gallery: (data.gallery || []) as unknown as GalleryImage[],
       updated_at: data.updated_at,
     };
+    // Sincroniza baseline do diff do autosave.
+    lastSavedRef.current[id] = { name: rec.name, method: rec.method, db: rec.db, gallery: rec.gallery };
+    return rec;
   }, []);
 
   const createWorld = useCallback(async (state: AppState): Promise<WorldRecord | null> => {
@@ -67,7 +75,7 @@ export function useWorlds() {
       .from('worlds')
       .insert({
         user_id: user.id,
-        name: state.worldName || 'Mundo Sem Nome',
+        name,
         method: state.method,
         db: state.db as any,
         gallery: state.gallery as any,
@@ -83,30 +91,52 @@ export function useWorlds() {
       gallery: (data.gallery || []) as any,
       updated_at: data.updated_at,
     };
-    setWorlds(prev => [record, ...prev]);
+    lastSavedRef.current[record.id] = { name: record.name, method: record.method, db: record.db, gallery: record.gallery };
+    qc.setQueryData(WORLDS_KEY(user.id), (old: WorldRecord[] = []) => [record, ...old]);
     return record;
-  }, [user]);
+  }, [user, qc]);
 
+  /**
+   * Update com diff: só envia ao banco os campos que realmente mudaram desde
+   * a última gravação. Evita reescrever JSONs pesados (db + gallery) a cada
+   * autosave de 2s quando apenas o nome ou o método foi alterado.
+   */
   const updateWorld = useCallback(async (id: string, updates: Partial<Pick<WorldRecord, 'name' | 'method' | 'db' | 'gallery'>>) => {
     if (updates.name && updates.name.length > 200) { toast.error('Nome do mundo muito longo (máximo 200 caracteres)'); return; }
-    const { error } = await supabase
-      .from('worlds')
-      .update(updates as any)
-      .eq('id', id);
+
+    const baseline = lastSavedRef.current[id];
+    const patch: Record<string, unknown> = {};
+    if (updates.name !== undefined && (!baseline || updates.name !== baseline.name)) patch.name = updates.name;
+    if (updates.method !== undefined && (!baseline || updates.method !== baseline.method)) patch.method = updates.method;
+    if (updates.db !== undefined && (!baseline || updates.db !== baseline.db)) patch.db = updates.db as any;
+    if (updates.gallery !== undefined && (!baseline || updates.gallery !== baseline.gallery)) patch.gallery = updates.gallery as any;
+
+    if (Object.keys(patch).length === 0) return; // nada para gravar
+
+    const { error } = await supabase.from('worlds').update(patch as any).eq('id', id);
     if (error) {
       console.error(error);
       toast.error('Não foi possível salvar o mundo. Verifique sua conexão e tente novamente.');
       return;
     }
-    setWorlds(prev => prev.map(w => w.id === id ? { ...w, ...updates, updated_at: new Date().toISOString() } : w));
-  }, []);
+    lastSavedRef.current[id] = {
+      name: (patch.name as string) ?? baseline?.name ?? '',
+      method: (patch.method as MethodType) ?? baseline?.method ?? ('top-down' as MethodType),
+      db: (patch.db as any) ?? baseline?.db ?? {},
+      gallery: (patch.gallery as any) ?? baseline?.gallery ?? [],
+    };
+    qc.setQueryData(WORLDS_KEY(user?.id), (old: WorldRecord[] = []) =>
+      old.map(w => w.id === id ? { ...w, ...updates, updated_at: new Date().toISOString() } : w)
+    );
+  }, [qc, user?.id]);
 
   const deleteWorld = useCallback(async (id: string) => {
     const { error } = await supabase.from('worlds').delete().eq('id', id);
     if (error) { console.error(error); toast.error('Erro ao excluir mundo'); return; }
-    setWorlds(prev => prev.filter(w => w.id !== id));
+    delete lastSavedRef.current[id];
+    qc.setQueryData(WORLDS_KEY(user?.id), (old: WorldRecord[] = []) => old.filter(w => w.id !== id));
     toast.success('Mundo excluído');
-  }, []);
+  }, [qc, user?.id]);
 
-  return { worlds, loading, createWorld, updateWorld, deleteWorld, loadWorldFull, refetch: fetchWorlds };
+  return { worlds, loading, createWorld, updateWorld, deleteWorld, loadWorldFull, refetch };
 }

@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -17,34 +18,47 @@ export interface CodexEntry {
   updated_at: string;
 }
 
+const CODEX_KEY = (worldId?: string) => ['codex', worldId ?? null] as const;
+
+// Lista enxuta — não traz `content` (pode ter dezenas de KB por entrada).
+// O `content` é carregado sob demanda quando o card é expandido.
+const LIST_COLUMNS = 'id, title, image_url, entry_type, fruit_id, world_id, image_position, created_at, updated_at';
+
 export function useCodexEntries(worldId?: string) {
   const { user } = useAuth();
-  const [entries, setEntries] = useState<CodexEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const qc = useQueryClient();
 
-  const fetchEntries = useCallback(async () => {
-    if (!user) { setEntries([]); setLoading(false); return; }
-    let query = supabase
+  const { data: entries = [], isLoading: loading, refetch } = useQuery({
+    queryKey: CODEX_KEY(worldId),
+    enabled: !!user && !!worldId,
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
+    queryFn: async (): Promise<CodexEntry[]> => {
+      const { data, error } = await supabase
+        .from('codex_entries')
+        .select(LIST_COLUMNS)
+        .eq('world_id', worldId!)
+        .order('updated_at', { ascending: false });
+      if (error) { toast.error('Erro ao carregar fichas'); console.error(error); return []; }
+      // `content` vem como string vazia até ser carregado sob demanda.
+      return (data || []).map((d: any) => ({ ...d, content: d.content ?? '' })) as CodexEntry[];
+    },
+  });
+
+  /** Busca o `content` completo de uma ficha sob demanda (ao expandir). */
+  const fetchEntryContent = useCallback(async (id: string): Promise<string> => {
+    const { data, error } = await supabase
       .from('codex_entries')
-      .select('*')
-      .order('updated_at', { ascending: false });
-    
-    if (worldId) {
-      query = query.eq('world_id', worldId);
-    } else {
-      // If no world selected, show nothing (entries are scoped per world)
-      setEntries([]);
-      setLoading(false);
-      return;
-    }
-
-    const { data, error } = await query;
-    if (error) { toast.error('Erro ao carregar fichas'); console.error(error); }
-    else setEntries(data as unknown as unknown as CodexEntry[]);
-    setLoading(false);
-  }, [user, worldId]);
-
-  useEffect(() => { fetchEntries(); }, [fetchEntries]);
+      .select('content, updated_at')
+      .eq('id', id)
+      .maybeSingle();
+    if (error || !data) { if (error) console.error(error); return ''; }
+    const full = (data.content as string) || '';
+    qc.setQueryData(CODEX_KEY(worldId), (old: CodexEntry[] = []) =>
+      old.map(e => e.id === id ? { ...e, content: full } : e)
+    );
+    return full;
+  }, [qc, worldId]);
 
   const createEntry = useCallback(async (entry: { title: string; content: string; image_url?: string; entry_type: string; fruit_id?: number | null }) => {
     if (!user || !worldId) return null;
@@ -56,10 +70,10 @@ export function useCodexEntries(worldId?: string) {
       .select()
       .single();
     if (error) { toast.error('Erro ao criar ficha'); console.error(error); return null; }
-    setEntries(prev => [data as unknown as CodexEntry, ...prev]);
+    qc.setQueryData(CODEX_KEY(worldId), (old: CodexEntry[] = []) => [data as any, ...old]);
     toast.success('Ficha criada!');
     return data as unknown as CodexEntry;
-  }, [user, worldId]);
+  }, [user, worldId, qc]);
 
   const updateEntry = useCallback(async (id: string, updates: Partial<Pick<CodexEntry, 'title' | 'content' | 'image_url' | 'entry_type' | 'fruit_id' | 'image_position'>>) => {
     if (updates.title && updates.title.length > 200) { toast.error('Título muito longo (máximo 200 caracteres)'); return; }
@@ -70,15 +84,17 @@ export function useCodexEntries(worldId?: string) {
     }
     const { error } = await supabase.from('codex_entries').update(updates).eq('id', id);
     if (error) { toast.error('Erro ao atualizar ficha'); return; }
-    setEntries(prev => prev.map(e => e.id === id ? { ...e, ...updates, updated_at: new Date().toISOString() } : e));
-  }, []);
+    qc.setQueryData(CODEX_KEY(worldId), (old: CodexEntry[] = []) =>
+      old.map(e => e.id === id ? { ...e, ...updates, updated_at: new Date().toISOString() } : e)
+    );
+  }, [qc, worldId]);
 
   const deleteEntry = useCallback(async (id: string) => {
     const { error } = await supabase.from('codex_entries').delete().eq('id', id);
     if (error) { toast.error('Erro ao excluir ficha'); return; }
-    setEntries(prev => prev.filter(e => e.id !== id));
+    qc.setQueryData(CODEX_KEY(worldId), (old: CodexEntry[] = []) => old.filter(e => e.id !== id));
     toast.success('Ficha excluída');
-  }, []);
+  }, [qc, worldId]);
 
   const uploadImage = useCallback(async (file: File): Promise<string | null> => {
     if (!user) return null;
@@ -109,7 +125,7 @@ export function useCodexEntries(worldId?: string) {
       .eq('world_id', otherWorldId)
       .order('updated_at', { ascending: false });
     if (error) { console.error(error); return []; }
-    return (data || []) as unknown as unknown as CodexEntry[];
+    return (data || []) as unknown as CodexEntry[];
   }, [user]);
 
   /** Import entries into current world */
@@ -129,9 +145,18 @@ export function useCodexEntries(worldId?: string) {
       .insert(inserts)
       .select();
     if (error) { toast.error('Erro ao importar entradas'); console.error(error); return; }
-    setEntries(prev => [...(data as unknown as unknown as CodexEntry[]), ...prev]);
+    qc.setQueryData(CODEX_KEY(worldId), (old: CodexEntry[] = []) => [
+      ...((data as any[]) ?? []),
+      ...old,
+    ]);
     toast.success(`${entriesToImport.length} entrada(s) importada(s)!`);
-  }, [user, worldId]);
+  }, [user, worldId, qc]);
 
-  return { entries, loading, createEntry, updateEntry, deleteEntry, uploadImage, refetch: fetchEntries, fetchEntriesFromWorld, importEntries };
+  return {
+    entries, loading,
+    createEntry, updateEntry, deleteEntry,
+    uploadImage, refetch,
+    fetchEntriesFromWorld, importEntries,
+    fetchEntryContent,
+  };
 }

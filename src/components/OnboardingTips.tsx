@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, ChevronRight, ChevronLeft, Leaf, Map, BookOpen, Trees, Save, BarChart3, Search, Feather, Timer, Image as ImageIcon, Sparkles, type LucideIcon } from 'lucide-react';
-import idrielAvatar from '@/assets/idriel-avatar.png';
+import idrielAvatar from '@/assets/idriel-avatar.webp';
 
 interface Tip {
   Icon: LucideIcon;

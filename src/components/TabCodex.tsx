@@ -40,7 +40,7 @@ interface Props {
 export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   const { user } = useAuth();
   const planLimits = usePlanLimits();
-  const { entries, loading, createEntry, updateEntry, deleteEntry, uploadImage, fetchEntriesFromWorld, importEntries } = useCodexEntries(worldId || undefined);
+  const { entries, loading, createEntry, updateEntry, deleteEntry, uploadImage, fetchEntriesFromWorld, importEntries, fetchEntryContent } = useCodexEntries(worldId || undefined);
   
   const [filterFruits, setFilterFruits] = useState<number[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -66,6 +66,18 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const expandedEntry = entries.find(e => e.id === expandedId) || null;
+
+  // Lazy-load do `content` quando uma ficha é expandida.
+  // A listagem do Codex agora vem enxuta (sem `content`) para reduzir o
+  // payload em milhares de KB; aqui pedimos o texto completo sob demanda.
+  useEffect(() => {
+    if (!expandedId) return;
+    const entry = entries.find(e => e.id === expandedId);
+    if (!entry) return;
+    if (entry.content && entry.content.length > 0) return; // já carregado
+    fetchEntryContent(expandedId).catch(() => { /* já loga */ });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expandedId]);
 
   const setPersistedExpandedId = useCallback((id: string | null) => {
     setExpandedId(id);

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import idrielAvatar from '@/assets/idriel-avatar.png';
+import idrielAvatar from '@/assets/idriel-avatar.webp';
 import { FRUITS, getOrderedFruits, METHOD_DESCRIPTIONS, MethodType, GalleryImage } from '@/lib/data';
 import { getFruitProgress, callAIText, exportWorldMarkdown, summarizeIdrielResponse, friendlyAIError } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
