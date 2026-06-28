@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Sparkles, Hand, ArrowRight, Compass, ClipboardList, Book, BookOpen, Apple, Star, Trees, Palette, Image as ImageIcon, Leaf, Feather, X, type LucideIcon } from 'lucide-react';
-import idrielAvatar from '@/assets/idriel-avatar.png';
+import idrielAvatar from '@/assets/idriel-avatar.webp';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { TabType } from '@/lib/data';
 

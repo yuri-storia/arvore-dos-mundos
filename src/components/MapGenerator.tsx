@@ -4,7 +4,7 @@ import { callAIText, callAIImage, friendlyAIError } from '@/lib/helpers';
 import { FRUITS, GalleryImage, GALLERY_CATEGORIES } from '@/lib/data';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
-import idrielAvatar from '@/assets/idriel-avatar.png';
+import idrielAvatar from '@/assets/idriel-avatar.webp';
 
 const MAP_STYLES = [
   { id: 'political', label: 'Político', icon: Globe, desc: 'Fronteiras, reinos e territórios com cores distintas', prompt: 'political map style, colored territories, labeled borders, kingdoms and regions' },

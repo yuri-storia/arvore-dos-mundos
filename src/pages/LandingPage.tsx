@@ -6,7 +6,7 @@ import {
   Feather, Wand2, ShieldCheck, ArrowRight, LogIn, Check,
 } from 'lucide-react';
 import heroPoster from '@/assets/arvore-mundos-hero.png.asset.json';
-import idrielPoster from '@/assets/idriel-avatar.png';
+import idrielPoster from '@/assets/idriel-avatar.webp';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },

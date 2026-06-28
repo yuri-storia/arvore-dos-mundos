@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Trees, Leaf, Feather, Sparkles, Compass, Image as ImageIcon } from 'lucide-react';
-import idrielAvatar from '@/assets/idriel-avatar.png';
+import idrielAvatar from '@/assets/idriel-avatar.webp';
 
 const STEPS = [
   { Icon: Trees, title: 'Crie seu mundo', desc: 'Faça login, nomeie seu mundo no campo acima e clique em "Criar Mundo". Tudo salva na nuvem automaticamente.' },
