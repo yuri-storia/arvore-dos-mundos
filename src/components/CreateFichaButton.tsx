@@ -203,13 +203,14 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
             className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50"
           />
           <DialogFooter className="gap-2">
-            <Button variant="ghost" onClick={() => setShowTitleDialog(false)} className="text-text-dim">
+            <Button variant="ghost" onClick={() => setShowTitleDialog(false)} disabled={saving} className="text-text-dim">
               Cancelar
             </Button>
-            <Button onClick={handleConfirmCreate} className="bg-blue-main hover:bg-blue-bright text-foreground">
-              Criar
+            <Button onClick={handleConfirmCreate} disabled={saving} className="bg-blue-main hover:bg-blue-bright text-foreground">
+              {saving ? (<><Loader2 className="inline-block w-3.5 h-3.5 mr-1.5 animate-spin align-[-0.15em]" />Criando…</>) : 'Criar'}
             </Button>
           </DialogFooter>
+
         </DialogContent>
       </Dialog>
 
