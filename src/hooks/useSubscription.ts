@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -122,75 +122,78 @@ export interface SubscriptionInfo {
 const CREDIT_LIMIT = 100;
 const IMAGE_CREDIT_COST = 5;
 
+const EMPTY_INFO: SubscriptionInfo = {
+  loading: true,
+  subscribed: false,
+  plan: null,
+  plan_code: null,
+  hasIdriel: false,
+  hasTemplate: false,
+  subscriptionEnd: null,
+  active: false,
+  creditsUsed: 0,
+  creditLimit: CREDIT_LIMIT,
+  bonusDrops: 0,
+};
+
+const NO_USER_INFO: SubscriptionInfo = { ...EMPTY_INFO, loading: false };
+
+// React Query compartilha o resultado entre TODOS os componentes que
+// chamam useSubscription (DropsCounterBadge, SubscriptionBanner,
+// usePlanLimits, abas etc.). Antes, cada montagem disparava uma
+// invocação separada da função check-subscription + um SELECT em
+// ai_usage — chegando a 195k chamadas/24h em logs.
 export function useSubscription(): SubscriptionInfo {
   const { user } = useAuth();
-  const [info, setInfo] = useState<SubscriptionInfo>({
-    loading: true,
-    subscribed: false,
-    plan: null,
-    plan_code: null,
-    hasIdriel: false,
-    hasTemplate: false,
-    subscriptionEnd: null,
-    active: false,
-    creditsUsed: 0,
-    creditLimit: CREDIT_LIMIT,
-    bonusDrops: 0,
+
+  const { data } = useQuery<SubscriptionInfo>({
+    queryKey: ['subscription', user?.id ?? null],
+    enabled: !!user,
+    staleTime: 60_000,         // 1 min — alinhado ao antigo polling
+    gcTime: 5 * 60_000,
+    refetchInterval: 60_000,   // mantém o refresh, mas agora compartilhado
+    refetchOnWindowFocus: false,
+    queryFn: async (): Promise<SubscriptionInfo> => {
+      if (!user) return NO_USER_INFO;
+      try {
+        const { data, error } = await supabase.functions.invoke('check-subscription');
+        if (error || !data) return { ...EMPTY_INFO, loading: false };
+
+        let creditsUsed = 0;
+        if (data.has_idriel) {
+          const month = new Date().toISOString().slice(0, 7);
+          const { data: usage } = await supabase
+            .from('ai_usage')
+            .select('text_count, image_count')
+            .eq('user_id', user.id)
+            .eq('month', month)
+            .maybeSingle();
+          const textCount = usage?.text_count || 0;
+          const imageCount = usage?.image_count || 0;
+          creditsUsed = textCount + (imageCount * IMAGE_CREDIT_COST);
+        }
+
+        return {
+          loading: false,
+          subscribed: !!data.subscribed,
+          plan: data.plan,
+          plan_code: data.plan_code || null,
+          hasIdriel: !!data.has_idriel,
+          hasTemplate: !!(data.has_template || data.has_idriel),
+          subscriptionEnd: data.subscription_end,
+          active: !!data.has_idriel,
+          creditsUsed,
+          creditLimit: CREDIT_LIMIT,
+          bonusDrops: data.bonus_drops || 0,
+        };
+      } catch {
+        return { ...EMPTY_INFO, loading: false };
+      }
+    },
   });
 
-  const checkSubscription = useCallback(async () => {
-    if (!user) {
-      setInfo(prev => ({ ...prev, loading: false, subscribed: false, plan: null, hasIdriel: false, hasTemplate: false, active: false, bonusDrops: 0 }));
-      return;
-    }
-
-    try {
-      const { data, error } = await supabase.functions.invoke('check-subscription');
-      if (error || !data) {
-        setInfo(prev => ({ ...prev, loading: false }));
-        return;
-      }
-
-      let creditsUsed = 0;
-      if (data.has_idriel) {
-        const month = new Date().toISOString().slice(0, 7);
-        const { data: usage } = await supabase
-          .from('ai_usage')
-          .select('text_count, image_count')
-          .eq('user_id', user.id)
-          .eq('month', month)
-          .maybeSingle();
-
-        const textCount = usage?.text_count || 0;
-        const imageCount = usage?.image_count || 0;
-        creditsUsed = textCount + (imageCount * IMAGE_CREDIT_COST);
-      }
-
-      setInfo({
-        loading: false,
-        subscribed: !!data.subscribed,
-        plan: data.plan,
-        plan_code: data.plan_code || null,
-        hasIdriel: !!data.has_idriel,
-        hasTemplate: !!(data.has_template || data.has_idriel),
-        subscriptionEnd: data.subscription_end,
-        active: !!data.has_idriel,
-        creditsUsed,
-        creditLimit: CREDIT_LIMIT,
-        bonusDrops: data.bonus_drops || 0,
-      });
-    } catch {
-      setInfo(prev => ({ ...prev, loading: false }));
-    }
-  }, [user]);
-
-  useEffect(() => {
-    checkSubscription();
-    const interval = setInterval(checkSubscription, 60_000);
-    return () => clearInterval(interval);
-  }, [checkSubscription]);
-
-  return info;
+  if (!user) return NO_USER_INFO;
+  return data ?? EMPTY_INFO;
 }
 
 // Asaas Checkout — redireciona na mesma aba para o checkout hospedado do Asaas.
