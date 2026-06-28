@@ -106,6 +106,7 @@ const TestimonialPlaceholder: React.FC<{ kind: 'ebook' | 'beta'; count: number }
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const [billing, setBilling] = useState<'mensal' | 'anual'>('anual');
   const [rechargesOpen, setRechargesOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
