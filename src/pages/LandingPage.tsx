@@ -60,7 +60,11 @@ const LandingPage: React.FC = () => {
       {/* Hero */}
       <section className="relative isolate overflow-hidden">
         <img
-          src={heroPoster.url}
+          src={hero960.url}
+          srcSet={heroSrcSet}
+          sizes={heroSizes}
+          width={1600}
+          height={900}
           alt=""
           aria-hidden="true"
           fetchPriority="high"
