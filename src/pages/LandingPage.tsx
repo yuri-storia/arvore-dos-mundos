@@ -16,6 +16,8 @@ import hero640 from '@/assets/arvore-mundos-hero-640.webp.asset.json';
 import hero960 from '@/assets/arvore-mundos-hero-960.webp.asset.json';
 import hero1280 from '@/assets/arvore-mundos-hero-1280.webp.asset.json';
 import hero1600 from '@/assets/arvore-mundos-hero-1600.webp.asset.json';
+import heroVideo from '@/assets/arvore-hero-bg-720.mp4.asset.json';
+import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
 
 const heroSrcSet = `${hero640.url} 640w, ${hero960.url} 960w, ${hero1280.url} 1280w, ${hero1600.url} 1600w`;
@@ -158,73 +160,115 @@ const LandingPage: React.FC = () => {
       </header>
 
       {/* ============================== 1. HERO ============================= */}
-      <section className="relative isolate overflow-hidden">
+      <section className="relative isolate overflow-hidden min-h-[92vh] flex items-center">
+        {/* Vídeo de fundo — Árvore animada */}
+        <video
+          className="absolute inset-0 -z-20 w-full h-full object-cover"
+          src={heroVideo.url}
+          poster={hero1280.url}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+        />
+        {/* Fallback image (caso o vídeo não carregue) */}
         <img
-          src={hero960.url}
+          src={hero1280.url}
           srcSet={heroSrcSet}
           sizes="100vw"
           width={1600}
           height={900}
           alt=""
           aria-hidden="true"
-          fetchPriority="high"
           decoding="async"
-          className="absolute inset-0 -z-10 w-full h-full object-cover object-center opacity-[0.30]"
+          className="absolute inset-0 -z-30 w-full h-full object-cover object-center"
         />
-        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-[#02070d]/50 via-[#02070d]/80 to-[#02070d]" />
+        {/* Vinheta radial dourada premium */}
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(ellipse at center, hsl(214 80% 3% / 0.35) 0%, hsl(214 80% 3% / 0.78) 65%, #02070d 100%)',
+          }}
+        />
+        {/* Glow dourado sutil ao centro */}
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 pointer-events-none opacity-70"
+          style={{
+            background:
+              'radial-gradient(ellipse 60% 50% at 50% 45%, hsl(38 60% 45% / 0.22) 0%, transparent 70%)',
+          }}
+        />
+        {/* Fade inferior p/ próxima seção */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-48 -z-10 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(to bottom, transparent 0%, rgba(2,7,13,0.6) 50%, #02070d 100%)',
+          }}
+        />
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-20 sm:pt-28 lg:pt-32 pb-12 sm:pb-16">
-          <motion.div initial="hidden" animate="show" variants={fadeUp} className="max-w-3xl">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold/30 text-[10px] font-montserrat font-bold uppercase tracking-[0.2em] text-gold-light mb-6">
-              <Sparkles className="w-3 h-3" strokeWidth={1.75} /> Metodologia com mais de 1.500 exemplares vendidos
+        <div className="relative w-full max-w-5xl mx-auto px-4 sm:px-6 pt-24 sm:pt-28 lg:pt-32 pb-20 sm:pb-28 text-center">
+          <motion.div initial="hidden" animate="show" variants={fadeUp}>
+            <span
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold-warm/40 bg-gold-deep/15 backdrop-blur-sm text-[10px] font-montserrat font-bold uppercase tracking-[0.24em] text-gold-champagne mb-7"
+            >
+              <Sparkles className="w-3 h-3" strokeWidth={1.75} /> Mais de 1.500 exemplares vendidos
             </span>
-            <h1 className="font-cinzel font-bold text-4xl sm:text-5xl lg:text-6xl leading-[1.05] mb-5">
-              Crie Mundos Fantásticos com a <span className="text-gold-champagne">Plataforma Definitiva</span> de Worldbuilding.
+
+            <h1
+              className="font-cinzel font-bold text-[clamp(2.2rem,5.6vw,4.4rem)] leading-[1.05] mb-6 mx-auto max-w-4xl drop-shadow-[0_2px_30px_rgba(0,0,0,0.75)]"
+            >
+              Crie Mundos Fantásticos com a{' '}
+              <span className="text-gradient-gold">Plataforma Definitiva</span>{' '}
+              de Worldbuilding.
             </h1>
-            <p className="font-merriweather text-base sm:text-lg text-text-secondary leading-relaxed mb-8 max-w-2xl">
+
+            <p className="font-merriweather text-base sm:text-lg lg:text-xl text-text-secondary leading-relaxed mb-9 max-w-2xl mx-auto drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
               Construa universos profundos e coerentes com os <strong className="text-foreground">11 Frutos</strong>,
-              organize personagens, lugares, culturas e sistemas em um <strong className="text-foreground">Codex vivo</strong> e
+              organize tudo em um <strong className="text-foreground">Codex vivo</strong> e
               escreva suas histórias com a assistência de <strong className="text-foreground">Idriel</strong> —
               sem entregar sua voz, suas escolhas ou sua autoria à inteligência artificial.
             </p>
-            <div className="flex flex-wrap gap-3">
+
+            <div className="flex flex-wrap gap-3 justify-center">
               <button
                 onClick={() => navigate('/login')}
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-gold hover:bg-gold-light text-background font-montserrat font-bold uppercase text-xs tracking-wider transition-colors shadow-[0_0_24px_rgba(218,165,32,0.35)]"
+                className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-montserrat font-bold uppercase text-[11px] tracking-[0.22em] text-[#1a0f00] transition-all hover:-translate-y-0.5"
+                style={{
+                  background:
+                    'linear-gradient(135deg, hsl(42 55% 90%) 0%, hsl(40 50% 78%) 30%, hsl(34 42% 58%) 65%, hsl(30 30% 42%) 100%)',
+                  boxShadow:
+                    '0 10px 32px hsl(30 30% 20% / 0.55), 0 0 48px hsl(38 60% 45% / 0.35), inset 0 1px 0 hsl(42 60% 96% / 0.7), inset 0 -2px 0 hsl(28 32% 22% / 0.4)',
+                  border: '1px solid hsl(34 42% 50% / 0.7)',
+                }}
               >
-                <Crown className="w-4 h-4" strokeWidth={1.75} /> Começar meu teste gratuito
-                <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
+                <Crown className="w-4 h-4" strokeWidth={2} />
+                Começar meu teste gratuito
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" strokeWidth={2.25} />
               </button>
               <a
                 href="#tour"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-md border border-gold/40 text-gold-light hover:bg-gold/[0.08] font-montserrat font-bold uppercase text-xs tracking-wider transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl border border-gold-warm/50 bg-[rgba(4,12,24,0.5)] backdrop-blur-sm text-gold-champagne hover:bg-gold/[0.1] font-montserrat font-bold uppercase text-[11px] tracking-[0.22em] transition-colors"
               >
-                <Play className="w-3.5 h-3.5" strokeWidth={2} /> Ver a plataforma por dentro
+                <Play className="w-3.5 h-3.5" strokeWidth={2.25} /> Ver a plataforma por dentro
               </a>
             </div>
 
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-6 text-[11px] font-montserrat text-text-dim uppercase tracking-wider">
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-7 text-[11px] font-montserrat text-text-dim uppercase tracking-wider">
               <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={2} /> 14 dias de experiência completa</span>
               <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={2} /> Sem cartão</span>
               <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={2} /> Seus conteúdos continuam sendo seus</span>
             </div>
           </motion.div>
-
-          <div className="mt-10 sm:mt-14">
-            <VideoPlaceholder
-              title="Vídeo Hero — abertura do universo"
-              duration="12 a 18s · loop · sem áudio"
-              bullets={[
-                'Abertura de um mundo visualmente bonito',
-                'Um dos 11 Frutos sendo acessado',
-                'Consulta breve à Idriel',
-                'Ficha do Codex, capítulo sendo escrito, Galeria/Mapa',
-                'Visão geral da interface · movimentos suaves',
-              ]}
-            />
-          </div>
         </div>
       </section>
+
 
       {/* ============================== 2. PROBLEMA ========================= */}
       <section className="border-y border-gold/10 bg-[rgba(4,12,24,0.4)]">
@@ -439,9 +483,30 @@ const LandingPage: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-10 lg:gap-16 items-center mb-12">
             <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="relative mx-auto lg:mx-0">
-              <div className="absolute -inset-6 bg-gold/10 blur-3xl rounded-full -z-10" />
-              <div className="w-56 h-56 sm:w-72 sm:h-72 rounded-full overflow-hidden border-2 border-gold/40 shadow-[0_0_60px_rgba(218,165,32,0.35)]">
-                <img src={idrielPoster} alt="Idriel, a co-autora élfica" className="w-full h-full object-cover object-top" loading="lazy" />
+              <div
+                aria-hidden
+                className="absolute -inset-8 rounded-full blur-3xl -z-10"
+                style={{ background: 'radial-gradient(circle, hsl(38 60% 45% / 0.35) 0%, transparent 70%)' }}
+              />
+              <div
+                className="w-60 h-60 sm:w-80 sm:h-80 rounded-full overflow-hidden"
+                style={{
+                  border: '2px solid hsl(34 42% 58% / 0.6)',
+                  boxShadow:
+                    '0 0 80px hsl(38 60% 45% / 0.45), 0 0 0 1px hsl(var(--gold-bronze) / 0.4), inset 0 1px 0 hsl(var(--gold-cream) / 0.2)',
+                }}
+              >
+                <video
+                  className="w-full h-full object-cover object-top"
+                  src={idrielVideo.url}
+                  poster={idrielPoster}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="none"
+                  aria-label="Idriel, a anfitriã élfica da Árvore dos Mundos"
+                />
               </div>
             </motion.div>
             <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} custom={1}>
