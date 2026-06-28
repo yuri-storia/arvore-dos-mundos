@@ -138,7 +138,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="none"
             aria-hidden="true"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent from-20% via-[#02070d]/70 via-60% to-[#02070d]" />

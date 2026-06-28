@@ -94,7 +94,7 @@ const PricingPage: React.FC = () => {
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="none"
           aria-hidden="true"
         />
         <img
@@ -338,7 +338,7 @@ const PricingPage: React.FC = () => {
                   muted
                   loop
                   playsInline
-                  preload="metadata"
+                  preload="none"
                   aria-label="Idriel, a anfitriã élfica da Árvore dos Mundos"
                 />
                 <div

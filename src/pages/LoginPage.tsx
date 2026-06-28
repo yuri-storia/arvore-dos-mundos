@@ -333,7 +333,7 @@ const LoginPage: React.FC = () => {
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="none"
           aria-hidden="true"
         />
         <div
