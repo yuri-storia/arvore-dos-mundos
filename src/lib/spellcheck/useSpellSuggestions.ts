@@ -101,10 +101,11 @@ export function addWordToWorker(word: string) {
 export function useSpellSuggestions() {
   const cacheRef = useRef<Map<string, SpellLookupResult>>(new Map());
 
-  // Pré-aquece o worker no primeiro mount.
-  useEffect(() => {
-    getWorker();
-  }, []);
+  // Sprint 5: carregamento sob demanda. O worker só é instanciado quando
+  // `lookup` é chamado pela primeira vez (clique/hover sobre uma palavra),
+  // evitando baixar Hunspell WASM + dicionário VERO no boot da aba Escrever.
+
+
 
   const lookup = useCallback(
     async (
