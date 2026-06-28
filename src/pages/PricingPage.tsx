@@ -8,8 +8,8 @@ import {
 } from 'lucide-react';
 import { openCheckout, PLANS } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
-import heroVideo from '@/assets/arvore-hero-bg.mp4.asset.json';
-import heroPoster from '@/assets/arvore-mundos-hero.png.asset.json';
+import heroVideo from '@/assets/arvore-hero-bg-720.mp4.asset.json';
+import heroPoster from '@/assets/arvore-mundos-hero.webp.asset.json';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
 
