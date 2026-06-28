@@ -29,7 +29,9 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
   const [customTitle, setCustomTitle] = useState('');
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [createdEntryName, setCreatedEntryName] = useState('');
+  const [saving, setSaving] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     if (!showMenu) return;
