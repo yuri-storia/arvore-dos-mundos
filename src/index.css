@@ -146,6 +146,20 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  text-shadow: 0 0 22px hsl(var(--gold-warm) / 0.35), 0 0 44px hsl(var(--gold-champagne) / 0.22);
+}
+/* Hero highlight — brighter gold, no dark shadow on top of the text. */
+.text-gradient-gold-hero {
+  background: linear-gradient(135deg,
+    hsl(var(--gold-cream)) 0%,
+    hsl(var(--gold-champagne)) 25%,
+    hsl(var(--gold-warm)) 55%,
+    hsl(var(--gold-light)) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  text-shadow: 0 0 26px hsl(var(--gold-warm) / 0.45), 0 0 52px hsl(var(--gold-champagne) / 0.32), 0 0 80px hsl(var(--gold-cream) / 0.18);
 }
 .bg-gradient-gold-premium {
   background: linear-gradient(135deg,
