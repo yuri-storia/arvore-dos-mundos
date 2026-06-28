@@ -16,6 +16,8 @@ import hero640 from '@/assets/arvore-mundos-hero-640.webp.asset.json';
 import hero960 from '@/assets/arvore-mundos-hero-960.webp.asset.json';
 import hero1280 from '@/assets/arvore-mundos-hero-1280.webp.asset.json';
 import hero1600 from '@/assets/arvore-mundos-hero-1600.webp.asset.json';
+import heroVideo from '@/assets/arvore-hero-bg-720.mp4.asset.json';
+import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
 
 const heroSrcSet = `${hero640.url} 640w, ${hero960.url} 960w, ${hero1280.url} 1280w, ${hero1600.url} 1600w`;
