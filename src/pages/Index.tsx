@@ -2,8 +2,6 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Trees, Sparkles } from 'lucide-react';
 import { AppHeader } from '@/components/AppHeader';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
-import { BetaPromoDialog } from '@/components/BetaPromoDialog';
-import { BetaExpiryToast } from '@/components/BetaExpiryToast';
 import { DropsCounterBadge } from '@/components/DropsCounterBadge';
 import { OnboardingTips } from '@/components/OnboardingTips';
 import { HelpDrawer } from '@/components/HelpDrawer';
@@ -224,8 +222,6 @@ const Index = () => {
         <DropsCounterBadge />
 
         <SubscriptionBanner />
-        <BetaPromoDialog />
-        <BetaExpiryToast />
         <TabNav activeTab={state.activeTab} setActiveTab={setActiveTab} />
         {!tourActive && <OnboardingTips tab={state.activeTab} />}
         <HelpDrawer tab={state.activeTab} />

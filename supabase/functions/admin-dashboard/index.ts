@@ -112,46 +112,6 @@ Deno.serve(async (req) => {
 
         const now = new Date();
 
-        // Beta path: grants N days of Raiz + records beta_redemption (with Idriel discount window).
-        if (planCode === "beta_raiz") {
-          const days = durationDays > 0 ? durationDays : 30;
-          const raizUntil = new Date(now.getTime() + days * 86400_000).toISOString();
-          const idrielDiscountUntil = new Date(now.getTime() + (days + 120) * 86400_000).toISOString();
-          const adminCode = "ADMIN_GRANT";
-
-          await supa.from("beta_codes").upsert(
-            { code: adminCode, label: "Concessão manual (admin)", max_uses: 1_000_000, active: true },
-            { onConflict: "code" }
-          );
-
-          // subscriptions has UNIQUE(user_id), so upsert on user_id instead of insert.
-          const { error: subErr } = await supa.from("subscriptions").upsert({
-            user_id: targetId,
-            plan: "pro",
-            plan_code: "raiz_mensal",
-            status: "active",
-            has_idriel: false,
-            billing_cycle: "BETA_FREE",
-            started_at: now.toISOString(),
-            expires_at: raizUntil,
-            cancelled_at: null,
-            environment: "manual",
-            asaas_subscription_id: `beta_admin_${targetId}_${now.getTime()}`,
-          }, { onConflict: "user_id" });
-          if (subErr) return json({ error: subErr.message }, 500);
-
-          const { error: redErr } = await supa.from("beta_redemptions").upsert({
-            user_id: targetId,
-            code: adminCode,
-            raiz_granted_until: raizUntil,
-            idriel_discount_until: idrielDiscountUntil,
-            idriel_charges_used: 0,
-            redeemed_at: now.toISOString(),
-          }, { onConflict: "user_id" });
-          if (redErr) return json({ error: redErr.message }, 500);
-
-          return json({ ok: true, expires_at: raizUntil });
-        }
 
         const hasIdriel = planCode.startsWith("idriel_");
         const isLifetime = planCode === "raiz_vitalicio";

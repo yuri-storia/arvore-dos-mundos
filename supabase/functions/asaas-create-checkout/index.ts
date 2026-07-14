@@ -33,8 +33,6 @@ const PLANS: Record<string, PlanDef> = {
   upgrade_raiz_m_to_idriel_m: { name: "Upgrade Raiz->Idriel Mensal", amount:  20.00, kind: "upgrade" },
   upgrade_raiz_m_to_idriel_a: { name: "Upgrade Raiz Mensal->Idriel Anual", amount: 329.00, kind: "upgrade" },
   upgrade_raiz_a_to_idriel_a: { name: "Upgrade Raiz Anual->Idriel Anual", amount: 200.00, kind: "upgrade" },
-  // Beta — Idriel avulso a R$19,90, máx 3 cobranças, exige resgate prévio de código beta
-  beta_idriel_avulso: { name: "Idriel Beta - 30 dias", amount: 19.90, kind: "recharge" },
 };
 
 const UPGRADE_REQUIREMENT: Record<string, string[]> = {
@@ -116,37 +114,11 @@ Deno.serve(async (req) => {
           current: currentSub?.plan_code || null,
           required,
         }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
     }
 
-    // Beta Idriel avulso — exige resgate prévio e máx 3 cobranças
-    if (planCode === "beta_idriel_avulso") {
-      if (!userId) {
-        return new Response(JSON.stringify({ error: "Login obrigatório para beta" }), {
-          status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const { data: redemption } = await supa
-        .from("beta_redemptions")
-        .select("idriel_charges_used, idriel_discount_until")
-        .eq("user_id", userId)
-        .maybeSingle();
-      if (!redemption) {
-        return new Response(JSON.stringify({ error: "Você precisa resgatar um código beta primeiro" }), {
-          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (new Date(redemption.idriel_discount_until) < new Date()) {
-        return new Response(JSON.stringify({ error: "Janela promocional do beta expirada" }), {
-          status: 410, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (redemption.idriel_charges_used >= 3) {
-        return new Response(JSON.stringify({ error: "Limite de 3 cobranças beta atingido" }), {
-          status: 410, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-    }
-    }
+
+
 
     const ALLOWED_ORIGINS = new Set(["https://arvoredosmundos.app", "https://www.arvoredosmundos.app"]);
     const reqOrigin = req.headers.get("origin") || "";

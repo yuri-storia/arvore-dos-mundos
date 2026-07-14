@@ -8,8 +8,6 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { IdrielJobsProvider } from "@/contexts/IdrielJobsContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SpellcheckProvider } from "@/lib/spellcheck/SpellcheckProvider";
-import { DemoBanner } from "@/components/DemoBanner";
-import { DemoGuard } from "@/components/DemoGuard";
 
 // Lazy-loaded pages (Sprint 1 / P0 #3: route-level code splitting)
 const Index = lazy(() => import("./pages/Index"));
@@ -20,8 +18,6 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const ObrigadoPage = lazy(() => import("./pages/ObrigadoPage"));
-const DemoPage = lazy(() => import("./pages/DemoPage"));
-const BetaPage = lazy(() => import("./pages/BetaPage"));
 const SegurancaPage = lazy(() => import("./pages/SegurancaPage"));
 
 const queryClient = new QueryClient();
@@ -48,20 +44,17 @@ const App = () => (
         <AuthProvider>
           <IdrielJobsProvider>
             <SpellcheckProvider>
-              <DemoBanner />
               <Suspense fallback={<RouteFallback />}>
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/reset-password" element={<ResetPasswordPage />} />
-                  <Route path="/demo" element={<DemoPage />} />
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/inicio" element={<Navigate to="/" replace />} />
                   <Route path="/app" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-                  <Route path="/admin" element={<ProtectedRoute><DemoGuard><AdminPage /></DemoGuard></ProtectedRoute>} />
-                  <Route path="/settings" element={<ProtectedRoute><DemoGuard><SettingsPage /></DemoGuard></ProtectedRoute>} />
+                  <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+                  <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                   
                   <Route path="/obrigado" element={<ObrigadoPage />} />
-                  <Route path="/beta" element={<BetaPage />} />
                   <Route path="/seguranca" element={<SegurancaPage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
