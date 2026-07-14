@@ -117,9 +117,21 @@ export const UserDetailDrawer: React.FC<Props> = ({ userId, onClose, onDeleted }
                     <span><Activity className="w-3 h-3 inline mr-1" /> Último login {fmtDate(data.user.last_sign_in_at)}</span>
                   </div>
                 </div>
-                <Button size="sm" variant="outline" onClick={exportUser} className="border-gold/40 text-gold hover:bg-gold/10 shrink-0">
-                  <Download className="w-3 h-3 mr-1" /> CSV
-                </Button>
+                <div className="flex flex-col gap-1.5 shrink-0">
+                  <Button size="sm" variant="outline" onClick={exportUser} className="border-gold/40 text-gold hover:bg-gold/10">
+                    <Download className="w-3 h-3 mr-1" /> CSV
+                  </Button>
+                  {!data.user.is_admin && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setDeleteStep(1)}
+                      className="border-red-alert/50 text-red-alert hover:bg-red-alert/10"
+                    >
+                      <Trash2 className="w-3 h-3 mr-1" /> Excluir conta
+                    </Button>
+                  )}
+                </div>
               </div>
               <div className="mt-3 flex items-center gap-2 p-2 rounded border border-gold/30 bg-gold/5">
                 <Coins className="w-4 h-4 text-gold" />
