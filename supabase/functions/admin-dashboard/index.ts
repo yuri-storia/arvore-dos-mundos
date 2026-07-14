@@ -161,6 +161,9 @@ Deno.serve(async (req) => {
         const { data: targetUser, error: getErr } = await supa.auth.admin.getUserById(targetId);
         if (getErr || !targetUser?.user) return json({ error: "user not found" }, 404);
         const targetEmail = targetUser.user.email ?? "";
+        if (targetEmail.toLowerCase() === "yuridesouza.story@gmail.com") {
+          return json({ error: "esta conta é protegida e não pode ser excluída" }, 403);
+        }
         if (targetEmail.toLowerCase() !== confirmEmail.toLowerCase()) {
           return json({ error: "email confirmation does not match" }, 400);
         }

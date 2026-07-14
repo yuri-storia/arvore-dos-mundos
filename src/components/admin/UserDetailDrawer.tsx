@@ -121,7 +121,7 @@ export const UserDetailDrawer: React.FC<Props> = ({ userId, onClose, onDeleted }
                   <Button size="sm" variant="outline" onClick={exportUser} className="border-gold/40 text-gold hover:bg-gold/10">
                     <Download className="w-3 h-3 mr-1" /> CSV
                   </Button>
-                  {!data.user.is_admin && (
+                  {!data.user.is_admin && data.user.email?.toLowerCase() !== 'yuridesouza.story@gmail.com' && (
                     <Button
                       size="sm"
                       variant="outline"
