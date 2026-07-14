@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Crown, User, Calendar, Coins, Sparkles, CreditCard, Bug, Activity, Download } from 'lucide-react';
+import { Loader2, Crown, User, Calendar, Coins, Sparkles, CreditCard, Bug, Activity, Download, Globe2, BookOpen, ScrollText, Layers, Feather, Wand2, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -96,6 +96,40 @@ export const UserDetailDrawer: React.FC<Props> = ({ userId, onClose }) => {
                 <span className="text-[10px] text-text-dim font-montserrat uppercase">gotas bônus</span>
               </div>
             </div>
+
+            {/* Content stats */}
+            {data.content_stats && (
+              <Section icon={<Layers className="w-3.5 h-3.5" />} title="Resumo de uso e conteúdo">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <Stat icon={<Globe2 className="w-3.5 h-3.5" />} label="Mundos" value={data.content_stats.worlds} />
+                  <Stat icon={<BookOpen className="w-3.5 h-3.5" />} label="Códex (fichas/artigos)" value={data.content_stats.codex_entries} />
+                  <Stat icon={<ScrollText className="w-3.5 h-3.5" />} label="Manuscritos" value={data.content_stats.manuscripts} />
+                  <Stat icon={<FileText className="w-3.5 h-3.5" />} label="Capítulos" value={data.content_stats.chapters} />
+                  <Stat icon={<Feather className="w-3.5 h-3.5" />} label="Palavras escritas" value={(data.content_stats.total_words ?? 0).toLocaleString('pt-BR')} />
+                  <Stat icon={<Layers className="w-3.5 h-3.5" />} label="Arcos (storylines)" value={data.content_stats.storylines} />
+                  <Stat icon={<Layers className="w-3.5 h-3.5" />} label="Cards do Mural" value={data.content_stats.storyline_cards} />
+                  <Stat icon={<Feather className="w-3.5 h-3.5" />} label="Escrita Livre" value={data.content_stats.free_writings} />
+                  <Stat icon={<Wand2 className="w-3.5 h-3.5" />} label="Visões de Idriel" value={data.content_stats.idriel_visions} />
+                  <Stat icon={<Sparkles className="w-3.5 h-3.5" />} label="Análises de Mundo" value={data.content_stats.world_analyses} />
+                  <Stat icon={<FileText className="w-3.5 h-3.5" />} label="Importações Idriel" value={data.content_stats.idriel_imports} />
+                  <Stat icon={<Activity className="w-3.5 h-3.5" />} label="Cenas" value={data.content_stats.scenes} />
+                </div>
+              </Section>
+            )}
+
+            {/* Worlds list */}
+            {data.worlds && data.worlds.length > 0 && (
+              <Section icon={<Globe2 className="w-3.5 h-3.5" />} title={`Mundos (${data.worlds.length}${data.content_stats?.worlds > data.worlds.length ? ` de ${data.content_stats.worlds}` : ''})`}>
+                <div className="space-y-1.5 max-h-[220px] overflow-y-auto">
+                  {data.worlds.map((w: any) => (
+                    <div key={w.id} className="flex items-center justify-between gap-2 p-2 rounded border border-blue-bright/15 text-xs">
+                      <span className="text-foreground font-cinzel truncate">{w.name || 'Sem nome'}</span>
+                      <span className="text-[10px] text-text-dim shrink-0">Atualizado {fmtDate(w.updated_at)}</span>
+                    </div>
+                  ))}
+                </div>
+              </Section>
+            )}
 
             {/* Subscriptions */}
             <Section icon={<Sparkles className="w-3.5 h-3.5" />} title={`Histórico de assinaturas (${data.subscriptions.length})`}>
@@ -198,3 +232,12 @@ const Section: React.FC<{ icon: React.ReactNode; title: string; children: React.
 );
 
 const Empty = () => <p className="text-text-dim text-xs italic font-merriweather">Nenhum registro.</p>;
+
+const Stat: React.FC<{ icon: React.ReactNode; label: string; value: React.ReactNode }> = ({ icon, label, value }) => (
+  <div className="p-2 rounded border border-blue-bright/15 bg-blue-bright/5">
+    <div className="flex items-center gap-1.5 text-[10px] text-text-dim font-montserrat uppercase tracking-wider">
+      {icon} {label}
+    </div>
+    <div className="font-cinzel text-gold text-lg mt-0.5">{value ?? 0}</div>
+  </div>
+);

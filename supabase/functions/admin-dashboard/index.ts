@@ -178,9 +178,19 @@ Deno.serve(async (req) => {
 
         const { data: authUser } = await supa.auth.admin.getUserById(targetId);
 
+        const countHead = (table: string) =>
+          supa.from(table).select("id", { count: "exact", head: true }).eq("user_id", targetId);
+
         const [
           { data: subs }, { data: bal }, { data: payments }, { data: usages },
           { data: bugs }, { data: profile }, { data: adminRow2 },
+          { data: worlds },
+          { count: worldsCount }, { count: codexCount },
+          { count: manuscriptsCount }, { count: chaptersCount },
+          { count: scenesCount }, { count: storylinesCount },
+          { count: storylineCardsCount }, { count: freeWritingsCount },
+          { count: idrielVisionsCount }, { count: idrielImportsCount },
+          { count: worldAnalysesCount },
         ] = await Promise.all([
           supa.from("subscriptions").select("*").eq("user_id", targetId).order("started_at", { ascending: false }),
           supa.from("user_credit_balance").select("*").eq("user_id", targetId).maybeSingle(),
@@ -189,7 +199,25 @@ Deno.serve(async (req) => {
           supa.from("bug_reports").select("*").eq("user_id", targetId).order("created_at", { ascending: false }).limit(50),
           supa.from("profiles").select("*").eq("user_id", targetId).maybeSingle(),
           supa.from("admin_users").select("user_id").eq("user_id", targetId).maybeSingle(),
+          supa.from("worlds").select("id,name,created_at,updated_at").eq("user_id", targetId).order("updated_at", { ascending: false }).limit(20),
+          countHead("worlds"),
+          countHead("codex_entries"),
+          countHead("manuscripts"),
+          countHead("chapters"),
+          countHead("scenes"),
+          countHead("storylines"),
+          countHead("storyline_cards"),
+          countHead("free_writings"),
+          countHead("idriel_visions"),
+          countHead("idriel_imports"),
+          countHead("world_analyses"),
         ]);
+
+        const { data: chapterWords } = await supa
+          .from("chapters")
+          .select("word_count")
+          .eq("user_id", targetId);
+        const totalWords = (chapterWords ?? []).reduce((acc: number, c: any) => acc + Number(c?.word_count ?? 0), 0);
 
         return json({
           user: {
@@ -206,6 +234,21 @@ Deno.serve(async (req) => {
           payments: payments ?? [],
           ai_usage: usages ?? [],
           bug_reports: bugs ?? [],
+          worlds: worlds ?? [],
+          content_stats: {
+            worlds: worldsCount ?? 0,
+            codex_entries: codexCount ?? 0,
+            manuscripts: manuscriptsCount ?? 0,
+            chapters: chaptersCount ?? 0,
+            scenes: scenesCount ?? 0,
+            storylines: storylinesCount ?? 0,
+            storyline_cards: storylineCardsCount ?? 0,
+            free_writings: freeWritingsCount ?? 0,
+            idriel_visions: idrielVisionsCount ?? 0,
+            idriel_imports: idrielImportsCount ?? 0,
+            world_analyses: worldAnalysesCount ?? 0,
+            total_words: totalWords,
+          },
         });
       }
 
