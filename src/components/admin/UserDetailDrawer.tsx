@@ -261,6 +261,74 @@ export const UserDetailDrawer: React.FC<Props> = ({ userId, onClose, onDeleted }
           </div>
         )}
       </SheetContent>
+
+      {/* Two-step delete confirmation */}
+      <Dialog
+        open={deleteStep > 0}
+        onOpenChange={(o) => { if (!o && !deleting) resetDelete(); }}
+      >
+        <DialogContent className="bg-[#0a0f18] border-red-alert/40 shadow-[0_0_60px_rgba(220,38,38,0.2)]">
+          <DialogHeader>
+            <DialogTitle className="font-cinzel text-red-alert flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              {deleteStep === 1 ? 'Excluir esta conta?' : 'Confirmação final'}
+            </DialogTitle>
+            <DialogDescription className="font-montserrat text-xs text-text-secondary">
+              {deleteStep === 1 ? (
+                <>
+                  Esta ação <strong className="text-red-alert">cancela qualquer plano ativo</strong> e
+                  <strong className="text-red-alert"> apaga permanentemente</strong> a conta{' '}
+                  <span className="font-mono text-foreground">{data?.user?.email}</span> e todos os seus
+                  dados (mundos, códex, manuscritos, pagamentos). Não pode ser desfeita.
+                </>
+              ) : (
+                <>
+                  Para confirmar, digite exatamente o e-mail:{' '}
+                  <span className="font-mono text-foreground">{data?.user?.email}</span>
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          {deleteStep === 2 && (
+            <Input
+              autoFocus
+              value={typedEmail}
+              onChange={(e) => setTypedEmail(e.target.value)}
+              placeholder={data?.user?.email ?? ''}
+              className="bg-black/40 border-red-alert/30 font-mono text-sm"
+              disabled={deleting}
+            />
+          )}
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={resetDelete}
+              disabled={deleting}
+              className="border-blue-bright/20 text-text-secondary"
+            >
+              Cancelar
+            </Button>
+            {deleteStep === 1 ? (
+              <Button
+                onClick={() => setDeleteStep(2)}
+                className="bg-red-alert/20 text-red-alert border border-red-alert/40 hover:bg-red-alert/30"
+              >
+                Continuar
+              </Button>
+            ) : (
+              <Button
+                onClick={confirmDelete}
+                disabled={deleting || typedEmail.trim().toLowerCase() !== (data?.user?.email ?? '').toLowerCase()}
+                className="bg-red-alert/20 text-red-alert border border-red-alert/40 hover:bg-red-alert/30 disabled:opacity-40"
+              >
+                {deleting ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Excluindo…</> : <><Trash2 className="w-3 h-3 mr-1" /> Excluir definitivamente</>}
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Sheet>
   );
 };
