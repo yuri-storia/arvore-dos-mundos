@@ -539,8 +539,16 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
   if (!editor) return null;
 
   return (
-    <div className={`rich-editor ${isMobile && focused ? 'has-mobile-floating' : ''}`} id={editorId} ref={containerRef} lang={lang}>
-      {!compact && <Toolbar editor={editor} />}
+    <div
+      className={`rich-editor ${isMobile && focused ? 'has-mobile-floating' : ''} ${stickyToolbar ? 'is-sticky-toolbar' : 'is-flowing-toolbar'}`}
+      id={editorId}
+      ref={containerRef}
+      lang={lang}
+    >
+      <div className="rich-scroll">
+        {!compact && <Toolbar editor={editor} />}
+        <EditorContent editor={editor} />
+      </div>
       <BubbleMenu
         editor={editor}
         pluginKey="rich-text-bubble"
@@ -561,7 +569,6 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
       >
         <ImageControls editor={editor} />
       </BubbleMenu>
-      <EditorContent editor={editor} />
       {saveStatus && saveStatus !== 'idle' && <SaveIndicator status={saveStatus} />}
 
       {isMobile && focused && (
