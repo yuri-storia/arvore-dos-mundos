@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Trees, Sparkles, BookOpen, Palette } from 'lucide-react';
+import { Trees, Sparkles, BookOpen, Palette, type LucideIcon } from 'lucide-react';
 
 interface Props {
   worldName?: string;
