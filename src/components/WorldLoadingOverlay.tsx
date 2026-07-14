@@ -8,7 +8,7 @@ interface Props {
 }
 
 // Fases contextuais exibidas durante o carregamento — cada uma ~450ms.
-const PHASES: { icon: React.ComponentType<{ className?: string; strokeWidth?: number }>; label: string }[] = [
+const PHASES: { icon: LucideIcon; label: string }[] = [
   { icon: Trees,     label: 'Despertando a Árvore…' },
   { icon: BookOpen,  label: 'Recuperando o Códex…' },
   { icon: Palette,   label: 'Restaurando a Galeria…' },
