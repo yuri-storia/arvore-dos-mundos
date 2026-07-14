@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { IdrielJobsProvider } from "@/contexts/IdrielJobsContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SpellcheckProvider } from "@/lib/spellcheck/SpellcheckProvider";
+import { DemoBanner } from "@/components/DemoBanner";
 
 // Lazy-loaded pages (Sprint 1 / P0 #3: route-level code splitting)
 const Index = lazy(() => import("./pages/Index"));
@@ -46,6 +47,7 @@ const App = () => (
         <AuthProvider>
           <IdrielJobsProvider>
             <SpellcheckProvider>
+              <DemoBanner />
               <Suspense fallback={<RouteFallback />}>
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
