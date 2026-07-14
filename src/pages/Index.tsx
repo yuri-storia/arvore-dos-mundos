@@ -64,6 +64,7 @@ const Index = () => {
   const [state, setState] = useState<AppState>(() => createNewState(getStoredActiveTab()));
   const [tourActive, setTourActive] = useState(false);
   const [showTourPrompt, setShowTourPrompt] = useState(false);
+  const [worldLoading, setWorldLoading] = useState<{ name: string } | null>(null);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const initialLoadDone = useRef(false);
 
