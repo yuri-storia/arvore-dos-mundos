@@ -149,6 +149,33 @@ Deno.serve(async (req) => {
         return json({ ok: true });
       }
 
+      case "delete_user": {
+        // Two-step: caller must send confirm_email matching the target user's email (case-insensitive).
+        // Cancels active subscription, then deletes the auth user (public tables cascade via FK).
+        const targetId = body?.user_id as string;
+        const confirmEmail = (body?.confirm_email as string | undefined)?.trim();
+        if (!targetId) return json({ error: "user_id required" }, 400);
+        if (targetId === callerId) return json({ error: "cannot delete self" }, 400);
+        if (!confirmEmail) return json({ error: "confirm_email required" }, 400);
+
+        const { data: targetUser, error: getErr } = await supa.auth.admin.getUserById(targetId);
+        if (getErr || !targetUser?.user) return json({ error: "user not found" }, 404);
+        const targetEmail = targetUser.user.email ?? "";
+        if (targetEmail.toLowerCase() !== confirmEmail.toLowerCase()) {
+          return json({ error: "email confirmation does not match" }, 400);
+        }
+
+        // Cancel any active subscription first (audit-friendly).
+        await supa.from("subscriptions")
+          .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
+          .eq("user_id", targetId)
+          .eq("status", "active");
+
+        const { error: delErr } = await supa.auth.admin.deleteUser(targetId);
+        if (delErr) return json({ error: delErr.message }, 500);
+        return json({ ok: true });
+      }
+
       case "list_bugs": {
         const { data, error } = await supa.from("bug_reports").select("*").order("created_at", { ascending: false }).limit(500);
         if (error) return json({ error: error.message }, 500);
