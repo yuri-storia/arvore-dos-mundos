@@ -18,6 +18,7 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const ObrigadoPage = lazy(() => import("./pages/ObrigadoPage"));
+const DemoPage = lazy(() => import("./pages/DemoPage"));
 const BetaPage = lazy(() => import("./pages/BetaPage"));
 const SegurancaPage = lazy(() => import("./pages/SegurancaPage"));
 
@@ -49,6 +50,7 @@ const App = () => (
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/reset-password" element={<ResetPasswordPage />} />
+                  <Route path="/demo" element={<DemoPage />} />
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/inicio" element={<Navigate to="/" replace />} />
                   <Route path="/app" element={<ProtectedRoute><Index /></ProtectedRoute>} />
