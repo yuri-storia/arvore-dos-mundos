@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Crown, User, Calendar, Coins, Sparkles, CreditCard, Bug, Activity, Download, Globe2, BookOpen, ScrollText, Layers, Feather, Wand2, FileText } from 'lucide-react';
+import { Loader2, Crown, User, Calendar, Coins, Sparkles, CreditCard, Bug, Activity, Download, Globe2, BookOpen, ScrollText, Layers, Feather, Wand2, FileText, Trash2, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { downloadCSV, toCSV } from '@/lib/csv';
 
 interface Props {
