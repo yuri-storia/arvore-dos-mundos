@@ -306,7 +306,7 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
         )}
       </div>
 
-      <UserDetailDrawer userId={detailId} onClose={() => setDetailId(null)} />
+      <UserDetailDrawer userId={detailId} onClose={() => setDetailId(null)} onDeleted={onChanged} />
     </div>
   );
 };
