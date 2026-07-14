@@ -10,6 +10,7 @@ import { InteractiveTour, hasDoneTour, TOUR_STORAGE_KEY } from '@/components/Int
 
 import { WorldNameInput } from '@/components/WorldNameInput';
 import { TabNav } from '@/components/TabNav';
+import { WorldLoadingOverlay } from '@/components/WorldLoadingOverlay';
 // Sprint 1 / P0 #3+#4: lazy-load tabs so o bundle inicial não inclui
 // Tiptap, dicionário PT-BR, gerador de imagem etc. até serem necessários.
 const TabConstruir = React.lazy(() => import('@/components/TabConstruir').then(m => ({ default: m.TabConstruir })));
@@ -63,6 +64,7 @@ const Index = () => {
   const [state, setState] = useState<AppState>(() => createNewState(getStoredActiveTab()));
   const [tourActive, setTourActive] = useState(false);
   const [showTourPrompt, setShowTourPrompt] = useState(false);
+  const [worldLoading, setWorldLoading] = useState<{ name: string } | null>(null);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const initialLoadDone = useRef(false);
 
@@ -90,6 +92,7 @@ const Index = () => {
         const lastId = localStorage.getItem(LAST_WORLD_STORAGE);
         const target = lastId ? worlds.find(w => w.id === lastId) : worlds[0];
         if (!target) return;
+        setWorldLoading({ name: target.name });
         // Otimização: faz fetch sob demanda do payload pesado (db + gallery).
         const full = await loadWorldFull(target.id);
         const data = full || target;
@@ -104,6 +107,9 @@ const Index = () => {
         }));
       } catch {
         // Local storage may be unavailable in restricted browser modes.
+      } finally {
+        // Pequeno delay para permitir o overlay concluir a animação de progresso.
+        setTimeout(() => setWorldLoading(null), 250);
       }
     })();
   }, [worlds, user, loadWorldFull]);
@@ -177,23 +183,30 @@ const Index = () => {
   }, [user, state, createWorld, worlds.length, planLimits]);
 
   const handleLoadWorld = useCallback(async (world: WorldRecord) => {
-    // Se o card da lista veio leve (sem db/gallery), busca o payload completo.
-    const needsFull = !world.db || Object.keys(world.db).length === 0;
-    const full = needsFull ? await loadWorldFull(world.id) : world;
-    const data = full || world;
-    setState(prev => ({
-      ...prev,
-      worldName: data.name,
-      db: data.db,
-      method: data.method,
-      gallery: data.gallery,
-      currentFruit: 0,
-      currentSaveId: data.id,
-      generatedPrompt: '',
-      activeTab: 'construir',
-    }));
-    toast.success(`"${data.name}" carregado!`);
-  }, [loadWorldFull]);
+    // Ignora se já é o mundo ativo.
+    if (world.id === state.currentSaveId) return;
+    setWorldLoading({ name: world.name });
+    try {
+      // Se o card da lista veio leve (sem db/gallery), busca o payload completo.
+      const needsFull = !world.db || Object.keys(world.db).length === 0;
+      const full = needsFull ? await loadWorldFull(world.id) : world;
+      const data = full || world;
+      setState(prev => ({
+        ...prev,
+        worldName: data.name,
+        db: data.db,
+        method: data.method,
+        gallery: data.gallery,
+        currentFruit: 0,
+        currentSaveId: data.id,
+        generatedPrompt: '',
+        activeTab: 'construir',
+      }));
+      toast.success(`"${data.name}" carregado!`);
+    } finally {
+      setTimeout(() => setWorldLoading(null), 250);
+    }
+  }, [loadWorldFull, state.currentSaveId]);
 
   const handleNewWorld = useCallback(() => {
     setState(createNewState());
@@ -267,6 +280,7 @@ const Index = () => {
           </p>
         </footer>
       </div>
+      <WorldLoadingOverlay active={!!worldLoading} worldName={worldLoading?.name} />
     </>
   );
 
