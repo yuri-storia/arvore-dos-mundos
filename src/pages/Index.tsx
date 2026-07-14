@@ -280,6 +280,7 @@ const Index = () => {
           </p>
         </footer>
       </div>
+      <WorldLoadingOverlay active={!!worldLoading} worldName={worldLoading?.name} />
     </>
   );
 
