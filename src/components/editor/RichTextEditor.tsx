@@ -75,6 +75,9 @@ interface Props {
   editorId?: string;
   /** External save state shown as a small indicator in the editor. */
   saveStatus?: 'idle' | 'saving' | 'saved' | 'error';
+  /** When true (default), the top toolbar stays fixed while the text scrolls.
+   *  When false (e.g. focus/zen mode), the toolbar scrolls along with the content. */
+  stickyToolbar?: boolean;
 }
 
 const TEXT_COLORS = ['#FFFFFF', '#FFD27A', '#FFB870', '#FF8FA3', '#FF6B6B', '#7FFFC2', '#7AC8FF', '#B58BFF', '#8C8C8C'];
