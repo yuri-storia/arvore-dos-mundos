@@ -75,6 +75,9 @@ interface Props {
   editorId?: string;
   /** External save state shown as a small indicator in the editor. */
   saveStatus?: 'idle' | 'saving' | 'saved' | 'error';
+  /** When true (default), the top toolbar stays fixed while the text scrolls.
+   *  When false (e.g. focus/zen mode), the toolbar scrolls along with the content. */
+  stickyToolbar?: boolean;
 }
 
 const TEXT_COLORS = ['#FFFFFF', '#FFD27A', '#FFB870', '#FF8FA3', '#FF6B6B', '#7FFFC2', '#7AC8FF', '#B58BFF', '#8C8C8C'];
@@ -362,7 +365,7 @@ const ImageControls: React.FC<{ editor: Editor }> = ({ editor }) => {
 /* ------------------------------- Editor ------------------------------- */
 export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
   value, onChange, entries = [], placeholder, spellCheck = true, lang = 'pt-BR',
-  autoFocus, className, minHeight, compact, editorId, saveStatus,
+  autoFocus, className, minHeight, compact, editorId, saveStatus, stickyToolbar = true,
 }, ref) => {
   const entriesRef = useRef<CodexEntry[]>(entries);
   useEffect(() => { entriesRef.current = entries; }, [entries]);
@@ -536,8 +539,16 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
   if (!editor) return null;
 
   return (
-    <div className={`rich-editor ${isMobile && focused ? 'has-mobile-floating' : ''}`} id={editorId} ref={containerRef} lang={lang}>
-      {!compact && <Toolbar editor={editor} />}
+    <div
+      className={`rich-editor ${isMobile && focused ? 'has-mobile-floating' : ''} ${stickyToolbar ? 'is-sticky-toolbar' : 'is-flowing-toolbar'}`}
+      id={editorId}
+      ref={containerRef}
+      lang={lang}
+    >
+      <div className="rich-scroll">
+        {!compact && <Toolbar editor={editor} />}
+        <EditorContent editor={editor} />
+      </div>
       <BubbleMenu
         editor={editor}
         pluginKey="rich-text-bubble"
@@ -558,7 +569,6 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
       >
         <ImageControls editor={editor} />
       </BubbleMenu>
-      <EditorContent editor={editor} />
       {saveStatus && saveStatus !== 'idle' && <SaveIndicator status={saveStatus} />}
 
       {isMobile && focused && (

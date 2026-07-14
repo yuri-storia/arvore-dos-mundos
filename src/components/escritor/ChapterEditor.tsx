@@ -212,7 +212,9 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
             lang="pt-BR"
             minHeight="100%"
             saveStatus={saveStatus}
+            stickyToolbar={!zenMode}
           />
+
         )}
       </div>
     </>
