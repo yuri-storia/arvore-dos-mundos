@@ -114,7 +114,10 @@ Deno.serve(async (req) => {
           current: currentSub?.plan_code || null,
           required,
         }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
     }
+
+
 
 
     const ALLOWED_ORIGINS = new Set(["https://arvoredosmundos.app", "https://www.arvoredosmundos.app"]);
