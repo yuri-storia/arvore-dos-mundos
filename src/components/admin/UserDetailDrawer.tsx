@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Crown, User, Calendar, Coins, Sparkles, CreditCard, Bug, Activity, Download, Globe2, BookOpen, ScrollText, Layers, Feather, Wand2, FileText } from 'lucide-react';
+import { Loader2, Crown, User, Calendar, Coins, Sparkles, CreditCard, Bug, Activity, Download, Globe2, BookOpen, ScrollText, Layers, Feather, Wand2, FileText, Trash2, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { downloadCSV, toCSV } from '@/lib/csv';
 
 interface Props {
   userId: string | null;
   onClose: () => void;
+  onDeleted?: (userId: string) => void;
 }
 
 const fmtDate = (s: string | null | undefined) =>
@@ -17,9 +20,12 @@ const fmtDate = (s: string | null | undefined) =>
 const fmtMoney = (n: number) =>
   Number(n || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-export const UserDetailDrawer: React.FC<Props> = ({ userId, onClose }) => {
+export const UserDetailDrawer: React.FC<Props> = ({ userId, onClose, onDeleted }) => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>(null);
+  const [deleteStep, setDeleteStep] = useState<0 | 1 | 2>(0); // 0 idle, 1 first confirm, 2 typed-email confirm
+  const [typedEmail, setTypedEmail] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!userId) { setData(null); return; }
@@ -51,6 +57,31 @@ export const UserDetailDrawer: React.FC<Props> = ({ userId, onClose }) => {
       downloadCSV(`${u.email ?? u.id}__${s.name}.csv`, toCSV(s.rows));
     }
     toast.success('CSVs exportados');
+  };
+
+  const resetDelete = () => { setDeleteStep(0); setTypedEmail(''); setDeleting(false); };
+
+  const confirmDelete = async () => {
+    if (!data?.user) return;
+    const targetEmail = data.user.email ?? '';
+    if (typedEmail.trim().toLowerCase() !== targetEmail.toLowerCase()) {
+      toast.error('O e-mail digitado não confere.');
+      return;
+    }
+    setDeleting(true);
+    const { data: res, error } = await supabase.functions.invoke('admin-dashboard', {
+      body: { action: 'delete_user', user_id: data.user.id, confirm_email: typedEmail.trim() },
+    });
+    if (error || res?.error) {
+      toast.error('Erro ao excluir: ' + (error?.message || res?.error));
+      setDeleting(false);
+      return;
+    }
+    toast.success(`Conta ${targetEmail} excluída.`);
+    const deletedId = data.user.id;
+    resetDelete();
+    onDeleted?.(deletedId);
+    onClose();
   };
 
   return (
@@ -86,9 +117,21 @@ export const UserDetailDrawer: React.FC<Props> = ({ userId, onClose }) => {
                     <span><Activity className="w-3 h-3 inline mr-1" /> Último login {fmtDate(data.user.last_sign_in_at)}</span>
                   </div>
                 </div>
-                <Button size="sm" variant="outline" onClick={exportUser} className="border-gold/40 text-gold hover:bg-gold/10 shrink-0">
-                  <Download className="w-3 h-3 mr-1" /> CSV
-                </Button>
+                <div className="flex flex-col gap-1.5 shrink-0">
+                  <Button size="sm" variant="outline" onClick={exportUser} className="border-gold/40 text-gold hover:bg-gold/10">
+                    <Download className="w-3 h-3 mr-1" /> CSV
+                  </Button>
+                  {!data.user.is_admin && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setDeleteStep(1)}
+                      className="border-red-alert/50 text-red-alert hover:bg-red-alert/10"
+                    >
+                      <Trash2 className="w-3 h-3 mr-1" /> Excluir conta
+                    </Button>
+                  )}
+                </div>
               </div>
               <div className="mt-3 flex items-center gap-2 p-2 rounded border border-gold/30 bg-gold/5">
                 <Coins className="w-4 h-4 text-gold" />
@@ -218,6 +261,74 @@ export const UserDetailDrawer: React.FC<Props> = ({ userId, onClose }) => {
           </div>
         )}
       </SheetContent>
+
+      {/* Two-step delete confirmation */}
+      <Dialog
+        open={deleteStep > 0}
+        onOpenChange={(o) => { if (!o && !deleting) resetDelete(); }}
+      >
+        <DialogContent className="bg-[#0a0f18] border-red-alert/40 shadow-[0_0_60px_rgba(220,38,38,0.2)]">
+          <DialogHeader>
+            <DialogTitle className="font-cinzel text-red-alert flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              {deleteStep === 1 ? 'Excluir esta conta?' : 'Confirmação final'}
+            </DialogTitle>
+            <DialogDescription className="font-montserrat text-xs text-text-secondary">
+              {deleteStep === 1 ? (
+                <>
+                  Esta ação <strong className="text-red-alert">cancela qualquer plano ativo</strong> e
+                  <strong className="text-red-alert"> apaga permanentemente</strong> a conta{' '}
+                  <span className="font-mono text-foreground">{data?.user?.email}</span> e todos os seus
+                  dados (mundos, códex, manuscritos, pagamentos). Não pode ser desfeita.
+                </>
+              ) : (
+                <>
+                  Para confirmar, digite exatamente o e-mail:{' '}
+                  <span className="font-mono text-foreground">{data?.user?.email}</span>
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          {deleteStep === 2 && (
+            <Input
+              autoFocus
+              value={typedEmail}
+              onChange={(e) => setTypedEmail(e.target.value)}
+              placeholder={data?.user?.email ?? ''}
+              className="bg-black/40 border-red-alert/30 font-mono text-sm"
+              disabled={deleting}
+            />
+          )}
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={resetDelete}
+              disabled={deleting}
+              className="border-blue-bright/20 text-text-secondary"
+            >
+              Cancelar
+            </Button>
+            {deleteStep === 1 ? (
+              <Button
+                onClick={() => setDeleteStep(2)}
+                className="bg-red-alert/20 text-red-alert border border-red-alert/40 hover:bg-red-alert/30"
+              >
+                Continuar
+              </Button>
+            ) : (
+              <Button
+                onClick={confirmDelete}
+                disabled={deleting || typedEmail.trim().toLowerCase() !== (data?.user?.email ?? '').toLowerCase()}
+                className="bg-red-alert/20 text-red-alert border border-red-alert/40 hover:bg-red-alert/30 disabled:opacity-40"
+              >
+                {deleting ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Excluindo…</> : <><Trash2 className="w-3 h-3 mr-1" /> Excluir definitivamente</>}
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Sheet>
   );
 };
