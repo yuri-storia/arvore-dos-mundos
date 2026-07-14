@@ -92,6 +92,7 @@ const Index = () => {
         const lastId = localStorage.getItem(LAST_WORLD_STORAGE);
         const target = lastId ? worlds.find(w => w.id === lastId) : worlds[0];
         if (!target) return;
+        setWorldLoading({ name: target.name });
         // Otimização: faz fetch sob demanda do payload pesado (db + gallery).
         const full = await loadWorldFull(target.id);
         const data = full || target;
@@ -106,6 +107,9 @@ const Index = () => {
         }));
       } catch {
         // Local storage may be unavailable in restricted browser modes.
+      } finally {
+        // Pequeno delay para permitir o overlay concluir a animação de progresso.
+        setTimeout(() => setWorldLoading(null), 250);
       }
     })();
   }, [worlds, user, loadWorldFull]);
