@@ -365,7 +365,7 @@ const ImageControls: React.FC<{ editor: Editor }> = ({ editor }) => {
 /* ------------------------------- Editor ------------------------------- */
 export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
   value, onChange, entries = [], placeholder, spellCheck = true, lang = 'pt-BR',
-  autoFocus, className, minHeight, compact, editorId, saveStatus,
+  autoFocus, className, minHeight, compact, editorId, saveStatus, stickyToolbar = true,
 }, ref) => {
   const entriesRef = useRef<CodexEntry[]>(entries);
   useEffect(() => { entriesRef.current = entries; }, [entries]);
