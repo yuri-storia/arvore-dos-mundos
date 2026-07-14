@@ -10,6 +10,7 @@ import { InteractiveTour, hasDoneTour, TOUR_STORAGE_KEY } from '@/components/Int
 
 import { WorldNameInput } from '@/components/WorldNameInput';
 import { TabNav } from '@/components/TabNav';
+import { WorldLoadingOverlay } from '@/components/WorldLoadingOverlay';
 // Sprint 1 / P0 #3+#4: lazy-load tabs so o bundle inicial não inclui
 // Tiptap, dicionário PT-BR, gerador de imagem etc. até serem necessários.
 const TabConstruir = React.lazy(() => import('@/components/TabConstruir').then(m => ({ default: m.TabConstruir })));
