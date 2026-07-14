@@ -59,6 +59,31 @@ export const UserDetailDrawer: React.FC<Props> = ({ userId, onClose, onDeleted }
     toast.success('CSVs exportados');
   };
 
+  const resetDelete = () => { setDeleteStep(0); setTypedEmail(''); setDeleting(false); };
+
+  const confirmDelete = async () => {
+    if (!data?.user) return;
+    const targetEmail = data.user.email ?? '';
+    if (typedEmail.trim().toLowerCase() !== targetEmail.toLowerCase()) {
+      toast.error('O e-mail digitado não confere.');
+      return;
+    }
+    setDeleting(true);
+    const { data: res, error } = await supabase.functions.invoke('admin-dashboard', {
+      body: { action: 'delete_user', user_id: data.user.id, confirm_email: typedEmail.trim() },
+    });
+    if (error || res?.error) {
+      toast.error('Erro ao excluir: ' + (error?.message || res?.error));
+      setDeleting(false);
+      return;
+    }
+    toast.success(`Conta ${targetEmail} excluída.`);
+    const deletedId = data.user.id;
+    resetDelete();
+    onDeleted?.(deletedId);
+    onClose();
+  };
+
   return (
     <Sheet open={!!userId} onOpenChange={(o) => !o && onClose()}>
       <SheetContent className="w-full sm:max-w-2xl overflow-y-auto bg-gradient-to-b from-[#0a1426] to-[#02070d] border-l-gold/30">
