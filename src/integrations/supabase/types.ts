@@ -719,6 +719,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          is_demo: boolean
           updated_at: string
           user_id: string
         }
@@ -727,6 +728,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          is_demo?: boolean
           updated_at?: string
           user_id: string
         }
@@ -735,6 +737,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          is_demo?: boolean
           updated_at?: string
           user_id?: string
         }
@@ -1154,7 +1157,9 @@ export type Database = {
         Returns: undefined
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_demo_user: { Args: { _user_id: string }; Returns: boolean }
       is_email_allowed: { Args: { _email: string }; Returns: boolean }
+      reset_demo_data: { Args: never; Returns: undefined }
       user_has_active_paid_access: {
         Args: { _user_id: string }
         Returns: boolean
