@@ -57,8 +57,8 @@ const App = () => (
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/inicio" element={<Navigate to="/" replace />} />
                   <Route path="/app" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-                  <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
-                  <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+                  <Route path="/admin" element={<ProtectedRoute><DemoGuard><AdminPage /></DemoGuard></ProtectedRoute>} />
+                  <Route path="/settings" element={<ProtectedRoute><DemoGuard><SettingsPage /></DemoGuard></ProtectedRoute>} />
                   
                   <Route path="/obrigado" element={<ObrigadoPage />} />
                   <Route path="/beta" element={<BetaPage />} />
