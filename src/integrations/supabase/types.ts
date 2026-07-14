@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_deletion_audit: {
+        Row: {
+          actor_email: string | null
+          actor_user_id: string | null
+          confirm_email: string | null
+          created_at: string
+          id: string
+          outcome: string
+          reason: string | null
+          status_code: number | null
+          target_email: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          actor_email?: string | null
+          actor_user_id?: string | null
+          confirm_email?: string | null
+          created_at?: string
+          id?: string
+          outcome: string
+          reason?: string | null
+          status_code?: number | null
+          target_email?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          actor_email?: string | null
+          actor_user_id?: string | null
+          confirm_email?: string | null
+          created_at?: string
+          id?: string
+          outcome?: string
+          reason?: string | null
+          status_code?: number | null
+          target_email?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       admin_users: {
         Row: {
           created_at: string
