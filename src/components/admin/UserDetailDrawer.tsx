@@ -12,6 +12,7 @@ import { downloadCSV, toCSV } from '@/lib/csv';
 interface Props {
   userId: string | null;
   onClose: () => void;
+  onDeleted?: (userId: string) => void;
 }
 
 const fmtDate = (s: string | null | undefined) =>
