@@ -20,9 +20,12 @@ const fmtDate = (s: string | null | undefined) =>
 const fmtMoney = (n: number) =>
   Number(n || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-export const UserDetailDrawer: React.FC<Props> = ({ userId, onClose }) => {
+export const UserDetailDrawer: React.FC<Props> = ({ userId, onClose, onDeleted }) => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>(null);
+  const [deleteStep, setDeleteStep] = useState<0 | 1 | 2>(0); // 0 idle, 1 first confirm, 2 typed-email confirm
+  const [typedEmail, setTypedEmail] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!userId) { setData(null); return; }
