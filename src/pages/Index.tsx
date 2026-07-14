@@ -183,23 +183,30 @@ const Index = () => {
   }, [user, state, createWorld, worlds.length, planLimits]);
 
   const handleLoadWorld = useCallback(async (world: WorldRecord) => {
-    // Se o card da lista veio leve (sem db/gallery), busca o payload completo.
-    const needsFull = !world.db || Object.keys(world.db).length === 0;
-    const full = needsFull ? await loadWorldFull(world.id) : world;
-    const data = full || world;
-    setState(prev => ({
-      ...prev,
-      worldName: data.name,
-      db: data.db,
-      method: data.method,
-      gallery: data.gallery,
-      currentFruit: 0,
-      currentSaveId: data.id,
-      generatedPrompt: '',
-      activeTab: 'construir',
-    }));
-    toast.success(`"${data.name}" carregado!`);
-  }, [loadWorldFull]);
+    // Ignora se já é o mundo ativo.
+    if (world.id === state.currentSaveId) return;
+    setWorldLoading({ name: world.name });
+    try {
+      // Se o card da lista veio leve (sem db/gallery), busca o payload completo.
+      const needsFull = !world.db || Object.keys(world.db).length === 0;
+      const full = needsFull ? await loadWorldFull(world.id) : world;
+      const data = full || world;
+      setState(prev => ({
+        ...prev,
+        worldName: data.name,
+        db: data.db,
+        method: data.method,
+        gallery: data.gallery,
+        currentFruit: 0,
+        currentSaveId: data.id,
+        generatedPrompt: '',
+        activeTab: 'construir',
+      }));
+      toast.success(`"${data.name}" carregado!`);
+    } finally {
+      setTimeout(() => setWorldLoading(null), 250);
+    }
+  }, [loadWorldFull, state.currentSaveId]);
 
   const handleNewWorld = useCallback(() => {
     setState(createNewState());
