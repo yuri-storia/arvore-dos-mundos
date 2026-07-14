@@ -1,4 +1,4 @@
-// Varre subscriptions Beta/manual/free e dispara avisos de expiração via Resend.
+// Varre subscriptions manual/free e dispara avisos de expiração via Resend.
 // Disparado por pg_cron diariamente. Idempotente — registra envios em expiration_notifications_sent.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -10,7 +10,7 @@ const corsHeaders = {
 type NotifType = "T-7" | "T-1" | "T+0";
 
 function planLabel(planCode: string | null, billingCycle: string | null): string {
-  if (billingCycle === "BETA_FREE") return "Beta da Comunidade";
+  
   if (planCode === "idriel") return "Idriel";
   if (planCode === "template") return "Raiz";
   return "Árvore dos Mundos";
@@ -101,7 +101,7 @@ Deno.serve(async (req) => {
     .from("subscriptions")
     .select("id, user_id, plan_code, billing_cycle, expires_at, status")
     .eq("status", "active")
-    .in("billing_cycle", ["BETA_FREE", "manual", "monthly", "annual"])
+    .in("billing_cycle", ["manual", "monthly", "annual"])
     .gte("expires_at", lowerBound)
     .lte("expires_at", upperBound);
 

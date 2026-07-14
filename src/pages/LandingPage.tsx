@@ -96,7 +96,7 @@ const TestimonialPlaceholder: React.FC<{ kind: 'ebook' | 'beta'; count: number }
     <p className="sm:col-span-2 lg:col-span-3 text-center font-merriweather italic text-xs text-text-dim mt-2">
       {kind === 'ebook'
         ? 'Em curadoria — depoimentos do e-book serão adicionados após seleção (4 a 6).'
-        : 'Em curadoria — depoimentos dos beta testers serão adicionados após seleção (3 a 5).'}
+        : 'Em curadoria — depoimentos serão adicionados após seleção (3 a 5).'}
     </p>
   </div>
 );

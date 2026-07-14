@@ -263,43 +263,6 @@ Deno.serve(async (req) => {
         await supa.rpc("add_bonus_drops", { _user_id: userId, _drops: recharge.drops });
       }
 
-      // Beta Idriel avulso — concede 30 dias de Idriel e incrementa contador
-      if (planCode === "beta_idriel_avulso") {
-        const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-        await supa.from("subscriptions").upsert({
-          user_id: userId,
-          plan: "pro",
-          status: "active",
-          plan_code: "idriel_mensal",
-          has_idriel: true,
-          billing_cycle: "BETA_MONTHLY",
-          asaas_customer_id: payment.customer,
-          asaas_subscription_id: `beta_idriel_${userId}_${Date.now()}`,
-          environment: "production",
-          started_at: new Date().toISOString(),
-          expires_at: expires,
-          cancelled_at: null,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: "user_id" });
-        // Incrementa charges_used e estende a janela promocional para os próximos 35 dias,
-        // permitindo as próximas cobranças mensais a R$ 19,90 dentro do plano de 3 meses.
-        const { data: red } = await supa
-          .from("beta_redemptions")
-          .select("idriel_charges_used, idriel_discount_until")
-          .eq("user_id", userId)
-          .maybeSingle();
-        if (red) {
-          const nextWindow = new Date(Date.now() + 35 * 24 * 60 * 60 * 1000).toISOString();
-          const currentEnd = red.idriel_discount_until ? new Date(red.idriel_discount_until).getTime() : 0;
-          const extended = currentEnd > Date.parse(nextWindow) ? red.idriel_discount_until : nextWindow;
-          await supa.from("beta_redemptions")
-            .update({
-              idriel_charges_used: (red.idriel_charges_used || 0) + 1,
-              idriel_discount_until: extended,
-            })
-            .eq("user_id", userId);
-        }
-      }
 
       // Subscription
       const planMeta = PLAN_MAP[planCode];
