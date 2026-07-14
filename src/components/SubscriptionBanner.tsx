@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSubscription, openCheckout, STRIPE_PLANS, openCustomerPortal } from '@/hooks/useSubscription';
-import { useBetaStatus } from '@/hooks/useBetaStatus';
 import { useAuth } from '@/contexts/AuthContext';
-import { Progress } from '@/components/ui/progress';
-import { Lock, Sparkles, CreditCard, X, Leaf, BookOpenCheck, Droplet, Droplets, ArrowRight, Clock } from 'lucide-react';
+import { Lock, Sparkles, CreditCard, X, Leaf, Droplet, Droplets, ArrowRight, Clock } from 'lucide-react';
 import { RechargePackageDialog } from '@/components/RechargePackageDialog';
 
 const DISMISS_KEY = 'adm_sub_banner_dismissed';
 
 export const SubscriptionBanner: React.FC = () => {
   const sub = useSubscription();
-  const beta = useBetaStatus();
   const { isAdmin } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
   const [rechargeOpen, setRechargeOpen] = useState(false);
@@ -27,14 +24,13 @@ export const SubscriptionBanner: React.FC = () => {
     try { sessionStorage.setItem(DISMISS_KEY, '1'); } catch {}
   };
 
-  // Expiration warning for Beta / manual / free plans expiring soon or already expired.
+  // Expiration warning for manual / paid plans expiring soon or already expired.
   const endIso = sub.subscriptionEnd;
   const daysToEnd = endIso ? Math.ceil((new Date(endIso).getTime() - Date.now()) / 86_400_000) : null;
-  const isBeta = beta.hasBeta && !beta.raizExpired;
   const isExpiringSoon = daysToEnd !== null && daysToEnd <= 7 && daysToEnd >= 0;
   const justExpired = daysToEnd !== null && daysToEnd < 0 && daysToEnd >= -14;
 
-  if (!dismissed && (isBeta || sub.subscribed) && (isExpiringSoon || justExpired)) {
+  if (!dismissed && sub.subscribed && (isExpiringSoon || justExpired)) {
     const expired = justExpired;
     return (
       <div className="mx-auto max-w-[1060px] px-4 mb-4">
@@ -44,9 +40,7 @@ export const SubscriptionBanner: React.FC = () => {
               <Clock className={`w-5 h-5 mt-0.5 ${expired ? 'text-red-alert' : 'text-gold-light'}`} strokeWidth={1.75} />
               <div className="min-w-0">
                 <span className={`font-cinzel font-bold text-sm block ${expired ? 'text-red-alert' : 'text-gold-light'}`}>
-                  {isBeta
-                    ? (expired ? 'Seu Beta da Comunidade expirou' : `Seu Beta termina em ${daysToEnd} ${daysToEnd === 1 ? 'dia' : 'dias'}`)
-                    : (expired ? 'Seu acesso expirou' : `Seu acesso termina em ${daysToEnd} ${daysToEnd === 1 ? 'dia' : 'dias'}`)}
+                  {expired ? 'Seu acesso expirou' : `Seu acesso termina em ${daysToEnd} ${daysToEnd === 1 ? 'dia' : 'dias'}`}
                 </span>
                 <span className="block text-[11px] text-text-secondary mt-1 font-merriweather">
                   {expired
@@ -68,75 +62,6 @@ export const SubscriptionBanner: React.FC = () => {
       </div>
     );
   }
-
-  // Beta acabou e janela promocional de 7 dias está ativa — oferta R$ 19,90/mês x 3
-  if (beta.hasBeta && beta.raizExpired && beta.promoStillValid) {
-    return (
-      <div className="mx-auto max-w-[1060px] px-4 mb-4">
-        <div
-          className="rounded-xl border border-gold/50 p-4 sm:p-5 relative overflow-hidden"
-          style={{
-            background: 'radial-gradient(120% 100% at 50% 0%, rgba(218,165,32,0.18) 0%, rgba(2,7,13,0.92) 70%), #02070d',
-            boxShadow: '0 12px 36px -12px rgba(218,165,32,0.35), 0 0 0 1px rgba(218,165,32,0.10) inset',
-          }}
-        >
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent opacity-70" />
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-            <div className="flex items-start gap-2.5 flex-1 min-w-0">
-              <Sparkles className="w-5 h-5 text-gold-champagne shrink-0 mt-0.5" strokeWidth={1.75} />
-              <div className="min-w-0">
-                <p className="font-cinzel font-bold text-sm sm:text-base text-gold-light leading-tight">
-                  Sua oferta especial Idriel está ativa
-                </p>
-                <p className="text-[11px] sm:text-xs text-text-secondary mt-1 font-merriweather leading-relaxed">
-                  Garanta <strong className="text-gold-light">3 meses de Idriel por R$ 19,90/mês</strong> (em vez de R$ 39,90). Após o prazo, o plano fica pausado — seu conteúdo permanece salvo, mas só será possível exportar.
-                </p>
-                <p className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-montserrat font-bold uppercase tracking-wider text-red-alert">
-                  <Clock className="w-3 h-3" />
-                  {beta.promoDaysLeft > 0
-                    ? `${beta.promoDaysLeft} ${beta.promoDaysLeft === 1 ? 'dia restante' : 'dias restantes'} para garantir`
-                    : 'Oferta expira hoje'}
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => openCheckout('beta_idriel_avulso')}
-              className="shrink-0 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full text-[11px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-background hover:shadow-[0_0_22px_rgba(218,165,32,0.45)] transition-all whitespace-nowrap"
-            >
-              <Sparkles className="w-3.5 h-3.5" /> Garantir por R$ 19,90/mês
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Beta acabou e janela promocional também terminou — plano pausado, somente exportação
-  if (beta.hasBeta && beta.promoExpired && !sub.subscribed) {
-    return (
-      <div className="mx-auto max-w-[1060px] px-4 mb-4">
-        <div className="rounded-lg p-4 border border-red-alert/40 bg-red-alert/[0.07]">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="flex items-start gap-2 flex-1 min-w-0">
-              <Lock className="w-5 h-5 mt-0.5 text-red-alert shrink-0" strokeWidth={1.75} />
-              <div className="min-w-0">
-                <span className="font-cinzel font-bold text-sm block text-red-alert">
-                  Seu beta terminou — plano pausado
-                </span>
-                <span className="block text-[11px] text-text-secondary mt-1 font-merriweather leading-relaxed">
-                  Todo o conteúdo que você criou está salvo. Para adicionar novos mundos, fichas ou artigos, escolha um plano. A exportação continua liberada.
-                </span>
-              </div>
-            </div>
-            <Link to="/planos" className="shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-background hover:opacity-90 transition-opacity whitespace-nowrap">
-              <Sparkles className="w-3 h-3" /> Ver planos
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
 
   const handleCheckout = async (plan: keyof typeof STRIPE_PLANS) => {
     setLoading(plan);
@@ -213,35 +138,22 @@ export const SubscriptionBanner: React.FC = () => {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-montserrat font-bold text-sm text-blue-light">Plano Raiz Ativo</span>
-                  {beta.hasBeta && !beta.raizExpired && (
-                    <span
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-gold/40 bg-gold/10 text-gold-light text-[10px] font-montserrat font-bold uppercase tracking-wider whitespace-nowrap"
-                      title={`Beta da Comunidade — válido até ${beta.raizGrantedUntil ? new Date(beta.raizGrantedUntil).toLocaleDateString('pt-BR') : ''}`}
-                    >
-                      <Clock className="w-2.5 h-2.5" />
-                      {beta.daysLeft} {beta.daysLeft === 1 ? 'dia' : 'dias'} de beta
-                    </span>
-                  )}
                 </div>
                 <span className="block text-[10px] text-text-dim mt-0.5">
-                  {beta.hasBeta && !beta.raizExpired
-                    ? 'Após o beta, condição especial: Idriel avulso por R$ 19,90 (até 3 vezes).'
-                    : 'Acesso completo ao worldbuilding. Desbloqueie Idriel para potencializar sua criação!'}
+                  Acesso completo ao worldbuilding. Desbloqueie Idriel para potencializar sua criação!
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              {!(beta.hasBeta && !beta.raizExpired) && (
-                <button
-                  onClick={() => handleCheckout('idriel_mensal')}
-                  disabled={!!loading}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/[0.12] transition-all whitespace-nowrap"
-                >
-                  <Sparkles className="w-3 h-3" />
-                  <span className="sm:hidden">Desbloquear Idriel</span>
-                  <span className="hidden sm:inline">Desbloquear Idriel — R$ 39,90/mês</span>
-                </button>
-              )}
+              <button
+                onClick={() => handleCheckout('idriel_mensal')}
+                disabled={!!loading}
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/[0.12] transition-all whitespace-nowrap"
+              >
+                <Sparkles className="w-3 h-3" />
+                <span className="sm:hidden">Desbloquear Idriel</span>
+                <span className="hidden sm:inline">Desbloquear Idriel — R$ 39,90/mês</span>
+              </button>
               <button
                 onClick={async () => { try { await openCustomerPortal(); } catch {} }}
                 className="inline-flex items-center gap-1 px-2 py-2 sm:py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-white/10 text-text-dim hover:text-foreground transition-colors shrink-0"
@@ -313,43 +225,16 @@ export const SubscriptionBanner: React.FC = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setRechargeOpen(true)}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-montserrat font-bold uppercase tracking-wider border transition-all ${
-                  isEmpty || isLow
-                    ? 'border-gold/40 text-gold-light bg-gold/[0.08] hover:bg-gold/[0.18]'
-                    : 'border-[#5A4020]/40 hover:bg-[#5A4020]/20'
-                }`}
-                style={!isEmpty && !isLow ? { color: '#3D2800' } : undefined}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 bg-gold/10 text-gold-light hover:bg-gold/20 transition-all"
               >
-                <Sparkles className="w-2.5 h-2.5" />
-                <span className="hidden sm:inline">Recarregar Elixir</span>
-                <span className="sm:hidden">+ Gotas</span>
+                <Sparkles className="w-3 h-3" /> Recarga
               </button>
-              <div className="hidden sm:block w-24">
-                <Progress
-                  value={pct}
-                  className={`h-1.5 ${isEmpty ? 'bg-destructive/20' : isLow ? 'bg-amber-500/20' : 'bg-[#7A5A20]/30'}`}
-                />
-              </div>
-              <div className="text-center">
-                <span
-                  className={`font-montserrat font-bold text-sm ${isEmpty ? 'text-destructive' : isLow ? 'text-orange-400' : ''}`}
-                  style={!isEmpty && !isLow ? { color: '#1E1000' } : undefined}
-                >
-                  {creditsLeft}
-                </span>
-                <span
-                  className={`block text-[9px] uppercase tracking-wider font-montserrat font-bold ${isEmpty ? 'text-destructive/60' : isLow ? 'text-orange-400/60' : ''}`}
-                  style={!isEmpty && !isLow ? { color: '#3D2800' } : undefined}
-                >
-                  gotas
-                </span>
-              </div>
               <button
                 onClick={async () => { try { await openCustomerPortal(); } catch {} }}
-                className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-montserrat font-bold uppercase tracking-wider border transition-colors ${isEmpty || isLow ? 'border-white/10 text-text-dim hover:text-foreground' : 'border-[#5A4020]/40 hover:bg-[#5A4020]/20'}`}
-                style={!isEmpty && !isLow ? { color: '#3D2800' } : undefined}
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-montserrat font-bold uppercase tracking-wider border border-white/10 text-text-dim hover:text-foreground transition-colors"
               >
-                <CreditCard className="w-2.5 h-2.5" />
+                <CreditCard className="w-3 h-3" />
+                <span className="hidden sm:inline">Gerenciar</span>
               </button>
             </div>
           </div>

@@ -39,7 +39,7 @@ const PLAN_CODES = [
   { value: 'idriel_mensal', label: 'Idriel Mensal (30d sem cobrança)' },
   { value: 'idriel_anual', label: 'Idriel Anual (365d sem cobrança)' },
   { value: 'raiz_vitalicio', label: 'Raiz Vitalício (gratuito)' },
-  { value: 'beta_raiz', label: 'Beta Raiz (30d + desconto Idriel)' },
+  
   { value: 'none', label: 'Cancelar / Sem plano' },
 ];
 
@@ -324,8 +324,8 @@ const UserRow = memo<UserRowProps>(({ user: u, callerId, onOpenDetail, onChanged
     <td className="px-3 py-2.5">
       <div className="flex items-center gap-1 flex-wrap">
         <Badge variant="outline" className={`text-[10px] ${planTone(u.plan_code)}`}>{planLabel(u.plan_code)}</Badge>
-        {u.billing_cycle === 'BETA_FREE' && (
-          <Badge variant="outline" className="text-[9px] border-gold/50 bg-gold/10 text-gold-light font-bold uppercase tracking-wider">Beta</Badge>
+        {u.billing_cycle === 'LIFETIME_COURTESY' && (
+          <Badge variant="outline" className="text-[9px] border-gold/50 bg-gold/10 text-gold-light font-bold uppercase tracking-wider">Cortesia</Badge>
         )}
         {u.billing_cycle === 'manual' && (
           <Badge variant="outline" className="text-[9px] border-blue-bright/50 bg-blue-bright/10 text-blue-light font-bold uppercase tracking-wider">Manual</Badge>
@@ -452,14 +452,14 @@ const UserActionsMenu: React.FC<{ user: AdminUser; callerId: string; onChanged: 
                 min={1}
                 value={durationDays}
                 onChange={e => setDurationDays(e.target.value)}
-                placeholder="Vazio = 30 (mensal/beta) ou 365 (anual)"
+                placeholder="Vazio = 30 (mensal) ou 365 (anual)"
                 className="bg-background border-blue-bright/30 mt-1"
                 disabled={planCode === 'none' || planCode === 'raiz_vitalicio'}
               />
             </div>
             <p className="text-[10px] text-text-dim mt-1.5">
               Nada é cobrado. Após expirar, o usuário poderá pagar normalmente para renovar.
-              <br />Vitalício = Raiz sem expiração. Beta = 30d Raiz grátis + janela de desconto Idriel.
+              <br />Vitalício = Raiz sem expiração.
             </p>
             <ConfirmDialog
               title="Aplicar alteração de plano?"

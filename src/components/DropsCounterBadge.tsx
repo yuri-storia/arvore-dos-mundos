@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Droplet, Crown, Infinity as InfinityIcon, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
-import { useBetaStatus } from '@/hooks/useBetaStatus';
+
 import { RechargePackageDialog } from '@/components/RechargePackageDialog';
 import { UpgradeIdrielDialog } from '@/components/UpgradeIdrielDialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -124,7 +124,7 @@ const ElixirBar: React.FC<{
 export const DropsCounterBadge: React.FC = () => {
   const { user, isAdmin } = useAuth();
   const sub = useSubscription();
-  const beta = useBetaStatus();
+  
   const [showRecharge, setShowRecharge] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
 
@@ -260,9 +260,6 @@ export const DropsCounterBadge: React.FC = () => {
       </TooltipProvider>
     );
   }
-
-  // Sem Idriel — não mostra CTA para beta testers (eles têm oferta especial ao fim dos 30 dias)
-  if (beta.hasBeta && !beta.raizExpired) return null;
 
   // Sem Idriel
   return (
