@@ -154,17 +154,39 @@ Deno.serve(async (req) => {
         // Cancels active subscription, then deletes the auth user (public tables cascade via FK).
         const targetId = body?.user_id as string;
         const confirmEmail = (body?.confirm_email as string | undefined)?.trim();
-        if (!targetId) return json({ error: "user_id required" }, 400);
-        if (targetId === callerId) return json({ error: "cannot delete self" }, 400);
-        if (!confirmEmail) return json({ error: "confirm_email required" }, 400);
+
+        // Resolve actor email once for auditing.
+        const { data: actorUser } = await supa.auth.admin.getUserById(callerId);
+        const actorEmail = actorUser?.user?.email ?? null;
+
+        const audit = async (outcome: string, status: number, reason: string, targetEmail: string | null) => {
+          try {
+            await supa.from("admin_deletion_audit").insert({
+              actor_user_id: callerId,
+              actor_email: actorEmail,
+              target_user_id: targetId ?? null,
+              target_email: targetEmail,
+              confirm_email: confirmEmail ?? null,
+              outcome,
+              reason,
+              status_code: status,
+            });
+          } catch (_) { /* auditing must never break the flow */ }
+        };
+
+        if (!targetId) { await audit("error", 400, "user_id required", null); return json({ error: "user_id required" }, 400); }
+        if (targetId === callerId) { await audit("blocked", 400, "cannot delete self", null); return json({ error: "cannot delete self" }, 400); }
+        if (!confirmEmail) { await audit("error", 400, "confirm_email required", null); return json({ error: "confirm_email required" }, 400); }
 
         const { data: targetUser, error: getErr } = await supa.auth.admin.getUserById(targetId);
-        if (getErr || !targetUser?.user) return json({ error: "user not found" }, 404);
+        if (getErr || !targetUser?.user) { await audit("error", 404, "user not found", null); return json({ error: "user not found" }, 404); }
         const targetEmail = targetUser.user.email ?? "";
         if (targetEmail.toLowerCase() === "yuridesouza.story@gmail.com") {
+          await audit("blocked", 403, "protected account", targetEmail);
           return json({ error: "esta conta é protegida e não pode ser excluída" }, 403);
         }
         if (targetEmail.toLowerCase() !== confirmEmail.toLowerCase()) {
+          await audit("blocked", 400, "email confirmation mismatch", targetEmail);
           return json({ error: "email confirmation does not match" }, 400);
         }
 
@@ -175,9 +197,11 @@ Deno.serve(async (req) => {
           .eq("status", "active");
 
         const { error: delErr } = await supa.auth.admin.deleteUser(targetId);
-        if (delErr) return json({ error: delErr.message }, 500);
+        if (delErr) { await audit("error", 500, delErr.message, targetEmail); return json({ error: delErr.message }, 500); }
+        await audit("success", 200, "user deleted", targetEmail);
         return json({ ok: true });
       }
+
 
       case "list_bugs": {
         const { data, error } = await supa.from("bug_reports").select("*").order("created_at", { ascending: false }).limit(500);
