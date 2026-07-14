@@ -232,3 +232,12 @@ const Section: React.FC<{ icon: React.ReactNode; title: string; children: React.
 );
 
 const Empty = () => <p className="text-text-dim text-xs italic font-merriweather">Nenhum registro.</p>;
+
+const Stat: React.FC<{ icon: React.ReactNode; label: string; value: React.ReactNode }> = ({ icon, label, value }) => (
+  <div className="p-2 rounded border border-blue-bright/15 bg-blue-bright/5">
+    <div className="flex items-center gap-1.5 text-[10px] text-text-dim font-montserrat uppercase tracking-wider">
+      {icon} {label}
+    </div>
+    <div className="font-cinzel text-gold text-lg mt-0.5">{value ?? 0}</div>
+  </div>
+);
