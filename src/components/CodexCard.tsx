@@ -469,7 +469,8 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 {/* Article body with sections */}
                 <div ref={contentRef} className="flex-1 pr-2 cursor-text" onClick={e => { e.stopPropagation(); beginEditing(); }} title="Clique para editar">
                   {displayContent && isHTMLContent(displayContent) ? (
-                    <RichTextView value={displayContent} />
+                    <RichTextView value={displayContent} mentionEntries={siblingEntries} onOpenEntry={onOpenEntry} />
+
                   ) : sections.length > 0 ? (
                     sections.map(s => (
                       <div key={s.id} data-section={s.id} className="mb-5">
