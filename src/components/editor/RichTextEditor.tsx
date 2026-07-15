@@ -300,7 +300,23 @@ const Toolbar: React.FC<{
         <ToolBtn title="Diminuir recuo (Shift+Tab)" onClick={() => can.chain().focus().liftListItem('listItem').run()}><Outdent className="w-4 h-4" /></ToolBtn>
       </div>
       <div className="rich-group">
-        <ToolBtn title="Mencionar Codex (@) — Ctrl+L foca o editor com segurança e abre o seletor" onClick={() => can.chain().focus().insertContent('@').run()}><AtSign className="w-4 h-4" /></ToolBtn>
+        <ToolBtn title="Mencionar Codex (@)" onClick={() => can.chain().focus().insertContent('@').run()}><AtSign className="w-4 h-4" /></ToolBtn>
+        <ToolBtn
+          title="Vincular seleção a entrada do Codex (Ctrl+K)"
+          active={can.isActive('codexLink')}
+          onClick={() => onOpenCodexPicker?.()}
+        >
+          <Link2 className="w-4 h-4" />
+        </ToolBtn>
+        {onToggleSpellcheck && (
+          <ToolBtn
+            title={spellcheckEnabled ? 'Corretor ortográfico: ligado (clique para desligar)' : 'Corretor ortográfico: desligado (clique para ligar)'}
+            active={!!spellcheckEnabled}
+            onClick={onToggleSpellcheck}
+          >
+            <SpellCheck2 className="w-4 h-4" />
+          </ToolBtn>
+        )}
       </div>
     </div>
   );
