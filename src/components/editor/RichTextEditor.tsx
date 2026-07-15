@@ -608,22 +608,19 @@ export const RichTextView: React.FC<{
   onOpenEntry?: (id: string) => void;
 }> = ({ value, className, mentionEntries, onOpenEntry }) => {
   const html = useMemo(() => plainTextToHtml(value || ''), [value]);
+  const hasMentions = !!(mentionEntries && mentionEntries.length > 0);
+  const nodes = useMemo(
+    () => hasMentions ? renderHtmlWithMentions(html, mentionEntries!, onOpenEntry) : null,
+    [hasMentions, html, mentionEntries, onOpenEntry],
+  );
 
-  // Cheap path: no mentions requested → keep the innerHTML render.
-  if (!mentionEntries || mentionEntries.length === 0) {
+  if (!hasMentions) {
     return <div className={`rich-content ${className || ''}`} dangerouslySetInnerHTML={{ __html: html }} />;
   }
-
-  const nodes = useMemo(
-    () => renderHtmlWithMentions(html, mentionEntries, onOpenEntry),
-    [html, mentionEntries, onOpenEntry],
-  );
   return <div className={`rich-content ${className || ''}`}>{nodes}</div>;
 };
 
 /* ---- HTML → React with MentionChip substitution ---- */
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const _mention = require('@/components/escritor/MentionChip') as typeof import('@/components/escritor/MentionChip');
 
 function renderHtmlWithMentions(
   html: string,
