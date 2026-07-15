@@ -600,7 +600,93 @@ const SaveIndicator: React.FC<{ status: 'saving' | 'saved' | 'error' }> = ({ sta
 };
 
 /** Plain HTML viewer for saved content (read-only) */
-export const RichTextView: React.FC<{ value: string; className?: string }> = ({ value, className }) => {
+export const RichTextView: React.FC<{
+  value: string;
+  className?: string;
+  /** When provided, `@Name` chips and Tiptap mention spans render as interactive MentionChip. */
+  mentionEntries?: CodexEntry[];
+  onOpenEntry?: (id: string) => void;
+}> = ({ value, className, mentionEntries, onOpenEntry }) => {
   const html = useMemo(() => plainTextToHtml(value || ''), [value]);
-  return <div className={`rich-content ${className || ''}`} dangerouslySetInnerHTML={{ __html: html }} />;
+
+  // Cheap path: no mentions requested → keep the innerHTML render.
+  if (!mentionEntries || mentionEntries.length === 0) {
+    return <div className={`rich-content ${className || ''}`} dangerouslySetInnerHTML={{ __html: html }} />;
+  }
+
+  const nodes = useMemo(
+    () => renderHtmlWithMentions(html, mentionEntries, onOpenEntry),
+    [html, mentionEntries, onOpenEntry],
+  );
+  return <div className={`rich-content ${className || ''}`}>{nodes}</div>;
 };
+
+/* ---- HTML → React with MentionChip substitution ---- */
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const _mention = require('@/components/escritor/MentionChip') as typeof import('@/components/escritor/MentionChip');
+
+function renderHtmlWithMentions(
+  html: string,
+  entries: CodexEntry[],
+  onOpen?: (id: string) => void,
+): React.ReactNode {
+  if (typeof window === 'undefined' || !window.DOMParser) return null;
+  const byName = _mention.buildEntriesByName(entries);
+  const byId = new Map(entries.map(e => [e.id, e]));
+  const doc = new DOMParser().parseFromString(`<div id="__root">${html}</div>`, 'text/html');
+  const root = doc.getElementById('__root');
+  if (!root) return null;
+
+  let key = 0;
+  const walk = (node: Node): React.ReactNode => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent || '';
+      if (!text.includes('@')) return text;
+      const parts = _mention.tokenizeMentions(text, byName);
+      return parts.map((p, i) => p.type === 'text'
+        ? <React.Fragment key={i}>{p.value}</React.Fragment>
+        : <_mention.MentionChip
+            key={i}
+            name={p.value}
+            entry={p.entry}
+            onClick={p.entry && onOpen ? () => onOpen(p.entry!.id) : undefined}
+          />);
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return null;
+    const el = node as HTMLElement;
+
+    // Tiptap Mention span → MentionChip
+    if (el.tagName === 'SPAN' && el.classList.contains('rich-mention')) {
+      const id = el.getAttribute('data-id') || '';
+      const label = el.getAttribute('data-label') || (el.textContent || '').replace(/^@/, '');
+      const entry = byId.get(id) || byName.get(label.toLowerCase());
+      return (
+        <_mention.MentionChip
+          key={++key}
+          name={label}
+          entry={entry}
+          onClick={entry && onOpen ? () => onOpen(entry.id) : undefined}
+        />
+      );
+    }
+
+    const tag = el.tagName.toLowerCase();
+    const props: any = { key: ++key };
+    for (const attr of Array.from(el.attributes)) {
+      if (attr.name === 'class') props.className = attr.value;
+      else if (attr.name === 'style') { /* skip inline style parsing for safety */ }
+      else props[attr.name] = attr.value;
+    }
+    // Void elements
+    const voidTags = new Set(['br', 'hr', 'img']);
+    if (voidTags.has(tag)) return React.createElement(tag, props);
+
+    const children: React.ReactNode[] = [];
+    el.childNodes.forEach(c => children.push(walk(c)));
+    return React.createElement(tag, props, ...children);
+  };
+
+  const out: React.ReactNode[] = [];
+  root.childNodes.forEach(c => out.push(walk(c)));
+  return out;
+}
