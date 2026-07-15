@@ -12,6 +12,7 @@ import { CharacterCount } from '@tiptap/extension-character-count';
 import { Mention } from '@tiptap/extension-mention';
 import { Image } from '@tiptap/extension-image';
 import { SpellcheckExtension } from './SpellcheckExtension';
+import { CodexLinkMark } from './CodexLinkMark';
 import tippy, { type Instance } from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import {
@@ -19,10 +20,12 @@ import {
   List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Indent, Outdent,
   Palette, Highlighter, AtSign, Undo, Redo, Pilcrow, Eraser,
   Check, Loader2, CircleAlert, HelpCircle, Maximize2, Minimize2, X,
-  Minus, Plus, GripVertical,
+  Minus, Plus, GripVertical, Link2, SpellCheck2,
 } from 'lucide-react';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { MentionChip, buildEntriesByName, tokenizeMentions } from '@/components/escritor/MentionChip';
+import { CodexEntryPicker } from '@/components/escritor/CodexEntryPicker';
+import { useSpellcheckEnabled } from '@/lib/spellcheck/spellcheckSettings';
 import './editor.css';
 
 /* ----- Image extension with width + align attrs (resize / align controls) ----- */
@@ -193,7 +196,13 @@ const ToolBtn: React.FC<{ active?: boolean; disabled?: boolean; onClick: () => v
   >{children}</button>
 );
 
-const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobile }) => {
+const Toolbar: React.FC<{
+  editor: Editor;
+  mobile?: boolean;
+  onOpenCodexPicker?: () => void;
+  spellcheckEnabled?: boolean;
+  onToggleSpellcheck?: () => void;
+}> = ({ editor, mobile, onOpenCodexPicker, spellcheckEnabled, onToggleSpellcheck }) => {
   const [colorOpen, setColorOpen] = useState(false);
   const [hlOpen, setHlOpen] = useState(false);
   const colorWrapRef = useRef<HTMLDivElement>(null);
@@ -291,7 +300,23 @@ const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobil
         <ToolBtn title="Diminuir recuo (Shift+Tab)" onClick={() => can.chain().focus().liftListItem('listItem').run()}><Outdent className="w-4 h-4" /></ToolBtn>
       </div>
       <div className="rich-group">
-        <ToolBtn title="Mencionar Codex (@) — Ctrl+L foca o editor com segurança e abre o seletor" onClick={() => can.chain().focus().insertContent('@').run()}><AtSign className="w-4 h-4" /></ToolBtn>
+        <ToolBtn title="Mencionar Codex (@)" onClick={() => can.chain().focus().insertContent('@').run()}><AtSign className="w-4 h-4" /></ToolBtn>
+        <ToolBtn
+          title="Vincular seleção a entrada do Codex (Ctrl+K)"
+          active={can.isActive('codexLink')}
+          onClick={() => onOpenCodexPicker?.()}
+        >
+          <Link2 className="w-4 h-4" />
+        </ToolBtn>
+        {onToggleSpellcheck && (
+          <ToolBtn
+            title={spellcheckEnabled ? 'Corretor ortográfico: ligado (clique para desligar)' : 'Corretor ortográfico: desligado (clique para ligar)'}
+            active={!!spellcheckEnabled}
+            onClick={onToggleSpellcheck}
+          >
+            <SpellCheck2 className="w-4 h-4" />
+          </ToolBtn>
+        )}
       </div>
     </div>
   );
@@ -371,9 +396,12 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
 }, ref) => {
   const entriesRef = useRef<CodexEntry[]>(entries);
   useEffect(() => { entriesRef.current = entries; }, [entries]);
+  const [codexPickerOpen, setCodexPickerOpen] = useState(false);
+  const [spellcheckEnabled, setSpellcheckEnabled] = useSpellcheckEnabled();
   const [focused, setFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<Editor | null>(null);
+  const openCodexPickerRef = useRef<(() => void) | null>(null);
   const isTypingRef = useRef(false);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isMobile, setIsMobile] = useState(() =>
@@ -425,6 +453,7 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
         ],
         suggestion: { char: '@', ...createMentionSuggestion(() => entriesRef.current) },
       }),
+      CodexLinkMark,
       SpellcheckExtension.configure({ enabled: spellCheck !== false }),
     ],
     content: initialHTML,
@@ -443,6 +472,13 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
         ...(minHeight ? { style: `min-height:${minHeight}` } : {}),
       },
       handleKeyDown(_view, event) {
+        // Ctrl/Cmd+K → open Codex picker to link the current selection.
+        if ((event.ctrlKey || event.metaKey) && (event.key === 'k' || event.key === 'K')) {
+          event.preventDefault();
+          openCodexPickerRef.current?.();
+          return true;
+        }
+        // Ctrl/Cmd+L → insert '@' to trigger the mention suggestion popup.
         if ((event.ctrlKey || event.metaKey) && (event.key === 'l' || event.key === 'L')) {
           event.preventDefault();
           editorRef.current?.chain().focus().insertContent('@').run();
@@ -541,6 +577,30 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
 
   if (!editor) return null;
 
+  const handleOpenCodexPicker = () => {
+    const ed = editorRef.current;
+    if (!ed) return;
+    const { from, to } = ed.state.selection;
+    if (from === to) {
+      // No selection: fall back to the mention suggestion flow.
+      ed.chain().focus().insertContent('@').run();
+      return;
+    }
+    setCodexPickerOpen(true);
+  };
+  openCodexPickerRef.current = handleOpenCodexPicker;
+
+  const handleToggleSpellcheck = () => setSpellcheckEnabled(!spellcheckEnabled);
+
+  const handleCodexPickerSelect = (entry: CodexEntry) => {
+    const ed = editorRef.current;
+    if (!ed) return;
+    ed.chain()
+      .focus()
+      .setMark('codexLink', { id: entry.id, label: entry.title })
+      .run();
+  };
+
   return (
     <div
       className={`rich-editor ${isMobile && focused ? 'has-mobile-floating' : ''} ${stickyToolbar ? 'is-sticky-toolbar' : 'is-flowing-toolbar'}`}
@@ -550,7 +610,14 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
       style={{ '--rich-editor-min-height': minHeight || '220px' } as React.CSSProperties}
     >
       <div className="rich-scroll">
-        {!compact && <Toolbar editor={editor} />}
+        {!compact && (
+          <Toolbar
+            editor={editor}
+            onOpenCodexPicker={handleOpenCodexPicker}
+            spellcheckEnabled={spellcheckEnabled}
+            onToggleSpellcheck={handleToggleSpellcheck}
+          />
+        )}
         <EditorContent editor={editor} />
       </div>
       <BubbleMenu
@@ -563,6 +630,21 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
         <ToolBtn title="Itálico" active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()}><Italic className="w-3.5 h-3.5" /></ToolBtn>
         <ToolBtn title="Sublinhado" active={editor.isActive('underline')} onClick={() => editor.chain().focus().toggleUnderline().run()}><UnderlineIcon className="w-3.5 h-3.5" /></ToolBtn>
         <ToolBtn title="Realce" active={editor.isActive('highlight')} onClick={() => editor.chain().focus().toggleHighlight({ color: '#3A2E12' }).run()}><Highlighter className="w-3.5 h-3.5" /></ToolBtn>
+        <ToolBtn
+          title="Vincular a entrada do Codex (Ctrl+K)"
+          active={editor.isActive('codexLink')}
+          onClick={handleOpenCodexPicker}
+        >
+          <Link2 className="w-3.5 h-3.5" />
+        </ToolBtn>
+        {editor.isActive('codexLink') && (
+          <ToolBtn
+            title="Remover vínculo do Codex"
+            onClick={() => editor.chain().focus().unsetMark('codexLink').run()}
+          >
+            <X className="w-3.5 h-3.5" />
+          </ToolBtn>
+        )}
         <ToolBtn title="Mencionar" onClick={() => editor.chain().focus().insertContent('@').run()}><AtSign className="w-3.5 h-3.5" /></ToolBtn>
       </BubbleMenu>
       <BubbleMenu
@@ -577,9 +659,23 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
 
       {isMobile && focused && (
         <div className="rich-mobile-floating">
-          <Toolbar editor={editor} mobile />
+          <Toolbar
+            editor={editor}
+            mobile
+            onOpenCodexPicker={handleOpenCodexPicker}
+            spellcheckEnabled={spellcheckEnabled}
+            onToggleSpellcheck={handleToggleSpellcheck}
+          />
         </div>
       )}
+
+      <CodexEntryPicker
+        open={codexPickerOpen}
+        onOpenChange={setCodexPickerOpen}
+        entries={entries}
+        onSelect={handleCodexPickerSelect}
+        title="Vincular seleção a entrada do Codex"
+      />
     </div>
   );
 });
@@ -652,6 +748,22 @@ function renderHtmlWithMentions(
     }
     if (node.nodeType !== Node.ELEMENT_NODE) return null;
     const el = node as HTMLElement;
+
+    // Codex link mark (arbitrary display text → linked entry)
+    if (el.tagName === 'SPAN' && el.classList.contains('codex-link')) {
+      const id = el.getAttribute('data-id') || '';
+      const label = el.getAttribute('data-label') || '';
+      const display = el.textContent || label;
+      const entry = byId.get(id) || (label ? byName.get(label.toLowerCase()) : undefined);
+      return (
+        <MentionChip
+          key={++key}
+          name={display}
+          entry={entry}
+          onClick={entry && onOpen ? () => onOpen(entry.id) : undefined}
+        />
+      );
+    }
 
     // Tiptap Mention span → MentionChip
     if (el.tagName === 'SPAN' && el.classList.contains('rich-mention')) {

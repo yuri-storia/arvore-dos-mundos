@@ -205,6 +205,24 @@
   white-space: nowrap;
 }
 
+/* Codex link mark — wraps arbitrary user text and points to a codex entry.
+   Rendered inline (not a chip) inside the editor so the user's chosen
+   inflection remains readable; the underline + gold accent signals the link. */
+.rich-content .codex-link,
+.ProseMirror .codex-link {
+  color: hsl(var(--gold-light));
+  background: hsl(var(--gold-warm) / 0.10);
+  border-bottom: 1px dashed hsl(var(--gold-warm) / 0.6);
+  border-radius: 2px;
+  padding: 0 2px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.rich-content .codex-link:hover,
+.ProseMirror .codex-link:hover {
+  background: hsl(var(--gold-warm) / 0.20);
+}
+
 /* Bubble menu — must float above sticky toolbar (z:20) and any side panels */
 .rich-bubble {
   display: flex;
