@@ -12,6 +12,7 @@ import { CharacterCount } from '@tiptap/extension-character-count';
 import { Mention } from '@tiptap/extension-mention';
 import { Image } from '@tiptap/extension-image';
 import { SpellcheckExtension } from './SpellcheckExtension';
+import { CodexLinkMark } from './CodexLinkMark';
 import tippy, { type Instance } from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import {
@@ -19,10 +20,12 @@ import {
   List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Indent, Outdent,
   Palette, Highlighter, AtSign, Undo, Redo, Pilcrow, Eraser,
   Check, Loader2, CircleAlert, HelpCircle, Maximize2, Minimize2, X,
-  Minus, Plus, GripVertical,
+  Minus, Plus, GripVertical, Link2, SpellCheck2,
 } from 'lucide-react';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { MentionChip, buildEntriesByName, tokenizeMentions } from '@/components/escritor/MentionChip';
+import { CodexEntryPicker } from '@/components/escritor/CodexEntryPicker';
+import { useSpellcheckEnabled } from '@/lib/spellcheck/spellcheckSettings';
 import './editor.css';
 
 /* ----- Image extension with width + align attrs (resize / align controls) ----- */
