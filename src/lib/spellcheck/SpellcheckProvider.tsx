@@ -160,11 +160,16 @@ export const SpellcheckProvider: React.FC<{ children?: React.ReactNode }> = ({
   }, [openFor, aiHitFor]);
 
   // Left-click em qualquer decoração de erro → abre popover.
+  // Exceção: se a palavra também é um link do codex (.codex-link/.rich-mention),
+  // o clique é reservado para abrir a referência — o corretor só aparece no hover.
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       if (!isSpellcheckEnabled()) return;
       if (e.button !== 0) return;
       const target = e.target as HTMLElement | null;
+
+      // Se estiver sobre um link de codex, não intercepta — deixa o editor abrir a referência.
+      if (target?.closest?.(".codex-link, .rich-mention")) return;
 
       const ai = aiHitFor(target);
       if (ai) {
