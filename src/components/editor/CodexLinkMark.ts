@@ -22,9 +22,12 @@ declare module '@tiptap/core' {
 
 export const CodexLinkMark = Mark.create({
   name: 'codexLink',
-  inclusive: false,
+  // `inclusive: true` keeps the mark alive when the user edits inside/at the
+  // boundaries of the linked span (e.g. "homúnculo" → "homúnculos"). This is
+  // the whole point of the arbitrary-text link.
+  inclusive: true,
   exitable: true,
-  spanning: false,
+  spanning: true,
 
   addAttributes() {
     return {
