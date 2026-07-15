@@ -629,7 +629,7 @@ function renderHtmlWithMentions(
   onOpen?: (id: string) => void,
 ): React.ReactNode {
   if (typeof window === 'undefined' || !window.DOMParser) return null;
-  const byName = _mention.buildEntriesByName(entries);
+  const byName = buildEntriesByName(entries);
   const byId = new Map(entries.map(e => [e.id, e]));
   const doc = new DOMParser().parseFromString(`<div id="__root">${html}</div>`, 'text/html');
   const root = doc.getElementById('__root');
@@ -640,10 +640,10 @@ function renderHtmlWithMentions(
     if (node.nodeType === Node.TEXT_NODE) {
       const text = node.textContent || '';
       if (!text.includes('@')) return text;
-      const parts = _mention.tokenizeMentions(text, byName);
+      const parts = tokenizeMentions(text, byName);
       return parts.map((p, i) => p.type === 'text'
         ? <React.Fragment key={i}>{p.value}</React.Fragment>
-        : <_mention.MentionChip
+        : <MentionChip
             key={i}
             name={p.value}
             entry={p.entry}
@@ -659,7 +659,7 @@ function renderHtmlWithMentions(
       const label = el.getAttribute('data-label') || (el.textContent || '').replace(/^@/, '');
       const entry = byId.get(id) || byName.get(label.toLowerCase());
       return (
-        <_mention.MentionChip
+        <MentionChip
           key={++key}
           name={label}
           entry={entry}
