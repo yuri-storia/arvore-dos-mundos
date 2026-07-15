@@ -28,12 +28,16 @@ interface Props {
   siblings?: CodexEntry[];
   /** Open another entry (used when an @mention chip is clicked). */
   onOpenEntry?: (id: string) => void;
+  /** True quando o `content` completo já foi carregado do banco. Enquanto
+   * for false, bloqueamos edição para não sobrescrever o texto real com
+   * string vazia (bug crítico de perda de dados). */
+  contentHydrated?: boolean;
 }
 
 const DRAFT_KEY = (id: string) => `codex-draft:${id}`;
 type Draft = { title: string; content: string; fruit_id: number | null; ts: number };
 
-export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate, onDelete, onImageUpload, onLightbox, gallery, siblings, onOpenEntry }) => {
+export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate, onDelete, onImageUpload, onLightbox, gallery, siblings, onOpenEntry, contentHydrated }) => {
   const planLimits = usePlanLimits();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(entry.title);
