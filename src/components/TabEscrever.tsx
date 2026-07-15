@@ -228,7 +228,10 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const handlePreviewEntry = useCallback((entry: CodexEntry) => {
     setPreviewEntry(entry);
     setShowRefPanel(true);
-  }, []);
+    // Codex list query is lean (no `content`) — hydrate on demand so the
+    // Reference panel shows real text instead of "Sem conteúdo.".
+    if (!isContentHydrated(entry.id)) fetchEntryContent(entry.id);
+  }, [fetchEntryContent, isContentHydrated]);
 
   const handleCreateManuscriptWithName = async () => {
     const name = newManuscriptName.trim() || 'Sem título';
