@@ -401,6 +401,7 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
   const [focused, setFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<Editor | null>(null);
+  const openCodexPickerRef = useRef<(() => void) | null>(null);
   const isTypingRef = useRef(false);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isMobile, setIsMobile] = useState(() =>
