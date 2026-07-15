@@ -150,8 +150,28 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
   const fruitInfo = entry.fruit_id !== null ? FRUITS.find(f => f.id === entry.fruit_id) : null;
 
+  // Bloqueia entrar em modo edição enquanto o `content` ainda não foi hidratado.
+  // Se `contentHydrated` for undefined, mantemos o comportamento antigo (usos
+  // fora da tela expandida onde a lista é a fonte da verdade).
+  const canEdit = contentHydrated !== false;
+  const beginEditing = () => {
+    if (!canEdit) {
+      toast.info('Carregando conteúdo…');
+      return;
+    }
+    setEditing(true);
+  };
+
   const handleSave = async () => {
     if (autosaveTimer.current) { clearTimeout(autosaveTimer.current); autosaveTimer.current = null; }
+    // Guarda extra: nunca sobrescreve o banco enquanto o conteúdo original
+    // ainda não foi carregado — protege contra perda de dados se o botão
+    // Salvar for clicado no exato instante do carregamento.
+    if (!canEdit) {
+      toast.error('Conteúdo ainda carregando. Tente novamente em instantes.');
+      setSaveState('idle');
+      return;
+    }
     setSaveState('saving');
     await onUpdate(entry.id, { title, content, fruit_id: editFruit });
     lastSavedRef.current = { title, content, fruit_id: editFruit };
