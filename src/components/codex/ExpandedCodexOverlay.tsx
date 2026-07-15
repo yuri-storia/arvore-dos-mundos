@@ -20,6 +20,7 @@ interface Props {
   gallery: GalleryImage[];
   siblings: CodexEntry[];
   onOpenEntry: (id: string) => void;
+  contentHydrated?: boolean;
 }
 
 // Swipe sensitivity — stricter to evitar trocas acidentais durante rolagem.
@@ -34,6 +35,7 @@ export const ExpandedCodexOverlay: React.FC<Props> = ({
   entry, prevEntry, nextEntry, navIndex, navTotal,
   onClose, onGoPrev, onGoNext,
   onUpdate, onDelete, onImageUpload, onLightbox, gallery, siblings, onOpenEntry,
+  contentHydrated,
 }) => {
   const touchStart = useRef<{ x: number; y: number; t: number } | null>(null);
   const [dragDx, setDragDx] = useState(0);
@@ -160,6 +162,7 @@ export const ExpandedCodexOverlay: React.FC<Props> = ({
             gallery={gallery}
             siblings={siblings}
             onOpenEntry={onOpenEntry}
+            contentHydrated={contentHydrated}
           />
         </div>
 

@@ -28,12 +28,16 @@ interface Props {
   siblings?: CodexEntry[];
   /** Open another entry (used when an @mention chip is clicked). */
   onOpenEntry?: (id: string) => void;
+  /** True quando o `content` completo já foi carregado do banco. Enquanto
+   * for false, bloqueamos edição para não sobrescrever o texto real com
+   * string vazia (bug crítico de perda de dados). */
+  contentHydrated?: boolean;
 }
 
 const DRAFT_KEY = (id: string) => `codex-draft:${id}`;
 type Draft = { title: string; content: string; fruit_id: number | null; ts: number };
 
-export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate, onDelete, onImageUpload, onLightbox, gallery, siblings, onOpenEntry }) => {
+export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate, onDelete, onImageUpload, onLightbox, gallery, siblings, onOpenEntry, contentHydrated }) => {
   const planLimits = usePlanLimits();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(entry.title);
@@ -55,6 +59,20 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   useEffect(() => {
     setImgPos(entry.image_position || { x: 50, y: 50 });
   }, [entry.id, entry.image_position]);
+
+  // Ressincroniza o state local sempre que o `entry` mudar (hidratação
+  // tardia do `content`, refetch, atualização vinda de outro lugar) — desde
+  // que o usuário NÃO esteja no meio de uma edição. Sem isso, o `content`
+  // inicializado como '' (antes da hidratação) sobrescreve o texto real ao
+  // salvar → bug crítico de perda de dados relatado pelos usuários.
+  useEffect(() => {
+    if (editing) return;
+    setTitle(entry.title);
+    setContent(entry.content);
+    setEditFruit(entry.fruit_id);
+    lastSavedRef.current = { title: entry.title, content: entry.content, fruit_id: entry.fruit_id };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entry.id, entry.title, entry.content, entry.fruit_id, entry.updated_at]);
 
   // Restore unsaved draft (e.g., after tab refresh / accidental collapse)
   useEffect(() => {
@@ -132,8 +150,28 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
   const fruitInfo = entry.fruit_id !== null ? FRUITS.find(f => f.id === entry.fruit_id) : null;
 
+  // Bloqueia entrar em modo edição enquanto o `content` ainda não foi hidratado.
+  // Se `contentHydrated` for undefined, mantemos o comportamento antigo (usos
+  // fora da tela expandida onde a lista é a fonte da verdade).
+  const canEdit = contentHydrated !== false;
+  const beginEditing = () => {
+    if (!canEdit) {
+      toast.info('Carregando conteúdo…');
+      return;
+    }
+    setEditing(true);
+  };
+
   const handleSave = async () => {
     if (autosaveTimer.current) { clearTimeout(autosaveTimer.current); autosaveTimer.current = null; }
+    // Guarda extra: nunca sobrescreve o banco enquanto o conteúdo original
+    // ainda não foi carregado — protege contra perda de dados se o botão
+    // Salvar for clicado no exato instante do carregamento.
+    if (!canEdit) {
+      toast.error('Conteúdo ainda carregando. Tente novamente em instantes.');
+      setSaveState('idle');
+      return;
+    }
     setSaveState('saving');
     await onUpdate(entry.id, { title, content, fruit_id: editFruit });
     lastSavedRef.current = { title, content, fruit_id: editFruit };
@@ -352,7 +390,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 onClick={e => e.stopPropagation()}
               />
             ) : (
-              <h2 onClick={e => { e.stopPropagation(); setEditing(true); }} className="font-cinzel font-bold text-xl text-foreground cursor-text hover:text-accent transition-colors" title="Clique para editar">{entry.title}</h2>
+              <h2 onClick={e => { e.stopPropagation(); beginEditing(); }} className="font-cinzel font-bold text-xl text-foreground cursor-text hover:text-accent transition-colors" title="Clique para editar">{entry.title}</h2>
             )}
             <button
               onClick={e => { e.stopPropagation(); onToggle(); }}
@@ -429,7 +467,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 )}
 
                 {/* Article body with sections */}
-                <div ref={contentRef} className="flex-1 pr-2 cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }} title="Clique para editar">
+                <div ref={contentRef} className="flex-1 pr-2 cursor-text" onClick={e => { e.stopPropagation(); beginEditing(); }} title="Clique para editar">
                   {displayContent && isHTMLContent(displayContent) ? (
                     <RichTextView value={displayContent} />
                   ) : sections.length > 0 ? (
@@ -470,7 +508,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                       </div>
                     ))
                   ) : (
-                    <p className="font-merriweather text-sm text-text-dim italic cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }}>Sem conteúdo ainda. Clique para adicionar.</p>
+                    <p className="font-merriweather text-sm text-text-dim italic cursor-text" onClick={e => { e.stopPropagation(); beginEditing(); }}>Sem conteúdo ainda. Clique para adicionar.</p>
                   )}
                 </div>
               </div>
@@ -588,7 +626,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 onClick={e => e.stopPropagation()}
               />
             ) : (
-              <h2 onClick={e => { e.stopPropagation(); setEditing(true); }} className="font-cinzel font-bold text-lg text-foreground cursor-text hover:text-blue-light transition-colors" title="Clique para editar">{entry.title}</h2>
+              <h2 onClick={e => { e.stopPropagation(); beginEditing(); }} className="font-cinzel font-bold text-lg text-foreground cursor-text hover:text-blue-light transition-colors" title="Clique para editar">{entry.title}</h2>
             )}
             <button
               onClick={e => { e.stopPropagation(); onToggle(); }}
@@ -625,7 +663,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 </div>
               </>
             ) : (
-              <div className="cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }} title="Clique para editar">
+              <div className="cursor-text" onClick={e => { e.stopPropagation(); beginEditing(); }} title="Clique para editar">
                 {displayContent ? (
                   isHTMLContent(displayContent) ? (
                     <RichTextView value={displayContent} />

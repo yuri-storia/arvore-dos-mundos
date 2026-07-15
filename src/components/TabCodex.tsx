@@ -40,7 +40,7 @@ interface Props {
 export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   const { user } = useAuth();
   const planLimits = usePlanLimits();
-  const { entries, loading, createEntry, updateEntry, deleteEntry, uploadImage, fetchEntriesFromWorld, importEntries, fetchEntryContent } = useCodexEntries(worldId || undefined);
+  const { entries, loading, createEntry, updateEntry, deleteEntry, uploadImage, fetchEntriesFromWorld, importEntries, fetchEntryContent, isContentHydrated } = useCodexEntries(worldId || undefined);
   
   const [filterFruits, setFilterFruits] = useState<number[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -798,6 +798,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
               gallery={gallery}
               siblings={entries}
               onOpenEntry={setPersistedExpandedId}
+              contentHydrated={isContentHydrated(expandedEntry.id)}
             />,
             document.body
           )}

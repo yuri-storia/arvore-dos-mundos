@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,6 +28,14 @@ export function useCodexEntries(worldId?: string) {
   const { user } = useAuth();
   const qc = useQueryClient();
 
+  // Rastreia quais entradas já tiveram o `content` completo carregado do banco.
+  // A listagem inicial vem sem `content` (payload enxuto), então o CodexCard
+  // precisa saber quando é seguro renderizar/editar sem risco de sobrescrever
+  // o texto real com string vazia.
+  const [hydratedIds, setHydratedIds] = useState<Set<string>>(new Set());
+  const hydratingRef = useRef<Set<string>>(new Set());
+  const isContentHydrated = useCallback((id: string) => hydratedIds.has(id), [hydratedIds]);
+
   const { data: entries = [], isLoading: loading, refetch } = useQuery({
     queryKey: CODEX_KEY(worldId),
     enabled: !!user && !!worldId,
@@ -47,17 +55,27 @@ export function useCodexEntries(worldId?: string) {
 
   /** Busca o `content` completo de uma ficha sob demanda (ao expandir). */
   const fetchEntryContent = useCallback(async (id: string): Promise<string> => {
-    const { data, error } = await supabase
-      .from('codex_entries')
-      .select('content, updated_at')
-      .eq('id', id)
-      .maybeSingle();
-    if (error || !data) { if (error) console.error(error); return ''; }
-    const full = (data.content as string) || '';
-    qc.setQueryData(CODEX_KEY(worldId), (old: CodexEntry[] = []) =>
-      old.map(e => e.id === id ? { ...e, content: full } : e)
-    );
-    return full;
+    if (hydratingRef.current.has(id)) return '';
+    hydratingRef.current.add(id);
+    try {
+      const { data, error } = await supabase
+        .from('codex_entries')
+        .select('content, updated_at')
+        .eq('id', id)
+        .maybeSingle();
+      if (error || !data) { if (error) console.error(error); return ''; }
+      const full = (data.content as string) || '';
+      qc.setQueryData(CODEX_KEY(worldId), (old: CodexEntry[] = []) =>
+        old.map(e => e.id === id ? { ...e, content: full } : e)
+      );
+      setHydratedIds(prev => {
+        if (prev.has(id)) return prev;
+        const n = new Set(prev); n.add(id); return n;
+      });
+      return full;
+    } finally {
+      hydratingRef.current.delete(id);
+    }
   }, [qc, worldId]);
 
   const createEntry = useCallback(async (entry: { title: string; content: string; image_url?: string; entry_type: string; fruit_id?: number | null }) => {
@@ -160,5 +178,6 @@ export function useCodexEntries(worldId?: string) {
     uploadImage, refetch,
     fetchEntriesFromWorld, importEntries,
     fetchEntryContent,
+    isContentHydrated,
   };
 }
