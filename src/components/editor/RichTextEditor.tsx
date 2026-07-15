@@ -22,6 +22,7 @@ import {
   Minus, Plus, GripVertical,
 } from 'lucide-react';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
+import { MentionChip, buildEntriesByName, tokenizeMentions } from '@/components/escritor/MentionChip';
 import './editor.css';
 
 /* ----- Image extension with width + align attrs (resize / align controls) ----- */
