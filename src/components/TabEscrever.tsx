@@ -175,7 +175,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     createManuscript, updateManuscript, deleteManuscript,
     createChapter, updateChapter, deleteChapter,
   } = useManuscript(worldId);
-  const { entries } = useCodexEntries(worldId);
+  const { entries, fetchEntryContent, isContentHydrated } = useCodexEntries(worldId);
 
   const [writeMode, setWriteMode] = useState<WriteMode>('manuscrito');
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
