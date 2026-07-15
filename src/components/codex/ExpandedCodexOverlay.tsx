@@ -35,6 +35,7 @@ export const ExpandedCodexOverlay: React.FC<Props> = ({
   entry, prevEntry, nextEntry, navIndex, navTotal,
   onClose, onGoPrev, onGoNext,
   onUpdate, onDelete, onImageUpload, onLightbox, gallery, siblings, onOpenEntry,
+  contentHydrated,
 }) => {
   const touchStart = useRef<{ x: number; y: number; t: number } | null>(null);
   const [dragDx, setDragDx] = useState(0);
