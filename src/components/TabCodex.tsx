@@ -798,6 +798,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
               gallery={gallery}
               siblings={entries}
               onOpenEntry={setPersistedExpandedId}
+              contentHydrated={isContentHydrated(expandedEntry.id)}
             />,
             document.body
           )}
