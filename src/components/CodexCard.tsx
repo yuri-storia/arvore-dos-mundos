@@ -60,6 +60,20 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
     setImgPos(entry.image_position || { x: 50, y: 50 });
   }, [entry.id, entry.image_position]);
 
+  // Ressincroniza o state local sempre que o `entry` mudar (hidratação
+  // tardia do `content`, refetch, atualização vinda de outro lugar) — desde
+  // que o usuário NÃO esteja no meio de uma edição. Sem isso, o `content`
+  // inicializado como '' (antes da hidratação) sobrescreve o texto real ao
+  // salvar → bug crítico de perda de dados relatado pelos usuários.
+  useEffect(() => {
+    if (editing) return;
+    setTitle(entry.title);
+    setContent(entry.content);
+    setEditFruit(entry.fruit_id);
+    lastSavedRef.current = { title: entry.title, content: entry.content, fruit_id: entry.fruit_id };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entry.id, entry.title, entry.content, entry.fruit_id, entry.updated_at]);
+
   // Restore unsaved draft (e.g., after tab refresh / accidental collapse)
   useEffect(() => {
     try {
