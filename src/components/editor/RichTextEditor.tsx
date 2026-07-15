@@ -577,6 +577,30 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
 
   if (!editor) return null;
 
+  const handleOpenCodexPicker = () => {
+    const ed = editorRef.current;
+    if (!ed) return;
+    const { from, to } = ed.state.selection;
+    if (from === to) {
+      // No selection: fall back to the mention suggestion flow.
+      ed.chain().focus().insertContent('@').run();
+      return;
+    }
+    setCodexPickerOpen(true);
+  };
+  openCodexPickerRef.current = handleOpenCodexPicker;
+
+  const handleToggleSpellcheck = () => setSpellcheckEnabled(!spellcheckEnabled);
+
+  const handleCodexPickerSelect = (entry: CodexEntry) => {
+    const ed = editorRef.current;
+    if (!ed) return;
+    ed.chain()
+      .focus()
+      .setMark('codexLink', { id: entry.id, label: entry.title })
+      .run();
+  };
+
   return (
     <div
       className={`rich-editor ${isMobile && focused ? 'has-mobile-floating' : ''} ${stickyToolbar ? 'is-sticky-toolbar' : 'is-flowing-toolbar'}`}
@@ -586,7 +610,14 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
       style={{ '--rich-editor-min-height': minHeight || '220px' } as React.CSSProperties}
     >
       <div className="rich-scroll">
-        {!compact && <Toolbar editor={editor} />}
+        {!compact && (
+          <Toolbar
+            editor={editor}
+            onOpenCodexPicker={handleOpenCodexPicker}
+            spellcheckEnabled={spellcheckEnabled}
+            onToggleSpellcheck={handleToggleSpellcheck}
+          />
+        )}
         <EditorContent editor={editor} />
       </div>
       <BubbleMenu
@@ -599,6 +630,21 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
         <ToolBtn title="Itálico" active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()}><Italic className="w-3.5 h-3.5" /></ToolBtn>
         <ToolBtn title="Sublinhado" active={editor.isActive('underline')} onClick={() => editor.chain().focus().toggleUnderline().run()}><UnderlineIcon className="w-3.5 h-3.5" /></ToolBtn>
         <ToolBtn title="Realce" active={editor.isActive('highlight')} onClick={() => editor.chain().focus().toggleHighlight({ color: '#3A2E12' }).run()}><Highlighter className="w-3.5 h-3.5" /></ToolBtn>
+        <ToolBtn
+          title="Vincular a entrada do Codex (Ctrl+K)"
+          active={editor.isActive('codexLink')}
+          onClick={handleOpenCodexPicker}
+        >
+          <Link2 className="w-3.5 h-3.5" />
+        </ToolBtn>
+        {editor.isActive('codexLink') && (
+          <ToolBtn
+            title="Remover vínculo do Codex"
+            onClick={() => editor.chain().focus().unsetMark('codexLink').run()}
+          >
+            <X className="w-3.5 h-3.5" />
+          </ToolBtn>
+        )}
         <ToolBtn title="Mencionar" onClick={() => editor.chain().focus().insertContent('@').run()}><AtSign className="w-3.5 h-3.5" /></ToolBtn>
       </BubbleMenu>
       <BubbleMenu
@@ -613,9 +659,23 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
 
       {isMobile && focused && (
         <div className="rich-mobile-floating">
-          <Toolbar editor={editor} mobile />
+          <Toolbar
+            editor={editor}
+            mobile
+            onOpenCodexPicker={handleOpenCodexPicker}
+            spellcheckEnabled={spellcheckEnabled}
+            onToggleSpellcheck={handleToggleSpellcheck}
+          />
         </div>
       )}
+
+      <CodexEntryPicker
+        open={codexPickerOpen}
+        onOpenChange={setCodexPickerOpen}
+        entries={entries}
+        onSelect={handleCodexPickerSelect}
+        title="Vincular seleção a entrada do Codex"
+      />
     </div>
   );
 });
