@@ -471,6 +471,13 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
         ...(minHeight ? { style: `min-height:${minHeight}` } : {}),
       },
       handleKeyDown(_view, event) {
+        // Ctrl/Cmd+K → open Codex picker to link the current selection.
+        if ((event.ctrlKey || event.metaKey) && (event.key === 'k' || event.key === 'K')) {
+          event.preventDefault();
+          openCodexPickerRef.current?.();
+          return true;
+        }
+        // Ctrl/Cmd+L → insert '@' to trigger the mention suggestion popup.
         if ((event.ctrlKey || event.metaKey) && (event.key === 'l' || event.key === 'L')) {
           event.preventDefault();
           editorRef.current?.chain().focus().insertContent('@').run();
