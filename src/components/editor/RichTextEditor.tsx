@@ -207,8 +207,6 @@ const Toolbar: React.FC<{
   const [hlOpen, setHlOpen] = useState(false);
   const colorWrapRef = useRef<HTMLDivElement>(null);
   const hlWrapRef = useRef<HTMLDivElement>(null);
-  const colorWrapRef = useRef<HTMLDivElement>(null);
-  const hlWrapRef = useRef<HTMLDivElement>(null);
   const can = editor;
 
   // Force re-render on editor transactions so active/disabled states stay in sync.
