@@ -390,7 +390,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 onClick={e => e.stopPropagation()}
               />
             ) : (
-              <h2 onClick={e => { e.stopPropagation(); setEditing(true); }} className="font-cinzel font-bold text-xl text-foreground cursor-text hover:text-accent transition-colors" title="Clique para editar">{entry.title}</h2>
+              <h2 onClick={e => { e.stopPropagation(); beginEditing(); }} className="font-cinzel font-bold text-xl text-foreground cursor-text hover:text-accent transition-colors" title="Clique para editar">{entry.title}</h2>
             )}
             <button
               onClick={e => { e.stopPropagation(); onToggle(); }}
@@ -467,7 +467,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 )}
 
                 {/* Article body with sections */}
-                <div ref={contentRef} className="flex-1 pr-2 cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }} title="Clique para editar">
+                <div ref={contentRef} className="flex-1 pr-2 cursor-text" onClick={e => { e.stopPropagation(); beginEditing(); }} title="Clique para editar">
                   {displayContent && isHTMLContent(displayContent) ? (
                     <RichTextView value={displayContent} />
                   ) : sections.length > 0 ? (
@@ -508,7 +508,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                       </div>
                     ))
                   ) : (
-                    <p className="font-merriweather text-sm text-text-dim italic cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }}>Sem conteúdo ainda. Clique para adicionar.</p>
+                    <p className="font-merriweather text-sm text-text-dim italic cursor-text" onClick={e => { e.stopPropagation(); beginEditing(); }}>Sem conteúdo ainda. Clique para adicionar.</p>
                   )}
                 </div>
               </div>
@@ -626,7 +626,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 onClick={e => e.stopPropagation()}
               />
             ) : (
-              <h2 onClick={e => { e.stopPropagation(); setEditing(true); }} className="font-cinzel font-bold text-lg text-foreground cursor-text hover:text-blue-light transition-colors" title="Clique para editar">{entry.title}</h2>
+              <h2 onClick={e => { e.stopPropagation(); beginEditing(); }} className="font-cinzel font-bold text-lg text-foreground cursor-text hover:text-blue-light transition-colors" title="Clique para editar">{entry.title}</h2>
             )}
             <button
               onClick={e => { e.stopPropagation(); onToggle(); }}
@@ -663,7 +663,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
                 </div>
               </>
             ) : (
-              <div className="cursor-text" onClick={e => { e.stopPropagation(); setEditing(true); }} title="Clique para editar">
+              <div className="cursor-text" onClick={e => { e.stopPropagation(); beginEditing(); }} title="Clique para editar">
                 {displayContent ? (
                   isHTMLContent(displayContent) ? (
                     <RichTextView value={displayContent} />
