@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState, useImperativeHandle, useCa
 import { useEditor, EditorContent, ReactRenderer, type Editor } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
 import { TextAlign } from '@tiptap/extension-text-align';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
@@ -401,6 +402,7 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
       }),
       TextStyle,
       Color,
+      Underline,
       Highlight.configure({ multicolor: true }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Placeholder.configure({ placeholder: placeholder || 'Comece a escrever…' }),
@@ -544,6 +546,7 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
       id={editorId}
       ref={containerRef}
       lang={lang}
+      style={{ '--rich-editor-min-height': minHeight || '220px' } as React.CSSProperties}
     >
       <div className="rich-scroll">
         {!compact && <Toolbar editor={editor} />}
