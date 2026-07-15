@@ -605,12 +605,21 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
       .run();
   };
 
+  const handleChipClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!onOpenEntry) return;
+    const target = (e.target as HTMLElement).closest('.codex-link, .rich-mention') as HTMLElement | null;
+    if (!target) return;
+    const id = target.getAttribute('data-id');
+    if (id) onOpenEntry(id);
+  }, [onOpenEntry]);
+
   return (
     <div
       className={`rich-editor ${isMobile && focused ? 'has-mobile-floating' : ''} ${stickyToolbar ? 'is-sticky-toolbar' : 'is-flowing-toolbar'}`}
       id={editorId}
       ref={containerRef}
       lang={lang}
+      onClick={handleChipClick}
       style={{ '--rich-editor-min-height': minHeight || '220px' } as React.CSSProperties}
     >
       <div className="rich-scroll">
