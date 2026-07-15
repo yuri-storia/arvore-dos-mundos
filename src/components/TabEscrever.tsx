@@ -119,17 +119,11 @@ const EntryPreviewPanel: React.FC<{
 }> = React.memo(({ entry, allEntries, onClose, onJump }) => {
   const fruit = FRUITS.find(f => f.id === entry.fruit_id);
   const isFicha = entry.entry_type === 'ficha';
-  const byName = useMemo(
-    () => buildEntriesByName(allEntries.filter(e => e.id !== entry.id)),
+  const siblings = useMemo(
+    () => allEntries.filter(e => e.id !== entry.id),
     [allEntries, entry.id],
   );
-  const nodes = useMemo(
-    () => entry.content ? renderInlineMentions(entry.content, byName, {
-      allEntries: allEntries.filter(e => e.id !== entry.id),
-      onOpenEntry: onJump,
-    }) : [],
-    [entry.content, byName, allEntries, entry.id, onJump],
-  );
+  const hasContent = !!(entry.content && entry.content.trim());
   return (
     <div className="flex flex-col h-full">
       <div className="p-3 border-b border-blue-bright/10 flex items-start justify-between gap-2">
@@ -156,8 +150,12 @@ const EntryPreviewPanel: React.FC<{
         <img src={entry.image_url} alt={entry.title} className="w-full h-[120px] object-cover" loading="lazy" />
       )}
       <ScrollArea className="flex-1">
-        <div className="p-3 text-xs text-foreground/85 font-merriweather leading-relaxed whitespace-pre-wrap">
-          {nodes.length > 0 ? nodes : <span className="italic text-text-dim">Sem conteúdo.</span>}
+        <div className="p-3 text-xs text-foreground/85 font-merriweather leading-relaxed">
+          {hasContent ? (
+            <RichTextView value={entry.content} mentionEntries={siblings} onOpenEntry={onJump} />
+          ) : (
+            <span className="italic text-text-dim">Sem conteúdo.</span>
+          )}
         </div>
       </ScrollArea>
     </div>
