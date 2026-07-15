@@ -396,6 +396,8 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
 }, ref) => {
   const entriesRef = useRef<CodexEntry[]>(entries);
   useEffect(() => { entriesRef.current = entries; }, [entries]);
+  const [codexPickerOpen, setCodexPickerOpen] = useState(false);
+  const [spellcheckEnabled, setSpellcheckEnabled] = useSpellcheckEnabled();
   const [focused, setFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<Editor | null>(null);
