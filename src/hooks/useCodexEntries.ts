@@ -178,5 +178,6 @@ export function useCodexEntries(worldId?: string) {
     uploadImage, refetch,
     fetchEntriesFromWorld, importEntries,
     fetchEntryContent,
+    isContentHydrated,
   };
 }
