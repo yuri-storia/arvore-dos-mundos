@@ -450,6 +450,7 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
         ],
         suggestion: { char: '@', ...createMentionSuggestion(() => entriesRef.current) },
       }),
+      CodexLinkMark,
       SpellcheckExtension.configure({ enabled: spellCheck !== false }),
     ],
     content: initialHTML,
