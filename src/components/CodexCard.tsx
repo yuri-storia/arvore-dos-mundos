@@ -667,7 +667,8 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               <div className="cursor-text" onClick={e => { e.stopPropagation(); beginEditing(); }} title="Clique para editar">
                 {displayContent ? (
                   isHTMLContent(displayContent) ? (
-                    <RichTextView value={displayContent} />
+                    <RichTextView value={displayContent} mentionEntries={siblingEntries} onOpenEntry={onOpenEntry} />
+
                   ) : (
                     <p className="font-merriweather text-[15px] text-foreground/95 whitespace-pre-wrap leading-[1.8]">
                       {renderInlineMentions(displayContent, mentionByName, {
