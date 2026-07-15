@@ -749,6 +749,22 @@ function renderHtmlWithMentions(
     if (node.nodeType !== Node.ELEMENT_NODE) return null;
     const el = node as HTMLElement;
 
+    // Codex link mark (arbitrary display text → linked entry)
+    if (el.tagName === 'SPAN' && el.classList.contains('codex-link')) {
+      const id = el.getAttribute('data-id') || '';
+      const label = el.getAttribute('data-label') || '';
+      const display = el.textContent || label;
+      const entry = byId.get(id) || (label ? byName.get(label.toLowerCase()) : undefined);
+      return (
+        <MentionChip
+          key={++key}
+          name={display}
+          entry={entry}
+          onClick={entry && onOpen ? () => onOpen(entry.id) : undefined}
+        />
+      );
+    }
+
     // Tiptap Mention span → MentionChip
     if (el.tagName === 'SPAN' && el.classList.contains('rich-mention')) {
       const id = el.getAttribute('data-id') || '';
