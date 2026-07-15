@@ -20,6 +20,7 @@ interface Props {
   gallery: GalleryImage[];
   siblings: CodexEntry[];
   onOpenEntry: (id: string) => void;
+  contentHydrated?: boolean;
 }
 
 // Swipe sensitivity — stricter to evitar trocas acidentais durante rolagem.
