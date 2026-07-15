@@ -162,6 +162,7 @@ export const ExpandedCodexOverlay: React.FC<Props> = ({
             gallery={gallery}
             siblings={siblings}
             onOpenEntry={onOpenEntry}
+            contentHydrated={contentHydrated}
           />
         </div>
 
