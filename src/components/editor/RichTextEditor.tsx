@@ -196,9 +196,17 @@ const ToolBtn: React.FC<{ active?: boolean; disabled?: boolean; onClick: () => v
   >{children}</button>
 );
 
-const Toolbar: React.FC<{ editor: Editor; mobile?: boolean }> = ({ editor, mobile }) => {
+const Toolbar: React.FC<{
+  editor: Editor;
+  mobile?: boolean;
+  onOpenCodexPicker?: () => void;
+  spellcheckEnabled?: boolean;
+  onToggleSpellcheck?: () => void;
+}> = ({ editor, mobile, onOpenCodexPicker, spellcheckEnabled, onToggleSpellcheck }) => {
   const [colorOpen, setColorOpen] = useState(false);
   const [hlOpen, setHlOpen] = useState(false);
+  const colorWrapRef = useRef<HTMLDivElement>(null);
+  const hlWrapRef = useRef<HTMLDivElement>(null);
   const colorWrapRef = useRef<HTMLDivElement>(null);
   const hlWrapRef = useRef<HTMLDivElement>(null);
   const can = editor;
