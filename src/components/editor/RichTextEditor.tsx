@@ -83,6 +83,9 @@ interface Props {
   /** When true (default), the top toolbar stays fixed while the text scrolls.
    *  When false (e.g. focus/zen mode), the toolbar scrolls along with the content. */
   stickyToolbar?: boolean;
+  /** Called when the user clicks a codex-link or mention chip inside the editor.
+   *  Wire to open a side preview (does NOT prevent cursor placement). */
+  onOpenEntry?: (id: string) => void;
 }
 
 const TEXT_COLORS = ['#FFFFFF', '#FFD27A', '#FFB870', '#FF8FA3', '#FF6B6B', '#7FFFC2', '#7AC8FF', '#B58BFF', '#8C8C8C'];
