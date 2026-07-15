@@ -175,7 +175,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     createManuscript, updateManuscript, deleteManuscript,
     createChapter, updateChapter, deleteChapter,
   } = useManuscript(worldId);
-  const { entries } = useCodexEntries(worldId);
+  const { entries, fetchEntryContent, isContentHydrated } = useCodexEntries(worldId);
 
   const [writeMode, setWriteMode] = useState<WriteMode>('manuscrito');
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
@@ -228,7 +228,10 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const handlePreviewEntry = useCallback((entry: CodexEntry) => {
     setPreviewEntry(entry);
     setShowRefPanel(true);
-  }, []);
+    // Codex list query is lean (no `content`) — hydrate on demand so the
+    // Reference panel shows real text instead of "Sem conteúdo.".
+    if (!isContentHydrated(entry.id)) fetchEntryContent(entry.id);
+  }, [fetchEntryContent, isContentHydrated]);
 
   const handleCreateManuscriptWithName = async () => {
     const name = newManuscriptName.trim() || 'Sem título';
@@ -484,14 +487,14 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
             <div className="w-[280px] shrink-0 bg-white/[0.02] rounded-lg border border-blue-bright/10 overflow-hidden">
               {previewEntry ? (
                 <EntryPreviewPanel
-                  entry={previewEntry}
+                  entry={entries.find(e => e.id === previewEntry.id) ?? previewEntry}
                   allEntries={entries}
                   onClose={() => setPreviewEntry(null)}
-                  onJump={(id) => { const e = entries.find(x => x.id === id); if (e) setPreviewEntry(e); }}
+                  onJump={(id) => { const e = entries.find(x => x.id === id); if (e) handlePreviewEntry(e); }}
                 />
 
               ) : (
-                <ReferencePanel entries={entries} onPreview={(e) => setPreviewEntry(e)} />
+                <ReferencePanel entries={entries} onPreview={(e) => handlePreviewEntry(e)} />
               )}
             </div>
           )}

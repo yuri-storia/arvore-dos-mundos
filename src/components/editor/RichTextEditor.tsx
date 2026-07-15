@@ -83,6 +83,9 @@ interface Props {
   /** When true (default), the top toolbar stays fixed while the text scrolls.
    *  When false (e.g. focus/zen mode), the toolbar scrolls along with the content. */
   stickyToolbar?: boolean;
+  /** Called when the user clicks a codex-link or mention chip inside the editor.
+   *  Wire to open a side preview (does NOT prevent cursor placement). */
+  onOpenEntry?: (id: string) => void;
 }
 
 const TEXT_COLORS = ['#FFFFFF', '#FFD27A', '#FFB870', '#FF8FA3', '#FF6B6B', '#7FFFC2', '#7AC8FF', '#B58BFF', '#8C8C8C'];
@@ -393,6 +396,7 @@ const ImageControls: React.FC<{ editor: Editor }> = ({ editor }) => {
 export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
   value, onChange, entries = [], placeholder, spellCheck = true, lang = 'pt-BR',
   autoFocus, className, minHeight, compact, editorId, saveStatus, stickyToolbar = true,
+  onOpenEntry,
 }, ref) => {
   const entriesRef = useRef<CodexEntry[]>(entries);
   useEffect(() => { entriesRef.current = entries; }, [entries]);
@@ -601,12 +605,21 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
       .run();
   };
 
+  const handleChipClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!onOpenEntry) return;
+    const target = (e.target as HTMLElement).closest('.codex-link, .rich-mention') as HTMLElement | null;
+    if (!target) return;
+    const id = target.getAttribute('data-id');
+    if (id) onOpenEntry(id);
+  }, [onOpenEntry]);
+
   return (
     <div
       className={`rich-editor ${isMobile && focused ? 'has-mobile-floating' : ''} ${stickyToolbar ? 'is-sticky-toolbar' : 'is-flowing-toolbar'}`}
       id={editorId}
       ref={containerRef}
       lang={lang}
+      onClick={handleChipClick}
       style={{ '--rich-editor-min-height': minHeight || '220px' } as React.CSSProperties}
     >
       <div className="rich-scroll">

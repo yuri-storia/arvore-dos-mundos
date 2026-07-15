@@ -213,6 +213,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
             minHeight="100%"
             saveStatus={saveStatus}
             stickyToolbar={!zenMode}
+            onOpenEntry={(id) => { const e = entries.find(x => x.id === id); if (e) onPreviewEntry(e); }}
           />
 
         )}
