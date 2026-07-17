@@ -5,6 +5,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth/mammoth.browser';
 import JSZip from 'jszip';
 import { htmlToPlainText } from '@/lib/htmlToText';
+import { supabase } from '@/integrations/supabase/client';
 
 // Ensure pdfjs worker is configured even if textExtractor.ts hasn't loaded yet.
 (pdfjsLib as unknown as { GlobalWorkerOptions: { workerSrc: string } }).GlobalWorkerOptions.workerSrc =
