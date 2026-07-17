@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Plus, Trash2, FileText, BookOpen,
   PanelRightOpen, StickyNote, Search, BookMarked, PenLine,
-  LayoutGrid, ChevronRight, ChevronDown, X, Upload,
+  LayoutGrid, ChevronRight, ChevronDown, X, Upload, GripVertical,
 } from 'lucide-react';
 import { ImportManuscriptDialog } from '@/components/ImportManuscriptDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -37,6 +37,14 @@ import { AlertTriangle } from 'lucide-react';
 import {
   ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger,
 } from '@/components/ui/context-menu';
+import {
+  DndContext, PointerSensor, TouchSensor, useSensor, useSensors, closestCenter,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext, verticalListSortingStrategy, useSortable, arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 
 interface Props {
