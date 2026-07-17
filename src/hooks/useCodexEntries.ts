@@ -34,7 +34,10 @@ export function useCodexEntries(worldId?: string) {
   // o texto real com string vazia.
   const [hydratedIds, setHydratedIds] = useState<Set<string>>(new Set());
   const hydratingRef = useRef<Set<string>>(new Set());
-  const bulkPrefetchedRef = useRef<Set<string>>(new Set());
+  // Mundos em que a hidratação em lote está atualmente rodando (previne
+  // requisições concorrentes). NÃO é persistente: ao terminar removemos, para
+  // que futuras entradas sem content possam disparar nova hidratação.
+  const bulkInflightRef = useRef<Set<string>>(new Set());
   const isContentHydrated = useCallback((id: string) => hydratedIds.has(id), [hydratedIds]);
 
   const { data: entries = [], isLoading: loading, refetch } = useQuery({
@@ -49,34 +52,43 @@ export function useCodexEntries(worldId?: string) {
         .eq('world_id', worldId!)
         .order('updated_at', { ascending: false });
       if (error) { toast.error('Erro ao carregar fichas'); console.error(error); return []; }
-      // `content` vem como string vazia até ser carregado sob demanda.
-      return (data || []).map((d: any) => ({ ...d, content: d.content ?? '' })) as CodexEntry[];
+      // Preserva o `content` já hidratado no cache anterior. Sem isso, quando
+      // o navegador refoca a aba depois de `staleTime` (30s), o refetch
+      // sobrescreve o texto com string vazia — apagando prévias na UI e,
+      // pior, arriscando salvar vazio por cima do texto real no banco quando
+      // o usuário editar em seguida.
+      const prev = qc.getQueryData<CodexEntry[]>(CODEX_KEY(worldId)) || [];
+      const prevById = new Map(prev.map(e => [e.id, e.content] as const));
+      return (data || []).map((d: any) => ({
+        ...d,
+        content: d.content ?? prevById.get(d.id) ?? '',
+      })) as CodexEntry[];
     },
   });
 
   /**
-   * Hidratação em lote: após a listagem enxuta chegar, dispara UMA requisição
-   * adicional buscando o `content` de todas as entradas do mundo. Assim os
-   * cards conseguem exibir prévia (line-clamp) e as @menções são resolvidas
-   * sem depender de expandir cada card. Roda uma vez por mundo.
+   * Hidratação em lote: garante que todas as entradas do mundo tenham
+   * `content` completo em memória. Reage a qualquer refresh da listagem
+   * (troca de mundo, refetch por foco, invalidação) — se sobrarem entradas
+   * sem conteúdo, dispara uma única requisição extra e mescla.
    */
   useEffect(() => {
     if (!user || !worldId) return;
     if (!entries.length) return;
-    if (bulkPrefetchedRef.current.has(worldId)) return;
+    if (bulkInflightRef.current.has(worldId)) return;
     const missing = entries.filter(e => !hydratedIds.has(e.id));
-    if (!missing.length) { bulkPrefetchedRef.current.add(worldId); return; }
-    bulkPrefetchedRef.current.add(worldId);
+    if (!missing.length) return;
+    bulkInflightRef.current.add(worldId);
     let cancelled = false;
     (async () => {
       const { data, error } = await supabase
         .from('codex_entries')
         .select('id, content')
         .eq('world_id', worldId);
+      bulkInflightRef.current.delete(worldId);
       if (cancelled) return;
       if (error) {
         console.error('bulk codex hydrate failed', error);
-        bulkPrefetchedRef.current.delete(worldId);
         return;
       }
       const byId = new Map<string, string>();
