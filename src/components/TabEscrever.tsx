@@ -29,6 +29,15 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { AlertTriangle } from 'lucide-react';
+import {
+  ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger,
+} from '@/components/ui/context-menu';
+
 
 interface Props {
   worldId: string;
@@ -189,6 +198,8 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const [zenMode, setZenMode] = useState(false);
   // Selected reference (when a chip is clicked) — shows in the right panel as a card.
   const [previewEntry, setPreviewEntry] = useState<CodexEntry | null>(null);
+  const [chapterPendingDelete, setChapterPendingDelete] = useState<string | null>(null);
+  const [chapterRenaming, setChapterRenaming] = useState<{ id: string; title: string } | null>(null);
   const titleSaveTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const activeChapter = useMemo(() => chapters.find(c => c.id === activeChapterId), [chapters, activeChapterId]);
@@ -442,30 +453,51 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
             <ScrollArea className="flex-1">
               <div className="p-1.5 space-y-0.5">
                 {chapters.map((ch) => (
-                  <div key={ch.id} className="flex items-center group">
-                    <button onClick={() => setActiveChapterId(ch.id)}
-                      className={`flex-1 min-w-0 text-left px-2 py-1.5 rounded text-xs font-montserrat font-bold truncate transition-colors ${
-                        activeChapterId === ch.id ? 'bg-blue-bright/15 text-blue-light' : 'text-foreground/80 hover:text-foreground hover:bg-white/[0.03]'
-                      }`}>
-                      <FileText className="w-3 h-3 inline mr-1.5 opacity-50" />{ch.title}
-                    </button>
-                    <span className="text-[9px] text-text-dim/50 mr-1">{ch.word_count || 0}</span>
-                    <button onClick={() => setShowNotes(showNotes === ch.id ? null : ch.id)}
-                      className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-gold-light transition-all" title="Notas">
-                      <StickyNote className="w-3 h-3" />
-                    </button>
-                    <ConfirmDialog
-                      trigger={
-                        <button aria-label="Excluir capítulo" className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all" title="Excluir capítulo">
+                  <ContextMenu key={ch.id}>
+                    <ContextMenuTrigger asChild>
+                      <div className="flex items-center group">
+                        <button onClick={() => setActiveChapterId(ch.id)}
+                          className={`flex-1 min-w-0 text-left px-2 py-1.5 rounded text-xs font-montserrat font-bold truncate transition-colors ${
+                            activeChapterId === ch.id ? 'bg-blue-bright/15 text-blue-light' : 'text-foreground/80 hover:text-foreground hover:bg-white/[0.03]'
+                          }`}
+                          title={`${ch.title} — clique com o botão direito para mais opções`}
+                        >
+                          <FileText className="w-3 h-3 inline mr-1.5 opacity-50" />{ch.title}
+                        </button>
+                        <span className="text-[9px] text-text-dim/50 mr-1 shrink-0">{ch.word_count || 0}</span>
+                        <button onClick={() => setShowNotes(showNotes === ch.id ? null : ch.id)}
+                          className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-gold-light transition-all shrink-0" title="Notas">
+                          <StickyNote className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={() => setChapterPendingDelete(ch.id)}
+                          aria-label="Excluir capítulo"
+                          className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all shrink-0"
+                          title="Excluir capítulo"
+                        >
                           <Trash2 className="w-3 h-3" />
                         </button>
-                      }
-                      title="Excluir capítulo"
-                      description={`Tem certeza que deseja excluir "${ch.title}"? O conteúdo será perdido permanentemente.`}
-                      confirmLabel="Excluir"
-                      onConfirm={() => { deleteChapter(ch.id); if (activeChapterId === ch.id) setActiveChapterId(null); }}
-                    />
-                  </div>
+                      </div>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent className="min-w-[200px]">
+                      <ContextMenuItem onSelect={() => setActiveChapterId(ch.id)} className="text-xs">
+                        <FileText className="w-3.5 h-3.5 mr-2 opacity-60" /> Abrir capítulo
+                      </ContextMenuItem>
+                      <ContextMenuItem onSelect={() => setChapterRenaming({ id: ch.id, title: ch.title })} className="text-xs">
+                        <PenLine className="w-3.5 h-3.5 mr-2 opacity-60" /> Renomear
+                      </ContextMenuItem>
+                      <ContextMenuItem onSelect={() => setShowNotes(showNotes === ch.id ? null : ch.id)} className="text-xs">
+                        <StickyNote className="w-3.5 h-3.5 mr-2 opacity-60" /> {showNotes === ch.id ? 'Ocultar notas' : 'Notas do capítulo'}
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem
+                        onSelect={() => setChapterPendingDelete(ch.id)}
+                        className="text-xs text-red-alert focus:text-red-alert"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 mr-2" /> Excluir capítulo
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  </ContextMenu>
                 ))}
                 {showNotes && (() => {
                   const ch = chapters.find(c => c.id === showNotes);
@@ -543,6 +575,82 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           )}
         </div>
       )}
+
+      {/* Controlled: excluir capítulo (do menu de contexto ou botão da lista) */}
+      <AlertDialog open={!!chapterPendingDelete} onOpenChange={(o) => { if (!o) setChapterPendingDelete(null); }}>
+        <AlertDialogContent className="border-red-alert/30 bg-[#0a0f18] backdrop-blur-xl shadow-[0_0_60px_rgba(220,38,38,0.15)]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-cinzel text-lg text-red-alert flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" strokeWidth={2} /> Excluir capítulo
+            </AlertDialogTitle>
+            <AlertDialogDescription className="font-montserrat text-sm text-text-secondary">
+              {(() => {
+                const ch = chapters.find(c => c.id === chapterPendingDelete);
+                return `Tem certeza que deseja excluir "${ch?.title ?? ''}"? O conteúdo será perdido permanentemente.`;
+              })()}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="font-montserrat text-xs font-bold uppercase tracking-wider border-blue-bright/20 text-text-secondary hover:text-foreground hover:bg-white/[0.04]">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                const id = chapterPendingDelete;
+                if (id) {
+                  deleteChapter(id);
+                  if (activeChapterId === id) setActiveChapterId(null);
+                }
+                setChapterPendingDelete(null);
+              }}
+              className="font-montserrat text-xs font-bold uppercase tracking-wider bg-red-alert/20 text-red-alert border border-red-alert/40 hover:bg-red-alert/30 hover:border-red-alert/60 transition-all"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Controlled: renomear capítulo */}
+      <Dialog open={!!chapterRenaming} onOpenChange={(o) => { if (!o) setChapterRenaming(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-cinzel">Renomear capítulo</DialogTitle>
+          </DialogHeader>
+          <div className="py-3">
+            <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1.5">
+              Novo título
+            </label>
+            <Input
+              value={chapterRenaming?.title ?? ''}
+              onChange={e => setChapterRenaming(prev => prev ? { ...prev, title: e.target.value } : prev)}
+              autoFocus
+              onKeyDown={e => {
+                if (e.key === 'Enter' && chapterRenaming) {
+                  const t = chapterRenaming.title.trim();
+                  if (t) updateChapter(chapterRenaming.id, { title: t });
+                  setChapterRenaming(null);
+                }
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setChapterRenaming(null)}>Cancelar</Button>
+            <Button
+              onClick={() => {
+                if (chapterRenaming) {
+                  const t = chapterRenaming.title.trim();
+                  if (t) updateChapter(chapterRenaming.id, { title: t });
+                }
+                setChapterRenaming(null);
+              }}
+              className="bg-blue-bright/20 text-blue-light border border-blue-bright/30"
+            >
+              Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
