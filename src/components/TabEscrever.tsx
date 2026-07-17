@@ -416,6 +416,9 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
               </Button>
             }
           />
+          {chapters.length > 0 && (
+            <FormatAllChaptersDialog chapters={chapters} onChapterUpdate={updateChapter} />
+          )}
           <ManuscriptExportMenu manuscript={activeManuscript} chapters={chapters} scenes={scenes} />
         </div>
       </div>
