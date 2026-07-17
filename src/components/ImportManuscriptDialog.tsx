@@ -50,8 +50,10 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
   worldId, trigger, existingManuscripts = [], defaultTargetId, onImported,
 }) => {
   const { user } = useAuth();
+  const plan = usePlanLimits();
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [useAI, setUseAI] = useState(false);
 
   // Wizard state
   const [step, setStep] = useState<Step>('destination');
