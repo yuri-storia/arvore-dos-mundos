@@ -88,6 +88,7 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
     setChapters([]);
     setManuscriptTitle('');
     setSaving(false);
+    setUseAI(false);
     setProgress({ stage: 'reading', progress: 0, message: '' });
     if (inputRef.current) inputRef.current.value = '';
   };
