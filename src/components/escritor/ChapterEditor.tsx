@@ -199,6 +199,19 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
 
 
 
+        {plan.canUseAI && (
+          <button
+            type="button"
+            onClick={() => setFormatOpen(true)}
+            title={`Idriel formata a diagramação do capítulo (parágrafos, travessões, espaçamento) — custa ${FORMAT_COST_DROPS} gotas.`}
+            className="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] border border-amber-400/40 text-amber-300 bg-gradient-to-r from-amber-400/[0.08] to-emerald-400/[0.08] hover:from-amber-400/[0.16] hover:to-emerald-400/[0.16] transition-colors"
+          >
+            <Sparkles className="w-3 h-3" />
+            <span className="font-mono">Formatar · {FORMAT_COST_DROPS}g</span>
+          </button>
+        )}
+
+
         <button
           title="Atalho: Ctrl + L — foca o editor com segurança e abre o seletor do Codex"
           className="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] text-text-dim border border-white/10 hover:text-foreground hover:bg-white/[0.05] transition-colors"
@@ -207,6 +220,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
           <Keyboard className="w-3 h-3" />
           <span className="font-mono">Ctrl + L</span>
         </button>
+
 
 
         <div className="flex items-center bg-white/[0.03] rounded border border-blue-bright/10 p-0.5">
