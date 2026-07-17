@@ -606,3 +606,140 @@ export async function smartImportManuscript(
   onProgress?.({ stage: 'done', progress: 1, message: 'Pronto.' });
   return { title: baseTitle, chapters: best.chapters, sourceType, detectionUsed: best.detection };
 }
+
+// ─────────────────────────── AI-powered import (3 gotas) ───────────────────────────
+
+export interface AiImportOptions {
+  expectedChapterCount?: number;
+  onProgress?: OnProgress;
+}
+
+export const AI_IMPORT_COST_DROPS = 3;
+
+interface AiBoundary { title: string; first_line: string }
+
+function normalizeForMatch(s: string): string {
+  return s.toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+/** Locate the char offset of a chapter boundary line in the source text. */
+function findBoundaryOffset(text: string, firstLine: string, minFrom: number): number {
+  const needle = firstLine.trim();
+  if (!needle) return -1;
+  // Try exact match first.
+  let idx = text.indexOf(needle, minFrom);
+  if (idx >= 0) return idx;
+  // Fallback: normalize whitespace and search line-by-line.
+  const target = normalizeForMatch(needle);
+  const lines = text.split('\n');
+  let acc = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const lineStart = acc;
+    acc += lines[i].length + 1; // + newline
+    if (lineStart < minFrom) continue;
+    const norm = normalizeForMatch(lines[i]);
+    if (norm.startsWith(target.slice(0, Math.min(target.length, 60)))) {
+      return lineStart;
+    }
+  }
+  return -1;
+}
+
+function sliceByBoundaries(text: string, boundaries: AiBoundary[]): ImportedChapter[] {
+  if (boundaries.length === 0) return [{ title: 'Capítulo 1', content: text.trim() }];
+  const offsets: Array<{ title: string; offset: number }> = [];
+  let cursor = 0;
+  for (const b of boundaries) {
+    const off = findBoundaryOffset(text, b.first_line, cursor);
+    if (off < 0) continue; // skip unfindable boundary
+    offsets.push({ title: b.title, offset: off });
+    cursor = off + 1;
+  }
+  if (offsets.length === 0) return [{ title: 'Capítulo 1', content: text.trim() }];
+  // Content before first boundary (dedicatoria/prefacio) — anexa ao primeiro capítulo.
+  const chapters: ImportedChapter[] = [];
+  for (let i = 0; i < offsets.length; i++) {
+    const start = offsets[i].offset;
+    const end = i + 1 < offsets.length ? offsets[i + 1].offset : text.length;
+    const raw = text.slice(start, end).trim();
+    // Remove the boundary line itself from the beginning of content if it matches title.
+    chapters.push({ title: offsets[i].title, content: raw });
+  }
+  return chapters;
+}
+
+/**
+ * Importação com IA — custo fixo de 3 gotas.
+ * Extrai o arquivo localmente, envia o texto limpo para `ai-manuscript-import`
+ * (Gemini 2.5 Flash), recebe as fronteiras dos capítulos e fatia localmente.
+ * O conteúdo dos capítulos permanece idêntico ao extraído — a IA apenas indica
+ * onde cortar.
+ */
+export async function aiImportManuscript(
+  file: File,
+  opts: AiImportOptions = {},
+): Promise<ImportedManuscript & { costDrops: number; truncated: boolean }> {
+  const { expectedChapterCount, onProgress } = opts;
+  const name = file.name.toLowerCase();
+  const ext = name.split('.').pop() || '';
+  const baseTitle = file.name.replace(/\.[^.]+$/, '');
+
+  onProgress?.({ stage: 'reading', progress: 0.05, message: `Lendo "${file.name}"…` });
+
+  let rawText = '';
+  let sourceType: SourceType = 'txt';
+
+  if (ext === 'epub' || file.type === 'application/epub+zip') {
+    const docs = await loadEpubDocs(file, onProgress);
+    rawText = docs.map((d) => (d.title ? `\n\n${d.title}\n\n${d.text}` : d.text)).join('\n\n');
+    sourceType = 'epub';
+  } else if (ext === 'pdf' || file.type === 'application/pdf') {
+    rawText = await extractPdf(file, onProgress);
+    sourceType = 'pdf';
+  } else if (
+    ext === 'docx' ||
+    file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ) {
+    rawText = await extractDocx(file, onProgress);
+    sourceType = 'docx';
+  } else {
+    onProgress?.({ stage: 'extracting', progress: 0.4, message: 'Lendo texto…' });
+    rawText = await file.text();
+    sourceType = 'txt';
+  }
+
+  rawText = cleanExtractedText(rawText);
+  if (rawText.trim().length < 200) {
+    throw new Error('O arquivo parece vazio ou muito curto.');
+  }
+
+  onProgress?.({ stage: 'parsing', progress: 0.55, message: 'Idriel analisando o manuscrito…' });
+
+  const { data, error } = await supabase.functions.invoke('ai-manuscript-import', {
+    body: { rawText, expectedCount: expectedChapterCount },
+  });
+  if (error) {
+    const msg = (error as { message?: string; context?: { error?: string } })?.context?.error
+      || (error as { message?: string }).message
+      || 'Falha ao chamar a IA.';
+    throw new Error(msg);
+  }
+  const boundaries: AiBoundary[] = Array.isArray((data as { boundaries?: unknown })?.boundaries)
+    ? ((data as { boundaries: AiBoundary[] }).boundaries)
+    : [];
+  const truncated = Boolean((data as { truncated?: boolean })?.truncated);
+
+  onProgress?.({ stage: 'splitting', progress: 0.85, message: `Cortando em ${boundaries.length} capítulo${boundaries.length !== 1 ? 's' : ''}…` });
+
+  let chapters = sliceByBoundaries(rawText, boundaries);
+  chapters = normalizeChapters(chapters, baseTitle);
+
+  onProgress?.({ stage: 'done', progress: 1, message: 'Pronto.' });
+  return {
+    title: baseTitle,
+    chapters,
+    sourceType,
+    costDrops: AI_IMPORT_COST_DROPS,
+    truncated,
+  };
+}
