@@ -22,6 +22,7 @@ import { ChapterEditor } from '@/components/escritor/ChapterEditor';
 import { RichTextView } from '@/components/editor/RichTextEditor';
 import { PomodoroTimer } from '@/components/PomodoroTimer';
 import { ManuscriptExportMenu } from '@/components/ManuscriptExportMenu';
+import { FormatAllChaptersDialog } from '@/components/escritor/FormatAllChaptersDialog';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
@@ -415,6 +416,9 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
               </Button>
             }
           />
+          {chapters.length > 0 && (
+            <FormatAllChaptersDialog chapters={chapters} onChapterUpdate={updateChapter} />
+          )}
           <ManuscriptExportMenu manuscript={activeManuscript} chapters={chapters} scenes={scenes} />
         </div>
       </div>
