@@ -216,6 +216,32 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     return () => window.removeEventListener('keydown', handleKey);
   }, [zenMode]);
 
+  // Escuta cliques em Manuscritos/Capítulos disparados pela AppSidebar.
+  // A sidebar não tem acesso direto ao estado do useManuscript, então usamos
+  // um CustomEvent leve para pedir "abrir este manuscrito/capítulo".
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ manuscriptId?: string; chapterId?: string }>).detail;
+      if (!detail?.manuscriptId) return;
+      const target = manuscripts.find(m => m.id === detail.manuscriptId);
+      if (target && target.id !== activeManuscript?.id) setActiveManuscript(target);
+      if (detail.chapterId) {
+        // Espera o manuscrito trocar (chapters recarrega em outro effect); tenta ativar
+        // imediatamente se já estiver no manuscrito atual, senão faz retry curto.
+        const tryActivate = (attempts = 0) => {
+          if (chapters.some(c => c.id === detail.chapterId)) {
+            setActiveChapterId(detail.chapterId!);
+          } else if (attempts < 10) {
+            setTimeout(() => tryActivate(attempts + 1), 100);
+          }
+        };
+        tryActivate();
+      }
+    };
+    window.addEventListener('adm:open-manuscript', handler as EventListener);
+    return () => window.removeEventListener('adm:open-manuscript', handler as EventListener);
+  }, [manuscripts, chapters, activeManuscript?.id, setActiveManuscript]);
+
   useEffect(() => () => {
     if (titleSaveTimerRef.current) clearTimeout(titleSaveTimerRef.current);
   }, []);
