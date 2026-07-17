@@ -1,7 +1,7 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
   Upload, FileText, Loader2, CheckCircle2, ArrowLeft, ArrowRight,
-  Trash2, ArrowUp, ArrowDown, Settings2, ListOrdered, GripVertical,
+  Trash2, ArrowUp, ArrowDown, GripVertical, Sparkles, ChevronDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,18 +13,14 @@ import {
 import {
   Select, SelectTrigger, SelectContent, SelectItem, SelectValue,
 } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
 import {
-  importManuscriptFile, chapterTextToHtml, countWords,
-  DEFAULT_DETECTION,
-  type ImportedManuscript, type ImportedChapter,
-  type DetectionConfig, type DetectionMode, type OrderRule, type ProgressEvent,
+  smartImportManuscript, chapterTextToHtml, countWords,
+  type ImportedManuscript, type ImportedChapter, type ProgressEvent,
 } from '@/lib/manuscriptImport';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Minimal shape from manuscripts row.
 interface ManuscriptTarget {
   id: string;
   title: string;
@@ -34,36 +30,15 @@ interface Props {
   worldId: string;
   trigger: React.ReactNode;
   existingManuscripts?: ManuscriptTarget[];
-  /** Optional pre-selected manuscript to re-import into. */
   defaultTargetId?: string;
   onImported?: (manuscript: { id: string; title: string }) => void;
 }
 
 const ACCEPT = '.pdf,.docx,.txt,.md,.epub,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/epub+zip,text/plain';
 
-type Step = 'configure' | 'processing' | 'preview';
-type MergeStrategy = 'new' | 'replace' | 'merge-title';
-
-const DETECTION_OPTIONS: { value: DetectionMode; label: string; desc: string }[] = [
-  { value: 'auto', label: 'Automática', desc: 'Detecta "Capítulo 1", "Chapter I", "Prólogo", "Epílogo" (recomendado).' },
-  { value: 'regex', label: 'Regex personalizada', desc: 'Uma expressão regular por linha para identificar títulos de capítulo.' },
-  { value: 'separator', label: 'Separador literal', desc: 'Uma linha específica (ex: *** ou ---) marca o início de novo capítulo.' },
-  { value: 'heading', label: 'Nível de título (EPUB)', desc: 'Divide o EPUB pelos títulos H1, H2 ou H3 dentro dos documentos.' },
-  { value: 'none', label: 'Sem divisão', desc: 'Importa como um único capítulo.' },
-];
-
-const ORDER_OPTIONS: { value: OrderRule; label: string; desc: string }[] = [
-  { value: 'as-detected', label: 'Ordem detectada', desc: 'Preserva a ordem em que apareceram no arquivo.' },
-  { value: 'numeric', label: 'Por numeração', desc: 'Ordena por "Capítulo 1, 2, 3…" (inclusive romanos).' },
-  { value: 'title', label: 'Por título (A→Z)', desc: 'Ordena alfabeticamente.' },
-  { value: 'spine', label: 'Ordem do OPF/spine (EPUB)', desc: 'Segue exatamente a lombada declarada no EPUB.' },
-];
-
-const MERGE_OPTIONS: { value: MergeStrategy; label: string; desc: string }[] = [
-  { value: 'new', label: 'Criar novo manuscrito', desc: 'Adiciona um manuscrito novo ao mundo atual.' },
-  { value: 'replace', label: 'Substituir capítulos do manuscrito', desc: 'Apaga todos os capítulos existentes e insere os importados.' },
-  { value: 'merge-title', label: 'Atualizar por título', desc: 'Capítulos com o mesmo título são atualizados. Novos são inseridos ao final. Sem duplicar.' },
-];
+type Step = 'destination' | 'upload' | 'processing' | 'preview';
+type Destination = 'new' | 'existing';
+type MergeMode = 'replace' | 'merge-title';
 
 function normalizeTitle(s: string): string {
   return s.trim().toLowerCase().replace(/\s+/g, ' ');
@@ -77,38 +52,34 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Wizard state
-  const [step, setStep] = useState<Step>('configure');
-  const [file, setFile] = useState<File | null>(null);
-  const [detection, setDetection] = useState<DetectionConfig>({ ...DEFAULT_DETECTION });
-  const [order, setOrder] = useState<OrderRule>('as-detected');
-  const [mergeStrategy, setMergeStrategy] = useState<MergeStrategy>('new');
+  const [step, setStep] = useState<Step>('destination');
+  const [destination, setDestination] = useState<Destination>('new');
   const [targetId, setTargetId] = useState<string>(defaultTargetId ?? '');
+  const [mergeMode, setMergeMode] = useState<MergeMode>('merge-title');
+
+  const [file, setFile] = useState<File | null>(null);
+  const [expectedCount, setExpectedCount] = useState<string>(''); // "" = "não sei"
   const [progress, setProgress] = useState<ProgressEvent>({ stage: 'reading', progress: 0, message: '' });
 
-  // Preview state
   const [parsed, setParsed] = useState<ImportedManuscript | null>(null);
   const [chapters, setChapters] = useState<ImportedChapter[]>([]);
   const [manuscriptTitle, setManuscriptTitle] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (defaultTargetId) {
+    if (defaultTargetId && open) {
+      setDestination('existing');
       setTargetId(defaultTargetId);
-      setMergeStrategy('merge-title');
     }
   }, [defaultTargetId, open]);
 
-  const isEpub = file && /\.epub$/i.test(file.name);
-  const availableOrders = ORDER_OPTIONS.filter((o) => o.value !== 'spine' || isEpub);
-  const availableDetections = DETECTION_OPTIONS.filter((o) => o.value !== 'heading' || isEpub);
-
   const reset = () => {
-    setStep('configure');
-    setFile(null);
-    setDetection({ ...DEFAULT_DETECTION });
-    setOrder('as-detected');
-    setMergeStrategy(defaultTargetId ? 'merge-title' : 'new');
+    setStep('destination');
+    setDestination(defaultTargetId ? 'existing' : 'new');
     setTargetId(defaultTargetId ?? '');
+    setMergeMode('merge-title');
+    setFile(null);
+    setExpectedCount('');
     setParsed(null);
     setChapters([]);
     setManuscriptTitle('');
@@ -124,8 +95,6 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
       return;
     }
     setFile(f);
-    // Sensible defaults per file type
-    if (/\.epub$/i.test(f.name)) setOrder('spine');
   };
 
   const handleParse = async () => {
@@ -133,15 +102,14 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
     setStep('processing');
     setProgress({ stage: 'reading', progress: 0, message: 'Iniciando…' });
     try {
-      const result = await importManuscriptFile(file, {
-        detection,
-        order,
+      const expected = expectedCount ? parseInt(expectedCount, 10) : undefined;
+      const result = await smartImportManuscript(file, {
+        expectedChapterCount: Number.isFinite(expected as number) ? (expected as number) : undefined,
         onProgress: (e) => setProgress(e),
       });
       setParsed(result);
       setChapters(result.chapters);
-      // Prefill manuscript title
-      if (mergeStrategy === 'new') {
+      if (destination === 'new') {
         setManuscriptTitle(result.title);
       } else {
         const t = existingManuscripts.find((m) => m.id === targetId);
@@ -151,7 +119,7 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
     } catch (e) {
       console.error(e);
       toast.error('Não foi possível ler este arquivo. Verifique o formato.');
-      setStep('configure');
+      setStep('upload');
     }
   };
 
@@ -160,7 +128,6 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
     [chapters],
   );
 
-  // Preview operations
   const renameChapter = (idx: number, title: string) => {
     setChapters((prev) => prev.map((c, i) => (i === idx ? { ...c, title } : c)));
   };
@@ -193,7 +160,7 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
       let manuscriptId: string;
       let finalTitle = manuscriptTitle.trim() || 'Manuscrito importado';
 
-      if (mergeStrategy === 'new' || !targetId) {
+      if (destination === 'new') {
         const { data: ms, error: msErr } = await supabase
           .from('manuscripts')
           .insert({ user_id: user.id, world_id: worldId, title: finalTitle })
@@ -215,11 +182,10 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
         if (chErr) throw chErr;
       } else {
         manuscriptId = targetId;
-        // Update manuscript title if user changed it
         if (finalTitle) {
           await supabase.from('manuscripts').update({ title: finalTitle }).eq('id', manuscriptId);
         }
-        if (mergeStrategy === 'replace') {
+        if (mergeMode === 'replace') {
           const { error: delErr } = await supabase.from('chapters').delete().eq('manuscript_id', manuscriptId);
           if (delErr) throw delErr;
           const rows = chapters.map((c, i) => ({
@@ -232,8 +198,7 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
           }));
           const { error: chErr } = await supabase.from('chapters').insert(rows);
           if (chErr) throw chErr;
-        } else if (mergeStrategy === 'merge-title') {
-          // Fetch existing chapters
+        } else {
           const { data: existing, error: fetchErr } = await supabase
             .from('chapters')
             .select('id, title, sort_order')
@@ -257,7 +222,7 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
                 title: c.title,
                 content: chapterTextToHtml(c.content),
                 word_count: countWords(c.content),
-                sort_order: i, // reorder to imported order
+                sort_order: i,
               });
               byTitle.delete(key);
             } else {
@@ -289,11 +254,11 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
         }
       }
 
-      const strategyMsg =
-        mergeStrategy === 'new' ? 'Manuscrito criado!' :
-        mergeStrategy === 'replace' ? 'Capítulos substituídos!' :
+      const msg =
+        destination === 'new' ? 'Manuscrito criado!' :
+        mergeMode === 'replace' ? 'Capítulos substituídos!' :
         'Capítulos atualizados sem duplicar!';
-      toast.success(strategyMsg);
+      toast.success(msg);
       onImported?.({ id: manuscriptId, title: finalTitle });
       setOpen(false);
       reset();
@@ -310,198 +275,176 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
     extracting: 'Extraindo conteúdo',
     parsing: 'Interpretando',
     splitting: 'Detectando capítulos',
-    ordering: 'Ordenando',
+    ordering: 'Organizando',
     done: 'Finalizado',
   }[progress.stage];
+
+  const canGoToUpload = destination === 'new' || !!targetId;
+  const hasExisting = existingManuscripts.length > 0;
 
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
       <span onClick={() => setOpen(true)}>{trigger}</span>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="font-cinzel flex items-center gap-2">
             <Upload className="w-4 h-4 text-emerald-400" />
             Importar Manuscrito
           </DialogTitle>
           <DialogDescription className="text-xs">
-            Envie um arquivo <strong>.pdf</strong>, <strong>.docx</strong>, <strong>.txt</strong> ou <strong>.epub</strong>. Configure a detecção, revise a prévia e confirme.
+            Envie um arquivo <strong>.pdf</strong>, <strong>.docx</strong>, <strong>.txt</strong> ou <strong>.epub</strong>. Nós detectamos os capítulos automaticamente.
           </DialogDescription>
         </DialogHeader>
 
-        {/* ── Stepper header ── */}
-        <div className="flex items-center gap-2 text-[10px] font-montserrat uppercase tracking-widest text-text-dim">
-          <span className={step === 'configure' ? 'text-emerald-400' : ''}>1. Configurar</span>
-          <span>·</span>
-          <span className={step === 'processing' ? 'text-emerald-400' : ''}>2. Processar</span>
-          <span>·</span>
-          <span className={step === 'preview' ? 'text-emerald-400' : ''}>3. Prévia</span>
-        </div>
+        {/* ── STEP 1: DESTINATION ── */}
+        {step === 'destination' && (
+          <div className="flex-1 space-y-3 py-2">
+            <p className="text-sm text-text-secondary font-montserrat">O que você quer fazer?</p>
 
-        {/* ── STEP 1: CONFIGURE ── */}
-        {step === 'configure' && (
-          <ScrollArea className="flex-1 pr-2">
-            <div className="space-y-4 pb-2">
-              {/* File picker */}
-              <div>
-                <Label className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat">Arquivo</Label>
-                <label
-                  htmlFor="ms-import-input"
-                  className="mt-1 block border-2 border-dashed border-blue-bright/25 rounded-lg p-4 text-center cursor-pointer hover:border-emerald-400/40 hover:bg-emerald-400/5 transition-colors"
-                >
-                  {file ? (
-                    <>
-                      <FileText className="w-5 h-5 mx-auto mb-1 text-emerald-400" />
-                      <p className="text-xs font-montserrat font-bold text-foreground">{file.name}</p>
-                      <p className="text-[10px] text-text-dim">Clique para trocar</p>
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-6 h-6 mx-auto mb-1 text-text-dim" />
-                      <p className="text-sm font-montserrat font-bold text-foreground">Escolher arquivo</p>
-                      <p className="text-[10px] text-text-dim mt-0.5">PDF · DOCX · TXT · EPUB (até 30 MB)</p>
-                    </>
-                  )}
-                </label>
-                <input
-                  ref={inputRef}
-                  id="ms-import-input"
-                  type="file"
-                  accept={ACCEPT}
-                  className="hidden"
-                  onChange={(e) => handleFile(e.target.files?.[0] || null)}
-                />
+            <button
+              onClick={() => setDestination('new')}
+              className={`w-full text-left p-3 rounded-lg border transition-all ${
+                destination === 'new'
+                  ? 'border-emerald-400/60 bg-emerald-500/10 shadow-md shadow-emerald-500/10'
+                  : 'border-blue-bright/15 bg-white/[0.02] hover:border-blue-bright/30'
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+                <span className="font-montserrat font-bold text-sm text-foreground">Criar novo manuscrito</span>
               </div>
+              <p className="text-xs text-text-dim leading-snug">
+                Um manuscrito novo será criado neste mundo, com os capítulos do arquivo importado.
+              </p>
+            </button>
 
-              {/* Target */}
-              <div className="space-y-2">
-                <Label className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat flex items-center gap-1.5">
-                  <Settings2 className="w-3 h-3" /> Destino
-                </Label>
-                <RadioGroup value={mergeStrategy} onValueChange={(v) => setMergeStrategy(v as MergeStrategy)}>
-                  {MERGE_OPTIONS.map((opt) => {
-                    const disabled = opt.value !== 'new' && existingManuscripts.length === 0;
-                    return (
-                      <label
-                        key={opt.value}
-                        className={`flex items-start gap-2 p-2 rounded-md border text-xs transition-colors ${
-                          mergeStrategy === opt.value ? 'border-emerald-400/50 bg-emerald-500/5' : 'border-blue-bright/10 bg-white/[0.02]'
-                        } ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:border-blue-bright/30'}`}
-                      >
-                        <RadioGroupItem value={opt.value} disabled={disabled} className="mt-0.5" />
-                        <div className="min-w-0 flex-1">
-                          <p className="font-montserrat font-bold text-foreground">{opt.label}</p>
-                          <p className="text-[11px] text-text-dim leading-snug">{opt.desc}</p>
-                        </div>
-                      </label>
-                    );
-                  })}
-                </RadioGroup>
-                {mergeStrategy !== 'new' && (
-                  <div>
-                    <Label className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat">Manuscrito de destino</Label>
-                    <Select value={targetId} onValueChange={setTargetId}>
-                      <SelectTrigger className="h-8 text-xs mt-1">
-                        <SelectValue placeholder="Selecione…" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {existingManuscripts.map((m) => (
-                          <SelectItem key={m.id} value={m.id} className="text-xs">{m.title}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
+            <button
+              onClick={() => hasExisting && setDestination('existing')}
+              disabled={!hasExisting}
+              className={`w-full text-left p-3 rounded-lg border transition-all ${
+                destination === 'existing'
+                  ? 'border-emerald-400/60 bg-emerald-500/10 shadow-md shadow-emerald-500/10'
+                  : 'border-blue-bright/15 bg-white/[0.02] hover:border-blue-bright/30'
+              } ${!hasExisting ? 'opacity-40 cursor-not-allowed hover:border-blue-bright/15' : ''}`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <FileText className="w-4 h-4 text-blue-bright" />
+                <span className="font-montserrat font-bold text-sm text-foreground">Adicionar a um manuscrito existente</span>
               </div>
+              <p className="text-xs text-text-dim leading-snug">
+                {hasExisting
+                  ? 'Insere ou atualiza capítulos em um manuscrito que você já tem neste mundo.'
+                  : 'Você ainda não tem manuscritos neste mundo.'}
+              </p>
+            </button>
 
-              {/* Detection */}
-              <div className="space-y-2">
-                <Label className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat">Detecção de capítulos</Label>
-                <Select
-                  value={detection.mode}
-                  onValueChange={(v) => setDetection((prev) => ({ ...prev, mode: v as DetectionMode }))}
-                >
-                  <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {availableDetections.map((o) => (
-                      <SelectItem key={o.value} value={o.value} className="text-xs">
-                        <div>
-                          <div className="font-bold">{o.label}</div>
-                          <div className="text-[10px] text-text-dim">{o.desc}</div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            {destination === 'existing' && hasExisting && (
+              <div className="space-y-3 p-3 rounded-lg border border-blue-bright/10 bg-white/[0.02]">
+                <div>
+                  <Label className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat">Manuscrito</Label>
+                  <Select value={targetId} onValueChange={setTargetId}>
+                    <SelectTrigger className="h-9 text-xs mt-1">
+                      <SelectValue placeholder="Selecione o manuscrito…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {existingManuscripts.map((m) => (
+                        <SelectItem key={m.id} value={m.id} className="text-xs">{m.title}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                {detection.mode === 'regex' && (
-                  <div>
-                    <Label className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat">Regex (uma linha inteira)</Label>
-                    <Input
-                      value={detection.regex ?? ''}
-                      onChange={(e) => setDetection((prev) => ({ ...prev, regex: e.target.value }))}
-                      className="h-8 text-xs font-mono mt-1"
-                      placeholder={DEFAULT_DETECTION.regex}
-                    />
-                    <p className="text-[10px] text-text-dim mt-1">Case-insensitive. Ex: <code>^\s*(cap[ií]tulo|parte)\s+\d+</code></p>
+                <div>
+                  <Label className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat">Como mesclar</Label>
+                  <div className="grid gap-1.5 mt-1">
+                    <label className={`flex items-start gap-2 p-2 rounded text-xs cursor-pointer border ${mergeMode === 'merge-title' ? 'border-emerald-400/50 bg-emerald-500/5' : 'border-transparent hover:bg-white/[0.03]'}`}>
+                      <input
+                        type="radio"
+                        checked={mergeMode === 'merge-title'}
+                        onChange={() => setMergeMode('merge-title')}
+                        className="mt-0.5"
+                      />
+                      <div>
+                        <div className="font-bold text-foreground">Atualizar por título (recomendado)</div>
+                        <div className="text-[11px] text-text-dim">Capítulos com o mesmo título são atualizados. Novos são inseridos ao final.</div>
+                      </div>
+                    </label>
+                    <label className={`flex items-start gap-2 p-2 rounded text-xs cursor-pointer border ${mergeMode === 'replace' ? 'border-emerald-400/50 bg-emerald-500/5' : 'border-transparent hover:bg-white/[0.03]'}`}>
+                      <input
+                        type="radio"
+                        checked={mergeMode === 'replace'}
+                        onChange={() => setMergeMode('replace')}
+                        className="mt-0.5"
+                      />
+                      <div>
+                        <div className="font-bold text-foreground">Substituir tudo</div>
+                        <div className="text-[11px] text-text-dim">Apaga todos os capítulos existentes e insere os importados.</div>
+                      </div>
+                    </label>
                   </div>
-                )}
-                {detection.mode === 'separator' && (
-                  <div>
-                    <Label className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat">Linha separadora</Label>
-                    <Input
-                      value={detection.separator ?? ''}
-                      onChange={(e) => setDetection((prev) => ({ ...prev, separator: e.target.value }))}
-                      className="h-8 text-xs font-mono mt-1"
-                      placeholder="***"
-                    />
-                    <p className="text-[10px] text-text-dim mt-1">Ex: <code>***</code>, <code>---</code>, <code>§</code></p>
-                  </div>
-                )}
-                {detection.mode === 'heading' && (
-                  <div>
-                    <Label className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat">Nível do título</Label>
-                    <Select
-                      value={String(detection.headingLevel ?? 1)}
-                      onValueChange={(v) => setDetection((prev) => ({ ...prev, headingLevel: Number(v) as 1 | 2 | 3 }))}
-                    >
-                      <SelectTrigger className="h-8 text-xs mt-1"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1" className="text-xs">H1 — Título principal</SelectItem>
-                        <SelectItem value="2" className="text-xs">H2 — Subtítulo</SelectItem>
-                        <SelectItem value="3" className="text-xs">H3</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
+                </div>
               </div>
-
-              {/* Order */}
-              <div>
-                <Label className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat flex items-center gap-1.5">
-                  <ListOrdered className="w-3 h-3" /> Ordenação
-                </Label>
-                <Select value={order} onValueChange={(v) => setOrder(v as OrderRule)}>
-                  <SelectTrigger className="h-8 text-xs mt-1"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {availableOrders.map((o) => (
-                      <SelectItem key={o.value} value={o.value} className="text-xs">
-                        <div>
-                          <div className="font-bold">{o.label}</div>
-                          <div className="text-[10px] text-text-dim">{o.desc}</div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </ScrollArea>
+            )}
+          </div>
         )}
 
-        {/* ── STEP 2: PROCESSING ── */}
+        {/* ── STEP 2: UPLOAD ── */}
+        {step === 'upload' && (
+          <div className="flex-1 space-y-4 py-2">
+            <div>
+              <Label className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat">Arquivo</Label>
+              <label
+                htmlFor="ms-import-input"
+                className="mt-1 block border-2 border-dashed border-blue-bright/25 rounded-lg p-5 text-center cursor-pointer hover:border-emerald-400/40 hover:bg-emerald-400/5 transition-colors"
+              >
+                {file ? (
+                  <>
+                    <FileText className="w-6 h-6 mx-auto mb-1 text-emerald-400" />
+                    <p className="text-sm font-montserrat font-bold text-foreground">{file.name}</p>
+                    <p className="text-[10px] text-text-dim">Clique para trocar</p>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-7 h-7 mx-auto mb-1 text-text-dim" />
+                    <p className="text-sm font-montserrat font-bold text-foreground">Escolher arquivo</p>
+                    <p className="text-[10px] text-text-dim mt-0.5">PDF · DOCX · TXT · EPUB (até 30 MB)</p>
+                  </>
+                )}
+              </label>
+              <input
+                ref={inputRef}
+                id="ms-import-input"
+                type="file"
+                accept={ACCEPT}
+                className="hidden"
+                onChange={(e) => handleFile(e.target.files?.[0] || null)}
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs font-montserrat text-foreground">
+                Quantos capítulos seu manuscrito tem? <span className="text-text-dim font-normal">(opcional)</span>
+              </Label>
+              <Input
+                type="number"
+                min={1}
+                max={999}
+                value={expectedCount}
+                onChange={(e) => setExpectedCount(e.target.value.replace(/[^\d]/g, ''))}
+                placeholder="Ex: 24"
+                className="mt-1 h-9 text-sm"
+              />
+              <p className="text-[11px] text-text-dim mt-1 leading-snug">
+                Se você souber o número, testamos várias estratégias de detecção e escolhemos a que mais se aproxima. Se não souber, deixe em branco.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ── STEP 3: PROCESSING ── */}
         {step === 'processing' && (
-          <div className="flex-1 flex flex-col items-center justify-center py-8 gap-4">
-            <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
+          <div className="flex-1 flex flex-col items-center justify-center py-10 gap-4">
+            <Loader2 className="w-9 h-9 text-emerald-400 animate-spin" />
             <div className="w-full max-w-sm space-y-2">
               <div className="flex justify-between text-[10px] font-montserrat uppercase tracking-widest text-text-dim">
                 <span>{stageLabel}</span>
@@ -518,15 +461,20 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
           </div>
         )}
 
-        {/* ── STEP 3: PREVIEW ── */}
+        {/* ── STEP 4: PREVIEW ── */}
         {step === 'preview' && parsed && (
           <div className="flex-1 flex flex-col min-h-0 space-y-3">
             <div className="flex items-center gap-2 text-emerald-400 text-xs">
               <CheckCircle2 className="w-4 h-4" />
               <span>
-                <strong>{chapters.length}</strong> capítulo{chapters.length !== 1 ? 's' : ''} · {totalWords.toLocaleString()} palavras · {parsed.sourceType.toUpperCase()}
+                <strong>{chapters.length}</strong> capítulo{chapters.length !== 1 ? 's' : ''} detectado{chapters.length !== 1 ? 's' : ''} · {totalWords.toLocaleString()} palavras · {parsed.sourceType.toUpperCase()}
               </span>
             </div>
+            {expectedCount && parseInt(expectedCount, 10) !== chapters.length && (
+              <p className="text-[11px] text-amber-400/90 bg-amber-500/5 border border-amber-500/20 rounded px-2 py-1.5">
+                Você esperava {expectedCount} capítulos e detectamos {chapters.length}. Você pode ajustar abaixo (renomear, reordenar, remover) ou voltar e tentar outro valor.
+              </p>
+            )}
 
             <div>
               <Label className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat">Nome do manuscrito</Label>
@@ -540,8 +488,8 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
 
             <div className="flex-1 min-h-0 rounded-md border border-blue-bright/10 bg-white/[0.02] flex flex-col">
               <div className="px-2 py-1.5 border-b border-blue-bright/10 flex items-center justify-between">
-                <span className="text-[10px] uppercase tracking-widest font-montserrat text-text-dim">Capítulos (edite antes de confirmar)</span>
-                <span className="text-[10px] text-text-dim">Renomeie, reordene ou remova</span>
+                <span className="text-[10px] uppercase tracking-widest font-montserrat text-text-dim">Capítulos</span>
+                <span className="text-[10px] text-text-dim">Renomeie, reordene ou remova antes de confirmar</span>
               </div>
               <ScrollArea className="flex-1">
                 <ol className="p-1.5 space-y-1">
@@ -606,12 +554,26 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
         )}
 
         <DialogFooter className="gap-2">
-          {step === 'configure' && (
+          {step === 'destination' && (
             <>
               <Button variant="ghost" onClick={() => { setOpen(false); reset(); }}>Cancelar</Button>
               <Button
+                onClick={() => setStep('upload')}
+                disabled={!canGoToUpload}
+                className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-400 hover:to-blue-400 text-white"
+              >
+                Continuar <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            </>
+          )}
+          {step === 'upload' && (
+            <>
+              <Button variant="ghost" onClick={() => setStep('destination')}>
+                <ArrowLeft className="w-4 h-4 mr-1" /> Voltar
+              </Button>
+              <Button
                 onClick={handleParse}
-                disabled={!file || (mergeStrategy !== 'new' && !targetId)}
+                disabled={!file}
                 className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-400 hover:to-blue-400 text-white"
               >
                 Ler arquivo <ArrowRight className="w-4 h-4 ml-1" />
@@ -623,7 +585,7 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
           )}
           {step === 'preview' && (
             <>
-              <Button variant="ghost" onClick={() => setStep('configure')} disabled={saving}>
+              <Button variant="ghost" onClick={() => setStep('upload')} disabled={saving}>
                 <ArrowLeft className="w-4 h-4 mr-1" /> Voltar
               </Button>
               <Button
@@ -633,9 +595,9 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
               >
                 {saving ? (
                   <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> Salvando…</>
-                ) : mergeStrategy === 'new' ? (
+                ) : destination === 'new' ? (
                   <>Criar com {chapters.length} capítulo{chapters.length !== 1 ? 's' : ''}</>
-                ) : mergeStrategy === 'replace' ? (
+                ) : mergeMode === 'replace' ? (
                   <>Substituir por {chapters.length} capítulo{chapters.length !== 1 ? 's' : ''}</>
                 ) : (
                   <>Atualizar {chapters.length} capítulo{chapters.length !== 1 ? 's' : ''}</>
