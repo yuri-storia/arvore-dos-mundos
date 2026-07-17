@@ -269,25 +269,124 @@ export const AppSidebar: React.FC<Props> = ({
   );
 };
 
-// ── Sub-component: chapters tree inside sidebar ──
+// ── Sub-component: manuscripts tree inside sidebar (World → Manuscripts → Chapters) ──
 const WorldChaptersTree: React.FC<{ worldId: string; setActiveTab: (t: TabType) => void }> = ({ worldId, setActiveTab }) => {
-  const { chapters } = useManuscript(worldId);
+  const [manuscripts, setManuscripts] = React.useState<Manuscript[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [expanded, setExpanded] = React.useState<Set<string>>(new Set());
 
-  if (chapters.length === 0) {
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from('manuscripts')
+        .select('*')
+        .eq('world_id', worldId)
+        .order('created_at', { ascending: true });
+      if (cancelled) return;
+      setManuscripts((data || []) as Manuscript[]);
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [worldId]);
+
+  const toggle = (id: string) => {
+    setExpanded(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  if (loading) {
     return (
       <div className="ml-6 py-1">
-        <p className="text-[9px] text-text-dim/40 font-montserrat italic">Nenhum capítulo ainda</p>
+        <p className="text-[9px] text-text-dim/40 font-montserrat italic">Carregando…</p>
+      </div>
+    );
+  }
+
+  if (manuscripts.length === 0) {
+    return (
+      <div className="ml-6 py-1">
+        <p className="text-[9px] text-text-dim/40 font-montserrat italic">Nenhum manuscrito ainda</p>
       </div>
     );
   }
 
   return (
     <div className="ml-4 py-0.5 border-l border-blue-bright/10 pl-2 space-y-0.5">
+      {manuscripts.map(m => {
+        const isOpen = expanded.has(m.id);
+        return (
+          <div key={m.id}>
+            <div className="flex items-center gap-1 w-full">
+              <button
+                onClick={() => toggle(m.id)}
+                className="p-0.5 text-text-dim hover:text-foreground shrink-0"
+                aria-label={isOpen ? 'Recolher manuscrito' : 'Expandir manuscrito'}
+              >
+                {isOpen ? <ChevronDown className="w-2.5 h-2.5" /> : <ChevronRight className="w-2.5 h-2.5" />}
+              </button>
+              <button
+                onClick={() => setActiveTab('escrever')}
+                className="flex items-center gap-1 flex-1 min-w-0 text-left py-0.5 text-[10px] text-blue-light/80 hover:text-blue-light transition-colors"
+                title={m.title}
+              >
+                <BookMarked className="w-2.5 h-2.5 shrink-0 opacity-60" />
+                <span className="truncate font-cinzel font-bold">{m.title}</span>
+              </button>
+            </div>
+            {isOpen && <ManuscriptChaptersList manuscriptId={m.id} setActiveTab={setActiveTab} />}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// ── Sub-component: chapters under a manuscript (lazy fetch on expand) ──
+const ManuscriptChaptersList: React.FC<{ manuscriptId: string; setActiveTab: (t: TabType) => void }> = ({ manuscriptId, setActiveTab }) => {
+  const [chapters, setChapters] = React.useState<Chapter[] | null>(null);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from('chapters')
+        .select('id, manuscript_id, title, word_count, sort_order, content, notes, created_at, updated_at')
+        .eq('manuscript_id', manuscriptId)
+        .order('sort_order', { ascending: true });
+      if (cancelled) return;
+      setChapters((data || []) as Chapter[]);
+    })();
+    return () => { cancelled = true; };
+  }, [manuscriptId]);
+
+  if (chapters === null) {
+    return (
+      <div className="ml-5 py-0.5">
+        <p className="text-[9px] text-text-dim/40 font-montserrat italic">Carregando…</p>
+      </div>
+    );
+  }
+
+  if (chapters.length === 0) {
+    return (
+      <div className="ml-5 py-0.5">
+        <p className="text-[9px] text-text-dim/40 font-montserrat italic">Sem capítulos</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="ml-3 mt-0.5 mb-1 border-l border-blue-bright/10 pl-2 space-y-0.5">
       {chapters.map(ch => (
         <button
           key={ch.id}
           onClick={() => setActiveTab('escrever')}
           className="flex items-center gap-1 w-full text-left py-0.5 text-[10px] text-text-dim hover:text-foreground transition-colors"
+          title={ch.title}
         >
           <BookOpen className="w-2.5 h-2.5 shrink-0 opacity-50" />
           <span className="truncate font-montserrat font-semibold">{ch.title}</span>
@@ -297,3 +396,4 @@ const WorldChaptersTree: React.FC<{ worldId: string; setActiveTab: (t: TabType) 
     </div>
   );
 };
+
