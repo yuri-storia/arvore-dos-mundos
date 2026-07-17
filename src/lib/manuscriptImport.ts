@@ -208,8 +208,8 @@ function splitByDetector(text: string, cfg: DetectionConfig): ImportedChapter[] 
 function normalizeChapters(chapters: ImportedChapter[], fallbackTitle: string): ImportedChapter[] {
   const clean = chapters
     .map((c, i) => ({
-      title: (c.title || `Capítulo ${i + 1}`).slice(0, 120),
-      content: (c.content || '').trim(),
+      title: (c.title || `Capítulo ${i + 1}`).replace(/\s+/g, ' ').trim().slice(0, 120),
+      content: cleanExtractedText((c.content || '').trim()),
     }))
     .filter((c) => c.content.length > 0 || c.title.length > 0);
   if (clean.length === 0) {
