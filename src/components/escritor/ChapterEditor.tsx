@@ -206,11 +206,11 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
           <button
             type="button"
             onClick={() => setFormatOpen(true)}
-            title={`Idriel formata a diagramação do capítulo (parágrafos, travessões, espaçamento) — custa ${FORMAT_COST_DROPS} gotas.`}
+            title={`Idriel formata a diagramação do capítulo (parágrafos, travessões, espaçamento). Custo estimado: ${estimatedCost} gota${estimatedCost === 1 ? '' : 's'}.`}
             className="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] border border-amber-400/40 text-amber-300 bg-gradient-to-r from-amber-400/[0.08] to-emerald-400/[0.08] hover:from-amber-400/[0.16] hover:to-emerald-400/[0.16] transition-colors"
           >
             <Sparkles className="w-3 h-3" />
-            <span className="font-mono">Formatar · {FORMAT_COST_DROPS}g</span>
+            <span className="font-mono">Formatar · {estimatedCost}g</span>
           </button>
         )}
 
