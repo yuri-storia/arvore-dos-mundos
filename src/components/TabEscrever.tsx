@@ -173,6 +173,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     chapters, scenes, totalWordCount,
     createManuscript, updateManuscript, deleteManuscript,
     createChapter, updateChapter, deleteChapter,
+    refetch: refetchManuscripts,
   } = useManuscript(worldId);
   const { entries, fetchEntryContent, isContentHydrated } = useCodexEntries(worldId);
 
