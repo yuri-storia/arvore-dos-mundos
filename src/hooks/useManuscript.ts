@@ -175,6 +175,31 @@ export function useManuscript(worldId?: string) {
     toast.success('Capítulo excluído');
   }, []);
 
+  /** Reordena capítulos por lista de IDs. Persiste sort_order em lote. */
+  const reorderChapters = useCallback(async (orderedIds: string[]) => {
+    // Atualiza estado local imediatamente (otimista) para UX suave no drag.
+    setChapters(prev => {
+      const map = new Map(prev.map(c => [c.id, c]));
+      const next: Chapter[] = [];
+      orderedIds.forEach((id, idx) => {
+        const c = map.get(id);
+        if (c) next.push({ ...c, sort_order: idx });
+      });
+      // Preserva capítulos ausentes da lista (edge case) mantendo o order original.
+      prev.forEach(c => { if (!orderedIds.includes(c.id)) next.push(c); });
+      return next;
+    });
+    // Persiste em paralelo.
+    const results = await Promise.all(
+      orderedIds.map((id, idx) =>
+        supabase.from('chapters').update({ sort_order: idx }).eq('id', id)
+      )
+    );
+    if (results.some(r => r.error)) {
+      toast.error('Erro ao reordenar capítulos');
+    }
+  }, []);
+
   const createScene = useCallback(async (chapterId: string, title?: string) => {
     if (!user) return null;
     const chapterScenes = scenes.filter(s => s.chapter_id === chapterId);
@@ -212,7 +237,7 @@ export function useManuscript(worldId?: string) {
     manuscripts, activeManuscript, setActiveManuscript,
     chapters, scenes, loading, totalWordCount,
     createManuscript, updateManuscript, deleteManuscript,
-    createChapter, updateChapter, deleteChapter,
+    createChapter, updateChapter, deleteChapter, reorderChapters,
     createScene, updateScene, deleteScene,
     refetch: fetchManuscripts,
   };
