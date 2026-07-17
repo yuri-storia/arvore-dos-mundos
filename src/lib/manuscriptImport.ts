@@ -1,6 +1,5 @@
 // Import a manuscript file (.pdf, .docx, .txt, .epub) and split it into chapters.
-// Returns { title, chapters: [{ title, content }] } — content is plain text
-// stored later as `<p>...</p>` blocks by the caller.
+// Supports configurable detection strategy, ordering rule, and progress reporting.
 
 import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth/mammoth.browser';
@@ -11,6 +10,8 @@ import { htmlToPlainText } from '@/lib/htmlToText';
 (pdfjsLib as unknown as { GlobalWorkerOptions: { workerSrc: string } }).GlobalWorkerOptions.workerSrc =
   `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
+export type SourceType = 'pdf' | 'docx' | 'txt' | 'epub';
+
 export interface ImportedChapter {
   title: string;
   content: string; // plain text with \n\n paragraph separators
@@ -19,28 +20,93 @@ export interface ImportedChapter {
 export interface ImportedManuscript {
   title: string;
   chapters: ImportedChapter[];
-  sourceType: 'pdf' | 'docx' | 'txt' | 'epub';
+  sourceType: SourceType;
 }
 
-// Matches "Capítulo 1", "CAPÍTULO I", "Chapter 12", "Prólogo", "Epílogo"
-const CHAPTER_HEADING_RE =
-  /^\s*(?:cap[ií]tulo|chapter|pr[oó]logo|prologue|ep[ií]logo|epilogue)\b[^\n]*$/im;
+// ─────────────────────────── Detection & ordering ───────────────────────────
 
-function splitByChapterHeadings(text: string): ImportedChapter[] {
+export type DetectionMode = 'auto' | 'regex' | 'separator' | 'heading' | 'none';
+export type OrderRule = 'as-detected' | 'numeric' | 'title' | 'spine';
+
+export interface DetectionConfig {
+  mode: DetectionMode;
+  /** Custom regex source (used when mode = 'regex'). Line-based, case-insensitive. */
+  regex?: string;
+  /** Literal separator string (used when mode = 'separator'). */
+  separator?: string;
+  /** Heading level for EPUB (mode = 'heading'). 1 = <h1>, 2 = <h2>, 3 = <h3>. */
+  headingLevel?: 1 | 2 | 3;
+}
+
+export const DEFAULT_DETECTION: DetectionConfig = {
+  mode: 'auto',
+  regex: '^\\s*(?:cap[ií]tulo|chapter|pr[oó]logo|prologue|ep[ií]logo|epilogue)\\b.*$',
+  separator: '***',
+  headingLevel: 1,
+};
+
+// Default "auto" regex.
+const AUTO_HEADING_RE =
+  /^\s*(?:cap[ií]tulo|chapter|pr[oó]logo|prologue|ep[ií]logo|epilogue)\b[^\n]*$/i;
+
+export type ProgressStage =
+  | 'reading'
+  | 'extracting'
+  | 'parsing'
+  | 'splitting'
+  | 'ordering'
+  | 'done';
+
+export interface ProgressEvent {
+  stage: ProgressStage;
+  /** 0..1 */
+  progress: number;
+  message: string;
+}
+
+export type OnProgress = (e: ProgressEvent) => void;
+
+// ─────────────────────────── Splitting ───────────────────────────
+
+function buildDetector(cfg: DetectionConfig): { kind: 'regex' | 'separator' | 'none'; test: (line: string) => boolean } {
+  if (cfg.mode === 'none') return { kind: 'none', test: () => false };
+  if (cfg.mode === 'separator') {
+    const sep = (cfg.separator ?? DEFAULT_DETECTION.separator!).trim();
+    return { kind: 'separator', test: (l) => l.trim() === sep };
+  }
+  if (cfg.mode === 'regex') {
+    try {
+      const re = new RegExp(cfg.regex ?? DEFAULT_DETECTION.regex!, 'i');
+      return { kind: 'regex', test: (l) => re.test(l) };
+    } catch {
+      return { kind: 'regex', test: (l) => AUTO_HEADING_RE.test(l) };
+    }
+  }
+  // auto (or fallback)
+  return {
+    kind: 'regex',
+    test: (l) => l.trim().length > 0 && l.trim().length <= 80 && AUTO_HEADING_RE.test(l),
+  };
+}
+
+function splitByDetector(text: string, cfg: DetectionConfig): ImportedChapter[] {
+  const det = buildDetector(cfg);
   const lines = text.split(/\r?\n/);
   const chapters: ImportedChapter[] = [];
   let current: ImportedChapter | null = null;
+  let sepCounter = 1;
 
   for (const rawLine of lines) {
-    const line = rawLine.trim();
-    const isHeading =
-      line.length > 0 &&
-      line.length <= 80 &&
-      CHAPTER_HEADING_RE.test(line);
-
-    if (isHeading) {
+    const line = rawLine;
+    if (det.test(line)) {
+      // For 'separator' the line itself is discarded; the next chapter starts fresh.
       if (current) chapters.push(current);
-      current = { title: line.replace(/\s+/g, ' ').trim(), content: '' };
+      if (det.kind === 'separator') {
+        current = { title: `Capítulo ${chapters.length + 1}`, content: '' };
+      } else {
+        current = { title: line.trim().replace(/\s+/g, ' '), content: '' };
+      }
+      sepCounter++;
     } else {
       if (!current) current = { title: 'Capítulo 1', content: '' };
       current.content += rawLine + '\n';
@@ -48,37 +114,79 @@ function splitByChapterHeadings(text: string): ImportedChapter[] {
   }
   if (current) chapters.push(current);
 
-  // Cleanup: collapse blank lines and trim
   return chapters
     .map((c) => ({
       title: c.title,
       content: c.content.replace(/\n{3,}/g, '\n\n').trim(),
-    }))
-    .filter((c) => c.content.length > 0 || chapters.length === 1);
+    }));
 }
 
 function normalizeChapters(chapters: ImportedChapter[], fallbackTitle: string): ImportedChapter[] {
   const clean = chapters
     .map((c, i) => ({
       title: (c.title || `Capítulo ${i + 1}`).slice(0, 120),
-      content: c.content.trim(),
+      content: (c.content || '').trim(),
     }))
-    .filter((c) => c.content.length > 0);
+    .filter((c) => c.content.length > 0 || c.title.length > 0);
   if (clean.length === 0) {
     return [{ title: fallbackTitle || 'Capítulo 1', content: '' }];
   }
   return clean;
 }
 
-async function extractPdf(file: File): Promise<string> {
+// ─────────────────────────── Ordering ───────────────────────────
+
+const ROMAN_RE = /^[IVXLCDM]+$/i;
+
+function parseRoman(s: string): number | null {
+  const map: Record<string, number> = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
+  let total = 0;
+  const up = s.toUpperCase();
+  for (let i = 0; i < up.length; i++) {
+    const cur = map[up[i]];
+    const next = map[up[i + 1]] || 0;
+    if (!cur) return null;
+    total += cur < next ? -cur : cur;
+  }
+  return total || null;
+}
+
+function extractChapterNumber(title: string): number | null {
+  // "Capítulo 12", "Chapter IV", "12 - Something"
+  const m = title.match(/(?:cap[ií]tulo|chapter)\s+([\dIVXLCM]+)/i) || title.match(/^\s*([\dIVXLCM]+)\b/);
+  if (!m) return null;
+  const raw = m[1];
+  if (/^\d+$/.test(raw)) return parseInt(raw, 10);
+  if (ROMAN_RE.test(raw)) return parseRoman(raw);
+  return null;
+}
+
+export function applyOrderRule(chapters: ImportedChapter[], rule: OrderRule): ImportedChapter[] {
+  if (rule === 'as-detected' || rule === 'spine') return chapters;
+  const withKey = chapters.map((c, i) => ({ c, i, num: extractChapterNumber(c.title) }));
+  if (rule === 'numeric') {
+    withKey.sort((a, b) => {
+      const an = a.num ?? Number.MAX_SAFE_INTEGER;
+      const bn = b.num ?? Number.MAX_SAFE_INTEGER;
+      if (an !== bn) return an - bn;
+      return a.i - b.i;
+    });
+  } else if (rule === 'title') {
+    withKey.sort((a, b) => a.c.title.localeCompare(b.c.title, 'pt-BR', { sensitivity: 'base' }));
+  }
+  return withKey.map((x) => x.c);
+}
+
+// ─────────────────────────── Extractors ───────────────────────────
+
+async function extractPdf(file: File, onProgress?: OnProgress): Promise<string> {
   const buf = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-  let text = '';
   const maxPages = Math.min(pdf.numPages, 500);
+  let text = '';
   for (let i = 1; i <= maxPages; i++) {
     const page = await pdf.getPage(i);
     const content = await page.getTextContent();
-    // Preserve rough line structure using item transforms
     let lastY: number | null = null;
     let pageText = '';
     for (const it of content.items as Array<{ str?: string; transform?: number[] }>) {
@@ -88,21 +196,32 @@ async function extractPdf(file: File): Promise<string> {
       lastY = y;
     }
     text += pageText.trim() + '\n\n';
+    onProgress?.({
+      stage: 'extracting',
+      progress: 0.1 + 0.7 * (i / maxPages),
+      message: `Lendo página ${i} de ${maxPages}…`,
+    });
   }
   return text;
 }
 
-async function extractDocx(file: File): Promise<string> {
+async function extractDocx(file: File, onProgress?: OnProgress): Promise<string> {
+  onProgress?.({ stage: 'extracting', progress: 0.3, message: 'Convertendo documento Word…' });
   const buf = await file.arrayBuffer();
-  // Use HTML then flatten — preserves paragraph breaks better than raw text.
   const result = await mammoth.convertToHtml({ arrayBuffer: buf });
+  onProgress?.({ stage: 'extracting', progress: 0.7, message: 'Extraindo texto…' });
   return htmlToPlainText(result.value || '');
 }
 
-async function extractEpub(file: File): Promise<ImportedChapter[]> {
+interface EpubDoc {
+  path: string;
+  html: string;
+}
+
+async function loadEpubDocs(file: File, onProgress?: OnProgress): Promise<EpubDoc[]> {
+  onProgress?.({ stage: 'extracting', progress: 0.15, message: 'Abrindo pacote EPUB…' });
   const zip = await JSZip.loadAsync(file);
 
-  // Find OPF via container.xml
   const containerFile = zip.file('META-INF/container.xml');
   let opfPath: string | null = null;
   if (containerFile) {
@@ -110,7 +229,6 @@ async function extractEpub(file: File): Promise<ImportedChapter[]> {
     const m = xml.match(/full-path="([^"]+)"/);
     if (m) opfPath = m[1];
   }
-  // Fallback: scan for any .opf
   if (!opfPath) {
     const opfEntry = Object.keys(zip.files).find((n) => n.toLowerCase().endsWith('.opf'));
     opfPath = opfEntry || null;
@@ -122,15 +240,11 @@ async function extractEpub(file: File): Promise<ImportedChapter[]> {
   const opfXml = await opfFile.async('string');
   const basePath = opfPath.split('/').slice(0, -1).join('/');
 
-  // Manifest: id → href
   const manifest = new Map<string, string>();
   const manifestRe = /<item\s+[^>]*id="([^"]+)"[^>]*href="([^"]+)"[^>]*\/?>/gi;
   let mm: RegExpExecArray | null;
-  while ((mm = manifestRe.exec(opfXml))) {
-    manifest.set(mm[1], mm[2]);
-  }
+  while ((mm = manifestRe.exec(opfXml))) manifest.set(mm[1], mm[2]);
 
-  // Spine order
   const spineIds: string[] = [];
   const spineRe = /<itemref\s+[^>]*idref="([^"]+)"/gi;
   let sm: RegExpExecArray | null;
@@ -141,67 +255,136 @@ async function extractEpub(file: File): Promise<ImportedChapter[]> {
     .filter(Boolean)
     .map((href) => (basePath ? `${basePath}/${href}` : href!)) as string[];
 
-  const chapters: ImportedChapter[] = [];
-  for (const path of resolved) {
-    const file = zip.file(path) || zip.file(decodeURIComponent(path));
-    if (!file) continue;
-    const html = await file.async('string');
-    // Title: <title>, first <h1>, <h2>, or filename
-    const titleMatch =
-      html.match(/<title[^>]*>([^<]+)<\/title>/i) ||
-      html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i) ||
-      html.match(/<h2[^>]*>([\s\S]*?)<\/h2>/i);
-    const title = titleMatch ? htmlToPlainText(titleMatch[1]).trim() : '';
-    // Body content: extract inside <body>...</body> when present
-    const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-    const bodyHtml = bodyMatch ? bodyMatch[1] : html;
-    const content = htmlToPlainText(bodyHtml);
-    chapters.push({
-      title: title || `Capítulo ${chapters.length + 1}`,
-      content,
+  const docs: EpubDoc[] = [];
+  for (let i = 0; i < resolved.length; i++) {
+    const path = resolved[i];
+    const entry = zip.file(path) || zip.file(decodeURIComponent(path));
+    if (!entry) continue;
+    const html = await entry.async('string');
+    docs.push({ path, html });
+    onProgress?.({
+      stage: 'extracting',
+      progress: 0.2 + 0.6 * ((i + 1) / resolved.length),
+      message: `Lendo documento ${i + 1} de ${resolved.length}…`,
     });
   }
-  return chapters;
+  return docs;
 }
 
-export async function importManuscriptFile(file: File): Promise<ImportedManuscript> {
+function epubDocsToChapters(docs: EpubDoc[], cfg: DetectionConfig): ImportedChapter[] {
+  // Heading mode: split each doc by its heading level (h1/h2/h3).
+  if (cfg.mode === 'heading') {
+    const lvl = cfg.headingLevel ?? 1;
+    const chapters: ImportedChapter[] = [];
+    const tagRe = new RegExp(`<h${lvl}[^>]*>([\\s\\S]*?)<\\/h${lvl}>`, 'gi');
+    for (const doc of docs) {
+      // Split doc HTML at each h{lvl}
+      const parts = doc.html.split(tagRe);
+      // parts = [before, title1, content1, title2, content2, ...]
+      if (parts.length <= 1) {
+        const content = htmlToPlainText(doc.html);
+        if (content.trim()) chapters.push({ title: `Capítulo ${chapters.length + 1}`, content });
+        continue;
+      }
+      // Any "before" text is prepended to previous chapter or skipped
+      for (let i = 1; i < parts.length; i += 2) {
+        const title = htmlToPlainText(parts[i]).trim() || `Capítulo ${chapters.length + 1}`;
+        const content = htmlToPlainText(parts[i + 1] || '');
+        chapters.push({ title, content });
+      }
+    }
+    return chapters;
+  }
+
+  // Default (auto/spine): one chapter per doc; title comes from <title>/<h1>/<h2>.
+  return docs.map((doc, i) => {
+    const titleMatch =
+      doc.html.match(/<title[^>]*>([^<]+)<\/title>/i) ||
+      doc.html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i) ||
+      doc.html.match(/<h2[^>]*>([\s\S]*?)<\/h2>/i);
+    const title = titleMatch ? htmlToPlainText(titleMatch[1]).trim() : '';
+    const bodyMatch = doc.html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+    const bodyHtml = bodyMatch ? bodyMatch[1] : doc.html;
+    return {
+      title: title || `Capítulo ${i + 1}`,
+      content: htmlToPlainText(bodyHtml),
+    };
+  });
+}
+
+// ─────────────────────────── Main entry ───────────────────────────
+
+export interface ImportOptions {
+  detection?: DetectionConfig;
+  order?: OrderRule;
+  onProgress?: OnProgress;
+}
+
+export async function importManuscriptFile(
+  file: File,
+  opts: ImportOptions = {},
+): Promise<ImportedManuscript> {
+  const detection = opts.detection ?? DEFAULT_DETECTION;
+  const order = opts.order ?? 'as-detected';
+  const onProgress = opts.onProgress;
+
   const name = file.name.toLowerCase();
   const ext = name.split('.').pop() || '';
   const baseTitle = file.name.replace(/\.[^.]+$/, '');
 
+  onProgress?.({ stage: 'reading', progress: 0.05, message: `Lendo "${file.name}"…` });
+
   if (ext === 'epub' || file.type === 'application/epub+zip') {
-    const chapters = await extractEpub(file);
-    return {
-      title: baseTitle,
-      chapters: normalizeChapters(chapters, baseTitle),
-      sourceType: 'epub',
-    };
+    const docs = await loadEpubDocs(file, onProgress);
+    onProgress?.({ stage: 'splitting', progress: 0.85, message: 'Organizando capítulos do EPUB…' });
+    let chapters = epubDocsToChapters(docs, detection);
+    // For EPUB with auto/regex/separator, re-split each doc's plain text too.
+    if (detection.mode === 'regex' || detection.mode === 'separator' || detection.mode === 'auto') {
+      const merged: ImportedChapter[] = [];
+      for (const ch of chapters) {
+        const parts = splitByDetector(ch.content, detection);
+        if (parts.length <= 1) merged.push(ch);
+        else {
+          // If the doc had a title, keep it as first sub-chapter's title if it lacked one.
+          for (const p of parts) merged.push(p);
+        }
+      }
+      chapters = merged;
+    }
+    chapters = normalizeChapters(chapters, baseTitle);
+    onProgress?.({ stage: 'ordering', progress: 0.95, message: 'Aplicando ordenação…' });
+    chapters = applyOrderRule(chapters, order);
+    onProgress?.({ stage: 'done', progress: 1, message: 'Pronto.' });
+    return { title: baseTitle, chapters, sourceType: 'epub' };
   }
 
   let rawText = '';
   let sourceType: 'pdf' | 'docx' | 'txt' = 'txt';
 
   if (ext === 'pdf' || file.type === 'application/pdf') {
-    rawText = await extractPdf(file);
+    rawText = await extractPdf(file, onProgress);
     sourceType = 'pdf';
   } else if (
     ext === 'docx' ||
     file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   ) {
-    rawText = await extractDocx(file);
+    rawText = await extractDocx(file, onProgress);
     sourceType = 'docx';
   } else {
+    onProgress?.({ stage: 'extracting', progress: 0.4, message: 'Lendo texto…' });
     rawText = await file.text();
     sourceType = 'txt';
   }
 
+  onProgress?.({ stage: 'splitting', progress: 0.85, message: 'Detectando capítulos…' });
   rawText = rawText.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
-  const split = splitByChapterHeadings(rawText);
-  return {
-    title: baseTitle,
-    chapters: normalizeChapters(split, baseTitle),
-    sourceType,
-  };
+  let chapters = splitByDetector(rawText, detection);
+  chapters = normalizeChapters(chapters, baseTitle);
+  onProgress?.({ stage: 'ordering', progress: 0.95, message: 'Aplicando ordenação…' });
+  chapters = applyOrderRule(chapters, order);
+  onProgress?.({ stage: 'done', progress: 1, message: 'Pronto.' });
+
+  return { title: baseTitle, chapters, sourceType };
 }
 
 /** Convert plain text (with \n\n paragraphs) into simple HTML for the editor. */
@@ -216,8 +399,10 @@ export function chapterTextToHtml(text: string): string {
 }
 
 function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/** Word count for plain text. */
+export function countWords(text: string): number {
+  return text.trim() ? text.trim().split(/\s+/).length : 0;
 }
