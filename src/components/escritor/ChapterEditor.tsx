@@ -3,15 +3,22 @@ import type { Chapter } from '@/hooks/useManuscript';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import {
   Edit3, Eye, Maximize, Minimize, PanelRightOpen, PanelRightClose, ChevronRight,
-  Keyboard, SpellCheck2,
+  Keyboard, SpellCheck2, Sparkles, Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { buildEntriesByName, renderInlineMentions } from './MentionChip';
 import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor';
 import { useSpellcheckEnabled } from '@/lib/spellcheck/spellcheckSettings';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
+import { supabase } from '@/integrations/supabase/client';
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from '@/components/ui/dialog';
 
 const isHTML = (s: string) => /^\s*<(p|div|h[1-6]|ul|ol|blockquote)[\s>]/i.test(s || '');
 const stripHTML = (s: string) => (s || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+
+const FORMAT_COST_DROPS = 2;
 
 interface Props {
   chapter: Chapter;
@@ -37,6 +44,10 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
   const [previewMode, setPreviewMode] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [spellOn, setSpellOn] = useSpellcheckEnabled();
+  const plan = usePlanLimits();
+  const [formatOpen, setFormatOpen] = useState(false);
+  const [formatGuidance, setFormatGuidance] = useState('');
+  const [formatting, setFormatting] = useState(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const errorToastIdRef = useRef<string | number | null>(null);
@@ -91,6 +102,41 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
   const handleTitleBlur = () => {
     if (title.trim() && title !== chapter.title) onTitleSave(title.trim());
   };
+
+  const handleFormatWithIdriel = useCallback(async () => {
+    const raw = content || '';
+    const plain = isHTML(raw) ? stripHTML(raw) : raw.trim();
+    if (plain.length < 40) {
+      toast.error('Capítulo curto demais para a Idriel formatar.');
+      return;
+    }
+    setFormatting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-format-chapter', {
+        body: { text: raw, guidance: formatGuidance.trim() || undefined },
+      });
+      if (error) {
+        const msg = (data as { error?: string } | null)?.error || error.message || 'Falha ao formatar.';
+        toast.error(msg);
+        return;
+      }
+      const formatted = (data as { formatted?: string } | null)?.formatted;
+      if (!formatted) {
+        toast.error('A Idriel não retornou um resultado. Tente novamente.');
+        return;
+      }
+      handleContentChange(formatted);
+      setFormatOpen(false);
+      setFormatGuidance('');
+      toast.success(`Capítulo formatado pela Idriel (−${FORMAT_COST_DROPS} gotas).`);
+    } catch (e) {
+      console.error('ai-format-chapter error', e);
+      toast.error(e instanceof Error ? e.message : 'Falha ao formatar.');
+    } finally {
+      setFormatting(false);
+    }
+  }, [content, formatGuidance, handleContentChange]);
+
 
   const byName = useMemo(() => buildEntriesByName(entries), [entries]);
 
@@ -153,6 +199,19 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
 
 
 
+        {plan.canUseAI && (
+          <button
+            type="button"
+            onClick={() => setFormatOpen(true)}
+            title={`Idriel formata a diagramação do capítulo (parágrafos, travessões, espaçamento) — custa ${FORMAT_COST_DROPS} gotas.`}
+            className="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] border border-amber-400/40 text-amber-300 bg-gradient-to-r from-amber-400/[0.08] to-emerald-400/[0.08] hover:from-amber-400/[0.16] hover:to-emerald-400/[0.16] transition-colors"
+          >
+            <Sparkles className="w-3 h-3" />
+            <span className="font-mono">Formatar · {FORMAT_COST_DROPS}g</span>
+          </button>
+        )}
+
+
         <button
           title="Atalho: Ctrl + L — foca o editor com segurança e abre o seletor do Codex"
           className="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] text-text-dim border border-white/10 hover:text-foreground hover:bg-white/[0.05] transition-colors"
@@ -161,6 +220,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
           <Keyboard className="w-3 h-3" />
           <span className="font-mono">Ctrl + L</span>
         </button>
+
 
 
         <div className="flex items-center bg-white/[0.03] rounded border border-blue-bright/10 p-0.5">
@@ -218,8 +278,69 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
 
         )}
       </div>
+
+      <Dialog open={formatOpen} onOpenChange={(o) => { if (!formatting) setFormatOpen(o); }}>
+        <DialogContent className="border-amber-400/30 bg-[#0a0f18] backdrop-blur-xl max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-cinzel text-lg text-amber-300 flex items-center gap-2">
+              <Sparkles className="w-5 h-5" strokeWidth={2} /> Idriel formata seu capítulo
+            </DialogTitle>
+            <DialogDescription className="font-montserrat text-sm text-text-secondary">
+              A Idriel corrige apenas a <strong>diagramação</strong>: separa parágrafos colados,
+              padroniza travessões de diálogo (—), remove espaços duplos e quebras estranhas.
+              <span className="block mt-2 text-text-dim">
+                Ela <strong>não</strong> reescreve o texto, não altera palavras nem corrige ortografia.
+              </span>
+              <span className="block mt-2 text-amber-300/90">
+                Custo: <strong>{FORMAT_COST_DROPS} gotas</strong> de Seiva Dourada.
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2">
+            <label className="text-xs font-montserrat text-text-secondary">
+              Orientação para a Idriel (opcional)
+            </label>
+            <textarea
+              value={formatGuidance}
+              onChange={(e) => setFormatGuidance(e.target.value.slice(0, 1000))}
+              placeholder="Ex.: cada fala começa em nova linha; preserve os asteriscos como marcadores de cena."
+              rows={3}
+              className="w-full bg-white/[0.03] border border-white/10 rounded px-3 py-2 text-sm font-merriweather text-foreground/90 focus:outline-none focus:border-amber-400/40"
+              disabled={formatting}
+            />
+            <div className="text-[10px] font-mono text-text-dim text-right">
+              {formatGuidance.length}/1000
+            </div>
+          </div>
+
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setFormatOpen(false)}
+              disabled={formatting}
+              className="font-montserrat text-xs font-bold uppercase tracking-wider px-4 py-2 rounded border border-blue-bright/20 text-text-secondary hover:text-foreground hover:bg-white/[0.04] disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={handleFormatWithIdriel}
+              disabled={formatting}
+              className="font-montserrat text-xs font-bold uppercase tracking-wider px-4 py-2 rounded border border-amber-400/40 text-amber-200 bg-gradient-to-r from-amber-400/20 to-emerald-400/20 hover:from-amber-400/30 hover:to-emerald-400/30 disabled:opacity-60 flex items-center gap-2"
+            >
+              {formatting ? (
+                <><Loader2 className="w-3 h-3 animate-spin" /> Formatando…</>
+              ) : (
+                <><Sparkles className="w-3 h-3" /> Formatar ({FORMAT_COST_DROPS}g)</>
+              )}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
+
 });
 ChapterEditor.displayName = 'ChapterEditor';
 
