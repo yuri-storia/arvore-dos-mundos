@@ -70,7 +70,7 @@ export const ManuscriptExportMenu: React.FC<Props> = ({ manuscript, chapters, sc
         title="Exportar manuscrito"
       >
         <Download className="w-3.5 h-3.5" />
-        <span>Exportar</span>
+        <span className="hidden sm:inline">Exportar</span>
       </Button>
 
       {open && (
