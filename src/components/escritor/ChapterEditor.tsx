@@ -295,7 +295,10 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
                 Ela <strong>não</strong> reescreve o texto, não altera palavras nem corrige ortografia.
               </span>
               <span className="block mt-2 text-amber-300/90">
-                Custo: <strong>{FORMAT_COST_DROPS} gotas</strong> de Seiva Dourada.
+                Custo estimado: <strong>{estimatedCost} gota{estimatedCost === 1 ? '' : 's'}</strong>
+                {estimatedCost === 0 && <span className="text-text-dim"> — este capítulo será formatado localmente, sem IA.</span>}
+                {estimatedCost === 1 && <span className="text-text-dim"> — modo econômico (fronteiras).</span>}
+                {estimatedCost === 2 && <span className="text-text-dim"> — modo reescrita, para preservar formatação inline.</span>}
               </span>
             </DialogDescription>
           </DialogHeader>
