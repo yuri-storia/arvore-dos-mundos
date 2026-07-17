@@ -63,10 +63,14 @@ export const ManuscriptExportMenu: React.FC<Props> = ({ manuscript, chapters, sc
 
   return (
     <div className="relative">
-      <Button variant="ghost" size="sm" onClick={() => setOpen(!open)}
-        className="text-text-dim hover:text-foreground gap-1.5 text-[11px]" title="Exportar manuscrito">
+      <Button
+        size="sm"
+        onClick={() => setOpen(!open)}
+        className="gap-1.5 text-[11px] font-montserrat font-bold uppercase tracking-wider text-white border-0 bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-500 hover:from-emerald-400 hover:via-teal-400 hover:to-blue-400 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-400/40 transition-all"
+        title="Exportar manuscrito"
+      >
         <Download className="w-3.5 h-3.5" />
-        <span className="hidden sm:inline">Exportar</span>
+        <span>Exportar</span>
       </Button>
 
       {open && (
