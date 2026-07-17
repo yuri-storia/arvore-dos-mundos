@@ -108,10 +108,25 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
     setProgress({ stage: 'reading', progress: 0, message: 'Iniciando…' });
     try {
       const expected = expectedCount ? parseInt(expectedCount, 10) : undefined;
-      const result = await smartImportManuscript(file, {
-        expectedChapterCount: Number.isFinite(expected as number) ? (expected as number) : undefined,
-        onProgress: (e) => setProgress(e),
-      });
+      const expectedNum = Number.isFinite(expected as number) ? (expected as number) : undefined;
+
+      let result: ImportedManuscript;
+      if (useAI && plan.canUseAI) {
+        const aiResult = await aiImportManuscript(file, {
+          expectedChapterCount: expectedNum,
+          onProgress: (e) => setProgress(e),
+        });
+        result = aiResult;
+        if (aiResult.truncated) {
+          toast.warning('O arquivo é muito grande; a IA trabalhou nos primeiros ~400 mil caracteres.');
+        }
+        toast.success(`Detectados ${aiResult.chapters.length} capítulos com IA (${AI_IMPORT_COST_DROPS} gotas).`);
+      } else {
+        result = await smartImportManuscript(file, {
+          expectedChapterCount: expectedNum,
+          onProgress: (e) => setProgress(e),
+        });
+      }
       setParsed(result);
       setChapters(result.chapters);
       if (destination === 'new') {
@@ -123,7 +138,8 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
       setStep('preview');
     } catch (e) {
       console.error(e);
-      toast.error('Não foi possível ler este arquivo. Verifique o formato.');
+      const msg = e instanceof Error ? e.message : 'Não foi possível ler este arquivo.';
+      toast.error(msg);
       setStep('upload');
     }
   };
