@@ -103,6 +103,41 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
     if (title.trim() && title !== chapter.title) onTitleSave(title.trim());
   };
 
+  const handleFormatWithIdriel = useCallback(async () => {
+    const raw = content || '';
+    const plain = isHTML(raw) ? stripHTML(raw) : raw.trim();
+    if (plain.length < 40) {
+      toast.error('Capítulo curto demais para a Idriel formatar.');
+      return;
+    }
+    setFormatting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-format-chapter', {
+        body: { text: raw, guidance: formatGuidance.trim() || undefined },
+      });
+      if (error) {
+        const msg = (data as { error?: string } | null)?.error || error.message || 'Falha ao formatar.';
+        toast.error(msg);
+        return;
+      }
+      const formatted = (data as { formatted?: string } | null)?.formatted;
+      if (!formatted) {
+        toast.error('A Idriel não retornou um resultado. Tente novamente.');
+        return;
+      }
+      handleContentChange(formatted);
+      setFormatOpen(false);
+      setFormatGuidance('');
+      toast.success(`Capítulo formatado pela Idriel (−${FORMAT_COST_DROPS} gotas).`);
+    } catch (e) {
+      console.error('ai-format-chapter error', e);
+      toast.error(e instanceof Error ? e.message : 'Falha ao formatar.');
+    } finally {
+      setFormatting(false);
+    }
+  }, [content, formatGuidance, handleContentChange]);
+
+
   const byName = useMemo(() => buildEntriesByName(entries), [entries]);
 
   const previewNodes = useMemo(
