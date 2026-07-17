@@ -13,7 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 interface Props {
   worldId: string;
   trigger: React.ReactNode;
-  onImported?: (manuscriptId: string) => void;
+  onImported?: (manuscript: { id: string; title: string }) => void;
 }
 
 const ACCEPT = '.pdf,.docx,.txt,.md,.epub,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/epub+zip,text/plain';
