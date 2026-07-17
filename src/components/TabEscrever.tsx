@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useManuscript } from '@/hooks/useManuscript';
+import { supabase } from '@/integrations/supabase/client';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -9,8 +10,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Plus, Trash2, FileText, BookOpen,
   PanelRightOpen, StickyNote, Search, BookMarked, PenLine,
-  LayoutGrid, ChevronRight, ChevronDown, X,
+  LayoutGrid, ChevronRight, ChevronDown, X, Upload,
 } from 'lucide-react';
+import { ImportManuscriptDialog } from '@/components/ImportManuscriptDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
@@ -172,6 +174,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     chapters, scenes, totalWordCount,
     createManuscript, updateManuscript, deleteManuscript,
     createChapter, updateChapter, deleteChapter,
+    refetch: refetchManuscripts,
   } = useManuscript(worldId);
   const { entries, fetchEntryContent, isContentHydrated } = useCodexEntries(worldId);
 
@@ -254,9 +257,24 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           O manuscrito é onde sua história ganha forma. Organize tudo em <strong>capítulos</strong>, como um livro de verdade.
         </p>
 
-        <Button data-tour="create-manuscript" onClick={() => setShowNamePrompt(true)} className="bg-blue-bright/20 text-blue-light border border-blue-bright/30 hover:bg-blue-bright/30">
-          <Plus className="w-4 h-4 mr-1" /> Criar Manuscrito
-        </Button>
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          <Button data-tour="create-manuscript" onClick={() => setShowNamePrompt(true)} className="bg-blue-bright/20 text-blue-light border border-blue-bright/30 hover:bg-blue-bright/30">
+            <Plus className="w-4 h-4 mr-1" /> Criar Manuscrito
+          </Button>
+          <ImportManuscriptDialog
+            worldId={worldId}
+            onImported={async ({ id }) => {
+              await refetchManuscripts();
+              const { data } = await supabase.from('manuscripts').select('*').eq('id', id).maybeSingle();
+              if (data) setActiveManuscript(data as typeof activeManuscript);
+            }}
+            trigger={
+              <Button variant="outline" className="border-emerald-400/40 text-emerald-300 hover:text-emerald-200 hover:bg-emerald-500/10 hover:border-emerald-400/60">
+                <Upload className="w-4 h-4 mr-1" /> Importar Manuscrito
+              </Button>
+            }
+          />
+        </div>
 
         <Dialog open={showNamePrompt} onOpenChange={setShowNamePrompt}>
           <DialogContent className="sm:max-w-md">
@@ -296,9 +314,11 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           <DropdownMenu>
             <DropdownMenuTrigger
               aria-label="Trocar manuscrito"
-              className="p-1 rounded hover:bg-white/[0.05] text-text-dim hover:text-foreground transition-colors shrink-0"
+              className="group inline-flex items-center gap-1.5 pl-2 pr-2.5 py-1 rounded-md bg-blue-bright/10 hover:bg-blue-bright/20 border border-blue-bright/30 hover:border-blue-bright/50 text-blue-light hover:text-blue-bright transition-all shrink-0 shadow-sm"
+              title="Trocar manuscrito"
             >
-              <ChevronDown className="w-3.5 h-3.5" />
+              <span className="text-[10px] font-montserrat font-bold uppercase tracking-wider">Trocar</span>
+              <ChevronDown className="w-3.5 h-3.5 transition-transform group-data-[state=open]:rotate-180" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[240px]">
               <p className="text-[9px] uppercase font-montserrat text-text-dim px-2 py-1">Manuscritos deste mundo</p>
@@ -374,6 +394,26 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           <span className="text-[10px] font-mono text-text-dim bg-white/[0.03] px-2 py-1 rounded border border-blue-bright/10 ml-1">
             {totalWordCount.toLocaleString()} palavras
           </span>
+          <ImportManuscriptDialog
+            worldId={worldId}
+            onImported={async ({ id }) => {
+              await refetchManuscripts();
+              // Try to activate the newly imported manuscript once list refreshes.
+              const { data } = await supabase.from('manuscripts').select('*').eq('id', id).maybeSingle();
+              if (data) setActiveManuscript(data as typeof activeManuscript);
+            }}
+            trigger={
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 text-[11px] font-montserrat font-bold uppercase tracking-wider border-emerald-400/40 text-emerald-300 hover:text-emerald-200 hover:bg-emerald-500/10 hover:border-emerald-400/60"
+                title="Importar manuscrito de PDF, DOCX, TXT ou EPUB"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Importar</span>
+              </Button>
+            }
+          />
           <ManuscriptExportMenu manuscript={activeManuscript} chapters={chapters} scenes={scenes} />
         </div>
       </div>
