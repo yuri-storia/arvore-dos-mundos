@@ -461,7 +461,7 @@ export async function importManuscriptFile(
   }
 
   onProgress?.({ stage: 'splitting', progress: 0.85, message: 'Detectando capítulos…' });
-  rawText = rawText.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  rawText = cleanExtractedText(rawText);
   let chapters = splitByDetector(rawText, detection);
   chapters = normalizeChapters(chapters, baseTitle);
   onProgress?.({ stage: 'ordering', progress: 0.95, message: 'Aplicando ordenação…' });
