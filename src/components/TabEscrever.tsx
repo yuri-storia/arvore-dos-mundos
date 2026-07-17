@@ -461,7 +461,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
             value={manuscriptTitleLocal}
             onChange={e => handleManuscriptTitleChange(e.target.value)}
             aria-label="Nome do manuscrito"
-            className="bg-transparent font-cinzel font-bold text-lg text-foreground border-none focus:outline-none focus:ring-1 focus:ring-blue-bright/40 rounded px-1 min-w-0 max-w-[260px] cursor-text"
+            className="bg-transparent font-cinzel font-bold text-base sm:text-lg text-foreground border-none focus:outline-none focus:ring-1 focus:ring-blue-bright/40 rounded px-1 min-w-0 max-w-[160px] sm:max-w-[260px] cursor-text"
             placeholder="Título do manuscrito"
           />
           <DropdownMenu>
