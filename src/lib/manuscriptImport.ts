@@ -406,3 +406,118 @@ function escapeHtml(s: string): string {
 export function countWords(text: string): number {
   return text.trim() ? text.trim().split(/\s+/).length : 0;
 }
+
+// ─────────────────────────── Smart auto-detection ───────────────────────────
+
+const CANDIDATE_DETECTIONS: DetectionConfig[] = [
+  { mode: 'auto' },
+  { mode: 'regex', regex: '^\\s*(?:cap[ií]tulo|chapter)\\s+[\\dIVXLCM]+\\b.*$' },
+  { mode: 'regex', regex: '^\\s*(?:cap[ií]tulo|chapter|pr[oó]logo|prologue|ep[ií]logo|epilogue|parte|part|book|livro)\\b[^\\n]*$' },
+  { mode: 'regex', regex: '^\\s*[\\dIVXLCM]+\\s*[\\.\\-\\—:]\\s+.{0,80}$' },
+  { mode: 'separator', separator: '***' },
+  { mode: 'separator', separator: '---' },
+  { mode: 'separator', separator: '###' },
+];
+
+function scoreCandidate(count: number, expected?: number): number {
+  if (count <= 1) return -1000;
+  if (expected && expected > 0) return -Math.abs(count - expected);
+  if (count > 500) return -100 - count;
+  return Math.min(count, 60);
+}
+
+export interface SmartImportOptions {
+  expectedChapterCount?: number;
+  onProgress?: OnProgress;
+}
+
+/**
+ * "One-click" importer: extracts the file, then tries multiple detection strategies
+ * and picks the one that best matches expectedChapterCount (or a sensible default).
+ */
+export async function smartImportManuscript(
+  file: File,
+  opts: SmartImportOptions = {},
+): Promise<ImportedManuscript & { detectionUsed: DetectionConfig }> {
+  const { expectedChapterCount, onProgress } = opts;
+  const name = file.name.toLowerCase();
+  const ext = name.split('.').pop() || '';
+  const baseTitle = file.name.replace(/\.[^.]+$/, '');
+
+  onProgress?.({ stage: 'reading', progress: 0.05, message: `Lendo "${file.name}"…` });
+
+  if (ext === 'epub' || file.type === 'application/epub+zip') {
+    const docs = await loadEpubDocs(file, onProgress);
+    onProgress?.({ stage: 'splitting', progress: 0.8, message: 'Testando estratégias…' });
+
+    const candidates: Array<{ detection: DetectionConfig; chapters: ImportedChapter[]; score: number }> = [];
+
+    const spineChs = normalizeChapters(epubDocsToChapters(docs, { mode: 'auto' }), baseTitle);
+    candidates.push({ detection: { mode: 'auto' }, chapters: spineChs, score: scoreCandidate(spineChs.length, expectedChapterCount) });
+
+    for (const lvl of [1, 2, 3] as const) {
+      const chs = normalizeChapters(epubDocsToChapters(docs, { mode: 'heading', headingLevel: lvl }), baseTitle);
+      candidates.push({ detection: { mode: 'heading', headingLevel: lvl }, chapters: chs, score: scoreCandidate(chs.length, expectedChapterCount) });
+    }
+
+    for (const cand of CANDIDATE_DETECTIONS) {
+      const merged: ImportedChapter[] = [];
+      for (const ch of spineChs) {
+        const parts = splitByDetector(ch.content, cand);
+        if (parts.length <= 1) merged.push(ch);
+        else for (const p of parts) merged.push(p);
+      }
+      const chs = normalizeChapters(merged, baseTitle);
+      candidates.push({ detection: cand, chapters: chs, score: scoreCandidate(chs.length, expectedChapterCount) });
+    }
+
+    candidates.sort((a, b) => b.score - a.score);
+    const best = candidates[0];
+    onProgress?.({ stage: 'done', progress: 1, message: 'Pronto.' });
+    return { title: baseTitle, chapters: best.chapters, sourceType: 'epub', detectionUsed: best.detection };
+  }
+
+  let rawText = '';
+  let sourceType: 'pdf' | 'docx' | 'txt' = 'txt';
+  if (ext === 'pdf' || file.type === 'application/pdf') {
+    rawText = await extractPdf(file, onProgress);
+    sourceType = 'pdf';
+  } else if (
+    ext === 'docx' ||
+    file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ) {
+    rawText = await extractDocx(file, onProgress);
+    sourceType = 'docx';
+  } else {
+    onProgress?.({ stage: 'extracting', progress: 0.4, message: 'Lendo texto…' });
+    rawText = await file.text();
+    sourceType = 'txt';
+  }
+  rawText = rawText.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+
+  onProgress?.({ stage: 'splitting', progress: 0.85, message: 'Testando estratégias de detecção…' });
+
+  const candidates = CANDIDATE_DETECTIONS.map((det) => {
+    const chapters = normalizeChapters(splitByDetector(rawText, det), baseTitle);
+    return { detection: det, chapters, score: scoreCandidate(chapters.length, expectedChapterCount) };
+  });
+
+  candidates.sort((a, b) => b.score - a.score);
+  let best = candidates[0];
+
+  if (best.score <= -900 && expectedChapterCount && expectedChapterCount > 1) {
+    const paragraphs = rawText.split(/\n{2,}/).filter((p) => p.trim());
+    const perChunk = Math.max(1, Math.ceil(paragraphs.length / expectedChapterCount));
+    const chs: ImportedChapter[] = [];
+    for (let i = 0; i < paragraphs.length; i += perChunk) {
+      chs.push({
+        title: `Capítulo ${chs.length + 1}`,
+        content: paragraphs.slice(i, i + perChunk).join('\n\n'),
+      });
+    }
+    best = { detection: { mode: 'none' }, chapters: normalizeChapters(chs, baseTitle), score: 0 };
+  }
+
+  onProgress?.({ stage: 'done', progress: 1, message: 'Pronto.' });
+  return { title: baseTitle, chapters: best.chapters, sourceType, detectionUsed: best.detection };
+}
