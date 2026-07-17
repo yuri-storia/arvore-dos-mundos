@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, LogOut, Shield, Map, BookOpen, Image, Plus, Trash2, ChevronRight, ChevronDown, PenLine, FileText, Sparkles, FolderOpen } from 'lucide-react';
+import { Settings, LogOut, Shield, Map, BookOpen, Image, Plus, Trash2, ChevronRight, ChevronDown, PenLine, FileText, Sparkles, FolderOpen, BookMarked } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { useManuscript, type Chapter, type Scene } from '@/hooks/useManuscript';
+import { useManuscript, type Chapter, type Scene, type Manuscript } from '@/hooks/useManuscript';
 import type { TabType } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import {
