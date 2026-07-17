@@ -23,6 +23,90 @@ export interface ImportedManuscript {
   sourceType: SourceType;
 }
 
+// ─────────────────────────── Text cleanup (diagramação) ───────────────────────────
+
+/**
+ * Cleans extracted text from PDF/DOCX/EPUB. Removes typical layout artifacts:
+ * - Zero-width & non-breaking spaces
+ * - Soft hyphens & end-of-line hyphenation (pala-\nvra -> palavra)
+ * - Standalone page numbers
+ * - Repeated running headers/footers (same short line appearing on many pages)
+ * - Line breaks inside paragraphs (join lines that don't end with sentence punctuation)
+ * - Collapses excessive whitespace and blank lines
+ */
+export function cleanExtractedText(raw: string): string {
+  if (!raw) return '';
+  let t = raw.replace(/\r\n?/g, '\n');
+
+  // Strip invisible / weird chars
+  t = t.replace(/[\u200B-\u200D\uFEFF]/g, ''); // zero-width
+  t = t.replace(/\u00AD/g, ''); // soft hyphen
+  t = t.replace(/\u00A0/g, ' '); // non-breaking space
+
+  // End-of-line hyphenation: "pala-\nvra" -> "palavra"
+  // Only when second part starts lowercase (avoid joining proper nouns / compounds like "pós-Guerra")
+  t = t.replace(/([A-Za-zÀ-ÿ])-\n([a-zà-ÿ])/g, '$1$2');
+
+  // Remove repeated running headers/footers.
+  // Heuristic: short lines (<= 80 chars) that appear 3+ times identically.
+  {
+    const lines = t.split('\n');
+    const counts = new Map<string, number>();
+    for (const l of lines) {
+      const k = l.trim();
+      if (!k || k.length > 80) continue;
+      counts.set(k, (counts.get(k) || 0) + 1);
+    }
+    const repeated = new Set<string>();
+    for (const [k, n] of counts) {
+      if (n >= 3 && !/[.!?]$/.test(k) && k.split(/\s+/).length <= 12) repeated.add(k);
+    }
+    if (repeated.size > 0) {
+      t = lines.filter((l) => !repeated.has(l.trim())).join('\n');
+    }
+  }
+
+  // Remove standalone page numbers: lines that are just digits or "Página 12", "- 12 -", etc.
+  t = t.replace(/^\s*(?:p[aá]g(?:ina)?\.?\s*)?[-–—]?\s*\d{1,4}\s*[-–—]?\s*$/gim, '');
+
+  // Normalize spaces inside lines
+  t = t
+    .split('\n')
+    .map((l) => l.replace(/[ \t]+/g, ' ').replace(/ +$/g, ''))
+    .join('\n');
+
+  // Join broken lines inside paragraphs.
+  // A "paragraph break" = a blank line. Inside a paragraph, single \n should become a space
+  // unless the previous line clearly ends a sentence and the next starts with a capital / dash.
+  {
+    const paragraphs = t.split(/\n{2,}/);
+    const rebuilt = paragraphs.map((p) => {
+      const lines = p.split('\n');
+      if (lines.length <= 1) return p.trim();
+      let out = lines[0].trim();
+      for (let i = 1; i < lines.length; i++) {
+        const prev = out;
+        const cur = lines[i].trim();
+        if (!cur) continue;
+        const prevEndsSentence = /[.!?…"”)\]]$/.test(prev);
+        const curStartsDialog = /^[-–—"“]/.test(cur);
+        const curStartsList = /^(?:[•·]|\d+[.)]\s)/.test(cur);
+        if (prevEndsSentence && (curStartsDialog || curStartsList)) {
+          out += '\n' + cur;
+        } else {
+          out += ' ' + cur;
+        }
+      }
+      return out;
+    });
+    t = rebuilt.filter((p) => p.length > 0).join('\n\n');
+  }
+
+  // Collapse leftover multi-blank lines and trim
+  t = t.replace(/\n{3,}/g, '\n\n').replace(/[ \t]{2,}/g, ' ').trim();
+  return t;
+}
+
 // ─────────────────────────── Detection & ordering ───────────────────────────
 
 export type DetectionMode = 'auto' | 'regex' | 'separator' | 'heading' | 'none';
