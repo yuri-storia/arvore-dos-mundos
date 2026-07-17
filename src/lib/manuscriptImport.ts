@@ -717,7 +717,7 @@ export async function aiImportManuscript(
   onProgress?.({ stage: 'parsing', progress: 0.55, message: 'Idriel analisando o manuscrito…' });
 
   const { data, error } = await supabase.functions.invoke('ai-manuscript-import', {
-    body: { rawText, expectedCount: expectedChapterCount },
+    body: { rawText, expectedCount: expectedChapterCount, guidance: guidance?.trim() || undefined },
   });
   if (error) {
     const msg = (error as { message?: string; context?: { error?: string } })?.context?.error
