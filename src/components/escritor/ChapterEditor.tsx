@@ -103,6 +103,8 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
     if (title.trim() && title !== chapter.title) onTitleSave(title.trim());
   };
 
+  const estimatedCost = useMemo(() => previewChapterCost(content || ''), [content]);
+
   const handleFormatWithIdriel = useCallback(async () => {
     const raw = content || '';
     const plain = isHTML(raw) ? stripHTML(raw) : raw.trim();
@@ -112,23 +114,23 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
     }
     setFormatting(true);
     try {
-      const { data, error } = await supabase.functions.invoke('ai-format-chapter', {
-        body: { text: raw, guidance: formatGuidance.trim() || undefined },
-      });
-      if (error) {
-        const msg = (data as { error?: string } | null)?.error || error.message || 'Falha ao formatar.';
-        toast.error(msg);
+      const outcome = await smartFormatChapter({ content: raw, guidance: formatGuidance });
+      if (outcome.kind === 'error') {
+        toast.error(outcome.message);
         return;
       }
-      const formatted = (data as { formatted?: string } | null)?.formatted;
-      if (!formatted) {
-        toast.error('A Idriel não retornou um resultado. Tente novamente.');
-        return;
-      }
-      handleContentChange(formatted);
+      handleContentChange(outcome.content);
       setFormatOpen(false);
       setFormatGuidance('');
-      toast.success(`Capítulo formatado pela Idriel (−${FORMAT_COST_DROPS} gotas).`);
+      if (outcome.kind === 'local') {
+        toast.success(outcome.changed
+          ? 'Capítulo formatado localmente (0 gotas).'
+          : 'Capítulo já estava bem formatado (0 gotas).');
+      } else if (outcome.kind === 'ai-boundaries') {
+        toast.success('Capítulo formatado pela Idriel (−1 gota).');
+      } else {
+        toast.success('Capítulo formatado pela Idriel (−2 gotas).');
+      }
     } catch (e) {
       console.error('ai-format-chapter error', e);
       toast.error(e instanceof Error ? e.message : 'Falha ao formatar.');
@@ -136,6 +138,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
       setFormatting(false);
     }
   }, [content, formatGuidance, handleContentChange]);
+
 
 
   const byName = useMemo(() => buildEntriesByName(entries), [entries]);
