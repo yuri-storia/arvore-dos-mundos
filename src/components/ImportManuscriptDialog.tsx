@@ -116,6 +116,7 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
       if (useAI && plan.canUseAI) {
         const aiResult = await aiImportManuscript(file, {
           expectedChapterCount: expectedNum,
+          guidance: guidance.trim() || undefined,
           onProgress: (e) => setProgress(e),
         });
         result = aiResult;
