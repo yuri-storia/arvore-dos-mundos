@@ -11,6 +11,7 @@ import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor
 import { useSpellcheckEnabled } from '@/lib/spellcheck/spellcheckSettings';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { supabase } from '@/integrations/supabase/client';
+import { smartFormatChapter, previewChapterCost } from '@/lib/chapterFormat';
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
@@ -18,7 +19,6 @@ import {
 const isHTML = (s: string) => /^\s*<(p|div|h[1-6]|ul|ol|blockquote)[\s>]/i.test(s || '');
 const stripHTML = (s: string) => (s || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 
-const FORMAT_COST_DROPS = 2;
 
 interface Props {
   chapter: Chapter;
@@ -103,6 +103,8 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
     if (title.trim() && title !== chapter.title) onTitleSave(title.trim());
   };
 
+  const estimatedCost = useMemo(() => previewChapterCost(content || ''), [content]);
+
   const handleFormatWithIdriel = useCallback(async () => {
     const raw = content || '';
     const plain = isHTML(raw) ? stripHTML(raw) : raw.trim();
@@ -112,23 +114,23 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
     }
     setFormatting(true);
     try {
-      const { data, error } = await supabase.functions.invoke('ai-format-chapter', {
-        body: { text: raw, guidance: formatGuidance.trim() || undefined },
-      });
-      if (error) {
-        const msg = (data as { error?: string } | null)?.error || error.message || 'Falha ao formatar.';
-        toast.error(msg);
+      const outcome = await smartFormatChapter({ content: raw, guidance: formatGuidance });
+      if (outcome.kind === 'error') {
+        toast.error(outcome.message);
         return;
       }
-      const formatted = (data as { formatted?: string } | null)?.formatted;
-      if (!formatted) {
-        toast.error('A Idriel não retornou um resultado. Tente novamente.');
-        return;
-      }
-      handleContentChange(formatted);
+      handleContentChange(outcome.content);
       setFormatOpen(false);
       setFormatGuidance('');
-      toast.success(`Capítulo formatado pela Idriel (−${FORMAT_COST_DROPS} gotas).`);
+      if (outcome.kind === 'local') {
+        toast.success(outcome.changed
+          ? 'Capítulo formatado localmente (0 gotas).'
+          : 'Capítulo já estava bem formatado (0 gotas).');
+      } else if (outcome.kind === 'ai-boundaries') {
+        toast.success('Capítulo formatado pela Idriel (−1 gota).');
+      } else {
+        toast.success('Capítulo formatado pela Idriel (−2 gotas).');
+      }
     } catch (e) {
       console.error('ai-format-chapter error', e);
       toast.error(e instanceof Error ? e.message : 'Falha ao formatar.');
@@ -136,6 +138,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
       setFormatting(false);
     }
   }, [content, formatGuidance, handleContentChange]);
+
 
 
   const byName = useMemo(() => buildEntriesByName(entries), [entries]);
@@ -203,11 +206,11 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
           <button
             type="button"
             onClick={() => setFormatOpen(true)}
-            title={`Idriel formata a diagramação do capítulo (parágrafos, travessões, espaçamento) — custa ${FORMAT_COST_DROPS} gotas.`}
+            title={`Idriel formata a diagramação do capítulo (parágrafos, travessões, espaçamento). Custo estimado: ${estimatedCost} gota${estimatedCost === 1 ? '' : 's'}.`}
             className="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] border border-amber-400/40 text-amber-300 bg-gradient-to-r from-amber-400/[0.08] to-emerald-400/[0.08] hover:from-amber-400/[0.16] hover:to-emerald-400/[0.16] transition-colors"
           >
             <Sparkles className="w-3 h-3" />
-            <span className="font-mono">Formatar · {FORMAT_COST_DROPS}g</span>
+            <span className="font-mono">Formatar · {estimatedCost}g</span>
           </button>
         )}
 
@@ -292,7 +295,10 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
                 Ela <strong>não</strong> reescreve o texto, não altera palavras nem corrige ortografia.
               </span>
               <span className="block mt-2 text-amber-300/90">
-                Custo: <strong>{FORMAT_COST_DROPS} gotas</strong> de Seiva Dourada.
+                Custo estimado: <strong>{estimatedCost} gota{estimatedCost === 1 ? '' : 's'}</strong>
+                {estimatedCost === 0 && <span className="text-text-dim"> — este capítulo será formatado localmente, sem IA.</span>}
+                {estimatedCost === 1 && <span className="text-text-dim"> — modo econômico (fronteiras).</span>}
+                {estimatedCost === 2 && <span className="text-text-dim"> — modo reescrita, para preservar formatação inline.</span>}
               </span>
             </DialogDescription>
           </DialogHeader>
@@ -332,7 +338,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
               {formatting ? (
                 <><Loader2 className="w-3 h-3 animate-spin" /> Formatando…</>
               ) : (
-                <><Sparkles className="w-3 h-3" /> Formatar ({FORMAT_COST_DROPS}g)</>
+                <><Sparkles className="w-3 h-3" /> Formatar ({estimatedCost}g)</>
               )}
             </button>
           </DialogFooter>
