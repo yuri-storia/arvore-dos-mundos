@@ -257,9 +257,24 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           O manuscrito é onde sua história ganha forma. Organize tudo em <strong>capítulos</strong>, como um livro de verdade.
         </p>
 
-        <Button data-tour="create-manuscript" onClick={() => setShowNamePrompt(true)} className="bg-blue-bright/20 text-blue-light border border-blue-bright/30 hover:bg-blue-bright/30">
-          <Plus className="w-4 h-4 mr-1" /> Criar Manuscrito
-        </Button>
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          <Button data-tour="create-manuscript" onClick={() => setShowNamePrompt(true)} className="bg-blue-bright/20 text-blue-light border border-blue-bright/30 hover:bg-blue-bright/30">
+            <Plus className="w-4 h-4 mr-1" /> Criar Manuscrito
+          </Button>
+          <ImportManuscriptDialog
+            worldId={worldId}
+            onImported={async ({ id }) => {
+              await refetchManuscripts();
+              const { data } = await supabase.from('manuscripts').select('*').eq('id', id).maybeSingle();
+              if (data) setActiveManuscript(data as typeof activeManuscript);
+            }}
+            trigger={
+              <Button variant="outline" className="border-emerald-400/40 text-emerald-300 hover:text-emerald-200 hover:bg-emerald-500/10 hover:border-emerald-400/60">
+                <Upload className="w-4 h-4 mr-1" /> Importar Manuscrito
+              </Button>
+            }
+          />
+        </div>
 
         <Dialog open={showNamePrompt} onOpenChange={setShowNamePrompt}>
           <DialogContent className="sm:max-w-md">
