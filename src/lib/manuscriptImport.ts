@@ -680,7 +680,7 @@ export async function aiImportManuscript(
   file: File,
   opts: AiImportOptions = {},
 ): Promise<ImportedManuscript & { costDrops: number; truncated: boolean }> {
-  const { expectedChapterCount, onProgress } = opts;
+  const { expectedChapterCount, guidance, onProgress } = opts;
   const name = file.name.toLowerCase();
   const ext = name.split('.').pop() || '';
   const baseTitle = file.name.replace(/\.[^.]+$/, '');
