@@ -278,8 +278,69 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
 
         )}
       </div>
+
+      <Dialog open={formatOpen} onOpenChange={(o) => { if (!formatting) setFormatOpen(o); }}>
+        <DialogContent className="border-amber-400/30 bg-[#0a0f18] backdrop-blur-xl max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-cinzel text-lg text-amber-300 flex items-center gap-2">
+              <Sparkles className="w-5 h-5" strokeWidth={2} /> Idriel formata seu capítulo
+            </DialogTitle>
+            <DialogDescription className="font-montserrat text-sm text-text-secondary">
+              A Idriel corrige apenas a <strong>diagramação</strong>: separa parágrafos colados,
+              padroniza travessões de diálogo (—), remove espaços duplos e quebras estranhas.
+              <span className="block mt-2 text-text-dim">
+                Ela <strong>não</strong> reescreve o texto, não altera palavras nem corrige ortografia.
+              </span>
+              <span className="block mt-2 text-amber-300/90">
+                Custo: <strong>{FORMAT_COST_DROPS} gotas</strong> de Seiva Dourada.
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2">
+            <label className="text-xs font-montserrat text-text-secondary">
+              Orientação para a Idriel (opcional)
+            </label>
+            <textarea
+              value={formatGuidance}
+              onChange={(e) => setFormatGuidance(e.target.value.slice(0, 1000))}
+              placeholder="Ex.: cada fala começa em nova linha; preserve os asteriscos como marcadores de cena."
+              rows={3}
+              className="w-full bg-white/[0.03] border border-white/10 rounded px-3 py-2 text-sm font-merriweather text-foreground/90 focus:outline-none focus:border-amber-400/40"
+              disabled={formatting}
+            />
+            <div className="text-[10px] font-mono text-text-dim text-right">
+              {formatGuidance.length}/1000
+            </div>
+          </div>
+
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setFormatOpen(false)}
+              disabled={formatting}
+              className="font-montserrat text-xs font-bold uppercase tracking-wider px-4 py-2 rounded border border-blue-bright/20 text-text-secondary hover:text-foreground hover:bg-white/[0.04] disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={handleFormatWithIdriel}
+              disabled={formatting}
+              className="font-montserrat text-xs font-bold uppercase tracking-wider px-4 py-2 rounded border border-amber-400/40 text-amber-200 bg-gradient-to-r from-amber-400/20 to-emerald-400/20 hover:from-amber-400/30 hover:to-emerald-400/30 disabled:opacity-60 flex items-center gap-2"
+            >
+              {formatting ? (
+                <><Loader2 className="w-3 h-3 animate-spin" /> Formatando…</>
+              ) : (
+                <><Sparkles className="w-3 h-3" /> Formatar ({FORMAT_COST_DROPS}g)</>
+              )}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
+
 });
 ChapterEditor.displayName = 'ChapterEditor';
 
