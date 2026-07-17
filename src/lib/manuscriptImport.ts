@@ -7,6 +7,10 @@ import mammoth from 'mammoth/mammoth.browser';
 import JSZip from 'jszip';
 import { htmlToPlainText } from '@/lib/htmlToText';
 
+// Ensure pdfjs worker is configured even if textExtractor.ts hasn't loaded yet.
+(pdfjsLib as unknown as { GlobalWorkerOptions: { workerSrc: string } }).GlobalWorkerOptions.workerSrc =
+  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+
 export interface ImportedChapter {
   title: string;
   content: string; // plain text with \n\n paragraph separators
