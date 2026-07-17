@@ -338,7 +338,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
               {formatting ? (
                 <><Loader2 className="w-3 h-3 animate-spin" /> Formatando…</>
               ) : (
-                <><Sparkles className="w-3 h-3" /> Formatar ({FORMAT_COST_DROPS}g)</>
+                <><Sparkles className="w-3 h-3" /> Formatar ({estimatedCost}g)</>
               )}
             </button>
           </DialogFooter>
