@@ -107,6 +107,7 @@ serve(async (req) => {
       "Ignore índices/sumários no início: se detectar um sumário listando capítulos, use as OCORRÊNCIAS REAIS mais adiante, não os itens do sumário.",
       "Ignore prefácios/agradecimentos/dedicatórias como capítulos separados apenas se forem muito curtos (< 300 palavras); caso contrário inclua-os.",
       expected ? `O usuário informou que o manuscrito tem aproximadamente ${expected} capítulos — use isso como forte indício.` : "",
+      userGuidance ? `ORIENTAÇÃO DO USUÁRIO (prioridade máxima — siga à risca para decidir onde cortar os capítulos):\n"""${userGuidance}"""` : "",
       truncated ? "ATENÇÃO: o texto foi truncado por ser muito grande. Trabalhe com o que recebeu." : "",
     ].filter(Boolean).join("\n");
 
