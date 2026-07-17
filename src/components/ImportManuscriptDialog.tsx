@@ -459,6 +459,42 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
                 Se você souber o número, testamos várias estratégias de detecção e escolhemos a que mais se aproxima. Se não souber, deixe em branco.
               </p>
             </div>
+
+            {/* Toggle IA */}
+            <button
+              type="button"
+              onClick={() => plan.canUseAI && setUseAI((v) => !v)}
+              disabled={!plan.canUseAI}
+              className={`w-full text-left p-3 rounded-lg border transition-all ${
+                useAI && plan.canUseAI
+                  ? 'border-amber-400/60 bg-gradient-to-br from-amber-500/10 to-emerald-500/10 shadow-md shadow-amber-500/10'
+                  : 'border-blue-bright/15 bg-white/[0.02] hover:border-blue-bright/30'
+              } ${!plan.canUseAI ? 'opacity-50 cursor-not-allowed hover:border-blue-bright/15' : ''}`}
+            >
+              <div className="flex items-start gap-2">
+                <div className={`w-4 h-4 mt-0.5 rounded border-2 flex items-center justify-center shrink-0 ${
+                  useAI && plan.canUseAI ? 'border-amber-400 bg-amber-400/20' : 'border-blue-bright/30'
+                }`}>
+                  {useAI && plan.canUseAI && <CheckCircle2 className="w-3 h-3 text-amber-400" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="font-montserrat font-bold text-sm text-foreground">
+                      Detectar capítulos com IA
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                      {AI_IMPORT_COST_DROPS} gotas
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-text-dim leading-snug mt-1">
+                    {plan.canUseAI
+                      ? 'Idriel lê o arquivo e identifica onde cada capítulo começa — ideal quando a diagramação do PDF confunde a detecção automática. O conteúdo dos capítulos não é alterado.'
+                      : 'Disponível apenas no plano Idriel. Faça upgrade para usar.'}
+                  </p>
+                </div>
+              </div>
+            </button>
           </div>
         )}
 
