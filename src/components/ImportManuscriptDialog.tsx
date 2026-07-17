@@ -78,7 +78,7 @@ export const ImportManuscriptDialog: React.FC<Props> = ({ worldId, trigger, onIm
       if (chErr) throw chErr;
 
       toast.success('Manuscrito importado com sucesso!');
-      onImported?.(ms.id);
+      onImported?.({ id: ms.id, title: ms.title });
       setOpen(false);
       reset();
     } catch (e) {
