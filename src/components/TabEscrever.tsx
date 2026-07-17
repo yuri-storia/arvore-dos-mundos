@@ -378,6 +378,26 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           <span className="text-[10px] font-mono text-text-dim bg-white/[0.03] px-2 py-1 rounded border border-blue-bright/10 ml-1">
             {totalWordCount.toLocaleString()} palavras
           </span>
+          <ImportManuscriptDialog
+            worldId={worldId}
+            onImported={async ({ id }) => {
+              await refetchManuscripts();
+              // Try to activate the newly imported manuscript once list refreshes.
+              const { data } = await supabase.from('manuscripts').select('*').eq('id', id).maybeSingle();
+              if (data) setActiveManuscript(data as typeof activeManuscript);
+            }}
+            trigger={
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 text-[11px] font-montserrat font-bold uppercase tracking-wider border-emerald-400/40 text-emerald-300 hover:text-emerald-200 hover:bg-emerald-500/10 hover:border-emerald-400/60"
+                title="Importar manuscrito de PDF, DOCX, TXT ou EPUB"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Importar</span>
+              </Button>
+            }
+          />
           <ManuscriptExportMenu manuscript={activeManuscript} chapters={chapters} scenes={scenes} />
         </div>
       </div>
