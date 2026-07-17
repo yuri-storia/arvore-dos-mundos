@@ -63,6 +63,7 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
 
   const [file, setFile] = useState<File | null>(null);
   const [expectedCount, setExpectedCount] = useState<string>(''); // "" = "não sei"
+  const [guidance, setGuidance] = useState<string>('');
   const [progress, setProgress] = useState<ProgressEvent>({ stage: 'reading', progress: 0, message: '' });
 
   const [parsed, setParsed] = useState<ImportedManuscript | null>(null);
