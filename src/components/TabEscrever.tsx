@@ -192,6 +192,8 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const [zenMode, setZenMode] = useState(false);
   // Selected reference (when a chip is clicked) — shows in the right panel as a card.
   const [previewEntry, setPreviewEntry] = useState<CodexEntry | null>(null);
+  const [chapterPendingDelete, setChapterPendingDelete] = useState<string | null>(null);
+  const [chapterRenaming, setChapterRenaming] = useState<{ id: string; title: string } | null>(null);
   const titleSaveTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const activeChapter = useMemo(() => chapters.find(c => c.id === activeChapterId), [chapters, activeChapterId]);
