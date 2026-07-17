@@ -631,9 +631,15 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
               <Button
                 onClick={handleParse}
                 disabled={!file}
-                className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-400 hover:to-blue-400 text-white"
+                className={useAI && plan.canUseAI
+                  ? 'bg-gradient-to-r from-amber-500 to-emerald-500 hover:from-amber-400 hover:to-emerald-400 text-white shadow-lg shadow-amber-500/20'
+                  : 'bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-400 hover:to-blue-400 text-white'}
               >
-                Ler arquivo <ArrowRight className="w-4 h-4 ml-1" />
+                {useAI && plan.canUseAI ? (
+                  <>Ler com IA ({AI_IMPORT_COST_DROPS} gotas) <ArrowRight className="w-4 h-4 ml-1" /></>
+                ) : (
+                  <>Ler arquivo <ArrowRight className="w-4 h-4 ml-1" /></>
+                )}
               </Button>
             </>
           )}
