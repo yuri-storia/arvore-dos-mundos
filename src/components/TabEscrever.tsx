@@ -298,9 +298,11 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           <DropdownMenu>
             <DropdownMenuTrigger
               aria-label="Trocar manuscrito"
-              className="p-1 rounded hover:bg-white/[0.05] text-text-dim hover:text-foreground transition-colors shrink-0"
+              className="group inline-flex items-center gap-1.5 pl-2 pr-2.5 py-1 rounded-md bg-blue-bright/10 hover:bg-blue-bright/20 border border-blue-bright/30 hover:border-blue-bright/50 text-blue-light hover:text-blue-bright transition-all shrink-0 shadow-sm"
+              title="Trocar manuscrito"
             >
-              <ChevronDown className="w-3.5 h-3.5" />
+              <span className="text-[10px] font-montserrat font-bold uppercase tracking-wider">Trocar</span>
+              <ChevronDown className="w-3.5 h-3.5 transition-transform group-data-[state=open]:rotate-180" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[240px]">
               <p className="text-[9px] uppercase font-montserrat text-text-dim px-2 py-1">Manuscritos deste mundo</p>
