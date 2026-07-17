@@ -577,7 +577,7 @@ export async function smartImportManuscript(
     rawText = await file.text();
     sourceType = 'txt';
   }
-  rawText = rawText.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  rawText = cleanExtractedText(rawText);
 
   onProgress?.({ stage: 'splitting', progress: 0.85, message: 'Testando estratégias de detecção…' });
 
