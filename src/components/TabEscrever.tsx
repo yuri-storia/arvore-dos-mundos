@@ -9,8 +9,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Plus, Trash2, FileText, BookOpen,
   PanelRightOpen, StickyNote, Search, BookMarked, PenLine,
-  LayoutGrid, ChevronRight, ChevronDown, X,
+  LayoutGrid, ChevronRight, ChevronDown, X, Upload,
 } from 'lucide-react';
+import { ImportManuscriptDialog } from '@/components/ImportManuscriptDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
