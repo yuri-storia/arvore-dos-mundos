@@ -86,12 +86,13 @@ serve(async (req) => {
     if (!body || typeof body !== "object" || Array.isArray(body)) {
       return new Response(JSON.stringify({ error: "Invalid request body" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-    const { rawText, expectedCount } = body as Record<string, unknown>;
+    const { rawText, expectedCount, guidance } = body as Record<string, unknown>;
     if (typeof rawText !== "string" || rawText.trim().length < 200) {
       return new Response(JSON.stringify({ error: "rawText muito curto — nada para importar." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
     const expected = typeof expectedCount === "number" && Number.isFinite(expectedCount) && expectedCount > 0 && expectedCount < 500
       ? Math.floor(expectedCount) : undefined;
+    const userGuidance = typeof guidance === "string" ? guidance.trim().slice(0, 2000) : "";
 
     const truncated = rawText.length > MAX_TEXT_CHARS;
     const workText = truncated ? rawText.slice(0, MAX_TEXT_CHARS) : rawText;
@@ -106,6 +107,7 @@ serve(async (req) => {
       "Ignore índices/sumários no início: se detectar um sumário listando capítulos, use as OCORRÊNCIAS REAIS mais adiante, não os itens do sumário.",
       "Ignore prefácios/agradecimentos/dedicatórias como capítulos separados apenas se forem muito curtos (< 300 palavras); caso contrário inclua-os.",
       expected ? `O usuário informou que o manuscrito tem aproximadamente ${expected} capítulos — use isso como forte indício.` : "",
+      userGuidance ? `ORIENTAÇÃO DO USUÁRIO (prioridade máxima — siga à risca para decidir onde cortar os capítulos):\n"""${userGuidance}"""` : "",
       truncated ? "ATENÇÃO: o texto foi truncado por ser muito grande. Trabalhe com o que recebeu." : "",
     ].filter(Boolean).join("\n");
 

@@ -611,6 +611,7 @@ export async function smartImportManuscript(
 
 export interface AiImportOptions {
   expectedChapterCount?: number;
+  guidance?: string;
   onProgress?: OnProgress;
 }
 
@@ -679,7 +680,7 @@ export async function aiImportManuscript(
   file: File,
   opts: AiImportOptions = {},
 ): Promise<ImportedManuscript & { costDrops: number; truncated: boolean }> {
-  const { expectedChapterCount, onProgress } = opts;
+  const { expectedChapterCount, guidance, onProgress } = opts;
   const name = file.name.toLowerCase();
   const ext = name.split('.').pop() || '';
   const baseTitle = file.name.replace(/\.[^.]+$/, '');
@@ -716,7 +717,7 @@ export async function aiImportManuscript(
   onProgress?.({ stage: 'parsing', progress: 0.55, message: 'Idriel analisando o manuscrito…' });
 
   const { data, error } = await supabase.functions.invoke('ai-manuscript-import', {
-    body: { rawText, expectedCount: expectedChapterCount },
+    body: { rawText, expectedCount: expectedChapterCount, guidance: guidance?.trim() || undefined },
   });
   if (error) {
     const msg = (error as { message?: string; context?: { error?: string } })?.context?.error
