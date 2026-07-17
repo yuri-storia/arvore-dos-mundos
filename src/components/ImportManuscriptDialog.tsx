@@ -15,11 +15,13 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import {
-  smartImportManuscript, chapterTextToHtml, countWords,
+  smartImportManuscript, aiImportManuscript, chapterTextToHtml, countWords,
+  AI_IMPORT_COST_DROPS,
   type ImportedManuscript, type ImportedChapter, type ProgressEvent,
 } from '@/lib/manuscriptImport';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 
 interface ManuscriptTarget {
   id: string;
