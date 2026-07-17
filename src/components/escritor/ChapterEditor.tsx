@@ -3,15 +3,22 @@ import type { Chapter } from '@/hooks/useManuscript';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import {
   Edit3, Eye, Maximize, Minimize, PanelRightOpen, PanelRightClose, ChevronRight,
-  Keyboard, SpellCheck2,
+  Keyboard, SpellCheck2, Sparkles, Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { buildEntriesByName, renderInlineMentions } from './MentionChip';
 import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor';
 import { useSpellcheckEnabled } from '@/lib/spellcheck/spellcheckSettings';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
+import { supabase } from '@/integrations/supabase/client';
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from '@/components/ui/dialog';
 
 const isHTML = (s: string) => /^\s*<(p|div|h[1-6]|ul|ol|blockquote)[\s>]/i.test(s || '');
 const stripHTML = (s: string) => (s || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+
+const FORMAT_COST_DROPS = 2;
 
 interface Props {
   chapter: Chapter;
