@@ -575,6 +575,82 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           )}
         </div>
       )}
+
+      {/* Controlled: excluir capítulo (do menu de contexto ou botão da lista) */}
+      <AlertDialog open={!!chapterPendingDelete} onOpenChange={(o) => { if (!o) setChapterPendingDelete(null); }}>
+        <AlertDialogContent className="border-red-alert/30 bg-[#0a0f18] backdrop-blur-xl shadow-[0_0_60px_rgba(220,38,38,0.15)]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-cinzel text-lg text-red-alert flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" strokeWidth={2} /> Excluir capítulo
+            </AlertDialogTitle>
+            <AlertDialogDescription className="font-montserrat text-sm text-text-secondary">
+              {(() => {
+                const ch = chapters.find(c => c.id === chapterPendingDelete);
+                return `Tem certeza que deseja excluir "${ch?.title ?? ''}"? O conteúdo será perdido permanentemente.`;
+              })()}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="font-montserrat text-xs font-bold uppercase tracking-wider border-blue-bright/20 text-text-secondary hover:text-foreground hover:bg-white/[0.04]">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                const id = chapterPendingDelete;
+                if (id) {
+                  deleteChapter(id);
+                  if (activeChapterId === id) setActiveChapterId(null);
+                }
+                setChapterPendingDelete(null);
+              }}
+              className="font-montserrat text-xs font-bold uppercase tracking-wider bg-red-alert/20 text-red-alert border border-red-alert/40 hover:bg-red-alert/30 hover:border-red-alert/60 transition-all"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Controlled: renomear capítulo */}
+      <Dialog open={!!chapterRenaming} onOpenChange={(o) => { if (!o) setChapterRenaming(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-cinzel">Renomear capítulo</DialogTitle>
+          </DialogHeader>
+          <div className="py-3">
+            <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1.5">
+              Novo título
+            </label>
+            <Input
+              value={chapterRenaming?.title ?? ''}
+              onChange={e => setChapterRenaming(prev => prev ? { ...prev, title: e.target.value } : prev)}
+              autoFocus
+              onKeyDown={e => {
+                if (e.key === 'Enter' && chapterRenaming) {
+                  const t = chapterRenaming.title.trim();
+                  if (t) updateChapter(chapterRenaming.id, { title: t });
+                  setChapterRenaming(null);
+                }
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setChapterRenaming(null)}>Cancelar</Button>
+            <Button
+              onClick={() => {
+                if (chapterRenaming) {
+                  const t = chapterRenaming.title.trim();
+                  if (t) updateChapter(chapterRenaming.id, { title: t });
+                }
+                setChapterRenaming(null);
+              }}
+              className="bg-blue-bright/20 text-blue-light border border-blue-bright/30"
+            >
+              Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
