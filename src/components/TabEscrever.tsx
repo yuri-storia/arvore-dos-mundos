@@ -447,30 +447,51 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
             <ScrollArea className="flex-1">
               <div className="p-1.5 space-y-0.5">
                 {chapters.map((ch) => (
-                  <div key={ch.id} className="flex items-center group">
-                    <button onClick={() => setActiveChapterId(ch.id)}
-                      className={`flex-1 min-w-0 text-left px-2 py-1.5 rounded text-xs font-montserrat font-bold truncate transition-colors ${
-                        activeChapterId === ch.id ? 'bg-blue-bright/15 text-blue-light' : 'text-foreground/80 hover:text-foreground hover:bg-white/[0.03]'
-                      }`}>
-                      <FileText className="w-3 h-3 inline mr-1.5 opacity-50" />{ch.title}
-                    </button>
-                    <span className="text-[9px] text-text-dim/50 mr-1">{ch.word_count || 0}</span>
-                    <button onClick={() => setShowNotes(showNotes === ch.id ? null : ch.id)}
-                      className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-gold-light transition-all" title="Notas">
-                      <StickyNote className="w-3 h-3" />
-                    </button>
-                    <ConfirmDialog
-                      trigger={
-                        <button aria-label="Excluir capítulo" className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all" title="Excluir capítulo">
+                  <ContextMenu key={ch.id}>
+                    <ContextMenuTrigger asChild>
+                      <div className="flex items-center group">
+                        <button onClick={() => setActiveChapterId(ch.id)}
+                          className={`flex-1 min-w-0 text-left px-2 py-1.5 rounded text-xs font-montserrat font-bold truncate transition-colors ${
+                            activeChapterId === ch.id ? 'bg-blue-bright/15 text-blue-light' : 'text-foreground/80 hover:text-foreground hover:bg-white/[0.03]'
+                          }`}
+                          title={`${ch.title} — clique com o botão direito para mais opções`}
+                        >
+                          <FileText className="w-3 h-3 inline mr-1.5 opacity-50" />{ch.title}
+                        </button>
+                        <span className="text-[9px] text-text-dim/50 mr-1 shrink-0">{ch.word_count || 0}</span>
+                        <button onClick={() => setShowNotes(showNotes === ch.id ? null : ch.id)}
+                          className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-gold-light transition-all shrink-0" title="Notas">
+                          <StickyNote className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={() => setChapterPendingDelete(ch.id)}
+                          aria-label="Excluir capítulo"
+                          className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all shrink-0"
+                          title="Excluir capítulo"
+                        >
                           <Trash2 className="w-3 h-3" />
                         </button>
-                      }
-                      title="Excluir capítulo"
-                      description={`Tem certeza que deseja excluir "${ch.title}"? O conteúdo será perdido permanentemente.`}
-                      confirmLabel="Excluir"
-                      onConfirm={() => { deleteChapter(ch.id); if (activeChapterId === ch.id) setActiveChapterId(null); }}
-                    />
-                  </div>
+                      </div>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent className="min-w-[200px]">
+                      <ContextMenuItem onSelect={() => setActiveChapterId(ch.id)} className="text-xs">
+                        <FileText className="w-3.5 h-3.5 mr-2 opacity-60" /> Abrir capítulo
+                      </ContextMenuItem>
+                      <ContextMenuItem onSelect={() => setChapterRenaming({ id: ch.id, title: ch.title })} className="text-xs">
+                        <PenLine className="w-3.5 h-3.5 mr-2 opacity-60" /> Renomear
+                      </ContextMenuItem>
+                      <ContextMenuItem onSelect={() => setShowNotes(showNotes === ch.id ? null : ch.id)} className="text-xs">
+                        <StickyNote className="w-3.5 h-3.5 mr-2 opacity-60" /> {showNotes === ch.id ? 'Ocultar notas' : 'Notas do capítulo'}
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem
+                        onSelect={() => setChapterPendingDelete(ch.id)}
+                        className="text-xs text-red-alert focus:text-red-alert"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 mr-2" /> Excluir capítulo
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  </ContextMenu>
                 ))}
                 {showNotes && (() => {
                   const ch = chapters.find(c => c.id === showNotes);
