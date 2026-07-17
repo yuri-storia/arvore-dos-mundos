@@ -11,6 +11,7 @@ import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor
 import { useSpellcheckEnabled } from '@/lib/spellcheck/spellcheckSettings';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { supabase } from '@/integrations/supabase/client';
+import { smartFormatChapter, previewChapterCost } from '@/lib/chapterFormat';
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
@@ -18,7 +19,6 @@ import {
 const isHTML = (s: string) => /^\s*<(p|div|h[1-6]|ul|ol|blockquote)[\s>]/i.test(s || '');
 const stripHTML = (s: string) => (s || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 
-const FORMAT_COST_DROPS = 2;
 
 interface Props {
   chapter: Chapter;
