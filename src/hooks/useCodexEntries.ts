@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -34,6 +34,7 @@ export function useCodexEntries(worldId?: string) {
   // o texto real com string vazia.
   const [hydratedIds, setHydratedIds] = useState<Set<string>>(new Set());
   const hydratingRef = useRef<Set<string>>(new Set());
+  const bulkPrefetchedRef = useRef<Set<string>>(new Set());
   const isContentHydrated = useCallback((id: string) => hydratedIds.has(id), [hydratedIds]);
 
   const { data: entries = [], isLoading: loading, refetch } = useQuery({
@@ -52,6 +53,45 @@ export function useCodexEntries(worldId?: string) {
       return (data || []).map((d: any) => ({ ...d, content: d.content ?? '' })) as CodexEntry[];
     },
   });
+
+  /**
+   * Hidratação em lote: após a listagem enxuta chegar, dispara UMA requisição
+   * adicional buscando o `content` de todas as entradas do mundo. Assim os
+   * cards conseguem exibir prévia (line-clamp) e as @menções são resolvidas
+   * sem depender de expandir cada card. Roda uma vez por mundo.
+   */
+  useEffect(() => {
+    if (!user || !worldId) return;
+    if (!entries.length) return;
+    if (bulkPrefetchedRef.current.has(worldId)) return;
+    const missing = entries.filter(e => !hydratedIds.has(e.id));
+    if (!missing.length) { bulkPrefetchedRef.current.add(worldId); return; }
+    bulkPrefetchedRef.current.add(worldId);
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from('codex_entries')
+        .select('id, content')
+        .eq('world_id', worldId);
+      if (cancelled) return;
+      if (error) {
+        console.error('bulk codex hydrate failed', error);
+        bulkPrefetchedRef.current.delete(worldId);
+        return;
+      }
+      const byId = new Map<string, string>();
+      (data || []).forEach((row: any) => byId.set(row.id, (row.content as string) || ''));
+      qc.setQueryData(CODEX_KEY(worldId), (old: CodexEntry[] = []) =>
+        old.map(e => byId.has(e.id) ? { ...e, content: byId.get(e.id)! } : e)
+      );
+      setHydratedIds(prev => {
+        const n = new Set(prev);
+        byId.forEach((_, id) => n.add(id));
+        return n;
+      });
+    })();
+    return () => { cancelled = true; };
+  }, [user, worldId, entries, hydratedIds, qc]);
 
   /** Busca o `content` completo de uma ficha sob demanda (ao expandir). */
   const fetchEntryContent = useCallback(async (id: string): Promise<string> => {
