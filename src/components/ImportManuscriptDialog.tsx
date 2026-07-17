@@ -85,6 +85,7 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
     setMergeMode('merge-title');
     setFile(null);
     setExpectedCount('');
+    setGuidance('');
     setParsed(null);
     setChapters([]);
     setManuscriptTitle('');
