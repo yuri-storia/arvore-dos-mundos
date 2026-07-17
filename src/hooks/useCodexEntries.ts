@@ -90,6 +90,14 @@ export function useCodexEntries(worldId?: string) {
       .single();
     if (error) { toast.error(`Erro ao criar ficha: ${error.message}`); console.error(error); return null; }
     qc.setQueryData(CODEX_KEY(worldId), (old: CodexEntry[] = []) => [data as any, ...old]);
+    // Marca como hidratada — já temos o `content` completo em mãos, não precisa
+    // refetch. Sem isso, `isContentHydrated` retornava false e o CodexCard
+    // travava a edição da ficha recém-criada até dar refresh.
+    setHydratedIds(prev => {
+      const id = (data as any)?.id;
+      if (!id || prev.has(id)) return prev;
+      const n = new Set(prev); n.add(id); return n;
+    });
     toast.success(entry.entry_type === 'artigo' ? 'Artigo criado!' : 'Ficha criada!');
     return data as unknown as CodexEntry;
   }, [user, worldId, qc]);
@@ -169,6 +177,12 @@ export function useCodexEntries(worldId?: string) {
       ...((data as any[]) ?? []),
       ...old,
     ]);
+    // Marca como hidratadas (temos o `content` completo já no insert-return).
+    setHydratedIds(prev => {
+      const n = new Set(prev);
+      ((data as any[]) ?? []).forEach(row => { if (row?.id) n.add(row.id); });
+      return n;
+    });
     toast.success(`${entriesToImport.length} entrada(s) importada(s)!`);
   }, [user, worldId, qc]);
 

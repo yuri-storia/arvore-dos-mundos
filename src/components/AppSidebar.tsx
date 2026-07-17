@@ -329,7 +329,10 @@ const WorldChaptersTree: React.FC<{ worldId: string; setActiveTab: (t: TabType) 
                 {isOpen ? <ChevronDown className="w-2.5 h-2.5" /> : <ChevronRight className="w-2.5 h-2.5" />}
               </button>
               <button
-                onClick={() => setActiveTab('escrever')}
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('adm:open-manuscript', { detail: { manuscriptId: m.id } }));
+                  setActiveTab('escrever');
+                }}
                 className="flex items-center gap-1 flex-1 min-w-0 text-left py-0.5 text-[10px] text-blue-light/80 hover:text-blue-light transition-colors"
                 title={m.title}
               >
@@ -384,7 +387,10 @@ const ManuscriptChaptersList: React.FC<{ manuscriptId: string; setActiveTab: (t:
       {chapters.map(ch => (
         <button
           key={ch.id}
-          onClick={() => setActiveTab('escrever')}
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent('adm:open-manuscript', { detail: { manuscriptId: ch.manuscript_id, chapterId: ch.id } }));
+            setActiveTab('escrever');
+          }}
           className="flex items-center gap-1 w-full text-left py-0.5 text-[10px] text-text-dim hover:text-foreground transition-colors"
           title={ch.title}
         >
