@@ -611,6 +611,7 @@ export async function smartImportManuscript(
 
 export interface AiImportOptions {
   expectedChapterCount?: number;
+  guidance?: string;
   onProgress?: OnProgress;
 }
 
