@@ -86,12 +86,13 @@ serve(async (req) => {
     if (!body || typeof body !== "object" || Array.isArray(body)) {
       return new Response(JSON.stringify({ error: "Invalid request body" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-    const { rawText, expectedCount } = body as Record<string, unknown>;
+    const { rawText, expectedCount, guidance } = body as Record<string, unknown>;
     if (typeof rawText !== "string" || rawText.trim().length < 200) {
       return new Response(JSON.stringify({ error: "rawText muito curto — nada para importar." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
     const expected = typeof expectedCount === "number" && Number.isFinite(expectedCount) && expectedCount > 0 && expectedCount < 500
       ? Math.floor(expectedCount) : undefined;
+    const userGuidance = typeof guidance === "string" ? guidance.trim().slice(0, 2000) : "";
 
     const truncated = rawText.length > MAX_TEXT_CHARS;
     const workText = truncated ? rawText.slice(0, MAX_TEXT_CHARS) : rawText;
