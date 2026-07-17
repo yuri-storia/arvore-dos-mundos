@@ -183,6 +183,96 @@ const EntryPreviewPanel: React.FC<{
 });
 EntryPreviewPanel.displayName = 'EntryPreviewPanel';
 
+// ── Sortable chapter row (draggable via long-press on touch / pointer down on desktop) ──
+interface SortableChapterRowProps {
+  id: string;
+  title: string;
+  wordCount: number;
+  isActive: boolean;
+  onOpen: () => void;
+  onToggleNotes: () => void;
+  onRequestDelete: () => void;
+  onRequestRename: () => void;
+  notesOpen: boolean;
+}
+const SortableChapterRow: React.FC<SortableChapterRowProps> = ({
+  id, title, wordCount, isActive, onOpen, onToggleNotes, onRequestDelete, onRequestRename, notesOpen,
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  };
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        <div
+          ref={setNodeRef}
+          style={style}
+          className={`flex items-center group rounded ${isDragging ? 'ring-1 ring-blue-bright/40 bg-blue-bright/[0.06]' : ''}`}
+        >
+          {/* Drag handle — segure para arrastar (funciona no toque com long-press via TouchSensor) */}
+          <button
+            {...attributes}
+            {...listeners}
+            aria-label="Arrastar para reordenar"
+            title="Segure e arraste para reordenar"
+            className="p-1 text-text-dim/40 hover:text-blue-light active:text-blue-bright touch-none cursor-grab active:cursor-grabbing shrink-0"
+          >
+            <GripVertical className="w-3 h-3" />
+          </button>
+          {/* Título — abre em UM clique/tap. `onPointerUp` garante disparo imediato mesmo quando
+              o Radix ContextMenuTrigger tenta iniciar o long-press. */}
+          <button
+            type="button"
+            onPointerUp={(e) => {
+              if (e.pointerType !== 'mouse' || e.button === 0) onOpen();
+            }}
+            className={`flex-1 min-w-0 text-left px-2 py-1.5 rounded text-xs font-montserrat font-bold truncate transition-colors ${
+              isActive ? 'bg-blue-bright/15 text-blue-light' : 'text-foreground/80 hover:text-foreground hover:bg-white/[0.03]'
+            }`}
+            title={`${title} — clique com o botão direito (ou segure) para mais opções`}
+          >
+            <FileText className="w-3 h-3 inline mr-1.5 opacity-50" />{title}
+          </button>
+          <span className="text-[9px] text-text-dim/50 mr-1 shrink-0">{wordCount || 0}</span>
+          <button
+            onClick={onToggleNotes}
+            className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-gold-light transition-all shrink-0"
+            title="Notas"
+          >
+            <StickyNote className="w-3 h-3" />
+          </button>
+          <button
+            onClick={onRequestDelete}
+            aria-label="Excluir capítulo"
+            className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-red-alert transition-all shrink-0"
+            title="Excluir capítulo"
+          >
+            <Trash2 className="w-3 h-3" />
+          </button>
+        </div>
+      </ContextMenuTrigger>
+      <ContextMenuContent className="min-w-[200px]">
+        <ContextMenuItem onSelect={onOpen} className="text-xs">
+          <FileText className="w-3.5 h-3.5 mr-2 opacity-60" /> Abrir capítulo
+        </ContextMenuItem>
+        <ContextMenuItem onSelect={onRequestRename} className="text-xs">
+          <PenLine className="w-3.5 h-3.5 mr-2 opacity-60" /> Renomear
+        </ContextMenuItem>
+        <ContextMenuItem onSelect={onToggleNotes} className="text-xs">
+          <StickyNote className="w-3.5 h-3.5 mr-2 opacity-60" /> {notesOpen ? 'Ocultar notas' : 'Notas do capítulo'}
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem onSelect={onRequestDelete} className="text-xs text-red-alert focus:text-red-alert">
+          <Trash2 className="w-3.5 h-3.5 mr-2" /> Excluir capítulo
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
+  );
+};
+
 // ── Main Component ──
 export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const { user } = useAuth();
@@ -191,10 +281,27 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     manuscripts, activeManuscript, setActiveManuscript,
     chapters, scenes, totalWordCount,
     createManuscript, updateManuscript, deleteManuscript,
-    createChapter, updateChapter, deleteChapter,
+    createChapter, updateChapter, deleteChapter, reorderChapters,
     refetch: refetchManuscripts,
   } = useManuscript(worldId);
   const { entries, fetchEntryContent, isContentHydrated } = useCodexEntries(worldId);
+
+  // Sensors: 8px de tolerância no mouse (evita drag acidental ao clicar);
+  // long-press de 220ms no toque (garante que o TAP simples continue abrindo o capítulo).
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 220, tolerance: 6 } }),
+  );
+
+  const handleChapterDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = chapters.findIndex(c => c.id === active.id);
+    const newIndex = chapters.findIndex(c => c.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    const orderedIds = arrayMove(chapters, oldIndex, newIndex).map(c => c.id);
+    reorderChapters(orderedIds);
+  }, [chapters, reorderChapters]);
 
   const [writeMode, setWriteMode] = useState<WriteMode>('manuscrito');
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
