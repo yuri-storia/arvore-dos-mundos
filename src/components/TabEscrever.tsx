@@ -396,9 +396,10 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           </span>
           <ImportManuscriptDialog
             worldId={worldId}
+            existingManuscripts={manuscripts.map(m => ({ id: m.id, title: m.title }))}
+            defaultTargetId={activeManuscript?.id}
             onImported={async ({ id }) => {
               await refetchManuscripts();
-              // Try to activate the newly imported manuscript once list refreshes.
               const { data } = await supabase.from('manuscripts').select('*').eq('id', id).maybeSingle();
               if (data) setActiveManuscript(data as typeof activeManuscript);
             }}
