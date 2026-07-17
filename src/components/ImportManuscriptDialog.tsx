@@ -498,6 +498,27 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
                 </div>
               </div>
             </button>
+
+            {useAI && plan.canUseAI && (
+              <div className="rounded-lg border border-amber-400/30 bg-amber-500/[0.04] p-3 space-y-1.5">
+                <Label htmlFor="ai-guidance" className="text-xs font-montserrat text-foreground flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  Orientação livre para a Idriel <span className="text-text-dim font-normal">(opcional)</span>
+                </Label>
+                <textarea
+                  id="ai-guidance"
+                  value={guidance}
+                  onChange={(e) => setGuidance(e.target.value.slice(0, 2000))}
+                  placeholder="Ex: separe os capítulos entre entradas do arqueólogo e entradas de Phillip Hewitt; cada nova entrada começa com uma data."
+                  rows={4}
+                  className="w-full text-xs rounded-md border border-blue-bright/15 bg-white/[0.02] px-2.5 py-2 font-montserrat text-foreground placeholder:text-text-dim/60 focus:outline-none focus:border-amber-400/50 focus:bg-white/[0.04] resize-none"
+                />
+                <div className="flex items-center justify-between text-[10px] text-text-dim">
+                  <span>Explique pormenores da estrutura — como distinguir capítulos, o que ignorar, títulos especiais…</span>
+                  <span>{guidance.length}/2000</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
