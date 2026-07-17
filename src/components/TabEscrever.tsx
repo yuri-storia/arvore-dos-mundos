@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useManuscript } from '@/hooks/useManuscript';
+import { supabase } from '@/integrations/supabase/client';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
