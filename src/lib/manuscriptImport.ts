@@ -691,7 +691,7 @@ export async function aiImportManuscript(
 
   if (ext === 'epub' || file.type === 'application/epub+zip') {
     const docs = await loadEpubDocs(file, onProgress);
-    rawText = docs.map((d) => (d.title ? `\n\n${d.title}\n\n${d.text}` : d.text)).join('\n\n');
+    rawText = docs.map((d) => htmlToPlainText(d.html)).join('\n\n');
     sourceType = 'epub';
   } else if (ext === 'pdf' || file.type === 'application/pdf') {
     rawText = await extractPdf(file, onProgress);
