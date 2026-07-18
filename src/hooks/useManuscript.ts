@@ -171,12 +171,14 @@ export function useManuscript(worldId?: string) {
   }, []);
 
   const deleteChapter = useCallback(async (id: string) => {
+    const ch = chapters.find(c => c.id === id);
     const { error } = await supabase.from('chapters').delete().eq('id', id);
     if (error) { toast.error('Erro ao excluir capítulo'); return; }
     setChapters(prev => prev.filter(c => c.id !== id));
     setScenes(prev => prev.filter(s => s.chapter_id !== id));
     toast.success('Capítulo excluído');
-  }, []);
+    if (ch) { try { window.dispatchEvent(new CustomEvent('adm:chapters-changed', { detail: { manuscriptId: ch.manuscript_id } })); } catch {} }
+  }, [chapters]);
 
   /** Reordena capítulos por lista de IDs. Persiste sort_order em lote. */
   const reorderChapters = useCallback(async (orderedIds: string[]) => {
