@@ -335,27 +335,37 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   // A sidebar não tem acesso direto ao estado do useManuscript, então usamos
   // um CustomEvent leve para pedir "abrir este manuscrito/capítulo".
   useEffect(() => {
-    const handler = (e: Event) => {
-      const detail = (e as CustomEvent<{ manuscriptId?: string; chapterId?: string }>).detail;
+    const applyOpen = (detail: { manuscriptId?: string; chapterId?: string } | null | undefined) => {
       if (!detail?.manuscriptId) return;
       const target = manuscripts.find(m => m.id === detail.manuscriptId);
       if (target && target.id !== activeManuscript?.id) setActiveManuscript(target);
       if (detail.chapterId) {
-        // Espera o manuscrito trocar (chapters recarrega em outro effect); tenta ativar
-        // imediatamente se já estiver no manuscrito atual, senão faz retry curto.
         const tryActivate = (attempts = 0) => {
           if (chapters.some(c => c.id === detail.chapterId)) {
             setActiveChapterId(detail.chapterId!);
-          } else if (attempts < 10) {
+          } else if (attempts < 20) {
             setTimeout(() => tryActivate(attempts + 1), 100);
           }
         };
         tryActivate();
       }
     };
+
+    // 1) Consome pending gravado pela sidebar antes da montagem desta aba.
+    try {
+      const raw = sessionStorage.getItem('adm:pending-open');
+      if (raw) {
+        sessionStorage.removeItem('adm:pending-open');
+        applyOpen(JSON.parse(raw));
+      }
+    } catch {}
+
+    // 2) Também escuta eventos disparados enquanto a aba está ativa.
+    const handler = (e: Event) => applyOpen((e as CustomEvent).detail);
     window.addEventListener('adm:open-manuscript', handler as EventListener);
     return () => window.removeEventListener('adm:open-manuscript', handler as EventListener);
   }, [manuscripts, chapters, activeManuscript?.id, setActiveManuscript]);
+
 
   useEffect(() => () => {
     if (titleSaveTimerRef.current) clearTimeout(titleSaveTimerRef.current);
