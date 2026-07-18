@@ -392,7 +392,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                   <p className="text-xs text-foreground font-montserrat truncate">{img.name}</p>
                   <div className="flex flex-wrap gap-1 mt-2">
                     <button
-                      onClick={() => { setTagging(img); setTagCat(FRUITS[0].name); }}
+                      onClick={() => { setTagging(img); setTagCat(galleryFruits[0].name); }}
                       className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/15 transition-colors"
                       title="Etiquetar e arquivar"
                     >
