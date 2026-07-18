@@ -301,8 +301,11 @@ const SectionCard: React.FC<{
   heading: string;
   children: React.ReactNode;
   index: number;
-}> = ({ heading, children, index }) => {
+  defaultOpen?: boolean;
+}> = ({ heading, children, index, defaultOpen = true }) => {
   const { Icon, color } = sectionMeta(heading);
+  const [open, setOpen] = useState<boolean>(defaultOpen);
+  const panelId = React.useId();
   return (
     <motion.section
       initial={{ opacity: 0, y: 12 }}
@@ -314,7 +317,7 @@ const SectionCard: React.FC<{
         boxShadow: `inset 0 1px 0 hsl(0 0% 100% / 0.045), inset 0 0 0 1px color-mix(in oklab, ${color}, transparent 88%), 0 14px 40px -22px color-mix(in oklab, ${color}, transparent 55%), 0 1px 0 hsl(0 0% 0% / 0.4)`,
       }}
     >
-      {/* Left rail — vertical gold gradient signature */}
+      {/* Left rail */}
       <div
         className="pointer-events-none absolute left-0 top-4 bottom-4 w-[3px] rounded-full"
         style={{
@@ -332,9 +335,19 @@ const SectionCard: React.FC<{
         className="pointer-events-none absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-30"
         style={{ background: `radial-gradient(circle, color-mix(in oklab, ${color}, transparent 55%), transparent 70%)` }}
       />
-      <header className="relative flex items-center gap-2.5 mb-3.5 pb-3 border-b" style={{ borderColor: `color-mix(in oklab, ${color}, transparent 88%)` }}>
+
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-controls={panelId}
+        className={`relative w-full flex items-center gap-2.5 text-left group focus:outline-none rounded-md transition-[margin,padding] duration-300 ${
+          open ? 'mb-3.5 pb-3 border-b' : 'mb-0 pb-0 border-b-0'
+        }`}
+        style={open ? { borderColor: `color-mix(in oklab, ${color}, transparent 88%)` } : undefined}
+      >
         <span
-          className="inline-flex items-center justify-center w-8 h-8 rounded-lg shrink-0 backdrop-blur-md"
+          className="inline-flex items-center justify-center w-8 h-8 rounded-lg shrink-0 backdrop-blur-md transition-transform duration-300 group-hover:scale-[1.04]"
           style={{
             background: `linear-gradient(135deg, color-mix(in oklab, ${color}, transparent 78%), hsl(0 0% 100% / 0.02))`,
             boxShadow: `0 0 14px color-mix(in oklab, ${color}, transparent 82%), inset 0 0 0 1px color-mix(in oklab, ${color}, transparent 74%), inset 0 1px 0 hsl(0 0% 100% / 0.06)`,
@@ -346,9 +359,37 @@ const SectionCard: React.FC<{
           {heading}
         </h3>
         <span className="flex-1 h-px opacity-40" style={{ background: `linear-gradient(to right, color-mix(in oklab, ${color}, transparent 65%), transparent)` }} />
-      </header>
+        <span
+          className="inline-flex items-center justify-center w-7 h-7 rounded-full shrink-0 backdrop-blur-md transition-all duration-300 group-hover:brightness-125"
+          style={{
+            background: `linear-gradient(135deg, color-mix(in oklab, ${color}, transparent 84%), hsl(0 0% 100% / 0.02))`,
+            boxShadow: `inset 0 0 0 1px color-mix(in oklab, ${color}, transparent 82%)`,
+          }}
+          aria-hidden
+        >
+          <ChevronDown
+            className="w-3.5 h-3.5 transition-transform duration-300"
+            style={{ color, transform: open ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+            strokeWidth={2.25}
+          />
+        </span>
+      </button>
 
-      <div className="relative">{children}</div>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            id={panelId}
+            key="content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
+            className="relative overflow-hidden"
+          >
+            <div className="pt-0.5">{children}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.section>
   );
 };
