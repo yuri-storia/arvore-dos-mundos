@@ -332,6 +332,51 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
 
   const activeChapter = useMemo(() => chapters.find(c => c.id === activeChapterId), [chapters, activeChapterId]);
 
+  // Live word count for the active chapter (real-time from the editor).
+  const [liveActiveWords, setLiveActiveWords] = useState<number | null>(null);
+  useEffect(() => { setLiveActiveWords(null); }, [activeChapterId]);
+  const effectiveChapters = useMemo(() => {
+    if (activeChapterId == null || liveActiveWords == null) return chapters;
+    return chapters.map(c => c.id === activeChapterId ? { ...c, word_count: liveActiveWords } : c);
+  }, [chapters, activeChapterId, liveActiveWords]);
+  const effectiveTotal = useMemo(
+    () => effectiveChapters.reduce((s, c) => s + (c.word_count || 0), 0),
+    [effectiveChapters]
+  );
+
+  // Daily writing goal — session-only. Snapshot resets when the tab session ends.
+  const goalKey = 'adm:dailyGoal';
+  const snapKey = activeManuscript ? `adm:dailySnap:${activeManuscript.id}` : null;
+  const [dailyGoal, setDailyGoal] = useState<number>(() => {
+    try { return Math.max(0, parseInt(sessionStorage.getItem(goalKey) || '500', 10)) || 500; }
+    catch { return 500; }
+  });
+  const [snapshot, setSnapshot] = useState<number | null>(null);
+  useEffect(() => {
+    if (!snapKey) { setSnapshot(null); return; }
+    try {
+      const raw = sessionStorage.getItem(snapKey);
+      if (raw != null) setSnapshot(parseInt(raw, 10) || 0);
+      else {
+        sessionStorage.setItem(snapKey, String(effectiveTotal));
+        setSnapshot(effectiveTotal);
+      }
+    } catch { setSnapshot(0); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [snapKey]);
+  const wordsToday = snapshot == null ? 0 : Math.max(0, effectiveTotal - snapshot);
+  const goalPct = dailyGoal > 0 ? Math.min(100, Math.round((wordsToday / dailyGoal) * 100)) : 0;
+  const persistGoal = useCallback((v: number) => {
+    const clean = Math.max(0, Math.min(999999, Math.round(v)));
+    setDailyGoal(clean);
+    try { sessionStorage.setItem(goalKey, String(clean)); } catch {}
+  }, []);
+  const resetSnapshot = useCallback(() => {
+    if (!snapKey) return;
+    try { sessionStorage.setItem(snapKey, String(effectiveTotal)); } catch {}
+    setSnapshot(effectiveTotal);
+  }, [snapKey, effectiveTotal]);
+
   // Local manuscript title (debounced save — was firing 1 DB write per keystroke)
   const [manuscriptTitleLocal, setManuscriptTitleLocal] = useState(activeManuscript?.title ?? '');
   useEffect(() => {
