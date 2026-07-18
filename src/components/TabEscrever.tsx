@@ -477,8 +477,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     <div className={`mx-auto px-2 sm:px-4 py-4 transition-all duration-300 ${zenMode ? 'max-w-[900px]' : 'max-w-[1400px]'}`}>
       {/* Top bar */}
       <div className={`flex items-center gap-3 mb-4 flex-wrap transition-opacity duration-300 ${zenMode ? 'opacity-0 hover:opacity-100 h-0 overflow-hidden hover:h-auto hover:overflow-visible' : ''}`}>
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <PenLine className="w-4 h-4 text-blue-light shrink-0" />
+        <div className="flex items-center gap-2 flex-1 min-w-0 w-full sm:w-auto">
           {/* Caixa aglutinada: nome editável + seta para trocar */}
           <div className="inline-flex items-stretch min-w-0 rounded-md border border-blue-bright/30 bg-blue-bright/5 hover:border-blue-bright/50 focus-within:border-blue-bright/60 focus-within:ring-1 focus-within:ring-blue-bright/40 transition-all shadow-sm">
             <input
