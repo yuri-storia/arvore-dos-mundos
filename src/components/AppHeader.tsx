@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import heroLoopGif from '@/assets/arvore-hero-loop.gif.asset.json';
-import heroPoster from '@/assets/arvore-mundos-hero.webp.asset.json';
+
 import { UserMenu } from '@/components/UserMenu';
 import { FRUITS } from '@/lib/data';
 import { Pencil, ChevronDown, FolderOpen, Plus, Trash2, ArrowDown } from 'lucide-react';
