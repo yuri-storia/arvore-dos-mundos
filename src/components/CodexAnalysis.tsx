@@ -280,24 +280,24 @@ const SectionCard: React.FC<{
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1], delay: index * 0.06 }}
-      className="relative rounded-xl border p-4 sm:p-5 overflow-hidden"
+      className="relative rounded-2xl border p-4 sm:p-5 overflow-hidden backdrop-blur-xl"
       style={{
-        background: 'linear-gradient(140deg, rgba(16,12,6,0.55) 0%, rgba(6,8,14,0.7) 100%)',
-        borderColor: `${color}33`,
-        boxShadow: `inset 0 1px 0 ${color}22, 0 10px 30px -20px ${color}66`,
+        background: `linear-gradient(140deg, rgba(12,10,6,0.4) 0%, rgba(6,8,14,0.5) 100%), radial-gradient(circle at 0% 0%, ${color}10, transparent 55%)`,
+        borderColor: `${color}1c`,
+        boxShadow: `inset 0 1px 0 hsl(0 0% 100% / 0.04), inset 0 0 0 1px ${color}0c, 0 12px 36px -24px ${color}55`,
       }}
     >
       <div
-        className="pointer-events-none absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-40"
-        style={{ background: `radial-gradient(circle, ${color}55, transparent 70%)` }}
+        className="pointer-events-none absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-30"
+        style={{ background: `radial-gradient(circle, ${color}44, transparent 70%)` }}
       />
       <header className="relative flex items-center gap-2.5 mb-3">
         <span
-          className="inline-flex items-center justify-center w-8 h-8 rounded-full shrink-0"
+          className="inline-flex items-center justify-center w-8 h-8 rounded-full shrink-0 backdrop-blur-md"
           style={{
-            background: `linear-gradient(135deg, ${color}33, transparent)`,
-            border: `1px solid ${color}66`,
-            boxShadow: `0 0 14px ${color}33`,
+            background: `linear-gradient(135deg, ${color}22, hsl(0 0% 100% / 0.02))`,
+            border: `1px solid ${color}2a`,
+            boxShadow: `0 0 14px ${color}1e, inset 0 1px 0 hsl(0 0% 100% / 0.05)`,
           }}
         >
           <Icon className="w-4 h-4" strokeWidth={1.75} style={{ color }} />
@@ -305,8 +305,9 @@ const SectionCard: React.FC<{
         <h3 className="font-cinzel font-bold text-sm sm:text-[15px] uppercase tracking-[0.14em]" style={{ color }}>
           {heading}
         </h3>
-        <span className="flex-1 h-px opacity-60" style={{ background: `linear-gradient(to right, ${color}55, transparent)` }} />
+        <span className="flex-1 h-px opacity-30" style={{ background: `linear-gradient(to right, ${color}22, transparent)` }} />
       </header>
+
       <div className="relative">{children}</div>
     </motion.section>
   );
