@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import treeWallpaper from '@/assets/tree-wallpaper.webp';
-import heroVideo from '@/assets/arvore-hero-loop-720.mp4.asset.json';
+import heroLoopGif from '@/assets/arvore-hero-loop.gif.asset.json';
 import heroPoster from '@/assets/arvore-mundos-hero-960.webp.asset.json';
 
 const Particles: React.FC = () => {
