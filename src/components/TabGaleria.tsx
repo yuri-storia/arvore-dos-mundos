@@ -339,7 +339,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {FRUITS.map(f => (
+              {galleryFruits.map(f => (
                 <SelectItem key={f.id} value={f.name}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</SelectItem>
               ))}
             </SelectContent>
