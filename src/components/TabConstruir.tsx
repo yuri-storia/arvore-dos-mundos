@@ -23,6 +23,7 @@ import { useNavigate } from 'react-router-dom';
 import { History, Trash2, Trees, Leaf, Sparkles, Check, Image as ImageIcon, Save, ScrollText, ArrowLeft, ArrowRight, HelpCircle, BookOpen, Feather, RefreshCw, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLatestAnalysis, getFruitScore, getFruitDetail } from '@/hooks/useLatestAnalysis';
+import { FruitCarousel } from '@/components/construir/FruitCarousel';
 
 interface Props {
   state: AppState;
@@ -279,119 +280,21 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       </div>
 
       {/* Fruit carousel — elegant arrow navigation, no slider bar */}
-      <div className="relative mb-6">
-        <button
-          type="button"
-          aria-label="Anterior"
-          onClick={() => document.getElementById('fruit-carousel')?.scrollBy({ left: -280, behavior: 'smooth' })}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-background/90 backdrop-blur-md border border-gold-bronze/40 flex items-center justify-center text-gold-light hover:text-gold-champagne hover:border-gold-warm hover:bg-gold-deep/30 transition-all shadow-[0_0_20px_rgba(0,0,0,0.4)] active:scale-95"
-        >
-          <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2} />
-        </button>
-        <button
-          type="button"
-          aria-label="Próximo"
-          onClick={() => document.getElementById('fruit-carousel')?.scrollBy({ left: 280, behavior: 'smooth' })}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-background/90 backdrop-blur-md border border-gold-bronze/40 flex items-center justify-center text-gold-light hover:text-gold-champagne hover:border-gold-warm hover:bg-gold-deep/30 transition-all shadow-[0_0_20px_rgba(0,0,0,0.4)] active:scale-95"
-        >
-          <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2} />
-        </button>
-
-        <div
-          id="fruit-carousel"
-          data-tour="fruit-grid"
-          className="flex gap-3 sm:gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth py-1 px-10 sm:px-12 -mx-3 sm:-mx-4 scrollbar-hidden"
-        >
-          {orderedFruits.map((f, idx) => {
-            const score = getFruitScore(fruitScores, f.id);
-            const detail = getFruitDetail(fruitScores, f.id);
-            const justification = detail?.justification;
-            const evidence = detail?.evidence;
-            const tooltip = justification
-              ? `${justification}${evidence?.length ? `\n\nEvidência: ${evidence.join(', ')}` : ''}`
-              : f.desc;
-            const isActive = currentFruit === f.id;
-            const isMastered = score >= 5;
-            const coverImage = FRUIT_IMAGES[f.id];
-            return (
-              <button
-                key={f.id}
-                title={tooltip}
-                onClick={() => {
-                  selectFruit(f.id);
-                  if (isMobile) {
-                    setTimeout(() => {
-                      document.getElementById('fruit-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 150);
-                  }
-                }}
-                className={`relative shrink-0 snap-start aspect-[3/4] w-[40vw] max-w-[170px] sm:w-[165px] md:w-[175px] lg:w-[185px] rounded-xl overflow-hidden transition-all duration-300 group ${
-                  isActive
-                    ? 'ring-1 ring-gold-warm shadow-[0_0_28px_hsl(var(--gold-warm)/0.28)] scale-[1.02]'
-                    : 'ring-1 ring-transparent hover:ring-gold-bronze/40 hover:shadow-[0_8px_30px_rgba(0,0,0,0.35)]'
-                }`}
-              >
-                {/* Card base */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${f.gradient} opacity-[0.18] group-hover:opacity-[0.28] transition-opacity`} />
-                {coverImage ? (
-                  <img
-                    src={coverImage}
-                    alt={f.name}
-                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${isActive ? 'opacity-90' : 'opacity-50 group-hover:opacity-70'}`}
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center opacity-20 group-hover:opacity-30 transition-opacity">
-                    <f.Icon className="w-12 h-12 text-gold-champagne" strokeWidth={1.25} />
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-
-                {/* Elegant top badge */}
-                <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-                  <span className="px-2 py-0.5 rounded-full bg-background/70 backdrop-blur-sm border border-gold-bronze/30 text-[9px] font-cinzel text-gold-champagne">
-                    {f.num}
-                  </span>
-                  {isMastered && (
-                    <span className="w-5 h-5 rounded-full bg-gradient-to-br from-gold-light to-gold-deep flex items-center justify-center text-background shadow-[0_0_8px_hsl(var(--gold-warm)/0.6)]">
-                      <Star className="w-2.5 h-2.5" strokeWidth={2.5} fill="currentColor" />
-                    </span>
-                  )}
-                </div>
-
-                {/* Bottom content */}
-                <div className="absolute bottom-0 left-0 right-0 p-3">
-                  <span className="text-[10px] font-montserrat text-blue-light/80 uppercase tracking-wider block mb-0.5">
-                    {idx + 1}º passo
-                  </span>
-                  <span className="font-cinzel font-bold text-xs sm:text-sm text-foreground leading-tight block mb-2">
-                    {f.name}
-                  </span>
-                  <div className="flex items-center justify-between">
-                    {score > 0 ? (
-                      <span className="inline-flex items-center gap-0.5">
-                        {[1,2,3,4,5].map(i => (
-                          <Star key={i} className="w-2 h-2" strokeWidth={1.5}
-                            style={{ color: 'hsl(var(--gold-light))', fill: i <= score ? 'hsl(var(--gold-light))' : 'transparent', opacity: i <= score ? 1 : 0.35 }} />
-                        ))}
-                      </span>
-                    ) : (
-                      <span className="text-[9px] text-text-dim/60 italic font-montserrat">
-                        {hasAnalysis ? 'não avaliado' : 'sem análise'}
-                      </span>
-                    )}
-                    <span className={`text-[9px] font-montserrat uppercase tracking-wider ${isActive ? 'text-gold-light' : 'text-text-dim/60 group-hover:text-blue-light/80'} transition-colors`}>
-                      {isActive ? 'Ativo' : 'Abrir'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Active indicator line */}
-                <div className={`absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-gold-bronze via-gold-light to-gold-champagne transition-transform origin-left duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <FruitCarousel
+        orderedFruits={orderedFruits}
+        currentFruit={currentFruit}
+        currentSaveId={currentSaveId}
+        fruitScores={fruitScores}
+        hasAnalysis={hasAnalysis}
+        onSelect={(id) => {
+          selectFruit(id);
+          if (isMobile) {
+            setTimeout(() => {
+              document.getElementById('fruit-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 150);
+          }
+        }}
+      />
 
 
       {/* Fruit panel */}
