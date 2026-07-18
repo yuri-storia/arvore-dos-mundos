@@ -309,14 +309,18 @@ export const ImportManuscriptDialog: React.FC<Props> = ({
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
       <span onClick={() => setOpen(true)}>{trigger}</span>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="font-cinzel flex items-center gap-2">
-            <Upload className="w-4 h-4 text-emerald-400" />
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-hidden flex flex-col border-emerald-400/25 bg-gradient-to-br from-[#0a0f18] via-[#0b0e16] to-[#0a0e18] backdrop-blur-2xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.04)]">
+        <div className="pointer-events-none absolute -top-24 -left-24 w-64 h-64 rounded-full blur-3xl opacity-40 bg-emerald-400/15" />
+        <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent" />
+        <DialogHeader className="relative">
+          <DialogTitle className="font-cinzel flex items-center gap-2.5 text-emerald-200 tracking-wide">
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400/25 to-emerald-500/5 border border-emerald-400/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+              <Upload className="w-4 h-4" strokeWidth={2} />
+            </span>
             Importar Manuscrito
           </DialogTitle>
-          <DialogDescription className="text-xs">
-            Envie um arquivo <strong>.pdf</strong>, <strong>.docx</strong>, <strong>.txt</strong> ou <strong>.epub</strong>. Nós detectamos os capítulos automaticamente.
+          <DialogDescription className="text-xs text-text-secondary leading-relaxed">
+            Envie um arquivo <strong className="text-emerald-200/90">.pdf</strong>, <strong className="text-emerald-200/90">.docx</strong>, <strong className="text-emerald-200/90">.txt</strong> ou <strong className="text-emerald-200/90">.epub</strong>. Nós detectamos os capítulos automaticamente.
           </DialogDescription>
         </DialogHeader>
 

@@ -152,14 +152,19 @@ export const FormatAllChaptersDialog: React.FC<Props> = ({ chapters, onChapterUp
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="border-amber-400/30 bg-[#0a0f18] backdrop-blur-xl max-w-xl">
-        <DialogHeader>
-          <DialogTitle className="font-cinzel text-lg text-amber-300 flex items-center gap-2">
-            <Sparkles className="w-5 h-5" strokeWidth={2} /> Formatar todos os capítulos
+      <DialogContent className="border-amber-400/25 bg-gradient-to-br from-[#0a0f18] via-[#0b0e16] to-[#0a0e18] backdrop-blur-2xl max-w-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.04)]">
+        <div className="pointer-events-none absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-40 bg-amber-400/20" />
+        <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
+        <DialogHeader className="relative">
+          <DialogTitle className="font-cinzel text-lg text-amber-300 flex items-center gap-2.5 tracking-wide">
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-amber-400/25 to-amber-500/5 border border-amber-400/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+              <Sparkles className="w-4 h-4" strokeWidth={2} />
+            </span>
+            Formatar todos os capítulos
           </DialogTitle>
-          <DialogDescription className="font-montserrat text-sm text-text-secondary">
-            A Idriel corrige apenas a <strong>diagramação</strong> — parágrafos, travessões, espaçamento.
-            Capítulos que já estão bem formatados são resolvidos localmente, <strong>de graça</strong>.
+          <DialogDescription className="font-montserrat text-sm text-text-secondary leading-relaxed">
+            A Idriel refina apenas a <strong className="text-amber-200/90">diagramação</strong> — parágrafos, travessões, espaçamento.
+            Capítulos já bem formatados são resolvidos localmente, <strong className="text-emerald-300">de graça</strong>.
           </DialogDescription>
         </DialogHeader>
 

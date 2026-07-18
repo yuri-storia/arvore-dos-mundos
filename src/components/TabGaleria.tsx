@@ -13,7 +13,7 @@ import { useIdrielVisions } from '@/hooks/useIdrielVisions';
 import { useIdrielJobs } from '@/contexts/IdrielJobsContext';
 import idrielAvatar from '@/assets/idriel-avatar.webp';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, Lock, ChevronDown, ChevronUp, Trash2, Palette, Leaf, ScrollText, Trees, X, Inbox, Save, Apple, BarChart3, Check, ClipboardCopy, ArrowDown, RotateCw, Image as ImageIcon } from 'lucide-react';
+import { Sparkles, Lock, ChevronDown, ChevronUp, Trash2, Palette, Leaf, ScrollText, Trees, X, Inbox, Save, Apple, BarChart3, Check, ClipboardCopy, ArrowDown, RotateCw, Image as ImageIcon, ArrowRight, ArrowLeft, Info } from 'lucide-react';
 import { ImageReferencePicker, type PickedReference } from '@/components/ImageReferencePicker';
 import type { AppState } from '@/lib/data';
 
@@ -33,16 +33,23 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const { entries: codexEntries } = useCodexEntries(worldId);
   const { visions, saveVision, updateVisionImage, deleteVision } = useIdrielVisions(worldId);
   const idrielJobs = useIdrielJobs();
+  // Excluímos o 11º Fruto ("A Sua Narrativa" — id 10) da Galeria.
+  // Aquela categoria não faz sentido como pasta de imagens: o manuscrito não é
+  // uma referência visual, então mantemos apenas os frutos que representam
+  // aspectos visualizáveis do mundo.
+  const galleryFruits = useMemo(() => FRUITS.filter(f => f.id !== 10), []);
+
   const [filter, setFilter] = useState('Todos');
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const [batchCat, setBatchCat] = useState(FRUITS[0].name);
+  const [batchCat, setBatchCat] = useState(galleryFruits[0].name);
   const [batchUploading, setBatchUploading] = useState(false);
   const [batchProgress, setBatchProgress] = useState({ done: 0, total: 0 });
 
-  // Image generation state
-  const [showGenerator, setShowGenerator] = useState(true);
+  // Image generation state — inicia recolhido para que o foco principal da
+  // aba seja a biblioteca de imagens; o usuário decide expandir quando quiser.
+  const [showGenerator, setShowGenerator] = useState(false);
   const { worldName, db, generatedPrompt } = state;
   const [desc, setDesc] = useState('');
   const [style, setStyle] = useState(STYLE_OPTIONS[0]);
@@ -61,7 +68,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const [error, setError] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState('Todos');
-  const [showHistory, setShowHistory] = useState(true);
+  const [showHistory, setShowHistory] = useState(false);
 
   // Read from persistent jobs (so switching tabs doesn't cancel)
   const promptJob = activePromptJobId ? idrielJobs.get<string>(activePromptJobId) : undefined;
@@ -264,7 +271,31 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   };
 
   const [tagging, setTagging] = useState<GalleryImage | null>(null);
-  const [tagCat, setTagCat] = useState(FRUITS[0].name);
+  const [tagCat, setTagCat] = useState(galleryFruits[0].name);
+
+  // Biblioteca por categoria: agrupa as imagens catalogadas por Fruto e monta
+  // uma "capa" (a imagem mais recente daquela categoria) para cada card.
+  // Uma categoria "Geral" agrega imagens sem Fruto atribuído.
+  const categoryLibrary = useMemo(() => {
+    const map = new Map<string, GalleryImage[]>();
+    const knownNames = new Set(galleryFruits.map(f => f.name));
+    for (const img of sorted) {
+      const key = knownNames.has(img.cat) ? img.cat : 'Geral';
+      const list = map.get(key) || [];
+      list.push(img);
+      map.set(key, list);
+    }
+    const cats = galleryFruits.map(f => ({
+      key: f.name,
+      name: f.name,
+      Icon: f.Icon,
+      color: (f as any).color as string | undefined,
+      images: map.get(f.name) || [],
+    }));
+    // Bucket "Geral" apenas quando houver imagens sem Fruto conhecido.
+    const general = map.get('Geral');
+    return { cats, general: general || [] };
+  }, [sorted, galleryFruits]);
 
   return (
     <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-6">
@@ -308,7 +339,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {FRUITS.map(f => (
+              {galleryFruits.map(f => (
                 <SelectItem key={f.id} value={f.name}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</SelectItem>
               ))}
             </SelectContent>
@@ -325,9 +356,10 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="Todos">Todos</SelectItem>
-            {FRUITS.map(f => (
+            {galleryFruits.map(f => (
               <SelectItem key={f.id} value={f.name}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</SelectItem>
             ))}
+            <SelectItem value="Geral">Geral / Sem categoria</SelectItem>
           </SelectContent>
         </Select>
         {filter !== 'Todos' && (
@@ -360,7 +392,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                   <p className="text-xs text-foreground font-montserrat truncate">{img.name}</p>
                   <div className="flex flex-wrap gap-1 mt-2">
                     <button
-                      onClick={() => { setTagging(img); setTagCat(FRUITS[0].name); }}
+                      onClick={() => { setTagging(img); setTagCat(galleryFruits[0].name); }}
                       className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/15 transition-colors"
                       title="Etiquetar e arquivar"
                     >
@@ -388,67 +420,180 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
         </div>
       )}
 
-      {/* Grid */}
-      {filteredSorted.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
-            <ImageIcon className="w-8 h-8 text-gold-champagne opacity-60" strokeWidth={1.5} />
-          </div>
-          <h3 className="font-cinzel font-bold text-lg text-foreground mb-2">
-            {sorted.length === 0 ? 'Sua galeria está vazia' : 'Nenhuma visão nesta categoria'}
-          </h3>
-          <p className="font-merriweather text-sm text-text-dim mb-4 max-w-md mx-auto">
-            {sorted.length === 0
-              ? 'Faça upload de referências visuais ou gere imagens com Idriel abaixo.'
-              : 'Tente um filtro diferente ou adicione novas imagens.'}
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
-          {filteredSorted.map(img => (
-            <div
-              key={img.id}
-              className="group relative rounded-lg overflow-hidden border border-gold/15 hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(218,165,32,0.15)] transition-all"
-            >
-              <img loading="lazy" decoding="async"
-                src={img.src}
-                alt={img.name}
-                className="w-full h-[100px] sm:h-[136px] object-cover cursor-zoom-in"
-                onClick={() => setLightbox({ src: img.src, alt: img.name })}
-              />
-              <div className="p-2">
-                <p className="text-xs text-foreground font-montserrat truncate">{img.name}</p>
-                <p className="text-[10px] text-text-dim">{img.cat}</p>
-              </div>
-              <button
-                onClick={() => removeImage(img.id)}
-                className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-alert/80 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <X className="w-3.5 h-3.5" strokeWidth={2} />
-              </button>
+      {/* ===== Biblioteca por categoria — visão principal =====
+          Inspirado em interfaces de biblioteca: cada Fruto vira um card grande
+          com capa (imagem mais recente daquela categoria) ou marca-d'água
+          quando ainda vazio. Clicar entra na categoria e mostra o grid completo. */}
+      {filter === 'Todos' ? (
+        sorted.length === 0 ? (
+          <div className="text-center py-14">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
+              <ImageIcon className="w-8 h-8 text-gold-champagne opacity-60" strokeWidth={1.5} />
             </div>
-          ))}
-        </div>
+            <h3 className="font-cinzel font-bold text-lg text-foreground mb-2">Sua biblioteca visual está vazia</h3>
+            <p className="font-merriweather text-sm text-text-dim mb-4 max-w-md mx-auto">
+              Envie referências visuais nos frutos abaixo ou peça a Idriel para materializar as visões do seu mundo.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {categoryLibrary.cats.map((cat, i) => {
+              const cover = cat.images[0]?.src;
+              const count = cat.images.length;
+              const empty = count === 0;
+              const Icon = cat.Icon;
+              return (
+                <button
+                  key={cat.key}
+                  onClick={() => setFilter(cat.name)}
+                  className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-gold/15 hover:border-gold/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-15px_rgba(218,165,32,0.35)] text-left"
+                >
+                  {cover ? (
+                    <>
+                      <img src={cover} alt={cat.name} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
+                    </>
+                  ) : (
+                    <>
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          background: `linear-gradient(135deg, rgba(10,14,24,0.95), rgba(6,8,14,0.75)), radial-gradient(circle at 30% 30%, rgba(218,165,32,${0.10 + (i % 5) * 0.02}), transparent 60%)`,
+                        }}
+                      />
+                      <Icon className="absolute right-4 top-4 w-24 h-24 text-gold-champagne/10" strokeWidth={1} />
+                    </>
+                  )}
+
+                  {/* Small tile of second image for texture, if it exists */}
+                  {cat.images[1] && (
+                    <img src={cat.images[1].src} loading="lazy" alt="" className="absolute top-3 right-3 w-14 h-14 rounded-md object-cover border border-white/20 shadow-lg opacity-90 group-hover:opacity-100 transition" />
+                  )}
+
+                  <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gold/20 border border-gold/40 backdrop-blur-md">
+                        <Icon className="w-3.5 h-3.5 text-gold-light" strokeWidth={1.75} />
+                      </span>
+                      <span className="text-[10px] font-montserrat font-bold uppercase tracking-wider text-gold-light/90">
+                        {count} {count === 1 ? 'imagem' : 'imagens'}
+                      </span>
+                    </div>
+                    <div className="flex items-end justify-between gap-2">
+                      <h3 className="font-cinzel font-bold text-lg sm:text-xl text-foreground drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] leading-tight">
+                        {cat.name}
+                      </h3>
+                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/[0.08] border border-white/20 backdrop-blur-md group-hover:bg-gold/20 group-hover:border-gold/50 transition-all">
+                        <ArrowRight className="w-4 h-4 text-gold-light group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+                      </span>
+                    </div>
+                    {empty && (
+                      <p className="text-[10px] text-text-dim/80 font-merriweather italic mt-1">Ainda sem imagens — envie ou gere.</p>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+
+            {categoryLibrary.general.length > 0 && (
+              <button
+                onClick={() => setFilter('Geral')}
+                className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-gold/15 hover:border-gold/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-15px_rgba(218,165,32,0.35)] text-left"
+              >
+                <img src={categoryLibrary.general[0].src} alt="Geral" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
+                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+                  <span className="text-[10px] font-montserrat font-bold uppercase tracking-wider text-gold-light/90">
+                    {categoryLibrary.general.length} imagens
+                  </span>
+                  <h3 className="font-cinzel font-bold text-xl text-foreground mt-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">Geral</h3>
+                </div>
+              </button>
+            )}
+          </div>
+        )
+      ) : (
+        <>
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => setFilter('Todos')}
+              className="inline-flex items-center gap-1.5 text-xs font-montserrat text-text-secondary hover:text-gold-light transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />
+              Todas as categorias
+            </button>
+            <h3 className="font-cinzel font-bold text-lg text-gold-light">{filter}</h3>
+            <span className="text-[10px] font-montserrat text-text-dim">{filteredSorted.length} {filteredSorted.length === 1 ? 'imagem' : 'imagens'}</span>
+          </div>
+          {filteredSorted.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
+                <ImageIcon className="w-8 h-8 text-gold-champagne opacity-60" strokeWidth={1.5} />
+              </div>
+              <p className="font-merriweather text-sm text-text-dim max-w-md mx-auto">
+                Nenhuma imagem em <strong>{filter}</strong> ainda. Envie referências ou gere com Idriel.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
+              {filteredSorted.map(img => (
+                <div
+                  key={img.id}
+                  className="group relative rounded-lg overflow-hidden border border-gold/15 hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(218,165,32,0.15)] transition-all"
+                >
+                  <img loading="lazy" decoding="async"
+                    src={img.src}
+                    alt={img.name}
+                    className="w-full h-[100px] sm:h-[136px] object-cover cursor-zoom-in"
+                    onClick={() => setLightbox({ src: img.src, alt: img.name })}
+                  />
+                  <div className="p-2">
+                    <p className="text-xs text-foreground font-montserrat truncate">{img.name}</p>
+                    <p className="text-[10px] text-text-dim">{img.cat}</p>
+                  </div>
+                  <button
+                    onClick={() => removeImage(img.id)}
+                    className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-alert/80 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="w-3.5 h-3.5" strokeWidth={2} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
-      {/* ====== DIVIDER: Visões de Idriel ====== */}
-      <div className="mt-10 mb-6">
+      {/* ====== DIVIDER: Visões de Idriel — inicia recolhido ======
+          Instrução curta ajuda o usuário a decidir se quer expandir a seção
+          de geração por IA sem que ela ocupe o espaço da biblioteca. */}
+      <div className="mt-12 mb-6">
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
           <button
             data-tour="visoes-idriel"
             onClick={() => setShowGenerator(!showGenerator)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gold/30 bg-gold/[0.06] hover:bg-gold/[0.12] transition-all group"
+            aria-expanded={showGenerator}
+            className="flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-gold/30 bg-gradient-to-r from-gold/[0.04] via-gold/[0.10] to-gold/[0.04] hover:from-gold/[0.10] hover:to-gold/[0.10] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-all group"
           >
-            <Sparkles className="w-4 h-4 text-gold-light" />
-            <span className="font-cinzel text-sm text-gold-light font-bold">Visões de Idriel</span>
-            {showGenerator ? <ChevronUp className="w-4 h-4 text-gold-light/60" /> : <ChevronDown className="w-4 h-4 text-gold-light/60" />}
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-gold/30 to-gold/5 border border-gold/40">
+              <Sparkles className="w-3.5 h-3.5 text-gold-light" strokeWidth={2} />
+            </span>
+            <span className="font-cinzel text-sm text-gold-light font-bold tracking-wide">Visões de Idriel</span>
+            <ChevronDown className={`w-4 h-4 text-gold-light/70 transition-transform duration-300 ${showGenerator ? 'rotate-180' : ''}`} />
           </button>
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
         </div>
-        <p className="text-center font-merriweather italic text-text-dim text-xs mt-2">
-          Idriel canaliza o Elixir dos Mundos para materializar as visões do seu mundo
-        </p>
+        <div className="max-w-xl mx-auto mt-3 px-4">
+          <p className="flex items-start gap-2 text-center font-merriweather text-[13px] text-text-secondary/90 leading-relaxed">
+            <Info className="w-3.5 h-3.5 text-gold-champagne/70 shrink-0 mt-0.5" strokeWidth={2} />
+            <span className="text-left">
+              <strong className="text-gold-light">Materializar imagens com IA.</strong> Idriel canaliza o Elixir dos Mundos para transformar
+              descrições em texto — inspiradas no seu Codex — em visões visuais coerentes com o seu mundo.
+              {!showGenerator && <span className="text-text-dim italic"> Clique acima para expandir quando quiser gerar.</span>}
+            </span>
+          </p>
+        </div>
       </div>
 
       {showGenerator && (
@@ -741,7 +886,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
             <p className="font-merriweather text-xs text-text-dim italic mb-4">Em qual categoria deseja guardar esta visão?</p>
             <div className="flex flex-wrap gap-1.5 mb-4">
               <button onClick={() => setSaveCat('Todos')} className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${saveCat === 'Todos' ? 'bg-gold/20 text-gold-light border border-gold/40' : 'text-text-dim border border-transparent hover:border-gold/20'}`}>Geral</button>
-              {FRUITS.map(f => (
+              {galleryFruits.map(f => (
                 <button key={f.id} onClick={() => setSaveCat(f.name)} className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${saveCat === f.name ? 'bg-gold/20 text-gold-light border border-gold/40' : 'text-text-dim border border-transparent hover:border-gold/20'}`}>
                   <f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}
                 </button>
@@ -762,7 +907,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
             <h3 className="font-cinzel font-bold text-foreground mb-1 inline-flex items-center gap-2"><Trees className="w-4 h-4 text-gold-champagne" strokeWidth={1.75} />Etiquetar Visão</h3>
             <p className="font-merriweather text-xs text-text-dim italic mb-4">Escolha o Fruto/categoria onde esta visão deve ser arquivada.</p>
             <div className="flex flex-wrap gap-1.5 mb-4 max-h-[240px] overflow-y-auto">
-              {FRUITS.map(f => (
+              {galleryFruits.map(f => (
                 <button
                   key={f.id}
                   onClick={() => setTagCat(f.name)}

@@ -396,9 +396,10 @@ const SectionCard: React.FC<{
             animate={{ height: 'auto', opacity: 1 }}
             exit={collapsible ? { height: 0, opacity: 0 } : undefined}
             transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
-            className="relative overflow-hidden"
+            className="relative"
+            style={{ overflow: collapsible && !open ? 'hidden' : 'visible' }}
           >
-            <div className="pt-0.5">{children}</div>
+            <div className="pt-2 pb-1 -mx-1 px-1">{children}</div>
           </motion.div>
         )}
       </AnimatePresence>
