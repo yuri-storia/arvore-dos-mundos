@@ -352,21 +352,41 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     [effectiveChapters]
   );
 
-  // Daily writing goal — session-only. Snapshot resets when the tab session ends.
+  // Chapter word count (live from the editor when active)
+  const activeChapterWords = activeChapter
+    ? (activeChapterId === activeChapter.id && liveActiveWords != null ? liveActiveWords : (activeChapter.word_count || 0))
+    : 0;
+
+  // Daily writing goal — persists across sessions; resets automatically at midnight (Brazil).
   const goalKey = 'adm:dailyGoal';
-  const snapKey = activeManuscript ? `adm:dailySnap:${activeManuscript.id}` : null;
+  const brDateFmt = useMemo(
+    () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' }),
+    []
+  );
+  const getBrDate = useCallback(() => brDateFmt.format(new Date()), [brDateFmt]);
+  const [today, setToday] = useState<string>(() => getBrDate());
+  // Tick every 30s to detect midnight rollover (Brazil timezone).
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const d = getBrDate();
+      setToday(prev => (prev === d ? prev : d));
+    }, 30_000);
+    return () => window.clearInterval(id);
+  }, [getBrDate]);
+
+  const snapKey = activeManuscript ? `adm:dailySnap:${activeManuscript.id}:${today}` : null;
   const [dailyGoal, setDailyGoal] = useState<number>(() => {
-    try { return Math.max(0, parseInt(sessionStorage.getItem(goalKey) || '500', 10)) || 500; }
+    try { return Math.max(0, parseInt(localStorage.getItem(goalKey) || '500', 10)) || 500; }
     catch { return 500; }
   });
   const [snapshot, setSnapshot] = useState<number | null>(null);
   useEffect(() => {
     if (!snapKey) { setSnapshot(null); return; }
     try {
-      const raw = sessionStorage.getItem(snapKey);
+      const raw = localStorage.getItem(snapKey);
       if (raw != null) setSnapshot(parseInt(raw, 10) || 0);
       else {
-        sessionStorage.setItem(snapKey, String(effectiveTotal));
+        localStorage.setItem(snapKey, String(effectiveTotal));
         setSnapshot(effectiveTotal);
       }
     } catch { setSnapshot(0); }
@@ -377,11 +397,11 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const persistGoal = useCallback((v: number) => {
     const clean = Math.max(0, Math.min(999999, Math.round(v)));
     setDailyGoal(clean);
-    try { sessionStorage.setItem(goalKey, String(clean)); } catch {}
+    try { localStorage.setItem(goalKey, String(clean)); } catch {}
   }, []);
   const resetSnapshot = useCallback(() => {
     if (!snapKey) return;
-    try { sessionStorage.setItem(snapKey, String(effectiveTotal)); } catch {}
+    try { localStorage.setItem(snapKey, String(effectiveTotal)); } catch {}
     setSnapshot(effectiveTotal);
   }, [snapKey, effectiveTotal]);
 
@@ -684,65 +704,99 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                 </button>
               </div>
 
-              {/* Glow card: total words + daily goal progress */}
-              <div
-                className="relative rounded-md border border-blue-bright/25 bg-gradient-to-br from-blue-bright/[0.08] via-blue-bright/[0.04] to-transparent p-2 shadow-[0_0_16px_-6px_rgba(59,130,246,0.55)]"
-              >
-                <div className="flex items-center gap-2">
-                  <Feather className="w-3.5 h-3.5 text-blue-light shrink-0" strokeWidth={1.75} />
-                  <div className="min-w-0 flex-1">
-                    <div className="text-[9px] font-montserrat uppercase tracking-widest text-blue-light/70">Total</div>
-                    <div className="text-sm font-mono font-bold text-blue-light tabular-nums leading-tight truncate">
-                      {effectiveTotal.toLocaleString('pt-BR')}
-                    </div>
-                  </div>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button
-                        title="Meta diária"
-                        className="p-1 rounded hover:bg-blue-bright/15 text-blue-light/80 hover:text-blue-light transition-colors shrink-0"
-                      >
-                        <Target className="w-3.5 h-3.5" strokeWidth={1.75} />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent side="right" align="start" className="w-64 p-3 space-y-2">
-                      <div className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Meta diária</div>
-                      <p className="text-[10px] text-text-dim/80 leading-snug">
-                        Progresso é medido apenas nesta sessão do navegador.
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="number"
-                          min={0}
-                          step={100}
-                          value={dailyGoal}
-                          onChange={e => persistGoal(parseInt(e.target.value || '0', 10))}
-                          className="h-7 text-xs"
-                        />
-                        <span className="text-[10px] text-text-dim">palavras</span>
-                      </div>
-                      <div className="flex items-center justify-between text-[10px] text-text-dim">
-                        <span>Escritas hoje: <span className="font-mono text-blue-light">{wordsToday.toLocaleString('pt-BR')}</span></span>
-                        <button onClick={resetSnapshot} className="text-blue-light hover:underline">Zerar</button>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+              {/* Word stats card: Total / Capítulo / Hoje */}
+              <div className="relative rounded-md border border-blue-bright/25 bg-gradient-to-br from-blue-bright/[0.08] via-blue-bright/[0.04] to-transparent p-2 shadow-[0_0_16px_-6px_rgba(59,130,246,0.55)]">
+                <div className="flex items-start gap-1">
+                  <TooltipProvider delayDuration={200}>
+                    {/* Total */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex-1 min-w-0 px-1">
+                          <div className="text-[8px] font-montserrat uppercase tracking-widest text-blue-light/60 flex items-center gap-1">
+                            <Feather className="w-2.5 h-2.5" strokeWidth={2} /> Total
+                          </div>
+                          <div className="text-[13px] font-mono font-bold text-blue-light tabular-nums leading-tight truncate">
+                            {effectiveTotal.toLocaleString('pt-BR')}
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="text-[10px]">Palavras totais do manuscrito</TooltipContent>
+                    </Tooltip>
+
+                    <div className="w-px self-stretch bg-blue-bright/15" />
+
+                    {/* Capítulo */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex-1 min-w-0 px-1">
+                          <div className="text-[8px] font-montserrat uppercase tracking-widest text-blue-light/60 flex items-center gap-1">
+                            <FileText className="w-2.5 h-2.5" strokeWidth={2} /> Capítulo
+                          </div>
+                          <div className="text-[13px] font-mono font-bold text-foreground tabular-nums leading-tight truncate">
+                            {activeChapter ? activeChapterWords.toLocaleString('pt-BR') : '—'}
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="text-[10px]">
+                        {activeChapter ? `Palavras em "${activeChapter.title}"` : 'Abra um capítulo para ver a contagem'}
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <div className="w-px self-stretch bg-blue-bright/15" />
+
+                    {/* Hoje + goal popover */}
+                    <Popover>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <PopoverTrigger asChild>
+                            <button className="flex-1 min-w-0 px-1 text-left rounded hover:bg-blue-bright/10 transition-colors">
+                              <div className="text-[8px] font-montserrat uppercase tracking-widest text-gold/70 flex items-center gap-1">
+                                <Target className="w-2.5 h-2.5" strokeWidth={2} /> Hoje
+                              </div>
+                              <div className="text-[13px] font-mono font-bold text-gold-light tabular-nums leading-tight truncate">
+                                {wordsToday.toLocaleString('pt-BR')}
+                              </div>
+                            </button>
+                          </PopoverTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="text-[10px]">Palavras escritas hoje (reset à meia-noite, horário de Brasília)</TooltipContent>
+                      </Tooltip>
+                      <PopoverContent side="right" align="start" className="w-64 p-3 space-y-2">
+                        <div className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Meta diária</div>
+                        <p className="text-[10px] text-text-dim/80 leading-snug">
+                          Reset automático à meia-noite (Brasília). Contagem baseada em variação de palavras totais.
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="number"
+                            min={0}
+                            step={100}
+                            value={dailyGoal}
+                            onChange={e => persistGoal(parseInt(e.target.value || '0', 10))}
+                            className="h-7 text-xs"
+                          />
+                          <span className="text-[10px] text-text-dim">palavras</span>
+                        </div>
+                        <div className="flex items-center justify-between text-[10px] text-text-dim pt-1">
+                          <span>{wordsToday.toLocaleString('pt-BR')} / {dailyGoal.toLocaleString('pt-BR')} ({goalPct}%)</span>
+                          <button onClick={resetSnapshot} className="text-gold-light hover:underline">Zerar</button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </TooltipProvider>
                 </div>
 
-                {/* Progress bar */}
+                {/* Daily goal progress bar */}
                 <div className="mt-2">
-                  <div className="flex items-center justify-between text-[9px] font-mono text-blue-light/70 tabular-nums mb-1">
-                    <span>{wordsToday.toLocaleString('pt-BR')} / {dailyGoal.toLocaleString('pt-BR')}</span>
-                    <span>{goalPct}%</span>
-                  </div>
-                  <div className="h-1.5 rounded-full bg-blue-bright/10 overflow-hidden">
+                  <div className="h-1 rounded-full bg-blue-bright/10 overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-blue-light to-blue-bright shadow-[0_0_8px_rgba(59,130,246,0.7)] transition-all duration-500"
+                      className="h-full bg-gradient-to-r from-gold to-gold-light shadow-[0_0_8px_rgba(212,175,55,0.6)] transition-all duration-500"
                       style={{ width: `${goalPct}%` }}
                     />
                   </div>
                 </div>
               </div>
+
             </div>
             <ScrollArea className="flex-1">
               <div className="p-1.5 space-y-0.5">
