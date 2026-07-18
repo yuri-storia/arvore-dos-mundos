@@ -352,21 +352,41 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     [effectiveChapters]
   );
 
-  // Daily writing goal — session-only. Snapshot resets when the tab session ends.
+  // Chapter word count (live from the editor when active)
+  const activeChapterWords = activeChapter
+    ? (activeChapterId === activeChapter.id && liveActiveWords != null ? liveActiveWords : (activeChapter.word_count || 0))
+    : 0;
+
+  // Daily writing goal — persists across sessions; resets automatically at midnight (Brazil).
   const goalKey = 'adm:dailyGoal';
-  const snapKey = activeManuscript ? `adm:dailySnap:${activeManuscript.id}` : null;
+  const brDateFmt = useMemo(
+    () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' }),
+    []
+  );
+  const getBrDate = useCallback(() => brDateFmt.format(new Date()), [brDateFmt]);
+  const [today, setToday] = useState<string>(() => getBrDate());
+  // Tick every 30s to detect midnight rollover (Brazil timezone).
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const d = getBrDate();
+      setToday(prev => (prev === d ? prev : d));
+    }, 30_000);
+    return () => window.clearInterval(id);
+  }, [getBrDate]);
+
+  const snapKey = activeManuscript ? `adm:dailySnap:${activeManuscript.id}:${today}` : null;
   const [dailyGoal, setDailyGoal] = useState<number>(() => {
-    try { return Math.max(0, parseInt(sessionStorage.getItem(goalKey) || '500', 10)) || 500; }
+    try { return Math.max(0, parseInt(localStorage.getItem(goalKey) || '500', 10)) || 500; }
     catch { return 500; }
   });
   const [snapshot, setSnapshot] = useState<number | null>(null);
   useEffect(() => {
     if (!snapKey) { setSnapshot(null); return; }
     try {
-      const raw = sessionStorage.getItem(snapKey);
+      const raw = localStorage.getItem(snapKey);
       if (raw != null) setSnapshot(parseInt(raw, 10) || 0);
       else {
-        sessionStorage.setItem(snapKey, String(effectiveTotal));
+        localStorage.setItem(snapKey, String(effectiveTotal));
         setSnapshot(effectiveTotal);
       }
     } catch { setSnapshot(0); }
@@ -377,11 +397,11 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const persistGoal = useCallback((v: number) => {
     const clean = Math.max(0, Math.min(999999, Math.round(v)));
     setDailyGoal(clean);
-    try { sessionStorage.setItem(goalKey, String(clean)); } catch {}
+    try { localStorage.setItem(goalKey, String(clean)); } catch {}
   }, []);
   const resetSnapshot = useCallback(() => {
     if (!snapKey) return;
-    try { sessionStorage.setItem(snapKey, String(effectiveTotal)); } catch {}
+    try { localStorage.setItem(snapKey, String(effectiveTotal)); } catch {}
     setSnapshot(effectiveTotal);
   }, [snapKey, effectiveTotal]);
 
