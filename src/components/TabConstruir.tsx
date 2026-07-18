@@ -278,83 +278,106 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
         </div>
       </div>
 
-      {/* Fruit grid */}
-      <div data-tour="fruit-grid" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-3 mb-6">
-        {orderedFruits.map((f, idx) => {
-          const score = getFruitScore(fruitScores, f.id);
-          const detail = getFruitDetail(fruitScores, f.id);
-          const justification = detail?.justification;
-          const evidence = detail?.evidence;
-          const tooltip = justification
-            ? `${justification}${evidence?.length ? `\n\nEvidência: ${evidence.join(', ')}` : ''}`
-            : undefined;
-          const isActive = currentFruit === f.id;
-          const isMastered = score >= 5;
-          const coverImage = FRUIT_IMAGES[f.id];
-          return (
-            <button
-              key={f.id}
-              title={tooltip}
-              onClick={() => {
-                selectFruit(f.id);
-                if (isMobile) {
-                  setTimeout(() => {
-                    document.getElementById('fruit-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }, 150);
-                }
-              }}
-              className={`relative aspect-[3/4] rounded-lg overflow-hidden transition-all group ${
-                isActive
-                  ? 'border border-blue-bright shadow-[0_0_20px_rgba(33,150,243,0.3),inset_0_0_30px_rgba(33,150,243,0.1)]'
-                  : 'border border-transparent hover:border-blue-bright/30'
-              }`}
-            >
-              {coverImage ? (
-                <img
-                  src={coverImage}
-                  alt={f.name}
-                  className={`absolute inset-0 w-full h-full object-cover ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-80'} transition-opacity`}
-                />
-              ) : (
-                <div className={`absolute inset-0 bg-gradient-to-br ${f.gradient} ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-80'} transition-opacity`} />
-              )}
-              {!coverImage && (
-                <div className="absolute inset-0 flex items-center justify-center opacity-30"><f.Icon className="w-10 h-10 text-gold-champagne" strokeWidth={1.5} /></div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/50 text-[9px] text-blue-light font-montserrat font-bold">
-                {idx + 1}º
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-2">
-                <span className="font-cinzel text-[10px] sm:text-xs text-blue-light block">{f.num}</span>
-                <span className="font-montserrat font-bold text-[11px] sm:text-xs text-foreground uppercase leading-tight block">{f.name}</span>
-                {score > 0 ? (
-                  <span className="inline-flex items-center gap-0.5 mt-0.5">
-                    {[1,2,3,4,5].map(i => (
-                      <Star key={i} className="w-2.5 h-2.5" strokeWidth={1.5}
-                        style={{ color: 'hsl(var(--gold-light))', fill: i <= score ? 'hsl(var(--gold-light))' : 'transparent' }} />
-                    ))}
-                  </span>
-                ) : hasAnalysis ? (
-                  <span className="text-[9px] sm:text-[10px] text-text-dim/70 italic">não avaliado</span>
-                ) : (
-                  <span className="text-[9px] sm:text-[10px] text-text-dim/70 italic">sem análise</span>
-                )}
-                {justification && (
-                  <span className="block text-[9px] text-gold-champagne/80 italic mt-1 line-clamp-2 leading-tight">
-                    {justification}
-                  </span>
-                )}
-              </div>
-              {isMastered && (
-                <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-gradient-to-br from-gold-light to-gold-deep flex items-center justify-center text-background shadow-[0_0_8px_hsl(var(--gold-warm)/0.6)]"><Star className="w-3 h-3" strokeWidth={2.5} fill="currentColor" /></div>
-              )}
-              <div className={`absolute bottom-0 left-0 right-0 h-[2px] bg-blue-bright transition-transform origin-left ${isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
-            </button>
-          );
-        })}
+      {/* Fruit carousel */}
+      <div className="relative mb-6 group/carousel">
+        <button
+          type="button"
+          aria-label="Anterior"
+          onClick={() => document.getElementById('fruit-carousel')?.scrollBy({ left: -320, behavior: 'smooth' })}
+          className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-10 w-9 h-9 rounded-full bg-background/80 backdrop-blur border border-blue-bright/30 items-center justify-center text-blue-light hover:bg-blue-bright/20 hover:border-blue-bright transition-all shadow-lg opacity-0 group-hover/carousel:opacity-100"
+        >
+          <ArrowLeft className="w-4 h-4" strokeWidth={2} />
+        </button>
+        <button
+          type="button"
+          aria-label="Próximo"
+          onClick={() => document.getElementById('fruit-carousel')?.scrollBy({ left: 320, behavior: 'smooth' })}
+          className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-10 w-9 h-9 rounded-full bg-background/80 backdrop-blur border border-blue-bright/30 items-center justify-center text-blue-light hover:bg-blue-bright/20 hover:border-blue-bright transition-all shadow-lg opacity-0 group-hover/carousel:opacity-100"
+        >
+          <ArrowRight className="w-4 h-4" strokeWidth={2} />
+        </button>
 
+        <div
+          id="fruit-carousel"
+          data-tour="fruit-grid"
+          className="flex gap-2 sm:gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 [scrollbar-width:thin]"
+        >
+          {orderedFruits.map((f, idx) => {
+            const score = getFruitScore(fruitScores, f.id);
+            const detail = getFruitDetail(fruitScores, f.id);
+            const justification = detail?.justification;
+            const evidence = detail?.evidence;
+            const tooltip = justification
+              ? `${justification}${evidence?.length ? `\n\nEvidência: ${evidence.join(', ')}` : ''}`
+              : undefined;
+            const isActive = currentFruit === f.id;
+            const isMastered = score >= 5;
+            const coverImage = FRUIT_IMAGES[f.id];
+            return (
+              <button
+                key={f.id}
+                title={tooltip}
+                onClick={() => {
+                  selectFruit(f.id);
+                  if (isMobile) {
+                    setTimeout(() => {
+                      document.getElementById('fruit-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 150);
+                  }
+                }}
+                className={`relative shrink-0 snap-start aspect-[3/4] w-[42vw] max-w-[180px] sm:w-[180px] md:w-[190px] lg:w-[200px] rounded-lg overflow-hidden transition-all group ${
+                  isActive
+                    ? 'border border-blue-bright shadow-[0_0_20px_rgba(33,150,243,0.3),inset_0_0_30px_rgba(33,150,243,0.1)]'
+                    : 'border border-transparent hover:border-blue-bright/30'
+                }`}
+              >
+                {coverImage ? (
+                  <img
+                    src={coverImage}
+                    alt={f.name}
+                    className={`absolute inset-0 w-full h-full object-cover ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-80'} transition-opacity`}
+                  />
+                ) : (
+                  <div className={`absolute inset-0 bg-gradient-to-br ${f.gradient} ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-80'} transition-opacity`} />
+                )}
+                {!coverImage && (
+                  <div className="absolute inset-0 flex items-center justify-center opacity-30"><f.Icon className="w-10 h-10 text-gold-champagne" strokeWidth={1.5} /></div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/50 text-[9px] text-blue-light font-montserrat font-bold">
+                  {idx + 1}º
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-2">
+                  <span className="font-cinzel text-[10px] sm:text-xs text-blue-light block">{f.num}</span>
+                  <span className="font-montserrat font-bold text-[11px] sm:text-xs text-foreground uppercase leading-tight block">{f.name}</span>
+                  {score > 0 ? (
+                    <span className="inline-flex items-center gap-0.5 mt-0.5">
+                      {[1,2,3,4,5].map(i => (
+                        <Star key={i} className="w-2.5 h-2.5" strokeWidth={1.5}
+                          style={{ color: 'hsl(var(--gold-light))', fill: i <= score ? 'hsl(var(--gold-light))' : 'transparent' }} />
+                      ))}
+                    </span>
+                  ) : hasAnalysis ? (
+                    <span className="text-[9px] sm:text-[10px] text-text-dim/70 italic">não avaliado</span>
+                  ) : (
+                    <span className="text-[9px] sm:text-[10px] text-text-dim/70 italic">sem análise</span>
+                  )}
+                  {justification && (
+                    <span className="block text-[9px] text-gold-champagne/80 italic mt-1 line-clamp-2 leading-tight">
+                      {justification}
+                    </span>
+                  )}
+                </div>
+                {isMastered && (
+                  <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-gradient-to-br from-gold-light to-gold-deep flex items-center justify-center text-background shadow-[0_0_8px_hsl(var(--gold-warm)/0.6)]"><Star className="w-3 h-3" strokeWidth={2.5} fill="currentColor" /></div>
+                )}
+                <div className={`absolute bottom-0 left-0 right-0 h-[2px] bg-blue-bright transition-transform origin-left ${isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
+              </button>
+            );
+          })}
+        </div>
       </div>
+
 
       {/* Fruit panel */}
       {fruit && (
