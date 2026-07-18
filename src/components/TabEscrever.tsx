@@ -333,6 +333,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   }, [zenMode]);
 
   const pendingOpenRef = useRef<{ manuscriptId?: string; chapterId?: string } | null>(null);
+  const [pendingTick, setPendingTick] = useState(0);
   // Lê pending do sessionStorage uma única vez no mount.
   useEffect(() => {
     try {
@@ -340,10 +341,12 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
       if (raw) {
         sessionStorage.removeItem('adm:pending-open');
         pendingOpenRef.current = JSON.parse(raw);
+        setPendingTick(t => t + 1);
       }
     } catch {}
     const handler = (e: Event) => {
       pendingOpenRef.current = (e as CustomEvent).detail;
+      setPendingTick(t => t + 1);
     };
     window.addEventListener('adm:open-manuscript', handler as EventListener);
     return () => window.removeEventListener('adm:open-manuscript', handler as EventListener);
@@ -369,7 +372,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
       toast.success(`Manuscrito ativo: ${target.title}`, { duration: 2200 });
     }
     pendingOpenRef.current = null;
-  }, [manuscripts, chapters, activeManuscript?.id, setActiveManuscript]);
+  }, [manuscripts, chapters, activeManuscript?.id, setActiveManuscript, pendingTick]);
 
 
 
