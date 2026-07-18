@@ -389,17 +389,9 @@ const SectionCard: React.FC<{
 
       <AnimatePresence initial={false}>
         {(collapsible ? open : true) && (
-          <motion.div
-            id={panelId}
-            key="content"
-            initial={collapsible ? { height: 0, opacity: 0 } : false}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={collapsible ? { height: 0, opacity: 0 } : undefined}
-            transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
-            className="relative overflow-hidden"
-          >
-            <div className="pt-0.5">{children}</div>
-          </motion.div>
+          <SectionContent panelId={panelId} collapsible={collapsible}>
+            {children}
+          </SectionContent>
         )}
       </AnimatePresence>
     </motion.section>
