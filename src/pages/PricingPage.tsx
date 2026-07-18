@@ -97,15 +97,17 @@ const PricingPage: React.FC = () => {
       <section className="relative w-full overflow-hidden" style={{ minHeight: '92vh' }}>
         <video
           className="absolute inset-0 w-full h-full object-cover"
-          src={heroVideo.url}
           poster={heroPoster.url}
           autoPlay
           muted
           loop
           playsInline
-          preload="none"
+          preload="metadata"
           aria-hidden="true"
-        />
+        >
+          <source src={heroVideo1080.url} type="video/mp4" media="(min-width: 768px)" />
+          <source src={heroVideo720.url} type="video/mp4" />
+        </video>
         <img
           src={heroPoster.url}
           srcSet={`${hero640.url} 640w, ${heroPoster.url} 960w, ${hero1280.url} 1280w, ${hero1600.url} 1600w`}
