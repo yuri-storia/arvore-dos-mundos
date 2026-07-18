@@ -189,24 +189,24 @@ const FruitEvaluationGrid: React.FC<{ items: FruitEval[] }> = ({ items }) => {
               visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.35, ease: [0.32, 0.72, 0, 1] } },
             }}
             whileHover={{ y: -2 }}
-            className="relative rounded-xl p-3.5 border overflow-hidden group"
+            className="relative rounded-xl p-3.5 border overflow-hidden group backdrop-blur-xl"
             style={{
-              background: 'linear-gradient(140deg, rgba(20,14,4,0.55) 0%, rgba(8,6,2,0.7) 100%)',
-              borderColor: `${accent}55`,
-              boxShadow: `inset 0 1px 0 ${accent}22, 0 6px 20px -14px ${accent}88`,
+              background: `linear-gradient(140deg, rgba(14,10,4,0.42) 0%, rgba(6,8,14,0.5) 100%), radial-gradient(circle at 0% 0%, ${accent}14, transparent 60%)`,
+              borderColor: `${accent}26`,
+              boxShadow: `inset 0 1px 0 hsl(0 0% 100% / 0.04), inset 0 0 0 1px ${accent}10, 0 8px 28px -18px ${accent}66`,
             }}
           >
             <div
-              className="pointer-events-none absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-40 blur-2xl"
-              style={{ background: `radial-gradient(circle, ${accent}55, transparent 70%)` }}
+              className="pointer-events-none absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-30 blur-2xl"
+              style={{ background: `radial-gradient(circle, ${accent}44, transparent 70%)` }}
             />
             <div className="relative flex items-start gap-2.5">
               <div
-                className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center border"
+                className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center border backdrop-blur-md"
                 style={{
-                  background: `linear-gradient(135deg, ${accent}22, transparent)`,
-                  borderColor: `${accent}55`,
-                  boxShadow: `0 0 14px ${accent}22`,
+                  background: `linear-gradient(135deg, ${accent}18, hsl(0 0% 100% / 0.02))`,
+                  borderColor: `${accent}2e`,
+                  boxShadow: `0 0 14px ${accent}18, inset 0 1px 0 hsl(0 0% 100% / 0.05)`,
                 }}
               >
                 <fruit.Icon className="w-4 h-4" strokeWidth={1.75} style={{ color: accent }} />
@@ -218,12 +218,13 @@ const FruitEvaluationGrid: React.FC<{ items: FruitEval[] }> = ({ items }) => {
                     className="shrink-0 text-[9px] font-montserrat font-bold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded-full"
                     style={{
                       color: accent,
-                      background: `${accent}18`,
-                      border: `1px solid ${accent}44`,
+                      background: `${accent}12`,
+                      border: `1px solid ${accent}24`,
                     }}
                   >
                     {scoreLabel(score)}
                   </span>
+
                 </div>
                 <div className="flex items-center gap-1 mb-1.5">
                   {Array.from({ length: 5 }).map((_, i) => (
