@@ -175,12 +175,22 @@ const FruitEvaluationGrid: React.FC<{ items: FruitEval[] }> = ({ items }) => {
       variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05, delayChildren: 0.05 } } }}
     >
       {items.map(({ fruit, score, justification, evidence }) => {
-        const tier = score >= 4 ? 'high' : score >= 2 ? 'mid' : 'low';
-        const accent = tier === 'high'
-          ? 'hsl(var(--gold-light))'
-          : tier === 'mid'
-            ? 'hsl(var(--gold-warm))'
-            : 'hsl(30 40% 40%)';
+        // Emphasis tier drives visual weight: strong (4-5★), medium (3★), soft (0-2★)
+        const emphasis: 'strong' | 'medium' | 'soft' =
+          score >= 4 ? 'strong' : score >= 3 ? 'medium' : 'soft';
+        const accent =
+          emphasis === 'strong'
+            ? 'hsl(var(--gold-light))'
+            : emphasis === 'medium'
+              ? 'hsl(var(--gold-warm))'
+              : 'hsl(30 38% 42%)';
+        // Per-tier visual weights (background alpha, top-edge alpha, shadow, top-bar height)
+        const weight = {
+          strong: { bgA: 0.22, edgeA: 0.85, halo: 0.55, ring: 0.28, topBar: '2px' },
+          medium: { bgA: 0.14, edgeA: 0.6,  halo: 0.4,  ring: 0.18, topBar: '1px' },
+          soft:   { bgA: 0.08, edgeA: 0.35, halo: 0.22, ring: 0.10, topBar: '1px' },
+        }[emphasis];
+
         return (
           <motion.article
             key={fruit.id}
@@ -188,29 +198,42 @@ const FruitEvaluationGrid: React.FC<{ items: FruitEval[] }> = ({ items }) => {
               hidden: { opacity: 0, y: 10, scale: 0.98 },
               visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.35, ease: [0.32, 0.72, 0, 1] } },
             }}
-            whileHover={{ y: -2 }}
-            className="relative rounded-xl p-3.5 overflow-hidden group backdrop-blur-xl"
+            whileHover={{ y: -3 }}
+            tabIndex={0}
+            data-emphasis={emphasis}
+            className="fruit-eval-card group focus:outline-none"
             style={{
-              background: `linear-gradient(140deg, rgba(14,10,4,0.5) 0%, rgba(6,8,14,0.6) 100%), radial-gradient(circle at 0% 0%, ${accent}12, transparent 60%)`,
-              boxShadow: `inset 0 1px 0 hsl(0 0% 100% / 0.03), 0 10px 32px -20px ${accent}55, 0 1px 0 hsl(0 0% 0% / 0.4)`,
+              // exposed CSS vars consumed by .fruit-eval-card styles in index.css
+              ['--accent' as any]: accent,
+              ['--bgA' as any]: weight.bgA,
+              ['--edgeA' as any]: weight.edgeA,
+              ['--haloA' as any]: weight.halo,
+              ['--ringA' as any]: weight.ring,
+              ['--topBar' as any]: weight.topBar,
             }}
           >
-            {/* Gold gradient top edge — elegant accent instead of full border */}
+            {/* Gold gradient top edge — accent scaled by emphasis */}
             <div
-              className="pointer-events-none absolute inset-x-3 top-0 h-px"
-              style={{ background: `linear-gradient(to right, transparent, ${accent}66, transparent)` }}
+              className="fruit-eval-card__edge"
+              style={{
+                height: weight.topBar,
+                background: `linear-gradient(to right, transparent, color-mix(in oklab, ${accent}, transparent ${Math.round((1 - weight.edgeA) * 100)}%), transparent)`,
+              }}
             />
+            {/* Corner halo */}
             <div
-              className="pointer-events-none absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-30 blur-2xl"
-              style={{ background: `radial-gradient(circle, ${accent}44, transparent 70%)` }}
+              className="fruit-eval-card__halo"
+              style={{ background: `radial-gradient(circle, color-mix(in oklab, ${accent}, transparent 50%), transparent 70%)`, opacity: weight.halo }}
             />
+            {/* Hover sheen — sweeping gold gradient */}
+            <div className="fruit-eval-card__sheen" aria-hidden />
+
             <div className="relative flex items-start gap-2.5">
               <div
-                className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center border backdrop-blur-md"
+                className="fruit-eval-card__icon shrink-0 w-9 h-9 rounded-lg flex items-center justify-center backdrop-blur-md"
                 style={{
-                  background: `linear-gradient(135deg, ${accent}18, hsl(0 0% 100% / 0.02))`,
-                  borderColor: `${accent}2e`,
-                  boxShadow: `0 0 14px ${accent}18, inset 0 1px 0 hsl(0 0% 100% / 0.05)`,
+                  background: `linear-gradient(135deg, color-mix(in oklab, ${accent}, transparent 82%), hsl(0 0% 100% / 0.02))`,
+                  boxShadow: `0 0 14px color-mix(in oklab, ${accent}, transparent 82%), inset 0 0 0 1px color-mix(in oklab, ${accent}, transparent 78%), inset 0 1px 0 hsl(0 0% 100% / 0.05)`,
                 }}
               >
                 <fruit.Icon className="w-4 h-4" strokeWidth={1.75} style={{ color: accent }} />
@@ -219,16 +242,15 @@ const FruitEvaluationGrid: React.FC<{ items: FruitEval[] }> = ({ items }) => {
                 <div className="flex items-center justify-between gap-2 mb-1">
                   <h4 className="font-cinzel font-bold text-[13px] text-foreground truncate">{fruit.name}</h4>
                   <span
-                    className="shrink-0 text-[9px] font-montserrat font-bold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded-full"
+                    className="shrink-0 text-[9px] font-montserrat font-bold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded-full backdrop-blur-md"
                     style={{
                       color: accent,
-                      background: `${accent}12`,
-                      border: `1px solid ${accent}24`,
+                      background: `linear-gradient(135deg, color-mix(in oklab, ${accent}, transparent 86%), color-mix(in oklab, ${accent}, transparent 94%))`,
+                      boxShadow: `inset 0 0 0 1px color-mix(in oklab, ${accent}, transparent ${emphasis === 'strong' ? 70 : 82}%)`,
                     }}
                   >
                     {scoreLabel(score)}
                   </span>
-
                 </div>
                 <div className="flex items-center gap-1 mb-1.5">
                   {Array.from({ length: 5 }).map((_, i) => (
@@ -253,13 +275,15 @@ const FruitEvaluationGrid: React.FC<{ items: FruitEval[] }> = ({ items }) => {
                 {evidence && evidence.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {evidence.map((ev, i) => (
-                      <span
+                      <button
                         key={i}
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-montserrat bg-blue-main/[0.05] text-blue-light/80 border border-blue-bright/[0.10] backdrop-blur-md hover:bg-blue-main/[0.10] hover:border-blue-bright/[0.18] hover:text-blue-light transition-all duration-200 cursor-default"
+                        type="button"
+                        className="evidence-chip"
+                        data-emphasis={emphasis}
                       >
-                        <Quote className="w-2.5 h-2.5 text-blue-bright/60" strokeWidth={1.75} />
-                        {ev}
-                      </span>
+                        <Quote className="w-2.5 h-2.5 evidence-chip__quote" strokeWidth={1.75} />
+                        <span className="evidence-chip__label">{ev}</span>
+                      </button>
                     ))}
                   </div>
                 )}
