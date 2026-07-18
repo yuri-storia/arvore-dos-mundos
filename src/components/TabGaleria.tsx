@@ -33,16 +33,23 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const { entries: codexEntries } = useCodexEntries(worldId);
   const { visions, saveVision, updateVisionImage, deleteVision } = useIdrielVisions(worldId);
   const idrielJobs = useIdrielJobs();
+  // Excluímos o 11º Fruto ("A Sua Narrativa" — id 10) da Galeria.
+  // Aquela categoria não faz sentido como pasta de imagens: o manuscrito não é
+  // uma referência visual, então mantemos apenas os frutos que representam
+  // aspectos visualizáveis do mundo.
+  const galleryFruits = useMemo(() => FRUITS.filter(f => f.id !== 10), []);
+
   const [filter, setFilter] = useState('Todos');
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const [batchCat, setBatchCat] = useState(FRUITS[0].name);
+  const [batchCat, setBatchCat] = useState(galleryFruits[0].name);
   const [batchUploading, setBatchUploading] = useState(false);
   const [batchProgress, setBatchProgress] = useState({ done: 0, total: 0 });
 
-  // Image generation state
-  const [showGenerator, setShowGenerator] = useState(true);
+  // Image generation state — inicia recolhido para que o foco principal da
+  // aba seja a biblioteca de imagens; o usuário decide expandir quando quiser.
+  const [showGenerator, setShowGenerator] = useState(false);
   const { worldName, db, generatedPrompt } = state;
   const [desc, setDesc] = useState('');
   const [style, setStyle] = useState(STYLE_OPTIONS[0]);
