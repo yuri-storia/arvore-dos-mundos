@@ -330,8 +330,13 @@ const WorldChaptersTree: React.FC<{ worldId: string; setActiveTab: (t: TabType) 
               </button>
               <button
                 onClick={() => {
-                  window.dispatchEvent(new CustomEvent('adm:open-manuscript', { detail: { manuscriptId: m.id } }));
+                  const detail = { manuscriptId: m.id };
+                  try { sessionStorage.setItem('adm:pending-open', JSON.stringify(detail)); } catch {}
                   setActiveTab('escrever');
+                  // Dispatch em next tick para casos em que TabEscrever já está montado.
+                  setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('adm:open-manuscript', { detail }));
+                  }, 0);
                 }}
                 className="flex items-center gap-1 flex-1 min-w-0 text-left py-0.5 text-[10px] text-blue-light/80 hover:text-blue-light transition-colors"
                 title={m.title}
