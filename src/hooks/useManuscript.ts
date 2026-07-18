@@ -156,6 +156,7 @@ export function useManuscript(worldId?: string) {
     if (error) { toast.error('Erro ao criar capítulo'); return null; }
     const ch = data as Chapter;
     setChapters(prev => [...prev, ch]);
+    try { window.dispatchEvent(new CustomEvent('adm:chapters-changed', { detail: { manuscriptId: activeManuscript.id } })); } catch {}
     return ch;
   }, [user, activeManuscript, chapters.length]);
 
