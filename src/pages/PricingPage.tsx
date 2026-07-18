@@ -251,14 +251,14 @@ const PricingPage: React.FC = () => {
                   {isPopular && (
                     <>
                       {/* Avatar de Idriel flutuante */}
-                      <div className="absolute -top-11 left-1/2 -translate-x-1/2 z-20">
+                      <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-20">
                         <div className="relative">
                           <div className="absolute inset-0 rounded-full animate-idriel-pulse scale-110" />
                           <div
-                            className="relative w-[72px] h-[72px] rounded-full p-[2px]"
+                            className="relative w-16 h-16 rounded-full p-[2px]"
                             style={{
-                              background: 'linear-gradient(135deg, hsl(var(--gold-warm)) 0%, hsl(var(--gold-champagne)) 50%, hsl(var(--gold-bronze)) 100%)',
-                              boxShadow: '0 0 28px hsl(var(--gold-warm)/0.55), 0 0 56px hsl(var(--gold-champagne)/0.25), inset 0 0 0 1px hsl(var(--gold-cream)/0.4)',
+                              background: 'linear-gradient(135deg, hsl(var(--gold-bronze)) 0%, hsl(var(--gold-warm)) 35%, hsl(var(--gold-champagne)) 70%, hsl(var(--gold-bronze)) 100%)',
+                              boxShadow: '0 0 32px hsl(var(--gold-warm)/0.6), 0 0 64px hsl(var(--gold-champagne)/0.3), inset 0 0 0 1px hsl(var(--gold-cream)/0.5)',
                             }}
                           >
                             <img
@@ -269,7 +269,7 @@ const PricingPage: React.FC = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-gold-premium text-[10px] font-montserrat font-bold uppercase tracking-[0.22em] text-[#1a0f00] shadow-[0_6px_28px_hsl(var(--gold-warm)/0.55)] flex items-center gap-1.5 whitespace-nowrap">
+                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-gold-premium text-[10px] font-montserrat font-bold uppercase tracking-[0.22em] text-[#1a0f00] shadow-[0_6px_28px_hsl(var(--gold-warm)/0.55)] flex items-center gap-1.5 whitespace-nowrap z-10">
                         <Star className="w-3 h-3 fill-current" />
                         Mais escolhido
                       </div>
