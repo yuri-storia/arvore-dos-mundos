@@ -125,6 +125,7 @@ export function useManuscript(worldId?: string) {
     setManuscripts(prev => [...prev, ms]);
     setActiveManuscript(ms);
     toast.success('Manuscrito criado!');
+    try { window.dispatchEvent(new CustomEvent('adm:manuscripts-changed', { detail: { worldId } })); } catch {}
     return ms;
   }, [user, worldId]);
 
@@ -141,7 +142,8 @@ export function useManuscript(worldId?: string) {
     setManuscripts(prev => prev.filter(m => m.id !== id));
     if (activeManuscript?.id === id) setActiveManuscript(null);
     toast.success('Manuscrito excluído');
-  }, [activeManuscript]);
+    try { window.dispatchEvent(new CustomEvent('adm:manuscripts-changed', { detail: { worldId } })); } catch {}
+  }, [activeManuscript, worldId]);
 
   const createChapter = useCallback(async (title?: string) => {
     if (!user || !activeManuscript) return null;
@@ -154,6 +156,7 @@ export function useManuscript(worldId?: string) {
     if (error) { toast.error('Erro ao criar capítulo'); return null; }
     const ch = data as Chapter;
     setChapters(prev => [...prev, ch]);
+    try { window.dispatchEvent(new CustomEvent('adm:chapters-changed', { detail: { manuscriptId: activeManuscript.id } })); } catch {}
     return ch;
   }, [user, activeManuscript, chapters.length]);
 
@@ -168,12 +171,14 @@ export function useManuscript(worldId?: string) {
   }, []);
 
   const deleteChapter = useCallback(async (id: string) => {
+    const ch = chapters.find(c => c.id === id);
     const { error } = await supabase.from('chapters').delete().eq('id', id);
     if (error) { toast.error('Erro ao excluir capítulo'); return; }
     setChapters(prev => prev.filter(c => c.id !== id));
     setScenes(prev => prev.filter(s => s.chapter_id !== id));
     toast.success('Capítulo excluído');
-  }, []);
+    if (ch) { try { window.dispatchEvent(new CustomEvent('adm:chapters-changed', { detail: { manuscriptId: ch.manuscript_id } })); } catch {} }
+  }, [chapters]);
 
   /** Reordena capítulos por lista de IDs. Persiste sort_order em lote. */
   const reorderChapters = useCallback(async (orderedIds: string[]) => {
