@@ -89,6 +89,229 @@ const renderWithStars = (children: React.ReactNode): React.ReactNode => {
   });
 };
 
+// ---------- Section parsing (splits Idriel's markdown into blocks) ----------
+interface Section { heading: string; body: string; }
+function splitSections(md: string): Section[] {
+  if (!md) return [];
+  const parts = md.split(/^##\s+/m);
+  const out: Section[] = [];
+  parts.forEach((p, idx) => {
+    if (idx === 0) {
+      const t = p.trim();
+      if (t) out.push({ heading: '', body: t });
+      return;
+    }
+    const nl = p.indexOf('\n');
+    const heading = (nl > 0 ? p.slice(0, nl) : p).trim();
+    const body = nl > 0 ? p.slice(nl + 1).trim() : '';
+    out.push({ heading, body });
+  });
+  return out;
+}
+
+interface FruitEval {
+  fruit: Fruit;
+  score: number;
+  justification?: string;
+  evidence?: string[];
+}
+function parseFruitEvaluations(body: string): FruitEval[] {
+  const items: FruitEval[] = [];
+  if (!body) return items;
+  const lines = body.split(/\r?\n/);
+  for (const fruit of FRUITS) {
+    const escaped = fruit.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(
+      `\\*{0,2}\\s*${escaped}\\s*\\*{0,2}\\s*:?\\s*([0-5])\\s*/\\s*5\\s*[—\\-–:]?\\s*([^\\n]*)`,
+      'i'
+    );
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (!line) continue;
+      const m = line.match(re);
+      if (!m) continue;
+      const score = Number(m[1]);
+      const tail = (m[2] || '').trim();
+      let justification: string | undefined = tail;
+      let evidence: string[] | undefined;
+      const evMatch = tail.match(/\(([^()]+)\)\s*$/);
+      if (evMatch) {
+        evidence = evMatch[1].split(/[,;]/).map(s => s.trim()).filter(Boolean);
+        justification = tail.slice(0, evMatch.index).trim().replace(/[.;,—–-]+$/, '').trim();
+      }
+      items.push({ fruit, score, justification: justification || undefined, evidence });
+      break;
+    }
+  }
+  return items;
+}
+
+// Metadata per section heading (icon, color palette)
+function sectionMeta(text: string) {
+  let Icon: any = Sparkles;
+  let color = 'hsl(var(--gold-warm))';
+  let tone: 'gold' | 'blue' | 'danger' | 'warn' | 'emerald' = 'gold';
+  if (/Saudação/i.test(text)) { Icon = Gem; }
+  else if (/Avaliação/i.test(text)) { Icon = Award; }
+  else if (/Furos/i.test(text)) { Icon = Eye; color = 'hsl(0 70% 60%)'; tone = 'danger'; }
+  else if (/Inconsistências/i.test(text)) { Icon = AlertTriangle; color = 'hsl(30 80% 58%)'; tone = 'warn'; }
+  else if (/Expansão/i.test(text)) { Icon = Compass; color = 'hsl(150 60% 52%)'; tone = 'emerald'; }
+  else if (/Fortes/i.test(text)) { Icon = Sparkles; }
+  else if (/Continuar/i.test(text)) { Icon = ArrowRight; color = 'hsl(210 70% 68%)'; tone = 'blue'; }
+  return { Icon, color, tone };
+}
+
+// ---------- Fruit Evaluation Card Grid ----------
+const scoreLabel = (n: number) =>
+  n >= 5 ? 'Maduro' : n >= 4 ? 'Vigoroso' : n >= 3 ? 'Em flor' : n >= 2 ? 'Germinando' : n >= 1 ? 'Semente' : 'Estéril';
+
+const FruitEvaluationGrid: React.FC<{ items: FruitEval[] }> = ({ items }) => {
+  if (items.length === 0) return null;
+  return (
+    <motion.div
+      className="grid grid-cols-1 sm:grid-cols-2 gap-2.5"
+      initial="hidden"
+      animate="visible"
+      variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05, delayChildren: 0.05 } } }}
+    >
+      {items.map(({ fruit, score, justification, evidence }) => {
+        const tier = score >= 4 ? 'high' : score >= 2 ? 'mid' : 'low';
+        const accent = tier === 'high'
+          ? 'hsl(var(--gold-light))'
+          : tier === 'mid'
+            ? 'hsl(var(--gold-warm))'
+            : 'hsl(30 40% 40%)';
+        return (
+          <motion.article
+            key={fruit.id}
+            variants={{
+              hidden: { opacity: 0, y: 10, scale: 0.98 },
+              visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.35, ease: [0.32, 0.72, 0, 1] } },
+            }}
+            whileHover={{ y: -2 }}
+            className="relative rounded-xl p-3.5 border overflow-hidden group"
+            style={{
+              background: 'linear-gradient(140deg, rgba(20,14,4,0.55) 0%, rgba(8,6,2,0.7) 100%)',
+              borderColor: `${accent}55`,
+              boxShadow: `inset 0 1px 0 ${accent}22, 0 6px 20px -14px ${accent}88`,
+            }}
+          >
+            <div
+              className="pointer-events-none absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-40 blur-2xl"
+              style={{ background: `radial-gradient(circle, ${accent}55, transparent 70%)` }}
+            />
+            <div className="relative flex items-start gap-2.5">
+              <div
+                className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center border"
+                style={{
+                  background: `linear-gradient(135deg, ${accent}22, transparent)`,
+                  borderColor: `${accent}55`,
+                  boxShadow: `0 0 14px ${accent}22`,
+                }}
+              >
+                <fruit.Icon className="w-4 h-4" strokeWidth={1.75} style={{ color: accent }} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <h4 className="font-cinzel font-bold text-[13px] text-foreground truncate">{fruit.name}</h4>
+                  <span
+                    className="shrink-0 text-[9px] font-montserrat font-bold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded-full"
+                    style={{
+                      color: accent,
+                      background: `${accent}18`,
+                      border: `1px solid ${accent}44`,
+                    }}
+                  >
+                    {scoreLabel(score)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 mb-1.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className="w-3.5 h-3.5"
+                      strokeWidth={1.5}
+                      style={{
+                        color: 'hsl(var(--gold-light))',
+                        fill: i < score ? 'hsl(var(--gold-light))' : 'transparent',
+                        filter: i < score ? 'drop-shadow(0 0 3px hsl(var(--gold-warm)/0.6))' : 'none',
+                      }}
+                    />
+                  ))}
+                  <span className="ml-1 text-[10px] font-montserrat font-bold text-gold-light/80 tabular-nums">{score}/5</span>
+                </div>
+                {justification && (
+                  <p className="font-merriweather text-[12px] leading-relaxed text-foreground/85">
+                    {justification}
+                  </p>
+                )}
+                {evidence && evidence.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {evidence.map((ev, i) => (
+                      <span
+                        key={i}
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-montserrat bg-blue-main/12 text-blue-light/90 border border-blue-bright/25"
+                      >
+                        <Quote className="w-2.5 h-2.5" strokeWidth={1.75} />
+                        {ev}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.article>
+        );
+      })}
+    </motion.div>
+  );
+};
+
+// ---------- Section Card (wraps a markdown block) ----------
+const SectionCard: React.FC<{
+  heading: string;
+  children: React.ReactNode;
+  index: number;
+}> = ({ heading, children, index }) => {
+  const { Icon, color } = sectionMeta(heading);
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1], delay: index * 0.06 }}
+      className="relative rounded-xl border p-4 sm:p-5 overflow-hidden"
+      style={{
+        background: 'linear-gradient(140deg, rgba(16,12,6,0.55) 0%, rgba(6,8,14,0.7) 100%)',
+        borderColor: `${color}33`,
+        boxShadow: `inset 0 1px 0 ${color}22, 0 10px 30px -20px ${color}66`,
+      }}
+    >
+      <div
+        className="pointer-events-none absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-40"
+        style={{ background: `radial-gradient(circle, ${color}55, transparent 70%)` }}
+      />
+      <header className="relative flex items-center gap-2.5 mb-3">
+        <span
+          className="inline-flex items-center justify-center w-8 h-8 rounded-full shrink-0"
+          style={{
+            background: `linear-gradient(135deg, ${color}33, transparent)`,
+            border: `1px solid ${color}66`,
+            boxShadow: `0 0 14px ${color}33`,
+          }}
+        >
+          <Icon className="w-4 h-4" strokeWidth={1.75} style={{ color }} />
+        </span>
+        <h3 className="font-cinzel font-bold text-sm sm:text-[15px] uppercase tracking-[0.14em]" style={{ color }}>
+          {heading}
+        </h3>
+        <span className="flex-1 h-px opacity-60" style={{ background: `linear-gradient(to right, ${color}55, transparent)` }} />
+      </header>
+      <div className="relative">{children}</div>
+    </motion.section>
+  );
+};
+
+
 export const CodexAnalysis: React.FC<Props> = ({ entries, worldId, onClose }) => {
   const [analysis, setAnalysis] = useState('');
   const [loading, setLoading] = useState(false);
