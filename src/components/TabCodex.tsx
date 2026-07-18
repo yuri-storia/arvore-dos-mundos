@@ -820,8 +820,6 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                 <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-gold-warm/50 shadow-[0_0_24px_hsl(var(--gold-warm)/0.35)]">
                   <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
                 </div>
-                {/* Rotating rune ring */}
-                <div className="absolute inset-0 -m-1 rounded-full border border-gold-champagne/25 pointer-events-none" style={{ animation: 'consult-idriel-rotate 24s linear infinite' }} />
               </div>
 
               {/* Copy */}

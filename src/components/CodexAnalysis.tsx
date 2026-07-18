@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Trees, X, ScrollText, Trash2, Droplet, Droplets, Leaf, Sparkles, RefreshCw, Check, Gem, AlertTriangle, Eye, Compass, Award, ArrowRight, Star } from 'lucide-react';
+import { Trees, X, ScrollText, Trash2, Droplet, Droplets, Leaf, Sparkles, RefreshCw, Check, Gem, AlertTriangle, Eye, Compass, Award, ArrowRight, Star, ClipboardList, PencilLine, Wand2 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
 import { callAITextStream, friendlyAIError } from '@/lib/helpers';
@@ -353,53 +353,98 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
         style={{ background: 'radial-gradient(ellipse 60% 60% at 0% 0%, hsl(var(--gold-warm)/0.10) 0%, transparent 70%)' }}
       />
       <div className="relative">
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <h3 className="font-cinzel font-bold text-base sm:text-lg text-gold-light">
-            <><Trees className="inline-block w-4 h-4 mr-2 align-[-0.2em] text-gold-champagne" strokeWidth={1.5} />{IDRIEL_NAME} — {IDRIEL_TITLE}</>
-          </h3>
-          <p className="font-merriweather italic text-text-dim text-xs mt-1">
-            A sábia guardiã irá avaliar suas entradas e iluminar o caminho a seguir
-          </p>
+      <div className="flex items-start justify-between gap-4 mb-5">
+        <div className="flex items-center gap-3.5 min-w-0">
+          {/* Idriel medallion */}
+          <div className="relative shrink-0">
+            <div className="absolute inset-0 -m-1.5 rounded-full bg-gold-warm/25 blur-lg opacity-70" />
+            <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border border-gold-warm/60 shadow-[0_0_18px_hsl(var(--gold-warm)/0.4)]">
+              <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+            </div>
+            <span className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-gradient-to-br from-gold-champagne to-gold-warm border border-gold-cream/50 flex items-center justify-center shadow-[0_0_8px_hsl(var(--gold-warm)/0.6)]">
+              <Wand2 className="w-2.5 h-2.5 text-[#1a0f00]" strokeWidth={2.25} />
+            </span>
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-[9px] font-montserrat font-bold uppercase tracking-[0.22em] text-gold-champagne/80">Ritual da Guardiã</span>
+            </div>
+            <h3 className="font-cinzel font-bold text-base sm:text-lg leading-tight bg-gradient-to-r from-gold-champagne via-gold-light to-gold-champagne bg-clip-text text-transparent">
+              {IDRIEL_NAME} — {IDRIEL_TITLE}
+            </h3>
+            <p className="font-merriweather italic text-text-dim text-[11px] mt-1">
+              A sábia guardiã irá avaliar suas entradas e iluminar o caminho a seguir
+            </p>
+          </div>
         </div>
-        <button onClick={onClose} className="w-6 h-6 rounded-full text-text-dim hover:text-foreground flex items-center justify-center transition-colors" aria-label="Fechar"><X className="w-3.5 h-3.5" strokeWidth={2} /></button>
+        <button onClick={onClose} className="shrink-0 w-8 h-8 rounded-full border border-gold-warm/25 text-text-dim hover:text-gold-light hover:border-gold-warm/60 hover:bg-gold-warm/5 flex items-center justify-center transition-colors" aria-label="Fechar"><X className="w-3.5 h-3.5" strokeWidth={2} /></button>
       </div>
 
-      {/* Stats summary */}
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        <div className="rounded-md px-3 py-2 border border-border bg-background/40 text-center">
-          <p className="text-lg font-bold text-foreground">{fichas}</p>
-          <p className="text-[9px] uppercase tracking-wider text-text-dim font-montserrat">Fichas</p>
+      {/* Stats summary — refined glass */}
+      <div className="grid grid-cols-3 gap-2.5 mb-4">
+        <div className="relative rounded-lg px-3 py-2.5 border border-blue-bright/25 bg-gradient-to-br from-blue-bright/10 via-blue-main/[0.06] to-transparent overflow-hidden">
+          <div className="pointer-events-none absolute -top-4 -right-4 w-14 h-14 rounded-full bg-blue-glow/25 blur-2xl" />
+          <div className="relative flex items-center gap-1.5 mb-1">
+            <ClipboardList className="w-3 h-3 text-blue-light" strokeWidth={2} />
+            <p className="text-[9px] uppercase tracking-[0.14em] text-blue-light/80 font-montserrat font-bold">Fichas</p>
+          </div>
+          <p className="relative text-xl font-cinzel font-bold text-blue-light tabular-nums leading-none">{fichas}</p>
         </div>
-        <div className="rounded-md px-3 py-2 border border-border bg-background/40 text-center">
-          <p className="text-lg font-bold text-foreground">{artigos}</p>
-          <p className="text-[9px] uppercase tracking-wider text-text-dim font-montserrat">Artigos</p>
+        <div className="relative rounded-lg px-3 py-2.5 border border-gold-warm/30 bg-gradient-to-br from-gold-warm/12 via-gold/[0.06] to-transparent overflow-hidden">
+          <div className="pointer-events-none absolute -top-4 -right-4 w-14 h-14 rounded-full bg-gold-champagne/25 blur-2xl" />
+          <div className="relative flex items-center gap-1.5 mb-1">
+            <PencilLine className="w-3 h-3 text-gold-light" strokeWidth={2} />
+            <p className="text-[9px] uppercase tracking-[0.14em] text-gold-light/80 font-montserrat font-bold">Artigos</p>
+          </div>
+          <p className="relative text-xl font-cinzel font-bold text-gold-light tabular-nums leading-none">{artigos}</p>
         </div>
-        <div className="rounded-md px-3 py-2 border border-border bg-background/40 text-center">
-          <p className="text-lg font-bold text-foreground">{coveredFruits}/11</p>
-          <p className="text-[9px] uppercase tracking-wider text-text-dim font-montserrat">Frutos</p>
+        <div className="relative rounded-lg px-3 py-2.5 border border-gold-champagne/30 bg-gradient-to-br from-gold-champagne/10 via-gold-warm/[0.05] to-transparent overflow-hidden">
+          <div className="pointer-events-none absolute -top-4 -right-4 w-14 h-14 rounded-full bg-gold-warm/20 blur-2xl" />
+          <div className="relative flex items-center gap-1.5 mb-1">
+            <Leaf className="w-3 h-3 text-gold-champagne" strokeWidth={2} />
+            <p className="text-[9px] uppercase tracking-[0.14em] text-gold-champagne/85 font-montserrat font-bold">Frutos</p>
+          </div>
+          <p className="relative text-xl font-cinzel font-bold text-gold-champagne tabular-nums leading-none">{coveredFruits}<span className="text-sm text-text-dim/70">/11</span></p>
         </div>
       </div>
 
-      {/* Coverage bar */}
+      {/* Coverage bar — refined */}
       <div className="mb-4">
-        <div className="flex justify-between items-center mb-1">
-          <span className="text-[9px] uppercase tracking-wider text-text-dim font-montserrat">Cobertura dos frutos</span>
-          <span className="text-[10px] text-text-dim font-montserrat">{Math.round((coveredFruits / 11) * 100)}%</span>
+        <div className="flex justify-between items-center mb-1.5">
+          <span className="text-[9px] uppercase tracking-[0.18em] text-gold-champagne/75 font-montserrat font-bold inline-flex items-center gap-1.5">
+            <Compass className="w-3 h-3" strokeWidth={1.75} />
+            Cobertura dos Frutos
+          </span>
+          <span className="text-[10px] text-gold-light font-montserrat font-bold tabular-nums">{Math.round((coveredFruits / 11) * 100)}%</span>
         </div>
-        <Progress value={(coveredFruits / 11) * 100} className="h-1.5 bg-border" />
+        <div className="relative h-2 w-full rounded-full overflow-hidden border border-gold-warm/20"
+          style={{ background: 'linear-gradient(180deg, hsl(220 50% 4%) 0%, hsl(220 40% 7%) 100%)', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.7)' }}>
+          <div
+            className="relative h-full rounded-full transition-all duration-700 ease-out"
+            style={{
+              width: `${(coveredFruits / 11) * 100}%`,
+              background: 'linear-gradient(90deg, hsl(46 95% 78%) 0%, hsl(44 92% 62%) 50%, hsl(32 78% 42%) 100%)',
+              boxShadow: '0 0 10px hsl(var(--gold-warm) / 0.55), inset 0 1px 0 rgba(255, 240, 200, 0.5)',
+            }}
+          >
+            <div className="absolute inset-x-0 top-0 h-1/2 rounded-t-full pointer-events-none"
+              style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%)' }} />
+          </div>
+        </div>
       </div>
 
-      {/* History button */}
+      {/* History button — elegant scroll */}
       {!historyLoading && history.length > 0 && (
         <button
           onClick={() => setShowHistory(!showHistory)}
-          className="w-full mb-4 px-3 py-2 rounded-md border border-accent/20 bg-accent/5 hover:bg-accent/10 transition-colors text-left flex items-center justify-between"
+          className="w-full mb-4 px-3.5 py-2.5 rounded-lg border border-gold-warm/25 bg-gradient-to-r from-gold-warm/[0.08] via-gold/[0.04] to-transparent hover:from-gold-warm/[0.16] hover:via-gold/[0.08] hover:border-gold-warm/45 transition-all text-left flex items-center justify-between group"
         >
-          <span className="text-[10px] uppercase tracking-wider font-montserrat font-bold text-accent-foreground">
-            <><ScrollText className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Histórico de Análises ({history.length})</>
+          <span className="text-[10px] uppercase tracking-[0.18em] font-montserrat font-bold text-gold-light inline-flex items-center gap-2">
+            <ScrollText className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />
+            Histórico de Análises
+            <span className="px-1.5 py-0.5 rounded-full bg-gold-warm/15 border border-gold-warm/30 text-[9px] text-gold-champagne tabular-nums">{history.length}</span>
           </span>
-          <span className="text-text-dim text-xs">{showHistory ? '▲' : '▼'}</span>
+          <span className="text-gold-champagne/70 text-xs group-hover:text-gold-light transition-colors">{showHistory ? '▲' : '▼'}</span>
         </button>
       )}
 
@@ -455,49 +500,77 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
         </div>
       )}
 
-      {/* Credit info — Elixir dos Mundos */}
+      {/* Credit info — Elixir dos Mundos (refined) */}
       {!sub.loading && planLimits.canUseAI && (
         <div
-          className={`rounded-md px-3 py-2 mb-4 border ${isOut ? 'border-destructive/30' : isLow ? 'border-orange-500/30' : 'border-transparent'}`}
+          className={`relative rounded-lg px-3.5 py-3 mb-4 border overflow-hidden ${
+            isOut ? 'border-destructive/40' : isLow ? 'border-orange-500/40' : 'border-gold-warm/35'
+          }`}
           style={{
             background: isOut
-              ? 'linear-gradient(135deg, rgba(220,38,38,0.18) 0%, rgba(220,38,38,0.10) 100%)'
+              ? 'linear-gradient(135deg, rgba(220,38,38,0.14) 0%, rgba(80,10,10,0.35) 100%)'
               : isLow
-                ? 'linear-gradient(135deg, rgba(220,120,20,0.18) 0%, rgba(220,80,20,0.10) 100%)'
-                : 'linear-gradient(135deg, #DFBD69 0%, #926F34 100%)',
+                ? 'linear-gradient(135deg, rgba(220,120,20,0.14) 0%, rgba(70,30,5,0.35) 100%)'
+                : 'radial-gradient(120% 140% at 0% 0%, hsl(var(--gold-warm) / 0.22) 0%, transparent 55%), linear-gradient(180deg, hsl(35 40% 8% / 0.85) 0%, hsl(214 60% 3% / 0.9) 100%)',
+            boxShadow: isOut || isLow ? undefined : 'inset 0 1px 0 hsl(var(--gold-champagne) / 0.15)',
           }}
         >
-          <div className="flex items-center justify-between mb-1">
-            <span
-              className={`text-[9px] uppercase tracking-wider font-montserrat font-bold ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : ''}`}
-              style={!isOut && !isLow ? { color: '#2A1A00' } : undefined}
-            >
-              <>{isOut ? <><Droplets className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Elixir esgotado</> : isLow ? <><Leaf className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Poucas gotas</> : <><Sparkles className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Elixir dos Mundos</>}</>
-            </span>
-            <span
-              className={`text-[10px] font-montserrat font-bold ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : ''}`}
-              style={!isOut && !isLow ? { color: '#1E1000' } : undefined}
-            >
-              {creditsRemaining} gotas
-            </span>
+          <div className="flex items-center gap-2.5 mb-2">
+            <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center border ${
+              isOut ? 'border-destructive/50 bg-destructive/15' : isLow ? 'border-orange-500/50 bg-orange-500/15' : 'border-gold-warm/50 bg-gradient-to-br from-gold-warm/25 to-gold-deep/10'
+            }`}>
+              <Droplet className={`w-3.5 h-3.5 ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : 'text-gold-light'}`} strokeWidth={2.25} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-baseline justify-between gap-2">
+                <span className={`text-[10px] font-cinzel font-bold uppercase tracking-[0.18em] ${
+                  isOut ? 'text-destructive' : isLow ? 'text-orange-400' : 'text-gold-light'
+                }`}>
+                  {isOut ? 'Elixir esgotado' : isLow ? 'Poucas gotas' : 'Elixir dos Mundos'}
+                </span>
+                <span className={`text-[10px] font-montserrat font-bold tabular-nums ${
+                  isOut ? 'text-destructive' : isLow ? 'text-orange-400' : 'text-gold-light'
+                }`}>
+                  {creditsRemaining}<span className="text-text-dim/70"> / {sub.creditLimit}</span> <span className="text-[9px] text-text-dim uppercase tracking-wider">gotas</span>
+                </span>
+              </div>
+            </div>
           </div>
-          <Progress
-            value={creditPct}
-            className={`h-1 ${isOut ? 'bg-destructive/20' : isLow ? 'bg-amber-500/20' : 'bg-[#7A5A20]/30'}`}
-          />
+          {/* Loading-bar track (matches header Elixir) */}
+          <div className={`relative h-2 w-full rounded-full overflow-hidden border ${
+            isOut ? 'border-destructive/30' : isLow ? 'border-orange-500/30' : 'border-gold/25'
+          }`}
+            style={{ background: 'linear-gradient(180deg, hsl(220 50% 4%) 0%, hsl(220 40% 7%) 100%)', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.7)' }}>
+            <div
+              className="relative h-full rounded-full transition-all duration-700 ease-out"
+              style={{
+                width: `${Math.max(0, Math.min(100, 100 - creditPct))}%`,
+                background: isOut
+                  ? 'linear-gradient(90deg, hsl(0 75% 50%), hsl(0 70% 32%))'
+                  : isLow
+                    ? 'linear-gradient(90deg, hsl(38 92% 62%) 0%, hsl(20 82% 42%) 100%)'
+                    : 'linear-gradient(90deg, hsl(46 95% 78%) 0%, hsl(44 92% 62%) 50%, hsl(32 78% 42%) 100%)',
+                boxShadow: '0 0 10px hsl(var(--gold-warm) / 0.5), inset 0 1px 0 rgba(255, 240, 200, 0.45)',
+              }}
+            >
+              <div className="absolute inset-x-0 top-0 h-1/2 rounded-t-full pointer-events-none"
+                style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%)' }} />
+            </div>
+          </div>
           {isOut && (
-            <p className="text-[10px] text-destructive font-merriweather mt-1">Idriel aguarda a próxima lua nova para renovar sua energia.</p>
+            <p className="text-[10px] text-destructive font-merriweather italic mt-2">Idriel aguarda a próxima lua nova para renovar sua energia.</p>
           )}
           {isLow && !isOut && (
-            <p className="text-[10px] text-orange-400 font-merriweather mt-1">A Árvore sente suas raízes enfraquecerem…</p>
+            <p className="text-[10px] text-orange-400 font-merriweather italic mt-2">A Árvore sente suas raízes enfraquecerem…</p>
           )}
         </div>
       )}
 
       {!sub.loading && !planLimits.canUseAI && (
-        <div className="rounded-md px-3 py-2 mb-4 border border-destructive/30 bg-destructive/5">
-          <p className="text-[10px] text-destructive font-merriweather">
-            <><Droplets className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Idriel precisa de Elixir dos Mundos para novas análises. Mas você ainda pode revisitar análises anteriores no histórico!</>
+        <div className="rounded-lg px-3.5 py-2.5 mb-4 border border-destructive/30 bg-destructive/5">
+          <p className="text-[11px] text-destructive font-merriweather italic inline-flex items-start gap-2">
+            <Droplets className="w-3.5 h-3.5 mt-0.5 shrink-0" strokeWidth={1.75} />
+            <span>Idriel precisa de Elixir dos Mundos para novas análises. Você ainda pode revisitar análises anteriores no histórico.</span>
           </p>
         </div>
       )}
@@ -512,16 +585,22 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
             <button
               onClick={handleAnalyze}
               disabled={!canAnalyze || sub.loading}
-              className="px-5 py-2.5 bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] hover:from-gold-warm hover:via-gold hover:to-gold-light rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_hsl(var(--gold-warm)/0.35)] hover:shadow-[0_0_32px_hsl(var(--gold-warm)/0.55)] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+              className="group relative inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-gold-deep via-gold-warm to-gold-champagne text-[#1a0f00] hover:from-gold-warm hover:via-gold-champagne hover:to-gold-cream font-cinzel font-bold text-[13px] tracking-wide transition-all shadow-[0_10px_28px_-8px_hsl(var(--gold-warm)/0.55),inset_0_1px_0_hsl(var(--gold-cream)/0.55)] hover:shadow-[0_14px_36px_-8px_hsl(var(--gold-warm)/0.75),inset_0_1px_0_hsl(var(--gold-cream)/0.7)] hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-y-0 border border-gold-cream/40"
             >
-              <><Trees className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Consultar {IDRIEL_NAME} sobre {entries.length} entrada{entries.length !== 1 ? 's' : ''}</>
+              <Sparkles className="w-4 h-4" strokeWidth={2} />
+              <span>Consultar {IDRIEL_NAME}</span>
+              <span className="opacity-70 font-montserrat font-semibold text-[11px] normal-case tracking-normal">· {entries.length} entrada{entries.length !== 1 ? 's' : ''}</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
             </button>
           )}
-          <p className="text-[10px] text-text-dim mt-2 font-montserrat">
-            <Droplet className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Custo: <span className="font-bold text-gold-light">{ANALYSIS_COST} gota</span> de Elixir · Você tem <span className="font-bold text-gold-light">{creditsRemaining} gotas</span> · Análises anteriores são gratuitas
+          <p className="text-[10px] text-text-dim mt-3 font-montserrat">
+            <Droplet className="inline-block w-3 h-3 mr-1 align-[-0.1em] text-gold-champagne" strokeWidth={1.75} />
+            Custo: <span className="font-bold text-gold-light">{ANALYSIS_COST} gota</span> · Você tem <span className="font-bold text-gold-light">{creditsRemaining} gotas</span> · Análises anteriores são gratuitas
           </p>
         </div>
       )}
+
+
 
       {/* Loading with animated steps */}
       {loading && (
