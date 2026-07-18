@@ -284,23 +284,23 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
           type="button"
           aria-label="Anterior"
           onClick={() => document.getElementById('fruit-carousel')?.scrollBy({ left: -280, behavior: 'smooth' })}
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 z-10 w-10 h-10 rounded-full bg-background/90 backdrop-blur-md border border-gold-bronze/40 flex items-center justify-center text-gold-light hover:text-gold-champagne hover:border-gold-warm hover:bg-gold-deep/30 transition-all shadow-[0_0_20px_rgba(0,0,0,0.4)] active:scale-95"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-background/90 backdrop-blur-md border border-gold-bronze/40 flex items-center justify-center text-gold-light hover:text-gold-champagne hover:border-gold-warm hover:bg-gold-deep/30 transition-all shadow-[0_0_20px_rgba(0,0,0,0.4)] active:scale-95"
         >
-          <ArrowLeft className="w-4 h-4" strokeWidth={2} />
+          <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2} />
         </button>
         <button
           type="button"
           aria-label="Próximo"
           onClick={() => document.getElementById('fruit-carousel')?.scrollBy({ left: 280, behavior: 'smooth' })}
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 z-10 w-10 h-10 rounded-full bg-background/90 backdrop-blur-md border border-gold-bronze/40 flex items-center justify-center text-gold-light hover:text-gold-champagne hover:border-gold-warm hover:bg-gold-deep/30 transition-all shadow-[0_0_20px_rgba(0,0,0,0.4)] active:scale-95"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-background/90 backdrop-blur-md border border-gold-bronze/40 flex items-center justify-center text-gold-light hover:text-gold-champagne hover:border-gold-warm hover:bg-gold-deep/30 transition-all shadow-[0_0_20px_rgba(0,0,0,0.4)] active:scale-95"
         >
-          <ArrowRight className="w-4 h-4" strokeWidth={2} />
+          <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2} />
         </button>
 
         <div
           id="fruit-carousel"
           data-tour="fruit-grid"
-          className="flex gap-3 sm:gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth py-1 px-1 -mx-1 scrollbar-hidden"
+          className="flex gap-3 sm:gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth py-1 px-10 sm:px-12 -mx-3 sm:-mx-4 scrollbar-hidden"
         >
           {orderedFruits.map((f, idx) => {
             const score = getFruitScore(fruitScores, f.id);
