@@ -18,7 +18,9 @@ import { toast } from 'sonner';
 import { IdrielImportDialog } from '@/components/IdrielImportDialog';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
 import { ExpandedCodexOverlay } from '@/components/codex/ExpandedCodexOverlay';
+import { AnimatePresence, motion } from 'framer-motion';
 import idrielAvatar from '@/assets/idriel-avatar.webp';
+
 
 const FRUIT_ALL = -1;
 const FRUIT_NONE = -2; // sentinel for "no fruit" filter
