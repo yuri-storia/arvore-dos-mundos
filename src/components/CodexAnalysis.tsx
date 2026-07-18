@@ -795,49 +795,108 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
 
 
 
-      {/* Loading with animated steps */}
-      {loading && (
-        <div className="py-6">
-          <div className="flex flex-col items-center gap-4 mb-6">
-            <div className="relative">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gold/40 shadow-[0_0_30px_hsl(var(--gold-warm)/0.35)] animate-pulse">
-                <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+      {/* Loading — Idriel weaving the analysis */}
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            key="loading"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+            className="py-8"
+          >
+            <div className="flex flex-col items-center gap-4 mb-7">
+              <div className="relative">
+                <motion.span
+                  aria-hidden
+                  className="absolute inset-[-14px] rounded-full"
+                  style={{ background: 'radial-gradient(circle, hsl(var(--gold-warm)/0.35), transparent 65%)' }}
+                  animate={{ scale: [1, 1.15, 1], opacity: [0.55, 0.85, 0.55] }}
+                  transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-gold-warm/60 shadow-[0_0_36px_hsl(var(--gold-warm)/0.5)]">
+                  <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+                </div>
+                <motion.div
+                  className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(var(--gold-light)), hsl(var(--gold-warm)))',
+                    boxShadow: '0 0 14px hsl(var(--gold-warm)/0.6)',
+                  }}
+                  animate={{ rotate: [0, 8, -8, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <Wand2 className="w-3.5 h-3.5 text-[#1a0f00]" strokeWidth={2} />
+                </motion.div>
               </div>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-gold/20 border border-gold-light/50 flex items-center justify-center animate-pulse"><Trees className="w-3 h-3 text-gold-champagne" strokeWidth={1.75} /></div>
-            </div>
-            <div className="text-center">
-              <p className="font-cinzel font-bold text-sm text-foreground">{IDRIEL_NAME}</p>
-              <p className="text-[10px] text-gold-light/80 font-montserrat italic">está analisando seu mundo…</p>
-            </div>
-          </div>
-
-          <div className="space-y-2 max-w-md mx-auto">
-            {LOADING_STEPS.map((step, i) => (
-              <div
-                key={i}
-                className={`flex items-start gap-2 transition-all duration-500 ${
-                  i <= currentStep ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
-                }`}
-              >
-                <span className={`mt-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] flex-shrink-0 transition-colors duration-300 ${
-                  i < currentStep
-                    ? 'bg-gold/20 text-gold-light'
-                    : i === currentStep
-                      ? 'bg-violet-500/30 text-violet-400 animate-pulse'
-                      : 'bg-border text-text-dim'
-                }`}>
-                  {i < currentStep ? <Check className="w-3 h-3" strokeWidth={2.5} /> : <span className="w-1.5 h-1.5 rounded-full bg-current" />}
-                </span>
-                <p className={`font-merriweather italic text-sm transition-colors duration-300 ${
-                  i === currentStep ? 'text-foreground' : 'text-text-dim'
-                }`}>
-                  {step.message}
+              <div className="text-center">
+                <p
+                  className="font-cinzel font-bold text-base"
+                  style={{
+                    background: 'linear-gradient(90deg, hsl(var(--gold-cream)), hsl(var(--gold-light)), hsl(var(--gold-champagne)))',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
+                  {IDRIEL_NAME}
+                </p>
+                <p className="text-[10px] text-gold-champagne/80 font-montserrat italic tracking-wide">
+                  está tecendo a análise do seu mundo…
                 </p>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            </div>
+
+            <div className="space-y-2.5 max-w-md mx-auto">
+              {LOADING_STEPS.map((step, i) => {
+                const state = i < currentStep ? 'done' : i === currentStep ? 'active' : 'pending';
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -6 }}
+                    animate={{ opacity: state === 'pending' ? 0.3 : 1, x: 0 }}
+                    transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                    className={`flex items-start gap-2.5 rounded-lg px-3 py-2 border ${
+                      state === 'active'
+                        ? 'border-gold-warm/40 bg-gold-warm/[0.06] shadow-[0_0_18px_-10px_hsl(var(--gold-warm)/0.7)]'
+                        : state === 'done'
+                          ? 'border-gold-warm/20 bg-transparent'
+                          : 'border-transparent bg-transparent'
+                    }`}
+                  >
+                    <span
+                      className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
+                        state === 'done'
+                          ? 'bg-gold-warm/25 text-gold-light'
+                          : state === 'active'
+                            ? 'bg-gold-warm/40 text-gold-cream'
+                            : 'bg-secondary text-text-dim'
+                      }`}
+                    >
+                      {state === 'done' ? (
+                        <Check className="w-3 h-3" strokeWidth={2.5} />
+                      ) : state === 'active' ? (
+                        <motion.span
+                          className="w-1.5 h-1.5 rounded-full bg-current"
+                          animate={{ scale: [1, 1.6, 1], opacity: [1, 0.6, 1] }}
+                          transition={{ duration: 1.1, repeat: Infinity, ease: 'easeInOut' }}
+                        />
+                      ) : (
+                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                      )}
+                    </span>
+                    <p className={`font-merriweather italic text-[13px] leading-snug ${
+                      state === 'active' ? 'text-foreground' : 'text-text-dim'
+                    }`}>
+                      {step.message}
+                    </p>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {error && (
         <div className="rounded-md p-3 bg-destructive/10 border border-destructive/30 text-destructive text-sm font-merriweather">
@@ -845,106 +904,122 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
         </div>
       )}
 
-      {displayedAnalysis && !loading && (
-        <div className="mt-4 animate-fade-in">
-          {viewingHistoryId && (
-            <div className="mb-3 px-3 py-1.5 rounded-md bg-accent/10 border border-accent/20 flex items-center gap-2">
-              <span className="text-[10px] text-accent-foreground font-montserrat inline-flex items-center gap-1.5"><ScrollText className="w-3 h-3" strokeWidth={1.75} />Visualizando análise do histórico</span>
-              <button
-                onClick={() => { setViewingHistoryId(null); setAnalysis(''); setRevealedChars(0); }}
-                className="text-[10px] text-text-dim hover:text-foreground font-montserrat underline ml-auto"
+      {displayedAnalysis && !loading && (() => {
+        const sections = splitSections(displayedAnalysis);
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+            className="mt-4"
+          >
+            {viewingHistoryId && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-3 px-3 py-1.5 rounded-md bg-gold-warm/8 border border-gold-warm/25 flex items-center gap-2"
               >
-                Voltar
-              </button>
-            </div>
-          )}
+                <span className="text-[10px] text-gold-champagne font-montserrat inline-flex items-center gap-1.5">
+                  <ScrollText className="w-3 h-3" strokeWidth={1.75} />Visualizando análise do histórico
+                </span>
+                <button
+                  onClick={() => { setViewingHistoryId(null); setAnalysis(''); setRevealedChars(0); }}
+                  className="text-[10px] text-text-dim hover:text-foreground font-montserrat underline ml-auto"
+                >
+                  Voltar
+                </button>
+              </motion.div>
+            )}
 
-          <div className="rounded-lg p-4 sm:p-5 border border-accent/15 bg-background/30 relative" style={{ backdropFilter: 'blur(10px)' }}>
             {isRevealing && (
-              <div className="absolute bottom-3 right-3 flex items-center gap-1.5 text-gold-light/60">
+              <div className="mb-3 flex items-center gap-1.5 text-gold-light/70">
                 <span className="w-1.5 h-1.5 rounded-full bg-gold-champagne animate-pulse" />
-                <span className="text-[9px] font-montserrat italic">Idriel escrevendo…</span>
+                <span className="text-[10px] font-montserrat italic">Idriel escrevendo…</span>
               </div>
             )}
-            <div className="prose prose-sm prose-invert max-w-none
-              [&_h2]:font-cinzel [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-5 [&_h2]:mb-2 [&_h2]:text-gold-light
-              [&_h3]:font-montserrat [&_h3]:text-sm [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-foreground
-              [&_p]:font-merriweather [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-foreground/85
-              [&_ul]:font-merriweather [&_ul]:text-sm [&_ul]:text-foreground/85
-              [&_ol]:font-merriweather [&_ol]:text-sm [&_ol]:text-foreground/85
-              [&_li]:mb-1
-              [&_strong]:text-gold-light [&_strong]:font-bold
-              [&_blockquote]:border-l-2 [&_blockquote]:border-gold/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-text-dim
-              [&_em]:text-accent-foreground/90
-            ">
-              <ReactMarkdown
-                components={{
-                  h2: ({ children, ...props }) => {
-                    const text = String(children);
-                    let Icon: any = Sparkles;
-                    let colorClass = 'text-gold-light';
-                    let accent = 'hsl(var(--gold-warm))';
-                    if (text.includes('Saudação')) { Icon = Gem; }
-                    else if (text.includes('Avaliação')) { Icon = Award; }
-                    else if (text.includes('Furos')) { Icon = Eye; colorClass = 'text-destructive'; accent = 'hsl(0 70% 55%)'; }
-                    else if (text.includes('Inconsistências')) { Icon = AlertTriangle; colorClass = 'text-orange-400'; accent = 'hsl(30 80% 55%)'; }
-                    else if (text.includes('Expansão')) { Icon = Compass; colorClass = 'text-emerald-400'; accent = 'hsl(150 60% 50%)'; }
-                    else if (text.includes('Fortes')) { Icon = Sparkles; }
-                    else if (text.includes('Continuar')) { Icon = ArrowRight; colorClass = 'text-blue-light'; accent = 'hsl(210 70% 65%)'; }
-                    return (
-                      <h2 className={`font-cinzel text-base font-bold mt-6 mb-3 flex items-center gap-2 uppercase tracking-wider ${colorClass}`} {...props}>
-                        <span
-                          className="inline-flex items-center justify-center w-7 h-7 rounded-full shrink-0"
-                          style={{
-                            background: `linear-gradient(135deg, ${accent}33, transparent)`,
-                            border: `1px solid ${accent}66`,
-                            boxShadow: `0 0 14px ${accent}33`,
+
+            <div className="space-y-3">
+              {sections.map((sec, idx) => {
+                if (!sec.heading) {
+                  // Preamble (no heading yet) — render as plain markdown block
+                  return (
+                    <motion.div
+                      key={`pre-${idx}`}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+                      className="prose prose-sm prose-invert max-w-none
+                        [&_p]:font-merriweather [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-foreground/85
+                        [&_strong]:text-gold-light [&_strong]:font-bold
+                        [&_em]:text-gold-champagne/90"
+                    >
+                      <ReactMarkdown
+                        components={{
+                          p: ({ children }) => <p>{renderWithStars(children)}</p>,
+                          strong: ({ children }) => <strong className="text-gold-light font-bold">{children}</strong>,
+                        }}
+                      >
+                        {sec.body}
+                      </ReactMarkdown>
+                    </motion.div>
+                  );
+                }
+                const isFruits = /Avaliação/i.test(sec.heading);
+                const fruitEvals = isFruits ? parseFruitEvaluations(sec.body) : [];
+                return (
+                  <SectionCard key={`sec-${idx}`} heading={sec.heading} index={idx}>
+                    {isFruits && fruitEvals.length > 0 ? (
+                      <FruitEvaluationGrid items={fruitEvals} />
+                    ) : (
+                      <div className="prose prose-sm prose-invert max-w-none
+                        [&_h3]:font-montserrat [&_h3]:text-sm [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-foreground
+                        [&_p]:font-merriweather [&_p]:text-[13px] [&_p]:leading-relaxed [&_p]:text-foreground/85
+                        [&_ul]:font-merriweather [&_ul]:text-[13px] [&_ul]:text-foreground/85 [&_ul]:pl-4
+                        [&_ol]:font-merriweather [&_ol]:text-[13px] [&_ol]:text-foreground/85 [&_ol]:pl-4
+                        [&_li]:mb-1 [&_li]:marker:text-gold-warm
+                        [&_strong]:text-gold-light [&_strong]:font-bold
+                        [&_blockquote]:border-l-2 [&_blockquote]:border-gold/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-text-dim
+                        [&_em]:text-gold-champagne/90">
+                        <ReactMarkdown
+                          components={{
+                            strong: ({ children }) => <strong className="text-gold-light font-bold">{children}</strong>,
+                            li: ({ children }) => <li className="mb-1">{renderWithStars(children)}</li>,
+                            p: ({ children }) => <p>{renderWithStars(children)}</p>,
                           }}
                         >
-                          <Icon className="w-3.5 h-3.5" strokeWidth={1.75} />
-                        </span>
-                        <span>{children}</span>
-                        <span
-                          className="flex-1 h-px ml-1 opacity-60"
-                          style={{ background: `linear-gradient(to right, ${accent}55, transparent)` }}
-                        />
-                      </h2>
-                    );
-                  },
-                  strong: ({ children }) => (
-                    <strong className="text-gold-light font-bold">{children}</strong>
-                  ),
-                  li: ({ children }) => <li className="mb-1">{renderWithStars(children)}</li>,
-                  p: ({ children }) => <p>{renderWithStars(children)}</p>,
-                }}
-              >
-                {displayedAnalysis}
-              </ReactMarkdown>
+                          {sec.body}
+                        </ReactMarkdown>
+                      </div>
+                    )}
+                  </SectionCard>
+                );
+              })}
             </div>
-          </div>
 
-          <div className="flex gap-2 mt-3 justify-end">
-            {!viewingHistoryId && (
+            <div className="flex gap-2 mt-4 justify-end">
+              {!viewingHistoryId && (
+                <button
+                  onClick={handleAnalyze}
+                  disabled={!canAnalyze}
+                  className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors disabled:opacity-40"
+                >
+                  <><RefreshCw className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Nova análise</>
+                </button>
+              )}
               <button
-                onClick={handleAnalyze}
-                disabled={!canAnalyze}
-                className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors disabled:opacity-40"
+                onClick={() => {
+                  if (viewingHistoryId) { setViewingHistoryId(null); setAnalysis(''); }
+                  else onClose();
+                }}
+                className="px-3 py-1.5 text-text-dim hover:text-foreground text-[10px] font-montserrat uppercase tracking-wider transition-colors"
               >
-                <><RefreshCw className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Nova análise</>
+                {viewingHistoryId ? 'Voltar' : 'Fechar'}
               </button>
-            )}
-            <button
-              onClick={() => {
-                if (viewingHistoryId) { setViewingHistoryId(null); setAnalysis(''); }
-                else onClose();
-              }}
-              className="px-3 py-1.5 text-text-dim hover:text-foreground text-[10px] font-montserrat uppercase tracking-wider transition-colors"
-            >
-              {viewingHistoryId ? 'Voltar' : 'Fechar'}
-            </button>
-          </div>
-        </div>
-      )}
+            </div>
+          </motion.div>
+        );
+      })()}
+
       </div>
     </div>
   );
