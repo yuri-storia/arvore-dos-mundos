@@ -18,7 +18,9 @@ import { toast } from 'sonner';
 import { IdrielImportDialog } from '@/components/IdrielImportDialog';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
 import { ExpandedCodexOverlay } from '@/components/codex/ExpandedCodexOverlay';
+import { AnimatePresence, motion } from 'framer-motion';
 import idrielAvatar from '@/assets/idriel-avatar.webp';
+
 
 const FRUIT_ALL = -1;
 const FRUIT_NONE = -2; // sentinel for "no fruit" filter
@@ -954,31 +956,53 @@ const FruitFilterMenu: React.FC<FruitFilterMenuProps> = ({ entries, filterFruits
     </div>
   );
 
-  const ActiveChips = activeCount > 0 && (
-    <div className="flex flex-wrap items-center gap-1.5 mt-2">
-      {filterFruits.map(id => {
-        const f = FRUITS.find(x => x.id === id);
-        if (!f) return null;
-        return (
-          <button
-            key={id}
-            onClick={() => toggle(id)}
-            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-montserrat font-bold bg-primary/15 text-blue-light border border-ring/40 hover:bg-primary/25 transition-colors"
-          >
-            <f.Icon className="w-3 h-3 text-gold-light" strokeWidth={1.75} />
-            {f.name}
-            <X className="w-3 h-3 opacity-70" strokeWidth={2} />
-          </button>
-        );
-      })}
-      <button
-        onClick={() => setFilterFruits([])}
-        className="text-[10px] text-text-dim hover:text-foreground font-montserrat underline underline-offset-2 ml-1"
-      >
-        limpar tudo
-      </button>
-    </div>
+  const ActiveChips = (
+    <AnimatePresence initial={false}>
+      {activeCount > 0 && (
+        <motion.div
+          key="active-chips"
+          initial={{ opacity: 0, y: -4, height: 0 }}
+          animate={{ opacity: 1, y: 0, height: 'auto' }}
+          exit={{ opacity: 0, y: -4, height: 0 }}
+          transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+          className="overflow-hidden"
+        >
+          <div className="flex flex-wrap items-center gap-1.5 mt-2">
+            <AnimatePresence initial={false}>
+              {filterFruits.map(id => {
+                const f = FRUITS.find(x => x.id === id);
+                if (!f) return null;
+                return (
+                  <motion.button
+                    key={id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.85, y: -2 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.85, y: -2 }}
+                    transition={{ duration: 0.22, ease: [0.32, 0.72, 0, 1] }}
+                    onClick={() => toggle(id)}
+                    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-montserrat font-bold bg-primary/15 text-blue-light border border-ring/40 hover:bg-primary/25 transition-colors"
+                  >
+                    <f.Icon className="w-3 h-3 text-gold-light" strokeWidth={1.75} />
+                    {f.name}
+                    <X className="w-3 h-3 opacity-70" strokeWidth={2} />
+                  </motion.button>
+                );
+              })}
+            </AnimatePresence>
+            <motion.button
+              layout
+              onClick={() => setFilterFruits([])}
+              className="text-[10px] text-text-dim hover:text-foreground font-montserrat underline underline-offset-2 ml-1"
+            >
+              limpar tudo
+            </motion.button>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
+
 
   return (
     <div className="mb-6">

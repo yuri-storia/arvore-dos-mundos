@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Trees, X, ScrollText, Trash2, Droplet, Droplets, Leaf, Sparkles, RefreshCw, Check, Gem, AlertTriangle, Eye, Compass, Award, ArrowRight, Star, ClipboardList, PencilLine, Wand2 } from 'lucide-react';
+import { Trees, X, ScrollText, Trash2, Droplet, Droplets, Leaf, Sparkles, RefreshCw, Check, Gem, AlertTriangle, Eye, Compass, Award, ArrowRight, Star, ClipboardList, PencilLine, Wand2, Quote, BookMarked } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { FRUITS } from '@/lib/data';
+import { FRUITS, type Fruit } from '@/lib/data';
 import { callAITextStream, friendlyAIError } from '@/lib/helpers';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import ReactMarkdown from 'react-markdown';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import idrielAvatar from '@/assets/idriel-avatar.webp';
+
 
 interface Props {
   entries: CodexEntry[];
@@ -86,6 +88,229 @@ const renderWithStars = (children: React.ReactNode): React.ReactNode => {
     return child;
   });
 };
+
+// ---------- Section parsing (splits Idriel's markdown into blocks) ----------
+interface Section { heading: string; body: string; }
+function splitSections(md: string): Section[] {
+  if (!md) return [];
+  const parts = md.split(/^##\s+/m);
+  const out: Section[] = [];
+  parts.forEach((p, idx) => {
+    if (idx === 0) {
+      const t = p.trim();
+      if (t) out.push({ heading: '', body: t });
+      return;
+    }
+    const nl = p.indexOf('\n');
+    const heading = (nl > 0 ? p.slice(0, nl) : p).trim();
+    const body = nl > 0 ? p.slice(nl + 1).trim() : '';
+    out.push({ heading, body });
+  });
+  return out;
+}
+
+interface FruitEval {
+  fruit: Fruit;
+  score: number;
+  justification?: string;
+  evidence?: string[];
+}
+function parseFruitEvaluations(body: string): FruitEval[] {
+  const items: FruitEval[] = [];
+  if (!body) return items;
+  const lines = body.split(/\r?\n/);
+  for (const fruit of FRUITS) {
+    const escaped = fruit.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(
+      `\\*{0,2}\\s*${escaped}\\s*\\*{0,2}\\s*:?\\s*([0-5])\\s*/\\s*5\\s*[—\\-–:]?\\s*([^\\n]*)`,
+      'i'
+    );
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (!line) continue;
+      const m = line.match(re);
+      if (!m) continue;
+      const score = Number(m[1]);
+      const tail = (m[2] || '').trim();
+      let justification: string | undefined = tail;
+      let evidence: string[] | undefined;
+      const evMatch = tail.match(/\(([^()]+)\)\s*$/);
+      if (evMatch) {
+        evidence = evMatch[1].split(/[,;]/).map(s => s.trim()).filter(Boolean);
+        justification = tail.slice(0, evMatch.index).trim().replace(/[.;,—–-]+$/, '').trim();
+      }
+      items.push({ fruit, score, justification: justification || undefined, evidence });
+      break;
+    }
+  }
+  return items;
+}
+
+// Metadata per section heading (icon, color palette)
+function sectionMeta(text: string) {
+  let Icon: any = Sparkles;
+  let color = 'hsl(var(--gold-warm))';
+  let tone: 'gold' | 'blue' | 'danger' | 'warn' | 'emerald' = 'gold';
+  if (/Saudação/i.test(text)) { Icon = Gem; }
+  else if (/Avaliação/i.test(text)) { Icon = Award; }
+  else if (/Furos/i.test(text)) { Icon = Eye; color = 'hsl(0 70% 60%)'; tone = 'danger'; }
+  else if (/Inconsistências/i.test(text)) { Icon = AlertTriangle; color = 'hsl(30 80% 58%)'; tone = 'warn'; }
+  else if (/Expansão/i.test(text)) { Icon = Compass; color = 'hsl(150 60% 52%)'; tone = 'emerald'; }
+  else if (/Fortes/i.test(text)) { Icon = Sparkles; }
+  else if (/Continuar/i.test(text)) { Icon = ArrowRight; color = 'hsl(210 70% 68%)'; tone = 'blue'; }
+  return { Icon, color, tone };
+}
+
+// ---------- Fruit Evaluation Card Grid ----------
+const scoreLabel = (n: number) =>
+  n >= 5 ? 'Maduro' : n >= 4 ? 'Vigoroso' : n >= 3 ? 'Em flor' : n >= 2 ? 'Germinando' : n >= 1 ? 'Semente' : 'Estéril';
+
+const FruitEvaluationGrid: React.FC<{ items: FruitEval[] }> = ({ items }) => {
+  if (items.length === 0) return null;
+  return (
+    <motion.div
+      className="grid grid-cols-1 sm:grid-cols-2 gap-2.5"
+      initial="hidden"
+      animate="visible"
+      variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05, delayChildren: 0.05 } } }}
+    >
+      {items.map(({ fruit, score, justification, evidence }) => {
+        const tier = score >= 4 ? 'high' : score >= 2 ? 'mid' : 'low';
+        const accent = tier === 'high'
+          ? 'hsl(var(--gold-light))'
+          : tier === 'mid'
+            ? 'hsl(var(--gold-warm))'
+            : 'hsl(30 40% 40%)';
+        return (
+          <motion.article
+            key={fruit.id}
+            variants={{
+              hidden: { opacity: 0, y: 10, scale: 0.98 },
+              visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.35, ease: [0.32, 0.72, 0, 1] } },
+            }}
+            whileHover={{ y: -2 }}
+            className="relative rounded-xl p-3.5 border overflow-hidden group"
+            style={{
+              background: 'linear-gradient(140deg, rgba(20,14,4,0.55) 0%, rgba(8,6,2,0.7) 100%)',
+              borderColor: `${accent}55`,
+              boxShadow: `inset 0 1px 0 ${accent}22, 0 6px 20px -14px ${accent}88`,
+            }}
+          >
+            <div
+              className="pointer-events-none absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-40 blur-2xl"
+              style={{ background: `radial-gradient(circle, ${accent}55, transparent 70%)` }}
+            />
+            <div className="relative flex items-start gap-2.5">
+              <div
+                className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center border"
+                style={{
+                  background: `linear-gradient(135deg, ${accent}22, transparent)`,
+                  borderColor: `${accent}55`,
+                  boxShadow: `0 0 14px ${accent}22`,
+                }}
+              >
+                <fruit.Icon className="w-4 h-4" strokeWidth={1.75} style={{ color: accent }} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <h4 className="font-cinzel font-bold text-[13px] text-foreground truncate">{fruit.name}</h4>
+                  <span
+                    className="shrink-0 text-[9px] font-montserrat font-bold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded-full"
+                    style={{
+                      color: accent,
+                      background: `${accent}18`,
+                      border: `1px solid ${accent}44`,
+                    }}
+                  >
+                    {scoreLabel(score)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 mb-1.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className="w-3.5 h-3.5"
+                      strokeWidth={1.5}
+                      style={{
+                        color: 'hsl(var(--gold-light))',
+                        fill: i < score ? 'hsl(var(--gold-light))' : 'transparent',
+                        filter: i < score ? 'drop-shadow(0 0 3px hsl(var(--gold-warm)/0.6))' : 'none',
+                      }}
+                    />
+                  ))}
+                  <span className="ml-1 text-[10px] font-montserrat font-bold text-gold-light/80 tabular-nums">{score}/5</span>
+                </div>
+                {justification && (
+                  <p className="font-merriweather text-[12px] leading-relaxed text-foreground/85">
+                    {justification}
+                  </p>
+                )}
+                {evidence && evidence.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {evidence.map((ev, i) => (
+                      <span
+                        key={i}
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-montserrat bg-blue-main/12 text-blue-light/90 border border-blue-bright/25"
+                      >
+                        <Quote className="w-2.5 h-2.5" strokeWidth={1.75} />
+                        {ev}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.article>
+        );
+      })}
+    </motion.div>
+  );
+};
+
+// ---------- Section Card (wraps a markdown block) ----------
+const SectionCard: React.FC<{
+  heading: string;
+  children: React.ReactNode;
+  index: number;
+}> = ({ heading, children, index }) => {
+  const { Icon, color } = sectionMeta(heading);
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1], delay: index * 0.06 }}
+      className="relative rounded-xl border p-4 sm:p-5 overflow-hidden"
+      style={{
+        background: 'linear-gradient(140deg, rgba(16,12,6,0.55) 0%, rgba(6,8,14,0.7) 100%)',
+        borderColor: `${color}33`,
+        boxShadow: `inset 0 1px 0 ${color}22, 0 10px 30px -20px ${color}66`,
+      }}
+    >
+      <div
+        className="pointer-events-none absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-40"
+        style={{ background: `radial-gradient(circle, ${color}55, transparent 70%)` }}
+      />
+      <header className="relative flex items-center gap-2.5 mb-3">
+        <span
+          className="inline-flex items-center justify-center w-8 h-8 rounded-full shrink-0"
+          style={{
+            background: `linear-gradient(135deg, ${color}33, transparent)`,
+            border: `1px solid ${color}66`,
+            boxShadow: `0 0 14px ${color}33`,
+          }}
+        >
+          <Icon className="w-4 h-4" strokeWidth={1.75} style={{ color }} />
+        </span>
+        <h3 className="font-cinzel font-bold text-sm sm:text-[15px] uppercase tracking-[0.14em]" style={{ color }}>
+          {heading}
+        </h3>
+        <span className="flex-1 h-px opacity-60" style={{ background: `linear-gradient(to right, ${color}55, transparent)` }} />
+      </header>
+      <div className="relative">{children}</div>
+    </motion.section>
+  );
+};
+
 
 export const CodexAnalysis: React.FC<Props> = ({ entries, worldId, onClose }) => {
   const [analysis, setAnalysis] = useState('');
@@ -445,57 +670,93 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
         </button>
       )}
 
-      {/* History list */}
-      {showHistory && (
-        <div className="mb-4 animate-fadeUp">
-          <ScrollArea className="max-h-[240px]">
-            <div className="space-y-2 pr-2">
-              {history.map(item => (
-                <div
-                  key={item.id}
-                  className={`rounded-md p-3 border transition-colors cursor-pointer group ${
-                    viewingHistoryId === item.id
-                      ? 'border-accent/40 bg-accent/10'
-                      : 'border-border bg-background/30 hover:border-accent/20 hover:bg-accent/5'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <button
-                      onClick={() => viewHistoryItem(item)}
-                      className="flex-1 text-left"
+      {/* History list — refined scroll of past readings */}
+      <AnimatePresence initial={false}>
+        {showHistory && (
+          <motion.div
+            key="history"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
+            className="mb-4 overflow-hidden"
+          >
+            <ScrollArea className="max-h-[280px]">
+              <motion.div
+                className="space-y-2 pr-2"
+                initial="hidden"
+                animate="visible"
+                variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.04 } } }}
+              >
+                {history.map((item, idx) => {
+                  const active = viewingHistoryId === item.id;
+                  return (
+                    <motion.div
+                      key={item.id}
+                      variants={{
+                        hidden: { opacity: 0, x: -8 },
+                        visible: { opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.32, 0.72, 0, 1] } },
+                      }}
+                      className={`relative rounded-lg p-3 pl-4 border transition-all cursor-pointer group overflow-hidden ${
+                        active
+                          ? 'border-gold-warm/50 bg-gold-warm/[0.08] shadow-[0_0_20px_-10px_hsl(var(--gold-warm)/0.6)]'
+                          : 'border-gold-warm/15 bg-[rgba(8,6,2,0.4)] hover:border-gold-warm/35 hover:bg-gold-warm/[0.04]'
+                      }`}
                     >
-                      <p className="text-xs font-montserrat font-bold text-foreground">
-                        {new Date(item.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
-                        <span className="text-text-dim font-normal ml-2">
-                          {new Date(item.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </p>
-                      <p className="text-[10px] text-text-dim font-montserrat mt-0.5">
-                        {item.ficha_count} fichas · {item.artigo_count} artigos · {item.covered_fruits}/11 frutos
-                      </p>
-                    </button>
-                    <ConfirmDialog
-                      trigger={
-                        <button
-                          onClick={(e) => e.stopPropagation()}
-                          className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded-full text-destructive hover:bg-destructive/10 text-xs flex items-center justify-center transition-all"
-                          title="Excluir análise"
-                        >
-                          <Trash2 className="w-3 h-3" strokeWidth={1.75} />
+                      <span
+                        className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full"
+                        style={{
+                          background: active
+                            ? 'linear-gradient(180deg, hsl(var(--gold-light)), hsl(var(--gold-warm)))'
+                            : 'linear-gradient(180deg, hsl(var(--gold-warm)/0.5), transparent)',
+                        }}
+                      />
+                      <div className="flex items-center justify-between gap-2">
+                        <button onClick={() => viewHistoryItem(item)} className="flex-1 text-left min-w-0">
+                          <p className="text-xs font-cinzel font-bold text-foreground inline-flex items-center gap-2">
+                            <BookMarked className="w-3 h-3 text-gold-champagne shrink-0" strokeWidth={1.75} />
+                            {new Date(item.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                            <span className="text-text-dim font-montserrat font-normal">
+                              {new Date(item.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </p>
+                          <div className="flex flex-wrap gap-1.5 mt-1.5">
+                            <span className="text-[10px] font-montserrat px-1.5 py-0.5 rounded-md bg-blue-main/12 text-blue-light/90 border border-blue-bright/25 inline-flex items-center gap-1">
+                              <ClipboardList className="w-2.5 h-2.5" strokeWidth={2} />{item.ficha_count}
+                            </span>
+                            <span className="text-[10px] font-montserrat px-1.5 py-0.5 rounded-md bg-gold-warm/12 text-gold-light border border-gold-warm/30 inline-flex items-center gap-1">
+                              <PencilLine className="w-2.5 h-2.5" strokeWidth={2} />{item.artigo_count}
+                            </span>
+                            <span className="text-[10px] font-montserrat px-1.5 py-0.5 rounded-md bg-gold-champagne/12 text-gold-champagne border border-gold-champagne/30 inline-flex items-center gap-1">
+                              <Leaf className="w-2.5 h-2.5" strokeWidth={2} />{item.covered_fruits}/11
+                            </span>
+                          </div>
                         </button>
-                      }
-                      title="Excluir análise"
-                      description="Tem certeza que deseja excluir esta análise? Ela não poderá ser recuperada."
-                      confirmLabel="Excluir"
-                      onConfirm={() => handleDeleteAnalysis(item.id)}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
-      )}
+                        <ConfirmDialog
+                          trigger={
+                            <button
+                              onClick={(e) => e.stopPropagation()}
+                              className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-full text-destructive/80 hover:bg-destructive/10 hover:text-destructive flex items-center justify-center transition-all shrink-0"
+                              title="Excluir análise"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" strokeWidth={1.75} />
+                            </button>
+                          }
+                          title="Excluir análise"
+                          description="Tem certeza que deseja excluir esta análise? Ela não poderá ser recuperada."
+                          confirmLabel="Excluir"
+                          onConfirm={() => handleDeleteAnalysis(item.id)}
+                        />
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            </ScrollArea>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
 
 
       {!sub.loading && !planLimits.canUseAI && (
@@ -534,49 +795,108 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
 
 
 
-      {/* Loading with animated steps */}
-      {loading && (
-        <div className="py-6">
-          <div className="flex flex-col items-center gap-4 mb-6">
-            <div className="relative">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gold/40 shadow-[0_0_30px_hsl(var(--gold-warm)/0.35)] animate-pulse">
-                <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+      {/* Loading — Idriel weaving the analysis */}
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            key="loading"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+            className="py-8"
+          >
+            <div className="flex flex-col items-center gap-4 mb-7">
+              <div className="relative">
+                <motion.span
+                  aria-hidden
+                  className="absolute inset-[-14px] rounded-full"
+                  style={{ background: 'radial-gradient(circle, hsl(var(--gold-warm)/0.35), transparent 65%)' }}
+                  animate={{ scale: [1, 1.15, 1], opacity: [0.55, 0.85, 0.55] }}
+                  transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-gold-warm/60 shadow-[0_0_36px_hsl(var(--gold-warm)/0.5)]">
+                  <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+                </div>
+                <motion.div
+                  className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(var(--gold-light)), hsl(var(--gold-warm)))',
+                    boxShadow: '0 0 14px hsl(var(--gold-warm)/0.6)',
+                  }}
+                  animate={{ rotate: [0, 8, -8, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <Wand2 className="w-3.5 h-3.5 text-[#1a0f00]" strokeWidth={2} />
+                </motion.div>
               </div>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-gold/20 border border-gold-light/50 flex items-center justify-center animate-pulse"><Trees className="w-3 h-3 text-gold-champagne" strokeWidth={1.75} /></div>
-            </div>
-            <div className="text-center">
-              <p className="font-cinzel font-bold text-sm text-foreground">{IDRIEL_NAME}</p>
-              <p className="text-[10px] text-gold-light/80 font-montserrat italic">está analisando seu mundo…</p>
-            </div>
-          </div>
-
-          <div className="space-y-2 max-w-md mx-auto">
-            {LOADING_STEPS.map((step, i) => (
-              <div
-                key={i}
-                className={`flex items-start gap-2 transition-all duration-500 ${
-                  i <= currentStep ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
-                }`}
-              >
-                <span className={`mt-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] flex-shrink-0 transition-colors duration-300 ${
-                  i < currentStep
-                    ? 'bg-gold/20 text-gold-light'
-                    : i === currentStep
-                      ? 'bg-violet-500/30 text-violet-400 animate-pulse'
-                      : 'bg-border text-text-dim'
-                }`}>
-                  {i < currentStep ? <Check className="w-3 h-3" strokeWidth={2.5} /> : <span className="w-1.5 h-1.5 rounded-full bg-current" />}
-                </span>
-                <p className={`font-merriweather italic text-sm transition-colors duration-300 ${
-                  i === currentStep ? 'text-foreground' : 'text-text-dim'
-                }`}>
-                  {step.message}
+              <div className="text-center">
+                <p
+                  className="font-cinzel font-bold text-base"
+                  style={{
+                    background: 'linear-gradient(90deg, hsl(var(--gold-cream)), hsl(var(--gold-light)), hsl(var(--gold-champagne)))',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
+                  {IDRIEL_NAME}
+                </p>
+                <p className="text-[10px] text-gold-champagne/80 font-montserrat italic tracking-wide">
+                  está tecendo a análise do seu mundo…
                 </p>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            </div>
+
+            <div className="space-y-2.5 max-w-md mx-auto">
+              {LOADING_STEPS.map((step, i) => {
+                const state = i < currentStep ? 'done' : i === currentStep ? 'active' : 'pending';
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -6 }}
+                    animate={{ opacity: state === 'pending' ? 0.3 : 1, x: 0 }}
+                    transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                    className={`flex items-start gap-2.5 rounded-lg px-3 py-2 border ${
+                      state === 'active'
+                        ? 'border-gold-warm/40 bg-gold-warm/[0.06] shadow-[0_0_18px_-10px_hsl(var(--gold-warm)/0.7)]'
+                        : state === 'done'
+                          ? 'border-gold-warm/20 bg-transparent'
+                          : 'border-transparent bg-transparent'
+                    }`}
+                  >
+                    <span
+                      className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
+                        state === 'done'
+                          ? 'bg-gold-warm/25 text-gold-light'
+                          : state === 'active'
+                            ? 'bg-gold-warm/40 text-gold-cream'
+                            : 'bg-secondary text-text-dim'
+                      }`}
+                    >
+                      {state === 'done' ? (
+                        <Check className="w-3 h-3" strokeWidth={2.5} />
+                      ) : state === 'active' ? (
+                        <motion.span
+                          className="w-1.5 h-1.5 rounded-full bg-current"
+                          animate={{ scale: [1, 1.6, 1], opacity: [1, 0.6, 1] }}
+                          transition={{ duration: 1.1, repeat: Infinity, ease: 'easeInOut' }}
+                        />
+                      ) : (
+                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                      )}
+                    </span>
+                    <p className={`font-merriweather italic text-[13px] leading-snug ${
+                      state === 'active' ? 'text-foreground' : 'text-text-dim'
+                    }`}>
+                      {step.message}
+                    </p>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {error && (
         <div className="rounded-md p-3 bg-destructive/10 border border-destructive/30 text-destructive text-sm font-merriweather">
@@ -584,106 +904,122 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
         </div>
       )}
 
-      {displayedAnalysis && !loading && (
-        <div className="mt-4 animate-fade-in">
-          {viewingHistoryId && (
-            <div className="mb-3 px-3 py-1.5 rounded-md bg-accent/10 border border-accent/20 flex items-center gap-2">
-              <span className="text-[10px] text-accent-foreground font-montserrat inline-flex items-center gap-1.5"><ScrollText className="w-3 h-3" strokeWidth={1.75} />Visualizando análise do histórico</span>
-              <button
-                onClick={() => { setViewingHistoryId(null); setAnalysis(''); setRevealedChars(0); }}
-                className="text-[10px] text-text-dim hover:text-foreground font-montserrat underline ml-auto"
+      {displayedAnalysis && !loading && (() => {
+        const sections = splitSections(displayedAnalysis);
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+            className="mt-4"
+          >
+            {viewingHistoryId && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-3 px-3 py-1.5 rounded-md bg-gold-warm/8 border border-gold-warm/25 flex items-center gap-2"
               >
-                Voltar
-              </button>
-            </div>
-          )}
+                <span className="text-[10px] text-gold-champagne font-montserrat inline-flex items-center gap-1.5">
+                  <ScrollText className="w-3 h-3" strokeWidth={1.75} />Visualizando análise do histórico
+                </span>
+                <button
+                  onClick={() => { setViewingHistoryId(null); setAnalysis(''); setRevealedChars(0); }}
+                  className="text-[10px] text-text-dim hover:text-foreground font-montserrat underline ml-auto"
+                >
+                  Voltar
+                </button>
+              </motion.div>
+            )}
 
-          <div className="rounded-lg p-4 sm:p-5 border border-accent/15 bg-background/30 relative" style={{ backdropFilter: 'blur(10px)' }}>
             {isRevealing && (
-              <div className="absolute bottom-3 right-3 flex items-center gap-1.5 text-gold-light/60">
+              <div className="mb-3 flex items-center gap-1.5 text-gold-light/70">
                 <span className="w-1.5 h-1.5 rounded-full bg-gold-champagne animate-pulse" />
-                <span className="text-[9px] font-montserrat italic">Idriel escrevendo…</span>
+                <span className="text-[10px] font-montserrat italic">Idriel escrevendo…</span>
               </div>
             )}
-            <div className="prose prose-sm prose-invert max-w-none
-              [&_h2]:font-cinzel [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-5 [&_h2]:mb-2 [&_h2]:text-gold-light
-              [&_h3]:font-montserrat [&_h3]:text-sm [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-foreground
-              [&_p]:font-merriweather [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-foreground/85
-              [&_ul]:font-merriweather [&_ul]:text-sm [&_ul]:text-foreground/85
-              [&_ol]:font-merriweather [&_ol]:text-sm [&_ol]:text-foreground/85
-              [&_li]:mb-1
-              [&_strong]:text-gold-light [&_strong]:font-bold
-              [&_blockquote]:border-l-2 [&_blockquote]:border-gold/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-text-dim
-              [&_em]:text-accent-foreground/90
-            ">
-              <ReactMarkdown
-                components={{
-                  h2: ({ children, ...props }) => {
-                    const text = String(children);
-                    let Icon: any = Sparkles;
-                    let colorClass = 'text-gold-light';
-                    let accent = 'hsl(var(--gold-warm))';
-                    if (text.includes('Saudação')) { Icon = Gem; }
-                    else if (text.includes('Avaliação')) { Icon = Award; }
-                    else if (text.includes('Furos')) { Icon = Eye; colorClass = 'text-destructive'; accent = 'hsl(0 70% 55%)'; }
-                    else if (text.includes('Inconsistências')) { Icon = AlertTriangle; colorClass = 'text-orange-400'; accent = 'hsl(30 80% 55%)'; }
-                    else if (text.includes('Expansão')) { Icon = Compass; colorClass = 'text-emerald-400'; accent = 'hsl(150 60% 50%)'; }
-                    else if (text.includes('Fortes')) { Icon = Sparkles; }
-                    else if (text.includes('Continuar')) { Icon = ArrowRight; colorClass = 'text-blue-light'; accent = 'hsl(210 70% 65%)'; }
-                    return (
-                      <h2 className={`font-cinzel text-base font-bold mt-6 mb-3 flex items-center gap-2 uppercase tracking-wider ${colorClass}`} {...props}>
-                        <span
-                          className="inline-flex items-center justify-center w-7 h-7 rounded-full shrink-0"
-                          style={{
-                            background: `linear-gradient(135deg, ${accent}33, transparent)`,
-                            border: `1px solid ${accent}66`,
-                            boxShadow: `0 0 14px ${accent}33`,
+
+            <div className="space-y-3">
+              {sections.map((sec, idx) => {
+                if (!sec.heading) {
+                  // Preamble (no heading yet) — render as plain markdown block
+                  return (
+                    <motion.div
+                      key={`pre-${idx}`}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+                      className="prose prose-sm prose-invert max-w-none
+                        [&_p]:font-merriweather [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-foreground/85
+                        [&_strong]:text-gold-light [&_strong]:font-bold
+                        [&_em]:text-gold-champagne/90"
+                    >
+                      <ReactMarkdown
+                        components={{
+                          p: ({ children }) => <p>{renderWithStars(children)}</p>,
+                          strong: ({ children }) => <strong className="text-gold-light font-bold">{children}</strong>,
+                        }}
+                      >
+                        {sec.body}
+                      </ReactMarkdown>
+                    </motion.div>
+                  );
+                }
+                const isFruits = /Avaliação/i.test(sec.heading);
+                const fruitEvals = isFruits ? parseFruitEvaluations(sec.body) : [];
+                return (
+                  <SectionCard key={`sec-${idx}`} heading={sec.heading} index={idx}>
+                    {isFruits && fruitEvals.length > 0 ? (
+                      <FruitEvaluationGrid items={fruitEvals} />
+                    ) : (
+                      <div className="prose prose-sm prose-invert max-w-none
+                        [&_h3]:font-montserrat [&_h3]:text-sm [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-foreground
+                        [&_p]:font-merriweather [&_p]:text-[13px] [&_p]:leading-relaxed [&_p]:text-foreground/85
+                        [&_ul]:font-merriweather [&_ul]:text-[13px] [&_ul]:text-foreground/85 [&_ul]:pl-4
+                        [&_ol]:font-merriweather [&_ol]:text-[13px] [&_ol]:text-foreground/85 [&_ol]:pl-4
+                        [&_li]:mb-1 [&_li]:marker:text-gold-warm
+                        [&_strong]:text-gold-light [&_strong]:font-bold
+                        [&_blockquote]:border-l-2 [&_blockquote]:border-gold/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-text-dim
+                        [&_em]:text-gold-champagne/90">
+                        <ReactMarkdown
+                          components={{
+                            strong: ({ children }) => <strong className="text-gold-light font-bold">{children}</strong>,
+                            li: ({ children }) => <li className="mb-1">{renderWithStars(children)}</li>,
+                            p: ({ children }) => <p>{renderWithStars(children)}</p>,
                           }}
                         >
-                          <Icon className="w-3.5 h-3.5" strokeWidth={1.75} />
-                        </span>
-                        <span>{children}</span>
-                        <span
-                          className="flex-1 h-px ml-1 opacity-60"
-                          style={{ background: `linear-gradient(to right, ${accent}55, transparent)` }}
-                        />
-                      </h2>
-                    );
-                  },
-                  strong: ({ children }) => (
-                    <strong className="text-gold-light font-bold">{children}</strong>
-                  ),
-                  li: ({ children }) => <li className="mb-1">{renderWithStars(children)}</li>,
-                  p: ({ children }) => <p>{renderWithStars(children)}</p>,
-                }}
-              >
-                {displayedAnalysis}
-              </ReactMarkdown>
+                          {sec.body}
+                        </ReactMarkdown>
+                      </div>
+                    )}
+                  </SectionCard>
+                );
+              })}
             </div>
-          </div>
 
-          <div className="flex gap-2 mt-3 justify-end">
-            {!viewingHistoryId && (
+            <div className="flex gap-2 mt-4 justify-end">
+              {!viewingHistoryId && (
+                <button
+                  onClick={handleAnalyze}
+                  disabled={!canAnalyze}
+                  className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors disabled:opacity-40"
+                >
+                  <><RefreshCw className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Nova análise</>
+                </button>
+              )}
               <button
-                onClick={handleAnalyze}
-                disabled={!canAnalyze}
-                className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors disabled:opacity-40"
+                onClick={() => {
+                  if (viewingHistoryId) { setViewingHistoryId(null); setAnalysis(''); }
+                  else onClose();
+                }}
+                className="px-3 py-1.5 text-text-dim hover:text-foreground text-[10px] font-montserrat uppercase tracking-wider transition-colors"
               >
-                <><RefreshCw className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Nova análise</>
+                {viewingHistoryId ? 'Voltar' : 'Fechar'}
               </button>
-            )}
-            <button
-              onClick={() => {
-                if (viewingHistoryId) { setViewingHistoryId(null); setAnalysis(''); }
-                else onClose();
-              }}
-              className="px-3 py-1.5 text-text-dim hover:text-foreground text-[10px] font-montserrat uppercase tracking-wider transition-colors"
-            >
-              {viewingHistoryId ? 'Voltar' : 'Fechar'}
-            </button>
-          </div>
-        </div>
-      )}
+            </div>
+          </motion.div>
+        );
+      })()}
+
       </div>
     </div>
   );
