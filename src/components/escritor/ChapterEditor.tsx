@@ -100,6 +100,8 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
     return text.trim() ? text.trim().split(/\s+/).length : 0;
   }, [content]);
 
+  useEffect(() => { onLiveWordCount?.(wordCount); }, [wordCount, onLiveWordCount]);
+
   const handleTitleBlur = () => {
     if (title.trim() && title !== chapter.title) onTitleSave(title.trim());
   };
