@@ -801,6 +801,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                   onTitleSave={handleChapterTitleSave}
                   onContentSave={handleChapterContentSave}
                   onPreviewEntry={handlePreviewEntry}
+                  onLiveWordCount={setLiveActiveWords}
                 />
               </>
             ) : (
