@@ -331,9 +331,6 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
   const artigos = entries.filter(e => e.entry_type === 'artigo').length;
   const coveredFruits = FRUITS.filter(f => entries.some(e => e.fruit_id === f.id)).length;
 
-  const creditPct = sub.creditLimit > 0 ? (sub.creditsUsed / sub.creditLimit) * 100 : 0;
-  const isLow = creditsRemaining <= 10;
-  const isOut = creditsRemaining < ANALYSIS_COST;
 
   
 
@@ -500,71 +497,6 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
         </div>
       )}
 
-      {/* Credit info — Elixir dos Mundos (refined) */}
-      {!sub.loading && planLimits.canUseAI && (
-        <div
-          className={`relative rounded-lg px-3.5 py-3 mb-4 border overflow-hidden ${
-            isOut ? 'border-destructive/40' : isLow ? 'border-orange-500/40' : 'border-gold-warm/35'
-          }`}
-          style={{
-            background: isOut
-              ? 'linear-gradient(135deg, rgba(220,38,38,0.14) 0%, rgba(80,10,10,0.35) 100%)'
-              : isLow
-                ? 'linear-gradient(135deg, rgba(220,120,20,0.14) 0%, rgba(70,30,5,0.35) 100%)'
-                : 'radial-gradient(120% 140% at 0% 0%, hsl(var(--gold-warm) / 0.22) 0%, transparent 55%), linear-gradient(180deg, hsl(35 40% 8% / 0.85) 0%, hsl(214 60% 3% / 0.9) 100%)',
-            boxShadow: isOut || isLow ? undefined : 'inset 0 1px 0 hsl(var(--gold-champagne) / 0.15)',
-          }}
-        >
-          <div className="flex items-center gap-2.5 mb-2">
-            <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center border ${
-              isOut ? 'border-destructive/50 bg-destructive/15' : isLow ? 'border-orange-500/50 bg-orange-500/15' : 'border-gold-warm/50 bg-gradient-to-br from-gold-warm/25 to-gold-deep/10'
-            }`}>
-              <Droplet className={`w-3.5 h-3.5 ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : 'text-gold-light'}`} strokeWidth={2.25} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-baseline justify-between gap-2">
-                <span className={`text-[10px] font-cinzel font-bold uppercase tracking-[0.18em] ${
-                  isOut ? 'text-destructive' : isLow ? 'text-orange-400' : 'text-gold-light'
-                }`}>
-                  {isOut ? 'Elixir esgotado' : isLow ? 'Poucas gotas' : 'Elixir dos Mundos'}
-                </span>
-                <span className={`text-[10px] font-montserrat font-bold tabular-nums ${
-                  isOut ? 'text-destructive' : isLow ? 'text-orange-400' : 'text-gold-light'
-                }`}>
-                  {creditsRemaining}<span className="text-text-dim/70"> / {sub.creditLimit}</span> <span className="text-[9px] text-text-dim uppercase tracking-wider">gotas</span>
-                </span>
-              </div>
-            </div>
-          </div>
-          {/* Loading-bar track (matches header Elixir) */}
-          <div className={`relative h-2 w-full rounded-full overflow-hidden border ${
-            isOut ? 'border-destructive/30' : isLow ? 'border-orange-500/30' : 'border-gold/25'
-          }`}
-            style={{ background: 'linear-gradient(180deg, hsl(220 50% 4%) 0%, hsl(220 40% 7%) 100%)', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.7)' }}>
-            <div
-              className="relative h-full rounded-full transition-all duration-700 ease-out"
-              style={{
-                width: `${Math.max(0, Math.min(100, 100 - creditPct))}%`,
-                background: isOut
-                  ? 'linear-gradient(90deg, hsl(0 75% 50%), hsl(0 70% 32%))'
-                  : isLow
-                    ? 'linear-gradient(90deg, hsl(38 92% 62%) 0%, hsl(20 82% 42%) 100%)'
-                    : 'linear-gradient(90deg, hsl(46 95% 78%) 0%, hsl(44 92% 62%) 50%, hsl(32 78% 42%) 100%)',
-                boxShadow: '0 0 10px hsl(var(--gold-warm) / 0.5), inset 0 1px 0 rgba(255, 240, 200, 0.45)',
-              }}
-            >
-              <div className="absolute inset-x-0 top-0 h-1/2 rounded-t-full pointer-events-none"
-                style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%)' }} />
-            </div>
-          </div>
-          {isOut && (
-            <p className="text-[10px] text-destructive font-merriweather italic mt-2">Idriel aguarda a próxima lua nova para renovar sua energia.</p>
-          )}
-          {isLow && !isOut && (
-            <p className="text-[10px] text-orange-400 font-merriweather italic mt-2">A Árvore sente suas raízes enfraquecerem…</p>
-          )}
-        </div>
-      )}
 
       {!sub.loading && !planLimits.canUseAI && (
         <div className="rounded-lg px-3.5 py-2.5 mb-4 border border-destructive/30 bg-destructive/5">
