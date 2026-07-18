@@ -475,52 +475,53 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
       <div className={`flex items-center gap-3 mb-4 flex-wrap transition-opacity duration-300 ${zenMode ? 'opacity-0 hover:opacity-100 h-0 overflow-hidden hover:h-auto hover:overflow-visible' : ''}`}>
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <PenLine className="w-4 h-4 text-blue-light shrink-0" />
-          {/* Manuscript title (editável) + switcher */}
-          <input
-            value={manuscriptTitleLocal}
-            onChange={e => handleManuscriptTitleChange(e.target.value)}
-            aria-label="Nome do manuscrito"
-            className="bg-transparent font-cinzel font-bold text-base sm:text-lg text-foreground border-none focus:outline-none focus:ring-1 focus:ring-blue-bright/40 rounded px-1 min-w-0 max-w-[160px] sm:max-w-[260px] cursor-text"
-            placeholder="Título do manuscrito"
-          />
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              aria-label="Trocar manuscrito"
-              className="group inline-flex items-center gap-1.5 pl-2 pr-2.5 py-1 rounded-md bg-blue-bright/10 hover:bg-blue-bright/20 border border-blue-bright/30 hover:border-blue-bright/50 text-blue-light hover:text-blue-bright transition-all shrink-0 shadow-sm"
-              title="Trocar manuscrito"
-            >
-              <span className="text-[10px] font-montserrat font-bold uppercase tracking-wider">Trocar</span>
-              <ChevronDown className="w-3.5 h-3.5 transition-transform group-data-[state=open]:rotate-180" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="min-w-[240px]">
-              <p className="text-[9px] uppercase font-montserrat text-text-dim px-2 py-1">Manuscritos deste mundo</p>
-              {manuscripts.map(m => (
-                <DropdownMenuItem
-                  key={m.id}
-                  onSelect={() => setActiveManuscript(m)}
-                  className={`text-xs ${m.id === activeManuscript.id ? 'bg-blue-bright/10 text-blue-light' : ''}`}
-                >
-                  <BookMarked className="w-3 h-3 mr-2 opacity-60" />
-                  {m.title}
-                </DropdownMenuItem>
-              ))}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => setShowNamePrompt(true)} className="text-xs text-blue-light">
-                <Plus className="w-3 h-3 mr-2" /> Novo manuscrito
-              </DropdownMenuItem>
-              <ConfirmDialog
-                trigger={
-                  <DropdownMenuItem onSelect={e => e.preventDefault()} className="text-xs text-red-alert/90">
-                    <Trash2 className="w-3 h-3 mr-2" /> Excluir manuscrito atual
+          {/* Caixa aglutinada: nome editável + seta para trocar */}
+          <div className="inline-flex items-stretch min-w-0 rounded-md border border-blue-bright/30 bg-blue-bright/5 hover:border-blue-bright/50 focus-within:border-blue-bright/60 focus-within:ring-1 focus-within:ring-blue-bright/40 transition-all shadow-sm">
+            <input
+              value={manuscriptTitleLocal}
+              onChange={e => handleManuscriptTitleChange(e.target.value)}
+              aria-label="Nome do manuscrito"
+              className="bg-transparent font-cinzel font-bold text-base sm:text-lg text-foreground border-none focus:outline-none rounded-l-md px-2 py-1 min-w-0 max-w-[160px] sm:max-w-[260px] cursor-text"
+              placeholder="Título do manuscrito"
+            />
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                aria-label="Trocar manuscrito"
+                className="group inline-flex items-center justify-center px-2 rounded-r-md border-l border-blue-bright/30 bg-blue-bright/10 hover:bg-blue-bright/20 text-blue-light hover:text-blue-bright transition-all shrink-0"
+                title="Trocar manuscrito"
+              >
+                <ChevronDown className="w-4 h-4 transition-transform group-data-[state=open]:rotate-180" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="min-w-[240px]">
+                <p className="text-[9px] uppercase font-montserrat text-text-dim px-2 py-1">Manuscritos deste mundo</p>
+                {manuscripts.map(m => (
+                  <DropdownMenuItem
+                    key={m.id}
+                    onSelect={() => setActiveManuscript(m)}
+                    className={`text-xs ${m.id === activeManuscript.id ? 'bg-blue-bright/10 text-blue-light' : ''}`}
+                  >
+                    <BookMarked className="w-3 h-3 mr-2 opacity-60" />
+                    {m.title}
                   </DropdownMenuItem>
-                }
-                title="Excluir manuscrito"
-                description={`Excluir "${activeManuscript.title}"? Todos os capítulos e arcos serão perdidos.`}
-                confirmLabel="Excluir"
-                onConfirm={() => deleteManuscript(activeManuscript.id)}
-              />
-            </DropdownMenuContent>
-          </DropdownMenu>
+                ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => setShowNamePrompt(true)} className="text-xs text-blue-light">
+                  <Plus className="w-3 h-3 mr-2" /> Novo manuscrito
+                </DropdownMenuItem>
+                <ConfirmDialog
+                  trigger={
+                    <DropdownMenuItem onSelect={e => e.preventDefault()} className="text-xs text-red-alert/90">
+                      <Trash2 className="w-3 h-3 mr-2" /> Excluir manuscrito atual
+                    </DropdownMenuItem>
+                  }
+                  title="Excluir manuscrito"
+                  description={`Excluir "${activeManuscript.title}"? Todos os capítulos e arcos serão perdidos.`}
+                  confirmLabel="Excluir"
+                  onConfirm={() => deleteManuscript(activeManuscript.id)}
+                />
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         {/* Dialog: criar novo manuscrito (precisa estar montado também quando já há um ativo) */}
