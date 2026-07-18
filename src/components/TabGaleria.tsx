@@ -420,47 +420,148 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
         </div>
       )}
 
-      {/* Grid */}
-      {filteredSorted.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
-            <ImageIcon className="w-8 h-8 text-gold-champagne opacity-60" strokeWidth={1.5} />
-          </div>
-          <h3 className="font-cinzel font-bold text-lg text-foreground mb-2">
-            {sorted.length === 0 ? 'Sua galeria está vazia' : 'Nenhuma visão nesta categoria'}
-          </h3>
-          <p className="font-merriweather text-sm text-text-dim mb-4 max-w-md mx-auto">
-            {sorted.length === 0
-              ? 'Faça upload de referências visuais ou gere imagens com Idriel abaixo.'
-              : 'Tente um filtro diferente ou adicione novas imagens.'}
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
-          {filteredSorted.map(img => (
-            <div
-              key={img.id}
-              className="group relative rounded-lg overflow-hidden border border-gold/15 hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(218,165,32,0.15)] transition-all"
-            >
-              <img loading="lazy" decoding="async"
-                src={img.src}
-                alt={img.name}
-                className="w-full h-[100px] sm:h-[136px] object-cover cursor-zoom-in"
-                onClick={() => setLightbox({ src: img.src, alt: img.name })}
-              />
-              <div className="p-2">
-                <p className="text-xs text-foreground font-montserrat truncate">{img.name}</p>
-                <p className="text-[10px] text-text-dim">{img.cat}</p>
-              </div>
-              <button
-                onClick={() => removeImage(img.id)}
-                className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-alert/80 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <X className="w-3.5 h-3.5" strokeWidth={2} />
-              </button>
+      {/* ===== Biblioteca por categoria — visão principal =====
+          Inspirado em interfaces de biblioteca: cada Fruto vira um card grande
+          com capa (imagem mais recente daquela categoria) ou marca-d'água
+          quando ainda vazio. Clicar entra na categoria e mostra o grid completo. */}
+      {filter === 'Todos' ? (
+        sorted.length === 0 ? (
+          <div className="text-center py-14">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
+              <ImageIcon className="w-8 h-8 text-gold-champagne opacity-60" strokeWidth={1.5} />
             </div>
-          ))}
-        </div>
+            <h3 className="font-cinzel font-bold text-lg text-foreground mb-2">Sua biblioteca visual está vazia</h3>
+            <p className="font-merriweather text-sm text-text-dim mb-4 max-w-md mx-auto">
+              Envie referências visuais nos frutos abaixo ou peça a Idriel para materializar as visões do seu mundo.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {categoryLibrary.cats.map((cat, i) => {
+              const cover = cat.images[0]?.src;
+              const count = cat.images.length;
+              const empty = count === 0;
+              const Icon = cat.Icon;
+              return (
+                <button
+                  key={cat.key}
+                  onClick={() => setFilter(cat.name)}
+                  className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-gold/15 hover:border-gold/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-15px_rgba(218,165,32,0.35)] text-left"
+                >
+                  {cover ? (
+                    <>
+                      <img src={cover} alt={cat.name} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
+                    </>
+                  ) : (
+                    <>
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          background: `linear-gradient(135deg, rgba(10,14,24,0.95), rgba(6,8,14,0.75)), radial-gradient(circle at 30% 30%, rgba(218,165,32,${0.10 + (i % 5) * 0.02}), transparent 60%)`,
+                        }}
+                      />
+                      <Icon className="absolute right-4 top-4 w-24 h-24 text-gold-champagne/10" strokeWidth={1} />
+                    </>
+                  )}
+
+                  {/* Small tile of second image for texture, if it exists */}
+                  {cat.images[1] && (
+                    <img src={cat.images[1].src} loading="lazy" alt="" className="absolute top-3 right-3 w-14 h-14 rounded-md object-cover border border-white/20 shadow-lg opacity-90 group-hover:opacity-100 transition" />
+                  )}
+
+                  <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gold/20 border border-gold/40 backdrop-blur-md">
+                        <Icon className="w-3.5 h-3.5 text-gold-light" strokeWidth={1.75} />
+                      </span>
+                      <span className="text-[10px] font-montserrat font-bold uppercase tracking-wider text-gold-light/90">
+                        {count} {count === 1 ? 'imagem' : 'imagens'}
+                      </span>
+                    </div>
+                    <div className="flex items-end justify-between gap-2">
+                      <h3 className="font-cinzel font-bold text-lg sm:text-xl text-foreground drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] leading-tight">
+                        {cat.name}
+                      </h3>
+                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/[0.08] border border-white/20 backdrop-blur-md group-hover:bg-gold/20 group-hover:border-gold/50 transition-all">
+                        <ArrowRight className="w-4 h-4 text-gold-light group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+                      </span>
+                    </div>
+                    {empty && (
+                      <p className="text-[10px] text-text-dim/80 font-merriweather italic mt-1">Ainda sem imagens — envie ou gere.</p>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+
+            {categoryLibrary.general.length > 0 && (
+              <button
+                onClick={() => setFilter('Geral')}
+                className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-gold/15 hover:border-gold/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-15px_rgba(218,165,32,0.35)] text-left"
+              >
+                <img src={categoryLibrary.general[0].src} alt="Geral" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
+                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+                  <span className="text-[10px] font-montserrat font-bold uppercase tracking-wider text-gold-light/90">
+                    {categoryLibrary.general.length} imagens
+                  </span>
+                  <h3 className="font-cinzel font-bold text-xl text-foreground mt-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">Geral</h3>
+                </div>
+              </button>
+            )}
+          </div>
+        )
+      ) : (
+        <>
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => setFilter('Todos')}
+              className="inline-flex items-center gap-1.5 text-xs font-montserrat text-text-secondary hover:text-gold-light transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />
+              Todas as categorias
+            </button>
+            <h3 className="font-cinzel font-bold text-lg text-gold-light">{filter}</h3>
+            <span className="text-[10px] font-montserrat text-text-dim">{filteredSorted.length} {filteredSorted.length === 1 ? 'imagem' : 'imagens'}</span>
+          </div>
+          {filteredSorted.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
+                <ImageIcon className="w-8 h-8 text-gold-champagne opacity-60" strokeWidth={1.5} />
+              </div>
+              <p className="font-merriweather text-sm text-text-dim max-w-md mx-auto">
+                Nenhuma imagem em <strong>{filter}</strong> ainda. Envie referências ou gere com Idriel.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
+              {filteredSorted.map(img => (
+                <div
+                  key={img.id}
+                  className="group relative rounded-lg overflow-hidden border border-gold/15 hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(218,165,32,0.15)] transition-all"
+                >
+                  <img loading="lazy" decoding="async"
+                    src={img.src}
+                    alt={img.name}
+                    className="w-full h-[100px] sm:h-[136px] object-cover cursor-zoom-in"
+                    onClick={() => setLightbox({ src: img.src, alt: img.name })}
+                  />
+                  <div className="p-2">
+                    <p className="text-xs text-foreground font-montserrat truncate">{img.name}</p>
+                    <p className="text-[10px] text-text-dim">{img.cat}</p>
+                  </div>
+                  <button
+                    onClick={() => removeImage(img.id)}
+                    className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-alert/80 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="w-3.5 h-3.5" strokeWidth={2} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* ====== DIVIDER: Visões de Idriel ====== */}
