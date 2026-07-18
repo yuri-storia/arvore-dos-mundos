@@ -395,6 +395,7 @@ const LandingPage: React.FC = () => {
         </div>
 
         <VideoPlaceholder
+          screenshot={{ url: previewConstruir.url, alt: "Aba Construir da plataforma, mostrando o carrossel dos 11 Frutos" }}
           title="Tour principal da plataforma"
           duration="60 a 90s · narrado · com legendas"
           bullets={[
@@ -458,6 +459,7 @@ const LandingPage: React.FC = () => {
           </div>
 
           <VideoPlaceholder
+            screenshot={{ url: previewConstruir.url, alt: "Aba Construir da plataforma, mostrando o carrossel dos 11 Frutos" }}
             title="Microvídeo dos 11 Frutos"
             duration="20 a 30s"
             bullets={[
@@ -521,6 +523,7 @@ const LandingPage: React.FC = () => {
         </ul>
 
         <VideoPlaceholder
+          screenshot={{ url: previewCodex.url, alt: "Aba Codex com fichas e artigos organizados por Fruto" }}
           title="Vídeo do Codex"
           duration="20 a 30s"
           bullets={[
@@ -617,6 +620,7 @@ const LandingPage: React.FC = () => {
           </div>
 
           <VideoPlaceholder
+            screenshot={{ url: previewCodex.url, alt: "Aba Codex com fichas e artigos organizados por Fruto" }}
             title="Vídeo da Idriel"
             duration="35 a 50s · narração ou legendas"
             bullets={[
@@ -684,6 +688,7 @@ const LandingPage: React.FC = () => {
         </div>
 
         <VideoPlaceholder
+          screenshot={{ url: previewEscrever.url, alt: "Aba Escrever com o manuscrito e a lista de capítulos" }}
           title="Vídeo do Ofício"
           duration="30 a 40s"
           bullets={[
@@ -723,6 +728,7 @@ const LandingPage: React.FC = () => {
             </motion.div>
 
             <VideoPlaceholder
+              screenshot={{ url: previewEscrever.url, alt: "Aba Escrever com o manuscrito e a lista de capítulos" }}
               title="Vídeo da Importação"
               duration="30 a 45s"
               bullets={[
