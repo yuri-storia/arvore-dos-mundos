@@ -240,7 +240,16 @@ const SortableChapterRow: React.FC<SortableChapterRowProps> = ({
           >
             <FileText className="w-3 h-3 inline mr-1.5 opacity-50" />{title}
           </button>
-          <span className="text-[9px] text-text-dim/50 mr-1 shrink-0">{wordCount || 0}</span>
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-[9px] text-text-dim/50 mr-1 shrink-0 tabular-nums cursor-help">{wordCount || 0}</span>
+              </TooltipTrigger>
+              <TooltipContent side="left" className="text-[11px]">
+                <span className="font-mono">{(wordCount || 0).toLocaleString('pt-BR')}</span> palavras neste capítulo
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <button
             onClick={onToggleNotes}
             className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-gold-light transition-all shrink-0"
