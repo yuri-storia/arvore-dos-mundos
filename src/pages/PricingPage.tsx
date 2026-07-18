@@ -105,6 +105,7 @@ const PricingPage: React.FC = () => {
           playsInline
           preload="metadata"
           aria-hidden="true"
+          style={{ opacity: 0.55 }}
         >
           <source src={heroVideo1080.url} type="video/mp4" media="(min-width: 1280px)" />
           <source src={heroVideo720.url} type="video/mp4" media="(min-width: 640px)" />
@@ -117,14 +118,14 @@ const PricingPage: React.FC = () => {
           width={1600}
           height={900}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover -z-10"
+          className="absolute inset-0 w-full h-full object-cover -z-10 opacity-55"
           aria-hidden="true"
         />
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              'radial-gradient(ellipse at center, hsl(214 80% 3% / 0.3) 0%, hsl(214 80% 3% / 0.65) 100%)',
+              'radial-gradient(ellipse at center, hsl(214 80% 3% / 0.42) 0%, hsl(214 80% 3% / 0.78) 100%)',
           }}
         />
         <div
