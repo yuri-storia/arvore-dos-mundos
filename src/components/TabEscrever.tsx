@@ -20,6 +20,7 @@ import { MuralMode } from '@/components/escritor/MuralMode';
 import { DebouncedTextarea } from '@/components/escritor/DebouncedTextarea';
 import { ChapterEditor } from '@/components/escritor/ChapterEditor';
 import { RichTextView } from '@/components/editor/RichTextEditor';
+import { toast } from 'sonner';
 import { PomodoroTimer } from '@/components/PomodoroTimer';
 import { ManuscriptExportMenu } from '@/components/ManuscriptExportMenu';
 import { FormatAllChaptersDialog } from '@/components/escritor/FormatAllChaptersDialog';
@@ -343,11 +344,17 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
         const tryActivate = (attempts = 0) => {
           if (chapters.some(c => c.id === detail.chapterId)) {
             setActiveChapterId(detail.chapterId!);
+            const ch = chapters.find(c => c.id === detail.chapterId);
+            if (target && ch) {
+              toast.success(`Abrindo capítulo: ${ch.title}`, { description: target.title, duration: 2200 });
+            }
           } else if (attempts < 20) {
             setTimeout(() => tryActivate(attempts + 1), 100);
           }
         };
         tryActivate();
+      } else if (target) {
+        toast.success(`Manuscrito ativo: ${target.title}`, { duration: 2200 });
       }
     };
 
