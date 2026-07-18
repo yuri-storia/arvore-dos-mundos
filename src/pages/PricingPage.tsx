@@ -435,6 +435,153 @@ const PricingPage: React.FC = () => {
         </motion.section>
 
 
+        {/* =============== VEJA A PLATAFORMA POR DENTRO =============== */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.7 }}
+          className="mb-24"
+          aria-labelledby="platform-preview-title"
+        >
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold-warm/40 bg-gold-deep/20 backdrop-blur-md px-4 py-1.5 mb-4">
+              <Film className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={2} />
+              <span className="font-montserrat uppercase tracking-[0.32em] text-[10px] text-gold-champagne">
+                Um tour pela plataforma
+              </span>
+            </div>
+            <h2
+              id="platform-preview-title"
+              className="font-cinzel font-bold text-[clamp(1.9rem,4vw,2.8rem)] text-foreground mb-3 leading-[1.1]"
+            >
+              Veja a Árvore <span className="text-gradient-gold">por dentro</span>
+            </h2>
+            <p className="font-amiri text-text-secondary text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+              Quatro espaços conectados. Cada um com Idriel como assistente silenciosa,
+              esperando o momento em que você precisa de um segundo olhar.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-7">
+            {[
+              {
+                Icon: Trees,
+                kicker: 'Construir',
+                title: 'Os 11 Frutos do Mundo',
+                preview: previewConstruir.url,
+                body: 'De cosmologia a povos, cada Fruto é um pilar do seu universo. Idriel lê o conjunto e aponta o que ainda respira e o que precisa de raízes.',
+                roteiro: [
+                  'Abrir a aba Construir e passar pelo carrossel dos 11 Frutos',
+                  'Clicar em um Fruto e mostrar o preenchimento guiado',
+                  'Consultar Idriel → mostrar análise por card com evidências',
+                ],
+              },
+              {
+                Icon: Library,
+                kicker: 'Codex',
+                title: 'Fichas, artigos e vínculos',
+                preview: previewCodex.url,
+                body: 'Personagens, lugares, artefatos, culturas — tudo organizado por Fruto, filtrável, com menções @ que viram links vivos entre entradas.',
+                roteiro: [
+                  'Abrir o Codex mostrando fichas e artigos por Fruto',
+                  'Criar uma nova ficha e digitar @ para vincular outra entrada',
+                  'Passar o mouse por uma menção → mostrar prévia lateral',
+                ],
+              },
+              {
+                Icon: Feather,
+                kicker: 'Escrever',
+                title: 'Manuscrito capítulo a capítulo',
+                preview: previewEscrever.url,
+                body: 'Contador de palavras separado (total, capítulo, meta diária), Pomodoro embutido, formatação com IA e importação de .epub, .docx, .pdf, .txt.',
+                roteiro: [
+                  'Selecionar um capítulo e mostrar a escrita fluida',
+                  'Rodar "Formatar tudo" e mostrar antes/depois em capítulo',
+                  'Abrir o painel de Referências do Codex ao lado do texto',
+                ],
+              },
+              {
+                Icon: ImageIcon,
+                kicker: 'Galeria',
+                title: 'Visões de Idriel & referências',
+                preview: previewGaleria.url,
+                body: 'Dez pastas por Fruto, capas personalizadas e visões geradas por Idriel — retratos consistentes e paisagens fiéis ao Codex do seu mundo.',
+                roteiro: [
+                  'Percorrer as 10 pastas da biblioteca visual',
+                  'Gerar uma Visão de Idriel a partir de uma ficha do Codex',
+                  'Arquivar a visão na pasta correta e ajustar capa',
+                ],
+              },
+            ].map(({ Icon, kicker, title, preview, body, roteiro }) => (
+              <article
+                key={kicker}
+                className="card-glass-gold rounded-2xl overflow-hidden group"
+              >
+                {/* Espaço reservado ao vídeo demonstrativo — hoje um print da plataforma */}
+                <div className="relative aspect-[16/10] overflow-hidden border-b border-gold-warm/20">
+                  <img
+                    src={preview}
+                    alt={`Prévia da aba ${kicker} da plataforma`}
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover object-left-top transition-transform duration-[900ms] ease-out group-hover:scale-[1.03]"
+                  />
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background:
+                        'linear-gradient(180deg, hsl(214 60% 3% / 0) 55%, hsl(214 60% 3% / 0.85) 100%)',
+                    }}
+                    aria-hidden="true"
+                  />
+                  <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-gold-warm/40 bg-bg-deep/70 backdrop-blur-md px-2.5 py-1">
+                    <PlayCircle className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={2} />
+                    <span className="font-montserrat uppercase tracking-[0.24em] text-[9px] text-gold-champagne">
+                      Vídeo em breve
+                    </span>
+                  </div>
+                  <div className="absolute bottom-3 left-3 right-3 flex items-end gap-2.5">
+                    <div className="shrink-0 w-9 h-9 rounded-lg bg-gradient-gold-premium grid place-items-center shadow-gold-glow">
+                      <Icon className="w-4.5 h-4.5 text-bg-deep" strokeWidth={2.2} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-montserrat uppercase tracking-[0.28em] text-[9.5px] text-gold-champagne/90">
+                        {kicker}
+                      </p>
+                      <h3 className="font-cinzel font-bold text-foreground text-[1.05rem] sm:text-[1.15rem] leading-tight truncate">
+                        {title}
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-5 sm:p-6 space-y-4">
+                  <p className="font-amiri text-text-secondary text-[0.98rem] leading-[1.7]">
+                    {body}
+                  </p>
+
+                  {/* Roteiro do vídeo — mantido para gravação futura */}
+                  <details className="group/roteiro rounded-xl border border-gold-warm/25 bg-bg-deep/50 open:bg-bg-deep/70 transition-colors">
+                    <summary className="cursor-pointer list-none px-4 py-2.5 flex items-center gap-2 font-montserrat uppercase tracking-[0.24em] text-[10px] text-gold-champagne/85 hover:text-gold-cream transition-colors">
+                      <Eye className="w-3.5 h-3.5" strokeWidth={2} />
+                      <span>Roteiro do vídeo</span>
+                      <span className="ml-auto text-text-dim group-open/roteiro:rotate-90 transition-transform">›</span>
+                    </summary>
+                    <ol className="px-4 pb-4 pt-1 space-y-1.5 list-decimal list-inside font-amiri text-[0.9rem] text-text-secondary/90 leading-[1.6]">
+                      {roteiro.map((step) => (
+                        <li key={step} className="pl-1">{step}</li>
+                      ))}
+                    </ol>
+                  </details>
+                </div>
+              </article>
+            ))}
+          </div>
+        </motion.section>
+
+
+
+
         {/* =============== O QUE VOCÊ GANHA =============== */}
         <motion.section
           initial={{ opacity: 0, y: 30 }}
