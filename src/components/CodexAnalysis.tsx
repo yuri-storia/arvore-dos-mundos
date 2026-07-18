@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Trees, X, ScrollText, Trash2, Droplet, Droplets, Leaf, Sparkles, RefreshCw, Check, Gem, AlertTriangle, Eye, Compass, Award, ArrowRight, Star, ClipboardList, PencilLine, Wand2 } from 'lucide-react';
+import { Trees, X, ScrollText, Trash2, Droplet, Droplets, Leaf, Sparkles, RefreshCw, Check, Gem, AlertTriangle, Eye, Compass, Award, ArrowRight, Star, ClipboardList, PencilLine, Wand2, Quote, BookMarked } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { FRUITS } from '@/lib/data';
+import { FRUITS, type Fruit } from '@/lib/data';
 import { callAITextStream, friendlyAIError } from '@/lib/helpers';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import ReactMarkdown from 'react-markdown';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import idrielAvatar from '@/assets/idriel-avatar.webp';
+
 
 interface Props {
   entries: CodexEntry[];
