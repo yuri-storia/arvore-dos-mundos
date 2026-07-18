@@ -667,23 +667,80 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           {/* LEFT: Chapter list */}
           {!zenMode && (
           <div className={`${isMobile ? 'w-full' : 'w-[220px]'} shrink-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && activeChapterId ? 'hidden' : ''}`}>
-            <div className="p-2 border-b border-blue-bright/10 flex items-center justify-between gap-2">
-              <div className="flex flex-col leading-tight min-w-0">
+            <div className="p-2 border-b border-blue-bright/10 space-y-2">
+              <div className="flex items-center justify-between gap-2">
                 <span className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Capítulos</span>
-                <span className="text-[10px] font-mono text-blue-light/70 tabular-nums truncate">
-                  {totalWordCount.toLocaleString()} palavras
-                </span>
+                <button onClick={async () => { const ch = await createChapter(); if (ch) setActiveChapterId(ch.id); }}
+                  className="p-1 rounded hover:bg-blue-bright/10 text-blue-light shrink-0" title="Novo capítulo">
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
               </div>
-              <button onClick={async () => { const ch = await createChapter(); if (ch) setActiveChapterId(ch.id); }}
-                className="p-1 rounded hover:bg-blue-bright/10 text-blue-light shrink-0" title="Novo capítulo">
-                <Plus className="w-3.5 h-3.5" />
-              </button>
+
+              {/* Glow card: total words + daily goal progress */}
+              <div
+                className="relative rounded-md border border-blue-bright/25 bg-gradient-to-br from-blue-bright/[0.08] via-blue-bright/[0.04] to-transparent p-2 shadow-[0_0_16px_-6px_rgba(59,130,246,0.55)]"
+              >
+                <div className="flex items-center gap-2">
+                  <Feather className="w-3.5 h-3.5 text-blue-light shrink-0" strokeWidth={1.75} />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[9px] font-montserrat uppercase tracking-widest text-blue-light/70">Total</div>
+                    <div className="text-sm font-mono font-bold text-blue-light tabular-nums leading-tight truncate">
+                      {effectiveTotal.toLocaleString('pt-BR')}
+                    </div>
+                  </div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        title="Meta diária"
+                        className="p-1 rounded hover:bg-blue-bright/15 text-blue-light/80 hover:text-blue-light transition-colors shrink-0"
+                      >
+                        <Target className="w-3.5 h-3.5" strokeWidth={1.75} />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent side="right" align="start" className="w-64 p-3 space-y-2">
+                      <div className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Meta diária</div>
+                      <p className="text-[10px] text-text-dim/80 leading-snug">
+                        Progresso é medido apenas nesta sessão do navegador.
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          min={0}
+                          step={100}
+                          value={dailyGoal}
+                          onChange={e => persistGoal(parseInt(e.target.value || '0', 10))}
+                          className="h-7 text-xs"
+                        />
+                        <span className="text-[10px] text-text-dim">palavras</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[10px] text-text-dim">
+                        <span>Escritas hoje: <span className="font-mono text-blue-light">{wordsToday.toLocaleString('pt-BR')}</span></span>
+                        <button onClick={resetSnapshot} className="text-blue-light hover:underline">Zerar</button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {/* Progress bar */}
+                <div className="mt-2">
+                  <div className="flex items-center justify-between text-[9px] font-mono text-blue-light/70 tabular-nums mb-1">
+                    <span>{wordsToday.toLocaleString('pt-BR')} / {dailyGoal.toLocaleString('pt-BR')}</span>
+                    <span>{goalPct}%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-blue-bright/10 overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-blue-light to-blue-bright shadow-[0_0_8px_rgba(59,130,246,0.7)] transition-all duration-500"
+                      style={{ width: `${goalPct}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
             <ScrollArea className="flex-1">
               <div className="p-1.5 space-y-0.5">
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleChapterDragEnd}>
-                  <SortableContext items={chapters.map(c => c.id)} strategy={verticalListSortingStrategy}>
-                    {chapters.map((ch) => (
+                  <SortableContext items={effectiveChapters.map(c => c.id)} strategy={verticalListSortingStrategy}>
+                    {effectiveChapters.map((ch) => (
                       <SortableChapterRow
                         key={ch.id}
                         id={ch.id}
