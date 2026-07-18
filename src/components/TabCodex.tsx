@@ -985,7 +985,10 @@ const FruitFilterMenu: React.FC<FruitFilterMenuProps> = ({ entries, filterFruits
       {isMobile ? (
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>{Trigger}</SheetTrigger>
-          <SheetContent side="bottom" className="card-glass border-t border-border/60 rounded-t-2xl max-h-[85vh] overflow-y-auto">
+          <SheetContent
+            side="bottom"
+            className="border-t border-border/60 rounded-t-2xl max-h-[85vh] overflow-y-auto bg-[hsl(214_60%_5%/0.95)] backdrop-blur-xl"
+          >
             <SheetHeader>
               <SheetTitle className="font-cinzel text-base text-blue-light">Filtrar por Fruto</SheetTitle>
             </SheetHeader>
