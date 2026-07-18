@@ -10,7 +10,10 @@ import { exportSingleEntry, exportFruitEntries, exportSelectedFruits, exportAllE
 import { CodexAnalysis } from '@/components/CodexAnalysis';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { WorldRecord } from '@/hooks/useWorlds';
-import { Lock, BookOpen, Search, FileDown, ClipboardList, PencilLine, Inbox, Library, X, Globe, Check, Apple, Loader2, FolderUp, Trees, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Lock, BookOpen, Search, FileDown, ClipboardList, PencilLine, Inbox, Library, X, Globe, Check, Apple, Loader2, FolderUp, Trees, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
 import { IdrielImportDialog } from '@/components/IdrielImportDialog';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
@@ -594,32 +597,12 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
         </div>
       )}
 
-      {/* Filters by fruit — multi-select chips */}
-      <div className="flex flex-wrap items-center gap-2 mb-6">
-        <span className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat font-bold mr-1">Filtrar:</span>
-        {FRUITS.map(f => {
-          const count = entries.filter(e => e.fruit_id === f.id).length;
-          const active = filterFruits.includes(f.id);
-          return (
-            <button
-              key={f.id}
-              onClick={() => setFilterFruits(prev => active ? prev.filter(id => id !== f.id) : [...prev, f.id])}
-              className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold transition-colors border ${
-                active
-                  ? 'bg-primary/20 text-blue-light border-ring/40'
-                  : 'text-text-dim border-border hover:border-ring/20 hover:text-foreground'
-              }`}
-            >
-              <f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name} {count > 0 ? `(${count})` : ''}
-            </button>
-          );
-        })}
-        {filterFruits.length > 0 && (
-          <button onClick={() => setFilterFruits([])} className="text-[10px] text-text-dim hover:text-foreground font-montserrat transition-colors ml-1">
-            <><X className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={2} />Limpar</>
-          </button>
-        )}
-      </div>
+      {/* Filters by fruit — retractable menu (popover desktop / sheet mobile) */}
+      <FruitFilterMenu
+        entries={entries}
+        filterFruits={filterFruits}
+        setFilterFruits={setFilterFruits}
+      />
 
       {/* Create form (after choosing kind) */}
       {showCreate && createKind && (
@@ -887,4 +870,151 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
     </div>
   );
 };
+
+// ---------- Fruit Filter Menu (retractable) ----------
+type FruitFilterMenuProps = {
+  entries: CodexEntry[];
+  filterFruits: number[];
+  setFilterFruits: React.Dispatch<React.SetStateAction<number[]>>;
+};
+
+const FruitFilterMenu: React.FC<FruitFilterMenuProps> = ({ entries, filterFruits, setFilterFruits }) => {
+  const isMobile = useIsMobile();
+  const [open, setOpen] = useState(false);
+
+  const toggle = (id: number) =>
+    setFilterFruits(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+
+  const activeCount = filterFruits.length;
+
+  const Trigger = (
+    <button
+      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border transition-all ${
+        activeCount > 0
+          ? 'bg-primary/15 text-blue-light border-ring/40 shadow-[0_0_18px_-8px_hsl(var(--ring)/0.6)]'
+          : 'text-text-dim border-border hover:border-ring/25 hover:text-foreground'
+      }`}
+    >
+      <SlidersHorizontal className="w-3.5 h-3.5" strokeWidth={1.75} />
+      Filtrar
+      {activeCount > 0 && (
+        <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-ring/25 text-blue-light text-[10px] font-bold">
+          {activeCount}
+        </span>
+      )}
+    </button>
+  );
+
+  const Grid = (
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+      {FRUITS.map(f => {
+        const count = entries.filter(e => e.fruit_id === f.id).length;
+        const active = filterFruits.includes(f.id);
+        return (
+          <button
+            key={f.id}
+            onClick={() => toggle(f.id)}
+            className={`group flex items-center gap-2 px-3 py-2 rounded-lg text-left text-[11px] font-montserrat font-bold border transition-all ${
+              active
+                ? 'bg-primary/15 text-blue-light border-ring/40 shadow-[0_0_18px_-10px_hsl(var(--ring)/0.7)]'
+                : 'bg-[rgba(4,12,24,0.4)] text-text-dim border-border hover:border-ring/25 hover:text-foreground'
+            }`}
+          >
+            <f.Icon className={`w-4 h-4 shrink-0 ${active ? 'text-gold-light' : 'text-gold-champagne'}`} strokeWidth={1.75} />
+            <span className="truncate flex-1">{f.name}</span>
+            <span className={`text-[10px] tabular-nums ${active ? 'text-blue-light/80' : 'text-text-dim/70'}`}>{count}</span>
+            {active && <Check className="w-3 h-3 text-blue-light" strokeWidth={2.5} />}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  const Footer = (
+    <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/60">
+      <span className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat">
+        {activeCount === 0 ? 'Nenhum filtro' : `${activeCount} fruto${activeCount > 1 ? 's' : ''} ativo${activeCount > 1 ? 's' : ''}`}
+      </span>
+      <div className="flex gap-2">
+        {activeCount > 0 && (
+          <button
+            onClick={() => setFilterFruits([])}
+            className="px-3 py-1.5 rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider text-text-dim hover:text-foreground border border-border hover:border-ring/25 transition-colors"
+          >
+            <X className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={2} />Limpar
+          </button>
+        )}
+        <button
+          onClick={() => setOpen(false)}
+          className="px-3 py-1.5 rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider bg-primary/80 hover:bg-primary text-foreground transition-colors"
+        >
+          Aplicar
+        </button>
+      </div>
+    </div>
+  );
+
+  const ActiveChips = activeCount > 0 && (
+    <div className="flex flex-wrap items-center gap-1.5 mt-2">
+      {filterFruits.map(id => {
+        const f = FRUITS.find(x => x.id === id);
+        if (!f) return null;
+        return (
+          <button
+            key={id}
+            onClick={() => toggle(id)}
+            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-montserrat font-bold bg-primary/15 text-blue-light border border-ring/40 hover:bg-primary/25 transition-colors"
+          >
+            <f.Icon className="w-3 h-3 text-gold-light" strokeWidth={1.75} />
+            {f.name}
+            <X className="w-3 h-3 opacity-70" strokeWidth={2} />
+          </button>
+        );
+      })}
+      <button
+        onClick={() => setFilterFruits([])}
+        className="text-[10px] text-text-dim hover:text-foreground font-montserrat underline underline-offset-2 ml-1"
+      >
+        limpar tudo
+      </button>
+    </div>
+  );
+
+  return (
+    <div className="mb-6">
+      {isMobile ? (
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>{Trigger}</SheetTrigger>
+          <SheetContent side="bottom" className="card-glass border-t border-border/60 rounded-t-2xl max-h-[85vh] overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle className="font-cinzel text-base text-blue-light">Filtrar por Fruto</SheetTitle>
+            </SheetHeader>
+            <div className="mt-4">{Grid}</div>
+            {Footer}
+          </SheetContent>
+        </Sheet>
+      ) : (
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>{Trigger}</PopoverTrigger>
+          <PopoverContent
+            align="start"
+            sideOffset={8}
+            className="card-glass w-[min(560px,90vw)] p-4 border-border/60 rounded-xl"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-cinzel font-bold text-sm text-blue-light">Filtrar por Fruto</h4>
+              <span className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat">
+                {FRUITS.length} frutos
+              </span>
+            </div>
+            {Grid}
+            {Footer}
+          </PopoverContent>
+        </Popover>
+      )}
+      {ActiveChips}
+    </div>
+  );
+};
+
 
