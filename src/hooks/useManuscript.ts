@@ -134,7 +134,10 @@ export function useManuscript(worldId?: string) {
     if (error) { toast.error('Erro ao atualizar manuscrito'); return; }
     setManuscripts(prev => prev.map(m => m.id === id ? { ...m, ...updates } : m));
     if (activeManuscript?.id === id) setActiveManuscript(prev => prev ? { ...prev, ...updates } : prev);
-  }, [activeManuscript]);
+    if (updates.title !== undefined) {
+      try { window.dispatchEvent(new CustomEvent('adm:manuscripts-changed', { detail: { worldId, id, title: updates.title } })); } catch {}
+    }
+  }, [activeManuscript, worldId]);
 
   const deleteManuscript = useCallback(async (id: string) => {
     const { error } = await supabase.from('manuscripts').delete().eq('id', id);
@@ -203,7 +206,10 @@ export function useManuscript(worldId?: string) {
     if (results.some(r => r.error)) {
       toast.error('Erro ao reordenar capítulos');
     }
-  }, []);
+    if (activeManuscript) {
+      try { window.dispatchEvent(new CustomEvent('adm:chapters-changed', { detail: { manuscriptId: activeManuscript.id } })); } catch {}
+    }
+  }, [activeManuscript]);
 
   const createScene = useCallback(async (chapterId: string, title?: string) => {
     if (!user) return null;
