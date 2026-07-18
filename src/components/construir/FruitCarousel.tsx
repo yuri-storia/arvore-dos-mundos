@@ -118,7 +118,7 @@ export const FruitCarousel: React.FC<Props> = ({
         <div
           ref={emblaRef}
           data-tour="fruit-grid"
-          className="overflow-hidden py-3 px-12 sm:px-14 -mx-3 sm:-mx-4 cursor-grab active:cursor-grabbing"
+          className="overflow-hidden py-6 px-12 sm:px-14 -mx-3 sm:-mx-4 cursor-grab active:cursor-grabbing"
         >
           <div className="flex gap-3 sm:gap-4 touch-pan-y select-none">
             {orderedFruits.map((f, idx) => {
