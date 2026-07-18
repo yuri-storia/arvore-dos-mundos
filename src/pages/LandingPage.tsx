@@ -211,8 +211,9 @@ const LandingPage: React.FC = () => {
             filter: 'brightness(1.12) contrast(1.05) saturate(1.15)',
           }}
         >
-          <source src={heroVideo1080.url} type="video/mp4" media="(min-width: 768px)" />
-          <source src={heroVideo720.url} type="video/mp4" />
+          <source src={heroVideo1080.url} type="video/mp4" media="(min-width: 1280px)" />
+          <source src={heroVideo720.url} type="video/mp4" media="(min-width: 640px)" />
+          <source src={heroVideo480.url} type="video/mp4" />
         </video>
         {/* Fallback image (caso o vídeo não carregue) */}
         <img
