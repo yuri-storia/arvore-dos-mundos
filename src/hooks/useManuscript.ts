@@ -206,7 +206,10 @@ export function useManuscript(worldId?: string) {
     if (results.some(r => r.error)) {
       toast.error('Erro ao reordenar capítulos');
     }
-  }, []);
+    if (activeManuscript) {
+      try { window.dispatchEvent(new CustomEvent('adm:chapters-changed', { detail: { manuscriptId: activeManuscript.id } })); } catch {}
+    }
+  }, [activeManuscript]);
 
   const createScene = useCallback(async (chapterId: string, title?: string) => {
     if (!user) return null;
