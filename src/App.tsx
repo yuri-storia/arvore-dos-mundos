@@ -12,6 +12,7 @@ import { SpellcheckProvider } from "@/lib/spellcheck/SpellcheckProvider";
 // Lazy-loaded pages (Sprint 1 / P0 #3: route-level code splitting)
 const Index = lazy(() => import("./pages/Index"));
 const LandingPage = lazy(() => import("./pages/LandingPage"));
+const PricingPage = lazy(() => import("./pages/PricingPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
