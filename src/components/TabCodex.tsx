@@ -812,26 +812,38 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
           {!showAnalysis ? (
             <button
               onClick={() => setShowAnalysis(true)}
-              className="group relative w-full py-6 rounded-2xl text-center font-cinzel font-bold text-base sm:text-lg uppercase tracking-[0.18em] transition-all overflow-hidden
-                bg-gradient-to-b from-[#1a1305] via-[#0f0a02] to-[#08050a]
-                border border-gold/30 hover:border-gold-light/60
-                shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_hsl(var(--gold-champagne)/0.12)]
-                hover:shadow-[0_14px_48px_rgba(0,0,0,0.6),0_0_60px_hsl(var(--gold-warm)/0.28),inset_0_1px_0_hsl(var(--gold-champagne)/0.2)]"
+              className="consult-idriel-cta group relative w-full rounded-2xl px-6 py-6 sm:px-8 sm:py-7 flex items-center gap-5 text-left"
             >
-              <span
-                className="pointer-events-none absolute inset-0 opacity-60 group-hover:opacity-100 transition-opacity"
-                style={{
-                  background:
-                    'radial-gradient(ellipse 70% 80% at 50% 0%, hsl(var(--gold-warm)/0.18) 0%, transparent 70%)',
-                }}
-              />
-              <span className="relative inline-flex items-center gap-2.5 bg-gradient-to-r from-gold-warm via-gold-champagne to-gold-warm bg-clip-text text-transparent">
-                <Trees className="w-4 h-4 text-gold-champagne" strokeWidth={1.5} />
-                Consultar Idriel — Guardiã da Árvore
-              </span>
-              <p className="relative font-merriweather italic text-text-secondary/80 text-xs mt-1.5 normal-case tracking-normal">
-                Peça à sábia guardiã para avaliar suas entradas e iluminar os próximos passos
-              </p>
+              {/* Avatar with pulsing halo */}
+              <div className="relative shrink-0">
+                <div className="absolute inset-0 -m-2 rounded-full bg-gold-warm/30 blur-xl opacity-60 group-hover:opacity-100 transition-opacity animate-idriel-pulse" />
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-gold-warm/50 shadow-[0_0_24px_hsl(var(--gold-warm)/0.35)]">
+                  <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+                </div>
+                {/* Rotating rune ring */}
+                <div className="absolute inset-0 -m-1 rounded-full border border-gold-champagne/25 pointer-events-none" style={{ animation: 'consult-idriel-rotate 24s linear infinite' }} />
+              </div>
+
+              {/* Copy */}
+              <div className="relative flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <Trees className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />
+                  <span className="text-[10px] font-montserrat font-bold uppercase tracking-[0.22em] text-gold-champagne/80">
+                    Ritual da Guardiã
+                  </span>
+                </div>
+                <h3 className="font-cinzel font-bold text-lg sm:text-xl leading-tight bg-gradient-to-r from-gold-champagne via-gold-light to-gold-champagne bg-clip-text text-transparent">
+                  Consultar Idriel
+                </h3>
+                <p className="mt-1.5 font-merriweather italic text-xs sm:text-[13px] text-foreground/75 leading-relaxed max-w-xl">
+                  Peça à sábia guardiã para avaliar suas entradas e iluminar os próximos passos da sua criação.
+                </p>
+              </div>
+
+              {/* Trailing arrow chevron */}
+              <div className="hidden sm:flex relative shrink-0 w-10 h-10 rounded-full border border-gold-warm/40 items-center justify-center text-gold-champagne group-hover:border-gold-champagne/70 group-hover:text-gold-light group-hover:translate-x-0.5 transition-all">
+                <ChevronRight className="w-4 h-4" strokeWidth={2} />
+              </div>
             </button>
           ) : (
             <CodexAnalysis entries={entries} worldId={worldId} onClose={() => setShowAnalysis(false)} />
