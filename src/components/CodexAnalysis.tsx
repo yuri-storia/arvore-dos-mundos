@@ -331,9 +331,6 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
   const artigos = entries.filter(e => e.entry_type === 'artigo').length;
   const coveredFruits = FRUITS.filter(f => entries.some(e => e.fruit_id === f.id)).length;
 
-  const creditPct = sub.creditLimit > 0 ? (sub.creditsUsed / sub.creditLimit) * 100 : 0;
-  const isLow = creditsRemaining <= 10;
-  const isOut = creditsRemaining < ANALYSIS_COST;
 
   
 
