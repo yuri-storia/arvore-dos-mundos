@@ -38,7 +38,7 @@ interface Props {
 export const ChapterEditor: React.FC<Props> = React.memo(({
   chapter, entries, isMobile, zenMode, setZenMode,
   showRefPanel, setShowRefPanel, onBack,
-  onTitleSave, onContentSave, onPreviewEntry,
+  onTitleSave, onContentSave, onPreviewEntry, onLiveWordCount,
 }) => {
   const [content, setContent] = useState(chapter.content || '');
   const [title, setTitle] = useState(chapter.title);
