@@ -315,23 +315,32 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
       return (
         <div
           onClick={onToggle}
-          className="rounded-lg overflow-hidden cursor-pointer group transition-all card-glass-gold hover:border-gold/40"
+          className="relative rounded-xl overflow-hidden cursor-pointer group card-glass-gold"
         >
-          <div className="p-4">
-            <div className="flex items-center gap-2 mb-2 border-b border-accent/20 pb-2">
+          {/* Corner sheen */}
+          <div className="pointer-events-none absolute -top-6 -right-6 w-24 h-24 rounded-full bg-gold-champagne/25 blur-2xl opacity-60 group-hover:opacity-100 transition-opacity" />
+          <div className="relative p-5">
+            <div className="flex items-center gap-1.5 mb-3">
               {fruitInfo && (
-                <span className="px-1.5 py-0.5 rounded-full bg-accent/20 text-accent-foreground text-[9px] font-montserrat font-bold">
-                  {fruitInfo.icon} {fruitInfo.name}
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gold-warm/15 border border-gold-warm/25 text-gold-champagne text-[9px] font-montserrat font-semibold tracking-wide">
+                  <fruitInfo.Icon className="w-2.5 h-2.5" strokeWidth={2} />
+                  {fruitInfo.name}
                 </span>
               )}
-              <span className="px-1.5 py-0.5 rounded-full bg-accent/10 text-accent text-[9px] font-montserrat font-bold uppercase">
+              <span className="px-2 py-0.5 rounded-full bg-gold-warm/10 border border-gold-warm/30 text-gold-light text-[9px] font-montserrat font-bold uppercase tracking-[0.14em]">
                 Artigo
               </span>
             </div>
-            <h3 className="font-cinzel font-bold text-base text-foreground mb-2">{entry.title}</h3>
+            <h3 className="font-cinzel font-bold text-base text-gold-light mb-2 leading-snug line-clamp-2 group-hover:text-gold-champagne transition-colors">
+              {entry.title}
+            </h3>
             {displayContent && (
-              <p className="font-merriweather text-xs text-foreground/85 line-clamp-4 whitespace-pre-wrap leading-relaxed">{htmlToPlainText(displayContent)}</p>
+              <p className="font-merriweather text-xs text-foreground/75 line-clamp-4 whitespace-pre-wrap leading-relaxed">
+                {htmlToPlainText(displayContent)}
+              </p>
             )}
+            {/* Delicate bottom rule */}
+            <div className="mt-4 h-px w-full bg-gradient-to-r from-transparent via-gold-warm/30 to-transparent" />
           </div>
         </div>
       );
@@ -341,33 +350,43 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
     return (
       <div
         onClick={onToggle}
-        className="rounded-lg overflow-hidden cursor-pointer group transition-all card-glass hover:border-ring/30"
+        className="relative rounded-xl overflow-hidden cursor-pointer group card-glass"
       >
-        <div className="relative h-[140px] bg-secondary/30">
+        {/* Corner sheen (blue) */}
+        <div className="pointer-events-none absolute -top-6 -right-6 w-24 h-24 rounded-full bg-blue-glow/25 blur-2xl opacity-60 group-hover:opacity-100 transition-opacity z-[1]" />
+        <div className="relative h-[150px] overflow-hidden">
           {entry.image_url ? (
-              <img src={entry.image_url} alt={entry.title} className="w-full h-full object-cover" style={{ objectPosition: `${imgPos.x}% ${imgPos.y}%` }} />
+            <>
+              <img src={entry.image_url} alt={entry.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" style={{ objectPosition: `${imgPos.x}% ${imgPos.y}%` }} />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[hsl(214_60%_3%/0.95)] via-transparent to-transparent" />
+            </>
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              {fruitInfo ? <fruitInfo.Icon className="w-14 h-14 opacity-30 text-gold-champagne" strokeWidth={1.25} /> : <FileText className="w-14 h-14 opacity-30 text-gold-champagne" strokeWidth={1.25} />}
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-main/10 to-transparent">
+              {fruitInfo ? <fruitInfo.Icon className="w-14 h-14 opacity-40 text-blue-light" strokeWidth={1.25} /> : <FileText className="w-14 h-14 opacity-40 text-blue-light" strokeWidth={1.25} />}
             </div>
           )}
           {fruitInfo && (
-            <div className="absolute top-2 left-2">
-              <span className="px-1.5 py-0.5 rounded-full bg-accent/20 text-accent-foreground text-[9px] font-montserrat font-bold">
-                {fruitInfo.icon} {fruitInfo.name}
+            <div className="absolute top-2.5 left-2.5 z-[2]">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[hsl(214_60%_3%/0.7)] border border-blue-bright/30 backdrop-blur-md text-blue-light text-[9px] font-montserrat font-semibold tracking-wide">
+                <fruitInfo.Icon className="w-2.5 h-2.5" strokeWidth={2} />
+                {fruitInfo.name}
               </span>
             </div>
           )}
         </div>
-        <div className="p-3">
-          <div className="flex items-center gap-1.5 mb-1">
-            <span className="px-1.5 py-0.5 rounded-full bg-secondary/50 text-text-dim text-[9px] font-montserrat font-bold uppercase">
+        <div className="relative p-4">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <span className="px-2 py-0.5 rounded-full bg-blue-main/15 border border-blue-bright/25 text-blue-light text-[9px] font-montserrat font-bold uppercase tracking-[0.14em]">
               Ficha
             </span>
           </div>
-          <h3 className="font-cinzel font-bold text-sm text-foreground mb-1">{entry.title}</h3>
+          <h3 className="font-cinzel font-bold text-sm text-blue-light mb-1.5 leading-snug line-clamp-2 group-hover:text-blue-glow transition-colors">
+            {entry.title}
+          </h3>
           {displayContent && (
-            <p className="font-merriweather text-xs text-foreground/85 line-clamp-3 whitespace-pre-wrap">{htmlToPlainText(displayContent)}</p>
+            <p className="font-merriweather text-xs text-foreground/75 line-clamp-3 whitespace-pre-wrap leading-relaxed">
+              {htmlToPlainText(displayContent)}
+            </p>
           )}
         </div>
       </div>
