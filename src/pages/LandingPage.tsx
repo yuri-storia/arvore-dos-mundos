@@ -167,7 +167,6 @@ const LandingPage: React.FC = () => {
         {/* Vídeo de fundo — Árvore animada (mais visível, brilho/saturação ajustados) */}
         <video
           className="absolute inset-0 -z-20 w-full h-full object-cover scale-[1.08]"
-          src={heroVideo.url}
           poster={hero1280.url}
           autoPlay
           muted
@@ -178,7 +177,10 @@ const LandingPage: React.FC = () => {
           style={{
             filter: 'brightness(1.12) contrast(1.05) saturate(1.15)',
           }}
-        />
+        >
+          <source src={heroVideo1080.url} type="video/mp4" media="(min-width: 768px)" />
+          <source src={heroVideo720.url} type="video/mp4" />
+        </video>
         {/* Fallback image (caso o vídeo não carregue) */}
         <img
           src={hero1280.url}
