@@ -362,7 +362,7 @@ const ManuscriptChaptersList: React.FC<{ manuscriptId: string; setActiveTab: (t:
     (async () => {
       const { data } = await supabase
         .from('chapters')
-        .select('id, manuscript_id, title, word_count, sort_order, content, notes, created_at, updated_at')
+        .select('id, manuscript_id, title, word_count, sort_order')
         .eq('manuscript_id', manuscriptId)
         .order('sort_order', { ascending: true });
       if (cancelled) return;
