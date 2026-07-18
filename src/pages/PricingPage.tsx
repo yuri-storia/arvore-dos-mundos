@@ -11,6 +11,7 @@ import { openCheckout, PLANS } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import heroVideo1080 from '@/assets/arvore-hero-loop-1080.mp4.asset.json';
 import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
+import heroVideo480 from '@/assets/arvore-hero-loop-480.mp4.asset.json';
 import heroPoster from '@/assets/arvore-mundos-hero-960.webp.asset.json';
 import hero640 from '@/assets/arvore-mundos-hero-640.webp.asset.json';
 import hero1280 from '@/assets/arvore-mundos-hero-1280.webp.asset.json';
@@ -105,8 +106,9 @@ const PricingPage: React.FC = () => {
           preload="metadata"
           aria-hidden="true"
         >
-          <source src={heroVideo1080.url} type="video/mp4" media="(min-width: 768px)" />
-          <source src={heroVideo720.url} type="video/mp4" />
+          <source src={heroVideo1080.url} type="video/mp4" media="(min-width: 1280px)" />
+          <source src={heroVideo720.url} type="video/mp4" media="(min-width: 640px)" />
+          <source src={heroVideo480.url} type="video/mp4" />
         </video>
         <img
           src={heroPoster.url}
