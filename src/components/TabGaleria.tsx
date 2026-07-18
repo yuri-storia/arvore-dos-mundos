@@ -907,7 +907,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
             <h3 className="font-cinzel font-bold text-foreground mb-1 inline-flex items-center gap-2"><Trees className="w-4 h-4 text-gold-champagne" strokeWidth={1.75} />Etiquetar Visão</h3>
             <p className="font-merriweather text-xs text-text-dim italic mb-4">Escolha o Fruto/categoria onde esta visão deve ser arquivada.</p>
             <div className="flex flex-wrap gap-1.5 mb-4 max-h-[240px] overflow-y-auto">
-              {FRUITS.map(f => (
+              {galleryFruits.map(f => (
                 <button
                   key={f.id}
                   onClick={() => setTagCat(f.name)}
