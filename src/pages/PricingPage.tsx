@@ -9,7 +9,8 @@ import {
 } from 'lucide-react';
 import { openCheckout, PLANS } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
-import heroLoopGif from '@/assets/arvore-hero-loop.gif.asset.json';
+import heroVideo1080 from '@/assets/arvore-hero-loop-1080.mp4.asset.json';
+import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
 import heroPoster from '@/assets/arvore-mundos-hero-960.webp.asset.json';
 import hero640 from '@/assets/arvore-mundos-hero-640.webp.asset.json';
 import hero1280 from '@/assets/arvore-mundos-hero-1280.webp.asset.json';
@@ -94,14 +95,19 @@ const PricingPage: React.FC = () => {
     <div className="min-h-screen relative font-amiri" style={{ background: '#02070d' }}>
       {/* ---------------- HERO ---------------- */}
       <section className="relative w-full overflow-hidden" style={{ minHeight: '92vh' }}>
-        <img
+        <video
           className="absolute inset-0 w-full h-full object-cover"
-          src={heroLoopGif.url}
-          alt=""
+          poster={heroPoster.url}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
           aria-hidden="true"
-          decoding="async"
-          loading="eager"
-        />
+        >
+          <source src={heroVideo1080.url} type="video/mp4" media="(min-width: 768px)" />
+          <source src={heroVideo720.url} type="video/mp4" />
+        </video>
         <img
           src={heroPoster.url}
           srcSet={`${hero640.url} 640w, ${heroPoster.url} 960w, ${hero1280.url} 1280w, ${hero1600.url} 1600w`}
