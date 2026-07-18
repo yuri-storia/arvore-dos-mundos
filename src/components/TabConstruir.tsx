@@ -23,6 +23,7 @@ import { useNavigate } from 'react-router-dom';
 import { History, Trash2, Trees, Leaf, Sparkles, Check, Image as ImageIcon, Save, ScrollText, ArrowLeft, ArrowRight, HelpCircle, BookOpen, Feather, RefreshCw, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLatestAnalysis, getFruitScore, getFruitDetail } from '@/hooks/useLatestAnalysis';
+import { FruitCarousel } from '@/components/construir/FruitCarousel';
 
 interface Props {
   state: AppState;
