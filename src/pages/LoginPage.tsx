@@ -325,16 +325,13 @@ const LoginPage: React.FC = () => {
     <div className="min-h-screen bg-background relative flex items-center justify-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 z-0">
-        <video
+        <img
           className="absolute inset-0 w-full h-full object-cover"
-          src={heroVideo.url}
-          poster={heroPoster.url}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="none"
+          src={heroLoopGif.url}
+          alt=""
           aria-hidden="true"
+          decoding="async"
+          loading="eager"
         />
         <div
           className="absolute inset-0 pointer-events-none"
