@@ -240,7 +240,7 @@ const PricingPage: React.FC = () => {
               >
                 <div
                   className={`relative rounded-[1.18rem] p-8 sm:p-10 backdrop-blur-md transition-all duration-500 overflow-visible ${
-                    isPopular ? 'md:pb-12' : ''
+                    isPopular ? 'pt-12 sm:pt-14 md:pb-12' : ''
                   }`}
                   style={{
                     background: isPopular
