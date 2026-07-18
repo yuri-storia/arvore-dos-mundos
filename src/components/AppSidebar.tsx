@@ -292,8 +292,17 @@ const WorldChaptersTree: React.FC<{ worldId: string; setActiveTab: (t: TabType) 
       const detail = (e as CustomEvent).detail;
       if (!detail || detail.worldId === worldId) fetchManuscripts();
     };
+    const onRenamed = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { id: string; title: string } | undefined;
+      if (!detail) return;
+      setManuscripts(prev => prev.map(m => m.id === detail.id ? { ...m, title: detail.title } : m));
+    };
     window.addEventListener('adm:manuscripts-changed', onChange);
-    return () => window.removeEventListener('adm:manuscripts-changed', onChange);
+    window.addEventListener('adm:manuscript-renamed', onRenamed);
+    return () => {
+      window.removeEventListener('adm:manuscripts-changed', onChange);
+      window.removeEventListener('adm:manuscript-renamed', onRenamed);
+    };
   }, [worldId, fetchManuscripts]);
 
   const toggle = (id: string) => {
