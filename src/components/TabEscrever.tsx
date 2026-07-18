@@ -344,11 +344,17 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
         const tryActivate = (attempts = 0) => {
           if (chapters.some(c => c.id === detail.chapterId)) {
             setActiveChapterId(detail.chapterId!);
+            const ch = chapters.find(c => c.id === detail.chapterId);
+            if (target && ch) {
+              toast.success(`Abrindo capítulo: ${ch.title}`, { description: target.title, duration: 2200 });
+            }
           } else if (attempts < 20) {
             setTimeout(() => tryActivate(attempts + 1), 100);
           }
         };
         tryActivate();
+      } else if (target) {
+        toast.success(`Manuscrito ativo: ${target.title}`, { duration: 2200 });
       }
     };
 
