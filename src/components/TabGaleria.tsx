@@ -6,14 +6,18 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { callAIText, callAIImageConsistent, friendlyAIError } from '@/lib/helpers';
 import { optimizeImage } from '@/lib/imageOptimizer';
-import { useSubscription } from '@/hooks/useSubscription';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useCodexEntries } from '@/hooks/useCodexEntries';
 import { useIdrielVisions } from '@/hooks/useIdrielVisions';
 import { useIdrielJobs } from '@/contexts/IdrielJobsContext';
 import idrielAvatar from '@/assets/idriel-avatar.webp';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, Lock, ChevronDown, ChevronUp, Trash2, Palette, Leaf, ScrollText, Trees, X, Inbox, Save, Apple, BarChart3, Check, ClipboardCopy, ArrowDown, RotateCw, Image as ImageIcon, ArrowRight, ArrowLeft, Info } from 'lucide-react';
+import { GALLERY_COVER_PLACEHOLDERS } from '@/assets/galleryCovers';
+import {
+  Sparkles, Lock, ChevronDown, ChevronUp, Trash2, Palette, Leaf, ScrollText,
+  X, Save, Apple, BarChart3, Check, ClipboardCopy, ArrowDown, RotateCw,
+  Image as ImageIcon, ArrowRight, ArrowLeft, Info, Upload, ImagePlus,
+  FolderOpen,
+} from 'lucide-react';
 import { ImageReferencePicker, type PickedReference } from '@/components/ImageReferencePicker';
 import type { AppState } from '@/lib/data';
 
@@ -25,30 +29,49 @@ interface Props {
   addToGallery: (img: GalleryImage) => void;
 }
 
+// Frutos válidos como pastas (excluímos o 11º — "A Sua Narrativa" não é visual).
+const FOLDER_FRUITS = FRUITS.filter(f => f.id !== 10);
+
+// Persistência local das capas customizadas por mundo.
+const coverKey = (worldId: string) => `gallery:covers:${worldId}`;
+function loadCovers(worldId?: string): Record<number, string> {
+  if (!worldId) return {};
+  try { return JSON.parse(localStorage.getItem(coverKey(worldId)) || '{}'); }
+  catch { return {}; }
+}
+function saveCovers(worldId: string, covers: Record<number, string>) {
+  localStorage.setItem(coverKey(worldId), JSON.stringify(covers));
+}
+
 export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGeneratedPrompt, addToGallery }) => {
   const { user } = useAuth();
-  const sub = useSubscription();
   const planLimits = usePlanLimits();
   const worldId = state.currentSaveId || undefined;
   const { entries: codexEntries } = useCodexEntries(worldId);
   const { visions, saveVision, updateVisionImage, deleteVision } = useIdrielVisions(worldId);
   const idrielJobs = useIdrielJobs();
-  // Excluímos o 11º Fruto ("A Sua Narrativa" — id 10) da Galeria.
-  // Aquela categoria não faz sentido como pasta de imagens: o manuscrito não é
-  // uma referência visual, então mantemos apenas os frutos que representam
-  // aspectos visualizáveis do mundo.
-  const galleryFruits = useMemo(() => FRUITS.filter(f => f.id !== 10), []);
 
-  const [filter, setFilter] = useState('Todos');
+  // --- Folder navigation state ---
+  const [openFolder, setOpenFolder] = useState<number | null>(null); // fruit id
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
 
-  const [batchCat, setBatchCat] = useState(galleryFruits[0].name);
-  const [batchUploading, setBatchUploading] = useState(false);
-  const [batchProgress, setBatchProgress] = useState({ done: 0, total: 0 });
+  // --- Custom covers per world (localStorage) ---
+  const [customCovers, setCustomCovers] = useState<Record<number, string>>(() => loadCovers(worldId));
+  useEffect(() => { setCustomCovers(loadCovers(worldId)); }, [worldId]);
+  const setCover = (fruitId: number, url: string | null) => {
+    const next = { ...customCovers };
+    if (url) next[fruitId] = url; else delete next[fruitId];
+    setCustomCovers(next);
+    if (worldId) saveCovers(worldId, next);
+  };
 
-  // Image generation state — inicia recolhido para que o foco principal da
-  // aba seja a biblioteca de imagens; o usuário decide expandir quando quiser.
+  // --- Upload state ---
+  const uploadRef = useRef<HTMLInputElement>(null);
+  const coverRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ done: 0, total: 0 });
+
+  // --- Generator state (Visões de Idriel) ---
   const [showGenerator, setShowGenerator] = useState(false);
   const { worldName, db, generatedPrompt } = state;
   const [desc, setDesc] = useState('');
@@ -67,58 +90,60 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
-  const [saveCat, setSaveCat] = useState('Todos');
+  const [saveCat, setSaveCat] = useState<string>(FOLDER_FRUITS[0].name);
   const [showHistory, setShowHistory] = useState(false);
 
-  // Read from persistent jobs (so switching tabs doesn't cancel)
   const promptJob = activePromptJobId ? idrielJobs.get<string>(activePromptJobId) : undefined;
   const imageJob = activeImageJobId ? idrielJobs.get<string>(activeImageJobId) : undefined;
   const loading1 = promptJob?.status === 'running';
   const loading2 = imageJob?.status === 'running';
 
   useEffect(() => {
-    if (promptJob?.status === 'done' && typeof promptJob.result === 'string' && promptJob.result) {
-      setGeneratedPrompt(promptJob.result);
-    }
-    if (promptJob?.status === 'error') {
-      const f = friendlyAIError(promptJob.error || '');
-      setError(`${f.title} ${f.hint}`);
-    }
+    if (promptJob?.status === 'done' && typeof promptJob.result === 'string' && promptJob.result) setGeneratedPrompt(promptJob.result);
+    if (promptJob?.status === 'error') { const f = friendlyAIError(promptJob.error || ''); setError(`${f.title} ${f.hint}`); }
   }, [promptJob?.status, promptJob?.result, promptJob?.error, setGeneratedPrompt]);
-  
+
   useEffect(() => {
     if (imageJob?.status === 'done' && imageJob.result) {
       setGeneratedImage(imageJob.result);
       if (activeVisionId) updateVisionImage(activeVisionId, imageJob.result);
     }
-    if (imageJob?.status === 'error') {
-      const f = friendlyAIError(imageJob.error || '');
-      setError(`${f.title} ${f.hint}`);
-    }
+    if (imageJob?.status === 'error') { const f = friendlyAIError(imageJob.error || ''); setError(`${f.title} ${f.hint}`); }
   }, [imageJob?.status, imageJob?.result, imageJob?.error, activeVisionId, updateVisionImage]);
 
-  // Persist job ids per world so navigating away & back keeps the running session.
   useEffect(() => { if (promptJobKey) { activePromptJobId ? localStorage.setItem(promptJobKey, activePromptJobId) : localStorage.removeItem(promptJobKey); } }, [promptJobKey, activePromptJobId]);
   useEffect(() => { if (imageJobKey) { activeImageJobId ? localStorage.setItem(imageJobKey, activeImageJobId) : localStorage.removeItem(imageJobKey); } }, [imageJobKey, activeImageJobId]);
   useEffect(() => { if (visionKey) { activeVisionId ? localStorage.setItem(visionKey, activeVisionId) : localStorage.removeItem(visionKey); } }, [visionKey, activeVisionId]);
 
-  const handleFiles = async (files: FileList | null) => {
+  // --- Group images per folder ---
+  const imagesByFolder = useMemo(() => {
+    const map = new Map<string, GalleryImage[]>();
+    for (const img of gallery) {
+      if (img.status === 'unsorted') continue;
+      const list = map.get(img.cat) || [];
+      list.push(img);
+      map.set(img.cat, list);
+    }
+    return map;
+  }, [gallery]);
+
+  const unsorted = useMemo(() => gallery.filter(i => i.status === 'unsorted'), [gallery]);
+
+  // --- Uploads ---
+  const uploadFiles = async (files: FileList | null, folderName: string) => {
     if (!files || !user) return;
     if (!planLimits.canUploadGallery) {
-      toast.error(
-        planLimits.isExpired
-          ? 'Sua assinatura expirou. Suas imagens ficam preservadas, mas para enviar novas é preciso reativar o plano.'
-          : 'Adicionar imagens à Galeria requer um plano ativo. Faça upgrade para liberar.'
-      );
+      toast.error(planLimits.isExpired
+        ? 'Sua assinatura expirou. Suas imagens ficam preservadas, mas para enviar novas é preciso reativar o plano.'
+        : 'Adicionar imagens à Galeria requer um plano ativo. Faça upgrade para liberar.');
       return;
     }
     const items = Array.from(files).filter(f => /image\/(png|jpe?g|webp)/.test(f.type));
     if (items.length === 0) return;
 
-    setBatchUploading(true);
-    setBatchProgress({ done: 0, total: items.length });
+    setUploading(true);
+    setUploadProgress({ done: 0, total: items.length });
     const newImages: GalleryImage[] = [];
-
     for (let i = 0; i < items.length; i++) {
       const file = items[i];
       try {
@@ -126,49 +151,63 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
         const ext = optimized.name.split('.').pop() || 'webp';
         const path = `${user.id}/gallery-${crypto.randomUUID()}.${ext}`;
         const { error } = await supabase.storage.from('codex-images').upload(path, optimized, {
-          cacheControl: '31536000',
-          contentType: optimized.type || 'image/webp',
+          cacheControl: '31536000', contentType: optimized.type || 'image/webp',
         });
         if (error) throw error;
         const { data: { publicUrl } } = supabase.storage.from('codex-images').getPublicUrl(path);
         newImages.push({
-          id: `${Date.now()}-${i}`,
-          src: publicUrl,
-          name: file.name.replace(/\.[^.]+$/, ''),
-          cat: batchCat,
+          id: `${Date.now()}-${i}`, src: publicUrl,
+          name: file.name.replace(/\.[^.]+$/, ''), cat: folderName, status: 'kept',
         });
       } catch (err: any) {
         toast.error(`Erro em "${file.name}": ${err.message || 'falha'}`);
       }
-      setBatchProgress({ done: i + 1, total: items.length });
+      setUploadProgress({ done: i + 1, total: items.length });
     }
-
     if (newImages.length > 0) {
       setGallery([...gallery, ...newImages]);
-      toast.success(`${newImages.length} visão(ões) adicionada(s)!`);
+      toast.success(`${newImages.length} imagem(ns) adicionada(s) em "${folderName}"`);
     }
-    setBatchUploading(false);
+    setUploading(false);
+  };
+
+  const uploadCover = async (file: File | null, fruitId: number) => {
+    if (!file || !user) return;
+    if (!/image\/(png|jpe?g|webp)/.test(file.type)) { toast.error('Use PNG, JPG ou WEBP'); return; }
+    try {
+      const optimized = await optimizeImage(file, 1600, 1200, 0.8);
+      const ext = optimized.name.split('.').pop() || 'webp';
+      const path = `${user.id}/cover-${crypto.randomUUID()}.${ext}`;
+      const { error } = await supabase.storage.from('codex-images').upload(path, optimized, {
+        cacheControl: '31536000', contentType: optimized.type || 'image/webp',
+      });
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from('codex-images').getPublicUrl(path);
+      setCover(fruitId, publicUrl);
+      toast.success('Capa atualizada');
+    } catch (e: any) {
+      toast.error(e.message || 'Falha ao enviar capa');
+    }
   };
 
   const removeImage = (id: string) => setGallery(gallery.filter(img => img.id !== id));
+  const updateImage = (id: string, patch: Partial<GalleryImage>) => {
+    setGallery(gallery.map(img => img.id === id ? { ...img, ...patch } : img));
+  };
 
-  // --- Codex-aware context for Idriel ---
-  // The Codex IS Idriel's brain — every name, every concept already written there
-  // must inform the prompts she weaves and the images she materializes.
+  // --- Codex context for Idriel (mantém a inteligência do prompt) ---
   const codexContext = useMemo(() => {
     if (!codexEntries || codexEntries.length === 0) return '';
     const mention = (raw: string) => raw && desc && new RegExp(`\\b${raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(desc);
-    // Prioritize entries explicitly mentioned in the user's description
     const mentioned = codexEntries.filter(e => mention(e.title));
     const others = codexEntries.filter(e => !mentioned.includes(e));
     const ordered = [...mentioned, ...others].slice(0, 12);
-    const lines = ordered.map(e => {
+    return ordered.map(e => {
       const cleaned = (e.content || '').replace(/^__magictype__\n?/, '').replace(/\s+/g, ' ').trim().slice(0, 600);
       const fruit = e.fruit_id !== null ? FRUITS.find(f => f.id === e.fruit_id)?.name : null;
       const tag = e.entry_type === 'artigo' ? 'Artigo' : 'Ficha';
       return `- [${tag}${fruit ? ` · ${fruit}` : ''}] ${e.title}: ${cleaned}`;
-    });
-    return lines.join('\n');
+    }).join('\n');
   }, [codexEntries, desc]);
 
   const codexReferenceImageUrls = useMemo(() => {
@@ -207,8 +246,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
     const jobId = `idriel-prompt-${Date.now()}`;
     setActivePromptJobId(jobId);
     idrielJobs.run({
-      id: jobId,
-      kind: 'prompt',
+      id: jobId, kind: 'prompt',
       label: `Tecendo: ${desc.slice(0, 40)}`,
       task: () => callAIText([{ role: 'user', content: userMsg }], systemPrompt),
     });
@@ -217,660 +255,513 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const handleGenerate = async () => {
     if (!planLimits.canUseAI || !generatedPrompt) return;
     if (!worldId) { setError('Selecione um mundo antes de materializar.'); return; }
-    setError('');
-    setGeneratedImage('');
-    // Persist the vision row up front so it shows in history immediately
-    const vision = await saveVision({
-      description: desc,
-      prompt: generatedPrompt,
-      image_url: null,
-      style,
-      image_type: imgType,
-      tone,
-      extras,
-    });
+    setError(''); setGeneratedImage('');
+    const vision = await saveVision({ description: desc, prompt: generatedPrompt, image_url: null, style, image_type: imgType, tone, extras });
     setActiveVisionId(vision?.id || null);
     const jobId = `idriel-image-${Date.now()}`;
     setActiveImageJobId(jobId);
     const structured = pickedRefs.map(r => ({ url: r.url, intent: r.intent }));
     const legacyUrls = structured.length > 0 ? [] : codexReferenceImageUrls;
     idrielJobs.run({
-      id: jobId,
-      kind: 'image',
+      id: jobId, kind: 'image',
       label: `Materializando: ${desc.slice(0, 40)}`,
       task: () => callAIImageConsistent(generatedPrompt, legacyUrls, codexContext, structured),
     });
   };
 
-  const copyPrompt = () => {
-    navigator.clipboard.writeText(generatedPrompt);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  const copyPrompt = () => { navigator.clipboard.writeText(generatedPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); };
 
   const confirmSave = () => {
     if (!generatedImage) return;
+    // Save directly into the chosen folder (no "unsorted" step — fluxo mais direto)
     addToGallery({
-      id: Date.now().toString(),
-      src: generatedImage,
+      id: Date.now().toString(), src: generatedImage,
       name: desc.slice(0, 40) || 'Visão de Idriel',
-      cat: saveCat === 'Todos' ? 'Geral' : saveCat,
-      status: 'unsorted',
+      cat: saveCat, status: 'kept',
     });
     setShowSaveModal(false);
-    toast.success('Visão guardada na Caixa de Visões Recentes');
+    toast.success(`Guardada em "${saveCat}"`);
   };
 
-  // ===== Caixa de Visões Recentes (unsorted) =====
-  const unsorted = gallery.filter(img => img.status === 'unsorted');
-  const sorted = gallery.filter(img => img.status !== 'unsorted');
-  const filteredSorted = filter === 'Todos' ? sorted : sorted.filter(img => img.cat === filter);
+  const currentFolder = openFolder !== null ? FOLDER_FRUITS.find(f => f.id === openFolder) : null;
+  const currentImages = currentFolder ? (imagesByFolder.get(currentFolder.name) || []) : [];
+  const currentCover = currentFolder ? (customCovers[currentFolder.id] || GALLERY_COVER_PLACEHOLDERS[currentFolder.id]) : null;
 
-  const updateImage = (id: string, patch: Partial<GalleryImage>) => {
-    setGallery(gallery.map(img => img.id === id ? { ...img, ...patch } : img));
-  };
-
-  const [tagging, setTagging] = useState<GalleryImage | null>(null);
-  const [tagCat, setTagCat] = useState(galleryFruits[0].name);
-
-  // Biblioteca por categoria: agrupa as imagens catalogadas por Fruto e monta
-  // uma "capa" (a imagem mais recente daquela categoria) para cada card.
-  // Uma categoria "Geral" agrega imagens sem Fruto atribuído.
-  const categoryLibrary = useMemo(() => {
-    const map = new Map<string, GalleryImage[]>();
-    const knownNames = new Set(galleryFruits.map(f => f.name));
-    for (const img of sorted) {
-      const key = knownNames.has(img.cat) ? img.cat : 'Geral';
-      const list = map.get(key) || [];
-      list.push(img);
-      map.set(key, list);
-    }
-    const cats = galleryFruits.map(f => ({
-      key: f.name,
-      name: f.name,
-      Icon: f.Icon,
-      color: (f as any).color as string | undefined,
-      images: map.get(f.name) || [],
-    }));
-    // Bucket "Geral" apenas quando houver imagens sem Fruto conhecido.
-    const general = map.get('Geral');
-    return { cats, general: general || [] };
-  }, [sorted, galleryFruits]);
-
+  // ============================================================
+  // RENDER
+  // ============================================================
   return (
-    <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-6">
+    <div className="animate-fadeUp mx-auto max-w-[1180px] px-3 sm:px-4 py-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-gold/50 shadow-[0_0_12px_rgba(218,165,32,0.3)] shrink-0">
-            <img loading="lazy" decoding="async" src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
-          </div>
-          <div>
-            <h1 className="font-cinzel font-bold text-xl sm:text-2xl text-foreground mb-0.5 inline-flex items-center gap-2.5"><Palette className="w-6 h-6 text-gold-champagne" strokeWidth={1.75} />Galeria de Visões</h1>
-            <p className="font-merriweather italic text-gold-light/70 text-sm">Referências visuais e visões materializadas por Idriel</p>
-          </div>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gold/50 shadow-[0_0_14px_rgba(218,165,32,0.3)] shrink-0">
+          <img loading="lazy" decoding="async" src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
         </div>
-        <button
-          onClick={() => fileRef.current?.click()}
-          className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
-        >
-          + Adicionar Imagem
-        </button>
-      </div>
-
-      <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={e => handleFiles(e.target.files)} />
-
-      {/* Upload zone */}
-      <div data-tour="gallery-upload" className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5">
-        <div
-          onClick={() => !batchUploading && fileRef.current?.click()}
-          className={`flex-1 border-2 border-dashed border-gold/20 rounded-lg p-5 text-center cursor-pointer hover:border-gold/40 transition-colors ${batchUploading ? 'opacity-50 pointer-events-none' : ''}`}
-        >
-          <ImageIcon className="w-6 h-6 mb-1 text-gold-champagne" strokeWidth={1.75} />
-          <p className="text-sm text-gold-light font-montserrat">
-            {batchUploading ? `Enviando ${batchProgress.done}/${batchProgress.total}…` : 'Clique ou arraste para adicionar imagens'}
+        <div>
+          <h1 className="font-cinzel font-bold text-xl sm:text-2xl text-foreground mb-0.5 inline-flex items-center gap-2.5">
+            <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-gold-champagne" strokeWidth={1.75} />Galeria de Visões
+          </h1>
+          <p className="font-merriweather italic text-gold-light/70 text-xs sm:text-sm">
+            {openFolder === null
+              ? 'Uma pasta por Fruto. Envie suas referências e materialize visões com Idriel.'
+              : 'Envie imagens ou guarde as visões de Idriel nesta pasta.'}
           </p>
-          <p className="text-xs text-text-dim font-merriweather italic">PNG, JPG, WEBP — múltiplos arquivos</p>
-        </div>
-        <div className="sm:w-[180px]">
-          <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat font-bold mb-1">Categoria do upload</label>
-          <Select value={batchCat} onValueChange={setBatchCat}>
-            <SelectTrigger className="bg-background/60 border-gold/20 text-sm font-merriweather">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {galleryFruits.map(f => (
-                <SelectItem key={f.id} value={f.name}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center gap-3 mb-5">
-        <span className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat font-bold">Filtrar:</span>
-        <Select value={filter} onValueChange={setFilter}>
-          <SelectTrigger className="w-[180px] bg-background/60 border-gold/20 text-sm font-merriweather">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Todos">Todos</SelectItem>
-            {galleryFruits.map(f => (
-              <SelectItem key={f.id} value={f.name}><f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}</SelectItem>
-            ))}
-            <SelectItem value="Geral">Geral / Sem categoria</SelectItem>
-          </SelectContent>
-        </Select>
-        {filter !== 'Todos' && (
-          <button onClick={() => setFilter('Todos')} className="inline-flex items-center gap-1 text-[10px] text-text-dim hover:text-foreground font-montserrat transition-colors"><X className="w-3 h-3" strokeWidth={2} />Limpar</button>
-        )}
-      </div>
-
-      {/* ===== Caixa de Visões Recentes (unsorted) ===== */}
-      {unsorted.length > 0 && (
-        <div className="mb-6 rounded-xl border border-gold/30 bg-gold/[0.04] p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h3 className="font-cinzel font-bold text-sm text-gold-light inline-flex items-center gap-2"><Inbox className="w-4 h-4" strokeWidth={1.75} />Caixa de Visões Recentes</h3>
-              <p className="font-merriweather italic text-[11px] text-text-dim">Visões geradas por Idriel aguardando sua decisão.</p>
-            </div>
-            <span className="text-[10px] font-montserrat text-gold-light/80 px-2 py-1 rounded-full bg-gold/10 border border-gold/20">
-              {unsorted.length} aguardando
-            </span>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
-            {unsorted.map(img => (
-              <div key={img.id} className="group relative rounded-lg overflow-hidden border border-gold/30 bg-background/40">
-                <img loading="lazy" decoding="async"
-                  src={img.src}
-                  alt={img.name}
-                  className="w-full h-[100px] sm:h-[120px] object-cover cursor-zoom-in"
-                  onClick={() => setLightbox({ src: img.src, alt: img.name })}
-                />
-                <div className="p-2">
-                  <p className="text-xs text-foreground font-montserrat truncate">{img.name}</p>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    <button
-                      onClick={() => { setTagging(img); setTagCat(galleryFruits[0].name); }}
-                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/15 transition-colors"
-                      title="Etiquetar e arquivar"
-                    >
-                      <><Trees className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Etiquetar</>
-                    </button>
-                    <button
-                      onClick={() => { updateImage(img.id, { status: 'kept' }); toast.success('Mantida na galeria'); }}
-                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/15 transition-colors"
-                      title="Mover para galeria"
-                    >
-                      <><Save className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Manter</>
-                    </button>
-                    <button
-                      onClick={() => removeImage(img.id)}
-                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-red-alert/30 text-red-alert/90 hover:bg-red-alert/15 transition-colors"
-                      title="Excluir"
-                    >
-                      <Trash2 className="w-3 h-3" strokeWidth={1.75} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ===== Biblioteca por categoria — visão principal =====
-          Inspirado em interfaces de biblioteca: cada Fruto vira um card grande
-          com capa (imagem mais recente daquela categoria) ou marca-d'água
-          quando ainda vazio. Clicar entra na categoria e mostra o grid completo. */}
-      {filter === 'Todos' ? (
-        sorted.length === 0 ? (
-          <div className="text-center py-14">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
-              <ImageIcon className="w-8 h-8 text-gold-champagne opacity-60" strokeWidth={1.5} />
-            </div>
-            <h3 className="font-cinzel font-bold text-lg text-foreground mb-2">Sua biblioteca visual está vazia</h3>
-            <p className="font-merriweather text-sm text-text-dim mb-4 max-w-md mx-auto">
-              Envie referências visuais nos frutos abaixo ou peça a Idriel para materializar as visões do seu mundo.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {categoryLibrary.cats.map((cat, i) => {
-              const cover = cat.images[0]?.src;
-              const count = cat.images.length;
-              const empty = count === 0;
-              const Icon = cat.Icon;
+      {/* ============ FOLDER GRID (biblioteca) ============ */}
+      {openFolder === null && (
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+            {FOLDER_FRUITS.map(f => {
+              const images = imagesByFolder.get(f.name) || [];
+              const count = images.length;
+              const cover = customCovers[f.id] || GALLERY_COVER_PLACEHOLDERS[f.id];
+              const Icon = f.Icon;
               return (
                 <button
-                  key={cat.key}
-                  onClick={() => setFilter(cat.name)}
-                  className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-gold/15 hover:border-gold/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-15px_rgba(218,165,32,0.35)] text-left"
+                  key={f.id}
+                  onClick={() => setOpenFolder(f.id)}
+                  className="group relative aspect-[4/5] rounded-2xl overflow-hidden border border-gold/15 hover:border-gold/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-15px_rgba(218,165,32,0.35)] text-left bg-[hsl(var(--bg-deep))]"
                 >
-                  {cover ? (
-                    <>
-                      <img src={cover} alt={cat.name} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
-                    </>
-                  ) : (
-                    <>
-                      <div
-                        className="absolute inset-0"
-                        style={{
-                          background: `linear-gradient(135deg, rgba(10,14,24,0.95), rgba(6,8,14,0.75)), radial-gradient(circle at 30% 30%, rgba(218,165,32,${0.10 + (i % 5) * 0.02}), transparent 60%)`,
-                        }}
-                      />
-                      <Icon className="absolute right-4 top-4 w-24 h-24 text-gold-champagne/10" strokeWidth={1} />
-                    </>
+                  <img
+                    src={cover} alt={f.name} loading="lazy" decoding="async"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.08]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/10" />
+
+                  {/* small tile of latest user image */}
+                  {images[0] && (
+                    <img
+                      src={images[0].src} alt="" loading="lazy"
+                      className="absolute top-3 right-3 w-12 h-12 rounded-md object-cover border border-white/20 shadow-lg opacity-95"
+                    />
                   )}
 
-                  {/* Small tile of second image for texture, if it exists */}
-                  {cat.images[1] && (
-                    <img src={cat.images[1].src} loading="lazy" alt="" className="absolute top-3 right-3 w-14 h-14 rounded-md object-cover border border-white/20 shadow-lg opacity-90 group-hover:opacity-100 transition" />
-                  )}
+                  <span className="absolute top-3 left-3 text-[9px] font-montserrat font-bold uppercase tracking-wider text-gold-light/90 bg-black/40 border border-gold/20 rounded-full px-2 py-0.5 backdrop-blur-sm">
+                    {f.num}
+                  </span>
 
-                  <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gold/20 border border-gold/40 backdrop-blur-md">
-                        <Icon className="w-3.5 h-3.5 text-gold-light" strokeWidth={1.75} />
+                  <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gold/20 border border-gold/40 backdrop-blur-md">
+                        <Icon className="w-3 h-3 text-gold-light" strokeWidth={1.75} />
                       </span>
-                      <span className="text-[10px] font-montserrat font-bold uppercase tracking-wider text-gold-light/90">
+                      <span className="text-[9px] font-montserrat font-bold uppercase tracking-wider text-gold-light/90">
                         {count} {count === 1 ? 'imagem' : 'imagens'}
                       </span>
                     </div>
                     <div className="flex items-end justify-between gap-2">
-                      <h3 className="font-cinzel font-bold text-lg sm:text-xl text-foreground drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] leading-tight">
-                        {cat.name}
+                      <h3 className="font-cinzel font-bold text-sm sm:text-base text-foreground drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] leading-tight">
+                        {f.name}
                       </h3>
-                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/[0.08] border border-white/20 backdrop-blur-md group-hover:bg-gold/20 group-hover:border-gold/50 transition-all">
-                        <ArrowRight className="w-4 h-4 text-gold-light group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-white/[0.08] border border-white/20 backdrop-blur-md group-hover:bg-gold/25 group-hover:border-gold/60 transition-all shrink-0">
+                        <ArrowRight className="w-3.5 h-3.5 text-gold-light group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
                       </span>
                     </div>
-                    {empty && (
-                      <p className="text-[10px] text-text-dim/80 font-merriweather italic mt-1">Ainda sem imagens — envie ou gere.</p>
-                    )}
                   </div>
                 </button>
               );
             })}
+          </div>
 
-            {categoryLibrary.general.length > 0 && (
-              <button
-                onClick={() => setFilter('Geral')}
-                className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-gold/15 hover:border-gold/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-15px_rgba(218,165,32,0.35)] text-left"
-              >
-                <img src={categoryLibrary.general[0].src} alt="Geral" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
-                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
-                  <span className="text-[10px] font-montserrat font-bold uppercase tracking-wider text-gold-light/90">
-                    {categoryLibrary.general.length} imagens
-                  </span>
-                  <h3 className="font-cinzel font-bold text-xl text-foreground mt-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">Geral</h3>
+          {/* Caixa de Visões Recentes (unsorted) — só aparece se houver */}
+          {unsorted.length > 0 && (
+            <div className="mt-8 rounded-xl border border-gold/30 bg-gold/[0.04] p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="font-cinzel font-bold text-sm text-gold-light inline-flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" strokeWidth={1.75} />Visões aguardando categoria
+                  </h3>
+                  <p className="font-merriweather italic text-[11px] text-text-dim">Escolha em qual pasta arquivar cada visão.</p>
                 </div>
-              </button>
-            )}
-          </div>
-        )
-      ) : (
-        <>
-          <div className="flex items-center justify-between mb-4">
-            <button
-              onClick={() => setFilter('Todos')}
-              className="inline-flex items-center gap-1.5 text-xs font-montserrat text-text-secondary hover:text-gold-light transition-colors"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />
-              Todas as categorias
-            </button>
-            <h3 className="font-cinzel font-bold text-lg text-gold-light">{filter}</h3>
-            <span className="text-[10px] font-montserrat text-text-dim">{filteredSorted.length} {filteredSorted.length === 1 ? 'imagem' : 'imagens'}</span>
-          </div>
-          {filteredSorted.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
-                <ImageIcon className="w-8 h-8 text-gold-champagne opacity-60" strokeWidth={1.5} />
+                <span className="text-[10px] font-montserrat text-gold-light/80 px-2 py-1 rounded-full bg-gold/10 border border-gold/20">
+                  {unsorted.length}
+                </span>
               </div>
-              <p className="font-merriweather text-sm text-text-dim max-w-md mx-auto">
-                Nenhuma imagem em <strong>{filter}</strong> ainda. Envie referências ou gere com Idriel.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
-              {filteredSorted.map(img => (
-                <div
-                  key={img.id}
-                  className="group relative rounded-lg overflow-hidden border border-gold/15 hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(218,165,32,0.15)] transition-all"
-                >
-                  <img loading="lazy" decoding="async"
-                    src={img.src}
-                    alt={img.name}
-                    className="w-full h-[100px] sm:h-[136px] object-cover cursor-zoom-in"
-                    onClick={() => setLightbox({ src: img.src, alt: img.name })}
-                  />
-                  <div className="p-2">
-                    <p className="text-xs text-foreground font-montserrat truncate">{img.name}</p>
-                    <p className="text-[10px] text-text-dim">{img.cat}</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
+                {unsorted.map(img => (
+                  <div key={img.id} className="rounded-lg overflow-hidden border border-gold/30 bg-background/40">
+                    <img src={img.src} alt={img.name} loading="lazy"
+                      className="w-full h-[100px] object-cover cursor-zoom-in"
+                      onClick={() => setLightbox({ src: img.src, alt: img.name })}
+                    />
+                    <div className="p-2 space-y-1.5">
+                      <p className="text-[10px] text-foreground font-montserrat truncate">{img.name}</p>
+                      <select
+                        value=""
+                        onChange={e => {
+                          const cat = e.target.value;
+                          if (!cat) return;
+                          updateImage(img.id, { status: 'kept', cat });
+                          toast.success(`Arquivada em "${cat}"`);
+                        }}
+                        className="w-full bg-background/60 border border-gold/25 rounded px-1.5 py-1 text-[10px] text-gold-light font-montserrat focus:outline-none focus:border-gold/60"
+                      >
+                        <option value="">Arquivar em…</option>
+                        {FOLDER_FRUITS.map(f => (
+                          <option key={f.id} value={f.name}>{f.name}</option>
+                        ))}
+                      </select>
+                      <button
+                        onClick={() => removeImage(img.id)}
+                        className="w-full text-[9px] font-montserrat text-red-alert/80 hover:text-red-alert transition-colors inline-flex items-center justify-center gap-1"
+                      >
+                        <Trash2 className="w-3 h-3" strokeWidth={1.75} />Descartar
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => removeImage(img.id)}
-                    className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-alert/80 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X className="w-3.5 h-3.5" strokeWidth={2} />
-                  </button>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </>
       )}
 
-      {/* ====== DIVIDER: Visões de Idriel — inicia recolhido ======
-          Instrução curta ajuda o usuário a decidir se quer expandir a seção
-          de geração por IA sem que ela ocupe o espaço da biblioteca. */}
-      <div className="mt-12 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
-          <button
-            data-tour="visoes-idriel"
-            onClick={() => setShowGenerator(!showGenerator)}
-            aria-expanded={showGenerator}
-            className="flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-gold/30 bg-gradient-to-r from-gold/[0.04] via-gold/[0.10] to-gold/[0.04] hover:from-gold/[0.10] hover:to-gold/[0.10] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-all group"
-          >
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-gold/30 to-gold/5 border border-gold/40">
-              <Sparkles className="w-3.5 h-3.5 text-gold-light" strokeWidth={2} />
-            </span>
-            <span className="font-cinzel text-sm text-gold-light font-bold tracking-wide">Visões de Idriel</span>
-            <ChevronDown className={`w-4 h-4 text-gold-light/70 transition-transform duration-300 ${showGenerator ? 'rotate-180' : ''}`} />
-          </button>
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
-        </div>
-        <div className="max-w-xl mx-auto mt-3 px-4">
-          <p className="flex items-start gap-2 text-center font-merriweather text-[13px] text-text-secondary/90 leading-relaxed">
-            <Info className="w-3.5 h-3.5 text-gold-champagne/70 shrink-0 mt-0.5" strokeWidth={2} />
-            <span className="text-left">
-              <strong className="text-gold-light">Materializar imagens com IA.</strong> Idriel canaliza o Elixir dos Mundos para transformar
-              descrições em texto — inspiradas no seu Codex — em visões visuais coerentes com o seu mundo.
-              {!showGenerator && <span className="text-text-dim italic"> Clique acima para expandir quando quiser gerar.</span>}
-            </span>
-          </p>
-        </div>
-      </div>
-
-      {showGenerator && (
+      {/* ============ FOLDER DETAIL ============ */}
+      {currentFolder && (
         <div className="animate-fadeUp">
-          {/* Idriel lock CTA — Fruto Dourado Trancado */}
-          {!planLimits.canUseAI ? (
-            <div className="relative rounded-xl overflow-hidden border border-gold/20 mb-6">
-              {/* Blurred preview background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-gold/[0.04] via-background/80 to-gold/[0.02]" />
-              <div className="relative p-6 sm:p-8 text-center">
-                {/* Golden Fruit icon */}
-                <div className="relative w-20 h-20 mx-auto mb-4">
-                  <div className="absolute inset-0 rounded-full bg-gold/10 animate-pulse" />
-                  <div className="relative w-full h-full rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-2 border-gold/30 flex items-center justify-center shadow-[0_0_30px_rgba(218,165,32,0.15)]">
-                    <div className="relative">
-                      <Apple className="w-10 h-10 text-gold-champagne" strokeWidth={1.5} />
-                      <Lock className="absolute -bottom-1 -right-1 w-5 h-5 text-gold-light drop-shadow-lg" />
-                    </div>
-                  </div>
-                </div>
+          {/* Cover banner */}
+          <div className="relative rounded-2xl overflow-hidden border border-gold/20 mb-5 aspect-[16/6] sm:aspect-[16/5]">
+            <img src={currentCover!} alt={currentFolder.name} className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/20" />
 
-                <h3 className="font-cinzel font-bold text-lg text-gold-light mb-2">
-                  O Fruto Dourado aguarda…
-                </h3>
-                <div className="max-w-md mx-auto mb-5">
-                  <div className="flex items-start gap-3 text-left bg-gold/[0.04] rounded-lg p-3 border border-gold/10">
-                    <img loading="lazy" decoding="async" src={idrielAvatar} alt="Idriel" className="w-8 h-8 rounded-full border border-gold/30 shrink-0 mt-0.5" />
-                    <p className="font-merriweather text-sm text-text-secondary leading-relaxed italic">
-                      "Querido criador, o Elixir dos Mundos flui dentro deste Fruto. Com ele, posso materializar as visões do seu mundo em imagens, analisar sua criação e guiá-lo com toda minha sabedoria. Basta colher o Fruto."
-                    </p>
-                  </div>
-                </div>
+            <button
+              onClick={() => setOpenFolder(null)}
+              className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 border border-white/15 backdrop-blur-md text-xs text-foreground font-montserrat hover:bg-black/70 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />Todas as pastas
+            </button>
 
-                {/* Powers preview — image generation tiers + análise */}
-                <div className="max-w-md mx-auto mb-3">
-                  <p className="text-[10px] uppercase tracking-wider text-gold-light/80 font-montserrat font-bold mb-2">Visões de Idriel — 3 níveis</p>
-                  <div className="grid grid-cols-3 gap-2 mb-3">
-                    {[
-                      { Icon: Leaf, label: 'Rascunho', cost: '2 gotas', hint: 'Esboço rápido' },
-                      { Icon: Palette, label: 'Padrão', cost: '5 gotas', hint: 'Canon do Codex' },
-                      { Icon: Sparkles, label: 'Qualidade Máxima', cost: '15 gotas', hint: 'Cinematográfico' },
-                    ].map(p => (
-                      <div key={p.label} className="rounded-lg p-2.5 bg-gold/[0.04] border border-gold/10 opacity-80">
-                        <p.Icon className="w-5 h-5 mb-1 text-gold-light/80" strokeWidth={1.75} />
-                        <p className="text-[10px] font-montserrat font-bold text-gold-light/90 leading-tight">{p.label}</p>
-                        <p className="text-[9px] text-gold-light/70 font-bold">{p.cost}</p>
-                        <p className="text-[9px] text-text-dim leading-tight">{p.hint}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { Icon: BarChart3, label: 'Análise do mundo', cost: '1 gota' },
-                      { Icon: Leaf, label: 'Consultar Idriel', cost: '1 gota' },
-                    ].map(p => (
-                      <div key={p.label} className="rounded-lg p-2.5 bg-gold/[0.04] border border-gold/10 opacity-70">
-                        <p.Icon className="w-5 h-5 mb-1 text-gold-light/80" strokeWidth={1.75} />
-                        <p className="text-[10px] font-montserrat font-bold text-gold-light/80">{p.label}</p>
-                        <p className="text-[9px] text-text-dim">{p.cost}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
+            <div className="absolute top-3 right-3 flex gap-2">
+              <input ref={coverRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden"
+                onChange={e => { uploadCover(e.target.files?.[0] || null, currentFolder.id); if (coverRef.current) coverRef.current.value = ''; }}
+              />
+              <button
+                onClick={() => coverRef.current?.click()}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 border border-white/15 backdrop-blur-md text-xs text-foreground font-montserrat hover:bg-black/70 transition-colors"
+                title="Trocar imagem de capa"
+              >
+                <ImagePlus className="w-3.5 h-3.5" strokeWidth={2} />Trocar capa
+              </button>
+              {customCovers[currentFolder.id] && (
                 <button
-                  onClick={async () => { const { openCheckout, STRIPE_PLANS } = await import('@/hooks/useSubscription'); openCheckout(STRIPE_PLANS.idriel_mensal.price_id); }}
-                  className="px-6 py-3 rounded-full text-sm font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold to-gold-light text-background hover:shadow-[0_0_24px_rgba(218,165,32,0.3)] transition-all"
+                  onClick={() => { setCover(currentFolder.id, null); toast.success('Capa restaurada'); }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 border border-white/15 backdrop-blur-md text-xs text-foreground font-montserrat hover:bg-black/70 transition-colors"
+                  title="Voltar à capa original"
                 >
-                  <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Colher o Fruto Dourado — R$ 39,90/mês</>
+                  <RotateCw className="w-3.5 h-3.5" strokeWidth={2} />Padrão
                 </button>
-                <p className="text-[10px] text-text-dim mt-2 font-montserrat">100 gotas de Elixir dos Mundos por mês</p>
+              )}
+            </div>
+
+            <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">
+              <span className="text-[10px] font-montserrat font-bold uppercase tracking-wider text-gold-light/90">
+                {currentFolder.num} · {currentImages.length} {currentImages.length === 1 ? 'imagem' : 'imagens'}
+              </span>
+              <h2 className="font-cinzel font-bold text-2xl sm:text-3xl text-foreground drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)] leading-tight mt-1">
+                {currentFolder.name}
+              </h2>
+            </div>
+          </div>
+
+          {/* Upload zone inside folder */}
+          <input ref={uploadRef} type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden"
+            onChange={e => { uploadFiles(e.target.files, currentFolder.name); if (uploadRef.current) uploadRef.current.value = ''; }}
+          />
+          <div
+            onClick={() => !uploading && uploadRef.current?.click()}
+            className={`border-2 border-dashed border-gold/25 rounded-xl p-6 text-center cursor-pointer hover:border-gold/50 hover:bg-gold/[0.03] transition-all mb-5 ${uploading ? 'opacity-60 pointer-events-none' : ''}`}
+          >
+            <Upload className="w-6 h-6 mx-auto mb-2 text-gold-champagne" strokeWidth={1.75} />
+            <p className="text-sm text-gold-light font-montserrat font-bold">
+              {uploading ? `Enviando ${uploadProgress.done}/${uploadProgress.total}…` : `Adicionar imagens em "${currentFolder.name}"`}
+            </p>
+            <p className="text-xs text-text-dim font-merriweather italic mt-0.5">PNG, JPG ou WEBP — vários arquivos</p>
+          </div>
+
+          {/* Image grid */}
+          {currentImages.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
+                <FolderOpen className="w-8 h-8 text-gold-champagne opacity-60" strokeWidth={1.5} />
               </div>
+              <p className="font-merriweather text-sm text-text-dim max-w-md mx-auto">
+                Esta pasta ainda está vazia. Envie referências acima ou gere uma visão com Idriel e a arquive aqui.
+              </p>
             </div>
           ) : (
-            /* Image generation form */
-            <div className="card-glass rounded-lg p-5 mb-5">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Descreva sua visão em português</label>
-                  <textarea
-                    value={desc}
-                    onChange={e => setDesc(e.target.value)}
-                    placeholder="Ex: A capital do meu reino élfico ao entardecer, com torres de cristal brilhando sob a luz dourada…"
-                    rows={3}
-                    className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50 resize-y"
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
+              {currentImages.map(img => (
+                <div key={img.id} className="group relative rounded-lg overflow-hidden border border-gold/15 hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(218,165,32,0.15)] transition-all">
+                  <img src={img.src} alt={img.name} loading="lazy" decoding="async"
+                    className="w-full h-[110px] sm:h-[140px] object-cover cursor-zoom-in"
+                    onClick={() => setLightbox({ src: img.src, alt: img.name })}
                   />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Estilo Visual</label>
-                    <select value={style} onChange={e => setStyle(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-gold/50">
-                      {STYLE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-                    </select>
+                  <div className="p-2">
+                    <p className="text-xs text-foreground font-montserrat truncate">{img.name}</p>
                   </div>
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Tipo de Imagem</label>
-                    <select value={imgType} onChange={e => setImgType(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-gold/50">
-                      {IMAGE_TYPE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Tom / Iluminação</label>
-                    <select value={tone} onChange={e => setTone(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-gold/50">
-                      {TONE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-                    </select>
+                  <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => setCover(currentFolder.id, img.src)}
+                      className="w-6 h-6 rounded-full bg-black/70 text-gold-light flex items-center justify-center hover:bg-gold/30 transition-colors"
+                      title="Definir como capa da pasta"
+                    >
+                      <ImagePlus className="w-3 h-3" strokeWidth={2} />
+                    </button>
+                    <button
+                      onClick={() => removeImage(img.id)}
+                      className="w-6 h-6 rounded-full bg-red-alert/80 text-white flex items-center justify-center hover:bg-red-alert transition-colors"
+                      title="Excluir"
+                    >
+                      <X className="w-3.5 h-3.5" strokeWidth={2} />
+                    </button>
                   </div>
                 </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
-                <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Detalhes extras (opcional)</label>
-                  <input
-                    type="text"
-                    value={extras}
-                    onChange={e => setExtras(e.target.value)}
-                    placeholder="Cores, elementos obrigatórios, atmosfera…"
-                    className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50"
-                  />
-                </div>
-              </div>
+      {/* ============ VISÕES DE IDRIEL (generator) — sempre abaixo da biblioteca ============ */}
+      {openFolder === null && (
+        <div className="mt-14">
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
+            <button
+              data-tour="visoes-idriel"
+              onClick={() => setShowGenerator(s => !s)}
+              aria-expanded={showGenerator}
+              className="flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-gold/30 bg-gradient-to-r from-gold/[0.04] via-gold/[0.10] to-gold/[0.04] hover:from-gold/[0.10] hover:to-gold/[0.10] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-all"
+            >
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-gold/30 to-gold/5 border border-gold/40">
+                <Sparkles className="w-3.5 h-3.5 text-gold-light" strokeWidth={2} />
+              </span>
+              <span className="font-cinzel text-sm text-gold-light font-bold tracking-wide">Visões de Idriel</span>
+              <ChevronDown className={`w-4 h-4 text-gold-light/70 transition-transform duration-300 ${showGenerator ? 'rotate-180' : ''}`} />
+            </button>
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
+          </div>
+          <div className="max-w-xl mx-auto mt-3 px-4">
+            <p className="flex items-start gap-2 text-center font-merriweather text-[13px] text-text-secondary/90 leading-relaxed">
+              <Info className="w-3.5 h-3.5 text-gold-champagne/70 shrink-0 mt-0.5" strokeWidth={2} />
+              <span className="text-left">
+                <strong className="text-gold-light">Materializar imagens com IA.</strong> Idriel transforma descrições — inspiradas no seu Codex —
+                em visões visuais coerentes com o seu mundo. Toda visão gerada pode ser categorizada e arquivada em uma das pastas acima.
+                {!showGenerator && <span className="text-text-dim italic"> Clique acima para expandir.</span>}
+              </span>
+            </p>
+          </div>
 
-              <div className="mt-4 pt-4 border-t border-gold/10">
-                <ImageReferencePicker
-                  value={pickedRefs}
-                  onChange={setPickedRefs}
-                  gallery={gallery}
-                  codexEntries={codexEntries}
-                  max={3}
-                />
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3 mt-5">
-                <button
-                  onClick={handleCreatePrompt}
-                  disabled={loading1}
-                  className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold text-gold-light hover:bg-gold/10 disabled:opacity-40 transition-all"
-                >
-                  <><Leaf className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />{loading1 ? 'Idriel está tecendo…' : '1. Pedir Visão a Idriel'}</>
-                </button>
-                <button
-                  onClick={handleGenerate}
-                  disabled={loading2 || !generatedPrompt}
-                  className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-all"
-                >
-                  <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />{loading2 ? 'Materializando…' : '2. Materializar Visão'}</>
-                </button>
-              </div>
-
-              {error && <p className="text-red-alert text-sm mt-3">{error}</p>}
-
-              {(loading1 || loading2) && (
-                <div className="mt-4 animate-fadeUp">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="relative shrink-0">
-                      <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gold/60 shadow-[0_0_16px_rgba(218,165,32,0.4)]">
-                        <img loading="lazy" decoding="async" src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+          {showGenerator && (
+            <div className="animate-fadeUp mt-6">
+              {!planLimits.canUseAI ? (
+                <div className="relative rounded-xl overflow-hidden border border-gold/20 mb-6">
+                  <div className="absolute inset-0 bg-gradient-to-br from-gold/[0.04] via-background/80 to-gold/[0.02]" />
+                  <div className="relative p-6 sm:p-8 text-center">
+                    <div className="relative w-20 h-20 mx-auto mb-4">
+                      <div className="absolute inset-0 rounded-full bg-gold/10 animate-pulse" />
+                      <div className="relative w-full h-full rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-2 border-gold/30 flex items-center justify-center shadow-[0_0_30px_rgba(218,165,32,0.15)]">
+                        <div className="relative">
+                          <Apple className="w-10 h-10 text-gold-champagne" strokeWidth={1.5} />
+                          <Lock className="absolute -bottom-1 -right-1 w-5 h-5 text-gold-light drop-shadow-lg" />
+                        </div>
                       </div>
                     </div>
-                    <div className="flex-1">
-                      <span className="font-merriweather italic text-xs text-gold-light">
-                        {loading1 ? 'Idriel está tecendo a essência da sua visão…' : 'O Elixir dos Mundos flui… sua visão está tomando forma…'}
-                      </span>
-                      <div className="w-full h-1.5 bg-gold/10 rounded-full overflow-hidden mt-1.5">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-gold/60 via-gold to-gold/60 animate-[shimmer_2s_ease-in-out_infinite]"
-                          style={{ width: loading1 ? '60%' : '80%', transition: 'width 3s ease-out', backgroundSize: '200% 100%' }}
-                        />
+                    <h3 className="font-cinzel font-bold text-lg text-gold-light mb-2">O Fruto Dourado aguarda…</h3>
+                    <div className="max-w-md mx-auto mb-5">
+                      <div className="flex items-start gap-3 text-left bg-gold/[0.04] rounded-lg p-3 border border-gold/10">
+                        <img src={idrielAvatar} alt="Idriel" className="w-8 h-8 rounded-full border border-gold/30 shrink-0 mt-0.5" />
+                        <p className="font-merriweather text-sm text-text-secondary leading-relaxed italic">
+                          "Querido criador, com o Elixir dos Mundos posso materializar as visões do seu mundo. Basta colher o Fruto."
+                        </p>
                       </div>
-                      <p className="text-[9px] text-text-dim/50 mt-1 font-montserrat">
-                        {loading1 ? 'Etapa 1/2 — Criando prompt' : 'Etapa 2/2 — Gerando imagem (até 30s)'}
-                      </p>
                     </div>
+                    <button
+                      onClick={async () => { const { openCheckout, STRIPE_PLANS } = await import('@/hooks/useSubscription'); openCheckout(STRIPE_PLANS.idriel_mensal.price_id); }}
+                      className="px-6 py-3 rounded-full text-sm font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold to-gold-light text-background hover:shadow-[0_0_24px_rgba(218,165,32,0.3)] transition-all"
+                    >
+                      <Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Colher o Fruto Dourado — R$ 39,90/mês
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="card-glass rounded-lg p-5 mb-5">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Descreva sua visão em português</label>
+                      <textarea
+                        value={desc} onChange={e => setDesc(e.target.value)}
+                        placeholder="Ex: A capital do meu reino élfico ao entardecer, com torres de cristal brilhando sob a luz dourada…"
+                        rows={3}
+                        className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50 resize-y"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Estilo Visual</label>
+                        <select value={style} onChange={e => setStyle(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-gold/50">
+                          {STYLE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Tipo de Imagem</label>
+                        <select value={imgType} onChange={e => setImgType(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-gold/50">
+                          {IMAGE_TYPE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Tom / Iluminação</label>
+                        <select value={tone} onChange={e => setTone(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-gold/50">
+                          {TONE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Detalhes extras (opcional)</label>
+                      <input type="text" value={extras} onChange={e => setExtras(e.target.value)}
+                        placeholder="Cores, elementos obrigatórios, atmosfera…"
+                        className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-4 border-t border-gold/10">
+                    <ImageReferencePicker value={pickedRefs} onChange={setPickedRefs} gallery={gallery} codexEntries={codexEntries} max={3} />
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3 mt-5">
+                    <button onClick={handleCreatePrompt} disabled={loading1}
+                      className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold text-gold-light hover:bg-gold/10 disabled:opacity-40 transition-all">
+                      <Leaf className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />
+                      {loading1 ? 'Idriel está tecendo…' : '1. Pedir Visão a Idriel'}
+                    </button>
+                    <button onClick={handleGenerate} disabled={loading2 || !generatedPrompt}
+                      className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-all">
+                      <Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />
+                      {loading2 ? 'Materializando…' : '2. Materializar Visão'}
+                    </button>
+                  </div>
+
+                  {error && <p className="text-red-alert text-sm mt-3">{error}</p>}
+
+                  {(loading1 || loading2) && (
+                    <div className="mt-4 animate-fadeUp">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gold/60 shadow-[0_0_16px_rgba(218,165,32,0.4)] shrink-0">
+                          <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="font-merriweather italic text-xs text-gold-light">
+                            {loading1 ? 'Idriel está tecendo a essência da sua visão…' : 'O Elixir dos Mundos flui… sua visão está tomando forma…'}
+                          </span>
+                          <div className="w-full h-1.5 bg-gold/10 rounded-full overflow-hidden mt-1.5">
+                            <div className="h-full rounded-full bg-gradient-to-r from-gold/60 via-gold to-gold/60"
+                              style={{ width: loading1 ? '60%' : '80%', transition: 'width 3s ease-out' }}
+                            />
+                          </div>
+                          <p className="text-[9px] text-text-dim/50 mt-1 font-montserrat">
+                            {loading1 ? 'Etapa 1/2 — Criando prompt' : 'Etapa 2/2 — Gerando imagem (até 30s)'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {generatedPrompt && !loading1 && planLimits.canUseAI && (
+                <div className="animate-fadeUp card-glass rounded-lg p-5 mb-5 border border-gold/20">
+                  <span className="font-cinzel text-[10px] text-gold-light mb-2 inline-flex items-center gap-1.5">
+                    <Leaf className="w-3 h-3" strokeWidth={1.75} />Visão tecida por Idriel
+                  </span>
+                  <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed mb-4">{generatedPrompt}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <button onClick={copyPrompt} className="px-3 py-1.5 rounded-md text-xs font-montserrat border border-gold/30 text-text-secondary hover:text-foreground transition-colors">
+                      {copied ? <><Check className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Copiado!</>
+                              : <><ClipboardCopy className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Copiar</>}
+                    </button>
+                    <button onClick={handleGenerate} disabled={loading2}
+                      className="px-3 py-1.5 rounded-md text-xs font-montserrat bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-colors">
+                      <Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Materializar Visão
+                    </button>
                   </div>
                 </div>
               )}
-            </div>
-          )}
 
-          {/* Generated prompt */}
-          {generatedPrompt && !loading1 && planLimits.canUseAI && (
-            <div className="animate-fadeUp card-glass rounded-lg p-5 mb-5 border border-gold/20">
-              <span className="font-cinzel text-[10px] text-gold-light mb-2 inline-flex items-center gap-1.5"><Leaf className="w-3 h-3" strokeWidth={1.75} />Visão tecida por Idriel</span>
-              <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed mb-4">{generatedPrompt}</p>
-              <div className="flex flex-wrap gap-2">
-                <button onClick={copyPrompt} className="px-3 py-1.5 rounded-md text-xs font-montserrat border border-gold/30 text-text-secondary hover:text-foreground transition-colors">
-                  <>{copied ? <><Check className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Copiado!</> : <><ClipboardCopy className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Copiar para Midjourney / Leonardo</>}</>
-                </button>
-                <button
-                  onClick={handleGenerate}
-                  disabled={loading2}
-                  className="px-3 py-1.5 rounded-md text-xs font-montserrat bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-colors"
-                >
-                  <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Materializar Visão</>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Generated image */}
-          {generatedImage && !loading2 && (
-            <div className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20">
-              <span className="font-cinzel text-[10px] text-gold-light mb-3 inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3" strokeWidth={1.75} />Visão materializada pelo Elixir dos Mundos</span>
-              <img loading="lazy" decoding="async" src={generatedImage} alt="Visão de Idriel" className="w-full max-w-[512px] mx-auto rounded-lg mb-4" />
-              <div className="flex flex-wrap gap-2 justify-center">
-                <button onClick={() => { setSaveCat('Todos'); setShowSaveModal(true); }} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors">
-                  <><Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Guardar na Galeria</>
-                </button>
-                <a href={generatedImage} download target="_blank" rel="noopener" className="px-4 py-2 rounded-md text-xs font-montserrat border border-gold/30 text-text-secondary hover:text-foreground transition-colors">
-                  <><ArrowDown className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Baixar</>
-                </a>
-              </div>
-            </div>
-          )}
-
-          {/* ===== Histórico: Visões tecidas por Idriel ===== */}
-          {visions.length > 0 && (
-            <div className="mt-6 rounded-lg border border-gold/15 bg-gold/[0.03] p-4">
-              <button
-                onClick={() => setShowHistory(s => !s)}
-                className="w-full flex items-center justify-between mb-3"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="font-cinzel text-sm font-bold text-gold-light inline-flex items-center gap-2"><ScrollText className="w-4 h-4" strokeWidth={1.75} />Visões tecidas por Idriel</span>
-                  <span className="text-[10px] text-text-dim font-montserrat">({visions.length})</span>
+              {generatedImage && !loading2 && (
+                <div className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20">
+                  <span className="font-cinzel text-[10px] text-gold-light mb-3 inline-flex items-center gap-1.5">
+                    <Sparkles className="w-3 h-3" strokeWidth={1.75} />Visão materializada
+                  </span>
+                  <img src={generatedImage} alt="Visão de Idriel" className="w-full max-w-[512px] mx-auto rounded-lg mb-4" />
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    <button onClick={() => { setSaveCat(FOLDER_FRUITS[0].name); setShowSaveModal(true); }}
+                      className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors">
+                      <Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />
+                      Guardar em uma pasta
+                    </button>
+                    <a href={generatedImage} download target="_blank" rel="noopener"
+                      className="px-4 py-2 rounded-md text-xs font-montserrat border border-gold/30 text-text-secondary hover:text-foreground transition-colors">
+                      <ArrowDown className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Baixar
+                    </a>
+                  </div>
                 </div>
-                {showHistory ? <ChevronUp className="w-4 h-4 text-gold-light/60" /> : <ChevronDown className="w-4 h-4 text-gold-light/60" />}
-              </button>
-              {showHistory && (
-                <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
-                  {visions.map(v => (
-                    <div key={v.id} className="flex gap-3 rounded-md border border-gold/10 bg-background/40 p-3">
-                      {v.image_url ? (
-                        <img loading="lazy" decoding="async"
-                          src={v.image_url}
-                          alt={v.description}
-                          className="w-20 h-20 object-cover rounded cursor-zoom-in flex-shrink-0"
-                          onClick={() => v.image_url && setLightbox({ src: v.image_url, alt: v.description })}
-                        />
-                      ) : (
-                        <div className="w-20 h-20 rounded bg-gold/5 border border-gold/10 flex items-center justify-center flex-shrink-0 text-gold-light/40 text-xs italic">
-                          (sem img)
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-merriweather text-foreground line-clamp-2 mb-1">{v.description || 'Sem descrição'}</p>
-                        <p className="text-[10px] text-text-dim font-mono line-clamp-2 whitespace-pre-wrap">{v.prompt}</p>
-                        <div className="flex flex-wrap gap-1.5 mt-2">
-                          <button
-                            onClick={() => { navigator.clipboard.writeText(v.prompt); toast.success('Prompt copiado'); }}
-                            className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors"
-                          >
-                            <><ClipboardCopy className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Copiar prompt</>
-                          </button>
-                          <button
-                            onClick={() => { setGeneratedPrompt(v.prompt); setDesc(v.description); toast.success('Prompt restaurado para edição'); }}
-                            className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors"
-                          >
-                            <><RotateCw className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reusar</>
-                          </button>
-                          {v.image_url && (
-                            <button
-                              onClick={() => addToGallery({ id: Date.now().toString(), src: v.image_url!, name: v.description.slice(0, 40) || 'Visão de Idriel', cat: 'Geral', status: 'unsorted' })}
-                              className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors"
-                            >
-                              <><Save className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />P/ Galeria</>
-                            </button>
-                          )}
-                          <button
-                            onClick={() => { if (confirm('Excluir esta visão do histórico?')) deleteVision(v.id); }}
-                            className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-red-alert/30 text-red-alert/80 hover:bg-red-alert/10 transition-colors ml-auto"
-                          >
-                            <Trash2 className="w-3 h-3 inline" />
-                          </button>
-                        </div>
-                      </div>
+              )}
+
+              {/* Histórico */}
+              {visions.length > 0 && (
+                <div className="mt-6 rounded-lg border border-gold/15 bg-gold/[0.03] p-4">
+                  <button onClick={() => setShowHistory(s => !s)} className="w-full flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="font-cinzel text-sm font-bold text-gold-light inline-flex items-center gap-2">
+                        <ScrollText className="w-4 h-4" strokeWidth={1.75} />Visões tecidas por Idriel
+                      </span>
+                      <span className="text-[10px] text-text-dim font-montserrat">({visions.length})</span>
                     </div>
-                  ))}
+                    {showHistory ? <ChevronUp className="w-4 h-4 text-gold-light/60" /> : <ChevronDown className="w-4 h-4 text-gold-light/60" />}
+                  </button>
+                  {showHistory && (
+                    <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+                      {visions.map(v => (
+                        <div key={v.id} className="flex gap-3 rounded-md border border-gold/10 bg-background/40 p-3">
+                          {v.image_url ? (
+                            <img src={v.image_url} alt={v.description} loading="lazy"
+                              className="w-20 h-20 object-cover rounded cursor-zoom-in flex-shrink-0"
+                              onClick={() => v.image_url && setLightbox({ src: v.image_url, alt: v.description })}
+                            />
+                          ) : (
+                            <div className="w-20 h-20 rounded bg-gold/5 border border-gold/10 flex items-center justify-center flex-shrink-0 text-gold-light/40 text-xs italic">(sem img)</div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-merriweather text-foreground line-clamp-2 mb-1">{v.description || 'Sem descrição'}</p>
+                            <p className="text-[10px] text-text-dim font-mono line-clamp-2 whitespace-pre-wrap">{v.prompt}</p>
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                              <button onClick={() => { navigator.clipboard.writeText(v.prompt); toast.success('Prompt copiado'); }}
+                                className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
+                                <ClipboardCopy className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Copiar prompt
+                              </button>
+                              <button onClick={() => { setGeneratedPrompt(v.prompt); setDesc(v.description); toast.success('Prompt restaurado'); }}
+                                className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
+                                <RotateCw className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reusar
+                              </button>
+                              {v.image_url && (
+                                <button onClick={() => addToGallery({ id: Date.now().toString(), src: v.image_url!, name: v.description.slice(0, 40) || 'Visão de Idriel', cat: FOLDER_FRUITS[0].name, status: 'unsorted' })}
+                                  className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
+                                  <Save className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />P/ Galeria
+                                </button>
+                              )}
+                              <button onClick={() => { if (confirm('Excluir esta visão do histórico?')) deleteVision(v.id); }}
+                                className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-red-alert/30 text-red-alert/80 hover:bg-red-alert/10 transition-colors ml-auto">
+                                <Trash2 className="w-3 h-3 inline" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -878,63 +769,32 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
         </div>
       )}
 
-      {/* Save to gallery modal */}
+      {/* Save-to-folder modal */}
       {showSaveModal && (
-        <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-3 sm:p-4">
-          <div className="card-glass rounded-lg w-full max-w-sm p-5 animate-fadeUp border border-gold/20">
-            <h3 className="font-cinzel font-bold text-foreground mb-1">Guardar Visão na Galeria</h3>
-            <p className="font-merriweather text-xs text-text-dim italic mb-4">Em qual categoria deseja guardar esta visão?</p>
-            <div className="flex flex-wrap gap-1.5 mb-4">
-              <button onClick={() => setSaveCat('Todos')} className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${saveCat === 'Todos' ? 'bg-gold/20 text-gold-light border border-gold/40' : 'text-text-dim border border-transparent hover:border-gold/20'}`}>Geral</button>
-              {galleryFruits.map(f => (
-                <button key={f.id} onClick={() => setSaveCat(f.name)} className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${saveCat === f.name ? 'bg-gold/20 text-gold-light border border-gold/40' : 'text-text-dim border border-transparent hover:border-gold/20'}`}>
-                  <f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}
+        <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-3 sm:p-4" onClick={() => setShowSaveModal(false)}>
+          <div className="card-glass rounded-lg w-full max-w-md p-5 animate-fadeUp border border-gold/20" onClick={e => e.stopPropagation()}>
+            <h3 className="font-cinzel font-bold text-foreground mb-1 inline-flex items-center gap-2">
+              <FolderOpen className="w-4 h-4 text-gold-champagne" strokeWidth={1.75} />Categorizar visão
+            </h3>
+            <p className="font-merriweather text-xs text-text-dim italic mb-4">Escolha a pasta onde a visão será arquivada.</p>
+            <div className="grid grid-cols-2 gap-1.5 mb-4 max-h-[300px] overflow-y-auto">
+              {FOLDER_FRUITS.map(f => (
+                <button key={f.id} onClick={() => setSaveCat(f.name)}
+                  className={`px-2.5 py-1.5 rounded-md text-[11px] font-montserrat font-bold text-left transition-colors ${saveCat === f.name ? 'bg-gold/20 text-gold-light border border-gold/40' : 'text-text-dim border border-transparent hover:border-gold/20'}`}>
+                  <f.Icon className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} />{f.name}
                 </button>
               ))}
             </div>
             <div className="flex gap-2 justify-end">
               <button onClick={() => setShowSaveModal(false)} className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-border hover:text-foreground transition-colors">Cancelar</button>
-              <button onClick={confirmSave} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors inline-flex items-center gap-1.5"><Save className="w-3.5 h-3.5" strokeWidth={1.75} />Guardar</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tag-and-archive modal for unsorted images */}
-      {tagging && (
-        <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-3 sm:p-4" onClick={() => setTagging(null)}>
-          <div className="card-glass rounded-lg w-full max-w-sm p-5 animate-fadeUp border border-gold/20" onClick={e => e.stopPropagation()}>
-            <h3 className="font-cinzel font-bold text-foreground mb-1 inline-flex items-center gap-2"><Trees className="w-4 h-4 text-gold-champagne" strokeWidth={1.75} />Etiquetar Visão</h3>
-            <p className="font-merriweather text-xs text-text-dim italic mb-4">Escolha o Fruto/categoria onde esta visão deve ser arquivada.</p>
-            <div className="flex flex-wrap gap-1.5 mb-4 max-h-[240px] overflow-y-auto">
-              {galleryFruits.map(f => (
-                <button
-                  key={f.id}
-                  onClick={() => setTagCat(f.name)}
-                  className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${tagCat === f.name ? 'bg-gold/20 text-gold-light border border-gold/40' : 'text-text-dim border border-transparent hover:border-gold/20'}`}
-                >
-                  <f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}
-                </button>
-              ))}
-            </div>
-            <div className="flex gap-2 justify-end">
-              <button onClick={() => setTagging(null)} className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-border hover:text-foreground transition-colors">Cancelar</button>
-              <button
-                onClick={() => {
-                  updateImage(tagging.id, { status: 'kept', cat: tagCat });
-                  toast.success(`Etiquetada em "${tagCat}"`);
-                  setTagging(null);
-                }}
-                className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors"
-              >
-                <><Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Etiquetar</>
+              <button onClick={confirmSave} className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors inline-flex items-center gap-1.5">
+                <Save className="w-3.5 h-3.5" strokeWidth={1.75} />Guardar em "{saveCat}"
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Lightbox */}
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
     </div>
   );
