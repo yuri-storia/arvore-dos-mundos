@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import heroVideo from '@/assets/arvore-hero-loop-720.mp4.asset.json';
+import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
+import heroVideo480 from '@/assets/arvore-hero-loop-480.mp4.asset.json';
 import heroPoster from '@/assets/arvore-mundos-hero.webp.asset.json';
 import { UserMenu } from '@/components/UserMenu';
 import { FRUITS } from '@/lib/data';
