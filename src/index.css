@@ -485,3 +485,209 @@
 @media (prefers-reduced-motion: reduce) {
   .animate-fruit-active { animation: none; }
 }
+
+/* =========================================================
+   Fruit evaluation cards — leve / médio / forte
+   Driven by CSS vars: --accent, --bgA, --edgeA, --haloA, --ringA, --topBar
+   ========================================================= */
+.fruit-eval-card {
+  position: relative;
+  border-radius: 0.9rem;
+  padding: 0.9rem;
+  overflow: hidden;
+  backdrop-filter: blur(18px) saturate(1.08);
+  -webkit-backdrop-filter: blur(18px) saturate(1.08);
+  background:
+    linear-gradient(140deg,
+      color-mix(in oklab, var(--accent, hsl(var(--gold-warm))), transparent calc(100% - (var(--bgA) * 100%))) 0%,
+      rgba(6,8,14,0.55) 60%,
+      rgba(6,8,14,0.72) 100%);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.035),
+    inset 0 0 0 1px color-mix(in oklab, var(--accent), transparent calc(100% - (var(--ringA) * 100%))),
+    0 10px 32px -20px color-mix(in oklab, var(--accent), transparent 55%),
+    0 1px 0 hsl(0 0% 0% / 0.45);
+  transition:
+    transform 0.35s cubic-bezier(0.16,1,0.3,1),
+    box-shadow 0.4s ease,
+    background 0.4s ease;
+  cursor: default;
+}
+.fruit-eval-card__edge {
+  pointer-events: none;
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  top: 0;
+  transition: opacity 0.35s ease, filter 0.35s ease;
+}
+.fruit-eval-card__halo {
+  pointer-events: none;
+  position: absolute;
+  top: -1.5rem;
+  right: -1.5rem;
+  width: 6rem;
+  height: 6rem;
+  border-radius: 9999px;
+  filter: blur(20px);
+  transition: opacity 0.4s ease, transform 0.5s ease;
+}
+.fruit-eval-card__sheen {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(115deg,
+    transparent 0%,
+    color-mix(in oklab, var(--accent, hsl(var(--gold-warm))), transparent 78%) 45%,
+    color-mix(in oklab, hsl(var(--gold-champagne)), transparent 82%) 55%,
+    transparent 100%);
+  opacity: 0;
+  transform: translateX(-40%);
+  transition: opacity 0.5s ease, transform 0.9s cubic-bezier(0.22,1,0.36,1);
+  mix-blend-mode: screen;
+}
+.fruit-eval-card__icon {
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s ease;
+}
+
+.fruit-eval-card:hover,
+.fruit-eval-card:focus-visible {
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.05),
+    inset 0 0 0 1px color-mix(in oklab, var(--accent), transparent calc(100% - ((var(--ringA) + 0.18) * 100%))),
+    0 16px 42px -18px color-mix(in oklab, var(--accent), transparent 40%),
+    0 0 32px -8px color-mix(in oklab, var(--accent), transparent 55%),
+    0 1px 0 hsl(0 0% 0% / 0.45);
+}
+.fruit-eval-card:hover .fruit-eval-card__sheen,
+.fruit-eval-card:focus-visible .fruit-eval-card__sheen {
+  opacity: 1;
+  transform: translateX(35%);
+}
+.fruit-eval-card:hover .fruit-eval-card__halo,
+.fruit-eval-card:focus-visible .fruit-eval-card__halo {
+  opacity: calc(var(--haloA) + 0.25);
+  transform: scale(1.15);
+}
+.fruit-eval-card:hover .fruit-eval-card__icon,
+.fruit-eval-card:focus-visible .fruit-eval-card__icon {
+  transform: translateY(-1px) scale(1.04);
+  box-shadow:
+    0 0 24px color-mix(in oklab, var(--accent), transparent 65%),
+    inset 0 0 0 1px color-mix(in oklab, var(--accent), transparent 62%),
+    inset 0 1px 0 hsl(0 0% 100% / 0.08);
+}
+.fruit-eval-card:active {
+  transform: translateY(0) scale(0.995);
+  transition-duration: 0.15s;
+}
+.fruit-eval-card:focus-visible {
+  outline: none;
+}
+
+/* Emphasis-specific accents (soft is quieter, strong more assertive on hover) */
+.fruit-eval-card[data-emphasis="strong"]:hover {
+  background:
+    linear-gradient(140deg,
+      color-mix(in oklab, var(--accent), transparent 68%) 0%,
+      rgba(8,6,3,0.55) 55%,
+      rgba(6,8,14,0.7) 100%);
+}
+.fruit-eval-card[data-emphasis="medium"]:hover {
+  background:
+    linear-gradient(140deg,
+      color-mix(in oklab, var(--accent), transparent 78%) 0%,
+      rgba(8,6,3,0.58) 55%,
+      rgba(6,8,14,0.72) 100%);
+}
+.fruit-eval-card[data-emphasis="soft"]:hover {
+  background:
+    linear-gradient(140deg,
+      color-mix(in oklab, var(--accent), transparent 86%) 0%,
+      rgba(8,6,3,0.6) 55%,
+      rgba(6,8,14,0.74) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fruit-eval-card,
+  .fruit-eval-card__sheen,
+  .fruit-eval-card__halo,
+  .fruit-eval-card__icon { transition: none; }
+}
+
+/* =========================================================
+   Evidence chips — soft / medium / strong emphasis
+   ========================================================= */
+.evidence-chip {
+  --chip-accent: hsl(var(--gold-warm));
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.55rem 0.15rem 0.5rem;
+  border-radius: 9999px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  color: hsl(var(--gold-cream) / 0.72);
+  background: linear-gradient(135deg,
+    hsl(var(--gold-warm) / 0.05),
+    hsl(var(--gold-deep) / 0.04));
+  box-shadow: inset 0 0 0 1px hsl(var(--gold-warm) / 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.3s ease,
+    transform 0.2s cubic-bezier(0.16,1,0.3,1);
+  cursor: default;
+  outline: none;
+}
+.evidence-chip__quote {
+  color: hsl(var(--gold-warm) / 0.6);
+  transition: color 0.25s ease;
+}
+.evidence-chip__label { white-space: nowrap; }
+
+.evidence-chip[data-emphasis="medium"] {
+  color: hsl(var(--gold-cream) / 0.85);
+  background: linear-gradient(135deg,
+    hsl(var(--gold-warm) / 0.10),
+    hsl(var(--gold-deep) / 0.06));
+  box-shadow: inset 0 0 0 1px hsl(var(--gold-warm) / 0.22);
+}
+.evidence-chip[data-emphasis="strong"] {
+  color: hsl(var(--gold-cream) / 0.95);
+  background: linear-gradient(135deg,
+    hsl(var(--gold-warm) / 0.18),
+    hsl(var(--gold-champagne) / 0.08));
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--gold-warm) / 0.35),
+    0 0 12px -6px hsl(var(--gold-warm) / 0.4);
+}
+.evidence-chip[data-emphasis="strong"] .evidence-chip__quote {
+  color: hsl(var(--gold-light) / 0.85);
+}
+
+.evidence-chip:hover,
+.evidence-chip:focus-visible {
+  color: hsl(var(--gold-cream));
+  background: linear-gradient(135deg,
+    hsl(var(--gold-warm) / 0.28),
+    hsl(var(--gold-champagne) / 0.14));
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--gold-champagne) / 0.5),
+    0 0 18px -6px hsl(var(--gold-warm) / 0.55),
+    0 2px 8px -4px hsl(0 0% 0% / 0.4);
+  transform: translateY(-1px);
+}
+.evidence-chip:hover .evidence-chip__quote,
+.evidence-chip:focus-visible .evidence-chip__quote {
+  color: hsl(var(--gold-light));
+}
+.evidence-chip:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.1s;
+}
