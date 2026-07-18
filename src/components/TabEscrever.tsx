@@ -11,7 +11,10 @@ import {
   Plus, Trash2, FileText, BookOpen,
   PanelRightOpen, StickyNote, Search, BookMarked, PenLine,
   LayoutGrid, ChevronRight, ChevronDown, X, Upload, GripVertical,
+  Feather, Target,
 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ImportManuscriptDialog } from '@/components/ImportManuscriptDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
