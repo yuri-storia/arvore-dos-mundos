@@ -133,15 +133,17 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
           />
           <video
             className="absolute inset-0 w-full h-full object-cover object-[center_30%] opacity-60"
-            src={heroVideo.url}
             poster={heroPoster.url}
             autoPlay
             muted
             loop
             playsInline
-            preload="none"
+            preload="metadata"
             aria-hidden="true"
-          />
+          >
+            <source src={heroVideo720.url} type="video/mp4" media="(min-width: 768px)" />
+            <source src={heroVideo480.url} type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-b from-transparent from-20% via-[#02070d]/70 via-60% to-[#02070d]" />
           <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-b from-transparent to-[#02070d]" />
         </div>
