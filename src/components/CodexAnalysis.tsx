@@ -189,13 +189,17 @@ const FruitEvaluationGrid: React.FC<{ items: FruitEval[] }> = ({ items }) => {
               visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.35, ease: [0.32, 0.72, 0, 1] } },
             }}
             whileHover={{ y: -2 }}
-            className="relative rounded-xl p-3.5 border overflow-hidden group backdrop-blur-xl"
+            className="relative rounded-xl p-3.5 overflow-hidden group backdrop-blur-xl"
             style={{
-              background: `linear-gradient(140deg, rgba(14,10,4,0.42) 0%, rgba(6,8,14,0.5) 100%), radial-gradient(circle at 0% 0%, ${accent}14, transparent 60%)`,
-              borderColor: `${accent}26`,
-              boxShadow: `inset 0 1px 0 hsl(0 0% 100% / 0.04), inset 0 0 0 1px ${accent}10, 0 8px 28px -18px ${accent}66`,
+              background: `linear-gradient(140deg, rgba(14,10,4,0.5) 0%, rgba(6,8,14,0.6) 100%), radial-gradient(circle at 0% 0%, ${accent}12, transparent 60%)`,
+              boxShadow: `inset 0 1px 0 hsl(0 0% 100% / 0.03), 0 10px 32px -20px ${accent}55, 0 1px 0 hsl(0 0% 0% / 0.4)`,
             }}
           >
+            {/* Gold gradient top edge — elegant accent instead of full border */}
+            <div
+              className="pointer-events-none absolute inset-x-3 top-0 h-px"
+              style={{ background: `linear-gradient(to right, transparent, ${accent}66, transparent)` }}
+            />
             <div
               className="pointer-events-none absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-30 blur-2xl"
               style={{ background: `radial-gradient(circle, ${accent}44, transparent 70%)` }}
@@ -280,13 +284,17 @@ const SectionCard: React.FC<{
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1], delay: index * 0.06 }}
-      className="relative rounded-2xl border p-4 sm:p-5 overflow-hidden backdrop-blur-xl"
+      className="relative rounded-2xl p-4 sm:p-5 overflow-hidden backdrop-blur-xl"
       style={{
-        background: `linear-gradient(140deg, rgba(12,10,6,0.4) 0%, rgba(6,8,14,0.5) 100%), radial-gradient(circle at 0% 0%, ${color}10, transparent 55%)`,
-        borderColor: `${color}1c`,
-        boxShadow: `inset 0 1px 0 hsl(0 0% 100% / 0.04), inset 0 0 0 1px ${color}0c, 0 12px 36px -24px ${color}55`,
+        background: `linear-gradient(140deg, rgba(12,10,6,0.48) 0%, rgba(6,8,14,0.6) 100%), radial-gradient(circle at 0% 0%, ${color}10, transparent 55%)`,
+        boxShadow: `inset 0 1px 0 hsl(0 0% 100% / 0.03), 0 14px 40px -26px ${color}55, 0 1px 0 hsl(0 0% 0% / 0.4)`,
       }}
     >
+      {/* Gold gradient top edge — refined accent */}
+      <div
+        className="pointer-events-none absolute inset-x-4 top-0 h-px"
+        style={{ background: `linear-gradient(to right, transparent, ${color}55, transparent)` }}
+      />
       <div
         className="pointer-events-none absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-30"
         style={{ background: `radial-gradient(circle, ${color}44, transparent 70%)` }}
