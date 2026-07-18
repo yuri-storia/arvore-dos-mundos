@@ -168,8 +168,10 @@ const PricingPage: React.FC = () => {
             </h1>
 
             <p className="font-amiri text-text-secondary text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
-              O santuário definitivo para autores de fantasia e ficção. Construa universos
-              vivos, escreva sem fricção e veja sua narrativa florescer — tudo em um só lugar.
+              O santuário do autor de fantasia e ficção. Construa universos vivos e escreva
+              suas histórias com <span className="text-gold-champagne">Idriel ao seu lado</span> —
+              uma assistente que <em className="text-gold-cream">ajuda você a enxergar ideias,
+              caminhos e decisões</em>. A caneta continua sendo sua.
             </p>
           </motion.div>
         </div>
