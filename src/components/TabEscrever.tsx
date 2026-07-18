@@ -383,6 +383,10 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const handleManuscriptTitleChange = (next: string) => {
     setManuscriptTitleLocal(next);
     if (!activeManuscript) return;
+    // Sync sidebar instantly (before debounced DB write).
+    try {
+      window.dispatchEvent(new CustomEvent('adm:manuscript-renamed', { detail: { id: activeManuscript.id, title: next } }));
+    } catch {}
     if (titleSaveTimerRef.current) clearTimeout(titleSaveTimerRef.current);
     titleSaveTimerRef.current = setTimeout(() => {
       updateManuscript(activeManuscript.id, { title: next });
