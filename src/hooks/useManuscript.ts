@@ -142,7 +142,8 @@ export function useManuscript(worldId?: string) {
     setManuscripts(prev => prev.filter(m => m.id !== id));
     if (activeManuscript?.id === id) setActiveManuscript(null);
     toast.success('Manuscrito excluído');
-  }, [activeManuscript]);
+    try { window.dispatchEvent(new CustomEvent('adm:manuscripts-changed', { detail: { worldId } })); } catch {}
+  }, [activeManuscript, worldId]);
 
   const createChapter = useCallback(async (title?: string) => {
     if (!user || !activeManuscript) return null;
