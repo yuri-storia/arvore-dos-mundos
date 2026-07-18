@@ -21,6 +21,10 @@ import heroVideo1080 from '@/assets/arvore-hero-loop-1080.mp4.asset.json';
 import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
+import previewConstruir from '@/assets/plataforma-construir.jpg.asset.json';
+import previewCodex from '@/assets/plataforma-codex.jpg.asset.json';
+import previewEscrever from '@/assets/plataforma-escrever.jpg.asset.json';
+import previewGaleria from '@/assets/plataforma-galeria.jpg.asset.json';
 
 const heroSrcSet = `${hero640.url} 640w, ${hero960.url} 960w, ${hero1280.url} 1280w, ${hero1600.url} 1600w`;
 
