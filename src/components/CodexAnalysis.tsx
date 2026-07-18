@@ -670,57 +670,93 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
         </button>
       )}
 
-      {/* History list */}
-      {showHistory && (
-        <div className="mb-4 animate-fadeUp">
-          <ScrollArea className="max-h-[240px]">
-            <div className="space-y-2 pr-2">
-              {history.map(item => (
-                <div
-                  key={item.id}
-                  className={`rounded-md p-3 border transition-colors cursor-pointer group ${
-                    viewingHistoryId === item.id
-                      ? 'border-accent/40 bg-accent/10'
-                      : 'border-border bg-background/30 hover:border-accent/20 hover:bg-accent/5'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <button
-                      onClick={() => viewHistoryItem(item)}
-                      className="flex-1 text-left"
+      {/* History list — refined scroll of past readings */}
+      <AnimatePresence initial={false}>
+        {showHistory && (
+          <motion.div
+            key="history"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
+            className="mb-4 overflow-hidden"
+          >
+            <ScrollArea className="max-h-[280px]">
+              <motion.div
+                className="space-y-2 pr-2"
+                initial="hidden"
+                animate="visible"
+                variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.04 } } }}
+              >
+                {history.map((item, idx) => {
+                  const active = viewingHistoryId === item.id;
+                  return (
+                    <motion.div
+                      key={item.id}
+                      variants={{
+                        hidden: { opacity: 0, x: -8 },
+                        visible: { opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.32, 0.72, 0, 1] } },
+                      }}
+                      className={`relative rounded-lg p-3 pl-4 border transition-all cursor-pointer group overflow-hidden ${
+                        active
+                          ? 'border-gold-warm/50 bg-gold-warm/[0.08] shadow-[0_0_20px_-10px_hsl(var(--gold-warm)/0.6)]'
+                          : 'border-gold-warm/15 bg-[rgba(8,6,2,0.4)] hover:border-gold-warm/35 hover:bg-gold-warm/[0.04]'
+                      }`}
                     >
-                      <p className="text-xs font-montserrat font-bold text-foreground">
-                        {new Date(item.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
-                        <span className="text-text-dim font-normal ml-2">
-                          {new Date(item.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </p>
-                      <p className="text-[10px] text-text-dim font-montserrat mt-0.5">
-                        {item.ficha_count} fichas · {item.artigo_count} artigos · {item.covered_fruits}/11 frutos
-                      </p>
-                    </button>
-                    <ConfirmDialog
-                      trigger={
-                        <button
-                          onClick={(e) => e.stopPropagation()}
-                          className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded-full text-destructive hover:bg-destructive/10 text-xs flex items-center justify-center transition-all"
-                          title="Excluir análise"
-                        >
-                          <Trash2 className="w-3 h-3" strokeWidth={1.75} />
+                      <span
+                        className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full"
+                        style={{
+                          background: active
+                            ? 'linear-gradient(180deg, hsl(var(--gold-light)), hsl(var(--gold-warm)))'
+                            : 'linear-gradient(180deg, hsl(var(--gold-warm)/0.5), transparent)',
+                        }}
+                      />
+                      <div className="flex items-center justify-between gap-2">
+                        <button onClick={() => viewHistoryItem(item)} className="flex-1 text-left min-w-0">
+                          <p className="text-xs font-cinzel font-bold text-foreground inline-flex items-center gap-2">
+                            <BookMarked className="w-3 h-3 text-gold-champagne shrink-0" strokeWidth={1.75} />
+                            {new Date(item.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                            <span className="text-text-dim font-montserrat font-normal">
+                              {new Date(item.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </p>
+                          <div className="flex flex-wrap gap-1.5 mt-1.5">
+                            <span className="text-[10px] font-montserrat px-1.5 py-0.5 rounded-md bg-blue-main/12 text-blue-light/90 border border-blue-bright/25 inline-flex items-center gap-1">
+                              <ClipboardList className="w-2.5 h-2.5" strokeWidth={2} />{item.ficha_count}
+                            </span>
+                            <span className="text-[10px] font-montserrat px-1.5 py-0.5 rounded-md bg-gold-warm/12 text-gold-light border border-gold-warm/30 inline-flex items-center gap-1">
+                              <PencilLine className="w-2.5 h-2.5" strokeWidth={2} />{item.artigo_count}
+                            </span>
+                            <span className="text-[10px] font-montserrat px-1.5 py-0.5 rounded-md bg-gold-champagne/12 text-gold-champagne border border-gold-champagne/30 inline-flex items-center gap-1">
+                              <Leaf className="w-2.5 h-2.5" strokeWidth={2} />{item.covered_fruits}/11
+                            </span>
+                          </div>
                         </button>
-                      }
-                      title="Excluir análise"
-                      description="Tem certeza que deseja excluir esta análise? Ela não poderá ser recuperada."
-                      confirmLabel="Excluir"
-                      onConfirm={() => handleDeleteAnalysis(item.id)}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
-      )}
+                        <ConfirmDialog
+                          trigger={
+                            <button
+                              onClick={(e) => e.stopPropagation()}
+                              className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-full text-destructive/80 hover:bg-destructive/10 hover:text-destructive flex items-center justify-center transition-all shrink-0"
+                              title="Excluir análise"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" strokeWidth={1.75} />
+                            </button>
+                          }
+                          title="Excluir análise"
+                          description="Tem certeza que deseja excluir esta análise? Ela não poderá ser recuperada."
+                          confirmLabel="Excluir"
+                          onConfirm={() => handleDeleteAnalysis(item.id)}
+                        />
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            </ScrollArea>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
 
 
       {!sub.loading && !planLimits.canUseAI && (
