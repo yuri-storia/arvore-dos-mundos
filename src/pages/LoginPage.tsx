@@ -5,8 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import treeWallpaper from '@/assets/tree-wallpaper.webp';
-import heroVideo from '@/assets/arvore-hero-loop-720.mp4.asset.json';
-import heroPoster from '@/assets/arvore-mundos-hero-960.webp.asset.json';
+import heroLoopGif from '@/assets/arvore-hero-loop.gif.asset.json';
+
 
 const Particles: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -325,16 +325,13 @@ const LoginPage: React.FC = () => {
     <div className="min-h-screen bg-background relative flex items-center justify-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 z-0">
-        <video
+        <img
           className="absolute inset-0 w-full h-full object-cover"
-          src={heroVideo.url}
-          poster={heroPoster.url}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="none"
+          src={heroLoopGif.url}
+          alt=""
           aria-hidden="true"
+          decoding="async"
+          loading="eager"
         />
         <div
           className="absolute inset-0 pointer-events-none"

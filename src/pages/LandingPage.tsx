@@ -17,8 +17,7 @@ import hero640 from '@/assets/arvore-mundos-hero-640.webp.asset.json';
 import hero960 from '@/assets/arvore-mundos-hero-960.webp.asset.json';
 import hero1280 from '@/assets/arvore-mundos-hero-1280.webp.asset.json';
 import hero1600 from '@/assets/arvore-mundos-hero-1600.webp.asset.json';
-import heroVideo1080 from '@/assets/arvore-hero-loop-1080.mp4.asset.json';
-import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
+import heroLoopGif from '@/assets/arvore-hero-loop.gif.asset.json';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
 import previewConstruir from '@/assets/plataforma-construir.jpg.asset.json';
@@ -196,23 +195,18 @@ const LandingPage: React.FC = () => {
 
       {/* ============================== 1. HERO ============================= */}
       <section className="relative isolate overflow-hidden min-h-[92vh] flex items-center">
-        {/* Vídeo de fundo — Árvore animada (mais visível, brilho/saturação ajustados) */}
-        <video
+        {/* GIF de fundo — Árvore animada (loop perfeito, sem travamento) */}
+        <img
           className="absolute inset-0 -z-20 w-full h-full object-cover scale-[1.08]"
-          poster={hero1280.url}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
+          src={heroLoopGif.url}
+          alt=""
           aria-hidden="true"
+          decoding="async"
+          loading="eager"
           style={{
             filter: 'brightness(1.12) contrast(1.05) saturate(1.15)',
           }}
-        >
-          <source src={heroVideo1080.url} type="video/mp4" media="(min-width: 768px)" />
-          <source src={heroVideo720.url} type="video/mp4" />
-        </video>
+        />
         {/* Fallback image (caso o vídeo não carregue) */}
         <img
           src={hero1280.url}
