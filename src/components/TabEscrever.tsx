@@ -20,6 +20,7 @@ import { MuralMode } from '@/components/escritor/MuralMode';
 import { DebouncedTextarea } from '@/components/escritor/DebouncedTextarea';
 import { ChapterEditor } from '@/components/escritor/ChapterEditor';
 import { RichTextView } from '@/components/editor/RichTextEditor';
+import { toast } from 'sonner';
 import { PomodoroTimer } from '@/components/PomodoroTimer';
 import { ManuscriptExportMenu } from '@/components/ManuscriptExportMenu';
 import { FormatAllChaptersDialog } from '@/components/escritor/FormatAllChaptersDialog';
