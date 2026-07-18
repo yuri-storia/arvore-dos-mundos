@@ -500,49 +500,77 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
         </div>
       )}
 
-      {/* Credit info — Elixir dos Mundos */}
+      {/* Credit info — Elixir dos Mundos (refined) */}
       {!sub.loading && planLimits.canUseAI && (
         <div
-          className={`rounded-md px-3 py-2 mb-4 border ${isOut ? 'border-destructive/30' : isLow ? 'border-orange-500/30' : 'border-transparent'}`}
+          className={`relative rounded-lg px-3.5 py-3 mb-4 border overflow-hidden ${
+            isOut ? 'border-destructive/40' : isLow ? 'border-orange-500/40' : 'border-gold-warm/35'
+          }`}
           style={{
             background: isOut
-              ? 'linear-gradient(135deg, rgba(220,38,38,0.18) 0%, rgba(220,38,38,0.10) 100%)'
+              ? 'linear-gradient(135deg, rgba(220,38,38,0.14) 0%, rgba(80,10,10,0.35) 100%)'
               : isLow
-                ? 'linear-gradient(135deg, rgba(220,120,20,0.18) 0%, rgba(220,80,20,0.10) 100%)'
-                : 'linear-gradient(135deg, #DFBD69 0%, #926F34 100%)',
+                ? 'linear-gradient(135deg, rgba(220,120,20,0.14) 0%, rgba(70,30,5,0.35) 100%)'
+                : 'radial-gradient(120% 140% at 0% 0%, hsl(var(--gold-warm) / 0.22) 0%, transparent 55%), linear-gradient(180deg, hsl(35 40% 8% / 0.85) 0%, hsl(214 60% 3% / 0.9) 100%)',
+            boxShadow: isOut || isLow ? undefined : 'inset 0 1px 0 hsl(var(--gold-champagne) / 0.15)',
           }}
         >
-          <div className="flex items-center justify-between mb-1">
-            <span
-              className={`text-[9px] uppercase tracking-wider font-montserrat font-bold ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : ''}`}
-              style={!isOut && !isLow ? { color: '#2A1A00' } : undefined}
-            >
-              <>{isOut ? <><Droplets className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Elixir esgotado</> : isLow ? <><Leaf className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Poucas gotas</> : <><Sparkles className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={1.75} />Elixir dos Mundos</>}</>
-            </span>
-            <span
-              className={`text-[10px] font-montserrat font-bold ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : ''}`}
-              style={!isOut && !isLow ? { color: '#1E1000' } : undefined}
-            >
-              {creditsRemaining} gotas
-            </span>
+          <div className="flex items-center gap-2.5 mb-2">
+            <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center border ${
+              isOut ? 'border-destructive/50 bg-destructive/15' : isLow ? 'border-orange-500/50 bg-orange-500/15' : 'border-gold-warm/50 bg-gradient-to-br from-gold-warm/25 to-gold-deep/10'
+            }`}>
+              <Droplet className={`w-3.5 h-3.5 ${isOut ? 'text-destructive' : isLow ? 'text-orange-400' : 'text-gold-light'}`} strokeWidth={2.25} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-baseline justify-between gap-2">
+                <span className={`text-[10px] font-cinzel font-bold uppercase tracking-[0.18em] ${
+                  isOut ? 'text-destructive' : isLow ? 'text-orange-400' : 'text-gold-light'
+                }`}>
+                  {isOut ? 'Elixir esgotado' : isLow ? 'Poucas gotas' : 'Elixir dos Mundos'}
+                </span>
+                <span className={`text-[10px] font-montserrat font-bold tabular-nums ${
+                  isOut ? 'text-destructive' : isLow ? 'text-orange-400' : 'text-gold-light'
+                }`}>
+                  {creditsRemaining}<span className="text-text-dim/70"> / {sub.creditLimit}</span> <span className="text-[9px] text-text-dim uppercase tracking-wider">gotas</span>
+                </span>
+              </div>
+            </div>
           </div>
-          <Progress
-            value={creditPct}
-            className={`h-1 ${isOut ? 'bg-destructive/20' : isLow ? 'bg-amber-500/20' : 'bg-[#7A5A20]/30'}`}
-          />
+          {/* Loading-bar track (matches header Elixir) */}
+          <div className={`relative h-2 w-full rounded-full overflow-hidden border ${
+            isOut ? 'border-destructive/30' : isLow ? 'border-orange-500/30' : 'border-gold/25'
+          }`}
+            style={{ background: 'linear-gradient(180deg, hsl(220 50% 4%) 0%, hsl(220 40% 7%) 100%)', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.7)' }}>
+            <div
+              className="relative h-full rounded-full transition-all duration-700 ease-out"
+              style={{
+                width: `${Math.max(0, Math.min(100, 100 - creditPct))}%`,
+                background: isOut
+                  ? 'linear-gradient(90deg, hsl(0 75% 50%), hsl(0 70% 32%))'
+                  : isLow
+                    ? 'linear-gradient(90deg, hsl(38 92% 62%) 0%, hsl(20 82% 42%) 100%)'
+                    : 'linear-gradient(90deg, hsl(46 95% 78%) 0%, hsl(44 92% 62%) 50%, hsl(32 78% 42%) 100%)',
+                boxShadow: '0 0 10px hsl(var(--gold-warm) / 0.5), inset 0 1px 0 rgba(255, 240, 200, 0.45)',
+              }}
+            >
+              <div className="absolute inset-x-0 top-0 h-1/2 rounded-t-full pointer-events-none"
+                style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%)' }} />
+            </div>
+          </div>
           {isOut && (
-            <p className="text-[10px] text-destructive font-merriweather mt-1">Idriel aguarda a próxima lua nova para renovar sua energia.</p>
+            <p className="text-[10px] text-destructive font-merriweather italic mt-2">Idriel aguarda a próxima lua nova para renovar sua energia.</p>
           )}
           {isLow && !isOut && (
-            <p className="text-[10px] text-orange-400 font-merriweather mt-1">A Árvore sente suas raízes enfraquecerem…</p>
+            <p className="text-[10px] text-orange-400 font-merriweather italic mt-2">A Árvore sente suas raízes enfraquecerem…</p>
           )}
         </div>
       )}
 
       {!sub.loading && !planLimits.canUseAI && (
-        <div className="rounded-md px-3 py-2 mb-4 border border-destructive/30 bg-destructive/5">
-          <p className="text-[10px] text-destructive font-merriweather">
-            <><Droplets className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Idriel precisa de Elixir dos Mundos para novas análises. Mas você ainda pode revisitar análises anteriores no histórico!</>
+        <div className="rounded-lg px-3.5 py-2.5 mb-4 border border-destructive/30 bg-destructive/5">
+          <p className="text-[11px] text-destructive font-merriweather italic inline-flex items-start gap-2">
+            <Droplets className="w-3.5 h-3.5 mt-0.5 shrink-0" strokeWidth={1.75} />
+            <span>Idriel precisa de Elixir dos Mundos para novas análises. Você ainda pode revisitar análises anteriores no histórico.</span>
           </p>
         </div>
       )}
@@ -557,16 +585,22 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
             <button
               onClick={handleAnalyze}
               disabled={!canAnalyze || sub.loading}
-              className="px-5 py-2.5 bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] hover:from-gold-warm hover:via-gold hover:to-gold-light rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_hsl(var(--gold-warm)/0.35)] hover:shadow-[0_0_32px_hsl(var(--gold-warm)/0.55)] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+              className="group relative inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-gold-deep via-gold-warm to-gold-champagne text-[#1a0f00] hover:from-gold-warm hover:via-gold-champagne hover:to-gold-cream font-cinzel font-bold text-[13px] tracking-wide transition-all shadow-[0_10px_28px_-8px_hsl(var(--gold-warm)/0.55),inset_0_1px_0_hsl(var(--gold-cream)/0.55)] hover:shadow-[0_14px_36px_-8px_hsl(var(--gold-warm)/0.75),inset_0_1px_0_hsl(var(--gold-cream)/0.7)] hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-y-0 border border-gold-cream/40"
             >
-              <><Trees className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Consultar {IDRIEL_NAME} sobre {entries.length} entrada{entries.length !== 1 ? 's' : ''}</>
+              <Sparkles className="w-4 h-4" strokeWidth={2} />
+              <span>Consultar {IDRIEL_NAME}</span>
+              <span className="opacity-70 font-montserrat font-semibold text-[11px] normal-case tracking-normal">· {entries.length} entrada{entries.length !== 1 ? 's' : ''}</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
             </button>
           )}
-          <p className="text-[10px] text-text-dim mt-2 font-montserrat">
-            <Droplet className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Custo: <span className="font-bold text-gold-light">{ANALYSIS_COST} gota</span> de Elixir · Você tem <span className="font-bold text-gold-light">{creditsRemaining} gotas</span> · Análises anteriores são gratuitas
+          <p className="text-[10px] text-text-dim mt-3 font-montserrat">
+            <Droplet className="inline-block w-3 h-3 mr-1 align-[-0.1em] text-gold-champagne" strokeWidth={1.75} />
+            Custo: <span className="font-bold text-gold-light">{ANALYSIS_COST} gota</span> · Você tem <span className="font-bold text-gold-light">{creditsRemaining} gotas</span> · Análises anteriores são gratuitas
           </p>
         </div>
       )}
+
+
 
       {/* Loading with animated steps */}
       {loading && (
