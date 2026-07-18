@@ -17,9 +17,14 @@ import hero640 from '@/assets/arvore-mundos-hero-640.webp.asset.json';
 import hero960 from '@/assets/arvore-mundos-hero-960.webp.asset.json';
 import hero1280 from '@/assets/arvore-mundos-hero-1280.webp.asset.json';
 import hero1600 from '@/assets/arvore-mundos-hero-1600.webp.asset.json';
-import heroVideo from '@/assets/arvore-hero-bg-720.mp4.asset.json';
+import heroVideo1080 from '@/assets/arvore-hero-loop-1080.mp4.asset.json';
+import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
+import previewConstruir from '@/assets/plataforma-construir.jpg.asset.json';
+import previewCodex from '@/assets/plataforma-codex.jpg.asset.json';
+import previewEscrever from '@/assets/plataforma-escrever.jpg.asset.json';
+
 
 const heroSrcSet = `${hero640.url} 640w, ${hero960.url} 960w, ${hero1280.url} 1280w, ${hero1600.url} 1600w`;
 
@@ -43,31 +48,59 @@ const VideoPlaceholder: React.FC<{
   duration: string;
   bullets: string[];
   ratio?: string; // ex 'aspect-video'
-}> = ({ title, duration, bullets, ratio = 'aspect-video' }) => (
-  <div
-    role="img"
-    aria-label={`Espaço reservado para vídeo: ${title}. Duração ${duration}.`}
-    className={`relative ${ratio} w-full rounded-xl border-2 border-dashed border-gold/30 bg-[rgba(4,12,24,0.6)] overflow-hidden flex items-center justify-center`}
+  screenshot?: { url: string; alt: string };
+}> = ({ title, duration, bullets, ratio = 'aspect-video', screenshot }) => (
+  <figure
+    aria-label={`Prévia da plataforma referente ao vídeo: ${title}. Duração ${duration}.`}
+    className="group relative rounded-2xl overflow-hidden border border-gold-warm/25 bg-[rgba(4,12,24,0.72)] backdrop-blur-xl shadow-[0_18px_60px_-24px_rgba(0,0,0,0.85),inset_0_1px_0_hsl(var(--gold-champagne)/0.10)]"
   >
-    <div className="absolute inset-0 bg-gradient-to-br from-gold/[0.04] via-transparent to-gold/[0.06]" />
-    <div className="relative text-center px-6 py-8 max-w-xl">
-      <div className="mx-auto w-14 h-14 rounded-full border border-gold/40 bg-gold/[0.08] flex items-center justify-center mb-4">
-        <Play className="w-6 h-6 text-gold-champagne" strokeWidth={1.5} />
-      </div>
-      <p className="font-montserrat uppercase tracking-[0.22em] text-[10px] text-gold-champagne mb-2">
-        Espaço reservado · {duration}
+    <div className={`relative ${ratio} w-full overflow-hidden`}>
+      {screenshot ? (
+        <>
+          <img
+            src={screenshot.url}
+            alt={screenshot.alt}
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover object-left-top transition-transform duration-[900ms] ease-out group-hover:scale-[1.025]"
+          />
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                'linear-gradient(180deg, hsl(214 60% 3% / 0) 45%, hsl(214 60% 3% / 0.78) 100%)',
+            }}
+            aria-hidden="true"
+          />
+          <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-gold-warm/40 bg-[rgba(4,12,24,0.75)] backdrop-blur-md px-2.5 py-1">
+            <Play className="w-3 h-3 text-gold-champagne" strokeWidth={2.2} />
+            <span className="font-montserrat uppercase tracking-[0.22em] text-[9px] text-gold-champagne">
+              Vídeo em breve · print da plataforma
+            </span>
+          </div>
+        </>
+      ) : (
+        <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-gold/[0.04] via-transparent to-gold/[0.06]">
+          <div className="mx-auto w-14 h-14 rounded-full border border-gold/40 bg-gold/[0.08] flex items-center justify-center">
+            <Play className="w-6 h-6 text-gold-champagne" strokeWidth={1.5} />
+          </div>
+        </div>
+      )}
+    </div>
+
+    <figcaption className="relative px-5 sm:px-6 py-5 border-t border-gold-warm/20 bg-[rgba(4,12,24,0.55)]">
+      <p className="font-montserrat uppercase tracking-[0.22em] text-[10px] text-gold-champagne mb-1.5">
+        Roteiro do vídeo · {duration}
       </p>
       <h4 className="font-cinzel font-bold text-base sm:text-lg text-foreground mb-3">{title}</h4>
-      <ul className="text-left space-y-1 font-merriweather text-xs sm:text-sm text-text-dim leading-relaxed">
+      <ol className="space-y-1.5 font-merriweather text-[13px] sm:text-sm text-text-secondary leading-relaxed list-decimal list-inside marker:text-gold-champagne/70">
         {bullets.map((b) => (
-          <li key={b} className="flex items-start gap-2">
-            <span className="mt-1.5 w-1 h-1 rounded-full bg-gold-champagne shrink-0" />
-            <span>{b}</span>
+          <li key={b} className="pl-1">
+            {b}
           </li>
         ))}
-      </ul>
-    </div>
-  </div>
+      </ol>
+    </figcaption>
+  </figure>
 );
 
 const TestimonialPlaceholder: React.FC<{ kind: 'ebook' | 'beta'; count: number }> = ({ kind, count }) => (
@@ -166,7 +199,6 @@ const LandingPage: React.FC = () => {
         {/* Vídeo de fundo — Árvore animada (mais visível, brilho/saturação ajustados) */}
         <video
           className="absolute inset-0 -z-20 w-full h-full object-cover scale-[1.08]"
-          src={heroVideo.url}
           poster={hero1280.url}
           autoPlay
           muted
@@ -177,7 +209,10 @@ const LandingPage: React.FC = () => {
           style={{
             filter: 'brightness(1.12) contrast(1.05) saturate(1.15)',
           }}
-        />
+        >
+          <source src={heroVideo1080.url} type="video/mp4" media="(min-width: 768px)" />
+          <source src={heroVideo720.url} type="video/mp4" />
+        </video>
         {/* Fallback image (caso o vídeo não carregue) */}
         <img
           src={hero1280.url}
@@ -360,6 +395,7 @@ const LandingPage: React.FC = () => {
         </div>
 
         <VideoPlaceholder
+          screenshot={{ url: previewConstruir.url, alt: "Aba Construir da plataforma, mostrando o carrossel dos 11 Frutos" }}
           title="Tour principal da plataforma"
           duration="60 a 90s · narrado · com legendas"
           bullets={[
@@ -423,6 +459,7 @@ const LandingPage: React.FC = () => {
           </div>
 
           <VideoPlaceholder
+            screenshot={{ url: previewConstruir.url, alt: "Aba Construir da plataforma, mostrando o carrossel dos 11 Frutos" }}
             title="Microvídeo dos 11 Frutos"
             duration="20 a 30s"
             bullets={[
@@ -486,6 +523,7 @@ const LandingPage: React.FC = () => {
         </ul>
 
         <VideoPlaceholder
+          screenshot={{ url: previewCodex.url, alt: "Aba Codex com fichas e artigos organizados por Fruto" }}
           title="Vídeo do Codex"
           duration="20 a 30s"
           bullets={[
@@ -582,6 +620,7 @@ const LandingPage: React.FC = () => {
           </div>
 
           <VideoPlaceholder
+            screenshot={{ url: previewCodex.url, alt: "Aba Codex com fichas e artigos organizados por Fruto" }}
             title="Vídeo da Idriel"
             duration="35 a 50s · narração ou legendas"
             bullets={[
@@ -649,6 +688,7 @@ const LandingPage: React.FC = () => {
         </div>
 
         <VideoPlaceholder
+          screenshot={{ url: previewEscrever.url, alt: "Aba Escrever com o manuscrito e a lista de capítulos" }}
           title="Vídeo do Ofício"
           duration="30 a 40s"
           bullets={[
@@ -688,6 +728,7 @@ const LandingPage: React.FC = () => {
             </motion.div>
 
             <VideoPlaceholder
+              screenshot={{ url: previewEscrever.url, alt: "Aba Escrever com o manuscrito e a lista de capítulos" }}
               title="Vídeo da Importação"
               duration="30 a 45s"
               bullets={[
