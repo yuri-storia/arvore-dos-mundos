@@ -597,32 +597,12 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
         </div>
       )}
 
-      {/* Filters by fruit — multi-select chips */}
-      <div className="flex flex-wrap items-center gap-2 mb-6">
-        <span className="text-[10px] uppercase tracking-wider text-text-dim font-montserrat font-bold mr-1">Filtrar:</span>
-        {FRUITS.map(f => {
-          const count = entries.filter(e => e.fruit_id === f.id).length;
-          const active = filterFruits.includes(f.id);
-          return (
-            <button
-              key={f.id}
-              onClick={() => setFilterFruits(prev => active ? prev.filter(id => id !== f.id) : [...prev, f.id])}
-              className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold transition-colors border ${
-                active
-                  ? 'bg-primary/20 text-blue-light border-ring/40'
-                  : 'text-text-dim border-border hover:border-ring/20 hover:text-foreground'
-              }`}
-            >
-              <f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name} {count > 0 ? `(${count})` : ''}
-            </button>
-          );
-        })}
-        {filterFruits.length > 0 && (
-          <button onClick={() => setFilterFruits([])} className="text-[10px] text-text-dim hover:text-foreground font-montserrat transition-colors ml-1">
-            <><X className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={2} />Limpar</>
-          </button>
-        )}
-      </div>
+      {/* Filters by fruit — retractable menu (popover desktop / sheet mobile) */}
+      <FruitFilterMenu
+        entries={entries}
+        filterFruits={filterFruits}
+        setFilterFruits={setFilterFruits}
+      />
 
       {/* Create form (after choosing kind) */}
       {showCreate && createKind && (
