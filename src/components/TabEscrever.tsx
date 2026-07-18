@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useManuscript } from '@/hooks/useManuscript';
 import { supabase } from '@/integrations/supabase/client';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
