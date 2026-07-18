@@ -271,7 +271,31 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   };
 
   const [tagging, setTagging] = useState<GalleryImage | null>(null);
-  const [tagCat, setTagCat] = useState(FRUITS[0].name);
+  const [tagCat, setTagCat] = useState(galleryFruits[0].name);
+
+  // Biblioteca por categoria: agrupa as imagens catalogadas por Fruto e monta
+  // uma "capa" (a imagem mais recente daquela categoria) para cada card.
+  // Uma categoria "Geral" agrega imagens sem Fruto atribuído.
+  const categoryLibrary = useMemo(() => {
+    const map = new Map<string, GalleryImage[]>();
+    const knownNames = new Set(galleryFruits.map(f => f.name));
+    for (const img of sorted) {
+      const key = knownNames.has(img.cat) ? img.cat : 'Geral';
+      const list = map.get(key) || [];
+      list.push(img);
+      map.set(key, list);
+    }
+    const cats = galleryFruits.map(f => ({
+      key: f.name,
+      name: f.name,
+      Icon: f.Icon,
+      color: (f as any).color as string | undefined,
+      images: map.get(f.name) || [],
+    }));
+    // Bucket "Geral" apenas quando houver imagens sem Fruto conhecido.
+    const general = map.get('Geral');
+    return { cats, general: general || [] };
+  }, [sorted, galleryFruits]);
 
   return (
     <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-6">
