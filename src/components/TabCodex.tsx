@@ -396,8 +396,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                         disabled={fichaLimitReached}
                         className={`w-full text-left px-3 py-2 rounded-md transition-colors mb-1 ${fichaLimitReached ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-bright/10'}`}
                       >
-                        <span className="font-montserrat font-bold text-xs text-foreground inline-flex items-center gap-1.5"><ClipboardList className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />Ficha</span>
-                        <span className="text-[10px] text-text-dim font-merriweather">
+                        <span className="font-montserrat font-bold text-xs text-foreground flex items-center gap-1.5"><ClipboardList className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />Ficha</span>
+                        <span className="block mt-0.5 text-[10px] text-text-dim font-merriweather leading-snug">
                           {fichaLimitReached 
                             ? `Limite atingido (${fichaCount}/${planLimits.maxFichas}) — faça upgrade` 
                             : planLimits.maxFichas < Infinity 
@@ -410,8 +410,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                         disabled={artigoLimitReached}
                         className={`w-full text-left px-3 py-2 rounded-md transition-colors mb-1 ${artigoLimitReached ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-bright/10'}`}
                       >
-                        <span className="font-montserrat font-bold text-xs text-foreground inline-flex items-center gap-1.5"><PencilLine className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />Artigo</span>
-                        <span className="text-[10px] text-text-dim font-merriweather">
+                        <span className="font-montserrat font-bold text-xs text-foreground flex items-center gap-1.5"><PencilLine className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />Artigo</span>
+                        <span className="block mt-0.5 text-[10px] text-text-dim font-merriweather leading-snug">
                           {artigoLimitReached 
                             ? `Limite atingido (${artigoCount}/${planLimits.maxArtigos}) — faça upgrade` 
                             : planLimits.maxArtigos < Infinity 
@@ -429,8 +429,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                       onClick={() => { setShowImport(true); }}
                       className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors"
                     >
-                      <span className="font-montserrat font-bold text-xs text-foreground inline-flex items-center gap-1.5"><Inbox className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />Importar de outro Mundo</span>
-                      <span className="text-[10px] text-text-dim font-merriweather">Copiar fichas ou artigos</span>
+                      <span className="font-montserrat font-bold text-xs text-foreground flex items-center gap-1.5"><Inbox className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />Importar de outro Mundo</span>
+                      <span className="block mt-0.5 text-[10px] text-text-dim font-merriweather leading-snug">Copiar fichas ou artigos</span>
                     </button>
                   </>
                 )}
@@ -439,8 +439,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
                   onClick={() => { setShowIdrielImport(true); setShowCreate(false); }}
                   className="w-full text-left px-3 py-2 rounded-md hover:bg-blue-bright/10 transition-colors"
                 >
-                  <span className="font-montserrat font-bold text-xs text-foreground inline-flex items-center gap-1.5"><Library className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />Importar com Idriel</span>
-                  <span className="text-[10px] text-text-dim font-merriweather">Extrair fichas/artigos de um PDF, DOCX ou texto (1 gota)</span>
+                  <span className="font-montserrat font-bold text-xs text-foreground flex items-center gap-1.5"><Library className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />Importar com Idriel</span>
+                  <span className="block mt-0.5 text-[10px] text-text-dim font-merriweather leading-snug">Extrair fichas/artigos de um PDF, DOCX ou texto (1 gota)</span>
                 </button>
                 <button onClick={resetCreate} className="absolute top-1 right-1 w-5 h-5 rounded-full text-text-dim hover:text-foreground flex items-center justify-center" aria-label="Fechar"><X className="w-3.5 h-3.5" strokeWidth={2} /></button>
               </div>
