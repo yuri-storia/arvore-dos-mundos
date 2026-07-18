@@ -542,7 +542,7 @@ const PricingPage: React.FC = () => {
                   </div>
                   <div className="absolute bottom-3 left-3 right-3 flex items-end gap-2.5">
                     <div className="shrink-0 w-9 h-9 rounded-lg bg-gradient-gold-premium grid place-items-center shadow-gold-glow">
-                      <Icon className="w-4.5 h-4.5 text-bg-deep" strokeWidth={2.2} />
+                      <Icon className="w-5 h-5 text-bg-deep" strokeWidth={2.2} />
                     </div>
                     <div className="min-w-0">
                       <p className="font-montserrat uppercase tracking-[0.28em] text-[9.5px] text-gold-champagne/90">
