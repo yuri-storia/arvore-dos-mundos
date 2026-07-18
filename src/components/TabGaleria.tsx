@@ -68,7 +68,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const [error, setError] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState('Todos');
-  const [showHistory, setShowHistory] = useState(true);
+  const [showHistory, setShowHistory] = useState(false);
 
   // Read from persistent jobs (so switching tabs doesn't cancel)
   const promptJob = activePromptJobId ? idrielJobs.get<string>(activePromptJobId) : undefined;
