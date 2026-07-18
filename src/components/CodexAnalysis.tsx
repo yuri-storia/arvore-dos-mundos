@@ -251,7 +251,7 @@ const FruitEvaluationGrid: React.FC<{ items: FruitEval[] }> = ({ items }) => {
                     {evidence.map((ev, i) => (
                       <span
                         key={i}
-                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-montserrat bg-blue-main/12 text-blue-light/90 border border-blue-bright/25"
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-montserrat bg-blue-main/8 text-blue-light/85 border border-blue-bright/15 backdrop-blur-sm"
                       >
                         <Quote className="w-2.5 h-2.5" strokeWidth={1.75} />
                         {ev}
