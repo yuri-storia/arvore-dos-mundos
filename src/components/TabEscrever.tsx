@@ -216,15 +216,15 @@ const SortableChapterRow: React.FC<SortableChapterRowProps> = ({
           style={style}
           className={`flex items-center group rounded ${isDragging ? 'ring-1 ring-blue-bright/40 bg-blue-bright/[0.06]' : ''}`}
         >
-          {/* Drag handle — segure para arrastar (funciona no toque com long-press via TouchSensor) */}
+          {/* Drag handle — segure e arraste para reordenar. Sempre visível para descoberta. */}
           <button
             {...attributes}
             {...listeners}
             aria-label="Arrastar para reordenar"
             title="Segure e arraste para reordenar"
-            className="p-1 text-text-dim/40 hover:text-blue-light active:text-blue-bright touch-none cursor-grab active:cursor-grabbing shrink-0"
+            className="p-1 text-blue-light/50 hover:text-blue-bright active:text-blue-bright touch-none cursor-grab active:cursor-grabbing shrink-0"
           >
-            <GripVertical className="w-3 h-3" />
+            <GripVertical className="w-3.5 h-3.5" />
           </button>
           {/* Título — abre em UM clique/tap. `onPointerUp` garante disparo imediato mesmo quando
               o Radix ContextMenuTrigger tenta iniciar o long-press. */}
@@ -243,13 +243,21 @@ const SortableChapterRow: React.FC<SortableChapterRowProps> = ({
           <TooltipProvider delayDuration={200}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="text-[9px] text-text-dim/50 mr-1 shrink-0 tabular-nums cursor-help">{wordCount || 0}</span>
+                <button
+                  type="button"
+                  onClick={onOpen}
+                  aria-label={`Abrir capítulo (${wordCount || 0} palavras)`}
+                  className="text-[9px] text-text-dim/60 hover:text-blue-light mr-1 shrink-0 tabular-nums px-1 py-0.5 rounded hover:bg-blue-bright/10 transition-colors"
+                >
+                  {wordCount || 0}
+                </button>
               </TooltipTrigger>
               <TooltipContent side="left" className="text-[11px]">
-                <span className="font-mono">{(wordCount || 0).toLocaleString('pt-BR')}</span> palavras neste capítulo
+                <span className="font-mono">{(wordCount || 0).toLocaleString('pt-BR')}</span> palavras — clique para editar
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+
           <button
             onClick={onToggleNotes}
             className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-gold-light transition-all shrink-0"
