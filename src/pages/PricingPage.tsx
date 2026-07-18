@@ -106,8 +106,9 @@ const PricingPage: React.FC = () => {
           preload="metadata"
           aria-hidden="true"
         >
-          <source src={heroVideo1080.url} type="video/mp4" media="(min-width: 768px)" />
-          <source src={heroVideo720.url} type="video/mp4" />
+          <source src={heroVideo1080.url} type="video/mp4" media="(min-width: 1280px)" />
+          <source src={heroVideo720.url} type="video/mp4" media="(min-width: 640px)" />
+          <source src={heroVideo480.url} type="video/mp4" />
         </video>
         <img
           src={heroPoster.url}
