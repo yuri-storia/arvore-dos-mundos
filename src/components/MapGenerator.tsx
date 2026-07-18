@@ -154,16 +154,16 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
                   onClick={() => setSelectedStyle(s.id)}
                   className={`flex items-start gap-2 p-3 rounded-lg text-left transition-all ${
                     isActive
-                      ? 'border border-idriel-light/40 bg-idriel/10'
-                      : 'border border-blue-bright/10 bg-blue-bright/[0.02] hover:border-idriel/20'
+                      ? 'border border-gold-warm/60 bg-gradient-to-br from-gold-bronze/15 to-gold-deep/10 shadow-[0_0_20px_-4px_hsl(var(--gold-warm)/0.35)]'
+                      : 'border border-blue-bright/10 bg-blue-bright/[0.02] hover:border-gold-bronze/25'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${isActive ? 'text-idriel-light' : 'text-text-dim'}`} />
+                  <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${isActive ? 'text-gold-champagne' : 'text-text-dim'}`} />
                   <div>
-                    <span className={`font-montserrat font-bold text-[11px] uppercase block ${isActive ? 'text-idriel-light' : 'text-text-secondary'}`}>
+                    <span className={`font-montserrat font-bold text-[11px] uppercase block ${isActive ? 'text-gold-champagne' : 'text-text-secondary'}`}>
                       {s.label}
                     </span>
-                    <span className="font-merriweather text-[10px] text-text-dim leading-tight block">{s.desc}</span>
+                    <span className={`font-merriweather text-[10px] leading-tight block ${isActive ? 'text-gold-light/80' : 'text-text-dim'}`}>{s.desc}</span>
                   </div>
                 </button>
               );
