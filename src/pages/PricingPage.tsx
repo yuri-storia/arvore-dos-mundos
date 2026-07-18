@@ -5,16 +5,22 @@ import {
   Check, X, Sparkles, BookOpen, Map, Library, Image as ImageIcon,
   Wand2, FileDown, Layers, Brain, Infinity as InfinityIcon, ShieldCheck, Clock, Heart,
   Leaf, Feather, Star, Plus, Droplet, Trees, Crown, Compass, LogIn,
+  PlayCircle, Film, Eye, MessageCircle,
 } from 'lucide-react';
 import { openCheckout, PLANS } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
-import heroVideo from '@/assets/arvore-hero-bg-720.mp4.asset.json';
+import heroVideo1080 from '@/assets/arvore-hero-loop-1080.mp4.asset.json';
+import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
 import heroPoster from '@/assets/arvore-mundos-hero-960.webp.asset.json';
 import hero640 from '@/assets/arvore-mundos-hero-640.webp.asset.json';
 import hero1280 from '@/assets/arvore-mundos-hero-1280.webp.asset.json';
 import hero1600 from '@/assets/arvore-mundos-hero-1600.webp.asset.json';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
+import previewConstruir from '@/assets/plataforma-construir.jpg.asset.json';
+import previewCodex from '@/assets/plataforma-codex.jpg.asset.json';
+import previewEscrever from '@/assets/plataforma-escrever.jpg.asset.json';
+import previewGaleria from '@/assets/plataforma-galeria.jpg.asset.json';
 
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
