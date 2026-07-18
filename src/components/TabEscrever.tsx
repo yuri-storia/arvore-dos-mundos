@@ -546,55 +546,61 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           </DialogContent>
         </Dialog>
 
-        <div className="flex items-center gap-1 shrink-0 flex-wrap justify-end w-full sm:w-auto">
-          {/* Mode switcher */}
-          <div data-tour="write-modes" className="flex items-center bg-white/[0.03] rounded-md border border-blue-bright/10 p-0.5">
-            {(Object.entries(WRITE_MODE_INFO) as [WriteMode, typeof WRITE_MODE_INFO[WriteMode]][]).map(([key, m]) => (
-              <div key={key} className="relative group">
-                <button onClick={() => setWriteMode(key)}
-                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded text-[11px] font-montserrat font-bold uppercase tracking-wider transition-all ${
-                    writeMode === key ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'
-                  }`}>
-                  <m.icon className="w-3.5 h-3.5" />
-                  {!isMobile && m.label}
-                </button>
-                {/* Tooltip */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 p-3 rounded-lg bg-[hsl(var(--bg-deep))] border border-blue-bright/20 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none">
-                  <p className="font-montserrat font-bold text-xs text-blue-light mb-1">{m.label}</p>
-                  <p className="font-merriweather text-[11px] text-text-secondary leading-relaxed">{m.desc}</p>
+        <div className="flex items-center gap-1.5 shrink-0 flex-wrap sm:flex-nowrap justify-between sm:justify-end w-full sm:w-auto">
+          {/* Left cluster (mobile): mode + pomodoro + word count */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {/* Mode switcher */}
+            <div data-tour="write-modes" className="flex items-center bg-white/[0.03] rounded-md border border-blue-bright/10 p-0.5">
+              {(Object.entries(WRITE_MODE_INFO) as [WriteMode, typeof WRITE_MODE_INFO[WriteMode]][]).map(([key, m]) => (
+                <div key={key} className="relative group">
+                  <button onClick={() => setWriteMode(key)}
+                    className={`flex items-center gap-1 px-2 py-1.5 rounded text-[11px] font-montserrat font-bold uppercase tracking-wider transition-all ${
+                      writeMode === key ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'
+                    }`}>
+                    <m.icon className="w-3.5 h-3.5" />
+                    {!isMobile && m.label}
+                  </button>
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 p-3 rounded-lg bg-[hsl(var(--bg-deep))] border border-blue-bright/20 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none">
+                    <p className="font-montserrat font-bold text-xs text-blue-light mb-1">{m.label}</p>
+                    <p className="font-merriweather text-[11px] text-text-secondary leading-relaxed">{m.desc}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <PomodoroTimer />
+            <span className="text-[10px] font-mono text-text-dim bg-white/[0.03] px-2 py-1 rounded border border-blue-bright/10 whitespace-nowrap">
+              {totalWordCount.toLocaleString()}<span className="hidden sm:inline"> palavras</span>
+            </span>
           </div>
-          <PomodoroTimer className="ml-2" />
-          <span className="text-[10px] font-mono text-text-dim bg-white/[0.03] px-2 py-1 rounded border border-blue-bright/10 ml-1">
-            {totalWordCount.toLocaleString()} palavras
-          </span>
-          <ImportManuscriptDialog
-            worldId={worldId}
-            existingManuscripts={manuscripts.map(m => ({ id: m.id, title: m.title }))}
-            defaultTargetId={activeManuscript?.id}
-            onImported={async ({ id }) => {
-              await refetchManuscripts();
-              const { data } = await supabase.from('manuscripts').select('*').eq('id', id).maybeSingle();
-              if (data) setActiveManuscript(data as typeof activeManuscript);
-            }}
-            trigger={
-              <Button
-                size="sm"
-                variant="outline"
-                className="gap-1.5 text-[11px] font-montserrat font-bold uppercase tracking-wider border-emerald-400/40 text-emerald-300 hover:text-emerald-200 hover:bg-emerald-500/10 hover:border-emerald-400/60"
-                title="Importar manuscrito de PDF, DOCX, TXT ou EPUB"
-              >
-                <Upload className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Importar</span>
-              </Button>
-            }
-          />
-          {chapters.length > 0 && (
-            <FormatAllChaptersDialog chapters={chapters} onChapterUpdate={updateChapter} />
-          )}
-          <ManuscriptExportMenu manuscript={activeManuscript} chapters={chapters} scenes={scenes} />
+
+          {/* Right cluster: action buttons */}
+          <div className="flex items-center gap-1">
+            <ImportManuscriptDialog
+              worldId={worldId}
+              existingManuscripts={manuscripts.map(m => ({ id: m.id, title: m.title }))}
+              defaultTargetId={activeManuscript?.id}
+              onImported={async ({ id }) => {
+                await refetchManuscripts();
+                const { data } = await supabase.from('manuscripts').select('*').eq('id', id).maybeSingle();
+                if (data) setActiveManuscript(data as typeof activeManuscript);
+              }}
+              trigger={
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 text-[11px] font-montserrat font-bold uppercase tracking-wider border-emerald-400/40 text-emerald-300 hover:text-emerald-200 hover:bg-emerald-500/10 hover:border-emerald-400/60"
+                  title="Importar manuscrito de PDF, DOCX, TXT ou EPUB"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Importar</span>
+                </Button>
+              }
+            />
+            {chapters.length > 0 && (
+              <FormatAllChaptersDialog chapters={chapters} onChapterUpdate={updateChapter} />
+            )}
+            <ManuscriptExportMenu manuscript={activeManuscript} chapters={chapters} scenes={scenes} />
+          </div>
         </div>
       </div>
 
