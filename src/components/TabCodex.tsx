@@ -1002,7 +1002,7 @@ const FruitFilterMenu: React.FC<FruitFilterMenuProps> = ({ entries, filterFruits
           <PopoverContent
             align="start"
             sideOffset={8}
-            className="card-glass w-[min(560px,90vw)] p-4 border-border/60 rounded-xl"
+            className="w-[min(560px,90vw)] p-4 border-border/60 rounded-xl bg-[hsl(214_60%_5%/0.95)] backdrop-blur-xl"
           >
             <div className="flex items-center justify-between mb-3">
               <h4 className="font-cinzel font-bold text-sm text-blue-light">Filtrar por Fruto</h4>
