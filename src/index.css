@@ -385,3 +385,15 @@
   .codex-slide-in-left,
   .codex-fade-in { animation: none; }
 }
+
+/* Fruit carousel — active card microanimation */
+@keyframes fruitActivePulse {
+  0%, 100% { box-shadow: 0 0 36px rgba(59,130,246,0.42), 0 0 18px hsl(var(--gold-warm) / 0.22); }
+  50%      { box-shadow: 0 0 46px rgba(59,130,246,0.62), 0 0 24px hsl(var(--gold-warm) / 0.32); }
+}
+.animate-fruit-active {
+  animation: fruitActivePulse 3.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-fruit-active { animation: none; }
+}
