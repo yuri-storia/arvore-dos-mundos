@@ -392,19 +392,25 @@ const WorldChaptersTree: React.FC<{ worldId: string; setActiveTab: (t: TabType) 
 const ManuscriptChaptersList: React.FC<{ manuscriptId: string; setActiveTab: (t: TabType) => void }> = ({ manuscriptId, setActiveTab }) => {
   const [chapters, setChapters] = React.useState<Chapter[] | null>(null);
 
-  React.useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const { data } = await supabase
-        .from('chapters')
-        .select('id, manuscript_id, title, word_count, sort_order')
-        .eq('manuscript_id', manuscriptId)
-        .order('sort_order', { ascending: true });
-      if (cancelled) return;
-      setChapters((data || []) as Chapter[]);
-    })();
-    return () => { cancelled = true; };
+  const fetchChapters = React.useCallback(async () => {
+    const { data } = await supabase
+      .from('chapters')
+      .select('id, manuscript_id, title, word_count, sort_order')
+      .eq('manuscript_id', manuscriptId)
+      .order('sort_order', { ascending: true });
+    setChapters((data || []) as Chapter[]);
   }, [manuscriptId]);
+
+  React.useEffect(() => { fetchChapters(); }, [fetchChapters]);
+
+  React.useEffect(() => {
+    const onChange = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (!detail || detail.manuscriptId === manuscriptId) fetchChapters();
+    };
+    window.addEventListener('adm:chapters-changed', onChange);
+    return () => window.removeEventListener('adm:chapters-changed', onChange);
+  }, [manuscriptId, fetchChapters]);
 
   if (chapters === null) {
     return (
