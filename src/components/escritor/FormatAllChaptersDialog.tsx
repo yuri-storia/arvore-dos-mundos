@@ -144,7 +144,7 @@ export const FormatAllChaptersDialog: React.FC<Props> = ({ chapters, onChapterUp
         <Button
           size="sm"
           variant="outline"
-          className="gap-1.5 text-[11px] font-montserrat font-bold uppercase tracking-wider border-amber-400/40 text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 hover:border-amber-400/60"
+          className="gap-1.5 text-[11px] font-montserrat font-bold uppercase tracking-wider border-gold/40 text-gold-light hover:text-gold-light hover:bg-gold-deep/10 hover:border-gold/60"
           title="Idriel formata a diagramação de todos os capítulos."
         >
           <Sparkles className="w-3.5 h-3.5" />
@@ -152,25 +152,25 @@ export const FormatAllChaptersDialog: React.FC<Props> = ({ chapters, onChapterUp
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="border-amber-400/25 bg-gradient-to-br from-[#0a0f18] via-[#0b0e16] to-[#0a0e18] backdrop-blur-2xl max-w-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.04)]">
-        <div className="pointer-events-none absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-40 bg-amber-400/20" />
-        <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
+      <DialogContent className="border-gold/25 bg-gradient-to-br from-[#0a0f18] via-[#0b0e16] to-[#0a0e18] backdrop-blur-2xl max-w-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.04)]">
+        <div className="pointer-events-none absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-40 bg-gold/20" />
+        <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
         <DialogHeader className="relative">
-          <DialogTitle className="font-cinzel text-lg text-amber-300 flex items-center gap-2.5 tracking-wide">
-            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-amber-400/25 to-amber-500/5 border border-amber-400/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+          <DialogTitle className="font-cinzel text-lg text-gold-light flex items-center gap-2.5 tracking-wide">
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-gold/25 to-gold-deep/5 border border-gold/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
               <Sparkles className="w-4 h-4" strokeWidth={2} />
             </span>
             Formatar todos os capítulos
           </DialogTitle>
           <DialogDescription className="font-montserrat text-sm text-text-secondary leading-relaxed">
-            A Idriel refina apenas a <strong className="text-amber-200/90">diagramação</strong> — parágrafos, travessões, espaçamento.
+            A Idriel refina apenas a <strong className="text-gold-light/90">diagramação</strong> — parágrafos, travessões, espaçamento.
             Capítulos já bem formatados são resolvidos localmente, <strong className="text-emerald-300">de graça</strong>.
           </DialogDescription>
         </DialogHeader>
 
         {rows.length === 0 ? (
           <>
-            <div className="rounded-md border border-amber-400/20 bg-amber-400/[0.04] p-3 text-xs font-montserrat text-amber-200/90 space-y-1.5">
+            <div className="rounded-md border border-gold/20 bg-gold/[0.04] p-3 text-xs font-montserrat text-gold-light/90 space-y-1.5">
               <div>
                 Capítulos elegíveis: <strong>{eligibleChapters.length}</strong>
                 {skippedCount > 0 && (
@@ -184,8 +184,8 @@ export const FormatAllChaptersDialog: React.FC<Props> = ({ chapters, onChapterUp
                   </div>
                   <div className="text-text-secondary mt-0.5">{preview.local} capítulo(s)</div>
                 </div>
-                <div className="rounded border border-amber-400/20 bg-amber-400/[0.05] px-2 py-1.5">
-                  <div className="flex items-center gap-1 text-amber-300 font-bold">
+                <div className="rounded border border-gold/20 bg-gold/[0.05] px-2 py-1.5">
+                  <div className="flex items-center gap-1 text-gold-light font-bold">
                     <Sparkles className="w-3 h-3" /> IA leve · 1g
                   </div>
                   <div className="text-text-secondary mt-0.5">{preview.cheap} capítulo(s)</div>
@@ -197,8 +197,8 @@ export const FormatAllChaptersDialog: React.FC<Props> = ({ chapters, onChapterUp
                   <div className="text-text-secondary mt-0.5">{preview.full} capítulo(s)</div>
                 </div>
               </div>
-              <div className="pt-1 border-t border-amber-400/20">
-                Custo total estimado: <strong className="text-amber-200">{preview.total} gota{preview.total === 1 ? '' : 's'}</strong>
+              <div className="pt-1 border-t border-gold/20">
+                Custo total estimado: <strong className="text-gold-light">{preview.total} gota{preview.total === 1 ? '' : 's'}</strong>
               </div>
             </div>
 
@@ -211,13 +211,13 @@ export const FormatAllChaptersDialog: React.FC<Props> = ({ chapters, onChapterUp
                 onChange={(e) => setGuidance(e.target.value.slice(0, 1000))}
                 placeholder="Ex.: cada fala começa em nova linha; preserve os asteriscos como marcadores de cena."
                 rows={3}
-                className="w-full bg-white/[0.03] border border-white/10 rounded px-3 py-2 text-sm font-merriweather text-foreground/90 focus:outline-none focus:border-amber-400/40"
+                className="w-full bg-white/[0.03] border border-white/10 rounded px-3 py-2 text-sm font-merriweather text-foreground/90 focus:outline-none focus:border-gold/40"
               />
               <div className="text-[10px] font-mono text-text-dim text-right">{guidance.length}/1000</div>
             </div>
 
             <div className="rounded-md border border-white/10 bg-white/[0.02] p-2 text-[11px] font-montserrat text-text-dim flex gap-2">
-              <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-400/70" />
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-gold/70" />
               <span>
                 O conteúdo antigo de cada capítulo é substituído após o sucesso. Em capítulos processados por IA,
                 o texto (palavras e ortografia) é preservado byte a byte — só as quebras de parágrafo mudam.
@@ -229,7 +229,7 @@ export const FormatAllChaptersDialog: React.FC<Props> = ({ chapters, onChapterUp
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-montserrat">
                 <span className="text-text-secondary">
-                  Progresso: <strong className="text-amber-300">{totalDone}/{rows.length}</strong>
+                  Progresso: <strong className="text-gold-light">{totalDone}/{rows.length}</strong>
                   {errorCount > 0 && <span className="text-red-alert ml-2">· {errorCount} com erro</span>}
                 </span>
                 <span className="text-text-dim">
@@ -238,7 +238,7 @@ export const FormatAllChaptersDialog: React.FC<Props> = ({ chapters, onChapterUp
               </div>
               <div className="h-2 rounded-full bg-white/[0.04] overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-amber-400 to-emerald-400 transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-gold to-emerald-400 transition-all duration-300"
                   style={{ width: `${progressPct}%` }}
                 />
               </div>
@@ -253,7 +253,7 @@ export const FormatAllChaptersDialog: React.FC<Props> = ({ chapters, onChapterUp
                     <span className="text-[10px] text-emerald-300 font-mono">local · 0g</span>
                   )}
                   {r.status === 'done-ai' && (
-                    <span className="text-[10px] text-amber-300 font-mono">IA · −{r.actualCost}g</span>
+                    <span className="text-[10px] text-gold-light font-mono">IA · −{r.actualCost}g</span>
                   )}
                   {r.status === 'pending' && (
                     <span className="text-[10px] text-text-dim font-mono">~{r.estimatedCost}g</span>
@@ -282,7 +282,7 @@ export const FormatAllChaptersDialog: React.FC<Props> = ({ chapters, onChapterUp
               <Button
                 onClick={runAll}
                 disabled={eligibleChapters.length === 0}
-                className="bg-gradient-to-r from-amber-400/20 to-emerald-400/20 text-amber-200 border border-amber-400/40 hover:from-amber-400/30 hover:to-emerald-400/30"
+                className="bg-gradient-to-r from-gold/20 to-emerald-400/20 text-gold-light border border-gold/40 hover:from-gold/30 hover:to-emerald-400/30"
               >
                 <Sparkles className="w-3.5 h-3.5 mr-1.5" />
                 Formatar {eligibleChapters.length} capítulo{eligibleChapters.length !== 1 ? 's' : ''} (~{preview.total}g)
@@ -314,7 +314,7 @@ const StatusIcon: React.FC<{ status: ChapterStatus }> = ({ status }) => {
   if (status === 'done-local') return <Leaf className="w-3.5 h-3.5 text-emerald-400" />;
   if (status === 'done-ai') return <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />;
   if (status === 'error') return <XCircle className="w-3.5 h-3.5 text-red-alert" />;
-  if (status === 'running') return <Loader2 className="w-3.5 h-3.5 text-amber-300 animate-spin" />;
+  if (status === 'running') return <Loader2 className="w-3.5 h-3.5 text-gold-light animate-spin" />;
   if (status === 'skipped') return <AlertTriangle className="w-3.5 h-3.5 text-text-dim" />;
   return <div className="w-3.5 h-3.5 rounded-full border border-white/20" />;
 };
