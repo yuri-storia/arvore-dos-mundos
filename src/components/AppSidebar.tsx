@@ -275,20 +275,26 @@ const WorldChaptersTree: React.FC<{ worldId: string; setActiveTab: (t: TabType) 
   const [loading, setLoading] = React.useState(true);
   const [expanded, setExpanded] = React.useState<Set<string>>(new Set());
 
-  React.useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const { data } = await supabase
-        .from('manuscripts')
-        .select('*')
-        .eq('world_id', worldId)
-        .order('created_at', { ascending: true });
-      if (cancelled) return;
-      setManuscripts((data || []) as Manuscript[]);
-      setLoading(false);
-    })();
-    return () => { cancelled = true; };
+  const fetchManuscripts = React.useCallback(async () => {
+    const { data } = await supabase
+      .from('manuscripts')
+      .select('*')
+      .eq('world_id', worldId)
+      .order('created_at', { ascending: true });
+    setManuscripts((data || []) as Manuscript[]);
+    setLoading(false);
   }, [worldId]);
+
+  React.useEffect(() => { fetchManuscripts(); }, [fetchManuscripts]);
+
+  React.useEffect(() => {
+    const onChange = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (!detail || detail.worldId === worldId) fetchManuscripts();
+    };
+    window.addEventListener('adm:manuscripts-changed', onChange);
+    return () => window.removeEventListener('adm:manuscripts-changed', onChange);
+  }, [worldId, fetchManuscripts]);
 
   const toggle = (id: string) => {
     setExpanded(prev => {
@@ -296,6 +302,19 @@ const WorldChaptersTree: React.FC<{ worldId: string; setActiveTab: (t: TabType) 
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
+  };
+
+  const handleDeleteManuscript = async (id: string) => {
+    const { error } = await supabase.from('manuscripts').delete().eq('id', id);
+    if (error) {
+      const { toast } = await import('sonner');
+      toast.error('Erro ao excluir manuscrito');
+      return;
+    }
+    setManuscripts(prev => prev.filter(m => m.id !== id));
+    try { window.dispatchEvent(new CustomEvent('adm:manuscripts-changed', { detail: { worldId } })); } catch {}
+    const { toast } = await import('sonner');
+    toast.success('Manuscrito excluído');
   };
 
   if (loading) {
@@ -320,7 +339,7 @@ const WorldChaptersTree: React.FC<{ worldId: string; setActiveTab: (t: TabType) 
         const isOpen = expanded.has(m.id);
         return (
           <div key={m.id}>
-            <div className="flex items-center gap-1 w-full">
+            <div className="flex items-center gap-1 w-full group">
               <button
                 onClick={() => toggle(m.id)}
                 className="p-0.5 text-text-dim hover:text-foreground shrink-0"
@@ -333,7 +352,6 @@ const WorldChaptersTree: React.FC<{ worldId: string; setActiveTab: (t: TabType) 
                   const detail = { manuscriptId: m.id };
                   try { sessionStorage.setItem('adm:pending-open', JSON.stringify(detail)); } catch {}
                   setActiveTab('escrever');
-                  // Dispatch em next tick para casos em que TabEscrever já está montado.
                   setTimeout(() => {
                     window.dispatchEvent(new CustomEvent('adm:open-manuscript', { detail }));
                   }, 0);
@@ -344,6 +362,23 @@ const WorldChaptersTree: React.FC<{ worldId: string; setActiveTab: (t: TabType) 
                 <BookMarked className="w-2.5 h-2.5 shrink-0 opacity-60" />
                 <span className="truncate font-cinzel font-bold">{m.title}</span>
               </button>
+              <ConfirmDialog
+                trigger={
+                  <button
+                    onClick={(e) => e.stopPropagation()}
+                    className="shrink-0 w-5 h-5 flex items-center justify-center rounded transition-all text-transparent group-hover:text-text-dim/50 hover:!text-red-alert"
+                    title="Excluir manuscrito"
+                    aria-label="Excluir manuscrito"
+                  >
+                    <Trash2 className="w-2.5 h-2.5" />
+                  </button>
+                }
+                title="Excluir manuscrito"
+                description={`Tem certeza que deseja excluir o manuscrito completo "${m.title}"? Todos os capítulos e conteúdo serão perdidos permanentemente.`}
+                confirmLabel="Excluir manuscrito"
+                cancelLabel="Cancelar"
+                onConfirm={() => handleDeleteManuscript(m.id)}
+              />
             </div>
             {isOpen && <ManuscriptChaptersList manuscriptId={m.id} setActiveTab={setActiveTab} />}
           </div>
