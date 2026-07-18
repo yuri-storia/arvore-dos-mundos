@@ -308,28 +308,36 @@ const SectionCard: React.FC<{
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1], delay: index * 0.06 }}
-      className="relative rounded-2xl p-4 sm:p-5 overflow-hidden backdrop-blur-xl"
+      className="relative rounded-2xl p-4 sm:p-5 pl-5 sm:pl-6 overflow-hidden backdrop-blur-xl"
       style={{
-        background: `linear-gradient(140deg, rgba(12,10,6,0.48) 0%, rgba(6,8,14,0.6) 100%), radial-gradient(circle at 0% 0%, ${color}10, transparent 55%)`,
-        boxShadow: `inset 0 1px 0 hsl(0 0% 100% / 0.03), 0 14px 40px -26px ${color}55, 0 1px 0 hsl(0 0% 0% / 0.4)`,
+        background: `linear-gradient(140deg, rgba(12,10,6,0.55) 0%, rgba(6,8,14,0.68) 100%), radial-gradient(circle at 0% 0%, color-mix(in oklab, ${color}, transparent 82%), transparent 55%)`,
+        boxShadow: `inset 0 1px 0 hsl(0 0% 100% / 0.045), inset 0 0 0 1px color-mix(in oklab, ${color}, transparent 88%), 0 14px 40px -22px color-mix(in oklab, ${color}, transparent 55%), 0 1px 0 hsl(0 0% 0% / 0.4)`,
       }}
     >
-      {/* Gold gradient top edge — refined accent */}
+      {/* Left rail — vertical gold gradient signature */}
       <div
-        className="pointer-events-none absolute inset-x-4 top-0 h-px"
-        style={{ background: `linear-gradient(to right, transparent, ${color}55, transparent)` }}
+        className="pointer-events-none absolute left-0 top-4 bottom-4 w-[3px] rounded-full"
+        style={{
+          background: `linear-gradient(to bottom, transparent, color-mix(in oklab, ${color}, transparent 35%), color-mix(in oklab, ${color}, transparent 55%), transparent)`,
+          boxShadow: `0 0 12px color-mix(in oklab, ${color}, transparent 55%)`,
+        }}
       />
+      {/* Top edge accent */}
+      <div
+        className="pointer-events-none absolute inset-x-6 top-0 h-px"
+        style={{ background: `linear-gradient(to right, transparent, color-mix(in oklab, ${color}, transparent 45%), transparent)` }}
+      />
+      {/* Corner halo */}
       <div
         className="pointer-events-none absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-30"
-        style={{ background: `radial-gradient(circle, ${color}44, transparent 70%)` }}
+        style={{ background: `radial-gradient(circle, color-mix(in oklab, ${color}, transparent 55%), transparent 70%)` }}
       />
-      <header className="relative flex items-center gap-2.5 mb-3">
+      <header className="relative flex items-center gap-2.5 mb-3.5 pb-3 border-b" style={{ borderColor: `color-mix(in oklab, ${color}, transparent 88%)` }}>
         <span
-          className="inline-flex items-center justify-center w-8 h-8 rounded-full shrink-0 backdrop-blur-md"
+          className="inline-flex items-center justify-center w-8 h-8 rounded-lg shrink-0 backdrop-blur-md"
           style={{
-            background: `linear-gradient(135deg, ${color}22, hsl(0 0% 100% / 0.02))`,
-            border: `1px solid ${color}2a`,
-            boxShadow: `0 0 14px ${color}1e, inset 0 1px 0 hsl(0 0% 100% / 0.05)`,
+            background: `linear-gradient(135deg, color-mix(in oklab, ${color}, transparent 78%), hsl(0 0% 100% / 0.02))`,
+            boxShadow: `0 0 14px color-mix(in oklab, ${color}, transparent 82%), inset 0 0 0 1px color-mix(in oklab, ${color}, transparent 74%), inset 0 1px 0 hsl(0 0% 100% / 0.06)`,
           }}
         >
           <Icon className="w-4 h-4" strokeWidth={1.75} style={{ color }} />
@@ -337,7 +345,7 @@ const SectionCard: React.FC<{
         <h3 className="font-cinzel font-bold text-sm sm:text-[15px] uppercase tracking-[0.14em]" style={{ color }}>
           {heading}
         </h3>
-        <span className="flex-1 h-px opacity-30" style={{ background: `linear-gradient(to right, ${color}22, transparent)` }} />
+        <span className="flex-1 h-px opacity-40" style={{ background: `linear-gradient(to right, color-mix(in oklab, ${color}, transparent 65%), transparent)` }} />
       </header>
 
       <div className="relative">{children}</div>
