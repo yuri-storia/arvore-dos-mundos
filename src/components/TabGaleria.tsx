@@ -564,24 +564,36 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
         </>
       )}
 
-      {/* ====== DIVIDER: Visões de Idriel ====== */}
-      <div className="mt-10 mb-6">
+      {/* ====== DIVIDER: Visões de Idriel — inicia recolhido ======
+          Instrução curta ajuda o usuário a decidir se quer expandir a seção
+          de geração por IA sem que ela ocupe o espaço da biblioteca. */}
+      <div className="mt-12 mb-6">
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
           <button
             data-tour="visoes-idriel"
             onClick={() => setShowGenerator(!showGenerator)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gold/30 bg-gold/[0.06] hover:bg-gold/[0.12] transition-all group"
+            aria-expanded={showGenerator}
+            className="flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-gold/30 bg-gradient-to-r from-gold/[0.04] via-gold/[0.10] to-gold/[0.04] hover:from-gold/[0.10] hover:to-gold/[0.10] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-all group"
           >
-            <Sparkles className="w-4 h-4 text-gold-light" />
-            <span className="font-cinzel text-sm text-gold-light font-bold">Visões de Idriel</span>
-            {showGenerator ? <ChevronUp className="w-4 h-4 text-gold-light/60" /> : <ChevronDown className="w-4 h-4 text-gold-light/60" />}
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-gold/30 to-gold/5 border border-gold/40">
+              <Sparkles className="w-3.5 h-3.5 text-gold-light" strokeWidth={2} />
+            </span>
+            <span className="font-cinzel text-sm text-gold-light font-bold tracking-wide">Visões de Idriel</span>
+            <ChevronDown className={`w-4 h-4 text-gold-light/70 transition-transform duration-300 ${showGenerator ? 'rotate-180' : ''}`} />
           </button>
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
         </div>
-        <p className="text-center font-merriweather italic text-text-dim text-xs mt-2">
-          Idriel canaliza o Elixir dos Mundos para materializar as visões do seu mundo
-        </p>
+        <div className="max-w-xl mx-auto mt-3 px-4">
+          <p className="flex items-start gap-2 text-center font-merriweather text-[13px] text-text-secondary/90 leading-relaxed">
+            <Info className="w-3.5 h-3.5 text-gold-champagne/70 shrink-0 mt-0.5" strokeWidth={2} />
+            <span className="text-left">
+              <strong className="text-gold-light">Materializar imagens com IA.</strong> Idriel canaliza o Elixir dos Mundos para transformar
+              descrições em texto — inspiradas no seu Codex — em visões visuais coerentes com o seu mundo.
+              {!showGenerator && <span className="text-text-dim italic"> Clique acima para expandir quando quiser gerar.</span>}
+            </span>
+          </p>
+        </div>
       </div>
 
       {showGenerator && (
