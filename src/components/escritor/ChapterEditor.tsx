@@ -32,12 +32,13 @@ interface Props {
   onTitleSave: (title: string) => void;
   onContentSave: (content: string) => void;
   onPreviewEntry: (entry: CodexEntry) => void;
+  onLiveWordCount?: (count: number) => void;
 }
 
 export const ChapterEditor: React.FC<Props> = React.memo(({
   chapter, entries, isMobile, zenMode, setZenMode,
   showRefPanel, setShowRefPanel, onBack,
-  onTitleSave, onContentSave, onPreviewEntry,
+  onTitleSave, onContentSave, onPreviewEntry, onLiveWordCount,
 }) => {
   const [content, setContent] = useState(chapter.content || '');
   const [title, setTitle] = useState(chapter.title);
@@ -98,6 +99,8 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
     const text = isHTML(content) ? stripHTML(content) : content;
     return text.trim() ? text.trim().split(/\s+/).length : 0;
   }, [content]);
+
+  useEffect(() => { onLiveWordCount?.(wordCount); }, [wordCount, onLiveWordCount]);
 
   const handleTitleBlur = () => {
     if (title.trim() && title !== chapter.title) onTitleSave(title.trim());

@@ -11,7 +11,10 @@ import {
   Plus, Trash2, FileText, BookOpen,
   PanelRightOpen, StickyNote, Search, BookMarked, PenLine,
   LayoutGrid, ChevronRight, ChevronDown, X, Upload, GripVertical,
+  Feather, Target,
 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ImportManuscriptDialog } from '@/components/ImportManuscriptDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS } from '@/lib/data';
@@ -237,7 +240,16 @@ const SortableChapterRow: React.FC<SortableChapterRowProps> = ({
           >
             <FileText className="w-3 h-3 inline mr-1.5 opacity-50" />{title}
           </button>
-          <span className="text-[9px] text-text-dim/50 mr-1 shrink-0">{wordCount || 0}</span>
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-[9px] text-text-dim/50 mr-1 shrink-0 tabular-nums cursor-help">{wordCount || 0}</span>
+              </TooltipTrigger>
+              <TooltipContent side="left" className="text-[11px]">
+                <span className="font-mono">{(wordCount || 0).toLocaleString('pt-BR')}</span> palavras neste capítulo
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <button
             onClick={onToggleNotes}
             className="opacity-0 group-hover:opacity-100 p-0.5 text-text-dim hover:text-gold-light transition-all shrink-0"
@@ -319,6 +331,51 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const titleSaveTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const activeChapter = useMemo(() => chapters.find(c => c.id === activeChapterId), [chapters, activeChapterId]);
+
+  // Live word count for the active chapter (real-time from the editor).
+  const [liveActiveWords, setLiveActiveWords] = useState<number | null>(null);
+  useEffect(() => { setLiveActiveWords(null); }, [activeChapterId]);
+  const effectiveChapters = useMemo(() => {
+    if (activeChapterId == null || liveActiveWords == null) return chapters;
+    return chapters.map(c => c.id === activeChapterId ? { ...c, word_count: liveActiveWords } : c);
+  }, [chapters, activeChapterId, liveActiveWords]);
+  const effectiveTotal = useMemo(
+    () => effectiveChapters.reduce((s, c) => s + (c.word_count || 0), 0),
+    [effectiveChapters]
+  );
+
+  // Daily writing goal — session-only. Snapshot resets when the tab session ends.
+  const goalKey = 'adm:dailyGoal';
+  const snapKey = activeManuscript ? `adm:dailySnap:${activeManuscript.id}` : null;
+  const [dailyGoal, setDailyGoal] = useState<number>(() => {
+    try { return Math.max(0, parseInt(sessionStorage.getItem(goalKey) || '500', 10)) || 500; }
+    catch { return 500; }
+  });
+  const [snapshot, setSnapshot] = useState<number | null>(null);
+  useEffect(() => {
+    if (!snapKey) { setSnapshot(null); return; }
+    try {
+      const raw = sessionStorage.getItem(snapKey);
+      if (raw != null) setSnapshot(parseInt(raw, 10) || 0);
+      else {
+        sessionStorage.setItem(snapKey, String(effectiveTotal));
+        setSnapshot(effectiveTotal);
+      }
+    } catch { setSnapshot(0); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [snapKey]);
+  const wordsToday = snapshot == null ? 0 : Math.max(0, effectiveTotal - snapshot);
+  const goalPct = dailyGoal > 0 ? Math.min(100, Math.round((wordsToday / dailyGoal) * 100)) : 0;
+  const persistGoal = useCallback((v: number) => {
+    const clean = Math.max(0, Math.min(999999, Math.round(v)));
+    setDailyGoal(clean);
+    try { sessionStorage.setItem(goalKey, String(clean)); } catch {}
+  }, []);
+  const resetSnapshot = useCallback(() => {
+    if (!snapKey) return;
+    try { sessionStorage.setItem(snapKey, String(effectiveTotal)); } catch {}
+    setSnapshot(effectiveTotal);
+  }, [snapKey, effectiveTotal]);
 
   // Local manuscript title (debounced save — was firing 1 DB write per keystroke)
   const [manuscriptTitleLocal, setManuscriptTitleLocal] = useState(activeManuscript?.title ?? '');
@@ -610,23 +667,80 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           {/* LEFT: Chapter list */}
           {!zenMode && (
           <div className={`${isMobile ? 'w-full' : 'w-[220px]'} shrink-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && activeChapterId ? 'hidden' : ''}`}>
-            <div className="p-2 border-b border-blue-bright/10 flex items-center justify-between gap-2">
-              <div className="flex flex-col leading-tight min-w-0">
+            <div className="p-2 border-b border-blue-bright/10 space-y-2">
+              <div className="flex items-center justify-between gap-2">
                 <span className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Capítulos</span>
-                <span className="text-[10px] font-mono text-blue-light/70 tabular-nums truncate">
-                  {totalWordCount.toLocaleString()} palavras
-                </span>
+                <button onClick={async () => { const ch = await createChapter(); if (ch) setActiveChapterId(ch.id); }}
+                  className="p-1 rounded hover:bg-blue-bright/10 text-blue-light shrink-0" title="Novo capítulo">
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
               </div>
-              <button onClick={async () => { const ch = await createChapter(); if (ch) setActiveChapterId(ch.id); }}
-                className="p-1 rounded hover:bg-blue-bright/10 text-blue-light shrink-0" title="Novo capítulo">
-                <Plus className="w-3.5 h-3.5" />
-              </button>
+
+              {/* Glow card: total words + daily goal progress */}
+              <div
+                className="relative rounded-md border border-blue-bright/25 bg-gradient-to-br from-blue-bright/[0.08] via-blue-bright/[0.04] to-transparent p-2 shadow-[0_0_16px_-6px_rgba(59,130,246,0.55)]"
+              >
+                <div className="flex items-center gap-2">
+                  <Feather className="w-3.5 h-3.5 text-blue-light shrink-0" strokeWidth={1.75} />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[9px] font-montserrat uppercase tracking-widest text-blue-light/70">Total</div>
+                    <div className="text-sm font-mono font-bold text-blue-light tabular-nums leading-tight truncate">
+                      {effectiveTotal.toLocaleString('pt-BR')}
+                    </div>
+                  </div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        title="Meta diária"
+                        className="p-1 rounded hover:bg-blue-bright/15 text-blue-light/80 hover:text-blue-light transition-colors shrink-0"
+                      >
+                        <Target className="w-3.5 h-3.5" strokeWidth={1.75} />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent side="right" align="start" className="w-64 p-3 space-y-2">
+                      <div className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Meta diária</div>
+                      <p className="text-[10px] text-text-dim/80 leading-snug">
+                        Progresso é medido apenas nesta sessão do navegador.
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          min={0}
+                          step={100}
+                          value={dailyGoal}
+                          onChange={e => persistGoal(parseInt(e.target.value || '0', 10))}
+                          className="h-7 text-xs"
+                        />
+                        <span className="text-[10px] text-text-dim">palavras</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[10px] text-text-dim">
+                        <span>Escritas hoje: <span className="font-mono text-blue-light">{wordsToday.toLocaleString('pt-BR')}</span></span>
+                        <button onClick={resetSnapshot} className="text-blue-light hover:underline">Zerar</button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {/* Progress bar */}
+                <div className="mt-2">
+                  <div className="flex items-center justify-between text-[9px] font-mono text-blue-light/70 tabular-nums mb-1">
+                    <span>{wordsToday.toLocaleString('pt-BR')} / {dailyGoal.toLocaleString('pt-BR')}</span>
+                    <span>{goalPct}%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-blue-bright/10 overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-blue-light to-blue-bright shadow-[0_0_8px_rgba(59,130,246,0.7)] transition-all duration-500"
+                      style={{ width: `${goalPct}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
             <ScrollArea className="flex-1">
               <div className="p-1.5 space-y-0.5">
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleChapterDragEnd}>
-                  <SortableContext items={chapters.map(c => c.id)} strategy={verticalListSortingStrategy}>
-                    {chapters.map((ch) => (
+                  <SortableContext items={effectiveChapters.map(c => c.id)} strategy={verticalListSortingStrategy}>
+                    {effectiveChapters.map((ch) => (
                       <SortableChapterRow
                         key={ch.id}
                         id={ch.id}
@@ -687,6 +801,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                   onTitleSave={handleChapterTitleSave}
                   onContentSave={handleChapterContentSave}
                   onPreviewEntry={handlePreviewEntry}
+                  onLiveWordCount={setLiveActiveWords}
                 />
               </>
             ) : (
