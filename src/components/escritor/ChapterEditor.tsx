@@ -32,6 +32,7 @@ interface Props {
   onTitleSave: (title: string) => void;
   onContentSave: (content: string) => void;
   onPreviewEntry: (entry: CodexEntry) => void;
+  onLiveWordCount?: (count: number) => void;
 }
 
 export const ChapterEditor: React.FC<Props> = React.memo(({
