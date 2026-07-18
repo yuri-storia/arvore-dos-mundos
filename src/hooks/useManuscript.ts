@@ -125,6 +125,7 @@ export function useManuscript(worldId?: string) {
     setManuscripts(prev => [...prev, ms]);
     setActiveManuscript(ms);
     toast.success('Manuscrito criado!');
+    try { window.dispatchEvent(new CustomEvent('adm:manuscripts-changed', { detail: { worldId } })); } catch {}
     return ms;
   }, [user, worldId]);
 
