@@ -610,10 +610,15 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           {/* LEFT: Chapter list */}
           {!zenMode && (
           <div className={`${isMobile ? 'w-full' : 'w-[220px]'} shrink-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && activeChapterId ? 'hidden' : ''}`}>
-            <div className="p-2 border-b border-blue-bright/10 flex items-center justify-between">
-              <span className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Capítulos</span>
+            <div className="p-2 border-b border-blue-bright/10 flex items-center justify-between gap-2">
+              <div className="flex flex-col leading-tight min-w-0">
+                <span className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Capítulos</span>
+                <span className="text-[10px] font-mono text-blue-light/70 tabular-nums truncate">
+                  {totalWordCount.toLocaleString()} palavras
+                </span>
+              </div>
               <button onClick={async () => { const ch = await createChapter(); if (ch) setActiveChapterId(ch.id); }}
-                className="p-1 rounded hover:bg-blue-bright/10 text-blue-light" title="Novo capítulo">
+                className="p-1 rounded hover:bg-blue-bright/10 text-blue-light shrink-0" title="Novo capítulo">
                 <Plus className="w-3.5 h-3.5" />
               </button>
             </div>
