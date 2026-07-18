@@ -6,7 +6,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import treeWallpaper from '@/assets/tree-wallpaper.webp';
 import heroLoopGif from '@/assets/arvore-hero-loop.gif.asset.json';
-import heroPoster from '@/assets/arvore-mundos-hero-960.webp.asset.json';
+
 
 const Particles: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
