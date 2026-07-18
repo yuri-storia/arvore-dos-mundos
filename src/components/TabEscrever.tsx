@@ -476,21 +476,21 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   return (
     <div className={`mx-auto px-2 sm:px-4 py-4 transition-all duration-300 ${zenMode ? 'max-w-[900px]' : 'max-w-[1400px]'}`}>
       {/* Top bar */}
-      <div className={`flex items-center gap-3 mb-4 flex-wrap transition-opacity duration-300 ${zenMode ? 'opacity-0 hover:opacity-100 h-0 overflow-hidden hover:h-auto hover:overflow-visible' : ''}`}>
-        <div className="flex items-center gap-2 flex-1 min-w-0 w-full sm:w-auto">
-          {/* Caixa aglutinada: nome editável + seta para trocar */}
-          <div className="inline-flex items-stretch min-w-0 rounded-md border border-blue-bright/30 bg-blue-bright/5 hover:border-blue-bright/50 focus-within:border-blue-bright/60 focus-within:ring-1 focus-within:ring-blue-bright/40 transition-all shadow-sm">
+      <div className={`flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4 transition-opacity duration-300 ${zenMode ? 'opacity-0 hover:opacity-100 h-0 overflow-hidden hover:h-auto hover:overflow-visible' : ''}`}>
+        {/* Row 1 (mobile) / left (desktop): Title box — full width on mobile */}
+        <div className="flex items-center gap-2 min-w-0 w-full sm:w-auto sm:flex-1">
+          <div className="inline-flex items-stretch min-w-0 w-full sm:w-auto rounded-md border border-blue-bright/30 bg-blue-bright/5 hover:border-blue-bright/50 focus-within:border-blue-bright/60 focus-within:ring-1 focus-within:ring-blue-bright/40 transition-all shadow-sm">
             <input
               value={manuscriptTitleLocal}
               onChange={e => handleManuscriptTitleChange(e.target.value)}
               aria-label="Nome do manuscrito"
-              className="bg-transparent font-cinzel font-bold text-base sm:text-lg text-foreground border-none focus:outline-none rounded-l-md px-2 py-1 min-w-0 max-w-[160px] sm:max-w-[260px] cursor-text"
+              className="bg-transparent font-cinzel font-bold text-base sm:text-lg text-foreground border-none focus:outline-none rounded-l-md px-3 py-1.5 min-w-0 flex-1 sm:max-w-[260px] cursor-text text-center sm:text-left tracking-wider"
               placeholder="Título do manuscrito"
             />
             <DropdownMenu>
               <DropdownMenuTrigger
                 aria-label="Trocar manuscrito"
-                className="group inline-flex items-center justify-center px-2 rounded-r-md border-l border-blue-bright/30 bg-blue-bright/10 hover:bg-blue-bright/20 text-blue-light hover:text-blue-bright transition-all shrink-0"
+                className="group inline-flex items-center justify-center px-3 rounded-r-md border-l border-blue-bright/30 bg-blue-bright/10 hover:bg-blue-bright/20 text-blue-light hover:text-blue-bright transition-all shrink-0"
                 title="Trocar manuscrito"
               >
                 <ChevronDown className="w-4 h-4 transition-transform group-data-[state=open]:rotate-180" />
@@ -527,7 +527,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           </div>
         </div>
 
-        {/* Dialog: criar novo manuscrito (precisa estar montado também quando já há um ativo) */}
+        {/* Dialog: criar novo manuscrito */}
         <Dialog open={showNamePrompt} onOpenChange={setShowNamePrompt}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
@@ -546,35 +546,32 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           </DialogContent>
         </Dialog>
 
-        <div className="flex items-center gap-1.5 shrink-0 flex-wrap sm:flex-nowrap justify-between sm:justify-end w-full sm:w-auto">
-          {/* Left cluster (mobile): mode + pomodoro + word count */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {/* Mode switcher */}
-            <div data-tour="write-modes" className="flex items-center bg-white/[0.03] rounded-md border border-blue-bright/10 p-0.5">
-              {(Object.entries(WRITE_MODE_INFO) as [WriteMode, typeof WRITE_MODE_INFO[WriteMode]][]).map(([key, m]) => (
-                <div key={key} className="relative group">
-                  <button onClick={() => setWriteMode(key)}
-                    className={`flex items-center gap-1 px-2 py-1.5 rounded text-[11px] font-montserrat font-bold uppercase tracking-wider transition-all ${
-                      writeMode === key ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'
-                    }`}>
-                    <m.icon className="w-3.5 h-3.5" />
-                    {!isMobile && m.label}
-                  </button>
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 p-3 rounded-lg bg-[hsl(var(--bg-deep))] border border-blue-bright/20 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none">
-                    <p className="font-montserrat font-bold text-xs text-blue-light mb-1">{m.label}</p>
-                    <p className="font-merriweather text-[11px] text-text-secondary leading-relaxed">{m.desc}</p>
-                  </div>
+        {/* Row 2 (mobile) / right (desktop): modes • pomodoro • actions */}
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+          {/* Left: mode switcher */}
+          <div data-tour="write-modes" className="flex items-center bg-white/[0.03] rounded-md border border-blue-bright/10 p-0.5 shrink-0">
+            {(Object.entries(WRITE_MODE_INFO) as [WriteMode, typeof WRITE_MODE_INFO[WriteMode]][]).map(([key, m]) => (
+              <div key={key} className="relative group">
+                <button onClick={() => setWriteMode(key)}
+                  className={`flex items-center gap-1 px-2 py-1.5 rounded text-[11px] font-montserrat font-bold uppercase tracking-wider transition-all ${
+                    writeMode === key ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'
+                  }`}>
+                  <m.icon className="w-3.5 h-3.5" />
+                  {!isMobile && m.label}
+                </button>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 p-3 rounded-lg bg-[hsl(var(--bg-deep))] border border-blue-bright/20 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none">
+                  <p className="font-montserrat font-bold text-xs text-blue-light mb-1">{m.label}</p>
+                  <p className="font-merriweather text-[11px] text-text-secondary leading-relaxed">{m.desc}</p>
                 </div>
-              ))}
-            </div>
-            <PomodoroTimer />
-            <span className="text-[10px] font-mono text-text-dim bg-white/[0.03] px-2 py-1 rounded border border-blue-bright/10 whitespace-nowrap">
-              {totalWordCount.toLocaleString()}<span className="hidden sm:inline"> palavras</span>
-            </span>
+              </div>
+            ))}
           </div>
 
-          {/* Right cluster: action buttons */}
-          <div className="flex items-center gap-1">
+          {/* Center: pomodoro */}
+          <PomodoroTimer />
+
+          {/* Right: action buttons */}
+          <div className="flex items-center gap-1 shrink-0">
             <ImportManuscriptDialog
               worldId={worldId}
               existingManuscripts={manuscripts.map(m => ({ id: m.id, title: m.title }))}
@@ -588,7 +585,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="gap-1.5 text-[11px] font-montserrat font-bold uppercase tracking-wider border-emerald-400/40 text-emerald-300 hover:text-emerald-200 hover:bg-emerald-500/10 hover:border-emerald-400/60"
+                  className="gap-1.5 text-[11px] font-montserrat font-bold uppercase tracking-wider border-emerald-400/40 text-emerald-300 hover:text-emerald-200 hover:bg-emerald-500/10 hover:border-emerald-400/60 px-2"
                   title="Importar manuscrito de PDF, DOCX, TXT ou EPUB"
                 >
                   <Upload className="w-3.5 h-3.5" />
