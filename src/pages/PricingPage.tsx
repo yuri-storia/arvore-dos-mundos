@@ -387,27 +387,28 @@ const PricingPage: React.FC = () => {
             {/* Texto */}
             <div className="order-1 lg:order-2">
               <p className="font-montserrat uppercase tracking-[0.35em] text-[10px] text-gold-champagne mb-4">
-                Conheça a anfitriã
+                Conheça a assistente
               </p>
               <h2 className="font-cinzel font-bold text-[clamp(1.9rem,4.2vw,3rem)] text-foreground mb-6 leading-[1.1]">
                 Quem é <span className="text-gradient-gold">Idriel?</span>
               </h2>
               <div className="space-y-5 font-amiri text-[1.05rem] sm:text-[1.1rem] leading-[1.75] text-text-secondary">
                 <p>
-                  Idriel é uma <em className="text-gold-cream">élfica imortal</em>, guardiã da Árvore
-                  dos Mundos. Há eras ela caminha entre cosmologias, ouvindo o sussurro de civilizações,
-                  deuses e mitos — e agora oferece esse conhecimento a você.
+                  Idriel é a <em className="text-gold-cream">assistente</em> da Árvore dos Mundos —
+                  uma élfica imortal que caminha entre cosmologias e agora se debruça sobre o seu
+                  mundo. Ela <span className="text-gold-champagne">não escreve por você</span>,
+                  não decide o rumo da história e não substitui a sua voz.
                 </p>
                 <p>
-                  Mais que uma IA, ela é a sua <span className="text-gold-champagne font-bold">parceira de criação</span>:
-                  alimentada pelo Codex do seu mundo, ela brainstormeia povos e religiões,
-                  expande cenas, gera retratos consistentes e desenha mapas — sempre em pt-BR,
-                  sempre com a voz de uma sábia que conhece o ofício.
+                  O que ela faz, e faz bem: <span className="text-gold-champagne font-bold">ajuda
+                  você a enxergar</span> — ideias que ainda não saíram do papel, caminhos possíveis
+                  para uma cena travada, brechas no worldbuilding, contradições no Codex. Ela revisa
+                  o que foi construído, sugere o próximo passo e apoia decisões, sempre em pt-BR e
+                  alimentada pelo seu próprio universo.
                 </p>
                 <p>
-                  Quando você assina o plano <span className="text-gradient-gold font-bold">Idriel</span>,
-                  ela passa a habitar o seu santuário criativo — pronta para co-criar mundos
-                  que respiram.
+                  Você mantém a caneta. Idriel oferece o mapa, a lanterna e o segundo par de olhos —
+                  para que cada escolha na sua narrativa continue sendo <span className="text-gradient-gold font-bold">sua</span>.
                 </p>
               </div>
 
