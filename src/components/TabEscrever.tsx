@@ -332,46 +332,45 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     return () => window.removeEventListener('keydown', handleKey);
   }, [zenMode]);
 
-  // Escuta cliques em Manuscritos/Capítulos disparados pela AppSidebar.
-  // A sidebar não tem acesso direto ao estado do useManuscript, então usamos
-  // um CustomEvent leve para pedir "abrir este manuscrito/capítulo".
+  const pendingOpenRef = useRef<{ manuscriptId?: string; chapterId?: string } | null>(null);
+  // Lê pending do sessionStorage uma única vez no mount.
   useEffect(() => {
-    const applyOpen = (detail: { manuscriptId?: string; chapterId?: string } | null | undefined) => {
-      if (!detail?.manuscriptId) return;
-      const target = manuscripts.find(m => m.id === detail.manuscriptId);
-      if (target && target.id !== activeManuscript?.id) setActiveManuscript(target);
-      if (detail.chapterId) {
-        const tryActivate = (attempts = 0) => {
-          if (chapters.some(c => c.id === detail.chapterId)) {
-            setActiveChapterId(detail.chapterId!);
-            const ch = chapters.find(c => c.id === detail.chapterId);
-            if (target && ch) {
-              toast.success(`Abrindo capítulo: ${ch.title}`, { description: target.title, duration: 2200 });
-            }
-          } else if (attempts < 20) {
-            setTimeout(() => tryActivate(attempts + 1), 100);
-          }
-        };
-        tryActivate();
-      } else if (target) {
-        toast.success(`Manuscrito ativo: ${target.title}`, { duration: 2200 });
-      }
-    };
-
-    // 1) Consome pending gravado pela sidebar antes da montagem desta aba.
     try {
       const raw = sessionStorage.getItem('adm:pending-open');
       if (raw) {
         sessionStorage.removeItem('adm:pending-open');
-        applyOpen(JSON.parse(raw));
+        pendingOpenRef.current = JSON.parse(raw);
       }
     } catch {}
-
-    // 2) Também escuta eventos disparados enquanto a aba está ativa.
-    const handler = (e: Event) => applyOpen((e as CustomEvent).detail);
+    const handler = (e: Event) => {
+      pendingOpenRef.current = (e as CustomEvent).detail;
+    };
     window.addEventListener('adm:open-manuscript', handler as EventListener);
     return () => window.removeEventListener('adm:open-manuscript', handler as EventListener);
+  }, []);
+
+  // Aplica pending quando os manuscritos/capítulos necessários já estão carregados.
+  useEffect(() => {
+    const detail = pendingOpenRef.current;
+    if (!detail?.manuscriptId) return;
+    const target = manuscripts.find(m => m.id === detail.manuscriptId);
+    if (!target) return; // aguarda manuscripts carregarem
+    if (target.id !== activeManuscript?.id) {
+      setActiveManuscript(target);
+      // Ainda precisamos aguardar chapters do novo manuscrito.
+      return;
+    }
+    if (detail.chapterId) {
+      const ch = chapters.find(c => c.id === detail.chapterId);
+      if (!ch) return; // aguarda chapters
+      setActiveChapterId(ch.id);
+      toast.success(`Abrindo capítulo: ${ch.title}`, { description: target.title, duration: 2200 });
+    } else {
+      toast.success(`Manuscrito ativo: ${target.title}`, { duration: 2200 });
+    }
+    pendingOpenRef.current = null;
   }, [manuscripts, chapters, activeManuscript?.id, setActiveManuscript]);
+
 
 
   useEffect(() => () => {
