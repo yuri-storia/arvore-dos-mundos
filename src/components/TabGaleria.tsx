@@ -886,7 +886,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
             <p className="font-merriweather text-xs text-text-dim italic mb-4">Em qual categoria deseja guardar esta visão?</p>
             <div className="flex flex-wrap gap-1.5 mb-4">
               <button onClick={() => setSaveCat('Todos')} className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${saveCat === 'Todos' ? 'bg-gold/20 text-gold-light border border-gold/40' : 'text-text-dim border border-transparent hover:border-gold/20'}`}>Geral</button>
-              {FRUITS.map(f => (
+              {galleryFruits.map(f => (
                 <button key={f.id} onClick={() => setSaveCat(f.name)} className={`px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase transition-colors ${saveCat === f.name ? 'bg-gold/20 text-gold-light border border-gold/40' : 'text-text-dim border border-transparent hover:border-gold/20'}`}>
                   <f.Icon className="inline-block w-3.5 h-3.5 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} /> {f.name}
                 </button>
