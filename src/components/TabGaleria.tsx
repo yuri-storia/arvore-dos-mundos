@@ -13,7 +13,7 @@ import { useIdrielVisions } from '@/hooks/useIdrielVisions';
 import { useIdrielJobs } from '@/contexts/IdrielJobsContext';
 import idrielAvatar from '@/assets/idriel-avatar.webp';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, Lock, ChevronDown, ChevronUp, Trash2, Palette, Leaf, ScrollText, Trees, X, Inbox, Save, Apple, BarChart3, Check, ClipboardCopy, ArrowDown, RotateCw, Image as ImageIcon } from 'lucide-react';
+import { Sparkles, Lock, ChevronDown, ChevronUp, Trash2, Palette, Leaf, ScrollText, Trees, X, Inbox, Save, Apple, BarChart3, Check, ClipboardCopy, ArrowDown, RotateCw, Image as ImageIcon, ArrowRight, ArrowLeft, Info } from 'lucide-react';
 import { ImageReferencePicker, type PickedReference } from '@/components/ImageReferencePicker';
 import type { AppState } from '@/lib/data';
 
