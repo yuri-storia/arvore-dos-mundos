@@ -1060,9 +1060,10 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
                   );
                 }
                 const isFruits = /Avaliação/i.test(sec.heading);
+                const isSaudacao = /Saudação/i.test(sec.heading);
                 const fruitEvals = isFruits ? parseFruitEvaluations(sec.body) : [];
                 return (
-                  <SectionCard key={`sec-${idx}`} heading={sec.heading} index={idx}>
+                  <SectionCard key={`sec-${idx}`} heading={sec.heading} index={idx} collapsible={!isSaudacao}>
                     {isFruits && fruitEvals.length > 0 ? (
                       <FruitEvaluationGrid items={fruitEvals} />
                     ) : (
