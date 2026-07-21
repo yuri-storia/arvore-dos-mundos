@@ -873,6 +873,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
           )}
         </div>
       )}
+      </>)}
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
 
