@@ -426,7 +426,7 @@ const PricingPage: React.FC = () => {
               <div className="space-y-5 font-amiri text-[1.05rem] sm:text-[1.1rem] leading-[1.75] text-text-secondary">
                 <p>
                   Idriel é a <em className="text-gold-cream">assistente</em> da Árvore dos Mundos —
-                  uma élfica imortal que caminha entre cosmologias e agora se debruça sobre o seu
+                  a Guardiã que caminha entre cosmologias e agora se debruça sobre o seu
                   mundo. Ela <span className="text-gold-champagne">não escreve por você</span>,
                   não decide o rumo da história e não substitui a sua voz.
                 </p>
