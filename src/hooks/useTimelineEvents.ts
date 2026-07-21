@@ -19,9 +19,11 @@ export interface TimelineEvent {
   sort_index: number;
   codex_entry_id: string | null;
   fruit_id: number | null;
+  image_url: string | null;
   created_at: string;
   updated_at: string;
 }
+
 
 const KEY = (worldId?: string) => ['timeline', worldId ?? null] as const;
 
