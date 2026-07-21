@@ -943,31 +943,22 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
           {/* CENTER: Editor */}
           <div className={`flex-1 min-w-0 flex flex-col rounded-lg border transition-all duration-300 ${zenMode ? 'bg-background border-transparent shadow-2xl' : 'bg-white/[0.02] border-blue-bright/10'} ${isMobile && !activeChapterId ? 'hidden' : ''}`}>
             {activeChapter ? (
-              <>
-                {/* Breadcrumb */}
-                {!zenMode && (
-                  <div className="px-3 pt-2 flex items-center gap-1 text-[10px] font-montserrat text-text-dim/60">
-                    <span className="hover:text-foreground cursor-default">{activeManuscript.title}</span>
-                    <ChevronRight className="w-2.5 h-2.5" />
-                    <span className="text-blue-light/80">{activeChapter.title}</span>
-                  </div>
-                )}
-                <ChapterEditor
-                  key={activeChapter.id}
-                  chapter={activeChapter}
-                  entries={entries}
-                  isMobile={isMobile}
-                  zenMode={zenMode}
-                  setZenMode={setZenMode}
-                  showRefPanel={showRefPanel}
-                  setShowRefPanel={setShowRefPanel}
-                  onBack={isMobile ? () => setActiveChapterId(null) : undefined}
-                  onTitleSave={handleChapterTitleSave}
-                  onContentSave={handleChapterContentSave}
-                  onPreviewEntry={handlePreviewEntry}
-                  onLiveWordCount={setLiveActiveWords}
-                />
-              </>
+              <ChapterEditor
+                key={activeChapter.id}
+                chapter={activeChapter}
+                entries={entries}
+                isMobile={isMobile}
+                zenMode={zenMode}
+                setZenMode={setZenMode}
+                showRefPanel={showRefPanel}
+                setShowRefPanel={setShowRefPanel}
+                onBack={isMobile ? () => setActiveChapterId(null) : undefined}
+                onTitleSave={handleChapterTitleSave}
+                onContentSave={handleChapterContentSave}
+                onPreviewEntry={handlePreviewEntry}
+                onLiveWordCount={setLiveActiveWords}
+                manuscriptTitle={activeManuscript?.title}
+              />
             ) : (
               <div className="flex-1 flex items-center justify-center text-center p-8">
                 <div>
