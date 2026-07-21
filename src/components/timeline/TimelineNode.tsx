@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import {
-  Feather, Sparkles, Swords, Compass, Sun, Skull, Flame, Star, BookOpen, Link2, Trash2, GripVertical,
+  Feather, Sparkles, Swords, Compass, Sun, Skull, Flame, Star, Link2, Trash2, GripVertical,
 } from 'lucide-react';
 import type { TimelineEvent, TimelineEventType } from '@/hooks/useTimelineEvents';
 
@@ -31,6 +31,14 @@ interface Props {
   dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
 }
 
+/**
+ * Um marco na Linha do Tempo.
+ * Layout:
+ *  - Mobile: gema na esquerda (col 1), card sempre à direita.
+ *  - Desktop: gema centralizada (col 2), cards alternam entre esquerda/direita.
+ * A linha vertical contínua é desenhada pelo container pai (TimelineView),
+ * então aqui apenas posicionamos a gema sobre essa linha.
+ */
 export const TimelineNode: React.FC<Props> = ({
   event, side, onOpen, onDelete, onOpenLinked, linkedTitle, dragHandleRef, dragHandleProps,
 }) => {
@@ -38,9 +46,15 @@ export const TimelineNode: React.FC<Props> = ({
   const isRight = side === 'right';
 
   return (
-    <div className="relative flex items-stretch min-h-[92px]">
-      {/* Coluna esquerda (card se side==='left', vazia se right) */}
-      <div className={`hidden sm:flex flex-1 ${isRight ? '' : 'justify-end pr-8'}`}>
+    <div
+      className="
+        relative grid items-center gap-x-3 sm:gap-x-6 min-h-[92px]
+        grid-cols-[3rem_1fr]
+        sm:grid-cols-[1fr_3.5rem_1fr]
+      "
+    >
+      {/* Coluna esquerda (só desktop; card se side==='left') */}
+      <div className="hidden sm:flex justify-end pr-2">
         {!isRight && (
           <NodeCard
             event={event} align="right" Icon={Icon}
@@ -51,15 +65,14 @@ export const TimelineNode: React.FC<Props> = ({
         )}
       </div>
 
-      {/* Gema central */}
-      <div className="relative w-14 flex-none flex flex-col items-center">
-        <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[3px] bg-gradient-to-b from-gold-champagne/40 via-gold to-gold-deep/60 rounded-full" />
+      {/* Gema central (sobre a linha contínua desenhada no container) */}
+      <div className="relative flex justify-center">
         <motion.button
           onClick={onOpen}
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.95 }}
           aria-label={`Abrir marco ${event.title}`}
-          className="relative z-10 mt-4 w-10 h-10 rounded-full flex items-center justify-center border-2 border-gold text-[#1a0f00] bg-gradient-to-br from-gold-champagne via-gold to-gold-deep shadow-[0_0_18px_hsl(var(--gold)/0.55)] hover:shadow-[0_0_26px_hsl(var(--gold)/0.85)] transition-shadow"
+          className="relative z-10 w-10 h-10 rounded-full flex items-center justify-center border-2 border-gold text-[#1a0f00] bg-gradient-to-br from-gold-champagne via-gold to-gold-deep shadow-[0_0_18px_hsl(var(--gold)/0.55)] hover:shadow-[0_0_26px_hsl(var(--gold)/0.85)] transition-shadow"
           style={{ filter: 'drop-shadow(0 0 6px hsl(var(--gold-champagne)/0.55))' }}
         >
           <Icon className="w-4 h-4" strokeWidth={2} />
@@ -67,33 +80,15 @@ export const TimelineNode: React.FC<Props> = ({
         </motion.button>
       </div>
 
-      {/* Coluna direita */}
-      <div className={`flex-1 ${isRight ? 'pl-4 sm:pl-8' : 'hidden sm:block'}`}>
-        {(isRight || true) && (
-          <div className={`${isRight ? 'block' : 'sm:block hidden'}`}>
-            {isRight && (
-              <NodeCard
-                event={event} align="left" Icon={Icon}
-                onOpen={onOpen} onDelete={onDelete}
-                onOpenLinked={onOpenLinked} linkedTitle={linkedTitle}
-                dragHandleRef={dragHandleRef} dragHandleProps={dragHandleProps}
-              />
-            )}
-          </div>
-        )}
+      {/* Coluna direita: card no mobile sempre, no desktop só quando isRight */}
+      <div className={`${isRight ? 'sm:pl-2' : 'sm:hidden'}`}>
+        <NodeCard
+          event={event} align="left" Icon={Icon}
+          onOpen={onOpen} onDelete={onDelete}
+          onOpenLinked={onOpenLinked} linkedTitle={linkedTitle}
+          dragHandleRef={dragHandleRef} dragHandleProps={dragHandleProps}
+        />
       </div>
-
-      {/* Card único no mobile (sempre à direita, ignora side) */}
-      {!isRight && (
-        <div className="sm:hidden flex-1 pl-4">
-          <NodeCard
-            event={event} align="left" Icon={Icon}
-            onOpen={onOpen} onDelete={onDelete}
-            onOpenLinked={onOpenLinked} linkedTitle={linkedTitle}
-            dragHandleRef={dragHandleRef} dragHandleProps={dragHandleProps}
-          />
-        </div>
-      )}
     </div>
   );
 };
@@ -137,13 +132,14 @@ const NodeCard: React.FC<{
         </p>
       )}
       <div className={`mt-2 flex flex-wrap items-center gap-2 ${align === 'right' ? 'justify-end' : ''}`}>
-        {linkedTitle && (
+        {linkedTitle && onOpenLinked && (
           <button
-            onClick={e => { e.stopPropagation(); onOpenLinked?.(); }}
-            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-montserrat text-blue-light border border-blue-bright/30 bg-blue-bright/10 hover:bg-blue-bright/20"
+            onClick={e => { e.stopPropagation(); onOpenLinked(); }}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-montserrat text-blue-light border border-blue-bright/30 bg-blue-bright/10 hover:bg-blue-bright/20 max-w-[220px] truncate"
+            title={`Abrir "${linkedTitle}" no Codex`}
           >
-            <Link2 className="w-3 h-3" strokeWidth={2} />
-            {linkedTitle}
+            <Link2 className="w-3 h-3 flex-none" strokeWidth={2} />
+            <span className="truncate">{linkedTitle}</span>
           </button>
         )}
         <button
