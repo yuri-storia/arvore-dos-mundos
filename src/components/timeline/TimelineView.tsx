@@ -4,8 +4,8 @@ import { Trees, Plus, ScrollText } from 'lucide-react';
 import { useTimelineEvents, type TimelineEvent, type TimelineEventType } from '@/hooks/useTimelineEvents';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { TimelineNode } from './TimelineNode';
-import { TimelineRootsSVG } from './TimelineRootsSVG';
 import { TimelineEventDialog } from './TimelineEventDialog';
+import rootsAsset from '@/assets/timeline-roots.png.asset.json';
 import {
   AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
   AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction,
@@ -45,25 +45,34 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
 
   return (
     <div className="animate-fadeUp">
-      {/* Cabeçalho ornamental com raízes */}
-      <div className="relative">
-        <div className="mx-auto max-w-[420px] -mb-2">
-          <TimelineRootsSVG className="w-full h-auto" />
-        </div>
-        <div className="text-center mb-6">
-          <h2 className="font-cinzel font-bold text-lg sm:text-xl text-gold-light inline-flex items-center gap-2">
-            <ScrollText className="w-4 h-4 text-gold-champagne" strokeWidth={1.75} />
-            Linha do Tempo
-          </h2>
-          <p className="font-merriweather italic text-text-dim text-xs sm:text-sm max-w-md mx-auto mt-1">
-            Marcos que brotam das raízes da Árvore e sustentam a história do seu mundo.
-          </p>
-          <button
-            onClick={openNew}
-            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] hover:from-gold-warm hover:via-gold hover:to-gold-light text-xs font-montserrat font-bold uppercase tracking-wider shadow-[0_0_14px_hsl(var(--gold)/0.35)] hover:shadow-[0_0_22px_hsl(var(--gold)/0.55)] transition-all"
-          >
-            <Plus className="w-3.5 h-3.5" strokeWidth={2.25} /> Novo marco
-          </button>
+      {/* Cabeçalho ornamental: raízes da Árvore dos Mundos como fundo */}
+      <div className="relative overflow-hidden rounded-xl mb-4">
+        <div
+          className="relative w-full min-h-[220px] sm:min-h-[280px] flex flex-col items-center justify-end pb-6 sm:pb-8"
+          style={{
+            backgroundImage: `url(${rootsAsset.url})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center bottom',
+            backgroundSize: 'contain',
+          }}
+        >
+          {/* halo suave para fundir com o fundo do app */}
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-background/60 via-transparent to-background" />
+          <div className="relative text-center px-4">
+            <h2 className="font-cinzel font-bold text-lg sm:text-xl text-gold-light inline-flex items-center gap-2">
+              <ScrollText className="w-4 h-4 text-gold-champagne" strokeWidth={1.75} />
+              Linha do Tempo
+            </h2>
+            <p className="font-merriweather italic text-text-dim text-xs sm:text-sm max-w-md mx-auto mt-1">
+              Marcos que brotam das raízes da Árvore e sustentam a história do seu mundo.
+            </p>
+            <button
+              onClick={openNew}
+              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] hover:from-gold-warm hover:via-gold hover:to-gold-light text-xs font-montserrat font-bold uppercase tracking-wider shadow-[0_0_14px_hsl(var(--gold)/0.35)] hover:shadow-[0_0_22px_hsl(var(--gold)/0.55)] transition-all"
+            >
+              <Plus className="w-3.5 h-3.5" strokeWidth={2.25} /> Novo marco
+            </button>
+          </div>
         </div>
       </div>
 
@@ -82,7 +91,22 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
         </div>
       ) : (
         <div className="relative mx-auto max-w-3xl px-2 sm:px-4 py-2">
-          <div className="space-y-6">
+          {/* Linha contínua vertical dourada
+              - Mobile: alinhada à coluna da gema esquerda (col 3rem → centro em 1.5rem)
+              - Desktop: centralizada
+          */}
+          <div
+            aria-hidden
+            className="
+              pointer-events-none absolute top-0 bottom-0 w-[3px] rounded-full
+              left-[calc(0.5rem+1.5rem-1.5px)]
+              sm:left-1/2 sm:-translate-x-1/2
+              bg-gradient-to-b from-gold-champagne/40 via-gold to-gold-deep/60
+              shadow-[0_0_10px_hsl(var(--gold)/0.35)]
+            "
+          />
+
+          <div className="relative space-y-0">
             {events.map((ev, i) => {
               const linked = ev.codex_entry_id ? entriesById.get(ev.codex_entry_id) : null;
               return (
@@ -100,13 +124,17 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
           </div>
 
           {/* selo final (raiz principal) */}
-          <div className="mt-6 flex flex-col items-center">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="w-4 h-4 rounded-full bg-gold shadow-[0_0_18px_hsl(var(--gold)/0.7)]"
-            />
-            <span className="mt-2 font-cinzel text-[10px] uppercase tracking-[0.25em] text-gold-champagne/80">Presente</span>
+          <div className="relative mt-4 flex flex-col items-center sm:items-center">
+            <div className="w-full flex sm:justify-center">
+              <div className="ml-[calc(0.5rem+1.5rem-0.5rem)] sm:ml-0 flex flex-col items-center">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="w-4 h-4 rounded-full bg-gold shadow-[0_0_18px_hsl(var(--gold)/0.7)]"
+                />
+                <span className="mt-2 font-cinzel text-[10px] uppercase tracking-[0.25em] text-gold-champagne/80">Presente</span>
+              </div>
+            </div>
           </div>
         </div>
       )}
