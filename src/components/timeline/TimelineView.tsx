@@ -45,36 +45,48 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
 
   return (
     <div className="animate-fadeUp">
-      {/* Cabeçalho ornamental: raízes da Árvore dos Mundos como fundo */}
-      <div className="relative overflow-hidden rounded-xl mb-4">
+      {/* Cabeçalho ornamental: raízes da Árvore dos Mundos ACIMA do título */}
+      <div className="relative mb-2">
+        {/* halo radial para mesclar a arte com o fundo do app */}
         <div
-          className="relative w-full min-h-[220px] sm:min-h-[280px] flex flex-col items-center justify-end pb-6 sm:pb-8"
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
           style={{
-            backgroundImage: `url(${rootsAsset.url})`,
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center bottom',
-            backgroundSize: 'contain',
+            background:
+              'radial-gradient(ellipse 70% 55% at 50% 45%, hsl(var(--background)/0) 40%, hsl(var(--background)/0.55) 75%, hsl(var(--background)) 100%)',
           }}
-        >
-          {/* halo suave para fundir com o fundo do app */}
-          <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-background/60 via-transparent to-background" />
-          <div className="relative text-center px-4">
-            <h2 className="font-cinzel font-bold text-lg sm:text-xl text-gold-light inline-flex items-center gap-2">
-              <ScrollText className="w-4 h-4 text-gold-champagne" strokeWidth={1.75} />
-              Linha do Tempo
-            </h2>
-            <p className="font-merriweather italic text-text-dim text-xs sm:text-sm max-w-md mx-auto mt-1">
-              Marcos que brotam das raízes da Árvore e sustentam a história do seu mundo.
-            </p>
-            <button
-              onClick={openNew}
-              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] hover:from-gold-warm hover:via-gold hover:to-gold-light text-xs font-montserrat font-bold uppercase tracking-wider shadow-[0_0_14px_hsl(var(--gold)/0.35)] hover:shadow-[0_0_22px_hsl(var(--gold)/0.55)] transition-all"
-            >
-              <Plus className="w-3.5 h-3.5" strokeWidth={2.25} /> Novo marco
-            </button>
-          </div>
-        </div>
+        />
+        <img
+          src={rootsAsset.url}
+          alt=""
+          aria-hidden
+          className="relative mx-auto w-full max-w-[720px] h-auto select-none pointer-events-none"
+          style={{
+            filter: 'drop-shadow(0 0 28px hsl(var(--gold)/0.28))',
+            maskImage:
+              'radial-gradient(ellipse 85% 75% at 50% 55%, #000 55%, transparent 92%)',
+            WebkitMaskImage:
+              'radial-gradient(ellipse 85% 75% at 50% 55%, #000 55%, transparent 92%)',
+          }}
+        />
       </div>
+
+      <div className="text-center mb-6 -mt-6 sm:-mt-10 relative">
+        <h2 className="font-cinzel font-bold text-lg sm:text-xl text-gold-light inline-flex items-center gap-2">
+          <ScrollText className="w-4 h-4 text-gold-champagne" strokeWidth={1.75} />
+          Linha do Tempo
+        </h2>
+        <p className="font-merriweather italic text-text-dim text-xs sm:text-sm max-w-md mx-auto mt-1">
+          Marcos que brotam das raízes da Árvore e sustentam a história do seu mundo.
+        </p>
+        <button
+          onClick={openNew}
+          className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] hover:from-gold-warm hover:via-gold hover:to-gold-light text-xs font-montserrat font-bold uppercase tracking-wider shadow-[0_0_14px_hsl(var(--gold)/0.35)] hover:shadow-[0_0_22px_hsl(var(--gold)/0.55)] transition-all"
+        >
+          <Plus className="w-3.5 h-3.5" strokeWidth={2.25} /> Novo marco
+        </button>
+      </div>
+
 
       {/* Corpo da linha */}
       {loading ? (
