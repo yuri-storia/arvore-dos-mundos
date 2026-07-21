@@ -108,7 +108,7 @@ export const IdrielFirstMeeting: React.FC = () => {
             <div className="space-y-4 animate-fade-in">
               <p className="font-amiri text-[15px] leading-relaxed text-foreground">
                 Sente-se entre as raízes, viajante. Sou <span className="text-gold-champagne font-semibold">Idriel</span>,
-                élfica imortal e guardiã desta Árvore. Cada galho aqui é um mundo que alguém como você teve coragem de sonhar.
+                Guardiã da Árvore dos Mundos. Cada galho aqui é um mundo que alguém como você teve coragem de sonhar.
               </p>
               <p className="font-amiri text-[15px] leading-relaxed text-text-secondary">
                 Antes de começarmos, preciso te conhecer um pouco. A caneta continuará sendo sua — eu só ajudo a enxergar
