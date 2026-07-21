@@ -19,6 +19,7 @@ import { IdrielImportDialog } from '@/components/IdrielImportDialog';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
 import { ExpandedCodexOverlay } from '@/components/codex/ExpandedCodexOverlay';
 import { AnimatePresence, motion } from 'framer-motion';
+import { TimelineView } from '@/components/timeline/TimelineView';
 import idrielAvatar from '@/assets/idriel-avatar.webp';
 
 
