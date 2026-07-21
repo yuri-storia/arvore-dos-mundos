@@ -366,37 +366,33 @@ const HubMenu: React.FC<{
   onLessons: () => void;
   onDialogues: () => void;
 }> = ({ onTour, onFaq, onLessons, onDialogues }) => (
-  <div className="space-y-3">
-    <p className="font-amiri italic text-[13px] text-text-secondary text-center mb-4">
+  <div className="space-y-3.5">
+    <p className="font-amiri italic text-[13px] text-text-secondary text-center mb-5">
       Escolha um caminho entre as raízes, viajante.
     </p>
     <HubCard
-      icon={<Compass className="w-5 h-5" strokeWidth={2} />}
+      icon={<Compass className="w-[18px] h-[18px]" strokeWidth={1.75} />}
       title="Fazer o Tour"
       desc="Uma volta guiada pela plataforma, comigo do lado."
       onClick={onTour}
-      accent="gold"
     />
     <HubCard
-      icon={<ScrollText className="w-5 h-5" strokeWidth={2} />}
+      icon={<ScrollText className="w-[18px] h-[18px]" strokeWidth={1.75} />}
       title="Funcionalidades"
       desc="Perguntas frequentes sobre cada aba, gotas e recursos."
       onClick={onFaq}
-      accent="pergaminho"
     />
     <HubCard
-      icon={<BookOpen className="w-5 h-5" strokeWidth={2} />}
+      icon={<BookOpen className="w-[18px] h-[18px]" strokeWidth={1.75} />}
       title="Aprenda Worldbuilding"
-      desc="Mini-aulas curtas contadas na minha voz — sementes, magia, povos, conflito."
+      desc="Mini-aulas curtas na minha voz — sementes, magia, povos, conflito."
       onClick={onLessons}
-      accent="verde"
     />
     <HubCard
-      icon={<Feather className="w-5 h-5" strokeWidth={2} />}
+      icon={<Feather className="w-[18px] h-[18px]" strokeWidth={1.75} />}
       title="Conversar com Idriel"
       desc="Diálogos íntimos que revelam a lore da Árvore dos Mundos."
       onClick={onDialogues}
-      accent="azul"
     />
   </div>
 );
@@ -406,34 +402,49 @@ const HubCard: React.FC<{
   title: string;
   desc: string;
   onClick: () => void;
-  accent: 'gold' | 'pergaminho' | 'verde' | 'azul';
-}> = ({ icon, title, desc, onClick, accent }) => {
-  const accentBg = {
-    gold: 'linear-gradient(135deg, hsl(46 95% 78% / 0.14), hsl(34 80% 48% / 0.1))',
-    pergaminho: 'linear-gradient(135deg, hsl(38 60% 55% / 0.1), hsl(30 40% 25% / 0.15))',
-    verde: 'linear-gradient(135deg, hsl(140 55% 45% / 0.12), hsl(160 40% 20% / 0.15))',
-    azul: 'linear-gradient(135deg, hsl(210 70% 55% / 0.14), hsl(220 60% 20% / 0.18))',
-  }[accent];
-  const accentBorder = {
-    gold: 'hsl(46 90% 70% / 0.5)',
-    pergaminho: 'hsl(38 60% 55% / 0.4)',
-    verde: 'hsl(140 55% 55% / 0.42)',
-    azul: 'hsl(210 70% 60% / 0.45)',
-  }[accent];
+}> = ({ icon, title, desc, onClick }) => {
   return (
     <button
       onClick={onClick}
-      className="group w-full text-left flex items-center gap-3 p-3.5 rounded-xl border transition-all hover:-translate-y-0.5 active:scale-[0.99]"
-      style={{ background: accentBg, borderColor: accentBorder, boxShadow: '0 4px 14px hsl(220 80% 2% / 0.45)' }}
+      className="group relative w-full text-left flex items-center gap-3.5 p-[1px] rounded-2xl transition-all hover:-translate-y-0.5 active:scale-[0.995] focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-champagne/60"
+      style={{
+        background: 'linear-gradient(135deg, hsl(46 95% 78% / 0.55) 0%, hsl(38 70% 45% / 0.28) 45%, hsl(34 60% 30% / 0.4) 100%)',
+        boxShadow: '0 8px 24px hsl(220 80% 2% / 0.55), 0 0 0 1px hsl(34 40% 12% / 0.4) inset',
+      }}
     >
-      <span className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center border border-gold-bronze/40 bg-black/30 text-gold-champagne">
-        {icon}
+      <span
+        className="relative flex items-center gap-3.5 w-full rounded-[15px] px-4 py-3.5 overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, hsl(220 65% 5%) 0%, hsl(224 55% 7%) 55%, hsl(30 30% 10%) 100%)',
+        }}
+      >
+        {/* sheen dourado no hover */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          style={{
+            background: 'radial-gradient(120% 80% at 0% 0%, hsl(46 95% 70% / 0.18) 0%, transparent 55%), radial-gradient(80% 60% at 100% 100%, hsl(34 80% 45% / 0.14) 0%, transparent 60%)',
+          }}
+        />
+        <span
+          className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center text-[#1a0f00] font-cinzel transition-transform group-hover:scale-105"
+          style={{
+            background: 'linear-gradient(135deg, hsl(46 95% 85%) 0%, hsl(42 90% 68%) 45%, hsl(34 80% 50%) 100%)',
+            boxShadow: 'inset 0 1px 0 hsl(46 100% 95% / 0.75), inset 0 -2px 6px hsl(28 60% 22% / 0.5), 0 4px 14px hsl(34 70% 25% / 0.5)',
+          }}
+        >
+          {icon}
+        </span>
+        <span className="relative flex-1 min-w-0">
+          <span className="block font-cinzel font-bold tracking-wide text-[14px] bg-gradient-to-r from-[hsl(46_95%_88%)] via-[hsl(42_90%_75%)] to-[hsl(34_75%_58%)] bg-clip-text text-transparent">
+            {title}
+          </span>
+          <span className="block font-amiri text-[12.5px] text-text-secondary leading-snug mt-0.5">
+            {desc}
+          </span>
+        </span>
+        <ChevronRight className="relative w-4 h-4 text-gold-cream/50 group-hover:text-gold-champagne group-hover:translate-x-0.5 transition-all" />
       </span>
-      <span className="flex-1 min-w-0">
-        <span className="block font-cinzel font-bold text-[14px] text-foreground">{title}</span>
-        <span className="block font-amiri text-[12.5px] text-text-secondary leading-snug mt-0.5">{desc}</span>
-      </span>
-      <ChevronRight className="w-4 h-4 text-gold-cream/60 group-hover:text-gold-champagne transition-colors" />
     </button>
   );
 };
