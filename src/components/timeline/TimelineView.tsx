@@ -45,29 +45,16 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
 
   return (
     <div className="animate-fadeUp">
-      {/* Cabeçalho ornamental: raízes da Árvore dos Mundos ACIMA do título */}
-      <div className="relative mb-2">
-        {/* halo radial para mesclar a arte com o fundo do app */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(ellipse 70% 55% at 50% 45%, hsl(var(--background)/0) 40%, hsl(var(--background)/0.55) 75%, hsl(var(--background)) 100%)',
-          }}
-        />
+      {/* Cabeçalho ornamental: raízes da Árvore dos Mundos ACIMA do título.
+          mix-blend-mode: screen faz o fundo preto (#030910) da arte desaparecer,
+          restando apenas o brilho dourado/azul mesclado ao fundo do app. */}
+      <div className="relative mb-2 bg-[#030910]">
         <img
           src={rootsAsset.url}
           alt=""
           aria-hidden
-          className="relative mx-auto w-full max-w-[720px] h-auto select-none pointer-events-none"
-          style={{
-            filter: 'drop-shadow(0 0 28px hsl(var(--gold)/0.28))',
-            maskImage:
-              'radial-gradient(ellipse 85% 75% at 50% 55%, #000 55%, transparent 92%)',
-            WebkitMaskImage:
-              'radial-gradient(ellipse 85% 75% at 50% 55%, #000 55%, transparent 92%)',
-          }}
+          className="relative mx-auto block w-full max-w-[720px] h-auto select-none pointer-events-none"
+          style={{ mixBlendMode: 'screen' }}
         />
       </div>
 
