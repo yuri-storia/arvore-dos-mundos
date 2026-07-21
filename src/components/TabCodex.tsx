@@ -27,6 +27,8 @@ const FRUIT_ALL = -1;
 const FRUIT_NONE = -2; // sentinel for "no fruit" filter
 const EXPANDED_ENTRY_STORAGE = (worldId: string) => `adm_codex_expanded:${worldId}`;
 const CREATE_DRAFT_STORAGE = (worldId: string) => `adm_codex_create_draft:${worldId}`;
+const CODEX_MODE_STORAGE = (worldId: string) => `adm_codex_mode:${worldId}`;
+type CodexMode = 'encyclopedia' | 'timeline';
 
 type EntryKind = 'ficha' | 'artigo';
 
@@ -51,6 +53,14 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   
   const [filterFruits, setFilterFruits] = useState<number[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [mode, setMode] = useState<CodexMode>(() => {
+    if (typeof window === 'undefined' || !worldId) return 'encyclopedia';
+    return (sessionStorage.getItem(CODEX_MODE_STORAGE(worldId)) as CodexMode) || 'encyclopedia';
+  });
+  useEffect(() => {
+    if (!worldId) return;
+    try { sessionStorage.setItem(CODEX_MODE_STORAGE(worldId), mode); } catch {}
+  }, [mode, worldId]);
   const [showCreate, setShowCreate] = useState(false);
   const [createKind, setCreateKind] = useState<EntryKind | null>(null);
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
