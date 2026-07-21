@@ -414,10 +414,19 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     try { localStorage.setItem(goalKey, String(clean)); } catch {}
   }, []);
   const resetSnapshot = useCallback(() => {
-    if (!snapKey) return;
-    try { localStorage.setItem(snapKey, String(effectiveTotal)); } catch {}
+    // Realinha a data ao fuso de Brasília (garante que a chave usada é a de hoje,
+    // mesmo se o tick de 30s ainda não rodou) e regrava a linha-base do dia com o
+    // total atual — zerando "Hoje" sem precisar mexer no localStorage manualmente.
+    const brToday = getBrDate();
+    setToday(brToday);
+    if (!activeManuscript) return;
+    const key = `adm:dailySnap:${activeManuscript.id}:${brToday}`;
+    try { localStorage.setItem(key, String(effectiveTotal)); } catch {}
     setSnapshot(effectiveTotal);
-  }, [snapKey, effectiveTotal]);
+    toast.success('Contagem de "Hoje" recalculada', {
+      description: `Nova linha-base: ${effectiveTotal.toLocaleString('pt-BR')} palavras · ${brToday}`,
+    });
+  }, [activeManuscript, effectiveTotal, getBrDate]);
 
   // Local manuscript title (debounced save — was firing 1 DB write per keystroke)
   const [manuscriptTitleLocal, setManuscriptTitleLocal] = useState(activeManuscript?.title ?? '');
