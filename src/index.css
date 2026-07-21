@@ -775,6 +775,18 @@
   50%      { transform: scale(1.15); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .timeline-particle, .timeline-orb-halo, .timeline-orb-core { animation: none; }
-  .timeline-particle { opacity: 0; }
+  /* Fallback estático: partículas ocultas, orbe mantém o brilho sem pulsar */
+  .timeline-particle {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+  .timeline-orb-halo {
+    animation: none !important;
+    transform: scale(1.15);
+    opacity: 0.95;
+  }
+  .timeline-orb-core {
+    animation: none !important;
+    transform: scale(1.08);
+  }
 }
