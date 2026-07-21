@@ -239,6 +239,7 @@ const Index = () => {
         <TabNav activeTab={state.activeTab} setActiveTab={setActiveTab} />
         {!tourActive && <OnboardingTips tab={state.activeTab} />}
         <HelpDrawer tab={state.activeTab} />
+        <IdrielFirstMeeting />
 
         {/* Interactive Tour */}
         <InteractiveTour active={tourActive} onFinish={() => setTourActive(false)} setActiveTab={setActiveTab} setCurrentFruit={setCurrentFruit} setMethod={setMethod} />
