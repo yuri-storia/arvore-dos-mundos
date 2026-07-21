@@ -717,7 +717,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
         <div className={`flex gap-3 min-h-[400px] transition-all duration-300 ${zenMode ? 'h-[calc(100vh-100px)]' : 'h-[calc(100vh-220px)]'}`}>
           {/* LEFT: Chapter list */}
           {!zenMode && (
-          <div className={`${isMobile ? 'w-full' : 'w-[220px]'} shrink-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && activeChapterId ? 'hidden' : ''}`}>
+          <div className={`${isMobile ? 'w-full' : 'w-[260px]'} shrink-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && activeChapterId ? 'hidden' : ''}`}>
             <div className="p-2 border-b border-blue-bright/10 space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Capítulos</span>
@@ -803,26 +803,38 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                           </div>
                           <div className="flex items-center justify-between text-[10px] text-text-dim pt-1">
                             <span>{wordsToday.toLocaleString('pt-BR')} / {dailyGoal.toLocaleString('pt-BR')} ({goalPct}%)</span>
-                            <button onClick={resetSnapshot} className="text-gold-light hover:underline">Recalcular</button>
+                            <ConfirmDialog
+                              trigger={
+                                <button className="text-gold-light hover:underline">Recalcular</button>
+                              }
+                              variant="warning"
+                              title='Recalcular "Hoje"?'
+                              description={`Isto define a linha-base do dia como o total atual do manuscrito (${effectiveTotal.toLocaleString('pt-BR')} palavras) no fuso de Brasília. O contador "Hoje" será zerado. Total e por capítulo permanecem intactos.`}
+                              confirmLabel="Recalcular"
+                              onConfirm={resetSnapshot}
+                            />
                           </div>
                         </PopoverContent>
                       </Popover>
-                      {/* Botão dedicado: recalcula "Hoje" no fuso de Brasília sem abrir o popover. */}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
+                      {/* Botão dedicado com confirmação: recalcula "Hoje" no fuso de Brasília. */}
+                      <ConfirmDialog
+                        trigger={
                           <button
                             type="button"
-                            onClick={resetSnapshot}
                             aria-label="Recalcular contagem de hoje"
-                            className="shrink-0 p-1 rounded text-gold/70 hover:text-gold-light hover:bg-gold/10 transition-colors"
+                            title='Recalcular "Hoje" (fuso de Brasília)'
+                            className="shrink-0 inline-flex items-center justify-center h-6 w-6 rounded-md border border-gold/30 bg-gradient-to-br from-gold/15 via-gold/5 to-transparent text-gold-light shadow-[0_0_10px_-4px_rgba(212,175,55,0.6)] hover:border-gold/60 hover:from-gold/25 hover:to-gold/10 hover:shadow-[0_0_14px_-2px_rgba(212,175,55,0.75)] active:scale-95 transition-all"
                           >
-                            <RefreshCw className="w-3 h-3" strokeWidth={2} />
+                            <RefreshCw className="w-3 h-3" strokeWidth={2.2} />
                           </button>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="text-[10px] max-w-[220px]">
-                          Recalcular "Hoje" agora (fuso de Brasília). Define a linha-base como o total atual do manuscrito.
-                        </TooltipContent>
-                      </Tooltip>
+                        }
+                        variant="warning"
+                        title='Recalcular "Hoje"?'
+                        description={`Isto define a linha-base do dia como o total atual do manuscrito (${effectiveTotal.toLocaleString('pt-BR')} palavras) no fuso de Brasília. O contador "Hoje" será zerado. Total e por capítulo permanecem intactos.`}
+                        confirmLabel="Recalcular"
+                        onConfirm={resetSnapshot}
+                      />
+
                     </div>
                   </TooltipProvider>
                 </div>

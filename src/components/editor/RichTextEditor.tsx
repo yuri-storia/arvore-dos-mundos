@@ -626,11 +626,13 @@ export const RichTextEditor = React.forwardRef<RichTextEditorRef, Props>(({
         {!compact && (
           <Toolbar
             editor={editor}
+            mobile={isMobile}
             onOpenCodexPicker={handleOpenCodexPicker}
             spellcheckEnabled={spellcheckEnabled}
             onToggleSpellcheck={handleToggleSpellcheck}
           />
         )}
+
         <EditorContent editor={editor} />
       </div>
       <BubbleMenu
