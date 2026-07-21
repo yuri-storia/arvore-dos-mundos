@@ -61,14 +61,25 @@
   border-bottom-color: hsl(var(--blue-bright) / 0.08);
 }
 .rich-toolbar.is-mobile {
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-wrap: nowrap;
+  padding: 8px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 24px), transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 24px), transparent);
+}
+.rich-toolbar.is-mobile .rich-group { scroll-snap-align: start; flex: 0 0 auto; }
+.rich-toolbar.is-mobile::-webkit-scrollbar { display: none; }
+/* Floating mobile bar (bottom): flip border to top */
+.rich-mobile-floating .rich-toolbar.is-mobile {
   border-bottom: none;
   border-top: 1px solid hsl(var(--blue-bright) / 0.2);
   background: rgba(4, 10, 22, 0.98);
-  overflow-x: auto;
-  flex-wrap: nowrap;
-  padding: 8px;
 }
-.rich-toolbar.is-mobile::-webkit-scrollbar { display: none; }
+
 
 .rich-group {
   display: flex;
