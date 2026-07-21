@@ -51,6 +51,7 @@ export function useManuscript(worldId?: string) {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [loading, setLoading] = useState(true);
+  const [chaptersLoading, setChaptersLoading] = useState(false);
 
   // Fetch manuscripts for a world
   const fetchManuscripts = useCallback(async () => {
