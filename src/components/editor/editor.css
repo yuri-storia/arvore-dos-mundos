@@ -64,14 +64,19 @@
   overflow-x: auto;
   overflow-y: hidden;
   flex-wrap: nowrap;
-  padding: 8px;
+  padding: 10px 10px;
+  gap: 6px;
+  min-height: 56px;
+  align-items: center;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: x proximity;
   mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 24px), transparent);
   -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 24px), transparent);
 }
-.rich-toolbar.is-mobile .rich-group { scroll-snap-align: start; flex: 0 0 auto; }
+.rich-toolbar.is-mobile .rich-group { scroll-snap-align: start; flex: 0 0 auto; gap: 4px; padding: 0 6px; }
+.rich-toolbar.is-mobile .rich-toolbtn { width: 38px; height: 38px; border-radius: 6px; }
+.rich-toolbar.is-mobile .rich-toolbtn svg { width: 18px; height: 18px; }
 .rich-toolbar.is-mobile::-webkit-scrollbar { display: none; }
 /* Floating mobile bar (bottom): flip border to top */
 .rich-mobile-floating .rich-toolbar.is-mobile {
