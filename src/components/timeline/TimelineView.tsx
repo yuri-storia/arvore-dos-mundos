@@ -5,6 +5,7 @@ import { useTimelineEvents, type TimelineEvent, type TimelineEventType } from '@
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { TimelineNode } from './TimelineNode';
 import { TimelineRootsSVG } from './TimelineRootsSVG';
+import { TimelineParticles } from './TimelineParticles';
 import { TimelineEventDialog } from './TimelineEventDialog';
 import {
   AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
