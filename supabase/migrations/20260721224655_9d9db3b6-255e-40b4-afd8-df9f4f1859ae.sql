@@ -1,0 +1,1 @@
+ALTER TABLE public.timeline_events ADD COLUMN IF NOT EXISTS image_url TEXT;

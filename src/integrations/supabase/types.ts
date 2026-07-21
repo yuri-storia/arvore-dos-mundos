@@ -945,6 +945,7 @@ export type Database = {
           event_type: string
           fruit_id: number | null
           id: string
+          image_url: string | null
           sort_index: number
           title: string
           updated_at: string
@@ -959,6 +960,7 @@ export type Database = {
           event_type?: string
           fruit_id?: number | null
           id?: string
+          image_url?: string | null
           sort_index?: number
           title: string
           updated_at?: string
@@ -973,6 +975,7 @@ export type Database = {
           event_type?: string
           fruit_id?: number | null
           id?: string
+          image_url?: string | null
           sort_index?: number
           title?: string
           updated_at?: string
