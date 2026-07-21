@@ -342,6 +342,35 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [newManuscriptName, setNewManuscriptName] = useState('');
   const [zenMode, setZenMode] = useState(false);
+  // Resizable chapter-list column width — persisted in sessionStorage (per tab only).
+  const CHAPTER_COL_KEY = 'adm:chaptersColWidth';
+  const CHAPTER_COL_MIN = 200;
+  const CHAPTER_COL_MAX = 480;
+  const [chapterColWidth, setChapterColWidth] = useState<number>(() => {
+    try {
+      const raw = sessionStorage.getItem(CHAPTER_COL_KEY);
+      const n = raw ? parseInt(raw, 10) : NaN;
+      return Number.isFinite(n) ? Math.min(CHAPTER_COL_MAX, Math.max(CHAPTER_COL_MIN, n)) : 260;
+    } catch { return 260; }
+  });
+  useEffect(() => {
+    try { sessionStorage.setItem(CHAPTER_COL_KEY, String(chapterColWidth)); } catch {}
+  }, [chapterColWidth]);
+  const resizeStartRef = useRef<{ startX: number; startW: number } | null>(null);
+  const onColResizeDown = useCallback((e: React.PointerEvent) => {
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    resizeStartRef.current = { startX: e.clientX, startW: chapterColWidth };
+  }, [chapterColWidth]);
+  const onColResizeMove = useCallback((e: React.PointerEvent) => {
+    if (!resizeStartRef.current) return;
+    const dx = e.clientX - resizeStartRef.current.startX;
+    const next = Math.min(CHAPTER_COL_MAX, Math.max(CHAPTER_COL_MIN, resizeStartRef.current.startW + dx));
+    setChapterColWidth(next);
+  }, []);
+  const onColResizeUp = useCallback((e: React.PointerEvent) => {
+    resizeStartRef.current = null;
+    try { (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId); } catch {}
+  }, []);
   // Selected reference (when a chip is clicked) — shows in the right panel as a card.
   const [previewEntry, setPreviewEntry] = useState<CodexEntry | null>(null);
   const [chapterPendingDelete, setChapterPendingDelete] = useState<string | null>(null);
