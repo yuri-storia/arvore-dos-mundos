@@ -106,7 +106,7 @@ export const FRUITS: Fruit[] = [
     },
   },
   {
-    id: 2, num: '3º Fruto', name: 'Linha do Tempo', Icon: Swords, icon: '',
+    id: 2, num: '3º Fruto', name: 'Fatos Históricos', Icon: Swords, icon: '',
     gradient: 'from-amber-900 via-red-900 to-orange-900',
     desc: 'História, eras e calendário transformam seu mundo em consequência. O presente carrega marcas do passado.',
     fields: [

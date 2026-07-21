@@ -9,6 +9,7 @@ import { ImageLightbox } from '@/components/ImageLightbox';
 import { CreateFichaButton } from '@/components/CreateFichaButton';
 import { MapGenerator } from '@/components/MapGenerator';
 import { useCodexEntries } from '@/hooks/useCodexEntries';
+import { useTimelineEvents, type TimelineEventType } from '@/hooks/useTimelineEvents';
 import { useIdrielHistory } from '@/hooks/useIdrielHistory';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
@@ -37,6 +38,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   const isMobile = useIsMobile();
   const { db, currentFruit, method, worldName, currentSaveId } = state;
   const { entries, createEntry, updateEntry } = useCodexEntries(currentSaveId || undefined);
+  const { createEvent: createTimelineEvent } = useTimelineEvents(currentSaveId || undefined);
   const { suggestions, saveSuggestion, deleteSuggestion } = useIdrielHistory(currentSaveId, currentFruit);
   const planLimits = usePlanLimits();
   const navigate = useNavigate();
@@ -485,6 +487,23 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                       >
                         <><Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Salvar como Artigo</>
                       </button>
+                      {(currentFruit === 2 || currentFruit === 8) && (
+                        <button
+                          onClick={async () => {
+                            const type: TimelineEventType = currentFruit === 8 ? 'mito' : 'fato';
+                            const firstLine = aiResponse.split('\n').find(l => l.trim()) || FRUITS[currentFruit].name;
+                            await createTimelineEvent({
+                              title: firstLine.replace(/^[#*\-\d.\s]+/, '').slice(0, 120),
+                              description: aiResponse,
+                              event_type: type,
+                              fruit_id: currentFruit,
+                            });
+                          }}
+                          className="px-3 py-1.5 rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider border border-gold-champagne/50 text-gold-champagne hover:bg-gold/15 transition-colors"
+                        >
+                          <><ScrollText className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Enviar para a Linha do Tempo</>
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}

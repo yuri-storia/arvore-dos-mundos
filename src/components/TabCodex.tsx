@@ -19,6 +19,7 @@ import { IdrielImportDialog } from '@/components/IdrielImportDialog';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
 import { ExpandedCodexOverlay } from '@/components/codex/ExpandedCodexOverlay';
 import { AnimatePresence, motion } from 'framer-motion';
+import { TimelineView } from '@/components/timeline/TimelineView';
 import idrielAvatar from '@/assets/idriel-avatar.webp';
 
 
@@ -26,6 +27,8 @@ const FRUIT_ALL = -1;
 const FRUIT_NONE = -2; // sentinel for "no fruit" filter
 const EXPANDED_ENTRY_STORAGE = (worldId: string) => `adm_codex_expanded:${worldId}`;
 const CREATE_DRAFT_STORAGE = (worldId: string) => `adm_codex_create_draft:${worldId}`;
+const CODEX_MODE_STORAGE = (worldId: string) => `adm_codex_mode:${worldId}`;
+type CodexMode = 'encyclopedia' | 'timeline';
 
 type EntryKind = 'ficha' | 'artigo';
 
@@ -50,6 +53,14 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   
   const [filterFruits, setFilterFruits] = useState<number[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [mode, setMode] = useState<CodexMode>(() => {
+    if (typeof window === 'undefined' || !worldId) return 'encyclopedia';
+    return (sessionStorage.getItem(CODEX_MODE_STORAGE(worldId)) as CodexMode) || 'encyclopedia';
+  });
+  useEffect(() => {
+    if (!worldId) return;
+    try { sessionStorage.setItem(CODEX_MODE_STORAGE(worldId), mode); } catch {}
+  }, [mode, worldId]);
   const [showCreate, setShowCreate] = useState(false);
   const [createKind, setCreateKind] = useState<EntryKind | null>(null);
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
@@ -448,7 +459,36 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
           </div>
         </div>
       </div>
-      <p className="font-merriweather italic text-text-dim text-sm mb-5">Suas fichas, artigos e anotações organizados por fruto</p>
+      <p className="font-merriweather italic text-text-dim text-sm mb-4">Suas fichas, artigos e anotações organizados por fruto</p>
+
+      {/* Toggle: Enciclopédia | Linha do Tempo */}
+      <div className="mb-5 inline-flex rounded-full border border-gold/25 bg-[hsl(var(--background)/0.55)] backdrop-blur-md p-1">
+        {([
+          { key: 'encyclopedia', label: 'Enciclopédia', Icon: BookOpen },
+          { key: 'timeline',     label: 'Linha do Tempo', Icon: Trees   },
+        ] as const).map(opt => {
+          const active = mode === opt.key;
+          const Icon = opt.Icon;
+          return (
+            <button
+              key={opt.key}
+              onClick={() => setMode(opt.key)}
+              className={`px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-montserrat font-bold uppercase tracking-wider transition-all inline-flex items-center gap-1.5 ${
+                active
+                  ? 'bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] shadow-[0_0_14px_hsl(var(--gold)/0.45)]'
+                  : 'text-text-dim hover:text-gold-champagne'
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" strokeWidth={1.85} />{opt.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {mode === 'timeline' ? (
+        <TimelineView worldId={worldId} codexEntries={entries} onOpenEntry={setPersistedExpandedId} />
+      ) : (<>
+
 
       {/* Import panel */}
       {showImport && (
@@ -833,6 +873,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
           )}
         </div>
       )}
+      </>)}
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
 

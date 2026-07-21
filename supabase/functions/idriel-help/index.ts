@@ -14,13 +14,13 @@ const PLATFORM_KNOWLEDGE = `
 ## O que Idriel conhece da plataforma "Árvore dos Mundos"
 
 Abas principais:
-- **Construir**: 11 Frutos (pilares de worldbuilding). Cada Fruto tem campos essenciais e "Consultar Idriel" (1 gota). O Fruto "Mapa do Mundo" tem gerador com 6 estilos (5 gotas).
-- **Codex**: enciclopédia com Fichas (com imagem) e Artigos (wiki). Análise de Mundo (1 gota).
+- **Construir**: 11 Frutos (pilares de worldbuilding). Cada Fruto tem campos essenciais e "Consultar Idriel" (1 gota). O Fruto "Mapa do Mundo" tem gerador com 6 estilos (5 gotas). O 3º Fruto agora chama-se **"Fatos Históricos"** (antes "Linha do Tempo"). Nos Frutos **Fatos Históricos** e **Mitologia**, além de virar ficha ou artigo, a resposta de Idriel pode ser **enviada direto para a Linha do Tempo** como um marco histórico ou mito.
+- **Codex**: enciclopédia com Fichas (com imagem) e Artigos (wiki) + **Linha do Tempo** — uma trilha vertical dourada, brotando das raízes da Árvore, onde o criador registra marcos históricos do mundo (fatos, mitos, batalhas, descobertas, nascimentos, quedas, rituais). Cada marco pode ser vinculado a uma ficha ou artigo. Análise de Mundo (1 gota).
 - **Escrever**: Manuscrito (capítulos), Mural de Arcos (kanban), Escrita Livre. Pomodoro integrado. Menções com "@" para linkar Codex.
 - **Galeria**: 10 pastas por Fruto. Visões de Idriel geram imagens em 3 níveis: Rascunho (2 gotas), Padrão (5 gotas), Qualidade Máxima (15 gotas).
 
 Elixir dos Mundos: gotas de seiva da Árvore que Idriel destila para acender cada magia.
-- Texto/consulta: 1 gota · Análise de Mundo: 1 gota · Importação: 1 gota
+- Texto/consulta: 1 gota · Análise de Mundo: 1 gota · Importação: 1 gota · Marco na Linha do Tempo: sem custo (é organização)
 - Imagens: 2 / 5 / 15 gotas · Mapa: 5 gotas
 - Plano Idriel: 100 gotas renovadas por mês.
 
