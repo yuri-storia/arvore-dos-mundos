@@ -920,6 +920,23 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                 {chapters.length === 0 && <p className="text-xs text-text-dim text-center py-6">Crie seu primeiro capítulo.</p>}
               </div>
             </ScrollArea>
+            {/* Resize handle (desktop only): drag to adjust chapter list width. */}
+            {!isMobile && (
+              <div
+                onPointerDown={onColResizeDown}
+                onPointerMove={onColResizeMove}
+                onPointerUp={onColResizeUp}
+                onPointerCancel={onColResizeUp}
+                onDoubleClick={() => setChapterColWidth(260)}
+                role="separator"
+                aria-orientation="vertical"
+                aria-label="Redimensionar coluna de capítulos (duplo clique para restaurar 260px)"
+                title="Arraste para redimensionar · duplo clique para 260px"
+                className="absolute top-0 right-0 h-full w-1.5 -mr-0.5 cursor-col-resize group z-10"
+              >
+                <div className="absolute inset-y-0 right-0 w-px bg-blue-bright/20 group-hover:bg-blue-bright/60 group-hover:shadow-[0_0_8px_rgba(59,130,246,0.6)] transition-all" />
+              </div>
+            )}
           </div>
           )}
 
