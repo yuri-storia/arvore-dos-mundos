@@ -51,6 +51,7 @@ export function useManuscript(worldId?: string) {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [loading, setLoading] = useState(true);
+  const [chaptersLoading, setChaptersLoading] = useState(false);
 
   // Fetch manuscripts for a world
   const fetchManuscripts = useCallback(async () => {
@@ -78,7 +79,8 @@ export function useManuscript(worldId?: string) {
 
   // Fetch chapters & scenes when manuscript changes
   useEffect(() => {
-    if (!activeManuscript) { setChapters([]); setScenes([]); return; }
+    if (!activeManuscript) { setChapters([]); setScenes([]); setChaptersLoading(false); return; }
+    setChaptersLoading(true);
     (async () => {
       const { data: chaps, error: chapErr } = await supabase
         .from('chapters')
@@ -90,6 +92,7 @@ export function useManuscript(worldId?: string) {
         toast.error('Não foi possível carregar os capítulos.');
         setChapters([]);
         setScenes([]);
+        setChaptersLoading(false);
         return;
       }
       setChapters((chaps || []) as Chapter[]);
@@ -110,6 +113,7 @@ export function useManuscript(worldId?: string) {
       } else {
         setScenes([]);
       }
+      setChaptersLoading(false);
     })();
   }, [activeManuscript]);
 
@@ -246,7 +250,7 @@ export function useManuscript(worldId?: string) {
 
   return {
     manuscripts, activeManuscript, setActiveManuscript,
-    chapters, scenes, loading, totalWordCount,
+    chapters, scenes, loading, chaptersLoading, totalWordCount,
     createManuscript, updateManuscript, deleteManuscript,
     createChapter, updateChapter, deleteChapter, reorderChapters,
     createScene, updateScene, deleteScene,

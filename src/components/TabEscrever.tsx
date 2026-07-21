@@ -227,19 +227,29 @@ const SortableChapterRow: React.FC<SortableChapterRowProps> = ({
             <GripVertical className="w-3.5 h-3.5" />
           </button>
           {/* Título — abre em UM clique/tap. `onPointerUp` garante disparo imediato mesmo quando
-              o Radix ContextMenuTrigger tenta iniciar o long-press. */}
-          <button
-            type="button"
-            onPointerUp={(e) => {
-              if (e.pointerType !== 'mouse' || e.button === 0) onOpen();
-            }}
-            className={`flex-1 min-w-0 text-left px-2 py-1.5 rounded text-xs font-montserrat font-bold truncate transition-colors ${
-              isActive ? 'bg-blue-bright/15 text-blue-light' : 'text-foreground/80 hover:text-foreground hover:bg-white/[0.03]'
-            }`}
-            title={`${title} — clique com o botão direito (ou segure) para mais opções`}
-          >
-            <FileText className="w-3 h-3 inline mr-1.5 opacity-50" />{title}
-          </button>
+              o Radix ContextMenuTrigger tenta iniciar o long-press. Trunca com "…" e mostra
+              o nome completo em tooltip no hover. */}
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onPointerUp={(e) => {
+                    if (e.pointerType !== 'mouse' || e.button === 0) onOpen();
+                  }}
+                  className={`flex-1 min-w-0 flex items-center gap-1.5 text-left px-2 py-1.5 rounded text-xs font-montserrat font-bold transition-colors ${
+                    isActive ? 'bg-blue-bright/15 text-blue-light' : 'text-foreground/80 hover:text-foreground hover:bg-white/[0.03]'
+                  }`}
+                >
+                  <FileText className="w-3 h-3 shrink-0 opacity-50" />
+                  <span className="truncate block min-w-0 flex-1">{title}</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" align="start" className="max-w-[280px] text-[11px] font-montserrat break-words">
+                {title}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <TooltipProvider delayDuration={200}>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -300,7 +310,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const isMobile = useIsMobile();
   const {
     manuscripts, activeManuscript, setActiveManuscript,
-    chapters, scenes, totalWordCount,
+    chapters, scenes, totalWordCount, chaptersLoading,
     createManuscript, updateManuscript, deleteManuscript,
     createChapter, updateChapter, deleteChapter, reorderChapters,
     refetch: refetchManuscripts,
@@ -382,6 +392,10 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const [snapshot, setSnapshot] = useState<number | null>(null);
   useEffect(() => {
     if (!snapKey) { setSnapshot(null); return; }
+    // Aguarda os capítulos carregarem antes de gravar a linha-base do dia.
+    // Sem isso, `effectiveTotal` fica em 0 durante o load e o snapshot é
+    // congelado em 0 — fazendo "Hoje" igualar o total do manuscrito.
+    if (chaptersLoading) return;
     try {
       const raw = localStorage.getItem(snapKey);
       if (raw != null) setSnapshot(parseInt(raw, 10) || 0);
@@ -391,7 +405,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
       }
     } catch { setSnapshot(0); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [snapKey]);
+  }, [snapKey, chaptersLoading]);
   const wordsToday = snapshot == null ? 0 : Math.max(0, effectiveTotal - snapshot);
   const goalPct = dailyGoal > 0 ? Math.min(100, Math.round((wordsToday / dailyGoal) * 100)) : 0;
   const persistGoal = useCallback((v: number) => {
