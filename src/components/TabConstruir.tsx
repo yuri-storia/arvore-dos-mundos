@@ -9,6 +9,7 @@ import { ImageLightbox } from '@/components/ImageLightbox';
 import { CreateFichaButton } from '@/components/CreateFichaButton';
 import { MapGenerator } from '@/components/MapGenerator';
 import { useCodexEntries } from '@/hooks/useCodexEntries';
+import { useTimelineEvents, type TimelineEventType } from '@/hooks/useTimelineEvents';
 import { useIdrielHistory } from '@/hooks/useIdrielHistory';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
