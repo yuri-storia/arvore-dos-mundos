@@ -33,12 +33,14 @@ interface Props {
   onContentSave: (content: string) => void;
   onPreviewEntry: (entry: CodexEntry) => void;
   onLiveWordCount?: (count: number) => void;
+  manuscriptTitle?: string;
 }
 
 export const ChapterEditor: React.FC<Props> = React.memo(({
   chapter, entries, isMobile, zenMode, setZenMode,
   showRefPanel, setShowRefPanel, onBack,
   onTitleSave, onContentSave, onPreviewEntry, onLiveWordCount,
+  manuscriptTitle,
 }) => {
   const [content, setContent] = useState(chapter.content || '');
   const [title, setTitle] = useState(chapter.title);
@@ -157,103 +159,122 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
 
   return (
     <>
-      {/* Header */}
-      <div className="p-3 border-b border-blue-bright/10 flex items-center gap-2">
-        {isMobile && onBack && (
-          <button onClick={onBack} aria-label="Voltar" className="p-1 text-text-dim hover:text-foreground">
-            <ChevronRight className="w-4 h-4 rotate-180" />
-          </button>
-        )}
-        <input
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-          onBlur={handleTitleBlur}
-          lang="pt-BR"
-          spellCheck
-          className="bg-transparent font-montserrat font-bold text-sm text-foreground border-none focus:outline-none flex-1 min-w-0"
-          placeholder="Título do capítulo"
-        />
-        <span className="text-[11px] font-mono text-text-dim bg-white/[0.04] px-2 py-0.5 rounded">{wordCount} palavras</span>
+      {/* Header — 2 rows: (1) breadcrumb + action icons, (2) chapter title + word count */}
+      <div className="border-b border-blue-bright/10">
+        {/* Row 1: breadcrumb + icons */}
+        <div className="px-3 pt-2 pb-1 flex items-center gap-2">
+          {isMobile && onBack && (
+            <button onClick={onBack} aria-label="Voltar" className="p-1 text-text-dim hover:text-foreground shrink-0">
+              <ChevronRight className="w-4 h-4 rotate-180" />
+            </button>
+          )}
+          <div className="flex-1 min-w-0 flex items-center gap-1 text-[10px] font-montserrat text-text-dim/70 truncate">
+            {manuscriptTitle && (
+              <>
+                <span className="truncate hover:text-foreground/80 cursor-default">{manuscriptTitle}</span>
+                <ChevronRight className="w-2.5 h-2.5 shrink-0" />
+              </>
+            )}
+            <span className="truncate text-blue-light/80">{chapter.title}</span>
+          </div>
 
-        {/* Liga/desliga do corretor ortográfico PT-BR. */}
-        <button
-          type="button"
-          onClick={() => {
-            const next = !spellOn;
-            setSpellOn(next);
-            toast.message(
-              next ? 'Corretor ortográfico ativado' : 'Corretor ortográfico desativado',
-              { duration: 1600 },
-            );
-          }}
-          aria-pressed={spellOn}
-          aria-label={spellOn ? 'Desativar corretor ortográfico' : 'Ativar corretor ortográfico'}
-          title={
-            spellOn
-              ? 'Corretor ortográfico: ATIVADO (clique para desativar)'
-              : 'Corretor ortográfico: DESATIVADO (clique para ativar)'
-          }
-          className={`hidden md:inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] border transition-colors ${
-            spellOn
-              ? 'border-emerald-400/40 text-emerald-300 bg-emerald-400/[0.06] hover:bg-emerald-400/[0.12]'
-              : 'border-white/10 text-text-dim hover:text-foreground hover:bg-white/[0.05]'
-          }`}
-        >
-          <SpellCheck2 className="w-3 h-3" />
-          <span className="font-mono">{spellOn ? 'ABC ✓' : 'ABC'}</span>
-        </button>
+          <div className="flex items-center gap-1 shrink-0">
+            {/* Liga/desliga do corretor ortográfico PT-BR. */}
+            <button
+              type="button"
+              onClick={() => {
+                const next = !spellOn;
+                setSpellOn(next);
+                toast.message(
+                  next ? 'Corretor ortográfico ativado' : 'Corretor ortográfico desativado',
+                  { duration: 1600 },
+                );
+              }}
+              aria-pressed={spellOn}
+              aria-label={spellOn ? 'Desativar corretor ortográfico' : 'Ativar corretor ortográfico'}
+              title={
+                spellOn
+                  ? 'Corretor ortográfico: ATIVADO (clique para desativar)'
+                  : 'Corretor ortográfico: DESATIVADO (clique para ativar)'
+              }
+              className={`hidden md:inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] border transition-colors ${
+                spellOn
+                  ? 'border-emerald-400/40 text-emerald-300 bg-emerald-400/[0.06] hover:bg-emerald-400/[0.12]'
+                  : 'border-white/10 text-text-dim hover:text-foreground hover:bg-white/[0.05]'
+              }`}
+            >
+              <SpellCheck2 className="w-3 h-3" />
+              <span className="font-mono">{spellOn ? 'ABC ✓' : 'ABC'}</span>
+            </button>
 
+            {plan.canUseAI && (
+              <button
+                type="button"
+                onClick={() => setFormatOpen(true)}
+                title={`Idriel formata a diagramação do capítulo. Custo estimado: ${estimatedCost} gota${estimatedCost === 1 ? '' : 's'}.`}
+                className="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] border border-amber-400/40 text-amber-300 bg-gradient-to-r from-amber-400/[0.08] to-emerald-400/[0.08] hover:from-amber-400/[0.16] hover:to-emerald-400/[0.16] transition-colors"
+              >
+                <Sparkles className="w-3 h-3" />
+                <span className="font-mono">Formatar · {estimatedCost}g</span>
+              </button>
+            )}
 
+            <button
+              title="Atalho: Ctrl + L — foca o editor e abre o seletor do Codex"
+              className="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] text-text-dim border border-white/10 hover:text-foreground hover:bg-white/[0.05] transition-colors"
+              onClick={() => toast.info('Use Ctrl + L para focar o editor e abrir o seletor do Codex (@).')}
+            >
+              <Keyboard className="w-3 h-3" />
+              <span className="font-mono">Ctrl + L</span>
+            </button>
 
-        {plan.canUseAI && (
-          <button
-            type="button"
-            onClick={() => setFormatOpen(true)}
-            title={`Idriel formata a diagramação do capítulo (parágrafos, travessões, espaçamento). Custo estimado: ${estimatedCost} gota${estimatedCost === 1 ? '' : 's'}.`}
-            className="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] border border-amber-400/40 text-amber-300 bg-gradient-to-r from-amber-400/[0.08] to-emerald-400/[0.08] hover:from-amber-400/[0.16] hover:to-emerald-400/[0.16] transition-colors"
-          >
-            <Sparkles className="w-3 h-3" />
-            <span className="font-mono">Formatar · {estimatedCost}g</span>
-          </button>
-        )}
-
-
-        <button
-          title="Atalho: Ctrl + L — foca o editor com segurança e abre o seletor do Codex"
-          className="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] text-text-dim border border-white/10 hover:text-foreground hover:bg-white/[0.05] transition-colors"
-          onClick={() => toast.info('Use Ctrl + L para focar o editor e abrir o seletor do Codex (@).')}
-        >
-          <Keyboard className="w-3 h-3" />
-          <span className="font-mono">Ctrl + L</span>
-        </button>
-
-
-
-        <div className="flex items-center bg-white/[0.03] rounded border border-blue-bright/10 p-0.5">
-          <button onClick={() => setPreviewMode(false)}
-            className={`px-1.5 py-0.5 rounded text-[10px] flex items-center gap-1 transition-colors ${!previewMode ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'}`}
-            title="Editar">
-            <Edit3 className="w-3 h-3" />
-          </button>
-          <button onClick={() => setPreviewMode(true)}
-            className={`px-1.5 py-0.5 rounded text-[10px] flex items-center gap-1 transition-colors ${previewMode ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'}`}
-            title="Pré-visualizar">
-            <Eye className="w-3 h-3" />
-          </button>
+            <div className="flex items-center bg-white/[0.03] rounded border border-blue-bright/10 p-0.5">
+              <button onClick={() => setPreviewMode(false)}
+                className={`px-1.5 py-0.5 rounded text-[10px] flex items-center gap-1 transition-colors ${!previewMode ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'}`}
+                title="Editar">
+                <Edit3 className="w-3 h-3" />
+              </button>
+              <button onClick={() => setPreviewMode(true)}
+                className={`px-1.5 py-0.5 rounded text-[10px] flex items-center gap-1 transition-colors ${previewMode ? 'bg-blue-bright/20 text-blue-light' : 'text-text-dim hover:text-foreground'}`}
+                title="Pré-visualizar">
+                <Eye className="w-3 h-3" />
+              </button>
+            </div>
+            <button onClick={() => setZenMode(!zenMode)}
+              className={`p-1.5 rounded hover:bg-white/[0.05] transition-colors ${zenMode ? 'text-blue-light' : 'text-text-dim hover:text-foreground'}`}
+              title={zenMode ? 'Sair do modo foco' : 'Modo foco'}>
+              {zenMode ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+            </button>
+            {!zenMode && !isMobile && (
+              <button onClick={() => setShowRefPanel(!showRefPanel)}
+                className="p-1.5 rounded hover:bg-white/[0.05] text-text-dim hover:text-foreground transition-colors"
+                title={showRefPanel ? 'Fechar referências' : 'Abrir referências'}>
+                {showRefPanel ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
+              </button>
+            )}
+          </div>
         </div>
-        <button onClick={() => setZenMode(!zenMode)}
-          className={`p-1.5 rounded hover:bg-white/[0.05] transition-colors ${zenMode ? 'text-blue-light' : 'text-text-dim hover:text-foreground'}`}
-          title={zenMode ? 'Sair do modo foco' : 'Modo foco'}>
-          {zenMode ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-        </button>
-        {!zenMode && (
-          <button onClick={() => setShowRefPanel(!showRefPanel)}
-            className="p-1.5 rounded hover:bg-white/[0.05] text-text-dim hover:text-foreground transition-colors"
-            title={showRefPanel ? 'Fechar referências' : 'Abrir referências'}>
-            {showRefPanel ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
-          </button>
-        )}
+
+        {/* Row 2: chapter title (full width) + word count */}
+        <div className="px-3 pb-2 flex items-center gap-2">
+          <input
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            onBlur={handleTitleBlur}
+            lang="pt-BR"
+            spellCheck
+            className="bg-transparent font-montserrat font-bold text-base md:text-lg text-foreground border-none focus:outline-none flex-1 min-w-0"
+            placeholder="Título do capítulo"
+          />
+          <span
+            className="text-[11px] font-mono text-blue-light/80 bg-blue-bright/[0.08] border border-blue-bright/20 px-2 py-0.5 rounded shrink-0"
+            title="Palavras neste capítulo"
+          >
+            {wordCount} palavras
+          </span>
+        </div>
       </div>
+
 
       {/* Editor body */}
       <div className="flex-1 relative overflow-hidden">

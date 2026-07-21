@@ -342,6 +342,35 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [newManuscriptName, setNewManuscriptName] = useState('');
   const [zenMode, setZenMode] = useState(false);
+  // Resizable chapter-list column width — persisted in sessionStorage (per tab only).
+  const CHAPTER_COL_KEY = 'adm:chaptersColWidth';
+  const CHAPTER_COL_MIN = 200;
+  const CHAPTER_COL_MAX = 480;
+  const [chapterColWidth, setChapterColWidth] = useState<number>(() => {
+    try {
+      const raw = sessionStorage.getItem(CHAPTER_COL_KEY);
+      const n = raw ? parseInt(raw, 10) : NaN;
+      return Number.isFinite(n) ? Math.min(CHAPTER_COL_MAX, Math.max(CHAPTER_COL_MIN, n)) : 260;
+    } catch { return 260; }
+  });
+  useEffect(() => {
+    try { sessionStorage.setItem(CHAPTER_COL_KEY, String(chapterColWidth)); } catch {}
+  }, [chapterColWidth]);
+  const resizeStartRef = useRef<{ startX: number; startW: number } | null>(null);
+  const onColResizeDown = useCallback((e: React.PointerEvent) => {
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    resizeStartRef.current = { startX: e.clientX, startW: chapterColWidth };
+  }, [chapterColWidth]);
+  const onColResizeMove = useCallback((e: React.PointerEvent) => {
+    if (!resizeStartRef.current) return;
+    const dx = e.clientX - resizeStartRef.current.startX;
+    const next = Math.min(CHAPTER_COL_MAX, Math.max(CHAPTER_COL_MIN, resizeStartRef.current.startW + dx));
+    setChapterColWidth(next);
+  }, []);
+  const onColResizeUp = useCallback((e: React.PointerEvent) => {
+    resizeStartRef.current = null;
+    try { (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId); } catch {}
+  }, []);
   // Selected reference (when a chip is clicked) — shows in the right panel as a card.
   const [previewEntry, setPreviewEntry] = useState<CodexEntry | null>(null);
   const [chapterPendingDelete, setChapterPendingDelete] = useState<string | null>(null);
@@ -717,7 +746,10 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
         <div className={`flex gap-3 min-h-[400px] transition-all duration-300 ${zenMode ? 'h-[calc(100vh-100px)]' : 'h-[calc(100vh-220px)]'}`}>
           {/* LEFT: Chapter list */}
           {!zenMode && (
-          <div className={`${isMobile ? 'w-full' : 'w-[260px]'} shrink-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && activeChapterId ? 'hidden' : ''}`}>
+          <div
+            className={`${isMobile ? 'w-full' : ''} shrink-0 relative flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && activeChapterId ? 'hidden' : ''}`}
+            style={isMobile ? undefined : { width: chapterColWidth }}
+          >
             <div className="p-2 border-b border-blue-bright/10 space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Capítulos</span>
@@ -888,37 +920,45 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                 {chapters.length === 0 && <p className="text-xs text-text-dim text-center py-6">Crie seu primeiro capítulo.</p>}
               </div>
             </ScrollArea>
+            {/* Resize handle (desktop only): drag to adjust chapter list width. */}
+            {!isMobile && (
+              <div
+                onPointerDown={onColResizeDown}
+                onPointerMove={onColResizeMove}
+                onPointerUp={onColResizeUp}
+                onPointerCancel={onColResizeUp}
+                onDoubleClick={() => setChapterColWidth(260)}
+                role="separator"
+                aria-orientation="vertical"
+                aria-label="Redimensionar coluna de capítulos (duplo clique para restaurar 260px)"
+                title="Arraste para redimensionar · duplo clique para 260px"
+                className="absolute top-0 right-0 h-full w-1.5 -mr-0.5 cursor-col-resize group z-10"
+              >
+                <div className="absolute inset-y-0 right-0 w-px bg-blue-bright/20 group-hover:bg-blue-bright/60 group-hover:shadow-[0_0_8px_rgba(59,130,246,0.6)] transition-all" />
+              </div>
+            )}
           </div>
           )}
 
           {/* CENTER: Editor */}
           <div className={`flex-1 min-w-0 flex flex-col rounded-lg border transition-all duration-300 ${zenMode ? 'bg-background border-transparent shadow-2xl' : 'bg-white/[0.02] border-blue-bright/10'} ${isMobile && !activeChapterId ? 'hidden' : ''}`}>
             {activeChapter ? (
-              <>
-                {/* Breadcrumb */}
-                {!zenMode && (
-                  <div className="px-3 pt-2 flex items-center gap-1 text-[10px] font-montserrat text-text-dim/60">
-                    <span className="hover:text-foreground cursor-default">{activeManuscript.title}</span>
-                    <ChevronRight className="w-2.5 h-2.5" />
-                    <span className="text-blue-light/80">{activeChapter.title}</span>
-                  </div>
-                )}
-                <ChapterEditor
-                  key={activeChapter.id}
-                  chapter={activeChapter}
-                  entries={entries}
-                  isMobile={isMobile}
-                  zenMode={zenMode}
-                  setZenMode={setZenMode}
-                  showRefPanel={showRefPanel}
-                  setShowRefPanel={setShowRefPanel}
-                  onBack={isMobile ? () => setActiveChapterId(null) : undefined}
-                  onTitleSave={handleChapterTitleSave}
-                  onContentSave={handleChapterContentSave}
-                  onPreviewEntry={handlePreviewEntry}
-                  onLiveWordCount={setLiveActiveWords}
-                />
-              </>
+              <ChapterEditor
+                key={activeChapter.id}
+                chapter={activeChapter}
+                entries={entries}
+                isMobile={isMobile}
+                zenMode={zenMode}
+                setZenMode={setZenMode}
+                showRefPanel={showRefPanel}
+                setShowRefPanel={setShowRefPanel}
+                onBack={isMobile ? () => setActiveChapterId(null) : undefined}
+                onTitleSave={handleChapterTitleSave}
+                onContentSave={handleChapterContentSave}
+                onPreviewEntry={handlePreviewEntry}
+                onLiveWordCount={setLiveActiveWords}
+                manuscriptTitle={activeManuscript?.title}
+              />
             ) : (
               <div className="flex-1 flex items-center justify-center text-center p-8">
                 <div>
