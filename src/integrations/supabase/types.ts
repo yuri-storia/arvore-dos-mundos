@@ -936,6 +936,66 @@ export type Database = {
         }
         Relationships: []
       }
+      timeline_events: {
+        Row: {
+          codex_entry_id: string | null
+          created_at: string
+          description: string | null
+          era_label: string | null
+          event_type: string
+          fruit_id: number | null
+          id: string
+          sort_index: number
+          title: string
+          updated_at: string
+          user_id: string
+          world_id: string
+        }
+        Insert: {
+          codex_entry_id?: string | null
+          created_at?: string
+          description?: string | null
+          era_label?: string | null
+          event_type?: string
+          fruit_id?: number | null
+          id?: string
+          sort_index?: number
+          title: string
+          updated_at?: string
+          user_id: string
+          world_id: string
+        }
+        Update: {
+          codex_entry_id?: string | null
+          created_at?: string
+          description?: string | null
+          era_label?: string | null
+          event_type?: string
+          fruit_id?: number | null
+          id?: string
+          sort_index?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+          world_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "timeline_events_codex_entry_id_fkey"
+            columns: ["codex_entry_id"]
+            isOneToOne: false
+            referencedRelation: "codex_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timeline_events_world_id_fkey"
+            columns: ["world_id"]
+            isOneToOne: false
+            referencedRelation: "worlds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_credit_balance: {
         Row: {
           bonus_drops: number

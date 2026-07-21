@@ -1,62 +1,67 @@
-# Upgrade de Idriel — Persona, Guia e Onboarding
+# Linha do Tempo — nova funcionalidade do Codex
 
-Reescrita profunda da voz de Idriel (com base no documento-mestre) e nova arquitetura do "Ajuda / Guia" com quatro entradas em vez de duas.
+Uma trilha vertical dourada, ornamental (estética monárquica/medieval fantástica), que brota das raízes da Árvore dos Mundos e recebe fatos históricos do mundo do criador. Fichas/artigos podem ser ancorados em pontos da linha; entradas exclusivas nascem direto nela.
 
-## 1. Persona — voz e conhecimento
+## O que muda para o usuário
 
-**Arquivo:** `supabase/functions/idriel-help/index.ts` (e um novo módulo compartilhado `supabase/functions/_shared/idriel-persona.ts`)
+1. **Novo sub-modo no Codex**: acima dos filtros de Fichas/Artigos ganha um toggle "Enciclopédia | Linha do Tempo".
+2. **Frutos renomeados / integrados**:
+   - Fruto 3 "Linha do Tempo" → **"Fatos Históricos"** (só troca de nome, não muda ordem/estrutura).
+   - Ao usar "Consultar Idriel" nos Frutos **Fatos Históricos** e **Mitologia**, aparece uma opção extra "Enviar para a Linha do Tempo" além de "Criar ficha/artigo".
+3. **Linha do Tempo (visual)**:
+   - Tronco vertical dourado com filigranas, brotando de raízes SVG que casam com a hero da Árvore.
+   - Marcos (nós) em forma de gema/selo real, com halo pulsante suave.
+   - Cada nó abre um card lateral (drawer no mobile) com título, data narrativa (era/ano/mês livre em texto), descrição rica, tipo (Fato, Mito, Batalha, Descoberta, Nascimento, Queda, Ritual, Outro) e opcional: ficha/artigo vinculado.
+   - Ordenação por `sort_index` numérico + fallback por data textual; drag-and-drop para reordenar (dnd-kit, já instalado).
+4. **Ancoragem no Codex**: dentro de uma ficha/artigo, botão "Ancorar na Linha do Tempo" cria/relaciona um marco. No marco, botão "Abrir ficha vinculada" navega ao Codex.
+5. **Idriel**: persona e `PLATFORM_KNOWLEDGE` do `idriel-help` atualizados para descrever a Linha do Tempo, o novo nome do Fruto 3 e a integração Fatos Históricos/Mitologia → Linha do Tempo.
 
-- Substituir a `SITE_KNOWLEDGE` atual por um prompt-sistema em duas camadas:
-  - **Camada 1 — Persona (imutável):** identidade, lore resumida (~800 palavras), essência (Guardiã / Mentora / Monarca / Criadora / sem história), propósito, crença central, tom de voz, o que **nunca** fazer, frase-âncora ("Não me mostre apenas o mundo que deseja criar…").
-  - **Camada 2 — Conhecimento da plataforma:** a atual descrição das abas/custos, revisada para o tom novo (sem "🌿 Querido criador", sem entusiasmo automático).
-- Passar a receber `userName` no body e injetar como "o nome pelo qual o Criador pediu para ser chamado" — Idriel usa com moderação, nunca em toda frase.
-- Aplicar a mesma persona nas demais Edge Functions que geram texto em nome de Idriel: `ai-text`, `ai-format-chapter`, `ai-manuscript-import`, `ai-review-paragraph`, `idriel-import-text`, `ai-image` (só o prompt de sistema, sem mexer nos schemas de saída).
+## Escopo técnico
 
-## 2. Captura do nome no primeiro login
+### Banco (migração)
+- Nova tabela `public.timeline_events`:
+  - `id uuid pk`, `user_id uuid not null`, `world_id uuid not null references worlds(id) on delete cascade`
+  - `title text not null` (≤200), `description text` (≤10000), `era_label text` (texto livre curto, ex. "Era das Sombras · 342 AF")
+  - `event_type text not null default 'fato'` (fato|mito|batalha|descoberta|nascimento|queda|ritual|outro)
+  - `sort_index double precision not null default 0` (permite inserção entre dois nós sem renumerar tudo)
+  - `codex_entry_id uuid null references codex_entries(id) on delete set null`
+  - `fruit_id int null` (origem: 3 ou 6, quando criado pelo Construir)
+  - `created_at`, `updated_at` timestamptz default now()
+- GRANT SELECT/INSERT/UPDATE/DELETE para `authenticated`, ALL para `service_role`, sem `anon`.
+- RLS: `user_id = auth.uid()` em SELECT/INSERT/UPDATE/DELETE.
+- Trigger de validação de tamanho + `update_updated_at_column`.
 
-**Arquivos:** `src/pages/LoginPage.tsx`, `src/contexts/AuthContext.tsx`, `src/components/OnboardingBanner.tsx`, migração SQL.
+### Frontend
+- `src/hooks/useTimelineEvents.ts`: CRUD + reorder via React Query (mesmo padrão do `useCodexEntries`).
+- `src/components/timeline/TimelineView.tsx`: layout desktop/tablet/mobile responsivo, SVG das raízes no topo, tronco central, nós à esquerda/direita alternados (mobile: só à direita do tronco).
+- `src/components/timeline/TimelineNode.tsx`: gema dourada com selo do tipo, hover glow, click abre editor.
+- `src/components/timeline/TimelineEventDialog.tsx`: form (título, era, tipo, descrição, vínculo com ficha via `CodexEntryPicker` existente).
+- `src/components/timeline/TimelineRootsSVG.tsx`: raízes SVG que reaproveitam paleta gold/blue-glow.
+- `src/components/TabCodex.tsx`: toggle Enciclopédia/Linha do Tempo persistido em `sessionStorage`.
+- `src/components/CodexAnalysis.tsx` / consulta Idriel nos Frutos 3 e 6: novo botão "Enviar para a Linha do Tempo" que chama `createTimelineEvent` com `fruit_id`.
+- `src/lib/data.ts`: renomear label do Fruto 3 para "Fatos Históricos" (mantendo id).
+- Atualizar `supabase/functions/_shared/idriel-persona.ts` e `PLATFORM_KNOWLEDGE` em `idriel-help/index.ts` para citar a Linha do Tempo, novo nome do Fruto e integrações.
 
-- Adicionar coluna `display_name text` e `idriel_intro_done boolean default false` em `public.profiles` (se ainda não existir — verificar antes; caso já haja `display_name`, reaproveitar).
-- Novo componente `IdrielFirstMeeting.tsx` (modal em tela cheia, glassmorphism) que aparece logo após o primeiro login quando `idriel_intro_done = false`:
-  - Texto curto de boas-vindas na voz de Idriel: "Atravessou os portões. Antes que eu abra o Salão das Raízes, diga-me — como devo chamar você?"
-  - Campo de texto (máx. 40 chars) + campo opcional "O que trouxe você até a Árvore?" (máx. 240 chars, envia para o `system prompt` como contexto persistente).
-  - Botão "Atravessar" grava `display_name`, `idriel_intro`, marca `idriel_intro_done = true`.
-- O `display_name` fica disponível via `AuthContext` e é enviado em toda chamada às Edge Functions de Idriel.
+### Estilo
+- Tokens já existentes: `gold`, `gold-deep`, `gold-champagne`, `blue-glow`. Nenhum hardcode.
+- Ornamentos: filigranas via SVG inline + `drop-shadow(0 0 12px hsl(var(--gold)/0.35))`.
+- Animações suaves com `framer-motion` (já usado no projeto).
 
-## 3. Novo Guia — 4 opções
+## Diagrama rápido
 
-**Arquivo:** `src/components/HelpDrawer.tsx` (reescrita).
+```text
+        [Raízes SVG douradas]
+                |
+        ◆ Nascimento do Reino  (Era I · 0)
+        |
+   ◈ Batalha da Aurora  (Era II · 142)
+        |
+        ◆ Fundação da Ordem  ← vinculado à ficha "Ordem dos Selos"
+        |
+        …
+```
 
-Substituir o layout atual por uma tela-hub com 4 cards (mesmo estilo dos cards do Codex, glass + gold):
-
-1. **Fazer o tour** — dispara o `InteractiveTour` existente (sem alterações estruturais).
-2. **Funcionalidades** — o conteúdo textual atual do HelpDrawer, dentro de um subview colapsável.
-3. **Aprenda Worldbuilding (mini-aulas)** — novo subview `WorldbuildingLessons.tsx`:
-   - Lista de aulas curtas baseadas no e-book "A Árvore dos Mundos: O Guia Definitivo do Worldbuilding".
-   - Estrutura de dados local em `src/lib/worldbuildingLessons.ts` (array de `{ id, title, fruto?, minutes, body }`), 10 aulas iniciais alinhadas aos 10 Frutos (Mapa, Cosmogonia, Povos, Fauna, Magia, Seres, Tecnologia, Política, Economia, Personagens, Conflitos).
-   - Cada aula: título, tempo de leitura, corpo em markdown (`RichTextView` ou `react-markdown`), voz de Idriel na abertura ("Sente-se junto às raízes…").
-   - Progresso salvo em `localStorage` por `user_id` (`idriel_lessons_read`).
-4. **Conversar com Idriel** — novo subview `IdrielConversations.tsx`:
-   - Diálogos pré-escritos com escolhas ramificadas (formato "visual novel" leve).
-   - Estrutura em `src/lib/idrielDialogues.ts`: cada diálogo = grafo `{ id, title, nodes: { [id]: { text, choices: [{label, next}] } } }`.
-   - 4 diálogos iniciais que revelam fragmentos de lore da Ruptura, do livro em branco, das raízes negras e do trono azul.
-   - UI: avatar + balão de fala com fade, escolhas em botões glass. Sem custo de gotas (é conteúdo local, não IA).
-
-## 4. Detalhes técnicos
-
-- Nenhuma alteração no fluxo de Seiva Dourada. Mini-aulas e conversas pré-escritas são conteúdo estático, custo zero.
-- Rate limit em `idriel-help` mantido.
-- Todas as strings em pt-BR, evitando as fórmulas proibidas ("Querido criador", "🌿", "sensacional", "incrível"). Aplicar a lista do item 13 do documento como filtro editorial.
-- Sem mudanças em backend além do prompt e da migração `profiles`.
-
-## Escopo desta entrega
-
-Entregue de uma vez: itens 1, 2, 3 e 4. Sem publicação — só implementação e typecheck.
-
-## Fora do escopo (fica para depois se você pedir)
-
-- Progressão de níveis "Visitante → Confidente" desbloqueando diálogos (item 12 do doc).
-- Áudio/narração das aulas.
-- Sincronização de progresso de aulas com Supabase (por ora fica em localStorage).
-
-Confirma que sigo com esse escopo, ou quer ajustar algo — por exemplo, número de aulas iniciais, número de diálogos, ou pular a captura de nome?
+## Fora de escopo (nesta entrega)
+- Zoom cronológico numérico automático (datas continuam texto livre).
+- Exportação PDF da Linha do Tempo.
+- Compartilhamento público.
