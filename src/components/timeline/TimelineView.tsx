@@ -5,7 +5,7 @@ import { useTimelineEvents, type TimelineEvent, type TimelineEventType } from '@
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { TimelineNode } from './TimelineNode';
 import { TimelineEventDialog } from './TimelineEventDialog';
-import rootsAsset from '@/assets/timeline-roots.png.asset.json';
+import { TimelineRootsAnimation } from './TimelineRootsAnimation';
 import {
   AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
   AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction,
@@ -45,18 +45,10 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
 
   return (
     <div className="animate-fadeUp">
-      {/* Cabeçalho ornamental: raízes da Árvore dos Mundos ACIMA do título.
-          mix-blend-mode: screen faz o fundo preto (#030910) da arte desaparecer,
-          restando apenas o brilho dourado/azul mesclado ao fundo do app. */}
-      <div className="relative mb-2 bg-[#030910]">
-        <img
-          src={rootsAsset.url}
-          alt=""
-          aria-hidden
-          className="relative mx-auto block w-full max-w-[720px] h-auto select-none pointer-events-none"
-          style={{ mixBlendMode: 'screen' }}
-        />
-      </div>
+      {/* Cabeçalho ornamental: raízes animadas da Árvore dos Mundos ACIMA do título.
+          Energia dourada flui das pontas das raízes até o orbe central pulsante.
+          O componente usa mix-blend-mode: screen para se fundir ao fundo do app. */}
+      <TimelineRootsAnimation />
 
       <div className="text-center mb-6 -mt-6 sm:-mt-10 relative">
         <h2 className="font-cinzel font-bold text-lg sm:text-xl text-gold-light inline-flex items-center gap-2">
