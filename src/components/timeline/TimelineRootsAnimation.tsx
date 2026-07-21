@@ -36,8 +36,7 @@ export const TimelineRootsAnimation: React.FC = () => {
           muted
           loop
           playsInline
-          // @ts-expect-error webkit attribute for legacy iOS
-          webkit-playsinline="true"
+          {...({ 'webkit-playsinline': 'true' } as Record<string, string>)}
           disablePictureInPicture
           disableRemotePlayback
           controls={false}
