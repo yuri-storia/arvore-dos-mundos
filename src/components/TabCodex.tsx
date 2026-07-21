@@ -486,7 +486,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
       </div>
 
       {mode === 'timeline' ? (
-        <TimelineView worldId={worldId} codexEntries={entries} onOpenEntry={setPersistedExpandedId} />
+        <TimelineView worldId={worldId} codexEntries={entries} onOpenEntry={(id) => { setMode('enciclopedia'); setPersistedExpandedId(id); }} />
+
       ) : (<>
 
 
