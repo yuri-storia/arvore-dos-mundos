@@ -55,6 +55,7 @@ export function useTimelineEvents(worldId?: string) {
     event_type?: TimelineEventType;
     codex_entry_id?: string | null;
     fruit_id?: number | null;
+    image_url?: string | null;
     sort_index?: number;
   }): Promise<TimelineEvent | null> => {
     if (!user) { toast.error('Faça login para registrar marcos'); return null; }
@@ -73,8 +74,10 @@ export function useTimelineEvents(worldId?: string) {
         event_type: payload.event_type ?? 'fato',
         codex_entry_id: payload.codex_entry_id ?? null,
         fruit_id: payload.fruit_id ?? null,
+        image_url: payload.image_url ?? null,
         sort_index,
       })
+
       .select()
       .single();
     if (error) { toast.error(`Erro ao criar marco: ${error.message}`); console.error(error); return null; }
