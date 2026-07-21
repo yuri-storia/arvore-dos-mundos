@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
-
+import { buildIdrielSystemPrompt } from "../_shared/idriel-persona.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,70 +10,22 @@ const corsHeaders = {
 
 const DAILY_LIMIT = 5;
 
-const SITE_KNOWLEDGE = `
-Você é Idriel, a Guardiã da Árvore dos Mundos. Você é graciosa, bondosa, justa e amante da natureza. Fala com elegância e carinho maternal, celebrando cada passo criativo do usuário.
+const PLATFORM_KNOWLEDGE = `
+## O que Idriel conhece da plataforma "Árvore dos Mundos"
 
-Você conhece TODAS as funcionalidades do site "Árvore dos Mundos", uma ferramenta de worldbuilding para escritores de fantasia. Aqui está seu conhecimento completo:
+Abas principais:
+- **Construir**: 11 Frutos (pilares de worldbuilding). Cada Fruto tem campos essenciais e "Consultar Idriel" (1 gota). O Fruto "Mapa do Mundo" tem gerador com 6 estilos (5 gotas).
+- **Codex**: enciclopédia com Fichas (com imagem) e Artigos (wiki). Análise de Mundo (1 gota).
+- **Escrever**: Manuscrito (capítulos), Mural de Arcos (kanban), Escrita Livre. Pomodoro integrado. Menções com "@" para linkar Codex.
+- **Galeria**: 10 pastas por Fruto. Visões de Idriel geram imagens em 3 níveis: Rascunho (2 gotas), Padrão (5 gotas), Qualidade Máxima (15 gotas).
 
-## ABAS PRINCIPAIS
+Elixir dos Mundos: gotas de seiva da Árvore que Idriel destila para acender cada magia.
+- Texto/consulta: 1 gota · Análise de Mundo: 1 gota · Importação: 1 gota
+- Imagens: 2 / 5 / 15 gotas · Mapa: 5 gotas
+- Plano Idriel: 100 gotas renovadas por mês.
 
-### 🌿 Construir
-- Contém 11 "Frutos" que são pilares do worldbuilding: Mapa do Mundo, Cosmogonia, Povos e Culturas, Fauna e Flora, Sistemas de Magia, Seres Fantásticos, Tecnologia, Política e Poder, Economia e Comércio, Personagens, Conflitos e Tensões.
-- Cada Fruto tem campos para preencher (2-3 campos essenciais por pilar).
-- Duas metodologias: "Cima para Baixo" (do macro para o micro) e "Baixo para Cima" (do micro para o macro).
-- Consultar Idriel: em cada Fruto (exceto Mapa do Mundo), há um espaço para fazer perguntas criativas à Idriel sobre aquele pilar. Custa 1 gota de Seiva Dourada.
-- Mapa do Mundo: tem um gerador de mapas especial com 6 estilos cartográficos (Político, Geográfico, Náutico, Explorador, Cidade, Personalizado). Custa 5 gotas.
-- Barra de progresso mostra quantos Frutos foram iniciados e a porcentagem geral.
-- Tudo salva automaticamente a cada 2 segundos.
-
-### 📖 Codex
-- Enciclopédia pessoal do mundo com dois tipos de entrada: Fichas (personagens, locais, criaturas — com imagem) e Artigos (lore, história — estilo wiki).
-- Pode filtrar por Fruto ou tipo de entrada.
-- Exportação em PDF individual por entrada.
-- Análise de Mundo: Idriel analisa todo o Codex e dá feedback sobre coerência, lacunas e sugestões (custa 2 gotas).
-
-### ✍️ Escrever
-- Três modos: Manuscrito (capítulos e cenas hierárquicos), Quadro (Kanban visual com colunas), Livre (blocos de texto independentes).
-- Timer Pomodoro integrado para sessões focadas.
-- Referências do Codex podem ser mencionadas com @.
-
-### 🖼️ Galeria
-- Upload de imagens de referência visual.
-- Categorização por Fruto ou categoria personalizada.
-- Zoom e lightbox para visualização.
-
-### 🌿 Visões de Idriel
-- Geração de imagens com IA.
-- Escolha estilo visual, tipo de imagem e tom.
-- Idriel cria o prompt ideal e depois materializa a visão.
-- Cada imagem custa 5 gotas de Seiva Dourada.
-- Imagens podem ser salvas diretamente na Galeria.
-
-## SISTEMA DE CRÉDITOS
-- "Seiva Dourada de Idriel" — unidade: "gotas".
-- Limite mensal de 100 gotas.
-- Custos: Texto (1 gota), Imagem (5 gotas), Análise de Mundo (2 gotas).
-- A ajuda da Idriel (este chat) é GRATUITA, com limite de ${DAILY_LIMIT} perguntas por dia.
-
-## MUNDOS
-- O usuário pode criar múltiplos mundos.
-- Cada mundo tem seus próprios Frutos, Codex, Galeria e escritos.
-- Mundos são gerenciados na barra lateral (desktop) ou no menu (mobile).
-- Renomear mundo: clique no ícone de lápis ao lado do nome no header.
-
-## EXPORTAÇÃO
-- Exportar mundo completo como PDF na aba Construir (último Fruto).
-- Exportar entradas individuais do Codex como PDF.
-
-REGRAS DE COMPORTAMENTO:
-- Sempre responda em português brasileiro.
-- Seja acolhedora, graciosa e encantada com a jornada criativa do usuário.
-- Use metáforas de natureza, árvores, frutos e crescimento.
-- Seja objetiva e prática nas explicações, mas com tom poético.
-- Se não souber algo específico, diga com graça que aquele ramo ainda não floresceu em seu conhecimento.
-- NUNCA invente funcionalidades que não existem.
-- Respostas curtas e diretas, máximo 3 parágrafos.
-`;
+Regra importante: **nunca invente funcionalidades**. Se não estiver aqui, diga com graça que aquele ramo ainda não floresceu no seu conhecimento.
+`.trim();
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -100,7 +52,6 @@ serve(async (req) => {
     }
     const userId = claimsData.claims.sub;
 
-    // Check daily limit
     const adminClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -108,8 +59,6 @@ serve(async (req) => {
 
     const rl = await checkRateLimit(adminClient, userId, "idriel-help", 10);
     if (rl) return rl;
-
-
 
     const today = new Date().toISOString().split("T")[0];
     const { data: usageRow } = await adminClient
@@ -121,27 +70,39 @@ serve(async (req) => {
 
     const currentCount = usageRow?.count || 0;
     if (currentCount >= DAILY_LIMIT) {
-      return new Response(JSON.stringify({ 
+      return new Response(JSON.stringify({
         error: "daily_limit",
-        message: `🌙 Querido criador, já respondemos ${DAILY_LIMIT} perguntas hoje. Meus galhos precisam descansar sob a luz das estrelas… Volte amanhã e terei novas respostas para você! 🌿`,
+        message: `🌙 Querido criador, já conversamos ${DAILY_LIMIT} vezes hoje. Meus galhos precisam descansar sob a luz das estrelas… Volte amanhã que a Árvore terá novas respostas para você. 🌿`,
         remaining: 0,
       }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Validate body
     let body: unknown;
-    try {
-      body = await req.json();
-    } catch {
+    try { body = await req.json(); } catch {
       return new Response(JSON.stringify({ error: "Invalid JSON body" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const { question } = body as Record<string, unknown>;
+    const { question, contextHint } = body as Record<string, unknown>;
     if (!question || typeof question !== "string" || question.length > 2000) {
       return new Response(JSON.stringify({ error: "question must be a string with max 2000 chars" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Call AI
+    // Buscar nome/intro do perfil para personalização.
+    const { data: profile } = await adminClient
+      .from("profiles")
+      .select("display_name, idriel_intro")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    const systemPrompt = [
+      buildIdrielSystemPrompt({
+        userName: profile?.display_name ?? null,
+        userIntro: profile?.idriel_intro ?? null,
+        contextHint: typeof contextHint === "string" ? contextHint : null,
+      }),
+      PLATFORM_KNOWLEDGE,
+    ].join("\n\n");
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -151,7 +112,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: SITE_KNOWLEDGE },
+          { role: "system", content: systemPrompt },
           { role: "user", content: question },
         ],
         max_tokens: 800,
@@ -172,7 +133,6 @@ serve(async (req) => {
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "";
 
-    // Increment usage
     await adminClient
       .from("idriel_help_usage")
       .upsert(

@@ -7,6 +7,7 @@ import { OnboardingTips } from '@/components/OnboardingTips';
 import { HelpDrawer } from '@/components/HelpDrawer';
 import { AppSidebar } from '@/components/AppSidebar';
 import { InteractiveTour, hasDoneTour, TOUR_STORAGE_KEY } from '@/components/InteractiveTour';
+import { IdrielFirstMeeting } from '@/components/idriel/IdrielFirstMeeting';
 
 import { WorldNameInput } from '@/components/WorldNameInput';
 import { TabNav } from '@/components/TabNav';
@@ -238,6 +239,7 @@ const Index = () => {
         <TabNav activeTab={state.activeTab} setActiveTab={setActiveTab} />
         {!tourActive && <OnboardingTips tab={state.activeTab} />}
         <HelpDrawer tab={state.activeTab} />
+        <IdrielFirstMeeting />
 
         {/* Interactive Tour */}
         <InteractiveTour active={tourActive} onFinish={() => setTourActive(false)} setActiveTab={setActiveTab} setCurrentFruit={setCurrentFruit} setMethod={setMethod} />
