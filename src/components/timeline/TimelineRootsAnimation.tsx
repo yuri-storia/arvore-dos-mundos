@@ -41,14 +41,12 @@ export const TimelineRootsAnimation: React.FC = () => {
           alt=""
           aria-hidden
           className="relative block w-full h-auto select-none pointer-events-none"
-          style={{ mixBlendMode: 'screen' }}
         />
 
         {/* Camada de partículas fluindo até o orbe */}
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"
-          style={{ mixBlendMode: 'screen' }}
         >
           {particles.map((p, i) => {
             const dx = ORB.x - p.x;
