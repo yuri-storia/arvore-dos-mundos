@@ -459,7 +459,36 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
           </div>
         </div>
       </div>
-      <p className="font-merriweather italic text-text-dim text-sm mb-5">Suas fichas, artigos e anotações organizados por fruto</p>
+      <p className="font-merriweather italic text-text-dim text-sm mb-4">Suas fichas, artigos e anotações organizados por fruto</p>
+
+      {/* Toggle: Enciclopédia | Linha do Tempo */}
+      <div className="mb-5 inline-flex rounded-full border border-gold/25 bg-[hsl(var(--background)/0.55)] backdrop-blur-md p-1">
+        {([
+          { key: 'encyclopedia', label: 'Enciclopédia', Icon: BookOpen },
+          { key: 'timeline',     label: 'Linha do Tempo', Icon: Trees   },
+        ] as const).map(opt => {
+          const active = mode === opt.key;
+          const Icon = opt.Icon;
+          return (
+            <button
+              key={opt.key}
+              onClick={() => setMode(opt.key)}
+              className={`px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-montserrat font-bold uppercase tracking-wider transition-all inline-flex items-center gap-1.5 ${
+                active
+                  ? 'bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] shadow-[0_0_14px_hsl(var(--gold)/0.45)]'
+                  : 'text-text-dim hover:text-gold-champagne'
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" strokeWidth={1.85} />{opt.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {mode === 'timeline' ? (
+        <TimelineView worldId={worldId} codexEntries={entries} onOpenEntry={setPersistedExpandedId} />
+      ) : (<>
+
 
       {/* Import panel */}
       {showImport && (
