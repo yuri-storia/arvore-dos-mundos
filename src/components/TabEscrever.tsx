@@ -300,7 +300,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const isMobile = useIsMobile();
   const {
     manuscripts, activeManuscript, setActiveManuscript,
-    chapters, scenes, totalWordCount,
+    chapters, scenes, totalWordCount, chaptersLoading,
     createManuscript, updateManuscript, deleteManuscript,
     createChapter, updateChapter, deleteChapter, reorderChapters,
     refetch: refetchManuscripts,
