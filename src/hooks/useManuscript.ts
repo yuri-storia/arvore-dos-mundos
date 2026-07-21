@@ -250,7 +250,7 @@ export function useManuscript(worldId?: string) {
 
   return {
     manuscripts, activeManuscript, setActiveManuscript,
-    chapters, scenes, loading, totalWordCount,
+    chapters, scenes, loading, chaptersLoading, totalWordCount,
     createManuscript, updateManuscript, deleteManuscript,
     createChapter, updateChapter, deleteChapter, reorderChapters,
     createScene, updateScene, deleteScene,
