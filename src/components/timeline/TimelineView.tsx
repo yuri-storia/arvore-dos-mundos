@@ -6,7 +6,10 @@ import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { TimelineNode } from './TimelineNode';
 import { TimelineRootsSVG } from './TimelineRootsSVG';
 import { TimelineEventDialog } from './TimelineEventDialog';
-import { ConfirmDialog } from '@/components/ConfirmDialog';
+import {
+  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction,
+} from '@/components/ui/alert-dialog';
 
 interface Props {
   worldId: string;
@@ -116,19 +119,29 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
         onSubmit={submit}
       />
 
-      <ConfirmDialog
-        open={!!confirmDelete}
-        onOpenChange={o => !o && setConfirmDelete(null)}
-        title="Apagar marco da Linha do Tempo?"
-        description={confirmDelete ? `"${confirmDelete.title}" será removido para sempre.` : ''}
-        confirmText="Apagar"
-        variant="destructive"
-        onConfirm={async () => {
-          if (!confirmDelete) return;
-          await deleteEvent(confirmDelete.id);
-          setConfirmDelete(null);
-        }}
-      />
+      <AlertDialog open={!!confirmDelete} onOpenChange={o => !o && setConfirmDelete(null)}>
+        <AlertDialogContent className="border-red-alert/30 bg-[#0a0f18]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-cinzel text-red-alert">Apagar marco da Linha do Tempo?</AlertDialogTitle>
+            <AlertDialogDescription className="font-montserrat text-sm text-text-secondary">
+              {confirmDelete ? `"${confirmDelete.title}" será removido para sempre.` : ''}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-alert/20 text-red-alert border border-red-alert/40 hover:bg-red-alert/30"
+              onClick={async () => {
+                if (!confirmDelete) return;
+                await deleteEvent(confirmDelete.id);
+                setConfirmDelete(null);
+              }}
+            >
+              Apagar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
