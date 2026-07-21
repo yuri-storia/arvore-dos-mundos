@@ -276,7 +276,7 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
                   Idriel
                 </SheetTitle>
                 <SheetDescription className="font-amiri italic text-[12.5px] text-text-secondary mt-0.5">
-                  Sua assistente élfica — a caneta continua sua
+                  Guardiã da Árvore dos Mundos — a caneta continua sua
                 </SheetDescription>
               </div>
             </div>
