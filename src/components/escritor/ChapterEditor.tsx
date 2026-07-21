@@ -33,12 +33,14 @@ interface Props {
   onContentSave: (content: string) => void;
   onPreviewEntry: (entry: CodexEntry) => void;
   onLiveWordCount?: (count: number) => void;
+  manuscriptTitle?: string;
 }
 
 export const ChapterEditor: React.FC<Props> = React.memo(({
   chapter, entries, isMobile, zenMode, setZenMode,
   showRefPanel, setShowRefPanel, onBack,
   onTitleSave, onContentSave, onPreviewEntry, onLiveWordCount,
+  manuscriptTitle,
 }) => {
   const [content, setContent] = useState(chapter.content || '');
   const [title, setTitle] = useState(chapter.title);
