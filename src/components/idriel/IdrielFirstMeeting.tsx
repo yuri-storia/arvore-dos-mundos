@@ -64,23 +64,31 @@ export const IdrielFirstMeeting: React.FC = () => {
   return (
     <Dialog open={open} onOpenChange={() => { /* only closes via finish */ }}>
       <DialogContent
-        className="max-w-lg border-gold-bronze/40 p-0 overflow-hidden [&>button]:hidden"
+        className="max-w-[min(94vw,560px)] max-h-[92vh] overflow-y-auto border-gold-bronze/40 p-0 [&>button]:hidden"
         style={{
           background:
             'radial-gradient(120% 60% at 80% 0%, hsl(34 50% 14% / 0.55) 0%, transparent 55%), linear-gradient(180deg, hsl(220 60% 4%) 0%, hsl(220 70% 2.5%) 100%)',
         }}
       >
-        {/* Hero */}
-        <div className="relative h-[180px] overflow-hidden border-b border-gold-bronze/30">
+        {/* Hero — retrato completo de Idriel, sem cortar o rosto */}
+        <div
+          className="relative w-full overflow-hidden border-b border-gold-bronze/30"
+          style={{
+            aspectRatio: '4 / 3',
+            maxHeight: 'min(52vh, 420px)',
+            background: 'radial-gradient(ellipse at 50% 30%, hsl(220 60% 8%) 0%, hsl(220 80% 2%) 100%)',
+          }}
+        >
           <video
             src={idrielVideo.url}
             poster={idrielAvatar}
             autoPlay muted loop playsInline preload="metadata"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-contain sm:object-cover"
+            style={{ objectPosition: 'center 20%' }}
           />
           <div
             className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse at 50% 40%, transparent 40%, hsl(220 80% 2% / 0.88) 100%)' }}
+            style={{ background: 'linear-gradient(to bottom, transparent 55%, hsl(220 80% 2% / 0.85) 92%, hsl(220 80% 2%) 100%)' }}
           />
           <div className="absolute bottom-3 left-4 right-4">
             <p className="font-montserrat uppercase tracking-[0.28em] text-[9px] text-gold-champagne/80 mb-1 flex items-center gap-1.5">
@@ -95,7 +103,7 @@ export const IdrielFirstMeeting: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="p-5 sm:p-6 space-y-5">
           {step === 0 && (
             <div className="space-y-4 animate-fade-in">
               <p className="font-amiri text-[15px] leading-relaxed text-foreground">
