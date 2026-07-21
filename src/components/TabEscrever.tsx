@@ -717,7 +717,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
         <div className={`flex gap-3 min-h-[400px] transition-all duration-300 ${zenMode ? 'h-[calc(100vh-100px)]' : 'h-[calc(100vh-220px)]'}`}>
           {/* LEFT: Chapter list */}
           {!zenMode && (
-          <div className={`${isMobile ? 'w-full' : 'w-[220px]'} shrink-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && activeChapterId ? 'hidden' : ''}`}>
+          <div className={`${isMobile ? 'w-full' : 'w-[260px]'} shrink-0 flex flex-col bg-white/[0.02] rounded-lg border border-blue-bright/10 ${isMobile && activeChapterId ? 'hidden' : ''}`}>
             <div className="p-2 border-b border-blue-bright/10 space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Capítulos</span>
