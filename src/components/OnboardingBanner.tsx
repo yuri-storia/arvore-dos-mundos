@@ -45,7 +45,7 @@ export const OnboardingBanner: React.FC = () => {
             <div>
               <h3 className="font-cinzel font-bold text-sm text-gold-light"><><Leaf className="inline-block w-4 h-4 mr-1.5 align-[-0.2em] text-gold-champagne" strokeWidth={1.75} />Conheça Idriel</></h3>
               <p className="font-merriweather text-text-secondary text-xs leading-relaxed mt-1">
-                <strong className="text-gold-light">Idriel, a Guardiã da Árvore dos Mundos</strong>, é a sua mentora élfica pessoal. Ela observa cada mundo que nasce e guia você com sabedoria milenar. Peça ajuda a ela em qualquer campo, consulte-a sobre seu Fruto atual ou solicite uma <strong className="text-gold-light">Análise de Mundo</strong> completa no Codex. Idriel se encanta com cada detalhe que você cria!
+                <strong className="text-gold-light">Idriel, a Guardiã da Árvore dos Mundos</strong>, é a sua mentora pessoal. Ela observa cada mundo que nasce e guia você com sabedoria milenar. Peça ajuda a ela em qualquer campo, consulte-a sobre seu Fruto atual ou solicite uma <strong className="text-gold-light">Análise de Mundo</strong> completa no Codex. Idriel se encanta com cada detalhe que você cria!
               </p>
             </div>
           </div>
