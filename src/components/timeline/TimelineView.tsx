@@ -5,7 +5,7 @@ import { useTimelineEvents, type TimelineEvent, type TimelineEventType } from '@
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { TimelineNode } from './TimelineNode';
 import { TimelineEventDialog } from './TimelineEventDialog';
-import rootsAsset from '@/assets/timeline-roots.png.asset.json';
+import { TimelineRootsAnimation } from './TimelineRootsAnimation';
 import {
   AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
   AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction,
