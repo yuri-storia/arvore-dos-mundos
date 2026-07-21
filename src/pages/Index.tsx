@@ -7,6 +7,7 @@ import { OnboardingTips } from '@/components/OnboardingTips';
 import { HelpDrawer } from '@/components/HelpDrawer';
 import { AppSidebar } from '@/components/AppSidebar';
 import { InteractiveTour, hasDoneTour, TOUR_STORAGE_KEY } from '@/components/InteractiveTour';
+import { IdrielFirstMeeting } from '@/components/idriel/IdrielFirstMeeting';
 
 import { WorldNameInput } from '@/components/WorldNameInput';
 import { TabNav } from '@/components/TabNav';
