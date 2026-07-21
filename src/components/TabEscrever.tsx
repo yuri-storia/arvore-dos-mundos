@@ -382,6 +382,10 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   const [snapshot, setSnapshot] = useState<number | null>(null);
   useEffect(() => {
     if (!snapKey) { setSnapshot(null); return; }
+    // Aguarda os capítulos carregarem antes de gravar a linha-base do dia.
+    // Sem isso, `effectiveTotal` fica em 0 durante o load e o snapshot é
+    // congelado em 0 — fazendo "Hoje" igualar o total do manuscrito.
+    if (chaptersLoading) return;
     try {
       const raw = localStorage.getItem(snapKey);
       if (raw != null) setSnapshot(parseInt(raw, 10) || 0);
@@ -391,7 +395,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
       }
     } catch { setSnapshot(0); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [snapKey]);
+  }, [snapKey, chaptersLoading]);
   const wordsToday = snapshot == null ? 0 : Math.max(0, effectiveTotal - snapshot);
   const goalPct = dailyGoal > 0 ? Math.min(100, Math.round((wordsToday / dailyGoal) * 100)) : 0;
   const persistGoal = useCallback((v: number) => {
