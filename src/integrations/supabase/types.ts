@@ -951,6 +951,7 @@ export type Database = {
           updated_at: string
           user_id: string
           world_id: string
+          year: string | null
         }
         Insert: {
           codex_entry_id?: string | null
@@ -966,6 +967,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           world_id: string
+          year?: string | null
         }
         Update: {
           codex_entry_id?: string | null
@@ -981,6 +983,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           world_id?: string
+          year?: string | null
         }
         Relationships: [
           {
