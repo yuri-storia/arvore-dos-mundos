@@ -58,6 +58,9 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   const [savingAs, setSavingAs] = useState<null | 'ficha' | 'artigo'>(null);
   const [saveDraft, setSaveDraft] = useState({ title: '', content: '' });
   const [saveLoading, setSaveLoading] = useState(false);
+  const [timelineDialogOpen, setTimelineDialogOpen] = useState(false);
+  const showTimelineShortcut = currentFruit === 2 || currentFruit === 8;
+  const defaultTimelineType: TimelineEventType = currentFruit === 8 ? 'mito' : 'fato';
 
   // Restore aiQuestion draft per fruit/world
   useEffect(() => {
