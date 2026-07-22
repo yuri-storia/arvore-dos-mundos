@@ -83,21 +83,21 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
       ) : (
         <div className="relative mx-auto max-w-3xl px-2 sm:px-4 py-2">
           {/* Linha contínua vertical dourada
-              - Mobile: alinhada à coluna da gema esquerda (col 3rem → centro em 1.5rem)
-              - Desktop: centralizada
+              - Mobile/tablet (com sidebar): alinhada à coluna da gema esquerda
+              - Desktop (≥ md): centralizada
           */}
           <div
             aria-hidden
             className="
               pointer-events-none absolute top-0 bottom-0 w-[3px] rounded-full
               left-[calc(0.5rem+1.5rem-1.5px)]
-              sm:left-1/2 sm:-translate-x-1/2
+              md:left-1/2 md:-translate-x-1/2
               bg-gradient-to-b from-gold-champagne/40 via-gold to-gold-deep/60
               shadow-[0_0_10px_hsl(var(--gold)/0.35)]
             "
           />
 
-          <div className="relative space-y-0">
+          <div className="relative space-y-5 md:space-y-0">
             {events.map((ev, i) => {
               const linked = ev.codex_entry_id ? entriesById.get(ev.codex_entry_id) : null;
               return (
@@ -115,9 +115,9 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
           </div>
 
           {/* selo final (raiz principal) */}
-          <div className="relative mt-4 flex flex-col items-center sm:items-center">
-            <div className="w-full flex sm:justify-center">
-              <div className="ml-[calc(0.5rem+1.5rem-0.5rem)] sm:ml-0 flex flex-col items-center">
+          <div className="relative mt-6 flex flex-col items-center md:items-center">
+            <div className="w-full flex md:justify-center">
+              <div className="ml-[calc(0.5rem+1.5rem-0.5rem)] md:ml-0 flex flex-col items-center">
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -127,6 +127,7 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
               </div>
             </div>
           </div>
+        </div>
         </div>
       )}
 
