@@ -509,7 +509,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     const clean = Math.max(0, Math.round(count || 0));
     setLiveActiveWords(clean);
 
-    if (!activeChapterId || !dailyIdentity || dailyLoadedKey !== dailyIdentity) return;
+    if (!activeChapterId) return;
 
     const prev = liveChapterCountsRef.current[activeChapterId];
     if (skipNextLiveReportRef.current || prev == null) {
@@ -519,6 +519,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     }
 
     liveChapterCountsRef.current[activeChapterId] = clean;
+    if (!dailyIdentity || dailyLoadedKey !== dailyIdentity) return;
     const delta = clean - prev;
     if (delta > 0) persistDailyWords(dailyWordsRef.current + delta);
   }, [activeChapterId, dailyIdentity, dailyLoadedKey, persistDailyWords]);
