@@ -345,10 +345,7 @@ const NodeCard: React.FC<{
 
               <h3 className={`font-cinzel font-bold text-sm sm:text-base text-foreground leading-snug inline-flex items-center gap-2 ${rowDir}`}>
                 <Icon className={`w-3.5 h-3.5 ${s.accent}`} strokeWidth={1.75} />
-                <span>
-                  {event.year ? <span className="text-gold-champagne/80 mr-1">{event.year} ·</span> : null}
-                  {event.title}
-                </span>
+                <span>{event.title}</span>
               </h3>
 
               {event.description && (
@@ -390,9 +387,21 @@ const NodeCard: React.FC<{
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+        </motion.div>
+
+        {/* Chip do ano — externo ao card, ao lado, voltado ao eixo central */}
+        {yearLabel ? (
+          <span
+            className="flex-none inline-flex items-center px-2 py-1 rounded-md bg-background/60 border border-gold/25 text-gold-champagne font-cinzel font-semibold tracking-wide text-[11px] sm:text-xs leading-none backdrop-blur-sm shadow-[0_0_12px_-6px_hsl(var(--gold)/0.6)]"
+            title={`Ano: ${yearLabel}`}
+          >
+            {yearLabel}
+          </span>
+        ) : null}
+      </div>
     </motion.div>
   );
 };
 
 export default TimelineNode;
+
