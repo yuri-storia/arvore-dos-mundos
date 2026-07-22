@@ -199,7 +199,7 @@ export const TimelineNode: React.FC<Props> = ({
           title={
             expanded
               ? `Clique para recolher · Segure e arraste para reordenar`
-              : `${event.year ? `${event.year} · ` : ''}${event.title} — Clique para expandir · Segure e arraste para reordenar`
+              : `${(event.year || event.era_label) ? `${event.year || event.era_label} · ` : ''}${event.title} — Clique para expandir · Segure e arraste para reordenar`
           }
           className={`
             relative z-10 w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center
