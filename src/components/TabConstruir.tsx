@@ -596,6 +596,17 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
 
+      {/* Timeline entry dialog (Fatos Históricos & Mitologia) */}
+      <TimelineEventDialog
+        open={timelineDialogOpen}
+        onOpenChange={setTimelineDialogOpen}
+        initial={{ event_type: defaultTimelineType, fruit_id: currentFruit }}
+        codexEntries={entries}
+        onSubmit={async (payload) => {
+          await createTimelineEvent({ ...payload, fruit_id: currentFruit });
+        }}
+      />
+
       {/* Idriel history drawer */}
       <Sheet open={showHistory} onOpenChange={setShowHistory}>
         <SheetContent side="right" className="w-full sm:max-w-md bg-background border-gold/20 overflow-y-auto">
