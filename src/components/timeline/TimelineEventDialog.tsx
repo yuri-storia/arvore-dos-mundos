@@ -109,7 +109,7 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-xl border-gold/30 bg-[hsl(var(--background)/0.98)] backdrop-blur-xl p-0 overflow-hidden max-h-[92vh] flex flex-col"
+        className="w-[calc(100vw-2rem)] sm:max-w-2xl lg:max-w-3xl border-gold/30 bg-[hsl(var(--background)/0.98)] backdrop-blur-xl p-0 overflow-hidden max-h-[92vh] flex flex-col"
         style={{
           boxShadow:
             '0 0 0 1px hsl(var(--gold) / 0.12), 0 30px 80px -30px rgba(0,0,0,0.8), 0 0 60px -20px hsl(var(--gold) / 0.25)',
