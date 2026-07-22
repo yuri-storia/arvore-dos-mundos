@@ -19,7 +19,21 @@ export const TimelineRootsAnimation: React.FC = () => {
           playsInline
           preload="metadata"
           aria-hidden
-          className="block w-full h-auto select-none pointer-events-none opacity-[68%]"
+          className="block w-full h-auto select-none pointer-events-none opacity-80"
+        />
+
+        {/* Máscara para ocultar a marca d'água no canto inferior direito do vídeo */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute"
+          style={{
+            right: '2%',
+            bottom: '6%',
+            width: '18%',
+            height: '26%',
+            background:
+              'radial-gradient(ellipse at center, #030910 0%, rgba(3,9,16,0.95) 45%, rgba(3,9,16,0.65) 70%, rgba(3,9,16,0) 100%)',
+          }}
         />
 
         {/* Vinheta lateral esfumaçada: fade horizontal generoso e suave */}
