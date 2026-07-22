@@ -9,7 +9,13 @@ function dailyKey(manuscriptId: string | null): string | null {
 
 /** Migração da versão antiga: persistedTotal - baseline, nunca total ao vivo do capítulo aberto. */
 function migrateLegacyWords(persistedTotal: number, legacyBaseline: number): number {
-  return Math.max(0, Math.round(persistedTotal - legacyBaseline));
+  const migratedDelta = Math.max(0, Math.round(persistedTotal - legacyBaseline));
+  return legacyBaseline > 0
+    && legacyBaseline <= 100
+    && migratedDelta >= 150
+    && migratedDelta > legacyBaseline * 4
+      ? Math.round(legacyBaseline)
+      : migratedDelta;
 }
 
 /** Simula a lógica nova: primeiro report do editor = hidratação; só deltas positivos posteriores contam. */
@@ -121,6 +127,8 @@ describe('Contagem diária de palavras (fuso Brasília)', () => {
   it('migra v4 usando total persistido, não a contagem ao vivo do capítulo aberto', () => {
     expect(migrateLegacyWords(27, 0)).toBe(27);
     expect(migrateLegacyWords(27, 281)).toBe(0);
+    // Caso real: v4 ficou com baseline=27 e total inflado=308 ao abrir um capítulo antigo.
+    expect(migrateLegacyWords(308, 27)).toBe(27);
     expect(migrateLegacyWords(1500, 1000)).toBe(500);
   });
 
