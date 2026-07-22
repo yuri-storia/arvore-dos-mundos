@@ -261,6 +261,12 @@ const NodeCard: React.FC<{
     ? 'justify-end lg:justify-start'
     : 'justify-start lg:justify-end';
 
+  // Chip fica do lado do card voltado para o eixo central (rail).
+  // Mobile/tablet: cards da esquerda → chip à direita do card; cards da direita → chip à esquerda.
+  // Desktop (lg+): mesmo padrão (chip sempre entre o card e o eixo).
+  const chipSideClasses = isLeft ? 'flex-row' : 'flex-row-reverse';
+  const yearLabel = event.year || event.era_label;
+
   return (
     <motion.div
       layout
@@ -269,40 +275,35 @@ const NodeCard: React.FC<{
       transition={{ layout: { duration: 0.25 }, opacity: { duration: 0.25 } }}
       className={`w-full max-w-md ${wrapperAlign}`}
     >
-      <motion.div
-        layout
-        onClick={expanded ? () => onEdit() : undefined}
-        role={expanded ? 'button' : undefined}
-        tabIndex={expanded ? 0 : -1}
-        onKeyDown={expanded ? (e) => { if (e.key === 'Enter') onEdit(); } : undefined}
-        title={expanded ? 'Clique para editar' : undefined}
-        transition={{ layout: { duration: 0.42, ease: [0.22, 0.9, 0.32, 1] } }}
-        className={`
-          relative overflow-hidden rounded-xl border ${s.border}
-          bg-gradient-to-br ${s.gradient} backdrop-blur-md
-          transition-[box-shadow,border-color] duration-300 ${s.glowHover} hover:border-opacity-70
-          ${expanded ? 'p-3 sm:p-4 cursor-pointer' : 'px-3 py-2 sm:px-3.5 sm:py-2.5'}
-        `}
-        style={{ boxShadow: '0 0 0 1px hsl(var(--gold) / 0.05), 0 6px 20px -12px rgba(0,0,0,0.6)' }}
-      >
-        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-gold-champagne/50 to-transparent pointer-events-none" />
+      <div className={`flex items-center gap-2 sm:gap-2.5 ${chipSideClasses}`}>
+        <motion.div
+          layout
+          onClick={expanded ? () => onEdit() : undefined}
+          role={expanded ? 'button' : undefined}
+          tabIndex={expanded ? 0 : -1}
+          onKeyDown={expanded ? (e) => { if (e.key === 'Enter') onEdit(); } : undefined}
+          title={expanded ? 'Clique para editar' : undefined}
+          transition={{ layout: { duration: 0.42, ease: [0.22, 0.9, 0.32, 1] } }}
+          className={`
+            relative overflow-hidden rounded-xl border ${s.border} flex-1 min-w-0
+            bg-gradient-to-br ${s.gradient} backdrop-blur-md
+            transition-[box-shadow,border-color] duration-300 ${s.glowHover} hover:border-opacity-70
+            ${expanded ? 'p-3 sm:p-4 cursor-pointer' : 'px-3 py-2 sm:px-3.5 sm:py-2.5'}
+          `}
+          style={{ boxShadow: '0 0 0 1px hsl(var(--gold) / 0.05), 0 6px 20px -12px rgba(0,0,0,0.6)' }}
+        >
+          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-gold-champagne/50 to-transparent pointer-events-none" />
 
-        {/* ---- COLLAPSED ---- */}
-        {!expanded && (
-          <div className={`flex items-center gap-2 min-w-0 ${rowDir}`}>
-            <Icon className={`w-3.5 h-3.5 flex-none ${s.accent}`} strokeWidth={2} />
-            <div className={`min-w-0 flex items-center gap-1.5 ${rowDir}`}>
-              {(event.year || event.era_label) ? (
-                <span className="flex-none inline-flex items-center px-1.5 py-0.5 rounded-md bg-gold/10 border border-gold/20 text-gold-champagne font-cinzel font-bold text-[11px] sm:text-xs leading-none">
-                  {event.year || event.era_label}
-                </span>
-              ) : null}
+          {/* ---- COLLAPSED ---- */}
+          {!expanded && (
+            <div className={`flex items-center gap-2 min-w-0 ${rowDir}`}>
+              <Icon className={`w-3.5 h-3.5 flex-none ${s.accent}`} strokeWidth={2} />
               <h3 className={`font-cinzel font-semibold text-[13px] sm:text-sm text-foreground leading-tight truncate ${textAlign}`}>
                 {event.title}
               </h3>
             </div>
-          </div>
-        )}
+          )}
+
 
         {/* ---- EXPANDED ---- */}
         <AnimatePresence initial={false}>
@@ -344,10 +345,7 @@ const NodeCard: React.FC<{
 
               <h3 className={`font-cinzel font-bold text-sm sm:text-base text-foreground leading-snug inline-flex items-center gap-2 ${rowDir}`}>
                 <Icon className={`w-3.5 h-3.5 ${s.accent}`} strokeWidth={1.75} />
-                <span>
-                  {event.year ? <span className="text-gold-champagne/80 mr-1">{event.year} ·</span> : null}
-                  {event.title}
-                </span>
+                <span>{event.title}</span>
               </h3>
 
               {event.description && (
@@ -389,9 +387,21 @@ const NodeCard: React.FC<{
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+        </motion.div>
+
+        {/* Chip do ano — externo ao card, ao lado, voltado ao eixo central */}
+        {yearLabel ? (
+          <span
+            className="flex-none inline-flex items-center px-2 py-1 rounded-md bg-background/60 border border-gold/25 text-gold-champagne font-cinzel font-semibold tracking-wide text-[11px] sm:text-xs leading-none backdrop-blur-sm shadow-[0_0_12px_-6px_hsl(var(--gold)/0.6)]"
+            title={`Ano: ${yearLabel}`}
+          >
+            {yearLabel}
+          </span>
+        ) : null}
+      </div>
     </motion.div>
   );
 };
 
 export default TimelineNode;
+
