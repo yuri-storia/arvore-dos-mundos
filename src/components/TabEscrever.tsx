@@ -480,7 +480,17 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
             if (chapters.length === 0 && persistedTotal === 0 && legacy.baseline > 0) {
               shouldDelayForChapters = true;
             } else {
-              nextWords = Math.max(0, Math.round(persistedTotal - legacy.baseline));
+              const migratedDelta = Math.max(0, Math.round(persistedTotal - legacy.baseline));
+              // Caso de corrupção v4 observado: ao abrir um capítulo antigo, a
+              // baseline podia virar o último "Hoje" válido (ex.: 27) e o app
+              // exibia `capítulo 308 - 27 = 281`. Nessa assinatura, preserva o
+              // número pequeno já escrito hoje em vez de importar o delta inflado.
+              nextWords = legacy.baseline > 0
+                && legacy.baseline <= 100
+                && migratedDelta >= 150
+                && migratedDelta > legacy.baseline * 4
+                  ? Math.round(legacy.baseline)
+                  : migratedDelta;
             }
           }
         }
