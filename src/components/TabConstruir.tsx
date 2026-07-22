@@ -583,11 +583,17 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       {/* Timeline entry dialog (Fatos Históricos & Mitologia) */}
       <TimelineEventDialog
         open={timelineDialogOpen}
-        onOpenChange={setTimelineDialogOpen}
-        initial={{ event_type: defaultTimelineType, fruit_id: currentFruit }}
+        onOpenChange={(o) => { setTimelineDialogOpen(o); if (!o) setTimelinePrefill(null); }}
+        initial={{
+          event_type: defaultTimelineType,
+          fruit_id: currentFruit,
+          title: timelinePrefill?.title ?? '',
+          description: timelinePrefill?.description ?? '',
+        }}
         codexEntries={entries}
         onSubmit={async (payload) => {
           await createTimelineEvent({ ...payload, fruit_id: currentFruit });
+          setTimelinePrefill(null);
         }}
       />
 
