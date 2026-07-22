@@ -393,6 +393,12 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                         worldId={currentSaveId || undefined}
                         entryType={entryType}
                         onCreated={(action) => action === 'codex' && onNavigateCodex?.()}
+                        timelineOption={showTimelineShortcut ? {
+                          onSelect: (value, label) => {
+                            setTimelinePrefill({ title: label, description: value });
+                            setTimelineDialogOpen(true);
+                          },
+                        } : undefined}
                       >
                         {field.type === 'select' ? (
                           <select
