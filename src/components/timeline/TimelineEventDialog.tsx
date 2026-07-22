@@ -152,14 +152,23 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
 
           {/* Ano + Era + Tipo */}
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-4">
-          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-4">
             <div>
-              <FieldLabel>Era / data narrativa</FieldLabel>
+              <FieldLabel>Ano / data</FieldLabel>
+              <Input
+                value={year}
+                onChange={e => setYear(e.target.value)}
+                maxLength={60}
+                placeholder="342 AF"
+                className="bg-background/60 border-gold/20 focus-visible:border-gold/60 focus-visible:ring-gold/20 font-cinzel"
+              />
+            </div>
+            <div>
+              <FieldLabel>Era / rótulo narrativo</FieldLabel>
               <Input
                 value={era}
                 onChange={e => setEra(e.target.value)}
                 maxLength={120}
-                placeholder="Era das Sombras · 342 AF"
+                placeholder="Era das Sombras"
                 className="bg-background/60 border-gold/20 focus-visible:border-gold/60 focus-visible:ring-gold/20"
               />
             </div>
