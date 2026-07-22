@@ -91,11 +91,16 @@ export function useTimelineEvents(worldId?: string) {
   }, [user, worldId, events, qc]);
 
   const updateEvent = useCallback(async (id: string, updates: Partial<Omit<TimelineEvent, 'id' | 'user_id' | 'world_id' | 'created_at' | 'updated_at'>>) => {
-    const { error } = await supabase.from('timeline_events').update(updates).eq('id', id);
-    if (error) { toast.error('Erro ao atualizar marco'); console.error(error); return; }
+    // Optimistic update FIRST so the UI doesn't snap back while awaiting DB.
     qc.setQueryData(KEY(worldId), (old: TimelineEvent[] = []) =>
       old.map(e => e.id === id ? { ...e, ...updates, updated_at: new Date().toISOString() } as TimelineEvent : e)
          .sort((a, b) => a.sort_index - b.sort_index));
+    const { error } = await supabase.from('timeline_events').update(updates).eq('id', id);
+    if (error) {
+      toast.error('Erro ao atualizar marco'); console.error(error);
+      // Rollback by refetching authoritative state
+      qc.invalidateQueries({ queryKey: KEY(worldId) });
+    }
   }, [qc, worldId]);
 
   const deleteEvent = useCallback(async (id: string) => {
@@ -105,7 +110,10 @@ export function useTimelineEvents(worldId?: string) {
     toast.success('Marco removido da Linha do Tempo');
   }, [qc, worldId]);
 
-  /** Reordena inserindo `id` entre os índices vizinhos (usa média). */
+  /**
+   * Reordena posicionando `id` no `newIndex` da lista visível (após remoção).
+   * A atualização é otimista para o card ficar exatamente onde o usuário soltou.
+   */
   const reorderEvent = useCallback(async (id: string, newIndex: number) => {
     const ordered = [...events].sort((a, b) => a.sort_index - b.sort_index);
     const current = ordered.find(e => e.id === id);

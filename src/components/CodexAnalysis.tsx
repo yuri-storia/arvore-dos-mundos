@@ -589,15 +589,31 @@ Liste 3 ações concretas e prioritárias, ordenadas por importância. Priorize 
 Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${IDRIEL_TITLE}".`;
 
     try {
+      // Throttle stream updates to ~10fps to prevent flicker from re-rendering
+      // large markdown trees on every token.
+      let lastFlush = 0;
+      let pending: string | null = null;
+      let rafId: number | null = null;
+      const flush = () => {
+        rafId = null;
+        if (pending == null) return;
+        setAnalysis(pending);
+        setRevealedChars(pending.length);
+        pending = null;
+        lastFlush = performance.now();
+      };
       const content = await callAITextStream(
         [{ role: 'user', content: `Aqui estão todas as entradas do meu Codex:\n\n${buildPrompt()}` }],
         systemPrompt,
         (acc) => {
-          // Atualiza progressivamente para reduzir latência percebida.
-          setAnalysis(acc);
-          setRevealedChars(acc.length);
+          pending = acc;
+          const now = performance.now();
+          if (now - lastFlush >= 100 && rafId == null) {
+            rafId = requestAnimationFrame(flush);
+          }
         }
       );
+      if (rafId != null) cancelAnimationFrame(rafId);
 
       // Parse per-fruit scores out of Idriel's response so the fruit grid can use them
       const { parseFruitScoresFromAnalysis } = await import('@/hooks/useLatestAnalysis');
