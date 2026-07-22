@@ -204,23 +204,20 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
   const [animating, setAnimating] = useState(false);
   const [delayWaiting, setDelayWaiting] = useState(false);
   const [sheetH, setSheetH] = useState(0);
+  const [placementLocked, setPlacementLocked] = useState<'top' | 'bottom' | null>(null);
   const sheetRef = useRef<HTMLDivElement | null>(null);
-  const rafRef = useRef<number>(0);
+  const lastRectRef = useRef<{ x: number; y: number; w: number; h: number } | null>(null);
+  const scrolledForStepRef = useRef<number>(-1);
 
   const currentStep = TOUR_STEPS[step];
   const mobileDocked = isMobile && currentStep.type !== 'intro' && currentStep.type !== 'outro';
+
+  // Placement is decided ONCE per step (after target found) and locked, to avoid
+  // the modal jumping between top/bottom while the page settles.
   const mobilePlacement: 'top' | 'bottom' = (() => {
     if (!mobileDocked) return 'bottom';
     if (currentStep.mobileCard && currentStep.mobileCard !== 'auto') return currentStep.mobileCard;
-    if (!targetRect || typeof window === 'undefined') return 'bottom';
-
-    const estimatedCardH = sheetH || Math.min(window.innerHeight * 0.42, 300);
-    const topSpace = targetRect.top;
-    const bottomSpace = window.innerHeight - targetRect.bottom - MOBILE_NAV_CLEARANCE;
-
-    if (bottomSpace >= estimatedCardH + 18) return 'bottom';
-    if (topSpace >= estimatedCardH + 18) return 'top';
-    return targetRect.top < window.innerHeight / 2 ? 'bottom' : 'top';
+    return placementLocked ?? 'bottom';
   })();
 
   useEffect(() => {
@@ -235,37 +232,113 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     }
   }, [active, step]);
 
-  const measureTarget = useCallback(() => {
+  // Reset per-step state
+  useEffect(() => {
+    lastRectRef.current = null;
+    scrolledForStepRef.current = -1;
+    setPlacementLocked(null);
+    setTargetRect(null);
+  }, [step]);
+
+  // Passive measurement: react to scroll/resize + ResizeObserver on the target.
+  // Only updates state when the rect actually changes (>= 1px), so it does NOT
+  // trigger a render loop that fights with smooth-scroll.
+  useEffect(() => {
     if (!active || delayWaiting) return;
     const s = TOUR_STEPS[step];
-    if (s.target) {
+    if (!s.target) { setTargetRect(null); return; }
+
+    let raf = 0;
+    let cancelled = false;
+    let ro: ResizeObserver | null = null;
+    let mo: MutationObserver | null = null;
+
+    const measure = () => {
+      if (cancelled) return;
+      const el = document.querySelector(`[data-tour="${s.target}"]`) as HTMLElement | null;
+      if (!el) { setTargetRect(null); return; }
+      const r = el.getBoundingClientRect();
+      const prev = lastRectRef.current;
+      if (
+        !prev ||
+        Math.abs(prev.x - r.left) >= 1 ||
+        Math.abs(prev.y - r.top) >= 1 ||
+        Math.abs(prev.w - r.width) >= 1 ||
+        Math.abs(prev.h - r.height) >= 1
+      ) {
+        lastRectRef.current = { x: r.left, y: r.top, w: r.width, h: r.height };
+        setTargetRect(r);
+      }
+    };
+
+    const schedule = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(measure);
+    };
+
+    // Initial measurement — retry a few frames until element mounts.
+    let attempts = 0;
+    const initial = () => {
+      if (cancelled) return;
       const el = document.querySelector(`[data-tour="${s.target}"]`);
-      setTargetRect(el ? el.getBoundingClientRect() : null);
-    } else {
-      setTargetRect(null);
-    }
-    rafRef.current = requestAnimationFrame(measureTarget);
+      if (el) {
+        measure();
+        if (el instanceof Element) {
+          ro = new ResizeObserver(schedule);
+          ro.observe(el);
+        }
+      } else if (attempts++ < 30) {
+        raf = requestAnimationFrame(initial);
+      }
+    };
+    initial();
+
+    mo = new MutationObserver(schedule);
+    mo.observe(document.body, { childList: true, subtree: true, attributes: false });
+    window.addEventListener('scroll', schedule, { passive: true, capture: true });
+    window.addEventListener('resize', schedule);
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+      ro?.disconnect();
+      mo?.disconnect();
+      window.removeEventListener('scroll', schedule, { capture: true } as any);
+      window.removeEventListener('resize', schedule);
+    };
   }, [active, step, delayWaiting]);
 
+  // Lock the mobile placement the first time we get a valid rect for this step.
   useEffect(() => {
-    if (active && !delayWaiting) {
-      rafRef.current = requestAnimationFrame(measureTarget);
+    if (!mobileDocked || placementLocked || !targetRect || typeof window === 'undefined') return;
+    if (currentStep.mobileCard && currentStep.mobileCard !== 'auto') {
+      setPlacementLocked(currentStep.mobileCard);
+      return;
     }
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [active, measureTarget, delayWaiting]);
+    const estimatedCardH = sheetH || Math.min(window.innerHeight * 0.42, 300);
+    const topSpace = targetRect.top;
+    const bottomSpace = window.innerHeight - targetRect.bottom - MOBILE_NAV_CLEARANCE;
+    let next: 'top' | 'bottom';
+    if (bottomSpace >= estimatedCardH + 18) next = 'bottom';
+    else if (topSpace >= estimatedCardH + 18) next = 'top';
+    else next = targetRect.top < window.innerHeight / 2 ? 'bottom' : 'top';
+    setPlacementLocked(next);
+  }, [mobileDocked, placementLocked, targetRect, sheetH, currentStep.mobileCard]);
 
-  // Scroll target into view. On mobile we keep it inside the safe area
-  // ABOVE the bottom sheet, so the tooltip can never overlap the highlighted
-  // element / button.
+  // Scroll target into view — ONCE per step, after placement is locked.
   useEffect(() => {
     if (!active || delayWaiting || !currentStep.target) return;
+    if (scrolledForStepRef.current === step) return;
+    if (mobileDocked && !placementLocked) return; // wait for placement decision
     const el = document.querySelector(`[data-tour="${currentStep.target}"]`);
     if (!el) return;
+    scrolledForStepRef.current = step;
     if (isMobile) {
       const r = el.getBoundingClientRect();
       const cardH = sheetH || Math.min(window.innerHeight * 0.42, 300);
-      const safeTop = mobilePlacement === 'top' ? cardH + 18 : 72;
-      const safeBottom = mobilePlacement === 'bottom'
+      const place = mobilePlacement;
+      const safeTop = place === 'top' ? cardH + 18 : 72;
+      const safeBottom = place === 'bottom'
         ? window.innerHeight - cardH - 18
         : window.innerHeight - MOBILE_NAV_CLEARANCE;
       const safeH = Math.max(80, safeBottom - safeTop);
@@ -275,7 +348,7 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     } else {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [active, step, delayWaiting, currentStep.target, isMobile, sheetH, mobilePlacement]);
+  }, [active, step, delayWaiting, currentStep.target, isMobile, sheetH, mobilePlacement, mobileDocked, placementLocked]);
 
   // Measure the bottom sheet height on mobile so the scroll math is accurate.
   useEffect(() => {
