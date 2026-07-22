@@ -1,14 +1,42 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
 import { Save, ArrowLeft, X, ClipboardList, PencilLine, Sparkles, BookOpen, Feather, Loader2, ScrollText } from 'lucide-react';
 
 import { FRUITS } from '@/lib/data';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
 import { useAuth } from '@/contexts/AuthContext';
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
-} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+
+// Overlay centralizado renderizado direto no <body> via portal — evita bugs de
+// posicionamento causados por ancestrais com `transform`/`filter`/`backdrop-filter`
+// (que quebram `position: fixed` de dialogs internos).
+const CenteredOverlay: React.FC<{ open: boolean; onClose: () => void; children: React.ReactNode }> = ({ open, onClose, children }) => {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [open, onClose]);
+  if (!open || typeof document === 'undefined') return null;
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
+      onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.8)' }} aria-hidden="true" />
+      <div style={{ position: 'relative', width: '100%', maxWidth: '28rem' }}>{children}</div>
+    </div>,
+    document.body,
+  );
+};
 
 interface Props {
   fieldValue: string;
@@ -206,16 +234,21 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
       )}
 
       {/* Title input dialog */}
-      <Dialog open={showTitleDialog} onOpenChange={setShowTitleDialog}>
-        <DialogContent className="card-glass border-blue-bright/30 max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-cinzel text-blue-light">
-              <>{isFicha ? <><ClipboardList className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Nova Ficha</> : <><PencilLine className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Novo Artigo</>}</>
-            </DialogTitle>
-            <DialogDescription className="text-text-dim font-merriweather text-sm">
-              Escolha um título para {isFicha ? 'sua ficha' : 'seu artigo'}:
-            </DialogDescription>
-          </DialogHeader>
+      <CenteredOverlay open={showTitleDialog} onClose={() => { if (!saving) setShowTitleDialog(false); }}>
+        <div className="card-glass border border-blue-bright/30 rounded-lg p-6 shadow-2xl">
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <div>
+              <h2 className="font-cinzel text-blue-light text-lg">
+                {isFicha ? <><ClipboardList className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Nova Ficha</> : <><PencilLine className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Novo Artigo</>}
+              </h2>
+              <p className="text-text-dim font-merriweather text-sm mt-1">
+                Escolha um título para {isFicha ? 'sua ficha' : 'seu artigo'}:
+              </p>
+            </div>
+            <button onClick={() => !saving && setShowTitleDialog(false)} className="text-text-dim hover:text-foreground" aria-label="Fechar">
+              <X className="w-4 h-4" strokeWidth={2} />
+            </button>
+          </div>
           <input
             type="text"
             value={customTitle}
@@ -225,46 +258,50 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
             autoFocus
             className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50"
           />
-          <DialogFooter className="gap-2">
+          <div className="flex justify-end gap-2 mt-4">
             <Button variant="ghost" onClick={() => setShowTitleDialog(false)} disabled={saving} className="text-text-dim">
               Cancelar
             </Button>
             <Button onClick={handleConfirmCreate} disabled={saving} className="bg-blue-main hover:bg-blue-bright text-foreground">
               {saving ? (<><Loader2 className="inline-block w-3.5 h-3.5 mr-1.5 animate-spin align-[-0.15em]" />Criando…</>) : 'Criar'}
             </Button>
-          </DialogFooter>
-
-        </DialogContent>
-      </Dialog>
+          </div>
+        </div>
+      </CenteredOverlay>
 
       {/* Success dialog */}
-      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-        <DialogContent className={`max-w-md ${isFicha ? 'card-glass border-blue-bright/30' : 'card-glass-gold border-gold/30'}`}>
-          <DialogHeader>
-            <DialogTitle className={`font-cinzel ${isFicha ? 'text-blue-light' : 'text-gold-light'}`}>
-              <Sparkles className="inline-block w-4 h-4 mr-1.5 align-[-0.2em] text-gold-champagne" strokeWidth={1.75} />{isFicha ? 'Ficha Criada!' : 'Artigo Criado!'}
-            </DialogTitle>
-            <DialogDescription className="text-text-secondary font-merriweather text-sm">
-              <strong>"{createdEntryName}"</strong> foi salvo no Codex com sucesso.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-2">
-            <Button 
+      <CenteredOverlay open={showSuccessDialog} onClose={() => setShowSuccessDialog(false)}>
+        <div className={`rounded-lg p-6 shadow-2xl border ${isFicha ? 'card-glass border-blue-bright/30' : 'card-glass-gold border-gold/30'}`}>
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <div>
+              <h2 className={`font-cinzel text-lg ${isFicha ? 'text-blue-light' : 'text-gold-light'}`}>
+                <Sparkles className="inline-block w-4 h-4 mr-1.5 align-[-0.2em] text-gold-champagne" strokeWidth={1.75} />{isFicha ? 'Ficha Criada!' : 'Artigo Criado!'}
+              </h2>
+              <p className="text-text-secondary font-merriweather text-sm mt-1">
+                <strong>"{createdEntryName}"</strong> foi salvo no Codex com sucesso.
+              </p>
+            </div>
+            <button onClick={() => setShowSuccessDialog(false)} className="text-text-dim hover:text-foreground" aria-label="Fechar">
+              <X className="w-4 h-4" strokeWidth={2} />
+            </button>
+          </div>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button
               variant="outline"
-              onClick={() => handleSuccessAction('codex')} 
+              onClick={() => handleSuccessAction('codex')}
               className={`${isFicha ? 'border-blue-bright/30 text-blue-light hover:bg-blue-main/20' : 'border-gold/30 text-gold-light hover:bg-gold/20'}`}
             >
-              <><BookOpen className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Ver Codex</>
+              <BookOpen className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Ver Codex
             </Button>
-            <Button 
-              onClick={() => handleSuccessAction('continue')} 
+            <Button
+              onClick={() => handleSuccessAction('continue')}
               className={`${isFicha ? 'bg-blue-main hover:bg-blue-bright' : 'bg-gold/80 hover:bg-gold'} text-foreground`}
             >
-              <><Feather className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Continuar a Criar</>
+              <Feather className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Continuar a Criar
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+        </div>
+      </CenteredOverlay>
     </div>
   );
 };
