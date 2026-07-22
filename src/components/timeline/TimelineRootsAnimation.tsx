@@ -19,48 +19,34 @@ export const TimelineRootsAnimation: React.FC = () => {
           playsInline
           preload="metadata"
           aria-hidden
-          className="block w-full h-auto select-none pointer-events-none opacity-95"
+          className="block w-full h-auto select-none pointer-events-none opacity-[68%]"
         />
 
-        {/* Máscara sobre a marca d'água no canto inferior direito do vídeo */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute"
-          style={{
-            right: '4%',
-            bottom: '10%',
-            width: '12%',
-            aspectRatio: '1 / 1',
-            background:
-              'radial-gradient(circle at center, #030910 0%, #030910 45%, rgba(3,9,16,0.85) 65%, rgba(3,9,16,0) 100%)',
-          }}
-        />
-
-        {/* Vinheta lateral esfumaçada bem forte */}
+        {/* Vinheta lateral esfumaçada: fade horizontal generoso e suave */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              'linear-gradient(to right, #030910 0%, #030910 8%, rgba(3,9,16,0.95) 16%, rgba(3,9,16,0.7) 26%, rgba(3,9,16,0.35) 36%, rgba(3,9,16,0) 46%, rgba(3,9,16,0) 54%, rgba(3,9,16,0.35) 64%, rgba(3,9,16,0.7) 74%, rgba(3,9,16,0.95) 84%, #030910 92%, #030910 100%)',
+              'linear-gradient(to right, #030910 0%, rgba(3,9,16,0.92) 6%, rgba(3,9,16,0.55) 14%, rgba(3,9,16,0.18) 24%, rgba(3,9,16,0) 34%, rgba(3,9,16,0) 66%, rgba(3,9,16,0.18) 76%, rgba(3,9,16,0.55) 86%, rgba(3,9,16,0.92) 94%, #030910 100%)',
           }}
         />
-        {/* Vinheta vertical esfumaçada bem forte */}
+        {/* Vinheta vertical esfumaçada: fade topo/base generoso e suave */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              'linear-gradient(to bottom, #030910 0%, #030910 8%, rgba(3,9,16,0.95) 16%, rgba(3,9,16,0.7) 26%, rgba(3,9,16,0.35) 36%, rgba(3,9,16,0) 46%, rgba(3,9,16,0) 54%, rgba(3,9,16,0.35) 64%, rgba(3,9,16,0.7) 74%, rgba(3,9,16,0.95) 84%, #030910 92%, #030910 100%)',
+              'linear-gradient(to bottom, #030910 0%, rgba(3,9,16,0.92) 6%, rgba(3,9,16,0.55) 14%, rgba(3,9,16,0.18) 24%, rgba(3,9,16,0) 34%, rgba(3,9,16,0) 66%, rgba(3,9,16,0.18) 76%, rgba(3,9,16,0.55) 86%, rgba(3,9,16,0.92) 94%, #030910 100%)',
           }}
         />
-        {/* Vinheta radial: cantos totalmente fundidos ao background */}
+        {/* Vinheta radial: esfumaçado nos cantos para fusão orgânica com o background */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              'radial-gradient(ellipse at center, rgba(3,9,16,0) 30%, rgba(3,9,16,0.5) 60%, rgba(3,9,16,0.9) 85%, #030910 100%)',
+              'radial-gradient(ellipse at center, rgba(3,9,16,0) 45%, rgba(3,9,16,0.35) 72%, #030910 100%)',
           }}
         />
       </div>
