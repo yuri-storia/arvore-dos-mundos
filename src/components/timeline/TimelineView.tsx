@@ -69,10 +69,10 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<TimelineEvent | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<TimelineEvent | null>(null);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(PointerSensor, { activationConstraint: { delay: 180, tolerance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
@@ -97,10 +97,18 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
   };
 
   const handleBadgeClick = (id: string) => {
-
-    // Badge apenas alterna expandir/recolher. Edição vem do clique no card já aberto.
-    setExpandedId(prev => (prev === id ? null : id));
+    // Toggle apenas do card clicado — outros permanecem no estado atual.
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
+
+  const expandAll = () => setExpandedIds(new Set(events.map(e => e.id)));
+  const collapseAll = () => setExpandedIds(new Set());
+  const allExpanded = events.length > 0 && expandedIds.size === events.length;
 
 
   const handleDragEnd = async (e: DragEndEvent) => {
