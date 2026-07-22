@@ -97,14 +97,11 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
   };
 
   const handleBadgeClick = (id: string) => {
-    if (expandedId === id) {
-      // já expandido → segundo clique = editar
-      const ev = events.find(e => e.id === id);
-      if (ev) openEdit(ev);
-    } else {
-      setExpandedId(id);
-    }
+  const handleBadgeClick = (id: string) => {
+    // Badge apenas alterna expandir/recolher. Edição vem do clique no card já aberto.
+    setExpandedId(prev => (prev === id ? null : id));
   };
+
 
   const handleDragEnd = async (e: DragEndEvent) => {
     const { active, over } = e;
