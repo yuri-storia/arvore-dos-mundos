@@ -170,7 +170,7 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
                       key={ev.id}
                       event={ev}
                       side={i % 2 === 0 ? 'left' : 'right'}
-                      expanded={expandedId === ev.id}
+                      expanded={expandedIds.has(ev.id)}
                       linkedTitle={linked?.title ?? null}
                       onBadgeClick={() => handleBadgeClick(ev.id)}
                       onEdit={() => openEdit(ev)}
