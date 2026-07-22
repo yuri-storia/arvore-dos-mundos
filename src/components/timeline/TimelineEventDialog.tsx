@@ -39,6 +39,7 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
   const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [year, setYear] = useState('');
   const [era, setEra] = useState('');
   const [type, setType] = useState<TimelineEventType>('fato');
   const [linkId, setLinkId] = useState<string>('');
@@ -51,6 +52,7 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
     if (!open) return;
     setTitle(initial?.title ?? '');
     setDescription(initial?.description ?? '');
+    setYear(initial?.year ?? '');
     setEra(initial?.era_label ?? '');
     setType((initial?.event_type as TimelineEventType) ?? 'fato');
     setLinkId(initial?.codex_entry_id ?? '');
@@ -92,6 +94,7 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
       await onSubmit({
         title: title.trim(),
         description: description.trim(),
+        year: year.trim(),
         era_label: era.trim(),
         event_type: type,
         codex_entry_id: linkId || null,
