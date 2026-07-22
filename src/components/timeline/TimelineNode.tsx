@@ -261,10 +261,13 @@ const NodeCard: React.FC<{
     ? 'justify-end lg:justify-start'
     : 'justify-start lg:justify-end';
 
-  // Chip fica do lado do card voltado para o eixo central (rail).
-  // Mobile/tablet: cards da esquerda → chip à direita do card; cards da direita → chip à esquerda.
-  // Desktop (lg+): mesmo padrão (chip sempre entre o card e o eixo).
-  const chipSideClasses = isLeft ? 'flex-row' : 'flex-row-reverse';
+  // Desktop (lg+): chip inline, do lado do card voltado para o eixo central.
+  // Mobile/tablet: chip ACIMA do card (alinhado ao lado do eixo) para não
+  // encurtar o título do card.
+  const chipSideClasses = isLeft
+    ? 'flex-col lg:flex-row'
+    : 'flex-col lg:flex-row-reverse';
+  const chipSelfAlign = isLeft ? 'self-end lg:self-auto' : 'self-start lg:self-auto';
   const yearLabel = event.year || event.era_label;
 
   return (
@@ -275,7 +278,7 @@ const NodeCard: React.FC<{
       transition={{ layout: { duration: 0.25 }, opacity: { duration: 0.25 } }}
       className={`w-full max-w-md ${wrapperAlign}`}
     >
-      <div className={`flex items-center gap-2 sm:gap-2.5 ${chipSideClasses}`}>
+      <div className={`flex items-stretch lg:items-center gap-1.5 lg:gap-2.5 ${chipSideClasses}`}>
         <motion.div
           layout
           onClick={expanded ? () => onEdit() : undefined}
