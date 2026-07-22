@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { Save, ArrowLeft, X, ClipboardList, PencilLine, Sparkles, BookOpen, Feather, Loader2 } from 'lucide-react';
+import { Save, ArrowLeft, X, ClipboardList, PencilLine, Sparkles, BookOpen, Feather, Loader2, ScrollText } from 'lucide-react';
 
 import { FRUITS } from '@/lib/data';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
@@ -17,10 +17,14 @@ interface Props {
   worldId?: string;
   entryType?: 'ficha' | 'artigo';
   onCreated?: (action: 'codex' | 'continue') => void;
+  timelineOption?: {
+    label?: string;
+    onSelect: (fieldValue: string, fieldLabel: string) => void;
+  };
   children: React.ReactNode;
 }
 
-export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fruitId, worldId, entryType = 'ficha', onCreated, children }) => {
+export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fruitId, worldId, entryType = 'ficha', onCreated, timelineOption, children }) => {
   const { user } = useAuth();
   const { entries, createEntry, updateEntry } = useCodexEntries(worldId);
   const [showMenu, setShowMenu] = useState(false);
@@ -136,7 +140,26 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
                   {isFicha ? 'Inserir em Ficha Existente' : 'Inserir em Artigo Existente'}
                 </button>
               </div>
+              {timelineOption && (
+                <div className="mt-3 pt-3 border-t border-gold/20">
+                  <h4 className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-gold-light mb-2 inline-flex items-center gap-1.5">
+                    <ScrollText className="w-3 h-3 text-gold-champagne" strokeWidth={1.75} />
+                    Linha do Tempo
+                  </h4>
+                  <button
+                    onClick={() => {
+                      timelineOption.onSelect(fieldValue, fieldLabel);
+                      setShowMenu(false);
+                    }}
+                    className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] hover:from-gold-warm hover:via-gold hover:to-gold-light shadow-[0_0_10px_hsl(var(--gold)/0.25)] hover:shadow-[0_0_16px_hsl(var(--gold)/0.45)] transition-all"
+                  >
+                    <ScrollText className="w-3 h-3" strokeWidth={2} />
+                    {timelineOption.label ?? 'Criar entrada na Linha do Tempo'}
+                  </button>
+                </div>
+              )}
             </>
+
           ) : (
             <>
               <h4 className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-gold-light mb-2">

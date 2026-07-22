@@ -59,6 +59,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   const [saveDraft, setSaveDraft] = useState({ title: '', content: '' });
   const [saveLoading, setSaveLoading] = useState(false);
   const [timelineDialogOpen, setTimelineDialogOpen] = useState(false);
+  const [timelinePrefill, setTimelinePrefill] = useState<{ title: string; description: string } | null>(null);
   const showTimelineShortcut = currentFruit === 2 || currentFruit === 8;
   const defaultTimelineType: TimelineEventType = currentFruit === 8 ? 'mito' : 'fato';
 
@@ -392,6 +393,12 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                         worldId={currentSaveId || undefined}
                         entryType={entryType}
                         onCreated={(action) => action === 'codex' && onNavigateCodex?.()}
+                        timelineOption={showTimelineShortcut ? {
+                          onSelect: (value, label) => {
+                            setTimelinePrefill({ title: label, description: value });
+                            setTimelineDialogOpen(true);
+                          },
+                        } : undefined}
                       >
                         {field.type === 'select' ? (
                           <select
@@ -418,29 +425,6 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               })}
             </div>
 
-            {/* Salvar entrada na Linha do Tempo — Frutos históricos e mitológicos */}
-            {showTimelineShortcut && (
-              <div className="mb-6 rounded-xl border border-gold-champagne/30 bg-gradient-to-br from-gold-deep/10 via-background/40 to-background/60 p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
-                <div className="min-w-0">
-                  <h4 className="font-cinzel font-bold text-sm text-gold-light inline-flex items-center gap-2">
-                    <ScrollText className="w-4 h-4 text-gold-champagne" strokeWidth={1.75} />
-                    Linha do Tempo
-                  </h4>
-                  <p className="font-merriweather italic text-text-dim text-[12.5px] leading-snug mt-1">
-                    {currentFruit === 8
-                      ? 'Registre um mito, lenda ou revelação divina como marco cronológico do seu mundo.'
-                      : 'Registre um fato histórico, batalha ou descoberta como marco na cronologia do seu mundo.'}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setTimelineDialogOpen(true)}
-                  className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] hover:from-gold-warm hover:via-gold hover:to-gold-light text-xs font-montserrat font-bold uppercase tracking-wider shadow-[0_0_14px_hsl(var(--gold)/0.35)] hover:shadow-[0_0_22px_hsl(var(--gold)/0.55)] transition-all"
-                >
-                  <Save className="w-3.5 h-3.5" strokeWidth={2} />
-                  Salvar entrada na Linha do Tempo
-                </button>
-              </div>
-            )}
 
 
             {/* Conditional bottom section: Map generator for fruit 0, Idriel for others */}
@@ -599,11 +583,17 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       {/* Timeline entry dialog (Fatos Históricos & Mitologia) */}
       <TimelineEventDialog
         open={timelineDialogOpen}
-        onOpenChange={setTimelineDialogOpen}
-        initial={{ event_type: defaultTimelineType, fruit_id: currentFruit }}
+        onOpenChange={(o) => { setTimelineDialogOpen(o); if (!o) setTimelinePrefill(null); }}
+        initial={{
+          event_type: defaultTimelineType,
+          fruit_id: currentFruit,
+          title: timelinePrefill?.title ?? '',
+          description: timelinePrefill?.description ?? '',
+        }}
         codexEntries={entries}
         onSubmit={async (payload) => {
           await createTimelineEvent({ ...payload, fruit_id: currentFruit });
+          setTimelinePrefill(null);
         }}
       />
 
