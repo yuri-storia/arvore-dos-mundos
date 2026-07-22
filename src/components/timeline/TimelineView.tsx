@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Trees, Plus, ScrollText } from 'lucide-react';
+import { Trees, Plus, ScrollText, ChevronsDownUp, ChevronsUpDown } from 'lucide-react';
 import { useTimelineEvents, type TimelineEvent, type TimelineEventType } from '@/hooks/useTimelineEvents';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { TimelineNode } from './TimelineNode';
@@ -69,10 +69,10 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<TimelineEvent | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<TimelineEvent | null>(null);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(PointerSensor, { activationConstraint: { delay: 180, tolerance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
@@ -97,10 +97,18 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
   };
 
   const handleBadgeClick = (id: string) => {
-
-    // Badge apenas alterna expandir/recolher. Edição vem do clique no card já aberto.
-    setExpandedId(prev => (prev === id ? null : id));
+    // Toggle apenas do card clicado — outros permanecem no estado atual.
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
+
+  const expandAll = () => setExpandedIds(new Set(events.map(e => e.id)));
+  const collapseAll = () => setExpandedIds(new Set());
+  const allExpanded = events.length > 0 && expandedIds.size === events.length;
 
 
   const handleDragEnd = async (e: DragEndEvent) => {
@@ -124,12 +132,24 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
         <p className="font-merriweather italic text-text-dim text-xs sm:text-sm max-w-md mx-auto mt-1">
           Marcos que brotam das raízes da Árvore e sustentam a história do seu mundo.
         </p>
-        <button
-          onClick={openNew}
-          className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] hover:from-gold-warm hover:via-gold hover:to-gold-light text-xs font-montserrat font-bold uppercase tracking-wider shadow-[0_0_14px_hsl(var(--gold)/0.35)] hover:shadow-[0_0_22px_hsl(var(--gold)/0.55)] transition-all"
-        >
-          <Plus className="w-3.5 h-3.5" strokeWidth={2.25} /> Novo marco
-        </button>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+          <button
+            onClick={openNew}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] hover:from-gold-warm hover:via-gold hover:to-gold-light text-xs font-montserrat font-bold uppercase tracking-wider shadow-[0_0_14px_hsl(var(--gold)/0.35)] hover:shadow-[0_0_22px_hsl(var(--gold)/0.55)] transition-all"
+          >
+            <Plus className="w-3.5 h-3.5" strokeWidth={2.25} /> Novo marco
+          </button>
+          {events.length > 0 && (
+            <button
+              onClick={allExpanded ? collapseAll : expandAll}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md border border-gold/25 bg-gold/5 text-gold-champagne hover:bg-gold/10 hover:border-gold/40 text-[11px] font-montserrat font-semibold uppercase tracking-wider transition-all"
+              title={allExpanded ? 'Recolher todos os marcos' : 'Expandir todos os marcos'}
+            >
+              {allExpanded ? <ChevronsDownUp className="w-3.5 h-3.5" strokeWidth={2} /> : <ChevronsUpDown className="w-3.5 h-3.5" strokeWidth={2} />}
+              {allExpanded ? 'Recolher tudo' : 'Expandir tudo'}
+            </button>
+          )}
+        </div>
       </div>
 
       {loading ? (
@@ -162,7 +182,7 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
                       key={ev.id}
                       event={ev}
                       side={i % 2 === 0 ? 'left' : 'right'}
-                      expanded={expandedId === ev.id}
+                      expanded={expandedIds.has(ev.id)}
                       linkedTitle={linked?.title ?? null}
                       onBadgeClick={() => handleBadgeClick(ev.id)}
                       onEdit={() => openEdit(ev)}

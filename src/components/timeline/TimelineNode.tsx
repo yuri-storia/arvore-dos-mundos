@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Feather, Sparkles, Swords, Compass, Sun, Skull, Flame, Star, Link2, Trash2, GripVertical, Pencil,
+  Feather, Sparkles, Swords, Compass, Sun, Skull, Flame, Star, Link2, Trash2, Pencil,
 } from 'lucide-react';
 import type { TimelineEvent, TimelineEventType } from '@/hooks/useTimelineEvents';
 
@@ -26,12 +26,11 @@ type TypeStyle = {
   glowHover: string;
   accent: string;
   chipBg: string;
-  /** cor sólida do badge (círculo sobre a trilha) */
   badgeBg: string;
   badgeBorder: string;
   badgeIcon: string;
-  badgeShadow: string; // rgba/hsl completo
-  railTint: string;    // cor da linha curta que liga badge ao card
+  badgeShadow: string;
+  railTint: string;
 };
 
 const TYPE_STYLES: Record<TimelineEventType, TypeStyle> = {
@@ -146,21 +145,19 @@ interface Props {
   onDelete: () => void;
   onOpenLinked?: () => void;
   linkedTitle?: string | null;
-  dragHandleRef?: React.Ref<HTMLButtonElement>;
   dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
   isDragging?: boolean;
 }
 
 export const TimelineNode: React.FC<Props> = ({
   event, side, expanded, onBadgeClick, onEdit, onDelete,
-  onOpenLinked, linkedTitle, dragHandleRef, dragHandleProps, isDragging,
+  onOpenLinked, linkedTitle, dragHandleProps, isDragging,
 }) => {
   const Icon = iconForType(event.event_type);
   const s = styleForType(event.event_type);
   const isRight = side === 'right';
   const typeLabel = EVENT_TYPES.find(t => t.value === event.event_type)?.label ?? 'Marco';
 
-  // Grid: [card slot] [badge] [card slot] — centralizado em todas as larguras
   return (
     <div
       className={`
@@ -174,18 +171,16 @@ export const TimelineNode: React.FC<Props> = ({
       <div className="min-w-0 flex justify-end">
         {!isRight && (
           <NodeCard
-            event={event} align="right" Icon={Icon} style={s} typeLabel={typeLabel}
+            event={event} side="left" Icon={Icon} style={s} typeLabel={typeLabel}
             expanded={expanded}
             onEdit={onEdit} onDelete={onDelete}
             onOpenLinked={onOpenLinked} linkedTitle={linkedTitle}
-            dragHandleRef={dragHandleRef} dragHandleProps={dragHandleProps}
           />
         )}
       </div>
 
-      {/* Badge central */}
+      {/* Badge central (também é o drag handle) */}
       <div className="relative flex justify-center">
-        {/* linha curta ligando badge → card (colorida por tipo) */}
         <div
           aria-hidden
           className={`
@@ -195,15 +190,17 @@ export const TimelineNode: React.FC<Props> = ({
           `}
         />
         <motion.button
+          {...(dragHandleProps as any)}
           onClick={onBadgeClick}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.92 }}
-          aria-label={expanded ? `Editar marco ${event.title}` : `Expandir marco ${event.title}`}
+          aria-label={expanded ? `Recolher marco ${event.title}` : `Expandir marco ${event.title}`}
           aria-expanded={expanded}
+          title="Clique para expandir/recolher · Segure e arraste para reordenar"
           className={`
             relative z-10 w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center
             border-2 ${s.badgeBorder} ${s.badgeBg} ${s.badgeIcon}
-            transition-shadow
+            transition-shadow cursor-grab active:cursor-grabbing touch-none
           `}
           style={{ boxShadow: s.badgeShadow }}
         >
@@ -218,11 +215,10 @@ export const TimelineNode: React.FC<Props> = ({
       <div className="min-w-0">
         {isRight && (
           <NodeCard
-            event={event} align="left" Icon={Icon} style={s} typeLabel={typeLabel}
+            event={event} side="right" Icon={Icon} style={s} typeLabel={typeLabel}
             expanded={expanded}
             onEdit={onEdit} onDelete={onDelete}
             onOpenLinked={onOpenLinked} linkedTitle={linkedTitle}
-            dragHandleRef={dragHandleRef} dragHandleProps={dragHandleProps}
           />
         )}
       </div>
@@ -232,7 +228,7 @@ export const TimelineNode: React.FC<Props> = ({
 
 const NodeCard: React.FC<{
   event: TimelineEvent;
-  align: 'left' | 'right';
+  side: 'left' | 'right';
   Icon: any;
   style: TypeStyle;
   typeLabel: string;
@@ -241,11 +237,25 @@ const NodeCard: React.FC<{
   onDelete: () => void;
   onOpenLinked?: () => void;
   linkedTitle?: string | null;
-  dragHandleRef?: React.Ref<HTMLButtonElement>;
-  dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
-}> = ({ event, align, Icon, style: s, typeLabel, expanded, onEdit, onDelete, onOpenLinked, linkedTitle, dragHandleRef, dragHandleProps }) => {
+}> = ({ event, side, Icon, style: s, typeLabel, expanded, onEdit, onDelete, onOpenLinked, linkedTitle }) => {
   const hasImage = !!event.image_url;
-  const alignRight = align === 'right';
+
+  // Alinhamento responsivo:
+  // - Mobile/Tablet (< lg): cards da esquerda alinham à esquerda; cards da direita alinham à direita.
+  // - Desktop (≥ lg): zig-zag apontando para o eixo central (esquerda→direita, direita→esquerda).
+  const isLeft = side === 'left';
+  const wrapperAlign = isLeft
+    ? 'mr-auto text-left lg:ml-auto lg:mr-0 lg:text-right'
+    : 'ml-auto text-right lg:mr-auto lg:ml-0 lg:text-left';
+  const rowDir = isLeft
+    ? 'flex-row lg:flex-row-reverse'
+    : 'flex-row-reverse lg:flex-row';
+  const textAlign = isLeft
+    ? 'text-left lg:text-right'
+    : 'text-right lg:text-left';
+  const metaJustify = isLeft
+    ? 'justify-end lg:justify-start'
+    : 'justify-start lg:justify-end';
 
   return (
     <motion.div
@@ -253,7 +263,7 @@ const NodeCard: React.FC<{
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ layout: { duration: 0.25 }, opacity: { duration: 0.25 } }}
-      className={`w-full max-w-md ${alignRight ? 'ml-auto text-right' : ''}`}
+      className={`w-full max-w-md ${wrapperAlign}`}
     >
       <motion.div
         layout
@@ -271,14 +281,13 @@ const NodeCard: React.FC<{
         `}
         style={{ boxShadow: '0 0 0 1px hsl(var(--gold) / 0.05), 0 6px 20px -12px rgba(0,0,0,0.6)' }}
       >
-        {/* fio dourado no topo */}
         <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-gold-champagne/50 to-transparent pointer-events-none" />
 
-        {/* ---- COLLAPSED: só título ---- */}
+        {/* ---- COLLAPSED ---- */}
         {!expanded && (
-          <div className={`flex items-center gap-2 min-w-0 ${alignRight ? 'flex-row-reverse' : ''}`}>
+          <div className={`flex items-center gap-2 min-w-0 ${rowDir}`}>
             <Icon className={`w-3.5 h-3.5 flex-none ${s.accent}`} strokeWidth={2} />
-            <h3 className={`font-cinzel font-semibold text-[13px] sm:text-sm text-foreground leading-tight truncate ${alignRight ? 'text-right' : 'text-left'}`}>
+            <h3 className={`font-cinzel font-semibold text-[13px] sm:text-sm text-foreground leading-tight truncate ${textAlign}`}>
               {event.title}
             </h3>
           </div>
@@ -299,7 +308,6 @@ const NodeCard: React.FC<{
               }}
               className="overflow-hidden"
             >
-
               {hasImage && (
                 <div className="relative -mx-3 sm:-mx-4 -mt-3 sm:-mt-4 mb-3 h-28 sm:h-32 overflow-hidden">
                   <img
@@ -312,7 +320,7 @@ const NodeCard: React.FC<{
                 </div>
               )}
 
-              <div className={`flex items-center gap-2 mb-1.5 ${alignRight ? 'flex-row-reverse' : ''}`}>
+              <div className={`flex items-center gap-2 mb-1.5 ${rowDir}`}>
                 {event.era_label && (
                   <div className={`text-[10px] font-montserrat uppercase tracking-[0.15em] ${s.accent}`}>
                     {event.era_label}
@@ -323,18 +331,18 @@ const NodeCard: React.FC<{
                 </span>
               </div>
 
-              <h3 className={`font-cinzel font-bold text-sm sm:text-base text-foreground leading-snug inline-flex items-center gap-2 ${alignRight ? 'flex-row-reverse' : ''}`}>
+              <h3 className={`font-cinzel font-bold text-sm sm:text-base text-foreground leading-snug inline-flex items-center gap-2 ${rowDir}`}>
                 <Icon className={`w-3.5 h-3.5 ${s.accent}`} strokeWidth={1.75} />
-                <span className="text-left">{event.title}</span>
+                <span>{event.title}</span>
               </h3>
 
               {event.description && (
-                <p className={`mt-1.5 font-merriweather text-[12.5px] text-text-secondary/90 leading-relaxed whitespace-pre-wrap ${alignRight ? 'text-right' : 'text-left'}`}>
+                <p className={`mt-1.5 font-merriweather text-[12.5px] text-text-secondary/90 leading-relaxed whitespace-pre-wrap ${textAlign}`}>
                   {event.description}
                 </p>
               )}
 
-              <div className={`mt-3 pt-2 border-t border-gold/10 flex flex-wrap items-center gap-2 ${alignRight ? 'justify-end' : ''}`}>
+              <div className={`mt-3 pt-2 border-t border-gold/10 flex flex-wrap items-center gap-2 ${metaJustify}`}>
                 {linkedTitle && onOpenLinked && (
                   <button
                     onClick={e => { e.stopPropagation(); onOpenLinked(); }}
@@ -345,17 +353,7 @@ const NodeCard: React.FC<{
                     <span className="truncate">{linkedTitle}</span>
                   </button>
                 )}
-                <div className={`inline-flex items-center gap-1 ${alignRight ? 'mr-auto' : 'ml-auto'}`}>
-                  <button
-                    ref={dragHandleRef}
-                    {...dragHandleProps}
-                    aria-label="Arrastar para reordenar"
-                    className="inline-flex items-center justify-center w-7 h-7 rounded text-text-dim hover:text-gold-champagne cursor-grab active:cursor-grabbing"
-                    type="button"
-                    title="Arrastar para reordenar"
-                  >
-                    <GripVertical className="w-3.5 h-3.5" />
-                  </button>
+                <div className="inline-flex items-center gap-1 ml-auto">
                   <button
                     onClick={e => { e.stopPropagation(); onEdit(); }}
                     aria-label="Editar marco"
