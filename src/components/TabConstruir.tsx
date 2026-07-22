@@ -59,6 +59,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   const [saveDraft, setSaveDraft] = useState({ title: '', content: '' });
   const [saveLoading, setSaveLoading] = useState(false);
   const [timelineDialogOpen, setTimelineDialogOpen] = useState(false);
+  const [timelinePrefill, setTimelinePrefill] = useState<{ title: string; description: string } | null>(null);
   const showTimelineShortcut = currentFruit === 2 || currentFruit === 8;
   const defaultTimelineType: TimelineEventType = currentFruit === 8 ? 'mito' : 'fato';
 
