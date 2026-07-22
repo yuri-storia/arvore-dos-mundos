@@ -10,6 +10,14 @@ import {
   AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
   AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction,
 } from '@/components/ui/alert-dialog';
+import {
+  DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext, verticalListSortingStrategy, useSortable, sortableKeyboardCoordinates,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface Props {
   worldId: string;
@@ -17,11 +25,56 @@ interface Props {
   onOpenEntry?: (id: string) => void;
 }
 
+interface SortableRowProps {
+  event: TimelineEvent;
+  side: 'left' | 'right';
+  expanded: boolean;
+  linkedTitle: string | null;
+  onBadgeClick: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  onOpenLinked?: () => void;
+}
+
+const SortableRow: React.FC<SortableRowProps> = (props) => {
+  const {
+    attributes, listeners, setNodeRef, transform, transition, isDragging,
+  } = useSortable({ id: props.event.id });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <TimelineNode
+        event={props.event}
+        side={props.side}
+        expanded={props.expanded}
+        onBadgeClick={props.onBadgeClick}
+        onEdit={props.onEdit}
+        onDelete={props.onDelete}
+        linkedTitle={props.linkedTitle}
+        onOpenLinked={props.onOpenLinked}
+        dragHandleProps={{ ...attributes, ...listeners } as any}
+        isDragging={isDragging}
+      />
+    </div>
+  );
+};
+
 export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEntry }) => {
-  const { events, loading, createEvent, updateEvent, deleteEvent } = useTimelineEvents(worldId);
+  const { events, loading, createEvent, updateEvent, deleteEvent, reorderEvent } = useTimelineEvents(worldId);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<TimelineEvent | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<TimelineEvent | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   const entriesById = useMemo(() => {
     const m = new Map<string, CodexEntry>();
@@ -34,7 +87,7 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
 
   const submit = async (payload: {
     title: string; description: string; era_label: string;
-    event_type: TimelineEventType; codex_entry_id: string | null;
+    event_type: TimelineEventType; codex_entry_id: string | null; image_url: string | null;
   }) => {
     if (editing) {
       await updateEvent(editing.id, payload);
@@ -43,11 +96,27 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
     }
   };
 
+  const handleBadgeClick = (id: string) => {
+    if (expandedId === id) {
+      // já expandido → segundo clique = editar
+      const ev = events.find(e => e.id === id);
+      if (ev) openEdit(ev);
+    } else {
+      setExpandedId(id);
+    }
+  };
+
+  const handleDragEnd = async (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const oldIndex = events.findIndex(x => x.id === active.id);
+    const newIndex = events.findIndex(x => x.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+    await reorderEvent(active.id as string, newIndex);
+  };
+
   return (
     <div className="animate-fadeUp">
-      {/* Cabeçalho ornamental: raízes animadas da Árvore dos Mundos ACIMA do título.
-          Energia dourada flui das pontas das raízes até o orbe central pulsante.
-          O componente usa mix-blend-mode: screen para se fundir ao fundo do app. */}
       <TimelineRootsAnimation />
 
       <div className="text-center mb-6 -mt-6 sm:-mt-10 relative">
@@ -66,8 +135,6 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
         </button>
       </div>
 
-
-      {/* Corpo da linha */}
       {loading ? (
         <div className="text-center py-12 text-text-dim font-merriweather italic text-sm">Desenrolando o pergaminho…</div>
       ) : events.length === 0 ? (
@@ -82,53 +149,47 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
         </div>
       ) : (
         <div className="relative mx-auto max-w-3xl px-3 sm:px-4 py-2">
-          {/* Linha contínua vertical dourada
-              - Mobile/tablet (< lg): alinhada ao centro da coluna da gema (w-16 → 2rem)
-              - Desktop (≥ lg): centralizada para layout alternado
-          */}
+          {/* Linha vertical dourada — centralizada em TODAS as larguras */}
           <div
             aria-hidden
-            className="
-              pointer-events-none absolute top-0 bottom-0 w-[3px] rounded-full
-              left-[calc(0.75rem+2rem-1.5px)] sm:left-[calc(1rem+2rem-1.5px)]
-              lg:left-1/2 lg:-translate-x-1/2
-              bg-gradient-to-b from-gold-champagne/40 via-gold to-gold-deep/60
-              shadow-[0_0_10px_hsl(var(--gold)/0.35)]
-            "
+            className="pointer-events-none absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[3px] rounded-full bg-gradient-to-b from-gold-champagne/40 via-gold to-gold-deep/60 shadow-[0_0_10px_hsl(var(--gold)/0.35)]"
           />
 
-          <div className="relative space-y-4 sm:space-y-5 lg:space-y-0">
-            {events.map((ev, i) => {
-              const linked = ev.codex_entry_id ? entriesById.get(ev.codex_entry_id) : null;
-              return (
-                <TimelineNode
-                  key={ev.id}
-                  event={ev}
-                  side={i % 2 === 0 ? 'left' : 'right'}
-                  onOpen={() => openEdit(ev)}
-                  onDelete={() => setConfirmDelete(ev)}
-                  linkedTitle={linked?.title ?? null}
-                  onOpenLinked={linked && onOpenEntry ? () => onOpenEntry(linked.id) : undefined}
-                />
-              );
-            })}
-          </div>
-
-          {/* selo final (raiz principal) — alinhado ao eixo da linha */}
-          <div className="relative mt-6">
-            <div className="flex lg:justify-center">
-              <div className="w-16 flex flex-col items-center lg:w-auto">
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="w-4 h-4 rounded-full bg-gold shadow-[0_0_18px_hsl(var(--gold)/0.7)]"
-                />
-                <span className="mt-2 font-cinzel text-[10px] uppercase tracking-[0.25em] text-gold-champagne/80 whitespace-nowrap">Presente</span>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={events.map(e => e.id)} strategy={verticalListSortingStrategy}>
+              <div className="relative space-y-3 sm:space-y-4">
+                {events.map((ev, i) => {
+                  const linked = ev.codex_entry_id ? entriesById.get(ev.codex_entry_id) : null;
+                  return (
+                    <SortableRow
+                      key={ev.id}
+                      event={ev}
+                      side={i % 2 === 0 ? 'left' : 'right'}
+                      expanded={expandedId === ev.id}
+                      linkedTitle={linked?.title ?? null}
+                      onBadgeClick={() => handleBadgeClick(ev.id)}
+                      onEdit={() => openEdit(ev)}
+                      onDelete={() => setConfirmDelete(ev)}
+                      onOpenLinked={linked && onOpenEntry ? () => onOpenEntry(linked.id) : undefined}
+                    />
+                  );
+                })}
               </div>
+            </SortableContext>
+          </DndContext>
+
+          {/* Selo final "Presente" — centralizado */}
+          <div className="relative mt-6 flex justify-center">
+            <div className="flex flex-col items-center">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="w-4 h-4 rounded-full bg-gold shadow-[0_0_18px_hsl(var(--gold)/0.7)]"
+              />
+              <span className="mt-2 font-cinzel text-[10px] uppercase tracking-[0.25em] text-gold-champagne/80 whitespace-nowrap">Presente</span>
             </div>
           </div>
         </div>
-
       )}
 
       <TimelineEventDialog
@@ -144,7 +205,7 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
           <AlertDialogHeader>
             <AlertDialogTitle className="font-cinzel text-red-alert">Apagar marco da Linha do Tempo?</AlertDialogTitle>
             <AlertDialogDescription className="font-montserrat text-sm text-text-secondary">
-              {confirmDelete ? `"${confirmDelete.title}" será removido para sempre.` : ''}
+              {confirmDelete ? `"${confirmDelete.title}" será removido para sempre. Essa ação não pode ser desfeita.` : ''}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
