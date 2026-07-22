@@ -381,7 +381,14 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
 
   // Live word count for the active chapter (real-time from the editor).
   const [liveActiveWords, setLiveActiveWords] = useState<number | null>(null);
-  useEffect(() => { setLiveActiveWords(null); }, [activeChapterId]);
+  const liveChapterCountsRef = useRef<Record<string, number>>({});
+  const skipNextLiveReportRef = useRef(true);
+  useEffect(() => {
+    setLiveActiveWords(null);
+    // Ao trocar de capítulo, o primeiro número emitido pelo editor é apenas
+    // hidratação do texto já existente. Não pode entrar em "Hoje".
+    skipNextLiveReportRef.current = true;
+  }, [activeChapterId]);
   const effectiveChapters = useMemo(() => {
     if (activeChapterId == null || liveActiveWords == null) return chapters;
     return chapters.map(c => c.id === activeChapterId ? { ...c, word_count: liveActiveWords } : c);
@@ -390,6 +397,10 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     () => effectiveChapters.reduce((s, c) => s + (c.word_count || 0), 0),
     [effectiveChapters]
   );
+  const persistedTotal = useMemo(
+    () => chapters.reduce((s, c) => s + (c.word_count || 0), 0),
+    [chapters]
+  );
 
   // Chapter word count (live from the editor when active)
   const activeChapterWords = activeChapter
@@ -397,18 +408,16 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     : 0;
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Contagem diária "Hoje" — v3 (reset do zero).
+  // Contagem diária "Hoje" — v5.
   //
   // Regras:
   //  • Fuso America/Sao_Paulo define o "dia".
-  //  • Chave por manuscrito: `adm:daily:v4:{mid}` → JSON `{date, baseline}`.
-  //  • `baseline` = total de palavras do manuscrito no INÍCIO do dia.
-  //  • `wordsToday = max(0, effectiveTotal - baseline)`.
-  //  • Ao virar o dia (fuso Brasília), captura NOVA baseline = total atual → wordsToday zera.
-  //  • Ao apagar texto (effectiveTotal < baseline), baixa a baseline para não gerar negativos.
-  //  • CORREÇÃO DO BUG: baseline só é capturada depois de `effectiveTotal` ficar
-  //    estável por 800ms — evita capturar 0 durante hidratação e fazer "Hoje"
-  //    igualar o total do manuscrito no dia seguinte.
+  //  • Chave por manuscrito: `adm:daily:v5:{mid}` → JSON `{date, words, baselineTotal}`.
+  //  • "Hoje" NÃO é mais calculado por `total atual - baseline`, porque abrir
+  //    capítulos antigos pode corrigir contagens salvas e inflar o dia.
+  //  • O contador só soma deltas positivos emitidos pelo editor após o primeiro
+  //    relatório de cada abertura de capítulo. Esse primeiro relatório é
+  //    tratado como hidratação, não como escrita nova.
   // ─────────────────────────────────────────────────────────────────────────────
   const goalKey = 'adm:dailyGoal';
   const brDateFmt = useMemo(
@@ -430,49 +439,102 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     catch { return 500; }
   });
 
-  const dailyKey = activeManuscript ? `adm:daily:v4:${activeManuscript.id}` : null;
-  const [baseline, setBaseline] = useState<number | null>(null);
+  const dailyKey = activeManuscript ? `adm:daily:v5:${activeManuscript.id}` : null;
+  const legacyDailyKey = activeManuscript ? `adm:daily:v4:${activeManuscript.id}` : null;
+  const dailyIdentity = dailyKey ? `${dailyKey}:${today}` : null;
+  const [dailyWords, setDailyWords] = useState(0);
+  const [dailyLoadedKey, setDailyLoadedKey] = useState<string | null>(null);
+  const dailyWordsRef = useRef(0);
 
-  // Reset baseline quando muda o manuscrito ou o dia.
-  useEffect(() => {
-    setBaseline(null);
-  }, [activeManuscript?.id, today]);
+  useEffect(() => { dailyWordsRef.current = dailyWords; }, [dailyWords]);
 
-  // Lê baseline do storage se já foi gravada hoje.
+  // Reset do estado em memória quando muda manuscrito/dia.
   useEffect(() => {
-    if (!dailyKey) return;
+    setDailyWords(0);
+    dailyWordsRef.current = 0;
+    setDailyLoadedKey(null);
+    liveChapterCountsRef.current = {};
+    skipNextLiveReportRef.current = true;
+  }, [dailyIdentity]);
+
+  // Lê o contador v5. Se houver estado v4 do mesmo dia, migra usando o total
+  // persistido dos capítulos (não o total "ao vivo" do capítulo aberto), para
+  // remover exatamente a inflação causada por hidratação/recontagem de capítulos antigos.
+  useEffect(() => {
+    if (!dailyKey || !dailyIdentity || dailyLoadedKey === dailyIdentity || chaptersLoading) return;
+
+    let nextWords = 0;
+    let shouldDelayForChapters = false;
     try {
       const raw = localStorage.getItem(dailyKey);
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as { date: string; baseline: number };
-      if (parsed?.date === today && Number.isFinite(parsed.baseline)) {
-        setBaseline(parsed.baseline);
+      if (raw) {
+        const parsed = JSON.parse(raw) as { date?: string; words?: number };
+        if (parsed?.date === today && Number.isFinite(parsed.words)) {
+          nextWords = Math.max(0, Math.round(parsed.words || 0));
+        }
+      } else if (legacyDailyKey) {
+        const legacyRaw = localStorage.getItem(legacyDailyKey);
+        if (legacyRaw) {
+          const legacy = JSON.parse(legacyRaw) as { date?: string; baseline?: number };
+          if (legacy?.date === today && Number.isFinite(legacy.baseline)) {
+            if (chapters.length === 0 && persistedTotal === 0 && legacy.baseline > 0) {
+              shouldDelayForChapters = true;
+            } else {
+              const migratedDelta = Math.max(0, Math.round(persistedTotal - legacy.baseline));
+              // Caso de corrupção v4 observado: ao abrir um capítulo antigo, a
+              // baseline podia virar o último "Hoje" válido (ex.: 27) e o app
+              // exibia `capítulo 308 - 27 = 281`. Nessa assinatura, preserva o
+              // número pequeno já escrito hoje em vez de importar o delta inflado.
+              nextWords = legacy.baseline > 0
+                && legacy.baseline <= 100
+                && migratedDelta >= 150
+                && migratedDelta > legacy.baseline * 4
+                  ? Math.round(legacy.baseline)
+                  : migratedDelta;
+            }
+          }
+        }
       }
     } catch { /* ignore */ }
-  }, [dailyKey, today]);
 
-  // Captura baseline após effectiveTotal ficar estável 800ms (evita race de hidratação).
-  useEffect(() => {
-    if (!dailyKey || baseline != null || chaptersLoading) return;
-    const t = setTimeout(() => {
-      const record = { date: today, baseline: effectiveTotal };
-      try { localStorage.setItem(dailyKey, JSON.stringify(record)); } catch {}
-      setBaseline(effectiveTotal);
-    }, 800);
-    return () => clearTimeout(t);
-  }, [dailyKey, baseline, chaptersLoading, effectiveTotal, today]);
+    if (shouldDelayForChapters) return;
 
-  // Se o usuário apaga texto e effectiveTotal cai abaixo da baseline, reajusta.
-  useEffect(() => {
-    if (baseline == null || !dailyKey) return;
-    if (effectiveTotal < baseline) {
-      const record = { date: today, baseline: effectiveTotal };
-      try { localStorage.setItem(dailyKey, JSON.stringify(record)); } catch {}
-      setBaseline(effectiveTotal);
+    const clean = Math.max(0, Math.round(nextWords));
+    const record = { date: today, words: clean, baselineTotal: persistedTotal };
+    try { localStorage.setItem(dailyKey, JSON.stringify(record)); } catch {}
+    dailyWordsRef.current = clean;
+    setDailyWords(clean);
+    setDailyLoadedKey(dailyIdentity);
+  }, [chapters.length, chaptersLoading, dailyIdentity, dailyKey, dailyLoadedKey, legacyDailyKey, persistedTotal, today]);
+
+  const persistDailyWords = useCallback((next: number) => {
+    if (!dailyKey) return;
+    const clean = Math.max(0, Math.min(999999, Math.round(next)));
+    dailyWordsRef.current = clean;
+    setDailyWords(clean);
+    try { localStorage.setItem(dailyKey, JSON.stringify({ date: today, words: clean, baselineTotal: persistedTotal })); } catch {}
+  }, [dailyKey, persistedTotal, today]);
+
+  const handleLiveWordCount = useCallback((count: number) => {
+    const clean = Math.max(0, Math.round(count || 0));
+    setLiveActiveWords(clean);
+
+    if (!activeChapterId) return;
+
+    const prev = liveChapterCountsRef.current[activeChapterId];
+    if (skipNextLiveReportRef.current || prev == null) {
+      liveChapterCountsRef.current[activeChapterId] = clean;
+      skipNextLiveReportRef.current = false;
+      return;
     }
-  }, [effectiveTotal, baseline, dailyKey, today]);
 
-  const wordsToday = baseline == null ? 0 : Math.max(0, effectiveTotal - baseline);
+    liveChapterCountsRef.current[activeChapterId] = clean;
+    if (!dailyIdentity || dailyLoadedKey !== dailyIdentity) return;
+    const delta = clean - prev;
+    if (delta > 0) persistDailyWords(dailyWordsRef.current + delta);
+  }, [activeChapterId, dailyIdentity, dailyLoadedKey, persistDailyWords]);
+
+  const wordsToday = dailyWords;
   const goalPct = dailyGoal > 0 ? Math.min(100, Math.round((wordsToday / dailyGoal) * 100)) : 0;
 
   const persistGoal = useCallback((v: number) => {
@@ -485,14 +547,18 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     const brToday = getBrDate();
     setToday(brToday);
     if (!activeManuscript) return;
-    const key = `adm:daily:v4:${activeManuscript.id}`;
-    const record = { date: brToday, baseline: effectiveTotal };
+    const key = `adm:daily:v5:${activeManuscript.id}`;
+    const record = { date: brToday, words: 0, baselineTotal: persistedTotal };
     try { localStorage.setItem(key, JSON.stringify(record)); } catch {}
-    setBaseline(effectiveTotal);
-    toast.success('Contagem de "Hoje" recalculada', {
-      description: `Nova linha-base: ${effectiveTotal.toLocaleString('pt-BR')} palavras · ${brToday}`,
+    dailyWordsRef.current = 0;
+    setDailyWords(0);
+    setDailyLoadedKey(`${key}:${brToday}`);
+    liveChapterCountsRef.current = {};
+    skipNextLiveReportRef.current = true;
+    toast.success('Contagem de "Hoje" zerada', {
+      description: `Novo acompanhamento iniciado · ${brToday}`,
     });
-  }, [activeManuscript, effectiveTotal, getBrDate]);
+  }, [activeManuscript, getBrDate, persistedTotal]);
 
   // Local manuscript title (debounced save — was firing 1 DB write per keystroke)
   const [manuscriptTitleLocal, setManuscriptTitleLocal] = useState(activeManuscript?.title ?? '');
@@ -857,7 +923,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                         <PopoverContent side="right" align="start" className="w-64 p-3 space-y-2">
                           <div className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Meta diária</div>
                           <p className="text-[10px] text-text-dim/80 leading-snug">
-                            Reset automático à meia-noite (Brasília). Contagem baseada em variação de palavras totais.
+                              Reset automático à meia-noite (Brasília). Conta apenas novas palavras digitadas no editor.
                           </p>
                           <div className="flex items-center gap-2">
                             <Input
@@ -878,7 +944,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                               }
                               variant="warning"
                               title='Recalcular "Hoje"?'
-                              description={`Isto define a linha-base do dia como o total atual do manuscrito (${effectiveTotal.toLocaleString('pt-BR')} palavras) no fuso de Brasília. O contador "Hoje" será zerado. Total e por capítulo permanecem intactos.`}
+                              description='Isto zera apenas o contador "Hoje" no fuso de Brasília. Total e por capítulo permanecem intactos.'
                               confirmLabel="Recalcular"
                               onConfirm={resetSnapshot}
                             />
@@ -899,7 +965,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                         }
                         variant="warning"
                         title='Recalcular "Hoje"?'
-                        description={`Isto define a linha-base do dia como o total atual do manuscrito (${effectiveTotal.toLocaleString('pt-BR')} palavras) no fuso de Brasília. O contador "Hoje" será zerado. Total e por capítulo permanecem intactos.`}
+                        description='Isto zera apenas o contador "Hoje" no fuso de Brasília. Total e por capítulo permanecem intactos.'
                         confirmLabel="Recalcular"
                         onConfirm={resetSnapshot}
                       />
@@ -993,7 +1059,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                 onTitleSave={handleChapterTitleSave}
                 onContentSave={handleChapterContentSave}
                 onPreviewEntry={handlePreviewEntry}
-                onLiveWordCount={setLiveActiveWords}
+                onLiveWordCount={handleLiveWordCount}
                 manuscriptTitle={activeManuscript?.title}
               />
             ) : (
