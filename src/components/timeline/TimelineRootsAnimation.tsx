@@ -19,7 +19,7 @@ export const TimelineRootsAnimation: React.FC = () => {
           playsInline
           preload="metadata"
           aria-hidden
-          className="block w-full h-auto select-none pointer-events-none opacity-50"
+          className="block w-full h-auto select-none pointer-events-none opacity-[68%]"
         />
 
         {/* Vinheta lateral: mescla as bordas horizontais no fundo do site */}
