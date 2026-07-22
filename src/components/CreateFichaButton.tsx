@@ -24,7 +24,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fruitId, worldId, entryType = 'ficha', onCreated, children }) => {
+export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fruitId, worldId, entryType = 'ficha', onCreated, timelineOption, children }) => {
   const { user } = useAuth();
   const { entries, createEntry, updateEntry } = useCodexEntries(worldId);
   const [showMenu, setShowMenu] = useState(false);
