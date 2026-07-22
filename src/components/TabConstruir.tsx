@@ -25,6 +25,7 @@ import { History, Trash2, Trees, Leaf, Sparkles, Check, Image as ImageIcon, Save
 import { toast } from 'sonner';
 import { useLatestAnalysis, getFruitScore, getFruitDetail } from '@/hooks/useLatestAnalysis';
 import { FruitCarousel } from '@/components/construir/FruitCarousel';
+import { TimelineEventDialog } from '@/components/timeline/TimelineEventDialog';
 
 interface Props {
   state: AppState;
