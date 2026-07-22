@@ -257,11 +257,17 @@ const NodeCard: React.FC<{
     >
       <motion.div
         layout
+        onClick={expanded ? () => onEdit() : undefined}
+        role={expanded ? 'button' : undefined}
+        tabIndex={expanded ? 0 : -1}
+        onKeyDown={expanded ? (e) => { if (e.key === 'Enter') onEdit(); } : undefined}
+        title={expanded ? 'Clique para editar' : undefined}
+        transition={{ layout: { duration: 0.42, ease: [0.22, 0.9, 0.32, 1] } }}
         className={`
           relative overflow-hidden rounded-xl border ${s.border}
           bg-gradient-to-br ${s.gradient} backdrop-blur-md
-          transition-all ${s.glowHover} hover:border-opacity-70
-          ${expanded ? 'p-3 sm:p-4' : 'px-3 py-2 sm:px-3.5 sm:py-2.5'}
+          transition-[box-shadow,border-color] duration-300 ${s.glowHover} hover:border-opacity-70
+          ${expanded ? 'p-3 sm:p-4 cursor-pointer' : 'px-3 py-2 sm:px-3.5 sm:py-2.5'}
         `}
         style={{ boxShadow: '0 0 0 1px hsl(var(--gold) / 0.05), 0 6px 20px -12px rgba(0,0,0,0.6)' }}
       >
@@ -283,12 +289,17 @@ const NodeCard: React.FC<{
           {expanded && (
             <motion.div
               key="expanded"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.22 }}
+              initial={{ opacity: 0, height: 0, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, height: 'auto', filter: 'blur(0px)' }}
+              exit={{ opacity: 0, height: 0, filter: 'blur(4px)' }}
+              transition={{
+                height: { duration: 0.42, ease: [0.22, 0.9, 0.32, 1] },
+                opacity: { duration: 0.32, ease: 'easeOut' },
+                filter: { duration: 0.28, ease: 'easeOut' },
+              }}
               className="overflow-hidden"
             >
+
               {hasImage && (
                 <div className="relative -mx-3 sm:-mx-4 -mt-3 sm:-mt-4 mb-3 h-28 sm:h-32 overflow-hidden">
                   <img
