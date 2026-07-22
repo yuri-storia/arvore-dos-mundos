@@ -150,7 +150,8 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
             />
           </div>
 
-          {/* Era + Tipo (seletor visual) */}
+          {/* Ano + Era + Tipo */}
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-4">
             <div>
               <FieldLabel>Era / data narrativa</FieldLabel>
