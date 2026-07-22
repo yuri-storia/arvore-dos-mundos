@@ -109,7 +109,7 @@ export function useManuscript(worldId?: string) {
         setChaptersLoading(false);
         return;
       }
-      setChapters((chaps || []) as Chapter[]);
+      setChapters(((chaps || []) as Chapter[]).map(normalizeChapter));
 
       const chapterIds = (chaps || []).map((c: any) => c.id);
       if (chapterIds.length > 0) {
