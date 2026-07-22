@@ -413,6 +413,9 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                         )}
                       </CreateFichaButton>
                     )}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Salvar entrada na Linha do Tempo — Frutos históricos e mitológicos */}
@@ -438,9 +441,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 </button>
               </div>
             )}
-                );
-              })}
-            </div>
+
 
             {/* Conditional bottom section: Map generator for fruit 0, Idriel for others */}
             {currentFruit === 0 ? (
