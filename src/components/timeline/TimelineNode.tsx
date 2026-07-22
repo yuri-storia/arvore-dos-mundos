@@ -199,7 +199,7 @@ export const TimelineNode: React.FC<Props> = ({
           title={
             expanded
               ? `Clique para recolher · Segure e arraste para reordenar`
-              : `${event.year ? `${event.year} · ` : ''}${event.title} — Clique para expandir · Segure e arraste para reordenar`
+              : `${(event.year || event.era_label) ? `${event.year || event.era_label} · ` : ''}${event.title} — Clique para expandir · Segure e arraste para reordenar`
           }
           className={`
             relative z-10 w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center
@@ -292,9 +292,9 @@ const NodeCard: React.FC<{
           <div className={`flex items-center gap-2 min-w-0 ${rowDir}`}>
             <Icon className={`w-3.5 h-3.5 flex-none ${s.accent}`} strokeWidth={2} />
             <div className={`min-w-0 flex items-center gap-1.5 ${rowDir}`}>
-              {event.year ? (
+              {(event.year || event.era_label) ? (
                 <span className="flex-none inline-flex items-center px-1.5 py-0.5 rounded-md bg-gold/10 border border-gold/20 text-gold-champagne font-cinzel font-bold text-[11px] sm:text-xs leading-none">
-                  {event.year}
+                  {event.year || event.era_label}
                 </span>
               ) : null}
               <h3 className={`font-cinzel font-semibold text-[13px] sm:text-sm text-foreground leading-tight truncate ${textAlign}`}>
