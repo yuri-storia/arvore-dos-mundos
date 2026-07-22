@@ -116,13 +116,13 @@ export const TimelineNode: React.FC<Props> = ({
   return (
     <div
       className="
-        relative grid items-center gap-x-3 sm:gap-x-6 min-h-[100px]
+        relative grid items-center gap-x-3 md:gap-x-6 min-h-[80px] md:min-h-[100px]
         grid-cols-[3rem_1fr]
-        sm:grid-cols-[1fr_3.5rem_1fr]
+        md:grid-cols-[1fr_3.5rem_1fr]
       "
     >
       {/* Coluna esquerda (desktop; card se side==='left') */}
-      <div className="hidden sm:flex justify-end pr-2">
+      <div className="hidden md:flex justify-end pr-2">
         {!isRight && (
           <NodeCard
             event={event} align="right" Icon={Icon}
@@ -140,7 +140,7 @@ export const TimelineNode: React.FC<Props> = ({
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.95 }}
           aria-label={`Abrir marco ${event.title}`}
-          className="relative z-10 w-10 h-10 rounded-full flex items-center justify-center border-2 border-gold text-[#1a0f00] bg-gradient-to-br from-gold-champagne via-gold to-gold-deep shadow-[0_0_18px_hsl(var(--gold)/0.55)] hover:shadow-[0_0_26px_hsl(var(--gold)/0.85)] transition-shadow"
+          className="relative z-10 w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 border-gold text-[#1a0f00] bg-gradient-to-br from-gold-champagne via-gold to-gold-deep shadow-[0_0_18px_hsl(var(--gold)/0.55)] hover:shadow-[0_0_26px_hsl(var(--gold)/0.85)] transition-shadow"
           style={{ filter: 'drop-shadow(0 0 6px hsl(var(--gold-champagne)/0.55))' }}
         >
           <Icon className="w-4 h-4" strokeWidth={2} />
@@ -148,8 +148,8 @@ export const TimelineNode: React.FC<Props> = ({
         </motion.button>
       </div>
 
-      {/* Coluna direita: card no mobile sempre, no desktop só quando isRight */}
-      <div className={`${isRight ? 'sm:pl-2' : 'sm:hidden'}`}>
+      {/* Coluna direita: card no mobile/tablet sempre, no desktop só quando isRight */}
+      <div className={`${isRight ? 'md:pl-2' : 'md:hidden'}`}>
         <NodeCard
           event={event} align="left" Icon={Icon}
           onOpen={onOpen} onDelete={onDelete}
