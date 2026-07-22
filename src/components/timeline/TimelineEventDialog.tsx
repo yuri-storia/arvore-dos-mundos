@@ -3,10 +3,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { EVENT_TYPES } from './TimelineNode';
+import { EVENT_TYPES, styleForType } from './TimelineNode';
 import type { TimelineEvent, TimelineEventType } from '@/hooks/useTimelineEvents';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
-import { Trees, Save, Link2, ImagePlus, X, Loader2 } from 'lucide-react';
+import { Trees, Save, Link2, ImagePlus, X, Loader2, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { optimizeImage } from '@/lib/imageOptimizer';
@@ -26,6 +26,13 @@ interface Props {
     image_url: string | null;
   }) => Promise<void> | void;
 }
+
+const FieldLabel: React.FC<React.PropsWithChildren<{ icon?: React.ReactNode }>> = ({ children, icon }) => (
+  <label className="text-[10px] uppercase tracking-[0.2em] text-gold-champagne font-montserrat block mb-1.5 inline-flex items-center gap-1.5">
+    {icon}
+    {children}
+  </label>
+);
 
 export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initial, codexEntries, onSubmit }) => {
   const { user } = useAuth();
@@ -51,6 +58,7 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
   }, [open, initial]);
 
   const isEdit = !!initial?.id;
+  const currentStyle = styleForType(type);
 
   const handleUpload = async (files: FileList | null) => {
     if (!files || files.length === 0 || !user) return;
@@ -96,64 +104,113 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg border-gold/30 bg-[hsl(var(--background)/0.98)] backdrop-blur-md">
-        <DialogHeader>
-          <DialogTitle className="font-cinzel text-gold-light inline-flex items-center gap-2">
-            <Trees className="w-4 h-4 text-gold-champagne" />
-            {isEdit ? 'Editar marco' : 'Novo marco na Linha do Tempo'}
-          </DialogTitle>
-          <DialogDescription className="font-merriweather italic text-text-dim text-xs">
-            Grave um acontecimento que ainda ecoa no presente do seu mundo.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent
+        className="max-w-xl border-gold/30 bg-[hsl(var(--background)/0.98)] backdrop-blur-xl p-0 overflow-hidden max-h-[92vh] flex flex-col"
+        style={{
+          boxShadow:
+            '0 0 0 1px hsl(var(--gold) / 0.12), 0 30px 80px -30px rgba(0,0,0,0.8), 0 0 60px -20px hsl(var(--gold) / 0.25)',
+        }}
+      >
+        {/* Ornamento superior */}
+        <div className="relative">
+          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-gold to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-gold/[0.06] to-transparent pointer-events-none" />
+          <DialogHeader className="px-6 pt-6 pb-4 relative">
+            <DialogTitle className="font-cinzel text-gold-light inline-flex items-center gap-2.5 text-base">
+              <span className="relative inline-flex items-center justify-center w-8 h-8 rounded-full border border-gold/30 bg-gold/10">
+                <Trees className="w-4 h-4 text-gold-champagne" />
+              </span>
+              {isEdit ? 'Editar marco' : 'Novo marco na Linha do Tempo'}
+            </DialogTitle>
+            <DialogDescription className="font-merriweather italic text-text-dim text-xs pl-10">
+              Grave um acontecimento que ainda ecoa no presente do seu mundo.
+            </DialogDescription>
+          </DialogHeader>
+          {/* separador ornamental */}
+          <div className="px-6">
+            <div className="h-px bg-gradient-to-r from-transparent via-gold/25 to-transparent" />
+          </div>
+        </div>
 
-        <div className="space-y-3">
+        <div className="px-6 py-5 space-y-4 overflow-y-auto">
+          {/* Título */}
           <div>
-            <label className="text-[10px] uppercase tracking-wider text-gold-champagne font-montserrat block mb-1">Título</label>
-            <Input value={title} onChange={e => setTitle(e.target.value)} maxLength={200} placeholder="Fundação da Ordem dos Selos" className="bg-background/60 border-gold/20" />
+            <FieldLabel icon={<Sparkles className="w-3 h-3" />}>Título</FieldLabel>
+            <Input
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              maxLength={200}
+              placeholder="Fundação da Ordem dos Selos"
+              className="bg-background/60 border-gold/20 focus-visible:border-gold/60 focus-visible:ring-gold/20 font-cinzel"
+              autoFocus
+            />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+          {/* Era + Tipo (seletor visual) */}
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-4">
             <div>
-              <label className="text-[10px] uppercase tracking-wider text-gold-champagne font-montserrat block mb-1">Era / data narrativa</label>
-              <Input value={era} onChange={e => setEra(e.target.value)} maxLength={120} placeholder="Era das Sombras · 342 AF" className="bg-background/60 border-gold/20" />
+              <FieldLabel>Era / data narrativa</FieldLabel>
+              <Input
+                value={era}
+                onChange={e => setEra(e.target.value)}
+                maxLength={120}
+                placeholder="Era das Sombras · 342 AF"
+                className="bg-background/60 border-gold/20 focus-visible:border-gold/60 focus-visible:ring-gold/20"
+              />
             </div>
-            <div>
-              <label className="text-[10px] uppercase tracking-wider text-gold-champagne font-montserrat block mb-1">Tipo</label>
-              <select
-                value={type}
-                onChange={e => setType(e.target.value as TimelineEventType)}
-                className="w-full h-10 rounded-md bg-background/60 border border-gold/20 px-3 text-sm font-merriweather text-foreground focus:outline-none focus:border-gold/50"
-              >
-                {EVENT_TYPES.map(t => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
-                ))}
-              </select>
+            <div className="sm:min-w-[220px]">
+              <FieldLabel>Tipo</FieldLabel>
+              <div className="flex flex-wrap gap-1.5 p-2 rounded-md border border-gold/15 bg-background/40">
+                {EVENT_TYPES.map(t => {
+                  const s = styleForType(t.value);
+                  const active = t.value === type;
+                  const TIcon = t.Icon;
+                  return (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => setType(t.value)}
+                      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-montserrat uppercase tracking-wider transition-all border
+                        ${active
+                          ? `${s.chipBg} border-opacity-100 scale-105`
+                          : 'border-gold/10 text-text-dim hover:text-foreground hover:border-gold/25'}`}
+                      style={active ? { boxShadow: s.badgeShadow } : undefined}
+                      title={t.label}
+                      aria-pressed={active}
+                    >
+                      <TIcon className="w-3 h-3" strokeWidth={2} />
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
+
+          {/* Descrição */}
           <div>
-            <label className="text-[10px] uppercase tracking-wider text-gold-champagne font-montserrat block mb-1">Descrição</label>
+            <FieldLabel>Descrição</FieldLabel>
             <Textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
               maxLength={10000}
               rows={5}
               placeholder="O que aconteceu, quem estava envolvido, o que mudou a partir desse marco."
-              className="bg-background/60 border-gold/20 font-merriweather"
+              className="bg-background/60 border-gold/20 focus-visible:border-gold/60 focus-visible:ring-gold/20 font-merriweather leading-relaxed"
             />
           </div>
 
-          {/* Imagem opcional */}
+          {/* Imagem */}
           <div>
-            <label className="text-[10px] uppercase tracking-wider text-gold-champagne font-montserrat block mb-1 inline-flex items-center gap-1.5">
-              <ImagePlus className="w-3 h-3" /> Imagem do marco (opcional)
-            </label>
+            <FieldLabel icon={<ImagePlus className="w-3 h-3" />}>Imagem do marco (opcional)</FieldLabel>
             {imageUrl ? (
-              <div className="relative rounded-md overflow-hidden border border-gold/20">
-                <img src={imageUrl} alt="Prévia" className="w-full h-32 object-cover" />
+              <div className="relative rounded-md overflow-hidden border border-gold/20 group">
+                <img src={imageUrl} alt="Prévia" className="w-full h-36 object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
                 <button
                   type="button"
                   onClick={() => setImageUrl(null)}
-                  className="absolute top-1.5 right-1.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-background/80 border border-red-alert/40 text-red-alert hover:bg-red-alert/20"
+                  className="absolute top-2 right-2 inline-flex items-center justify-center w-7 h-7 rounded-full bg-background/80 border border-red-alert/40 text-red-alert hover:bg-red-alert/20 backdrop-blur"
                   aria-label="Remover imagem"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -164,7 +221,7 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
-                className="w-full h-24 rounded-md border border-dashed border-gold/25 bg-background/40 hover:bg-background/60 text-text-dim hover:text-gold-champagne text-xs font-montserrat inline-flex items-center justify-center gap-2 transition-colors"
+                className="w-full h-24 rounded-md border border-dashed border-gold/25 bg-background/40 hover:bg-background/60 hover:border-gold/50 text-text-dim hover:text-gold-champagne text-xs font-montserrat inline-flex items-center justify-center gap-2 transition-all"
               >
                 {uploading ? <><Loader2 className="w-4 h-4 animate-spin" /> Enviando…</> : <><ImagePlus className="w-4 h-4" /> Enviar imagem (PNG · JPG · WEBP)</>}
               </button>
@@ -178,14 +235,13 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
             />
           </div>
 
+          {/* Vínculo com Codex */}
           <div>
-            <label className="text-[10px] uppercase tracking-wider text-gold-champagne font-montserrat block mb-1 inline-flex items-center gap-1.5">
-              <Link2 className="w-3 h-3" /> Vincular a uma ficha / artigo (opcional)
-            </label>
+            <FieldLabel icon={<Link2 className="w-3 h-3" />}>Vincular a uma ficha / artigo (opcional)</FieldLabel>
             <select
               value={linkId}
               onChange={e => setLinkId(e.target.value)}
-              className="w-full h-10 rounded-md bg-background/60 border border-blue-bright/20 px-3 text-sm font-merriweather text-foreground focus:outline-none focus:border-blue-bright/50"
+              className="w-full h-10 rounded-md bg-background/60 border border-blue-bright/20 px-3 text-sm font-merriweather text-foreground focus:outline-none focus:border-blue-bright/60 focus:ring-2 focus:ring-blue-bright/20 transition-colors"
             >
               <option value="">— nenhum —</option>
               {codexEntries.map(e => (
@@ -195,16 +251,22 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button
-            onClick={handleSave}
-            disabled={saving || !title.trim()}
-            className="bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] hover:from-gold-warm hover:via-gold hover:to-gold-light font-montserrat font-bold uppercase text-xs tracking-wider"
-          >
-            <Save className="w-3.5 h-3.5 mr-1.5" /> {isEdit ? 'Salvar alterações' : 'Gravar marco'}
-          </Button>
-        </DialogFooter>
+        {/* Rodapé ornamental */}
+        <div className="relative px-6 pt-3 pb-5 border-t border-gold/15 bg-gradient-to-b from-transparent to-gold/[0.03]">
+          <DialogFooter className="gap-2 sm:gap-3">
+            <Button variant="ghost" onClick={() => onOpenChange(false)} className="font-montserrat text-xs uppercase tracking-wider">
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={saving || !title.trim()}
+              className="bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] hover:from-gold-warm hover:via-gold hover:to-gold-light font-montserrat font-bold uppercase text-xs tracking-wider shadow-[0_0_18px_hsl(var(--gold)/0.4)] hover:shadow-[0_0_26px_hsl(var(--gold)/0.6)]"
+            >
+              {saving ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-1.5" />}
+              {isEdit ? 'Salvar alterações' : 'Gravar marco'}
+            </Button>
+          </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
