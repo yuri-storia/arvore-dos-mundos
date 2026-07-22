@@ -86,7 +86,7 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
   const openEdit = (ev: TimelineEvent) => { setEditing(ev); setDialogOpen(true); };
 
   const submit = async (payload: {
-    title: string; description: string; era_label: string;
+    title: string; description: string; year: string; era_label: string;
     event_type: TimelineEventType; codex_entry_id: string | null; image_url: string | null;
   }) => {
     if (editing) {

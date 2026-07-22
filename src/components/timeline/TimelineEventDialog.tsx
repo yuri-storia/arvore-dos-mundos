@@ -20,6 +20,7 @@ interface Props {
   onSubmit: (payload: {
     title: string;
     description: string;
+    year: string;
     era_label: string;
     event_type: TimelineEventType;
     codex_entry_id: string | null;
@@ -38,6 +39,7 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
   const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [year, setYear] = useState('');
   const [era, setEra] = useState('');
   const [type, setType] = useState<TimelineEventType>('fato');
   const [linkId, setLinkId] = useState<string>('');
@@ -50,6 +52,7 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
     if (!open) return;
     setTitle(initial?.title ?? '');
     setDescription(initial?.description ?? '');
+    setYear(initial?.year ?? '');
     setEra(initial?.era_label ?? '');
     setType((initial?.event_type as TimelineEventType) ?? 'fato');
     setLinkId(initial?.codex_entry_id ?? '');
@@ -91,6 +94,7 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
       await onSubmit({
         title: title.trim(),
         description: description.trim(),
+        year: year.trim(),
         era_label: era.trim(),
         event_type: type,
         codex_entry_id: linkId || null,
@@ -146,15 +150,25 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
             />
           </div>
 
-          {/* Era + Tipo (seletor visual) */}
-          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-4">
+          {/* Ano + Era + Tipo */}
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-4">
             <div>
-              <FieldLabel>Era / data narrativa</FieldLabel>
+              <FieldLabel>Ano / data</FieldLabel>
+              <Input
+                value={year}
+                onChange={e => setYear(e.target.value)}
+                maxLength={60}
+                placeholder="342 AF"
+                className="bg-background/60 border-gold/20 focus-visible:border-gold/60 focus-visible:ring-gold/20 font-cinzel"
+              />
+            </div>
+            <div>
+              <FieldLabel>Era / rótulo narrativo</FieldLabel>
               <Input
                 value={era}
                 onChange={e => setEra(e.target.value)}
                 maxLength={120}
-                placeholder="Era das Sombras · 342 AF"
+                placeholder="Era das Sombras"
                 className="bg-background/60 border-gold/20 focus-visible:border-gold/60 focus-visible:ring-gold/20"
               />
             </div>

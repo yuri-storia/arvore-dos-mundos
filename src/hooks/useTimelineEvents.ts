@@ -14,6 +14,7 @@ export interface TimelineEvent {
   world_id: string;
   title: string;
   description: string | null;
+  year: string | null;
   era_label: string | null;
   event_type: TimelineEventType;
   sort_index: number;
@@ -51,6 +52,7 @@ export function useTimelineEvents(worldId?: string) {
   const createEvent = useCallback(async (payload: {
     title: string;
     description?: string;
+    year?: string;
     era_label?: string;
     event_type?: TimelineEventType;
     codex_entry_id?: string | null;
@@ -70,6 +72,7 @@ export function useTimelineEvents(worldId?: string) {
         world_id: worldId,
         title: payload.title.trim(),
         description: payload.description ?? null,
+        year: payload.year ?? null,
         era_label: payload.era_label ?? null,
         event_type: payload.event_type ?? 'fato',
         codex_entry_id: payload.codex_entry_id ?? null,
