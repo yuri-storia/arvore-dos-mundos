@@ -288,6 +288,7 @@ const NodeCard: React.FC<{
           <div className={`flex items-center gap-2 min-w-0 ${rowDir}`}>
             <Icon className={`w-3.5 h-3.5 flex-none ${s.accent}`} strokeWidth={2} />
             <h3 className={`font-cinzel font-semibold text-[13px] sm:text-sm text-foreground leading-tight truncate ${textAlign}`}>
+              {event.year ? <span className="text-gold-champagne/80 mr-1">{event.year} ·</span> : null}
               {event.title}
             </h3>
           </div>
@@ -333,7 +334,10 @@ const NodeCard: React.FC<{
 
               <h3 className={`font-cinzel font-bold text-sm sm:text-base text-foreground leading-snug inline-flex items-center gap-2 ${rowDir}`}>
                 <Icon className={`w-3.5 h-3.5 ${s.accent}`} strokeWidth={1.75} />
-                <span>{event.title}</span>
+                <span>
+                  {event.year ? <span className="text-gold-champagne/80 mr-1">{event.year} ·</span> : null}
+                  {event.title}
+                </span>
               </h3>
 
               {event.description && (
