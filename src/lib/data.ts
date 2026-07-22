@@ -299,19 +299,63 @@ export const METHOD_DESCRIPTIONS: Record<MethodType, { title: string; desc: stri
   },
 };
 
-export const STYLE_OPTIONS = [
-  'Fantasy épico (estilo Tolkien)', 'Dark Fantasy (sombrio)', 'Anime / Mangá',
-  'Realista / Fotográfico', 'Ilustração medieval', 'Concept art de videogame',
-  'Aquarela / Arte digital', 'Steampunk', 'Horror cósmico',
+import styleEpicFantasy from '@/assets/style-thumbs/epic-fantasy.jpg';
+import styleDarkFantasy from '@/assets/style-thumbs/dark-fantasy.jpg';
+import styleAnime from '@/assets/style-thumbs/anime.jpg';
+import styleRealistic from '@/assets/style-thumbs/realistic.jpg';
+import styleMedieval from '@/assets/style-thumbs/medieval-illustration.jpg';
+import styleConcept from '@/assets/style-thumbs/concept-art.jpg';
+import styleWatercolor from '@/assets/style-thumbs/watercolor.jpg';
+import styleSteampunk from '@/assets/style-thumbs/steampunk.jpg';
+import styleCosmicHorror from '@/assets/style-thumbs/cosmic-horror.jpg';
+
+export interface StyleMeta {
+  label: string;
+  description: string;
+  image: string;
+  promptHint: string;
+}
+
+export const STYLE_META: StyleMeta[] = [
+  { label: 'Fantasia épica',           description: 'Reinos majestosos, luz dourada, tom mítico.', image: styleEpicFantasy,   promptHint: 'high fantasy epic painting, majestic, cinematic lighting' },
+  { label: 'Dark Fantasy (sombrio)',   description: 'Atmosfera gótica, tensa e melancólica.',      image: styleDarkFantasy,   promptHint: 'dark fantasy, gothic, moody, desaturated palette' },
+  { label: 'Anime / Mangá',            description: 'Cel-shading vibrante ao estilo japonês.',     image: styleAnime,          promptHint: 'anime manga style, cel shading, vibrant colors' },
+  { label: 'Realista / Fotográfico',   description: 'Fotografia cinematográfica hiper-detalhada.', image: styleRealistic,      promptHint: 'photorealistic, cinematic, 85mm film photo, ultra detailed' },
+  { label: 'Ilustração medieval',      description: 'Manuscrito iluminado com folha de ouro.',     image: styleMedieval,       promptHint: 'medieval illuminated manuscript, gold leaf, ornate borders' },
+  { label: 'Concept art de videogame', description: 'Pintura digital de estúdios AAA.',            image: styleConcept,        promptHint: 'AAA video game concept art, digital painting, high detail' },
+  { label: 'Aquarela / Arte digital',  description: 'Pinceladas suaves e atmosfera onírica.',      image: styleWatercolor,     promptHint: 'watercolor illustration, soft washes, dreamy atmosphere' },
+  { label: 'Steampunk',                description: 'Latão vitoriano, engrenagens e vapor.',       image: styleSteampunk,      promptHint: 'steampunk, victorian brass, gears and steam, sepia tones' },
+  { label: 'Horror cósmico',           description: 'Entidades incognoscíveis e vazio estelar.',   image: styleCosmicHorror,   promptHint: 'cosmic horror, lovecraftian, eldritch entities, starry void' },
 ];
 
-export const IMAGE_TYPE_OPTIONS = [
-  'Cenário / Paisagem', 'Personagem (corpo inteiro)', 'Retrato de personagem',
-  'Criatura / Monstro', 'Objeto / Artefato mágico', 'Cidade / Arquitetura',
-  'Batalha / Cena de ação', 'Mapa / Cartografia',
+export const STYLE_OPTIONS = STYLE_META.map(s => s.label);
+
+export interface OptionMeta {
+  label: string;
+  description: string;
+  emoji: string;
+}
+
+export const IMAGE_TYPE_META: OptionMeta[] = [
+  { label: 'Cenário / Paisagem',        description: 'Vista ampla de um lugar.',       emoji: '🏞️' },
+  { label: 'Personagem (corpo inteiro)',description: 'Figura de pé, completa.',        emoji: '🧝' },
+  { label: 'Retrato de personagem',     description: 'Close no rosto e ombros.',       emoji: '👤' },
+  { label: 'Criatura / Monstro',        description: 'Bestas e seres fantásticos.',    emoji: '🐉' },
+  { label: 'Objeto / Artefato mágico',  description: 'Item isolado em destaque.',      emoji: '🗡️' },
+  { label: 'Cidade / Arquitetura',      description: 'Construções e conjuntos.',       emoji: '🏰' },
+  { label: 'Batalha / Cena de ação',    description: 'Movimento e conflito.',          emoji: '⚔️' },
+  { label: 'Mapa / Cartografia',        description: 'Vista de topo com legendas.',    emoji: '🗺️' },
 ];
 
-export const TONE_OPTIONS = [
-  'Épico e grandioso', 'Sombrio e ominoso', 'Místico e etéreo',
-  'Quente e acolhedor', 'Frio e desolado', 'Dramático (luz e sombra)',
+export const IMAGE_TYPE_OPTIONS = IMAGE_TYPE_META.map(o => o.label);
+
+export const TONE_META: OptionMeta[] = [
+  { label: 'Épico e grandioso',        description: 'Luz radiante, escala monumental.', emoji: '✨' },
+  { label: 'Sombrio e ominoso',        description: 'Sombras densas, presságio.',       emoji: '🌑' },
+  { label: 'Místico e etéreo',         description: 'Brumas suaves, luz difusa.',       emoji: '🌫️' },
+  { label: 'Quente e acolhedor',       description: 'Tons dourados de fogueira.',       emoji: '🔥' },
+  { label: 'Frio e desolado',          description: 'Azuis gélidos, silêncio.',         emoji: '❄️' },
+  { label: 'Dramático (luz e sombra)', description: 'Contraste teatral chiaroscuro.',   emoji: '🎭' },
 ];
+
+export const TONE_OPTIONS = TONE_META.map(o => o.label);
