@@ -190,7 +190,7 @@ export const TimelineNode: React.FC<Props> = ({
           `}
         />
         <motion.button
-          {...dragHandleProps}
+          {...(dragHandleProps as any)}
           onClick={onBadgeClick}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.92 }}
