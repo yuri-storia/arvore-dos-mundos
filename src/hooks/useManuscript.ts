@@ -41,7 +41,21 @@ export interface Scene {
 }
 
 function countWords(text: string): number {
-  return text.trim() ? text.trim().split(/\s+/).length : 0;
+  // Remove tags HTML e entidades antes de contar — o editor conta texto puro,
+  // e salvar contagens baseadas em HTML bruto inflava o total (cada tag virava "palavra"),
+  // causando saltos de "Hoje" ao trocar de capítulo.
+  const plain = (text || '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&[a-z]+;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return plain ? plain.split(' ').length : 0;
+}
+
+/** Recalcula word_count a partir do content (texto puro), compatibilizando com o editor. */
+function normalizeChapter<T extends { content?: string | null; word_count?: number }>(c: T): T {
+  return { ...c, word_count: countWords(c.content || '') };
 }
 
 export function useManuscript(worldId?: string) {
@@ -95,7 +109,7 @@ export function useManuscript(worldId?: string) {
         setChaptersLoading(false);
         return;
       }
-      setChapters((chaps || []) as Chapter[]);
+      setChapters(((chaps || []) as Chapter[]).map(normalizeChapter));
 
       const chapterIds = (chaps || []).map((c: any) => c.id);
       if (chapterIds.length > 0) {

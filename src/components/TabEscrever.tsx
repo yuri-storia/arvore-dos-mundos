@@ -401,7 +401,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   //
   // Regras:
   //  • Fuso America/Sao_Paulo define o "dia".
-  //  • Chave por manuscrito: `adm:daily:v3:{mid}` → JSON `{date, baseline}`.
+  //  • Chave por manuscrito: `adm:daily:v4:{mid}` → JSON `{date, baseline}`.
   //  • `baseline` = total de palavras do manuscrito no INÍCIO do dia.
   //  • `wordsToday = max(0, effectiveTotal - baseline)`.
   //  • Ao virar o dia (fuso Brasília), captura NOVA baseline = total atual → wordsToday zera.
@@ -430,7 +430,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     catch { return 500; }
   });
 
-  const dailyKey = activeManuscript ? `adm:daily:v3:${activeManuscript.id}` : null;
+  const dailyKey = activeManuscript ? `adm:daily:v4:${activeManuscript.id}` : null;
   const [baseline, setBaseline] = useState<number | null>(null);
 
   // Reset baseline quando muda o manuscrito ou o dia.
@@ -485,7 +485,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     const brToday = getBrDate();
     setToday(brToday);
     if (!activeManuscript) return;
-    const key = `adm:daily:v3:${activeManuscript.id}`;
+    const key = `adm:daily:v4:${activeManuscript.id}`;
     const record = { date: brToday, baseline: effectiveTotal };
     try { localStorage.setItem(key, JSON.stringify(record)); } catch {}
     setBaseline(effectiveTotal);
