@@ -14,6 +14,7 @@ export interface TimelineEvent {
   world_id: string;
   title: string;
   description: string | null;
+  year: string | null;
   era_label: string | null;
   event_type: TimelineEventType;
   sort_index: number;
