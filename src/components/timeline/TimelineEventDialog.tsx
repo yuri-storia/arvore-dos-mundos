@@ -150,8 +150,8 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
             />
           </div>
 
-          {/* Ano + Era + Tipo */}
-          <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-4">
+          {/* Ano + Era (row) — Tipo em bloco próprio para respirar em desktop/tablet */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <FieldLabel>Ano / data</FieldLabel>
               <Input
@@ -159,7 +159,7 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
                 onChange={e => setYear(e.target.value)}
                 maxLength={60}
                 placeholder="342 AF"
-                className="bg-background/60 border-gold/20 focus-visible:border-gold/60 focus-visible:ring-gold/20 font-cinzel"
+                className="h-11 bg-background/60 border-gold/20 focus-visible:border-gold/60 focus-visible:ring-gold/20 font-cinzel"
               />
             </div>
             <div>
@@ -169,35 +169,36 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
                 onChange={e => setEra(e.target.value)}
                 maxLength={120}
                 placeholder="Era das Sombras"
-                className="bg-background/60 border-gold/20 focus-visible:border-gold/60 focus-visible:ring-gold/20"
+                className="h-11 bg-background/60 border-gold/20 focus-visible:border-gold/60 focus-visible:ring-gold/20"
               />
             </div>
-            <div className="sm:min-w-[220px]">
-              <FieldLabel>Tipo</FieldLabel>
-              <div className="flex flex-wrap gap-1.5 p-2 rounded-md border border-gold/15 bg-background/40">
-                {EVENT_TYPES.map(t => {
-                  const s = styleForType(t.value);
-                  const active = t.value === type;
-                  const TIcon = t.Icon;
-                  return (
-                    <button
-                      key={t.value}
-                      type="button"
-                      onClick={() => setType(t.value)}
-                      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-montserrat uppercase tracking-wider transition-all border
-                        ${active
-                          ? `${s.chipBg} border-opacity-100 scale-105`
-                          : 'border-gold/10 text-text-dim hover:text-foreground hover:border-gold/25'}`}
-                      style={active ? { boxShadow: s.badgeShadow } : undefined}
-                      title={t.label}
-                      aria-pressed={active}
-                    >
-                      <TIcon className="w-3 h-3" strokeWidth={2} />
-                      {t.label}
-                    </button>
-                  );
-                })}
-              </div>
+          </div>
+
+          <div>
+            <FieldLabel>Tipo</FieldLabel>
+            <div className="flex flex-wrap gap-2 p-3 rounded-md border border-gold/15 bg-background/40">
+              {EVENT_TYPES.map(t => {
+                const s = styleForType(t.value);
+                const active = t.value === type;
+                const TIcon = t.Icon;
+                return (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => setType(t.value)}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-montserrat uppercase tracking-wider transition-all border
+                      ${active
+                        ? `${s.chipBg} border-opacity-100 scale-105`
+                        : 'border-gold/10 text-text-dim hover:text-foreground hover:border-gold/25'}`}
+                    style={active ? { boxShadow: s.badgeShadow } : undefined}
+                    title={t.label}
+                    aria-pressed={active}
+                  >
+                    <TIcon className="w-3.5 h-3.5" strokeWidth={2} />
+                    {t.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
