@@ -145,7 +145,7 @@ export const TimelineEventDialog: React.FC<Props> = ({ open, onOpenChange, initi
               onChange={e => setTitle(e.target.value)}
               maxLength={200}
               placeholder="Fundação da Ordem dos Selos"
-              className="bg-background/60 border-gold/20 focus-visible:border-gold/60 focus-visible:ring-gold/20 font-cinzel"
+              className="h-11 text-base bg-background/60 border-gold/20 focus-visible:border-gold/60 focus-visible:ring-gold/20 font-cinzel"
               autoFocus
             />
           </div>
