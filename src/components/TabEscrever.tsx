@@ -912,7 +912,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                         <PopoverContent side="right" align="start" className="w-64 p-3 space-y-2">
                           <div className="text-[10px] font-montserrat uppercase tracking-widest text-text-dim">Meta diária</div>
                           <p className="text-[10px] text-text-dim/80 leading-snug">
-                            Reset automático à meia-noite (Brasília). Contagem baseada em variação de palavras totais.
+                              Reset automático à meia-noite (Brasília). Conta apenas novas palavras digitadas no editor.
                           </p>
                           <div className="flex items-center gap-2">
                             <Input
@@ -933,7 +933,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                               }
                               variant="warning"
                               title='Recalcular "Hoje"?'
-                              description={`Isto define a linha-base do dia como o total atual do manuscrito (${effectiveTotal.toLocaleString('pt-BR')} palavras) no fuso de Brasília. O contador "Hoje" será zerado. Total e por capítulo permanecem intactos.`}
+                              description='Isto zera apenas o contador "Hoje" no fuso de Brasília. Total e por capítulo permanecem intactos.'
                               confirmLabel="Recalcular"
                               onConfirm={resetSnapshot}
                             />
@@ -954,7 +954,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                         }
                         variant="warning"
                         title='Recalcular "Hoje"?'
-                        description={`Isto define a linha-base do dia como o total atual do manuscrito (${effectiveTotal.toLocaleString('pt-BR')} palavras) no fuso de Brasília. O contador "Hoje" será zerado. Total e por capítulo permanecem intactos.`}
+                        description='Isto zera apenas o contador "Hoje" no fuso de Brasília. Total e por capítulo permanecem intactos.'
                         confirmLabel="Recalcular"
                         onConfirm={resetSnapshot}
                       />
@@ -1048,7 +1048,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                 onTitleSave={handleChapterTitleSave}
                 onContentSave={handleChapterContentSave}
                 onPreviewEntry={handlePreviewEntry}
-                onLiveWordCount={setLiveActiveWords}
+                onLiveWordCount={handleLiveWordCount}
                 manuscriptTitle={activeManuscript?.title}
               />
             ) : (
