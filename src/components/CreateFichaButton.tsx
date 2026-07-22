@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { Save, ArrowLeft, X, ClipboardList, PencilLine, Sparkles, BookOpen, Feather, Loader2 } from 'lucide-react';
+import { Save, ArrowLeft, X, ClipboardList, PencilLine, Sparkles, BookOpen, Feather, Loader2, ScrollText } from 'lucide-react';
 
 import { FRUITS } from '@/lib/data';
 import { useCodexEntries, type CodexEntry } from '@/hooks/useCodexEntries';
@@ -17,6 +17,10 @@ interface Props {
   worldId?: string;
   entryType?: 'ficha' | 'artigo';
   onCreated?: (action: 'codex' | 'continue') => void;
+  timelineOption?: {
+    label?: string;
+    onSelect: (fieldValue: string, fieldLabel: string) => void;
+  };
   children: React.ReactNode;
 }
 
