@@ -196,7 +196,11 @@ export const TimelineNode: React.FC<Props> = ({
           whileTap={{ scale: 0.92 }}
           aria-label={expanded ? `Recolher marco ${event.title}` : `Expandir marco ${event.title}`}
           aria-expanded={expanded}
-          title="Clique para expandir/recolher · Segure e arraste para reordenar"
+          title={
+            expanded
+              ? `Clique para recolher · Segure e arraste para reordenar`
+              : `${event.year ? `${event.year} · ` : ''}${event.title} — Clique para expandir · Segure e arraste para reordenar`
+          }
           className={`
             relative z-10 w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center
             border-2 ${s.badgeBorder} ${s.badgeBg} ${s.badgeIcon}
