@@ -396,7 +396,20 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     ? (activeChapterId === activeChapter.id && liveActiveWords != null ? liveActiveWords : (activeChapter.word_count || 0))
     : 0;
 
-  // Daily writing goal — persists across sessions; resets automatically at midnight (Brazil).
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Contagem diária "Hoje" — v3 (reset do zero).
+  //
+  // Regras:
+  //  • Fuso America/Sao_Paulo define o "dia".
+  //  • Chave por manuscrito: `adm:daily:v3:{mid}` → JSON `{date, baseline}`.
+  //  • `baseline` = total de palavras do manuscrito no INÍCIO do dia.
+  //  • `wordsToday = max(0, effectiveTotal - baseline)`.
+  //  • Ao virar o dia (fuso Brasília), captura NOVA baseline = total atual → wordsToday zera.
+  //  • Ao apagar texto (effectiveTotal < baseline), baixa a baseline para não gerar negativos.
+  //  • CORREÇÃO DO BUG: baseline só é capturada depois de `effectiveTotal` ficar
+  //    estável por 800ms — evita capturar 0 durante hidratação e fazer "Hoje"
+  //    igualar o total do manuscrito no dia seguinte.
+  // ─────────────────────────────────────────────────────────────────────────────
   const goalKey = 'adm:dailyGoal';
   const brDateFmt = useMemo(
     () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' }),
@@ -404,7 +417,6 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
   );
   const getBrDate = useCallback(() => brDateFmt.format(new Date()), [brDateFmt]);
   const [today, setToday] = useState<string>(() => getBrDate());
-  // Tick every 30s to detect midnight rollover (Brazil timezone).
   useEffect(() => {
     const id = window.setInterval(() => {
       const d = getBrDate();
@@ -413,45 +425,70 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
     return () => window.clearInterval(id);
   }, [getBrDate]);
 
-  const snapKey = activeManuscript ? `adm:dailySnap:${activeManuscript.id}:${today}` : null;
   const [dailyGoal, setDailyGoal] = useState<number>(() => {
     try { return Math.max(0, parseInt(localStorage.getItem(goalKey) || '500', 10)) || 500; }
     catch { return 500; }
   });
-  const [snapshot, setSnapshot] = useState<number | null>(null);
+
+  const dailyKey = activeManuscript ? `adm:daily:v3:${activeManuscript.id}` : null;
+  const [baseline, setBaseline] = useState<number | null>(null);
+
+  // Reset baseline quando muda o manuscrito ou o dia.
   useEffect(() => {
-    if (!snapKey) { setSnapshot(null); return; }
-    // Aguarda os capítulos carregarem antes de gravar a linha-base do dia.
-    // Sem isso, `effectiveTotal` fica em 0 durante o load e o snapshot é
-    // congelado em 0 — fazendo "Hoje" igualar o total do manuscrito.
-    if (chaptersLoading) return;
+    setBaseline(null);
+  }, [activeManuscript?.id, today]);
+
+  // Lê baseline do storage se já foi gravada hoje.
+  useEffect(() => {
+    if (!dailyKey) return;
     try {
-      const raw = localStorage.getItem(snapKey);
-      if (raw != null) setSnapshot(parseInt(raw, 10) || 0);
-      else {
-        localStorage.setItem(snapKey, String(effectiveTotal));
-        setSnapshot(effectiveTotal);
+      const raw = localStorage.getItem(dailyKey);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { date: string; baseline: number };
+      if (parsed?.date === today && Number.isFinite(parsed.baseline)) {
+        setBaseline(parsed.baseline);
       }
-    } catch { setSnapshot(0); }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [snapKey, chaptersLoading]);
-  const wordsToday = snapshot == null ? 0 : Math.max(0, effectiveTotal - snapshot);
+    } catch { /* ignore */ }
+  }, [dailyKey, today]);
+
+  // Captura baseline após effectiveTotal ficar estável 800ms (evita race de hidratação).
+  useEffect(() => {
+    if (!dailyKey || baseline != null || chaptersLoading) return;
+    const t = setTimeout(() => {
+      const record = { date: today, baseline: effectiveTotal };
+      try { localStorage.setItem(dailyKey, JSON.stringify(record)); } catch {}
+      setBaseline(effectiveTotal);
+    }, 800);
+    return () => clearTimeout(t);
+  }, [dailyKey, baseline, chaptersLoading, effectiveTotal, today]);
+
+  // Se o usuário apaga texto e effectiveTotal cai abaixo da baseline, reajusta.
+  useEffect(() => {
+    if (baseline == null || !dailyKey) return;
+    if (effectiveTotal < baseline) {
+      const record = { date: today, baseline: effectiveTotal };
+      try { localStorage.setItem(dailyKey, JSON.stringify(record)); } catch {}
+      setBaseline(effectiveTotal);
+    }
+  }, [effectiveTotal, baseline, dailyKey, today]);
+
+  const wordsToday = baseline == null ? 0 : Math.max(0, effectiveTotal - baseline);
   const goalPct = dailyGoal > 0 ? Math.min(100, Math.round((wordsToday / dailyGoal) * 100)) : 0;
+
   const persistGoal = useCallback((v: number) => {
     const clean = Math.max(0, Math.min(999999, Math.round(v)));
     setDailyGoal(clean);
     try { localStorage.setItem(goalKey, String(clean)); } catch {}
   }, []);
+
   const resetSnapshot = useCallback(() => {
-    // Realinha a data ao fuso de Brasília (garante que a chave usada é a de hoje,
-    // mesmo se o tick de 30s ainda não rodou) e regrava a linha-base do dia com o
-    // total atual — zerando "Hoje" sem precisar mexer no localStorage manualmente.
     const brToday = getBrDate();
     setToday(brToday);
     if (!activeManuscript) return;
-    const key = `adm:dailySnap:${activeManuscript.id}:${brToday}`;
-    try { localStorage.setItem(key, String(effectiveTotal)); } catch {}
-    setSnapshot(effectiveTotal);
+    const key = `adm:daily:v3:${activeManuscript.id}`;
+    const record = { date: brToday, baseline: effectiveTotal };
+    try { localStorage.setItem(key, JSON.stringify(record)); } catch {}
+    setBaseline(effectiveTotal);
     toast.success('Contagem de "Hoje" recalculada', {
       description: `Nova linha-base: ${effectiveTotal.toLocaleString('pt-BR')} palavras · ${brToday}`,
     });
