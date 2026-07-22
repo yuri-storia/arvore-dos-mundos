@@ -132,14 +132,6 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
         <p className="font-merriweather italic text-text-dim text-xs sm:text-sm max-w-md mx-auto mt-1">
           Marcos que brotam das raízes da Árvore e sustentam a história do seu mundo.
         </p>
-        <button
-          onClick={openNew}
-          className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] hover:from-gold-warm hover:via-gold hover:to-gold-light text-xs font-montserrat font-bold uppercase tracking-wider shadow-[0_0_14px_hsl(var(--gold)/0.35)] hover:shadow-[0_0_22px_hsl(var(--gold)/0.55)] transition-all"
-        >
-          <Plus className="w-3.5 h-3.5" strokeWidth={2.25} /> Novo marco
-        </button>
-      </div>
-
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           <button
             onClick={openNew}
@@ -166,6 +158,7 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
         <div className="text-center py-14 max-w-md mx-auto">
           <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-gold/10 flex items-center justify-center border border-gold/25">
             <Trees className="w-7 h-7 text-gold-champagne" strokeWidth={1.5} />
+          </div>
           <h3 className="font-cinzel font-bold text-base text-foreground mb-1">A Árvore ainda espera seus marcos</h3>
           <p className="font-merriweather text-sm text-text-dim">
             Grave o primeiro acontecimento — uma fundação, um mito, uma batalha — e veja a linha dourada florescer.
