@@ -20,6 +20,7 @@ interface Props {
   onSubmit: (payload: {
     title: string;
     description: string;
+    year: string;
     era_label: string;
     event_type: TimelineEventType;
     codex_entry_id: string | null;
