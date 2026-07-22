@@ -128,7 +128,7 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
             </div>
           </div>
         </div>
-        </div>
+
       )}
 
       <TimelineEventDialog
