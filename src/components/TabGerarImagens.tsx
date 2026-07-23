@@ -203,7 +203,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
                     active ? 'border-gold bg-gold/[0.08] shadow-[0_0_10px_rgba(218,165,32,0.2)]' : 'border-gold/10 hover:border-gold/30 bg-[rgba(4,12,24,0.4)]'
                   }`}
                 >
-                  <span className="text-lg leading-none">{o.emoji}</span>
+                  <o.icon className={`w-5 h-5 shrink-0 ${active ? 'text-gold-light drop-shadow-[0_0_6px_rgba(218,165,32,0.85)]' : 'text-gold-champagne/80 drop-shadow-[0_0_4px_rgba(218,165,32,0.35)]'}`} strokeWidth={1.75} />
                   <span className={`text-[11px] font-montserrat font-semibold leading-tight ${active ? 'text-gold-light' : 'text-foreground'}`}>{o.label}</span>
                 </button>
               );
@@ -229,7 +229,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
                     active ? 'border-gold bg-gold/[0.08] shadow-[0_0_10px_rgba(218,165,32,0.2)]' : 'border-gold/10 hover:border-gold/30 bg-[rgba(4,12,24,0.4)]'
                   }`}
                 >
-                  <span className="text-lg leading-none">{o.emoji}</span>
+                  <o.icon className={`w-5 h-5 shrink-0 ${active ? 'text-gold-light drop-shadow-[0_0_6px_rgba(218,165,32,0.85)]' : 'text-gold-champagne/80 drop-shadow-[0_0_4px_rgba(218,165,32,0.35)]'}`} strokeWidth={1.75} />
                   <span className={`text-[11px] font-montserrat font-semibold leading-tight ${active ? 'text-gold-light' : 'text-foreground'}`}>{o.label}</span>
                 </button>
               );
@@ -379,8 +379,8 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
             </div>
 
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 mb-4 text-[11px] font-montserrat">
-              <div><dt className="text-text-dim uppercase tracking-wider text-[9px]">Tipo</dt><dd className="text-foreground">{typeMeta.emoji} {typeMeta.label}</dd></div>
-              <div><dt className="text-text-dim uppercase tracking-wider text-[9px]">Tom</dt><dd className="text-foreground">{toneMeta.emoji} {toneMeta.label}</dd></div>
+              <div><dt className="text-text-dim uppercase tracking-wider text-[9px]">Tipo</dt><dd className="text-foreground inline-flex items-center gap-1.5"><typeMeta.icon className="w-3.5 h-3.5 text-gold-light drop-shadow-[0_0_4px_rgba(218,165,32,0.7)]" strokeWidth={2} />{typeMeta.label}</dd></div>
+              <div><dt className="text-text-dim uppercase tracking-wider text-[9px]">Tom</dt><dd className="text-foreground inline-flex items-center gap-1.5"><toneMeta.icon className="w-3.5 h-3.5 text-gold-light drop-shadow-[0_0_4px_rgba(218,165,32,0.7)]" strokeWidth={2} />{toneMeta.label}</dd></div>
             </dl>
 
             <div className="rounded-lg border border-gold/20 bg-gold/[0.05] p-3 mb-4 flex items-center justify-between">
