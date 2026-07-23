@@ -1,0 +1,1 @@
+ALTER TABLE public.worlds ADD COLUMN IF NOT EXISTS folder_covers jsonb NOT NULL DEFAULT '{}'::jsonb;

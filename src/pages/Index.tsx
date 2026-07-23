@@ -51,6 +51,7 @@ const createNewState = (activeTab: TabType = 'construir'): AppState => ({
   currentFruit: 0,
   method: 'top-down',
   gallery: [],
+  folderCovers: {},
   activeTab,
   apiKey: '',
   generatedPrompt: '',
@@ -103,6 +104,7 @@ const Index = () => {
           db: data.db,
           method: data.method,
           gallery: data.gallery,
+          folderCovers: data.folderCovers || {},
           currentSaveId: data.id,
           currentFruit: 0,
         }));
@@ -120,6 +122,7 @@ const Index = () => {
   const setCurrentFruit = useCallback((currentFruit: number) => setState(s => ({ ...s, currentFruit })), []);
   const setMethod = useCallback((method: MethodType) => setState(s => ({ ...s, method })), []);
   const setGallery = useCallback((gallery: GalleryImage[]) => setState(s => ({ ...s, gallery })), []);
+  const setFolderCovers = useCallback((folderCovers: Record<number, string>) => setState(s => ({ ...s, folderCovers })), []);
   const setGeneratedPrompt = useCallback((generatedPrompt: string) => setState(s => ({ ...s, generatedPrompt })), []);
 
   const updateField = useCallback((fruitId: number, fieldId: string, value: string) => {
@@ -160,10 +163,11 @@ const Index = () => {
         method: state.method,
         db: state.db,
         gallery: state.gallery,
+        folderCovers: state.folderCovers,
       });
     }, 2000);
     return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
-  }, [state.worldName, state.db, state.method, state.gallery, state.currentSaveId, user, updateWorld]);
+  }, [state.worldName, state.db, state.method, state.gallery, state.folderCovers, state.currentSaveId, user, updateWorld]);
 
   const handleCreateWorld = useCallback(async () => {
     if (!user) { toast.error('Faça login para criar um mundo'); return; }
@@ -198,6 +202,7 @@ const Index = () => {
         db: data.db,
         method: data.method,
         gallery: data.gallery,
+        folderCovers: (data as any).folderCovers || {},
         currentFruit: 0,
         currentSaveId: data.id,
         generatedPrompt: '',
@@ -272,7 +277,7 @@ const Index = () => {
             {state.activeTab === 'construir' && <TabConstruir state={state} updateField={updateField} setCurrentFruit={setCurrentFruit} setMethod={setMethod} onNavigateCodex={() => setActiveTab('codex')} addToGallery={addToGallery} />}
             {state.activeTab === 'codex' && <TabCodex gallery={state.gallery} worldId={state.currentSaveId} worlds={worlds} />}
             {state.activeTab === 'escrever' && <TabEscrever worldId={state.currentSaveId} worlds={worlds} />}
-            {state.activeTab === 'galeria' && <TabGaleria gallery={state.gallery} setGallery={setGallery} state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />}
+            {state.activeTab === 'galeria' && <TabGaleria gallery={state.gallery} setGallery={setGallery} folderCovers={state.folderCovers} setFolderCovers={setFolderCovers} state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />}
           </React.Suspense>
         </main>
 

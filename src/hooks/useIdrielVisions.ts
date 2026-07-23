@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -17,26 +18,31 @@ export interface IdrielVision {
   created_at: string;
 }
 
+const KEY = (uid?: string, wid?: string) => ['idriel-visions', uid, wid] as const;
+
 export function useIdrielVisions(worldId?: string) {
   const { user } = useAuth();
-  const [visions, setVisions] = useState<IdrielVision[]>([]);
-  const [loading, setLoading] = useState(false);
+  const qc = useQueryClient();
 
-  const fetchVisions = useCallback(async () => {
-    if (!user || !worldId) { setVisions([]); return; }
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('idriel_visions')
-      .select('*')
-      .eq('world_id', worldId)
-      .order('created_at', { ascending: false })
-      .limit(100);
-    if (error) console.error(error);
-    else setVisions((data || []) as IdrielVision[]);
-    setLoading(false);
-  }, [user, worldId]);
+  const { data: visions = [], isLoading: loading, refetch } = useQuery({
+    queryKey: KEY(user?.id, worldId),
+    enabled: !!user && !!worldId,
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
+    queryFn: async (): Promise<IdrielVision[]> => {
+      const { data, error } = await supabase
+        .from('idriel_visions')
+        .select('*')
+        .eq('world_id', worldId!)
+        .order('created_at', { ascending: false })
+        .limit(100);
+      if (error) { console.error(error); return []; }
+      return (data || []) as IdrielVision[];
+    },
+  });
 
-  useEffect(() => { fetchVisions(); }, [fetchVisions]);
+  const setLocal = (updater: (prev: IdrielVision[]) => IdrielVision[]) =>
+    qc.setQueryData(KEY(user?.id, worldId), (old: IdrielVision[] = []) => updater(old));
 
   const saveVision = useCallback(async (v: Omit<IdrielVision, 'id' | 'user_id' | 'created_at' | 'world_id'>) => {
     if (!user || !worldId) return null;
@@ -46,21 +52,21 @@ export function useIdrielVisions(worldId?: string) {
       .select()
       .single();
     if (error) { console.error(error); return null; }
-    setVisions(prev => [data as IdrielVision, ...prev]);
+    setLocal(prev => [data as IdrielVision, ...prev]);
     return data as IdrielVision;
   }, [user, worldId]);
 
   const updateVisionImage = useCallback(async (id: string, image_url: string) => {
     const { error } = await supabase.from('idriel_visions').update({ image_url }).eq('id', id);
     if (error) { console.error(error); return; }
-    setVisions(prev => prev.map(v => v.id === id ? { ...v, image_url } : v));
-  }, []);
+    setLocal(prev => prev.map(v => v.id === id ? { ...v, image_url } : v));
+  }, [user?.id, worldId]);
 
   const deleteVision = useCallback(async (id: string) => {
     const { error } = await supabase.from('idriel_visions').delete().eq('id', id);
     if (error) { toast.error('Erro ao excluir visão'); return; }
-    setVisions(prev => prev.filter(v => v.id !== id));
-  }, []);
+    setLocal(prev => prev.filter(v => v.id !== id));
+  }, [user?.id, worldId]);
 
-  return { visions, loading, saveVision, updateVisionImage, deleteVision, refetch: fetchVisions };
+  return { visions, loading, saveVision, updateVisionImage, deleteVision, refetch };
 }

@@ -1151,6 +1151,7 @@ export type Database = {
         Row: {
           created_at: string
           db: Json
+          folder_covers: Json
           gallery: Json
           id: string
           method: string
@@ -1161,6 +1162,7 @@ export type Database = {
         Insert: {
           created_at?: string
           db?: Json
+          folder_covers?: Json
           gallery?: Json
           id?: string
           method?: string
@@ -1171,6 +1173,7 @@ export type Database = {
         Update: {
           created_at?: string
           db?: Json
+          folder_covers?: Json
           gallery?: Json
           id?: string
           method?: string
