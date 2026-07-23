@@ -26,6 +26,8 @@ import { createPortal } from 'react-dom';
 interface Props {
   gallery: GalleryImage[];
   setGallery: (g: GalleryImage[]) => void;
+  folderCovers: Record<number, string>;
+  setFolderCovers: (c: Record<number, string>) => void;
   state: AppState;
   setGeneratedPrompt: (p: string) => void;
   addToGallery: (img: GalleryImage) => void;
@@ -34,18 +36,7 @@ interface Props {
 // Frutos válidos como pastas (excluímos o 11º — "A Sua Narrativa" não é visual).
 const FOLDER_FRUITS = FRUITS.filter(f => f.id !== 10);
 
-// Persistência local das capas customizadas por mundo.
-const coverKey = (worldId: string) => `gallery:covers:${worldId}`;
-function loadCovers(worldId?: string): Record<number, string> {
-  if (!worldId) return {};
-  try { return JSON.parse(localStorage.getItem(coverKey(worldId)) || '{}'); }
-  catch { return {}; }
-}
-function saveCovers(worldId: string, covers: Record<number, string>) {
-  localStorage.setItem(coverKey(worldId), JSON.stringify(covers));
-}
-
-export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGeneratedPrompt, addToGallery }) => {
+export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers, setFolderCovers, state, setGeneratedPrompt, addToGallery }) => {
   const { user } = useAuth();
   const planLimits = usePlanLimits();
   const worldId = state.currentSaveId || undefined;
@@ -57,14 +48,12 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const [openFolder, setOpenFolder] = useState<number | null>(null); // fruit id
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
 
-  // --- Custom covers per world (localStorage) ---
-  const [customCovers, setCustomCovers] = useState<Record<number, string>>(() => loadCovers(worldId));
-  useEffect(() => { setCustomCovers(loadCovers(worldId)); }, [worldId]);
+  // --- Custom covers per world (persisted on server via folderCovers prop) ---
+  const customCovers = folderCovers || {};
   const setCover = (fruitId: number, url: string | null) => {
     const next = { ...customCovers };
     if (url) next[fruitId] = url; else delete next[fruitId];
-    setCustomCovers(next);
-    if (worldId) saveCovers(worldId, next);
+    setFolderCovers(next);
   };
 
   // --- Upload state ---
