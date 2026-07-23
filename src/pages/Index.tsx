@@ -122,6 +122,7 @@ const Index = () => {
   const setCurrentFruit = useCallback((currentFruit: number) => setState(s => ({ ...s, currentFruit })), []);
   const setMethod = useCallback((method: MethodType) => setState(s => ({ ...s, method })), []);
   const setGallery = useCallback((gallery: GalleryImage[]) => setState(s => ({ ...s, gallery })), []);
+  const setFolderCovers = useCallback((folderCovers: Record<number, string>) => setState(s => ({ ...s, folderCovers })), []);
   const setGeneratedPrompt = useCallback((generatedPrompt: string) => setState(s => ({ ...s, generatedPrompt })), []);
 
   const updateField = useCallback((fruitId: number, fieldId: string, value: string) => {
