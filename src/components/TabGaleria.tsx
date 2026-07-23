@@ -748,20 +748,30 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
 
 
               {generatedImage && !loading2 && (
-                <div className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20">
+                <div className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20 relative">
+                  <button
+                    onClick={() => setGeneratedImage('')}
+                    aria-label="Fechar visão materializada"
+                    className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-background/60 hover:bg-background/90 border border-gold/25 hover:border-gold/50 text-gold-light/80 hover:text-gold-light flex items-center justify-center transition-all shadow-[0_0_12px_rgba(218,165,32,0.15)] hover:shadow-[0_0_16px_rgba(218,165,32,0.3)] z-10"
+                  >
+                    <X className="w-4 h-4" strokeWidth={2} />
+                  </button>
                   <span className="font-cinzel text-[10px] text-gold-light mb-3 inline-flex items-center gap-1.5">
                     <Sparkles className="w-3 h-3" strokeWidth={1.75} />Visão materializada
                   </span>
                   <img src={generatedImage} alt="Visão de Idriel" className="w-full max-w-[512px] mx-auto rounded-lg mb-4" />
-                  <div className="flex flex-wrap gap-2 justify-center">
+                  <div className="flex flex-wrap gap-2.5 justify-center">
                     <button onClick={() => { setSaveCat(FOLDER_FRUITS[0].name); setShowSaveModal(true); }}
-                      className="px-4 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold transition-colors">
-                      <Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />
-                      Guardar em uma pasta
+                      className="group relative px-5 py-2.5 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider text-background bg-gradient-to-br from-gold-light via-gold to-gold-deep border border-gold-light/50 shadow-[0_4px_20px_-4px_rgba(218,165,32,0.5)] hover:shadow-[0_6px_28px_-4px_rgba(218,165,32,0.75)] hover:-translate-y-0.5 active:translate-y-0 transition-all overflow-hidden">
+                      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                      <Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em] relative" strokeWidth={2} />
+                      <span className="relative">Guardar em uma pasta</span>
                     </button>
                     <a href={generatedImage} download target="_blank" rel="noopener"
-                      className="px-4 py-2 rounded-md text-xs font-montserrat border border-gold/30 text-text-secondary hover:text-foreground transition-colors">
-                      <ArrowDown className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Baixar
+                      className="group relative px-5 py-2.5 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider text-gold-light bg-gradient-to-br from-background via-blue-main/40 to-background border border-gold/40 hover:border-gold/70 hover:text-gold-cream shadow-[0_2px_12px_-2px_rgba(218,165,32,0.15)] hover:shadow-[0_4px_18px_-2px_rgba(218,165,32,0.35)] hover:-translate-y-0.5 active:translate-y-0 transition-all overflow-hidden">
+                      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                      <ArrowDown className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em] relative" strokeWidth={2} />
+                      <span className="relative">Baixar</span>
                     </a>
                   </div>
                 </div>
@@ -769,15 +779,21 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
 
               {/* Histórico */}
               {visions.length > 0 && (
-                <div className="mt-6 rounded-lg border border-gold/15 bg-gold/[0.03] p-4">
-                  <button onClick={() => setShowHistory(s => !s)} className="w-full flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="font-cinzel text-sm font-bold text-gold-light inline-flex items-center gap-2">
-                        <ScrollText className="w-4 h-4" strokeWidth={1.75} />Visões tecidas por Idriel
+                <div className="mt-6 rounded-lg border border-gold/15 bg-gradient-to-br from-gold/[0.04] via-transparent to-gold/[0.02] p-4">
+                  <button
+                    onClick={() => setShowHistory(s => !s)}
+                    aria-expanded={showHistory}
+                    className="group w-full flex items-center justify-between gap-3 px-3 py-2.5 -mx-1 -mt-1 mb-3 rounded-md bg-gradient-to-r from-gold/[0.06] via-gold/[0.10] to-gold/[0.06] hover:from-gold/[0.10] hover:via-gold/[0.16] hover:to-gold/[0.10] border border-gold/20 hover:border-gold/40 shadow-[inset_0_1px_0_rgba(255,220,150,0.08)] hover:shadow-[0_2px_16px_-4px_rgba(218,165,32,0.35),inset_0_1px_0_rgba(255,220,150,0.15)] transition-all cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2 min-w-0">
+                      <span className="font-cinzel text-sm font-bold bg-gradient-to-r from-gold-cream via-gold-light to-gold bg-clip-text text-transparent inline-flex items-center gap-2">
+                        <ScrollText className="w-4 h-4 text-gold-light" strokeWidth={1.75} />Visões tecidas por Idriel
                       </span>
-                      <span className="text-[10px] text-text-dim font-montserrat">({visions.length})</span>
-                    </div>
-                    {showHistory ? <ChevronUp className="w-4 h-4 text-gold-light/60" /> : <ChevronDown className="w-4 h-4 text-gold-light/60" />}
+                      <span className="text-[10px] text-gold-light/60 font-montserrat">({visions.length})</span>
+                    </span>
+                    {showHistory
+                      ? <ChevronUp className="w-4 h-4 text-gold-light/80 group-hover:text-gold-light transition-colors shrink-0" />
+                      : <ChevronDown className="w-4 h-4 text-gold-light/80 group-hover:text-gold-light transition-colors shrink-0" />}
                   </button>
                   {showHistory && (
                     <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
