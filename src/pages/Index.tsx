@@ -225,6 +225,20 @@ const Index = () => {
   const handleLoadWorld = useCallback(async (world: WorldRecord) => {
     // Ignora se já é o mundo ativo.
     if (world.id === state.currentSaveId) return;
+    // Flush pendentes do mundo atual (evita perder uploads/galerias recém-alterados).
+    if (state.currentSaveId && user) {
+      if (autoSaveTimer.current) { clearTimeout(autoSaveTimer.current); autoSaveTimer.current = null; }
+      if (gallerySaveTimer.current) { clearTimeout(gallerySaveTimer.current); gallerySaveTimer.current = null; }
+      try {
+        await updateWorld(state.currentSaveId, {
+          name: state.worldName || 'Mundo Sem Nome',
+          method: state.method,
+          db: state.db,
+          gallery: state.gallery,
+          folderCovers: state.folderCovers,
+        });
+      } catch { /* segue com o load mesmo se falhar */ }
+    }
     setWorldLoading({ name: world.name });
     try {
       // Se o card da lista veio leve (sem db/gallery), busca o payload completo.
