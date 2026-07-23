@@ -868,6 +868,60 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
       )}
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
+
+      {showReview && createPortal(
+        <div className="fixed inset-0 z-[100] bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+          <div className="card-glass rounded-xl w-full max-w-md p-6 animate-fadeUp border border-gold/30 shadow-[0_0_36px_rgba(218,165,32,0.25)]">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="font-cinzel font-bold text-lg text-gold-light">Confirmar visão</h3>
+                <p className="font-merriweather italic text-xs text-text-dim mt-0.5">Revise antes de gastar gotas.</p>
+              </div>
+              <button onClick={() => setShowReview(false)} className="p-1.5 rounded-full text-text-dim hover:text-foreground hover:bg-white/5 transition-colors" aria-label="Fechar"><X className="w-4 h-4" /></button>
+            </div>
+
+            <div className="flex gap-3 mb-4">
+              {(() => {
+                const s = STYLE_META.find(x => x.label === style);
+                return s?.image ? (
+                  <img src={s.image} alt={style} className="w-20 h-20 rounded-lg object-cover border border-gold/30 shrink-0" />
+                ) : (
+                  <div className="w-20 h-20 rounded-lg border border-gold/30 flex items-center justify-center bg-gold/[0.05] shrink-0">
+                    <Sparkles className="w-8 h-8 text-gold-champagne" strokeWidth={1.5} />
+                  </div>
+                );
+              })()}
+              <div className="flex-1 min-w-0">
+                <div className="font-cinzel text-sm text-foreground">{style}</div>
+                <div className="mt-1 flex flex-wrap gap-1.5">
+                  <span className="text-[10px] font-montserrat px-2 py-0.5 rounded-full border border-gold/20 text-gold-light bg-gold/[0.06]">{typeMeta.emoji} {typeMeta.label}</span>
+                  <span className="text-[10px] font-montserrat px-2 py-0.5 rounded-full border border-gold/20 text-gold-light bg-gold/[0.06]">{toneMeta.emoji} {toneMeta.label}</span>
+                  {pickedRefs.length > 0 && (
+                    <span className="text-[10px] font-montserrat px-2 py-0.5 rounded-full border border-gold/20 text-gold-light bg-gold/[0.06]">{pickedRefs.length} referência{pickedRefs.length > 1 ? 's' : ''}</span>
+                  )}
+                </div>
+                <div className="mt-2 font-merriweather italic text-[11px] text-gold-light/80 line-clamp-3">"{desc}"</div>
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-gold/20 bg-gold/[0.05] p-3 mb-4 flex items-center justify-between">
+              <div>
+                <div className="font-cinzel text-xs text-gold-light">Custo</div>
+                <div className="font-merriweather text-[10px] text-text-dim">Prompt + imagem · ~30s</div>
+              </div>
+              <div className="font-montserrat font-bold text-sm text-gold">4 gotas</div>
+            </div>
+
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setShowReview(false)} className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-border hover:text-foreground transition-colors">Cancelar</button>
+              <button onClick={confirmReview} className="px-5 py-2 rounded-md text-xs font-cinzel font-bold uppercase tracking-wider bg-gradient-to-r from-gold-bronze via-gold-warm to-gold-champagne text-background hover:shadow-[0_0_20px_rgba(218,165,32,0.5)] transition-all">
+                <Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Confirmar e gerar
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
