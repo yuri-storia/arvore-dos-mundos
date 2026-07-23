@@ -381,8 +381,6 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 mb-4 text-[11px] font-montserrat">
               <div><dt className="text-text-dim uppercase tracking-wider text-[9px]">Tipo</dt><dd className="text-foreground">{typeMeta.emoji} {typeMeta.label}</dd></div>
               <div><dt className="text-text-dim uppercase tracking-wider text-[9px]">Tom</dt><dd className="text-foreground">{toneMeta.emoji} {toneMeta.label}</dd></div>
-              {extras && <div className="sm:col-span-2"><dt className="text-text-dim uppercase tracking-wider text-[9px]">Pedido livre</dt><dd className="text-foreground font-merriweather italic">{extras}</dd></div>}
-              {pickedRefs.length > 0 && <div className="sm:col-span-2"><dt className="text-text-dim uppercase tracking-wider text-[9px]">Referências</dt><dd className="text-foreground">{pickedRefs.length} imagem(ns) do Codex/Galeria</dd></div>}
             </dl>
 
             <div className="rounded-lg border border-gold/20 bg-gold/[0.05] p-3 mb-4 flex items-center justify-between">
