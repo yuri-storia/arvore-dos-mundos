@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Map, Sparkles, Lock, Droplet, ArrowDown, RefreshCw, Wand2, Check, X } from 'lucide-react';
+import { Map, Sparkles, Lock, Droplet, ArrowDown, RefreshCw, Wand2, Check, X, FolderOpen, Save } from 'lucide-react';
 import { callAIText, callAIImage, friendlyAIError } from '@/lib/helpers';
-import { FRUITS } from '@/lib/data';
+import { FRUITS, type GalleryImage } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import idrielAvatar from '@/assets/idriel-avatar.webp';
 import mapPolitical from '@/assets/style-thumbs/map-political.jpg';
@@ -11,6 +11,9 @@ import mapExplorer from '@/assets/style-thumbs/map-explorer.jpg';
 import mapCity from '@/assets/style-thumbs/map-city.jpg';
 import { createPortal } from 'react-dom';
 import { StyleCarousel } from '@/components/StyleCarousel';
+import { toast } from 'sonner';
+
+const FOLDER_FRUITS = FRUITS.filter(f => f.id !== 10);
 
 interface MapStyle {
   id: string;
@@ -33,11 +36,12 @@ const MAP_STYLES: MapStyle[] = [
 interface Props {
   worldName: string;
   db: Record<number, Record<string, string>>;
+  addToGallery?: (img: GalleryImage) => void;
 }
 
 type Phase = 'idle' | 'prompt' | 'image';
 
-export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
+export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) => {
   const planLimits = usePlanLimits();
   const [selectedStyle, setSelectedStyle] = useState<string>('explorer');
   const [customDesc, setCustomDesc] = useState('');
@@ -45,6 +49,8 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
   const [phase, setPhase] = useState<Phase>('idle');
   const [error, setError] = useState('');
   const [showReview, setShowReview] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [saveCat, setSaveCat] = useState<string>(FOLDER_FRUITS[0].name);
 
   const styleObj = MAP_STYLES.find(s => s.id === selectedStyle)!;
   const isBusy = phase !== 'idle';
@@ -199,6 +205,15 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
             <img src={generatedImage} alt="Mapa gerado" className="w-full" />
           </div>
           <div className="flex flex-wrap gap-2">
+            {addToGallery && (
+              <button
+                onClick={() => { setSaveCat(FRUITS[0].name); setShowSaveModal(true); }}
+                className="group relative overflow-hidden px-4 py-1.5 rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider text-background bg-gradient-to-r from-gold-bronze via-gold-warm to-gold-champagne hover:shadow-[0_0_20px_rgba(218,165,32,0.5)] transition-all"
+              >
+                <FolderOpen className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />
+                Guardar em uma pasta
+              </button>
+            )}
             <a href={generatedImage} download={`mapa-${worldName || 'mundo'}.png`} className="px-3 py-1.5 border border-gold/30 text-gold-light text-[10px] font-montserrat font-bold uppercase rounded hover:bg-gold/10 transition-colors">
               <ArrowDown className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={2} />Download
             </a>
@@ -247,6 +262,58 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
               <button onClick={() => setShowReview(false)} className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-border hover:text-foreground transition-colors">Cancelar</button>
               <button onClick={runGeneration} className="px-5 py-2 rounded-md text-xs font-cinzel font-bold uppercase tracking-wider bg-gradient-to-r from-gold-bronze via-gold-warm to-gold-champagne text-background hover:shadow-[0_0_20px_rgba(218,165,32,0.5)] transition-all">
                 <Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Confirmar e gerar
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {showSaveModal && addToGallery && generatedImage && createPortal(
+        <div className="fixed inset-0 z-[100] bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+          <div className="card-glass rounded-xl w-full max-w-md p-6 animate-fadeUp border border-gold/30 shadow-[0_0_36px_rgba(218,165,32,0.25)]">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="font-cinzel font-bold text-lg text-gold-light inline-flex items-center gap-2">
+                  <FolderOpen className="w-4 h-4" />Guardar mapa em uma pasta
+                </h3>
+                <p className="font-merriweather italic text-xs text-text-dim mt-0.5">Escolha o Fruto onde deseja arquivar este mapa.</p>
+              </div>
+              <button onClick={() => setShowSaveModal(false)} className="p-1.5 rounded-full text-text-dim hover:text-foreground hover:bg-white/5 transition-colors" aria-label="Fechar"><X className="w-4 h-4" /></button>
+            </div>
+
+            <div className="rounded-lg overflow-hidden border border-gold/20 mb-4">
+              <img src={generatedImage} alt="Prévia do mapa" className="w-full max-h-48 object-cover" />
+            </div>
+
+            <label className="block font-cinzel text-xs text-gold-light mb-2">Pasta</label>
+            <select
+              value={saveCat}
+              onChange={e => setSaveCat(e.target.value)}
+              className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-gold/50 mb-4"
+            >
+              {FOLDER_FRUITS.map(f => (
+                <option key={f.id} value={f.name}>{f.name}</option>
+              ))}
+            </select>
+
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setShowSaveModal(false)} className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-border hover:text-foreground transition-colors">Cancelar</button>
+              <button
+                onClick={() => {
+                  addToGallery({
+                    id: Date.now().toString(),
+                    src: generatedImage,
+                    name: `Mapa — ${worldName || 'Mundo'}`,
+                    cat: saveCat,
+                    status: 'kept',
+                  });
+                  setShowSaveModal(false);
+                  toast.success(`Mapa guardado em "${saveCat}"`);
+                }}
+                className="px-5 py-2 rounded-md text-xs font-cinzel font-bold uppercase tracking-wider bg-gradient-to-r from-gold-bronze via-gold-warm to-gold-champagne text-background hover:shadow-[0_0_20px_rgba(218,165,32,0.5)] transition-all"
+              >
+                <Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Guardar
               </button>
             </div>
           </div>
