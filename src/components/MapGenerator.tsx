@@ -36,11 +36,12 @@ const MAP_STYLES: MapStyle[] = [
 interface Props {
   worldName: string;
   db: Record<number, Record<string, string>>;
+  addToGallery?: (img: GalleryImage) => void;
 }
 
 type Phase = 'idle' | 'prompt' | 'image';
 
-export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
+export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) => {
   const planLimits = usePlanLimits();
   const [selectedStyle, setSelectedStyle] = useState<string>('explorer');
   const [customDesc, setCustomDesc] = useState('');
@@ -48,6 +49,8 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
   const [phase, setPhase] = useState<Phase>('idle');
   const [error, setError] = useState('');
   const [showReview, setShowReview] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [saveCat, setSaveCat] = useState<string>(FOLDER_FRUITS[0].name);
 
   const styleObj = MAP_STYLES.find(s => s.id === selectedStyle)!;
   const isBusy = phase !== 'idle';
