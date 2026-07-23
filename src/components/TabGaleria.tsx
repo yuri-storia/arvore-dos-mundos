@@ -768,7 +768,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
 
 
               {generatedImage && !loading2 && (
-                <div className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20 relative">
+                <div ref={previewRef} className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20 relative scroll-mt-24">
                   <button
                     onClick={() => setGeneratedImage('')}
                     aria-label="Fechar visão materializada"
