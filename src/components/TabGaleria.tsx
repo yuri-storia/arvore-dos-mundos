@@ -592,17 +592,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                 </div>
               ) : (
                 <div className="space-y-5">
-                  <div className="card-glass rounded-lg p-5">
-                    <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Descreva sua visão</label>
-                    <textarea
-                      value={desc}
-                      onChange={e => setDesc(e.target.value)}
-                      placeholder="Ex.: A capital do meu reino élfico ao entardecer, com torres de cristal brilhando sob a luz dourada…"
-                      rows={3}
-                      className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50 resize-y"
-                    />
-                  </div>
-
+                  {/* 1) Estilo — carrossel */}
                   <section>
                     <div className="flex items-center justify-between mb-2">
                       <h2 className="font-cinzel text-sm text-gold-light inline-flex items-center gap-2">
@@ -611,38 +601,29 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                       </h2>
                       <span className="text-[10px] font-montserrat uppercase tracking-wider text-text-dim">{style}</span>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                      {STYLE_META.map(s => {
-                        const active = style === s.label;
-                        return (
-                          <button
-                            key={s.label}
-                            type="button"
-                            onClick={() => setStyle(s.label)}
-                            aria-pressed={active}
-                            className={`group relative aspect-square overflow-hidden rounded-xl border transition-all ${
-                              active
-                                ? 'border-gold ring-2 ring-gold/50 shadow-[0_0_18px_rgba(218,165,32,0.35)]'
-                                : 'border-gold/10 hover:border-gold/40'
-                            }`}
-                          >
-                            <img src={s.image} alt={s.label} loading="lazy" width={512} height={512} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-                            {active && (
-                              <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-gold text-background flex items-center justify-center shadow-[0_0_12px_rgba(218,165,32,0.6)]">
-                                <Check className="w-3.5 h-3.5" strokeWidth={3} />
-                              </div>
-                            )}
-                            <div className="absolute inset-x-0 bottom-0 p-2.5 text-left">
-                              <div className={`font-cinzel text-xs ${active ? 'text-gold-light' : 'text-foreground'}`}>{s.label}</div>
-                              <div className="font-merriweather text-[10px] text-text-dim leading-tight line-clamp-2">{s.description}</div>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <StyleCarousel
+                      items={STYLE_META.map(s => ({ id: s.label, label: s.label, description: s.description, image: s.image }))}
+                      selectedId={style}
+                      onSelect={setStyle}
+                    />
                   </section>
 
+                  {/* 2) Descrição + referências (+ inline) */}
+                  <div className="card-glass rounded-lg p-5 space-y-3">
+                    <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold">Descreva sua visão</label>
+                    <textarea
+                      value={desc}
+                      onChange={e => setDesc(e.target.value)}
+                      placeholder="Ex.: A capital do meu reino élfico ao entardecer, com torres de cristal brilhando sob a luz dourada. Adicione detalhes, cores, atmosfera — tudo que julgar necessário…"
+                      rows={4}
+                      className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50 resize-y"
+                    />
+                    <div className="pt-1">
+                      <ImageReferencePicker value={pickedRefs} onChange={setPickedRefs} gallery={gallery} codexEntries={codexEntries} max={3} />
+                    </div>
+                  </div>
+
+                  {/* 3) Tipo + Tom */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <section>
                       <h2 className="font-cinzel text-sm text-gold-light mb-2 inline-flex items-center gap-2">
@@ -697,42 +678,28 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                     </section>
                   </div>
 
-                  <div className="card-glass rounded-lg p-5 space-y-4">
-                    <div>
-                      <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Pedido livre (opcional)</label>
-                      <input
-                        type="text"
-                        value={extras}
-                        onChange={e => setExtras(e.target.value)}
-                        placeholder="Cores obrigatórias, elementos específicos, atmosfera adicional…"
-                        className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50"
-                      />
-                    </div>
-
-                    <div className="pt-2 border-t border-gold/10">
-                      <ImageReferencePicker value={pickedRefs} onChange={setPickedRefs} gallery={gallery} codexEntries={codexEntries} max={3} />
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-gold/10">
-                      <button onClick={handleCreatePrompt} disabled={loading1}
-                        className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold text-gold-light hover:bg-gold/10 disabled:opacity-40 transition-all">
-                        <Leaf className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />
-                        {loading1 ? 'Idriel está tecendo…' : '1. Pedir Visão a Idriel'}
-                      </button>
-                      <button onClick={handleGenerate} disabled={loading2 || !generatedPrompt}
-                        className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-all">
-                        <Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />
-                        {loading2 ? 'Materializando…' : '2. Materializar Visão'}
-                      </button>
-                    </div>
+                  {/* 4) Botão pulsante único */}
+                  <div className="flex flex-col items-center gap-2 pt-2">
+                    <button
+                      onClick={openReview}
+                      disabled={loading1 || loading2 || !desc.trim()}
+                      className="group relative inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full font-cinzel text-sm font-bold uppercase tracking-wider text-background bg-gradient-to-r from-gold-bronze via-gold-warm to-gold-champagne hover:from-gold-warm hover:via-gold-champagne hover:to-gold-cream shadow-[0_0_28px_rgba(218,165,32,0.45)] hover:shadow-[0_0_40px_rgba(218,165,32,0.65)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <span className="pointer-events-none absolute inset-0 rounded-full bg-gold/40 blur-xl opacity-70 animate-pulse -z-10" aria-hidden="true" />
+                      <Wand2 className="w-4 h-4" strokeWidth={2} />
+                      {(loading1 || loading2) ? 'Idriel está trabalhando…' : 'Gerar Imagem com Idriel'}
+                    </button>
+                    <p className="font-merriweather italic text-[11px] text-text-dim text-center max-w-md">
+                      Você poderá revisar todas as escolhas antes de confirmar o gasto de gotas.
+                    </p>
                   </div>
-
 
                   {error && <p className="text-red-alert text-sm mt-3">{error}</p>}
 
                   {(loading1 || loading2) && (
                     <div className="mt-4 animate-fadeUp">
                       <div className="flex items-center gap-3 mb-3">
+
                         <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gold/60 shadow-[0_0_16px_rgba(218,165,32,0.4)] shrink-0">
                           <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
                         </div>
