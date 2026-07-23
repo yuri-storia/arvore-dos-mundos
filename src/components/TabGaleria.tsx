@@ -246,7 +246,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
     setError('');
     const ctx = buildContext();
     const systemPrompt = 'You are an expert at writing image generation prompts. Respond ONLY with the prompt in English. The CODEX section lists canonical characters, places and concepts that already exist in this world — when the user references any of those names in their description, you MUST use the canonical descriptions provided (appearance, role, relationships) instead of inventing new ones. Be specific about visual details, lighting, composition, and artistic style.';
-    const userMsg = `World context:\n${ctx}\n\nDescription: ${desc}\nVisual style: ${style} (${styleMeta.promptHint})\nImage type: ${imgType}\nTone/Lighting: ${tone}\n${extras ? `Extra details: ${extras}` : ''}`;
+    const userMsg = `World context:\n${ctx}\n\nDescription: ${desc}\nVisual style: ${style} (${styleMeta.promptHint})\nImage type: ${imgType}\nTone/Lighting: ${tone}`;
     const jobId = `idriel-prompt-${Date.now()}`;
     setActivePromptJobId(jobId);
     idrielJobs.run({
