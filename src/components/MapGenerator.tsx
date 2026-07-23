@@ -52,6 +52,24 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) =
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState<string>(FOLDER_FRUITS[0].name);
 
+  type MapHistItem = { id: string; url: string; style: string; styleLabel: string; desc: string; createdAt: number };
+  const HIST_KEY = `adm_map_history_${worldName || '__default__'}`;
+  const [history, setHistory] = useState<MapHistItem[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(HIST_KEY);
+      setHistory(raw ? JSON.parse(raw) : []);
+    } catch { setHistory([]); }
+  }, [HIST_KEY]);
+
+  const persistHistory = (next: MapHistItem[]) => {
+    setHistory(next);
+    try { localStorage.setItem(HIST_KEY, JSON.stringify(next.slice(0, 30))); } catch {}
+  };
+  const deleteHistItem = (id: string) => persistHistory(history.filter(h => h.id !== id));
+
   const styleObj = MAP_STYLES.find(s => s.id === selectedStyle)!;
   const isBusy = phase !== 'idle';
 
