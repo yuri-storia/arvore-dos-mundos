@@ -59,6 +59,7 @@ export interface AppState {
   currentFruit: number;
   method: MethodType;
   gallery: GalleryImage[];
+  folderCovers: Record<number, string>;
   activeTab: TabType;
   apiKey: string;
   generatedPrompt: string;
