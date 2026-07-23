@@ -799,7 +799,7 @@ export const TabEscrever: React.FC<Props> = ({ worldId, worlds }) => {
                   <m.icon className="w-3.5 h-3.5" />
                   {!isMobile && m.label}
                 </button>
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 p-3 rounded-lg bg-[hsl(var(--bg-deep))] border border-blue-bright/20 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none">
+                <div className="hidden sm:block absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 max-w-[calc(100vw-1rem)] p-3 rounded-lg bg-[hsl(var(--bg-deep))] border border-blue-bright/20 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none">
                   <p className="font-montserrat font-bold text-xs text-blue-light mb-1">{m.label}</p>
                   <p className="font-merriweather text-[11px] text-text-secondary leading-relaxed">{m.desc}</p>
                 </div>
