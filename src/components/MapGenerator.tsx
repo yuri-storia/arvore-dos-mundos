@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Map, Sparkles, Lock, Droplet, ArrowDown, RefreshCw, Wand2, Check, X } from 'lucide-react';
+import { Map, Sparkles, Lock, Droplet, ArrowDown, RefreshCw, Wand2, Check, X, FolderOpen, Save } from 'lucide-react';
 import { callAIText, callAIImage, friendlyAIError } from '@/lib/helpers';
-import { FRUITS } from '@/lib/data';
+import { FRUITS, type GalleryImage } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import idrielAvatar from '@/assets/idriel-avatar.webp';
 import mapPolitical from '@/assets/style-thumbs/map-political.jpg';
@@ -11,6 +11,9 @@ import mapExplorer from '@/assets/style-thumbs/map-explorer.jpg';
 import mapCity from '@/assets/style-thumbs/map-city.jpg';
 import { createPortal } from 'react-dom';
 import { StyleCarousel } from '@/components/StyleCarousel';
+import { toast } from 'sonner';
+
+const FOLDER_FRUITS = FRUITS.filter(f => f.id !== 10);
 
 interface MapStyle {
   id: string;
