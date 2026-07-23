@@ -111,6 +111,8 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) =
       setPhase('image');
       const url = await callAIImage(prompt);
       setGeneratedImage(url);
+      const item: MapHistItem = { id: Date.now().toString(), url, style: styleObj.id, styleLabel: styleObj.label, desc: customDesc, createdAt: Date.now() };
+      persistHistory([item, ...history].slice(0, 30));
     } catch (e: any) {
       const f = friendlyAIError(e?.message || '');
       setError(`${f.title} ${f.hint}`);
