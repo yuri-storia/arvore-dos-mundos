@@ -268,6 +268,58 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) =
         </div>,
         document.body
       )}
+
+      {showSaveModal && addToGallery && generatedImage && createPortal(
+        <div className="fixed inset-0 z-[100] bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+          <div className="card-glass rounded-xl w-full max-w-md p-6 animate-fadeUp border border-gold/30 shadow-[0_0_36px_rgba(218,165,32,0.25)]">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="font-cinzel font-bold text-lg text-gold-light inline-flex items-center gap-2">
+                  <FolderOpen className="w-4 h-4" />Guardar mapa em uma pasta
+                </h3>
+                <p className="font-merriweather italic text-xs text-text-dim mt-0.5">Escolha o Fruto onde deseja arquivar este mapa.</p>
+              </div>
+              <button onClick={() => setShowSaveModal(false)} className="p-1.5 rounded-full text-text-dim hover:text-foreground hover:bg-white/5 transition-colors" aria-label="Fechar"><X className="w-4 h-4" /></button>
+            </div>
+
+            <div className="rounded-lg overflow-hidden border border-gold/20 mb-4">
+              <img src={generatedImage} alt="Prévia do mapa" className="w-full max-h-48 object-cover" />
+            </div>
+
+            <label className="block font-cinzel text-xs text-gold-light mb-2">Pasta</label>
+            <select
+              value={saveCat}
+              onChange={e => setSaveCat(e.target.value)}
+              className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-gold/50 mb-4"
+            >
+              {FOLDER_FRUITS.map(f => (
+                <option key={f.id} value={f.name}>{f.name}</option>
+              ))}
+            </select>
+
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setShowSaveModal(false)} className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-border hover:text-foreground transition-colors">Cancelar</button>
+              <button
+                onClick={() => {
+                  addToGallery({
+                    id: Date.now().toString(),
+                    src: generatedImage,
+                    name: `Mapa — ${worldName || 'Mundo'}`,
+                    cat: saveCat,
+                    status: 'kept',
+                  });
+                  setShowSaveModal(false);
+                  toast.success(`Mapa guardado em "${saveCat}"`);
+                }}
+                className="px-5 py-2 rounded-md text-xs font-cinzel font-bold uppercase tracking-wider bg-gradient-to-r from-gold-bronze via-gold-warm to-gold-champagne text-background hover:shadow-[0_0_20px_rgba(218,165,32,0.5)] transition-all"
+              >
+                <Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Guardar
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
