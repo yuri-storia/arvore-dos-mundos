@@ -202,6 +202,7 @@ const Index = () => {
         db: data.db,
         method: data.method,
         gallery: data.gallery,
+        folderCovers: (data as any).folderCovers || {},
         currentFruit: 0,
         currentSaveId: data.id,
         generatedPrompt: '',
