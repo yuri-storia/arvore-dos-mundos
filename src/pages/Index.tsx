@@ -261,7 +261,7 @@ const Index = () => {
     } finally {
       setTimeout(() => setWorldLoading(null), 250);
     }
-  }, [loadWorldFull, state.currentSaveId]);
+  }, [loadWorldFull, state, user, updateWorld]);
 
   const handleNewWorld = useCallback(() => {
     setState(createNewState());
