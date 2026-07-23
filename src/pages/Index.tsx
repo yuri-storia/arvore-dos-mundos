@@ -153,7 +153,7 @@ const Index = () => {
     }
   }, [state.activeTab]);
 
-  // Auto-save to database
+  // Auto-save principal (nome/método/db) — debounce 2s (mudanças são por keystroke)
   useEffect(() => {
     if (!state.currentSaveId || !user) return;
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
@@ -162,12 +162,47 @@ const Index = () => {
         name: state.worldName || 'Mundo Sem Nome',
         method: state.method,
         db: state.db,
-        gallery: state.gallery,
-        folderCovers: state.folderCovers,
       });
     }, 2000);
     return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
-  }, [state.worldName, state.db, state.method, state.gallery, state.folderCovers, state.currentSaveId, user, updateWorld]);
+  }, [state.worldName, state.db, state.method, state.currentSaveId, user, updateWorld]);
+
+  // Auto-save de galeria e capas — debounce curto (ações explícitas: upload/mover/excluir)
+  // Persiste rapidamente para evitar perda ao trocar de mundo ou recarregar.
+  const gallerySaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!state.currentSaveId || !user) return;
+    if (gallerySaveTimer.current) clearTimeout(gallerySaveTimer.current);
+    gallerySaveTimer.current = setTimeout(() => {
+      updateWorld(state.currentSaveId, {
+        gallery: state.gallery,
+        folderCovers: state.folderCovers,
+      });
+    }, 400);
+    return () => { if (gallerySaveTimer.current) clearTimeout(gallerySaveTimer.current); };
+  }, [state.gallery, state.folderCovers, state.currentSaveId, user, updateWorld]);
+
+  // Flush síncrono ao fechar a aba / navegar: garante persistência de uploads recentes.
+  useEffect(() => {
+    const flush = () => {
+      if (!state.currentSaveId || !user) return;
+      if (autoSaveTimer.current) { clearTimeout(autoSaveTimer.current); autoSaveTimer.current = null; }
+      if (gallerySaveTimer.current) { clearTimeout(gallerySaveTimer.current); gallerySaveTimer.current = null; }
+      updateWorld(state.currentSaveId, {
+        name: state.worldName || 'Mundo Sem Nome',
+        method: state.method,
+        db: state.db,
+        gallery: state.gallery,
+        folderCovers: state.folderCovers,
+      });
+    };
+    window.addEventListener('beforeunload', flush);
+    window.addEventListener('pagehide', flush);
+    return () => {
+      window.removeEventListener('beforeunload', flush);
+      window.removeEventListener('pagehide', flush);
+    };
+  }, [state, user, updateWorld]);
 
   const handleCreateWorld = useCallback(async () => {
     if (!user) { toast.error('Faça login para criar um mundo'); return; }
@@ -190,6 +225,20 @@ const Index = () => {
   const handleLoadWorld = useCallback(async (world: WorldRecord) => {
     // Ignora se já é o mundo ativo.
     if (world.id === state.currentSaveId) return;
+    // Flush pendentes do mundo atual (evita perder uploads/galerias recém-alterados).
+    if (state.currentSaveId && user) {
+      if (autoSaveTimer.current) { clearTimeout(autoSaveTimer.current); autoSaveTimer.current = null; }
+      if (gallerySaveTimer.current) { clearTimeout(gallerySaveTimer.current); gallerySaveTimer.current = null; }
+      try {
+        await updateWorld(state.currentSaveId, {
+          name: state.worldName || 'Mundo Sem Nome',
+          method: state.method,
+          db: state.db,
+          gallery: state.gallery,
+          folderCovers: state.folderCovers,
+        });
+      } catch { /* segue com o load mesmo se falhar */ }
+    }
     setWorldLoading({ name: world.name });
     try {
       // Se o card da lista veio leve (sem db/gallery), busca o payload completo.
@@ -212,7 +261,7 @@ const Index = () => {
     } finally {
       setTimeout(() => setWorldLoading(null), 250);
     }
-  }, [loadWorldFull, state.currentSaveId]);
+  }, [loadWorldFull, state, user, updateWorld]);
 
   const handleNewWorld = useCallback(() => {
     setState(createNewState());
