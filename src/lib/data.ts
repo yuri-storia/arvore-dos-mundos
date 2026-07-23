@@ -335,10 +335,6 @@ export interface OptionMeta {
   description: string;
   icon: LucideIcon;
 }
-  label: string;
-  description: string;
-  icon: LucideIcon;
-}
 
 export const IMAGE_TYPE_META: OptionMeta[] = [
   { label: 'Cenário / Paisagem',        description: 'Vista ampla de um lugar.',       icon: Mountain },
