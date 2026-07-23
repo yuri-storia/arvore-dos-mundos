@@ -330,32 +330,38 @@ export const STYLE_META: StyleMeta[] = [
 
 export const STYLE_OPTIONS = STYLE_META.map(s => s.label);
 
+import type { LucideIcon } from 'lucide-react';
+import {
+  Mountain, User, UserCircle2, Ghost, Sword, Castle, Swords, Map as MapIcon,
+  Sparkles, Moon, Cloud, Flame, Snowflake, Drama,
+} from 'lucide-react';
+
 export interface OptionMeta {
   label: string;
   description: string;
-  emoji: string;
+  icon: LucideIcon;
 }
 
 export const IMAGE_TYPE_META: OptionMeta[] = [
-  { label: 'Cenário / Paisagem',        description: 'Vista ampla de um lugar.',       emoji: '🏞️' },
-  { label: 'Personagem (corpo inteiro)',description: 'Figura de pé, completa.',        emoji: '🧝' },
-  { label: 'Retrato de personagem',     description: 'Close no rosto e ombros.',       emoji: '👤' },
-  { label: 'Criatura / Monstro',        description: 'Bestas e seres fantásticos.',    emoji: '🐉' },
-  { label: 'Objeto / Artefato mágico',  description: 'Item isolado em destaque.',      emoji: '🗡️' },
-  { label: 'Cidade / Arquitetura',      description: 'Construções e conjuntos.',       emoji: '🏰' },
-  { label: 'Batalha / Cena de ação',    description: 'Movimento e conflito.',          emoji: '⚔️' },
-  { label: 'Mapa / Cartografia',        description: 'Vista de topo com legendas.',    emoji: '🗺️' },
+  { label: 'Cenário / Paisagem',        description: 'Vista ampla de um lugar.',       icon: Mountain },
+  { label: 'Personagem (corpo inteiro)',description: 'Figura de pé, completa.',        icon: User },
+  { label: 'Retrato de personagem',     description: 'Close no rosto e ombros.',       icon: UserCircle2 },
+  { label: 'Criatura / Monstro',        description: 'Bestas e seres fantásticos.',    icon: Ghost },
+  { label: 'Objeto / Artefato mágico',  description: 'Item isolado em destaque.',      icon: Sword },
+  { label: 'Cidade / Arquitetura',      description: 'Construções e conjuntos.',       icon: Castle },
+  { label: 'Batalha / Cena de ação',    description: 'Movimento e conflito.',          icon: Swords },
+  { label: 'Mapa / Cartografia',        description: 'Vista de topo com legendas.',    icon: MapIcon },
 ];
 
 export const IMAGE_TYPE_OPTIONS = IMAGE_TYPE_META.map(o => o.label);
 
 export const TONE_META: OptionMeta[] = [
-  { label: 'Épico e grandioso',        description: 'Luz radiante, escala monumental.', emoji: '✨' },
-  { label: 'Sombrio e ominoso',        description: 'Sombras densas, presságio.',       emoji: '🌑' },
-  { label: 'Místico e etéreo',         description: 'Brumas suaves, luz difusa.',       emoji: '🌫️' },
-  { label: 'Quente e acolhedor',       description: 'Tons dourados de fogueira.',       emoji: '🔥' },
-  { label: 'Frio e desolado',          description: 'Azuis gélidos, silêncio.',         emoji: '❄️' },
-  { label: 'Dramático (luz e sombra)', description: 'Contraste teatral chiaroscuro.',   emoji: '🎭' },
+  { label: 'Épico e grandioso',        description: 'Luz radiante, escala monumental.', icon: Sparkles },
+  { label: 'Sombrio e ominoso',        description: 'Sombras densas, presságio.',       icon: Moon },
+  { label: 'Místico e etéreo',         description: 'Brumas suaves, luz difusa.',       icon: Cloud },
+  { label: 'Quente e acolhedor',       description: 'Tons dourados de fogueira.',       icon: Flame },
+  { label: 'Frio e desolado',          description: 'Azuis gélidos, silêncio.',         icon: Snowflake },
+  { label: 'Dramático (luz e sombra)', description: 'Contraste teatral chiaroscuro.',   icon: Drama },
 ];
 
 export const TONE_OPTIONS = TONE_META.map(o => o.label);
