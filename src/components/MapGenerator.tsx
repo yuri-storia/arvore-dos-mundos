@@ -10,6 +10,7 @@ import mapNautical from '@/assets/style-thumbs/map-nautical.jpg';
 import mapExplorer from '@/assets/style-thumbs/map-explorer.jpg';
 import mapCity from '@/assets/style-thumbs/map-city.jpg';
 import { createPortal } from 'react-dom';
+import { StyleCarousel } from '@/components/StyleCarousel';
 
 interface MapStyle {
   id: string;
