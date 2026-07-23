@@ -75,9 +75,9 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const [showGenerator, setShowGenerator] = useState(false);
   const { worldName, db, generatedPrompt } = state;
   const [desc, setDesc] = useState('');
-  const [style, setStyle] = useState(STYLE_OPTIONS[0]);
-  const [imgType, setImgType] = useState(IMAGE_TYPE_OPTIONS[0]);
-  const [tone, setTone] = useState(TONE_OPTIONS[0]);
+  const [style, setStyle] = useState(STYLE_META[0].label);
+  const [imgType, setImgType] = useState(IMAGE_TYPE_META[0].label);
+  const [tone, setTone] = useState(TONE_META[0].label);
   const [extras, setExtras] = useState('');
   const [pickedRefs, setPickedRefs] = useState<PickedReference[]>([]);
   const [generatedImage, setGeneratedImage] = useState('');
@@ -97,6 +97,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const imageJob = activeImageJobId ? idrielJobs.get<string>(activeImageJobId) : undefined;
   const loading1 = promptJob?.status === 'running';
   const loading2 = imageJob?.status === 'running';
+  const styleMeta = STYLE_META.find(s => s.label === style) || STYLE_META[0];
 
   useEffect(() => {
     if (promptJob?.status === 'done' && typeof promptJob.result === 'string' && promptJob.result) setGeneratedPrompt(promptJob.result);
