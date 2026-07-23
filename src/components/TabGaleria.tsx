@@ -825,10 +825,10 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
         </div>
       )}
 
-      {/* Save-to-folder modal */}
-      {showSaveModal && (
-        <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-3 sm:p-4" onClick={() => setShowSaveModal(false)}>
-          <div className="card-glass rounded-lg w-full max-w-md p-5 animate-fadeUp border border-gold/20" onClick={e => e.stopPropagation()}>
+      {/* Save-to-folder modal (portal → escapes transformed ancestors) */}
+      {showSaveModal && createPortal(
+        <div className="fixed inset-0 z-[120] bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto" onClick={() => setShowSaveModal(false)}>
+          <div className="card-glass rounded-lg w-full max-w-md p-5 animate-fadeUp border border-gold/30 shadow-[0_0_36px_rgba(218,165,32,0.25)] my-auto" onClick={e => e.stopPropagation()}>
             <h3 className="font-cinzel font-bold text-foreground mb-1 inline-flex items-center gap-2">
               <FolderOpen className="w-4 h-4 text-gold-champagne" strokeWidth={1.75} />Categorizar visão
             </h3>
@@ -848,8 +848,10 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
+
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
 
