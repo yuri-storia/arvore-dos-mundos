@@ -733,8 +733,9 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                             />
                           </div>
                           <p className="text-[9px] text-text-dim/50 mt-1 font-montserrat">
-                            {loading1 ? 'Etapa 1/2 — Criando prompt' : 'Etapa 2/2 — Gerando imagem (até 30s)'}
+                            {loading1 ? 'Preparando visão…' : 'Materializando (até 30s)'}
                           </p>
+
                         </div>
                       </div>
                     </div>
