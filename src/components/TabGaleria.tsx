@@ -279,6 +279,23 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
 
   const copyPrompt = () => { navigator.clipboard.writeText(generatedPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); };
 
+  const typeMeta = IMAGE_TYPE_META.find(t => t.label === imgType) || IMAGE_TYPE_META[0];
+  const toneMeta = TONE_META.find(t => t.label === tone) || TONE_META[0];
+
+  const openReview = () => {
+    setError('');
+    if (!planLimits.canUseAI) { setError('Idriel precisa do plano ativo para canalizar o Elixir dos Mundos.'); return; }
+    if (!desc.trim()) { setError('Descreva a visão que deseja materializar.'); return; }
+    if (!worldId) { setError('Selecione um mundo antes de invocar Idriel.'); return; }
+    setShowReview(true);
+  };
+
+  const confirmReview = () => {
+    setShowReview(false);
+    setAutoGenerate(true);
+    handleCreatePrompt();
+  };
+
   const confirmSave = () => {
     if (!generatedImage) return;
     // Save directly into the chosen folder (no "unsorted" step — fluxo mais direto)
