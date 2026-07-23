@@ -163,10 +163,11 @@ const Index = () => {
         method: state.method,
         db: state.db,
         gallery: state.gallery,
+        folderCovers: state.folderCovers,
       });
     }, 2000);
     return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
-  }, [state.worldName, state.db, state.method, state.gallery, state.currentSaveId, user, updateWorld]);
+  }, [state.worldName, state.db, state.method, state.gallery, state.folderCovers, state.currentSaveId, user, updateWorld]);
 
   const handleCreateWorld = useCallback(async () => {
     if (!user) { toast.error('Faça login para criar um mundo'); return; }
