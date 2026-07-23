@@ -733,8 +733,9 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                             />
                           </div>
                           <p className="text-[9px] text-text-dim/50 mt-1 font-montserrat">
-                            {loading1 ? 'Etapa 1/2 — Criando prompt' : 'Etapa 2/2 — Gerando imagem (até 30s)'}
+                            {loading1 ? 'Preparando visão…' : 'Materializando (até 30s)'}
                           </p>
+
                         </div>
                       </div>
                     </div>
@@ -742,24 +743,8 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                 </div>
               )}
 
-              {generatedPrompt && !loading1 && planLimits.canUseAI && (
-                <div className="animate-fadeUp card-glass rounded-lg p-5 mb-5 border border-gold/20">
-                  <span className="font-cinzel text-[10px] text-gold-light mb-2 inline-flex items-center gap-1.5">
-                    <Leaf className="w-3 h-3" strokeWidth={1.75} />Visão tecida por Idriel
-                  </span>
-                  <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed mb-4">{generatedPrompt}</p>
-                  <div className="flex flex-wrap gap-2">
-                    <button onClick={copyPrompt} className="px-3 py-1.5 rounded-md text-xs font-montserrat border border-gold/30 text-text-secondary hover:text-foreground transition-colors">
-                      {copied ? <><Check className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Copiado!</>
-                              : <><ClipboardCopy className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Copiar</>}
-                    </button>
-                    <button onClick={handleGenerate} disabled={loading2}
-                      className="px-3 py-1.5 rounded-md text-xs font-montserrat bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-colors">
-                      <Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Materializar Visão
-                    </button>
-                  </div>
-                </div>
-              )}
+
+
 
               {generatedImage && !loading2 && (
                 <div className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20">
@@ -840,10 +825,10 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
         </div>
       )}
 
-      {/* Save-to-folder modal */}
-      {showSaveModal && (
-        <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-3 sm:p-4" onClick={() => setShowSaveModal(false)}>
-          <div className="card-glass rounded-lg w-full max-w-md p-5 animate-fadeUp border border-gold/20" onClick={e => e.stopPropagation()}>
+      {/* Save-to-folder modal (portal → escapes transformed ancestors) */}
+      {showSaveModal && createPortal(
+        <div className="fixed inset-0 z-[120] bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto" onClick={() => setShowSaveModal(false)}>
+          <div className="card-glass rounded-lg w-full max-w-md p-5 animate-fadeUp border border-gold/30 shadow-[0_0_36px_rgba(218,165,32,0.25)] my-auto" onClick={e => e.stopPropagation()}>
             <h3 className="font-cinzel font-bold text-foreground mb-1 inline-flex items-center gap-2">
               <FolderOpen className="w-4 h-4 text-gold-champagne" strokeWidth={1.75} />Categorizar visão
             </h3>
@@ -863,8 +848,10 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
+
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
 
