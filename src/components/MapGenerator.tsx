@@ -205,6 +205,15 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) =
             <img src={generatedImage} alt="Mapa gerado" className="w-full" />
           </div>
           <div className="flex flex-wrap gap-2">
+            {addToGallery && (
+              <button
+                onClick={() => { setSaveCat(FRUITS[0].name); setShowSaveModal(true); }}
+                className="group relative overflow-hidden px-4 py-1.5 rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider text-background bg-gradient-to-r from-gold-bronze via-gold-warm to-gold-champagne hover:shadow-[0_0_20px_rgba(218,165,32,0.5)] transition-all"
+              >
+                <FolderOpen className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />
+                Guardar em uma pasta
+              </button>
+            )}
             <a href={generatedImage} download={`mapa-${worldName || 'mundo'}.png`} className="px-3 py-1.5 border border-gold/30 text-gold-light text-[10px] font-montserrat font-bold uppercase rounded hover:bg-gold/10 transition-colors">
               <ArrowDown className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={2} />Download
             </a>
