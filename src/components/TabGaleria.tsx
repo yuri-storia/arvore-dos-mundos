@@ -588,62 +588,142 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                   </div>
                 </div>
               ) : (
-                <div className="card-glass rounded-lg p-5 mb-5">
-                  <div className="space-y-4">
+                <div className="space-y-5">
+                  <div className="card-glass rounded-lg p-5">
+                    <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Descreva sua visão</label>
+                    <textarea
+                      value={desc}
+                      onChange={e => setDesc(e.target.value)}
+                      placeholder="Ex.: A capital do meu reino élfico ao entardecer, com torres de cristal brilhando sob a luz dourada…"
+                      rows={3}
+                      className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50 resize-y"
+                    />
+                  </div>
+
+                  <section>
+                    <div className="flex items-center justify-between mb-2">
+                      <h2 className="font-cinzel text-sm text-gold-light inline-flex items-center gap-2">
+                        <span className="w-1 h-4 bg-gradient-to-b from-gold to-transparent rounded-full" />
+                        Estilo visual
+                      </h2>
+                      <span className="text-[10px] font-montserrat uppercase tracking-wider text-text-dim">{style}</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                      {STYLE_META.map(s => {
+                        const active = style === s.label;
+                        return (
+                          <button
+                            key={s.label}
+                            type="button"
+                            onClick={() => setStyle(s.label)}
+                            aria-pressed={active}
+                            className={`group relative aspect-square overflow-hidden rounded-xl border transition-all ${
+                              active
+                                ? 'border-gold ring-2 ring-gold/50 shadow-[0_0_18px_rgba(218,165,32,0.35)]'
+                                : 'border-gold/10 hover:border-gold/40'
+                            }`}
+                          >
+                            <img src={s.image} alt={s.label} loading="lazy" width={512} height={512} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                            {active && (
+                              <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-gold text-background flex items-center justify-center shadow-[0_0_12px_rgba(218,165,32,0.6)]">
+                                <Check className="w-3.5 h-3.5" strokeWidth={3} />
+                              </div>
+                            )}
+                            <div className="absolute inset-x-0 bottom-0 p-2.5 text-left">
+                              <div className={`font-cinzel text-xs ${active ? 'text-gold-light' : 'text-foreground'}`}>{s.label}</div>
+                              <div className="font-merriweather text-[10px] text-text-dim leading-tight line-clamp-2">{s.description}</div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </section>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <section>
+                      <h2 className="font-cinzel text-sm text-gold-light mb-2 inline-flex items-center gap-2">
+                        <span className="w-1 h-4 bg-gradient-to-b from-gold to-transparent rounded-full" />
+                        Tipo de imagem
+                      </h2>
+                      <div className="grid grid-cols-2 gap-2">
+                        {IMAGE_TYPE_META.map(o => {
+                          const active = imgType === o.label;
+                          return (
+                            <button
+                              key={o.label}
+                              type="button"
+                              onClick={() => setImgType(o.label)}
+                              aria-pressed={active}
+                              className={`flex items-center gap-2 rounded-lg border p-2.5 text-left transition-all ${
+                                active ? 'border-gold bg-gold/[0.08] shadow-[0_0_10px_rgba(218,165,32,0.2)]' : 'border-gold/10 hover:border-gold/30 bg-[rgba(4,12,24,0.4)]'
+                              }`}
+                            >
+                              <span className="text-lg leading-none">{o.emoji}</span>
+                              <span className={`text-[11px] font-montserrat font-semibold leading-tight ${active ? 'text-gold-light' : 'text-foreground'}`}>{o.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </section>
+
+                    <section>
+                      <h2 className="font-cinzel text-sm text-gold-light mb-2 inline-flex items-center gap-2">
+                        <span className="w-1 h-4 bg-gradient-to-b from-gold to-transparent rounded-full" />
+                        Tom / Iluminação
+                      </h2>
+                      <div className="grid grid-cols-2 gap-2">
+                        {TONE_META.map(o => {
+                          const active = tone === o.label;
+                          return (
+                            <button
+                              key={o.label}
+                              type="button"
+                              onClick={() => setTone(o.label)}
+                              aria-pressed={active}
+                              className={`flex items-center gap-2 rounded-lg border p-2.5 text-left transition-all ${
+                                active ? 'border-gold bg-gold/[0.08] shadow-[0_0_10px_rgba(218,165,32,0.2)]' : 'border-gold/10 hover:border-gold/30 bg-[rgba(4,12,24,0.4)]'
+                              }`}
+                            >
+                              <span className="text-lg leading-none">{o.emoji}</span>
+                              <span className={`text-[11px] font-montserrat font-semibold leading-tight ${active ? 'text-gold-light' : 'text-foreground'}`}>{o.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  </div>
+
+                  <div className="card-glass rounded-lg p-5 space-y-4">
                     <div>
-                      <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Descreva sua visão em português</label>
-                      <textarea
-                        value={desc} onChange={e => setDesc(e.target.value)}
-                        placeholder="Ex: A capital do meu reino élfico ao entardecer, com torres de cristal brilhando sob a luz dourada…"
-                        rows={3}
-                        className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50 resize-y"
+                      <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Pedido livre (opcional)</label>
+                      <input
+                        type="text"
+                        value={extras}
+                        onChange={e => setExtras(e.target.value)}
+                        placeholder="Cores obrigatórias, elementos específicos, atmosfera adicional…"
+                        className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50"
                       />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Estilo Visual</label>
-                        <select value={style} onChange={e => setStyle(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-gold/50">
-                          {STYLE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Tipo de Imagem</label>
-                        <select value={imgType} onChange={e => setImgType(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-gold/50">
-                          {IMAGE_TYPE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Tom / Iluminação</label>
-                        <select value={tone} onChange={e => setTone(e.target.value)} className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 rounded-md px-3 py-2 text-sm text-foreground focus:outline-none focus:border-gold/50">
-                          {TONE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-                        </select>
-                      </div>
+
+                    <div className="pt-2 border-t border-gold/10">
+                      <ImageReferencePicker value={pickedRefs} onChange={setPickedRefs} gallery={gallery} codexEntries={codexEntries} max={3} />
                     </div>
-                    <div>
-                      <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Detalhes extras (opcional)</label>
-                      <input type="text" value={extras} onChange={e => setExtras(e.target.value)}
-                        placeholder="Cores, elementos obrigatórios, atmosfera…"
-                        className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50"
-                      />
+
+                    <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-gold/10">
+                      <button onClick={handleCreatePrompt} disabled={loading1}
+                        className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold text-gold-light hover:bg-gold/10 disabled:opacity-40 transition-all">
+                        <Leaf className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />
+                        {loading1 ? 'Idriel está tecendo…' : '1. Pedir Visão a Idriel'}
+                      </button>
+                      <button onClick={handleGenerate} disabled={loading2 || !generatedPrompt}
+                        className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-all">
+                        <Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />
+                        {loading2 ? 'Materializando…' : '2. Materializar Visão'}
+                      </button>
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-gold/10">
-                    <ImageReferencePicker value={pickedRefs} onChange={setPickedRefs} gallery={gallery} codexEntries={codexEntries} max={3} />
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-3 mt-5">
-                    <button onClick={handleCreatePrompt} disabled={loading1}
-                      className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold text-gold-light hover:bg-gold/10 disabled:opacity-40 transition-all">
-                      <Leaf className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />
-                      {loading1 ? 'Idriel está tecendo…' : '1. Pedir Visão a Idriel'}
-                    </button>
-                    <button onClick={handleGenerate} disabled={loading2 || !generatedPrompt}
-                      className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-all">
-                      <Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />
-                      {loading2 ? 'Materializando…' : '2. Materializar Visão'}
-                    </button>
-                  </div>
 
                   {error && <p className="text-red-alert text-sm mt-3">{error}</p>}
 
