@@ -70,6 +70,13 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) =
   };
   const deleteHistItem = (id: string) => persistHistory(history.filter(h => h.id !== id));
 
+  const previewRef = React.useRef<HTMLDivElement>(null);
+  const reopen = (url: string) => {
+    setGeneratedImage(url);
+    setError('');
+    setTimeout(() => previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  };
+
   const styleObj = MAP_STYLES.find(s => s.id === selectedStyle)!;
   const isBusy = phase !== 'idle';
 
