@@ -102,7 +102,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
       setPhase('prompt');
       const ctx = buildContext();
       const systemPrompt = 'You are an expert at writing image generation prompts. Respond ONLY with the prompt in English. Be specific about visual details, lighting, composition, and artistic style.';
-      const userMsg = `World context:\n${ctx}\n\nDescription: ${desc}\nVisual style: ${style} (${styleMeta.promptHint})\nImage type: ${imgType}\nTone/Lighting: ${tone}\n${extras ? `Extra details: ${extras}` : ''}`;
+      const userMsg = `World context:\n${ctx}\n\nDescription: ${desc}\nVisual style: ${style} (${styleMeta.promptHint})\nImage type: ${imgType}\nTone/Lighting: ${tone}`;
       const prompt = await callAIText([{ role: 'user', content: userMsg }], systemPrompt);
       setGeneratedPrompt(prompt);
 
@@ -110,9 +110,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
       setPhase('image');
       let url: string;
       if (quality === 'standard') {
-        const structured = pickedRefs.map(r => ({ url: r.url, intent: r.intent }));
-        const legacyUrls = structured.length > 0 ? [] : autoPack.imageUrls;
-        url = await callAIImageConsistent(prompt, legacyUrls, autoPack.referenceText, structured);
+        url = await callAIImageConsistent(prompt, autoPack.imageUrls, autoPack.referenceText, []);
       } else {
         url = await callAIImage(prompt, quality);
       }
