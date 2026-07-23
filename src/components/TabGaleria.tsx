@@ -105,7 +105,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   useEffect(() => {
     if (promptJob?.status === 'done' && typeof promptJob.result === 'string' && promptJob.result) {
       setGeneratedPrompt(promptJob.result);
-      if (autoGenerate) { setAutoGenerate(false); handleGenerate(); }
+      if (autoGenerate) { setAutoGenerate(false); handleGenerate(promptJob.result); }
     }
     if (promptJob?.status === 'error') { setAutoGenerate(false); const f = friendlyAIError(promptJob.error || ''); setError(`${f.title} ${f.hint}`); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
