@@ -203,7 +203,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
                     active ? 'border-gold bg-gold/[0.08] shadow-[0_0_10px_rgba(218,165,32,0.2)]' : 'border-gold/10 hover:border-gold/30 bg-[rgba(4,12,24,0.4)]'
                   }`}
                 >
-                  <span className="text-lg leading-none">{o.emoji}</span>
+                  <o.icon className={`w-5 h-5 shrink-0 ${active ? 'text-gold-light drop-shadow-[0_0_6px_rgba(218,165,32,0.85)]' : 'text-gold-champagne/80 drop-shadow-[0_0_4px_rgba(218,165,32,0.35)]'}`} strokeWidth={1.75} />
                   <span className={`text-[11px] font-montserrat font-semibold leading-tight ${active ? 'text-gold-light' : 'text-foreground'}`}>{o.label}</span>
                 </button>
               );
