@@ -821,8 +821,9 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                         <div key={v.id} className="flex gap-3 rounded-md border border-gold/10 bg-background/40 p-3">
                           {v.image_url ? (
                             <img src={v.image_url} alt={v.description} loading="lazy"
-                              className="w-20 h-20 object-cover rounded cursor-zoom-in flex-shrink-0"
-                              onClick={() => v.image_url && setLightbox({ src: v.image_url, alt: v.description })}
+                              title="Reabrir no preview"
+                              className="w-20 h-20 object-cover rounded cursor-pointer flex-shrink-0 hover:ring-2 hover:ring-gold/40 transition-all"
+                              onClick={() => v.image_url && reopenVision(v.image_url, v.description, v.prompt)}
                             />
                           ) : (
                             <div className="w-20 h-20 rounded bg-gold/5 border border-gold/10 flex items-center justify-center flex-shrink-0 text-gold-light/40 text-xs italic">(sem img)</div>
