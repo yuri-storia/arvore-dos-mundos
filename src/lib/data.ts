@@ -330,13 +330,11 @@ export const STYLE_META: StyleMeta[] = [
 
 export const STYLE_OPTIONS = STYLE_META.map(s => s.label);
 
-import type { LucideIcon } from 'lucide-react';
-import {
-  Mountain, User, UserCircle2, Ghost, Sword, Castle, Swords, Map as MapIcon,
-  Sparkles, Moon, Cloud, Flame, Snowflake, Drama,
-} from 'lucide-react';
-
 export interface OptionMeta {
+  label: string;
+  description: string;
+  icon: LucideIcon;
+}
   label: string;
   description: string;
   icon: LucideIcon;
