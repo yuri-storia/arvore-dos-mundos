@@ -105,8 +105,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
       setPhase('image');
       const url = await callAIImage(prompt);
       setGeneratedImage(url);
-      const item: MapHistItem = { id: Date.now().toString(), url, style: styleObj.id, styleLabel: styleObj.label, desc: customDesc, createdAt: Date.now() };
-      persistHistory([item, ...history].slice(0, 30));
+      await addMap({ image_url: url, style: styleObj.id, style_label: styleObj.label, description: customDesc });
     } catch (e: any) {
       const f = friendlyAIError(e?.message || '');
       setError(`${f.title} ${f.hint}`);
