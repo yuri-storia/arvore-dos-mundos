@@ -563,17 +563,16 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
               <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-gold/30 to-gold/5 border border-gold/40">
                 <Sparkles className="w-3.5 h-3.5 text-gold-light" strokeWidth={2} />
               </span>
-              <span className="font-cinzel text-sm text-gold-light font-bold tracking-wide">Visões de Idriel</span>
+              <span className="font-cinzel text-sm text-gold-light font-bold tracking-wide">Criar com Idriel</span>
               <ChevronDown className={`w-4 h-4 text-gold-light/70 transition-transform duration-300 ${showGenerator ? 'rotate-180' : ''}`} />
             </button>
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
           </div>
-          <div className="max-w-xl mx-auto mt-3 px-4">
+          <div className="max-w-2xl mx-auto mt-3 px-4">
             <p className="flex items-start gap-2 text-center font-merriweather text-[13px] text-text-secondary/90 leading-relaxed">
               <Info className="w-3.5 h-3.5 text-gold-champagne/70 shrink-0 mt-0.5" strokeWidth={2} />
               <span className="text-left">
-                <strong className="text-gold-light">Materializar imagens com IA.</strong> Idriel transforma descrições — inspiradas no seu Codex —
-                em visões visuais coerentes com o seu mundo. Toda visão gerada pode ser categorizada e arquivada em uma das pastas acima.
+                <strong className="text-gold-light">Materialize novas imagens com Idriel.</strong> Escolha um estilo visual no carrossel, descreva a cena que quer ver (personagem, lugar, artefato, momento) e refine com <em>tipo de imagem</em> e <em>tom / iluminação</em>. Antes de gastar Elixir, você revisa tudo — e a visão pronta pode ser arquivada em qualquer pasta acima.
                 {!showGenerator && <span className="text-text-dim italic"> Clique acima para expandir.</span>}
               </span>
             </p>
