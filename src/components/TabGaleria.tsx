@@ -832,6 +832,12 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                             <p className="text-xs font-merriweather text-foreground line-clamp-2 mb-1">{v.description || 'Sem descrição'}</p>
                             <p className="text-[10px] text-text-dim font-mono line-clamp-2 whitespace-pre-wrap">{v.prompt}</p>
                             <div className="flex flex-wrap gap-1.5 mt-2">
+                              {v.image_url && (
+                                <button onClick={() => reopenVision(v.image_url!, v.description, v.prompt)}
+                                  className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/10 transition-colors">
+                                  <Sparkles className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reabrir
+                                </button>
+                              )}
                               <button onClick={() => { navigator.clipboard.writeText(v.prompt); toast.success('Prompt copiado'); }}
                                 className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
                                 <ClipboardCopy className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Copiar prompt
