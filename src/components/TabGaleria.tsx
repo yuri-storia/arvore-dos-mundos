@@ -260,11 +260,12 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
     });
   };
 
-  const handleGenerate = async () => {
-    if (!planLimits.canUseAI || !generatedPrompt) return;
+  const handleGenerate = async (promptOverride?: string) => {
+    const promptToUse = (promptOverride ?? generatedPrompt).trim();
+    if (!planLimits.canUseAI || !promptToUse) return;
     if (!worldId) { setError('Selecione um mundo antes de materializar.'); return; }
     setError(''); setGeneratedImage('');
-    const vision = await saveVision({ description: desc, prompt: generatedPrompt, image_url: null, style, image_type: imgType, tone, extras: '' });
+    const vision = await saveVision({ description: desc, prompt: promptToUse, image_url: null, style, image_type: imgType, tone, extras: '' });
     setActiveVisionId(vision?.id || null);
     const jobId = `idriel-image-${Date.now()}`;
     setActiveImageJobId(jobId);
@@ -273,7 +274,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
     idrielJobs.run({
       id: jobId, kind: 'image',
       label: `Materializando: ${desc.slice(0, 40)}`,
-      task: () => callAIImageConsistent(generatedPrompt, legacyUrls, codexContext, structured),
+      task: () => callAIImageConsistent(promptToUse, legacyUrls, codexContext, structured),
     });
   };
 
