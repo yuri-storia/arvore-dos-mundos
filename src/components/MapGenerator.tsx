@@ -227,7 +227,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) =
       )}
 
       {generatedImage && !isBusy && (
-        <div className="animate-fadeUp mt-4 card-glass rounded-lg p-4 border border-gold/20 relative">
+        <div ref={previewRef} className="animate-fadeUp mt-4 card-glass rounded-lg p-4 border border-gold/20 relative scroll-mt-24">
           <button
             onClick={() => setGeneratedImage('')}
             aria-label="Fechar mapa gerado"
