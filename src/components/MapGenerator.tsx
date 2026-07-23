@@ -70,6 +70,13 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) =
   };
   const deleteHistItem = (id: string) => persistHistory(history.filter(h => h.id !== id));
 
+  const previewRef = React.useRef<HTMLDivElement>(null);
+  const reopen = (url: string) => {
+    setGeneratedImage(url);
+    setError('');
+    setTimeout(() => previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  };
+
   const styleObj = MAP_STYLES.find(s => s.id === selectedStyle)!;
   const isBusy = phase !== 'idle';
 
@@ -220,7 +227,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) =
       )}
 
       {generatedImage && !isBusy && (
-        <div className="animate-fadeUp mt-4 card-glass rounded-lg p-4 border border-gold/20 relative">
+        <div ref={previewRef} className="animate-fadeUp mt-4 card-glass rounded-lg p-4 border border-gold/20 relative scroll-mt-24">
           <button
             onClick={() => setGeneratedImage('')}
             aria-label="Fechar mapa gerado"
@@ -280,14 +287,14 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) =
                     alt={h.styleLabel}
                     loading="lazy"
                     className="w-20 h-20 object-cover rounded cursor-pointer flex-shrink-0"
-                    onClick={() => setGeneratedImage(h.url)}
+                    onClick={() => reopen(h.url)}
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-cinzel text-gold-light">{h.styleLabel}</p>
                     <p className="text-[10px] text-text-dim font-merriweather italic line-clamp-2">{h.desc || 'Sem descrição adicional'}</p>
                     <p className="text-[9px] text-text-dim/70 font-montserrat mt-0.5">{new Date(h.createdAt).toLocaleString('pt-BR')}</p>
                     <div className="flex flex-wrap gap-1.5 mt-2">
-                      <button onClick={() => setGeneratedImage(h.url)}
+                      <button onClick={() => reopen(h.url)}
                         className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
                         <Sparkles className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reabrir
                       </button>

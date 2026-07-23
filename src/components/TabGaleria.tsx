@@ -95,6 +95,14 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState<string>(FOLDER_FRUITS[0].name);
   const [showHistory, setShowHistory] = useState(false);
+  const previewRef = React.useRef<HTMLDivElement>(null);
+  const reopenVision = (url: string, description?: string, prompt?: string) => {
+    setGeneratedImage(url);
+    if (description) setDesc(description);
+    if (prompt) setGeneratedPrompt(prompt);
+    setError('');
+    setTimeout(() => previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  };
 
   const promptJob = activePromptJobId ? idrielJobs.get<string>(activePromptJobId) : undefined;
   const imageJob = activeImageJobId ? idrielJobs.get<string>(activeImageJobId) : undefined;
@@ -760,7 +768,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
 
 
               {generatedImage && !loading2 && (
-                <div className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20 relative">
+                <div ref={previewRef} className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20 relative scroll-mt-24">
                   <button
                     onClick={() => setGeneratedImage('')}
                     aria-label="Fechar visão materializada"
@@ -813,8 +821,9 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                         <div key={v.id} className="flex gap-3 rounded-md border border-gold/10 bg-background/40 p-3">
                           {v.image_url ? (
                             <img src={v.image_url} alt={v.description} loading="lazy"
-                              className="w-20 h-20 object-cover rounded cursor-zoom-in flex-shrink-0"
-                              onClick={() => v.image_url && setLightbox({ src: v.image_url, alt: v.description })}
+                              title="Reabrir no preview"
+                              className="w-20 h-20 object-cover rounded cursor-pointer flex-shrink-0 hover:ring-2 hover:ring-gold/40 transition-all"
+                              onClick={() => v.image_url && reopenVision(v.image_url, v.description, v.prompt)}
                             />
                           ) : (
                             <div className="w-20 h-20 rounded bg-gold/5 border border-gold/10 flex items-center justify-center flex-shrink-0 text-gold-light/40 text-xs italic">(sem img)</div>
@@ -823,6 +832,12 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                             <p className="text-xs font-merriweather text-foreground line-clamp-2 mb-1">{v.description || 'Sem descrição'}</p>
                             <p className="text-[10px] text-text-dim font-mono line-clamp-2 whitespace-pre-wrap">{v.prompt}</p>
                             <div className="flex flex-wrap gap-1.5 mt-2">
+                              {v.image_url && (
+                                <button onClick={() => reopenVision(v.image_url!, v.description, v.prompt)}
+                                  className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/10 transition-colors">
+                                  <Sparkles className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reabrir
+                                </button>
+                              )}
                               <button onClick={() => { navigator.clipboard.writeText(v.prompt); toast.success('Prompt copiado'); }}
                                 className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
                                 <ClipboardCopy className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Copiar prompt
