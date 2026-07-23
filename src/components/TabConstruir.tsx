@@ -430,7 +430,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
             {/* Conditional bottom section: Map generator for fruit 0, Idriel for others */}
             {currentFruit === 0 ? (
-              <MapGenerator worldName={worldName} db={db} />
+              <MapGenerator worldName={worldName} db={db} addToGallery={addToGallery} />
             ) : planLimits.canUseAI ? (
               <div data-tour="consult-idriel" className="border-t border-gold/15 pt-6">
                 <div className="flex items-center gap-2 mb-3">
