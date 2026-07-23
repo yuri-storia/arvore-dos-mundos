@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Map, Sparkles, Lock, Droplet, ArrowDown, RefreshCw, Wand2, Check, X, FolderOpen, Save, ScrollText, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import { callAIText, callAIImage, friendlyAIError } from '@/lib/helpers';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
+import { useMapHistory } from '@/hooks/useMapHistory';
 import idrielAvatar from '@/assets/idriel-avatar.webp';
 import mapPolitical from '@/assets/style-thumbs/map-political.jpg';
 import mapGeographic from '@/assets/style-thumbs/map-geographic.jpg';
@@ -35,13 +36,14 @@ const MAP_STYLES: MapStyle[] = [
 
 interface Props {
   worldName: string;
+  worldId?: string;
   db: Record<number, Record<string, string>>;
   addToGallery?: (img: GalleryImage) => void;
 }
 
 type Phase = 'idle' | 'prompt' | 'image';
 
-export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) => {
+export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGallery }) => {
   const planLimits = usePlanLimits();
   const [selectedStyle, setSelectedStyle] = useState<string>('explorer');
   const [customDesc, setCustomDesc] = useState('');
@@ -52,23 +54,8 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) =
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState<string>(FOLDER_FRUITS[0].name);
 
-  type MapHistItem = { id: string; url: string; style: string; styleLabel: string; desc: string; createdAt: number };
-  const HIST_KEY = `adm_map_history_${worldName || '__default__'}`;
-  const [history, setHistory] = useState<MapHistItem[]>([]);
+  const { history, addMap, deleteMap } = useMapHistory(worldId);
   const [showHistory, setShowHistory] = useState(false);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(HIST_KEY);
-      setHistory(raw ? JSON.parse(raw) : []);
-    } catch { setHistory([]); }
-  }, [HIST_KEY]);
-
-  const persistHistory = (next: MapHistItem[]) => {
-    setHistory(next);
-    try { localStorage.setItem(HIST_KEY, JSON.stringify(next.slice(0, 30))); } catch {}
-  };
-  const deleteHistItem = (id: string) => persistHistory(history.filter(h => h.id !== id));
 
   const previewRef = React.useRef<HTMLDivElement>(null);
   const reopen = (url: string) => {
@@ -118,8 +105,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) =
       setPhase('image');
       const url = await callAIImage(prompt);
       setGeneratedImage(url);
-      const item: MapHistItem = { id: Date.now().toString(), url, style: styleObj.id, styleLabel: styleObj.label, desc: customDesc, createdAt: Date.now() };
-      persistHistory([item, ...history].slice(0, 30));
+      await addMap({ image_url: url, style: styleObj.id, style_label: styleObj.label, description: customDesc });
     } catch (e: any) {
       const f = friendlyAIError(e?.message || '');
       setError(`${f.title} ${f.hint}`);
@@ -283,32 +269,32 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) =
               {history.map(h => (
                 <div key={h.id} className="flex gap-3 rounded-md border border-gold/10 bg-background/40 p-3">
                   <img
-                    src={h.url}
-                    alt={h.styleLabel}
+                    src={h.image_url}
+                    alt={h.style_label}
                     loading="lazy"
                     className="w-20 h-20 object-cover rounded cursor-pointer flex-shrink-0"
-                    onClick={() => reopen(h.url)}
+                    onClick={() => reopen(h.image_url)}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-cinzel text-gold-light">{h.styleLabel}</p>
-                    <p className="text-[10px] text-text-dim font-merriweather italic line-clamp-2">{h.desc || 'Sem descrição adicional'}</p>
-                    <p className="text-[9px] text-text-dim/70 font-montserrat mt-0.5">{new Date(h.createdAt).toLocaleString('pt-BR')}</p>
+                    <p className="text-xs font-cinzel text-gold-light">{h.style_label}</p>
+                    <p className="text-[10px] text-text-dim font-merriweather italic line-clamp-2">{h.description || 'Sem descrição adicional'}</p>
+                    <p className="text-[9px] text-text-dim/70 font-montserrat mt-0.5">{new Date(h.created_at).toLocaleString('pt-BR')}</p>
                     <div className="flex flex-wrap gap-1.5 mt-2">
-                      <button onClick={() => reopen(h.url)}
+                      <button onClick={() => reopen(h.image_url)}
                         className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
                         <Sparkles className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reabrir
                       </button>
                       {addToGallery && (
-                        <button onClick={() => { addToGallery({ id: Date.now().toString(), src: h.url, name: `Mapa — ${h.styleLabel}`, cat: FRUITS[0].name, status: 'kept' }); toast.success('Mapa guardado na Galeria'); }}
+                        <button onClick={() => { addToGallery({ id: Date.now().toString(), src: h.image_url, name: `Mapa — ${h.style_label}`, cat: FRUITS[0].name, status: 'kept' }); toast.success('Mapa guardado na Galeria'); }}
                           className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
                           <Save className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />P/ Galeria
                         </button>
                       )}
-                      <a href={h.url} download={`mapa-${worldName || 'mundo'}.png`}
+                      <a href={h.image_url} download={`mapa-${worldName || 'mundo'}.png`}
                         className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
                         <ArrowDown className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Baixar
                       </a>
-                      <button onClick={() => { if (confirm('Remover este mapa do histórico?')) deleteHistItem(h.id); }}
+                      <button onClick={() => { if (confirm('Remover este mapa do histórico?')) deleteMap(h.id); }}
                         className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-red-alert/30 text-red-alert/80 hover:bg-red-alert/10 transition-colors ml-auto">
                         <Trash2 className="w-3 h-3 inline" />
                       </button>
