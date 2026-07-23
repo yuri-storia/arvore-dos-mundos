@@ -104,6 +104,7 @@ const Index = () => {
           db: data.db,
           method: data.method,
           gallery: data.gallery,
+          folderCovers: data.folderCovers || {},
           currentSaveId: data.id,
           currentFruit: 0,
         }));
