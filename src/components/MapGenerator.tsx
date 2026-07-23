@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Map, Sparkles, Lock, Droplet, ArrowDown, RefreshCw, Wand2, Check, X, FolderOpen, Save, ScrollText, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import { callAIText, callAIImage, friendlyAIError } from '@/lib/helpers';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
+import { useMapHistory } from '@/hooks/useMapHistory';
 import idrielAvatar from '@/assets/idriel-avatar.webp';
 import mapPolitical from '@/assets/style-thumbs/map-political.jpg';
 import mapGeographic from '@/assets/style-thumbs/map-geographic.jpg';
