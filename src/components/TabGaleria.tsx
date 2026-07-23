@@ -260,7 +260,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
     if (!planLimits.canUseAI || !generatedPrompt) return;
     if (!worldId) { setError('Selecione um mundo antes de materializar.'); return; }
     setError(''); setGeneratedImage('');
-    const vision = await saveVision({ description: desc, prompt: generatedPrompt, image_url: null, style, image_type: imgType, tone, extras });
+    const vision = await saveVision({ description: desc, prompt: generatedPrompt, image_url: null, style, image_type: imgType, tone, extras: '' });
     setActiveVisionId(vision?.id || null);
     const jobId = `idriel-image-${Date.now()}`;
     setActiveImageJobId(jobId);
