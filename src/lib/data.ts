@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { Map, Landmark, Swords, Drama, Sparkles, Flame, Coins, ScrollText, User, Trees } from 'lucide-react';
+import { Map, Landmark, Swords, Drama, Sparkles, Flame, Coins, ScrollText, User, Trees, Mountain, UserCircle2, Ghost, Sword, Castle, Map as MapIcon, Moon, Cloud, Snowflake } from 'lucide-react';
 
 
 export interface FruitField {
