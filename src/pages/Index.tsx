@@ -51,6 +51,7 @@ const createNewState = (activeTab: TabType = 'construir'): AppState => ({
   currentFruit: 0,
   method: 'top-down',
   gallery: [],
+  folderCovers: {},
   activeTab,
   apiKey: '',
   generatedPrompt: '',

@@ -12,6 +12,7 @@ export interface WorldRecord {
   // db/gallery são carregados sob demanda (lazy) para tornar a listagem instantânea.
   db: Record<number, Record<string, string>>;
   gallery: GalleryImage[];
+  folderCovers: Record<number, string>;
   updated_at: string;
 }
 
@@ -22,7 +23,7 @@ export function useWorlds() {
   const qc = useQueryClient();
   // Cache da última versão salva por worldId — usado pelo diff do autosave
   // para evitar reescrever campos pesados (db, gallery) quando só o nome muda.
-  const lastSavedRef = useRef<Record<string, { name: string; method: MethodType; db: unknown; gallery: unknown }>>({});
+  const lastSavedRef = useRef<Record<string, { name: string; method: MethodType; db: unknown; gallery: unknown; folderCovers: unknown }>>({});
 
   const { data: worlds = [], isLoading: loading, refetch } = useQuery({
     queryKey: WORLDS_KEY(user?.id),
@@ -41,29 +42,32 @@ export function useWorlds() {
         method: d.method as MethodType,
         db: {},
         gallery: [],
+        folderCovers: {},
         updated_at: d.updated_at,
       }));
     },
   });
 
-  // Carrega o payload completo (db + gallery) apenas do mundo ativo.
+  // Carrega o payload completo (db + gallery + folder_covers) apenas do mundo ativo.
   const loadWorldFull = useCallback(async (id: string): Promise<WorldRecord | null> => {
     const { data, error } = await supabase
       .from('worlds')
-      .select('id, name, method, updated_at, db, gallery')
+      .select('id, name, method, updated_at, db, gallery, folder_covers')
       .eq('id', id)
       .maybeSingle();
     if (error || !data) { if (error) console.error(error); return null; }
+    const d = data as any;
     const rec: WorldRecord = {
-      id: data.id,
-      name: data.name,
-      method: data.method as MethodType,
-      db: (data.db || {}) as unknown as Record<number, Record<string, string>>,
-      gallery: (data.gallery || []) as unknown as GalleryImage[],
-      updated_at: data.updated_at,
+      id: d.id,
+      name: d.name,
+      method: d.method as MethodType,
+      db: (d.db || {}) as Record<number, Record<string, string>>,
+      gallery: (d.gallery || []) as GalleryImage[],
+      folderCovers: (d.folder_covers || {}) as Record<number, string>,
+      updated_at: d.updated_at,
     };
     // Sincroniza baseline do diff do autosave.
-    lastSavedRef.current[id] = { name: rec.name, method: rec.method, db: rec.db, gallery: rec.gallery };
+    lastSavedRef.current[id] = { name: rec.name, method: rec.method, db: rec.db, gallery: rec.gallery, folderCovers: rec.folderCovers };
     return rec;
   }, []);
 
@@ -79,19 +83,22 @@ export function useWorlds() {
         method: state.method,
         db: state.db as any,
         gallery: state.gallery as any,
-      })
+        folder_covers: (state.folderCovers || {}) as any,
+      } as any)
       .select()
       .single();
     if (error) { console.error(error); toast.error('Erro ao criar mundo'); return null; }
+    const d = data as any;
     const record: WorldRecord = {
-      id: data.id,
-      name: data.name,
-      method: data.method as MethodType,
-      db: (data.db || {}) as any,
-      gallery: (data.gallery || []) as any,
-      updated_at: data.updated_at,
+      id: d.id,
+      name: d.name,
+      method: d.method as MethodType,
+      db: (d.db || {}) as any,
+      gallery: (d.gallery || []) as any,
+      folderCovers: (d.folder_covers || {}) as any,
+      updated_at: d.updated_at,
     };
-    lastSavedRef.current[record.id] = { name: record.name, method: record.method, db: record.db, gallery: record.gallery };
+    lastSavedRef.current[record.id] = { name: record.name, method: record.method, db: record.db, gallery: record.gallery, folderCovers: record.folderCovers };
     qc.setQueryData(WORLDS_KEY(user.id), (old: WorldRecord[] = []) => [record, ...old]);
     return record;
   }, [user, qc]);
@@ -101,7 +108,7 @@ export function useWorlds() {
    * a última gravação. Evita reescrever JSONs pesados (db + gallery) a cada
    * autosave de 2s quando apenas o nome ou o método foi alterado.
    */
-  const updateWorld = useCallback(async (id: string, updates: Partial<Pick<WorldRecord, 'name' | 'method' | 'db' | 'gallery'>>) => {
+  const updateWorld = useCallback(async (id: string, updates: Partial<Pick<WorldRecord, 'name' | 'method' | 'db' | 'gallery' | 'folderCovers'>>) => {
     if (updates.name && updates.name.length > 200) { toast.error('Nome do mundo muito longo (máximo 200 caracteres)'); return; }
 
     const baseline = lastSavedRef.current[id];
@@ -110,6 +117,7 @@ export function useWorlds() {
     if (updates.method !== undefined && (!baseline || updates.method !== baseline.method)) patch.method = updates.method;
     if (updates.db !== undefined && (!baseline || updates.db !== baseline.db)) patch.db = updates.db as any;
     if (updates.gallery !== undefined && (!baseline || updates.gallery !== baseline.gallery)) patch.gallery = updates.gallery as any;
+    if (updates.folderCovers !== undefined && (!baseline || updates.folderCovers !== baseline.folderCovers)) patch.folder_covers = updates.folderCovers as any;
 
     if (Object.keys(patch).length === 0) return; // nada para gravar
 
@@ -124,6 +132,7 @@ export function useWorlds() {
       method: (patch.method as MethodType) ?? baseline?.method ?? ('top-down' as MethodType),
       db: (patch.db as any) ?? baseline?.db ?? {},
       gallery: (patch.gallery as any) ?? baseline?.gallery ?? [],
+      folderCovers: (patch.folder_covers as any) ?? baseline?.folderCovers ?? {},
     };
     qc.setQueryData(WORLDS_KEY(user?.id), (old: WorldRecord[] = []) =>
       old.map(w => w.id === id ? { ...w, ...updates, updated_at: new Date().toISOString() } : w)
