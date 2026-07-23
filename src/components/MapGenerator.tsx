@@ -132,43 +132,23 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db }) => {
         </div>
       ) : (
         <>
-          {/* Grid visual de estilos */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-            {MAP_STYLES.map(s => {
-              const active = selectedStyle === s.id;
-              return (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => setSelectedStyle(s.id)}
-                  aria-pressed={active}
-                  className={`group relative aspect-square overflow-hidden rounded-xl border transition-all ${
-                    active
-                      ? 'border-gold ring-2 ring-gold/50 shadow-[0_0_18px_rgba(218,165,32,0.35)]'
-                      : 'border-gold/10 hover:border-gold/40'
-                  }`}
-                >
-                  {s.image ? (
-                    <img src={s.image} alt={s.label} loading="lazy" width={512} height={512} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-gold/10 via-background to-gold/[0.03] flex items-center justify-center">
-                      <Sparkles className="w-10 h-10 text-gold-champagne/70" strokeWidth={1.5} />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-                  {active && (
-                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-gold text-background flex items-center justify-center shadow-[0_0_12px_rgba(218,165,32,0.6)]">
-                      <Check className="w-3.5 h-3.5" strokeWidth={3} />
-                    </div>
-                  )}
-                  <div className="absolute inset-x-0 bottom-0 p-2.5 text-left">
-                    <div className={`font-cinzel text-xs ${active ? 'text-gold-light' : 'text-foreground'}`}>{s.label}</div>
-                    <div className="font-merriweather text-[10px] text-text-dim leading-tight line-clamp-2">{s.desc}</div>
-                  </div>
-                </button>
-              );
-            })}
+          {/* Carrossel de estilos */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-cinzel text-xs text-gold-light inline-flex items-center gap-2">
+                <span className="w-1 h-3.5 bg-gradient-to-b from-gold to-transparent rounded-full" />
+                Estilo cartográfico
+              </span>
+              <span className="text-[10px] font-montserrat uppercase tracking-wider text-text-dim">{styleObj.label}</span>
+            </div>
+            <StyleCarousel
+              items={MAP_STYLES.map(s => ({ id: s.id, label: s.label, description: s.desc, image: s.image }))}
+              selectedId={selectedStyle}
+              onSelect={setSelectedStyle}
+              size="sm"
+            />
           </div>
+
 
           <textarea
             value={customDesc}
