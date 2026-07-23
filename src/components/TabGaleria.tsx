@@ -16,10 +16,12 @@ import {
   Sparkles, Lock, ChevronDown, ChevronUp, Trash2, Palette, Leaf, ScrollText,
   X, Save, Apple, BarChart3, Check, ClipboardCopy, ArrowDown, RotateCw,
   Image as ImageIcon, ArrowRight, ArrowLeft, Info, Upload, ImagePlus,
-  FolderOpen,
+  FolderOpen, Wand2,
 } from 'lucide-react';
 import { ImageReferencePicker, type PickedReference } from '@/components/ImageReferencePicker';
+import { StyleCarousel } from '@/components/StyleCarousel';
 import type { AppState } from '@/lib/data';
+import { createPortal } from 'react-dom';
 
 interface Props {
   gallery: GalleryImage[];
