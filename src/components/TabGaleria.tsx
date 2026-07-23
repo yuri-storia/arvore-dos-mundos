@@ -95,6 +95,14 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState<string>(FOLDER_FRUITS[0].name);
   const [showHistory, setShowHistory] = useState(false);
+  const previewRef = React.useRef<HTMLDivElement>(null);
+  const reopenVision = (url: string, description?: string, prompt?: string) => {
+    setGeneratedImage(url);
+    if (description) setDesc(description);
+    if (prompt) setGeneratedPrompt(prompt);
+    setError('');
+    setTimeout(() => previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  };
 
   const promptJob = activePromptJobId ? idrielJobs.get<string>(activePromptJobId) : undefined;
   const imageJob = activeImageJobId ? idrielJobs.get<string>(activeImageJobId) : undefined;
