@@ -742,24 +742,8 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                 </div>
               )}
 
-              {generatedPrompt && !loading1 && planLimits.canUseAI && (
-                <div className="animate-fadeUp card-glass rounded-lg p-5 mb-5 border border-gold/20">
-                  <span className="font-cinzel text-[10px] text-gold-light mb-2 inline-flex items-center gap-1.5">
-                    <Leaf className="w-3 h-3" strokeWidth={1.75} />Visão tecida por Idriel
-                  </span>
-                  <p className="font-merriweather text-sm text-foreground whitespace-pre-wrap leading-relaxed mb-4">{generatedPrompt}</p>
-                  <div className="flex flex-wrap gap-2">
-                    <button onClick={copyPrompt} className="px-3 py-1.5 rounded-md text-xs font-montserrat border border-gold/30 text-text-secondary hover:text-foreground transition-colors">
-                      {copied ? <><Check className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Copiado!</>
-                              : <><ClipboardCopy className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Copiar</>}
-                    </button>
-                    <button onClick={handleGenerate} disabled={loading2}
-                      className="px-3 py-1.5 rounded-md text-xs font-montserrat bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-colors">
-                      <Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Materializar Visão
-                    </button>
-                  </div>
-                </div>
-              )}
+
+
 
               {generatedImage && !loading2 && (
                 <div className="animate-fadeUp card-glass rounded-lg p-5 border border-gold/20">
