@@ -6,7 +6,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useCodexEntries } from '@/hooks/useCodexEntries';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { BugReportDialog } from '@/components/BugReportDialog';
-import { ImageReferencePicker, type PickedReference } from '@/components/ImageReferencePicker';
+import { StyleCarousel } from '@/components/StyleCarousel';
 import type { AppState } from '@/lib/data';
 import idrielAvatar from '@/assets/idriel-avatar.webp';
 import { createPortal } from 'react-dom';
