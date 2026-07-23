@@ -633,6 +633,47 @@ export type Database = {
           },
         ]
       }
+      map_history: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string
+          style: string
+          style_label: string
+          user_id: string
+          world_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url: string
+          style: string
+          style_label: string
+          user_id: string
+          world_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string
+          style?: string
+          style_label?: string
+          user_id?: string
+          world_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "map_history_world_id_fkey"
+            columns: ["world_id"]
+            isOneToOne: false
+            referencedRelation: "worlds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mfa_audit_log: {
         Row: {
           created_at: string
