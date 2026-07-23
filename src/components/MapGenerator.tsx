@@ -220,7 +220,17 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) =
       )}
 
       {generatedImage && !isBusy && (
-        <div className="animate-fadeUp mt-4">
+        <div className="animate-fadeUp mt-4 card-glass rounded-lg p-4 border border-gold/20 relative">
+          <button
+            onClick={() => setGeneratedImage('')}
+            aria-label="Fechar mapa gerado"
+            className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-background/60 hover:bg-background/90 border border-gold/25 hover:border-gold/50 text-gold-light/80 hover:text-gold-light flex items-center justify-center transition-all shadow-[0_0_12px_rgba(218,165,32,0.15)] hover:shadow-[0_0_16px_rgba(218,165,32,0.3)] z-10"
+          >
+            <X className="w-4 h-4" strokeWidth={2} />
+          </button>
+          <span className="font-cinzel text-[10px] text-gold-light mb-3 inline-flex items-center gap-1.5">
+            <Sparkles className="w-3 h-3" strokeWidth={1.75} />Mapa materializado
+          </span>
           <div className="rounded-lg overflow-hidden border border-gold/20 mb-3">
             <img src={generatedImage} alt="Mapa gerado" className="w-full" />
           </div>
@@ -241,6 +251,66 @@ export const MapGenerator: React.FC<Props> = ({ worldName, db, addToGallery }) =
               <RefreshCw className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em]" strokeWidth={2} />Gerar Outro
             </button>
           </div>
+        </div>
+      )}
+
+      {history.length > 0 && (
+        <div className="mt-6 rounded-lg border border-gold/15 bg-gradient-to-br from-gold/[0.04] via-transparent to-gold/[0.02] p-4">
+          <button
+            onClick={() => setShowHistory(s => !s)}
+            aria-expanded={showHistory}
+            className="group w-full flex items-center justify-between gap-3 px-3 py-2.5 -mx-1 -mt-1 mb-3 rounded-md bg-gradient-to-r from-gold/[0.06] via-gold/[0.10] to-gold/[0.06] hover:from-gold/[0.10] hover:via-gold/[0.16] hover:to-gold/[0.10] border border-gold/20 hover:border-gold/40 shadow-[inset_0_1px_0_rgba(255,220,150,0.08)] hover:shadow-[0_2px_16px_-4px_rgba(218,165,32,0.35),inset_0_1px_0_rgba(255,220,150,0.15)] transition-all cursor-pointer"
+          >
+            <span className="flex items-center gap-2 min-w-0">
+              <span className="font-cinzel text-sm font-bold bg-gradient-to-r from-gold-cream via-gold-light to-gold bg-clip-text text-transparent inline-flex items-center gap-2">
+                <ScrollText className="w-4 h-4 text-gold-light" strokeWidth={1.75} />Mapas traçados por Idriel
+              </span>
+              <span className="text-[10px] text-gold-light/60 font-montserrat">({history.length})</span>
+            </span>
+            {showHistory
+              ? <ChevronUp className="w-4 h-4 text-gold-light/80 group-hover:text-gold-light transition-colors shrink-0" />
+              : <ChevronDown className="w-4 h-4 text-gold-light/80 group-hover:text-gold-light transition-colors shrink-0" />}
+          </button>
+          {showHistory && (
+            <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+              {history.map(h => (
+                <div key={h.id} className="flex gap-3 rounded-md border border-gold/10 bg-background/40 p-3">
+                  <img
+                    src={h.url}
+                    alt={h.styleLabel}
+                    loading="lazy"
+                    className="w-20 h-20 object-cover rounded cursor-pointer flex-shrink-0"
+                    onClick={() => setGeneratedImage(h.url)}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-cinzel text-gold-light">{h.styleLabel}</p>
+                    <p className="text-[10px] text-text-dim font-merriweather italic line-clamp-2">{h.desc || 'Sem descrição adicional'}</p>
+                    <p className="text-[9px] text-text-dim/70 font-montserrat mt-0.5">{new Date(h.createdAt).toLocaleString('pt-BR')}</p>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      <button onClick={() => setGeneratedImage(h.url)}
+                        className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
+                        <Sparkles className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reabrir
+                      </button>
+                      {addToGallery && (
+                        <button onClick={() => { addToGallery({ id: Date.now().toString(), src: h.url, name: `Mapa — ${h.styleLabel}`, cat: FRUITS[0].name, status: 'kept' }); toast.success('Mapa guardado na Galeria'); }}
+                          className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
+                          <Save className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />P/ Galeria
+                        </button>
+                      )}
+                      <a href={h.url} download={`mapa-${worldName || 'mundo'}.png`}
+                        className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
+                        <ArrowDown className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Baixar
+                      </a>
+                      <button onClick={() => { if (confirm('Remover este mapa do histórico?')) deleteHistItem(h.id); }}
+                        className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-red-alert/30 text-red-alert/80 hover:bg-red-alert/10 transition-colors ml-auto">
+                        <Trash2 className="w-3 h-3 inline" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
