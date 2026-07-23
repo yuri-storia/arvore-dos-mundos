@@ -16,10 +16,12 @@ import {
   Sparkles, Lock, ChevronDown, ChevronUp, Trash2, Palette, Leaf, ScrollText,
   X, Save, Apple, BarChart3, Check, ClipboardCopy, ArrowDown, RotateCw,
   Image as ImageIcon, ArrowRight, ArrowLeft, Info, Upload, ImagePlus,
-  FolderOpen,
+  FolderOpen, Wand2,
 } from 'lucide-react';
 import { ImageReferencePicker, type PickedReference } from '@/components/ImageReferencePicker';
+import { StyleCarousel } from '@/components/StyleCarousel';
 import type { AppState } from '@/lib/data';
+import { createPortal } from 'react-dom';
 
 interface Props {
   gallery: GalleryImage[];
@@ -78,8 +80,9 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const [style, setStyle] = useState(STYLE_META[0].label);
   const [imgType, setImgType] = useState(IMAGE_TYPE_META[0].label);
   const [tone, setTone] = useState(TONE_META[0].label);
-  const [extras, setExtras] = useState('');
   const [pickedRefs, setPickedRefs] = useState<PickedReference[]>([]);
+  const [showReview, setShowReview] = useState(false);
+  const [autoGenerate, setAutoGenerate] = useState(false);
   const [generatedImage, setGeneratedImage] = useState('');
   const promptJobKey = worldId ? `idriel:promptJob:${worldId}` : null;
   const imageJobKey = worldId ? `idriel:imageJob:${worldId}` : null;
@@ -100,9 +103,13 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const styleMeta = STYLE_META.find(s => s.label === style) || STYLE_META[0];
 
   useEffect(() => {
-    if (promptJob?.status === 'done' && typeof promptJob.result === 'string' && promptJob.result) setGeneratedPrompt(promptJob.result);
-    if (promptJob?.status === 'error') { const f = friendlyAIError(promptJob.error || ''); setError(`${f.title} ${f.hint}`); }
-  }, [promptJob?.status, promptJob?.result, promptJob?.error, setGeneratedPrompt]);
+    if (promptJob?.status === 'done' && typeof promptJob.result === 'string' && promptJob.result) {
+      setGeneratedPrompt(promptJob.result);
+      if (autoGenerate) { setAutoGenerate(false); handleGenerate(); }
+    }
+    if (promptJob?.status === 'error') { setAutoGenerate(false); const f = friendlyAIError(promptJob.error || ''); setError(`${f.title} ${f.hint}`); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [promptJob?.status, promptJob?.result, promptJob?.error]);
 
   useEffect(() => {
     if (imageJob?.status === 'done' && imageJob.result) {
@@ -243,7 +250,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
     setError('');
     const ctx = buildContext();
     const systemPrompt = 'You are an expert at writing image generation prompts. Respond ONLY with the prompt in English. The CODEX section lists canonical characters, places and concepts that already exist in this world — when the user references any of those names in their description, you MUST use the canonical descriptions provided (appearance, role, relationships) instead of inventing new ones. Be specific about visual details, lighting, composition, and artistic style.';
-    const userMsg = `World context:\n${ctx}\n\nDescription: ${desc}\nVisual style: ${style} (${styleMeta.promptHint})\nImage type: ${imgType}\nTone/Lighting: ${tone}\n${extras ? `Extra details: ${extras}` : ''}`;
+    const userMsg = `World context:\n${ctx}\n\nDescription: ${desc}\nVisual style: ${style} (${styleMeta.promptHint})\nImage type: ${imgType}\nTone/Lighting: ${tone}`;
     const jobId = `idriel-prompt-${Date.now()}`;
     setActivePromptJobId(jobId);
     idrielJobs.run({
@@ -257,7 +264,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
     if (!planLimits.canUseAI || !generatedPrompt) return;
     if (!worldId) { setError('Selecione um mundo antes de materializar.'); return; }
     setError(''); setGeneratedImage('');
-    const vision = await saveVision({ description: desc, prompt: generatedPrompt, image_url: null, style, image_type: imgType, tone, extras });
+    const vision = await saveVision({ description: desc, prompt: generatedPrompt, image_url: null, style, image_type: imgType, tone, extras: '' });
     setActiveVisionId(vision?.id || null);
     const jobId = `idriel-image-${Date.now()}`;
     setActiveImageJobId(jobId);
@@ -271,6 +278,23 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   };
 
   const copyPrompt = () => { navigator.clipboard.writeText(generatedPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+
+  const typeMeta = IMAGE_TYPE_META.find(t => t.label === imgType) || IMAGE_TYPE_META[0];
+  const toneMeta = TONE_META.find(t => t.label === tone) || TONE_META[0];
+
+  const openReview = () => {
+    setError('');
+    if (!planLimits.canUseAI) { setError('Idriel precisa do plano ativo para canalizar o Elixir dos Mundos.'); return; }
+    if (!desc.trim()) { setError('Descreva a visão que deseja materializar.'); return; }
+    if (!worldId) { setError('Selecione um mundo antes de invocar Idriel.'); return; }
+    setShowReview(true);
+  };
+
+  const confirmReview = () => {
+    setShowReview(false);
+    setAutoGenerate(true);
+    handleCreatePrompt();
+  };
 
   const confirmSave = () => {
     if (!generatedImage) return;
@@ -589,17 +613,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                 </div>
               ) : (
                 <div className="space-y-5">
-                  <div className="card-glass rounded-lg p-5">
-                    <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Descreva sua visão</label>
-                    <textarea
-                      value={desc}
-                      onChange={e => setDesc(e.target.value)}
-                      placeholder="Ex.: A capital do meu reino élfico ao entardecer, com torres de cristal brilhando sob a luz dourada…"
-                      rows={3}
-                      className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50 resize-y"
-                    />
-                  </div>
-
+                  {/* 1) Estilo — carrossel */}
                   <section>
                     <div className="flex items-center justify-between mb-2">
                       <h2 className="font-cinzel text-sm text-gold-light inline-flex items-center gap-2">
@@ -608,38 +622,29 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                       </h2>
                       <span className="text-[10px] font-montserrat uppercase tracking-wider text-text-dim">{style}</span>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                      {STYLE_META.map(s => {
-                        const active = style === s.label;
-                        return (
-                          <button
-                            key={s.label}
-                            type="button"
-                            onClick={() => setStyle(s.label)}
-                            aria-pressed={active}
-                            className={`group relative aspect-square overflow-hidden rounded-xl border transition-all ${
-                              active
-                                ? 'border-gold ring-2 ring-gold/50 shadow-[0_0_18px_rgba(218,165,32,0.35)]'
-                                : 'border-gold/10 hover:border-gold/40'
-                            }`}
-                          >
-                            <img src={s.image} alt={s.label} loading="lazy" width={512} height={512} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-                            {active && (
-                              <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-gold text-background flex items-center justify-center shadow-[0_0_12px_rgba(218,165,32,0.6)]">
-                                <Check className="w-3.5 h-3.5" strokeWidth={3} />
-                              </div>
-                            )}
-                            <div className="absolute inset-x-0 bottom-0 p-2.5 text-left">
-                              <div className={`font-cinzel text-xs ${active ? 'text-gold-light' : 'text-foreground'}`}>{s.label}</div>
-                              <div className="font-merriweather text-[10px] text-text-dim leading-tight line-clamp-2">{s.description}</div>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <StyleCarousel
+                      items={STYLE_META.map(s => ({ id: s.label, label: s.label, description: s.description, image: s.image }))}
+                      selectedId={style}
+                      onSelect={setStyle}
+                    />
                   </section>
 
+                  {/* 2) Descrição + referências (+ inline) */}
+                  <div className="card-glass rounded-lg p-5 space-y-3">
+                    <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold">Descreva sua visão</label>
+                    <textarea
+                      value={desc}
+                      onChange={e => setDesc(e.target.value)}
+                      placeholder="Ex.: A capital do meu reino élfico ao entardecer, com torres de cristal brilhando sob a luz dourada. Adicione detalhes, cores, atmosfera — tudo que julgar necessário…"
+                      rows={4}
+                      className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50 resize-y"
+                    />
+                    <div className="pt-1">
+                      <ImageReferencePicker value={pickedRefs} onChange={setPickedRefs} gallery={gallery} codexEntries={codexEntries} max={3} />
+                    </div>
+                  </div>
+
+                  {/* 3) Tipo + Tom */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <section>
                       <h2 className="font-cinzel text-sm text-gold-light mb-2 inline-flex items-center gap-2">
@@ -694,42 +699,28 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
                     </section>
                   </div>
 
-                  <div className="card-glass rounded-lg p-5 space-y-4">
-                    <div>
-                      <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Pedido livre (opcional)</label>
-                      <input
-                        type="text"
-                        value={extras}
-                        onChange={e => setExtras(e.target.value)}
-                        placeholder="Cores obrigatórias, elementos específicos, atmosfera adicional…"
-                        className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50"
-                      />
-                    </div>
-
-                    <div className="pt-2 border-t border-gold/10">
-                      <ImageReferencePicker value={pickedRefs} onChange={setPickedRefs} gallery={gallery} codexEntries={codexEntries} max={3} />
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-gold/10">
-                      <button onClick={handleCreatePrompt} disabled={loading1}
-                        className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold text-gold-light hover:bg-gold/10 disabled:opacity-40 transition-all">
-                        <Leaf className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />
-                        {loading1 ? 'Idriel está tecendo…' : '1. Pedir Visão a Idriel'}
-                      </button>
-                      <button onClick={handleGenerate} disabled={loading2 || !generatedPrompt}
-                        className="px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider bg-gold hover:bg-gold-light text-background disabled:opacity-40 transition-all">
-                        <Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />
-                        {loading2 ? 'Materializando…' : '2. Materializar Visão'}
-                      </button>
-                    </div>
+                  {/* 4) Botão pulsante único */}
+                  <div className="flex flex-col items-center gap-2 pt-2">
+                    <button
+                      onClick={openReview}
+                      disabled={loading1 || loading2 || !desc.trim()}
+                      className="group relative inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full font-cinzel text-sm font-bold uppercase tracking-wider text-background bg-gradient-to-r from-gold-bronze via-gold-warm to-gold-champagne hover:from-gold-warm hover:via-gold-champagne hover:to-gold-cream shadow-[0_0_28px_rgba(218,165,32,0.45)] hover:shadow-[0_0_40px_rgba(218,165,32,0.65)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <span className="pointer-events-none absolute inset-0 rounded-full bg-gold/40 blur-xl opacity-70 animate-pulse -z-10" aria-hidden="true" />
+                      <Wand2 className="w-4 h-4" strokeWidth={2} />
+                      {(loading1 || loading2) ? 'Idriel está trabalhando…' : 'Gerar Imagem com Idriel'}
+                    </button>
+                    <p className="font-merriweather italic text-[11px] text-text-dim text-center max-w-md">
+                      Você poderá revisar todas as escolhas antes de confirmar o gasto de gotas.
+                    </p>
                   </div>
-
 
                   {error && <p className="text-red-alert text-sm mt-3">{error}</p>}
 
                   {(loading1 || loading2) && (
                     <div className="mt-4 animate-fadeUp">
                       <div className="flex items-center gap-3 mb-3">
+
                         <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gold/60 shadow-[0_0_16px_rgba(218,165,32,0.4)] shrink-0">
                           <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
                         </div>
@@ -877,6 +868,60 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
       )}
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
+
+      {showReview && createPortal(
+        <div className="fixed inset-0 z-[100] bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+          <div className="card-glass rounded-xl w-full max-w-md p-6 animate-fadeUp border border-gold/30 shadow-[0_0_36px_rgba(218,165,32,0.25)]">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="font-cinzel font-bold text-lg text-gold-light">Confirmar visão</h3>
+                <p className="font-merriweather italic text-xs text-text-dim mt-0.5">Revise antes de gastar gotas.</p>
+              </div>
+              <button onClick={() => setShowReview(false)} className="p-1.5 rounded-full text-text-dim hover:text-foreground hover:bg-white/5 transition-colors" aria-label="Fechar"><X className="w-4 h-4" /></button>
+            </div>
+
+            <div className="flex gap-3 mb-4">
+              {(() => {
+                const s = STYLE_META.find(x => x.label === style);
+                return s?.image ? (
+                  <img src={s.image} alt={style} className="w-20 h-20 rounded-lg object-cover border border-gold/30 shrink-0" />
+                ) : (
+                  <div className="w-20 h-20 rounded-lg border border-gold/30 flex items-center justify-center bg-gold/[0.05] shrink-0">
+                    <Sparkles className="w-8 h-8 text-gold-champagne" strokeWidth={1.5} />
+                  </div>
+                );
+              })()}
+              <div className="flex-1 min-w-0">
+                <div className="font-cinzel text-sm text-foreground">{style}</div>
+                <div className="mt-1 flex flex-wrap gap-1.5">
+                  <span className="text-[10px] font-montserrat px-2 py-0.5 rounded-full border border-gold/20 text-gold-light bg-gold/[0.06]">{typeMeta.emoji} {typeMeta.label}</span>
+                  <span className="text-[10px] font-montserrat px-2 py-0.5 rounded-full border border-gold/20 text-gold-light bg-gold/[0.06]">{toneMeta.emoji} {toneMeta.label}</span>
+                  {pickedRefs.length > 0 && (
+                    <span className="text-[10px] font-montserrat px-2 py-0.5 rounded-full border border-gold/20 text-gold-light bg-gold/[0.06]">{pickedRefs.length} referência{pickedRefs.length > 1 ? 's' : ''}</span>
+                  )}
+                </div>
+                <div className="mt-2 font-merriweather italic text-[11px] text-gold-light/80 line-clamp-3">"{desc}"</div>
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-gold/20 bg-gold/[0.05] p-3 mb-4 flex items-center justify-between">
+              <div>
+                <div className="font-cinzel text-xs text-gold-light">Custo</div>
+                <div className="font-merriweather text-[10px] text-text-dim">Prompt + imagem · ~30s</div>
+              </div>
+              <div className="font-montserrat font-bold text-sm text-gold">4 gotas</div>
+            </div>
+
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setShowReview(false)} className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-border hover:text-foreground transition-colors">Cancelar</button>
+              <button onClick={confirmReview} className="px-5 py-2 rounded-md text-xs font-cinzel font-bold uppercase tracking-wider bg-gradient-to-r from-gold-bronze via-gold-warm to-gold-champagne text-background hover:shadow-[0_0_20px_rgba(218,165,32,0.5)] transition-all">
+                <Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Confirmar e gerar
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };

@@ -6,7 +6,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useCodexEntries } from '@/hooks/useCodexEntries';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { BugReportDialog } from '@/components/BugReportDialog';
-import { ImageReferencePicker, type PickedReference } from '@/components/ImageReferencePicker';
+import { StyleCarousel } from '@/components/StyleCarousel';
 import type { AppState } from '@/lib/data';
 import idrielAvatar from '@/assets/idriel-avatar.webp';
 import { createPortal } from 'react-dom';
@@ -35,8 +35,6 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
   const [style, setStyle] = useState(STYLE_META[0].label);
   const [imgType, setImgType] = useState(IMAGE_TYPE_META[0].label);
   const [tone, setTone] = useState(TONE_META[0].label);
-  const [extras, setExtras] = useState('');
-  const [pickedRefs, setPickedRefs] = useState<PickedReference[]>([]);
   const [quality, setQuality] = useState<ImageQuality>('standard');
   const [phase, setPhase] = useState<Phase>('idle');
   const [generatedImage, setGeneratedImage] = useState('');
@@ -104,7 +102,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
       setPhase('prompt');
       const ctx = buildContext();
       const systemPrompt = 'You are an expert at writing image generation prompts. Respond ONLY with the prompt in English. Be specific about visual details, lighting, composition, and artistic style.';
-      const userMsg = `World context:\n${ctx}\n\nDescription: ${desc}\nVisual style: ${style} (${styleMeta.promptHint})\nImage type: ${imgType}\nTone/Lighting: ${tone}\n${extras ? `Extra details: ${extras}` : ''}`;
+      const userMsg = `World context:\n${ctx}\n\nDescription: ${desc}\nVisual style: ${style} (${styleMeta.promptHint})\nImage type: ${imgType}\nTone/Lighting: ${tone}`;
       const prompt = await callAIText([{ role: 'user', content: userMsg }], systemPrompt);
       setGeneratedPrompt(prompt);
 
@@ -112,9 +110,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
       setPhase('image');
       let url: string;
       if (quality === 'standard') {
-        const structured = pickedRefs.map(r => ({ url: r.url, intent: r.intent }));
-        const legacyUrls = structured.length > 0 ? [] : autoPack.imageUrls;
-        url = await callAIImageConsistent(prompt, legacyUrls, autoPack.referenceText, structured);
+        url = await callAIImageConsistent(prompt, autoPack.imageUrls, autoPack.referenceText, []);
       } else {
         url = await callAIImage(prompt, quality);
       }
@@ -159,18 +155,7 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
       )}
 
       {/* Descrição */}
-      <div className="card-glass rounded-lg p-5 mb-5">
-        <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Descreva sua visão</label>
-        <textarea
-          value={desc}
-          onChange={e => setDesc(e.target.value)}
-          placeholder="Ex.: A capital do meu reino élfico ao entardecer, com torres de cristal brilhando sob a luz dourada…"
-          rows={3}
-          className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50 resize-y"
-        />
-      </div>
-
-      {/* Estilo visual — grid de imagens */}
+      {/* 1) Estilo visual — carrossel */}
       <section className="mb-5">
         <div className="flex items-center justify-between mb-2">
           <h2 className="font-cinzel text-sm text-gold-light inline-flex items-center gap-2">
@@ -179,39 +164,26 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
           </h2>
           <span className="text-[10px] font-montserrat uppercase tracking-wider text-text-dim">{style}</span>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {STYLE_META.map(s => {
-            const active = style === s.label;
-            return (
-              <button
-                key={s.label}
-                type="button"
-                onClick={() => setStyle(s.label)}
-                aria-pressed={active}
-                className={`group relative aspect-square overflow-hidden rounded-xl border transition-all ${
-                  active
-                    ? 'border-gold ring-2 ring-gold/50 shadow-[0_0_18px_rgba(218,165,32,0.35)]'
-                    : 'border-gold/10 hover:border-gold/40'
-                }`}
-              >
-                <img src={s.image} alt={s.label} loading="lazy" width={512} height={512} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-                {active && (
-                  <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-gold text-background flex items-center justify-center shadow-[0_0_12px_rgba(218,165,32,0.6)]">
-                    <Check className="w-3.5 h-3.5" strokeWidth={3} />
-                  </div>
-                )}
-                <div className="absolute inset-x-0 bottom-0 p-2.5 text-left">
-                  <div className={`font-cinzel text-xs ${active ? 'text-gold-light' : 'text-foreground'}`}>{s.label}</div>
-                  <div className="font-merriweather text-[10px] text-text-dim leading-tight line-clamp-2">{s.description}</div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+        <StyleCarousel
+          items={STYLE_META.map(s => ({ id: s.label, label: s.label, description: s.description, image: s.image }))}
+          selectedId={style}
+          onSelect={setStyle}
+        />
       </section>
 
-      {/* Tipo de imagem + Tom */}
+      {/* 2) Descreva sua visão */}
+      <div className="card-glass rounded-lg p-5 mb-5">
+        <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Descreva sua visão</label>
+        <textarea
+          value={desc}
+          onChange={e => setDesc(e.target.value)}
+          placeholder="Ex.: A capital do meu reino élfico ao entardecer, com torres de cristal brilhando sob a luz dourada. Detalhes, cores, atmosfera — tudo que julgar necessário…"
+          rows={4}
+          className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50 resize-y"
+        />
+      </div>
+
+      {/* 3) Tipo + Tom */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
         <section>
           <h2 className="font-cinzel text-sm text-gold-light mb-2 inline-flex items-center gap-2">
@@ -266,46 +238,30 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
         </section>
       </div>
 
-      {/* Extras + referências + qualidade */}
-      <div className="card-glass rounded-lg p-5 mb-5 space-y-4">
-        <div>
-          <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-1.5">Pedido livre (opcional)</label>
-          <input
-            type="text"
-            value={extras}
-            onChange={e => setExtras(e.target.value)}
-            placeholder="Cores obrigatórias, elementos específicos, atmosfera adicional…"
-            className="w-full bg-[rgba(4,12,24,0.6)] border border-gold/15 border-b-gold/30 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50"
-          />
-        </div>
-
-        <div className="pt-2 border-t border-gold/10">
-          <ImageReferencePicker value={pickedRefs} onChange={setPickedRefs} gallery={gallery} codexEntries={codexEntries} max={3} />
-        </div>
-
-        <div className="pt-3 border-t border-gold/10">
-          <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-2">Nível da Visão</label>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            {QUALITY_META.map(opt => (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => setQuality(opt.id)}
-                aria-pressed={quality === opt.id}
-                className={`text-left rounded-md border p-3 transition-all ${
-                  quality === opt.id ? 'border-gold bg-gold/[0.08] shadow-[0_0_12px_rgba(218,165,32,0.25)]' : 'border-gold/15 hover:border-gold/40 bg-[rgba(4,12,24,0.4)]'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-cinzel text-sm text-foreground">{opt.label}</span>
-                  <span className={`text-[10px] font-montserrat font-bold uppercase tracking-wider ${quality === opt.id ? 'text-gold-light' : 'text-text-dim'}`}>{opt.cost}</span>
-                </div>
-                <p className="font-merriweather text-[11px] text-text-dim leading-snug">{opt.desc}</p>
-              </button>
-            ))}
-          </div>
+      {/* 4) Qualidade */}
+      <div className="card-glass rounded-lg p-5 mb-5">
+        <label className="block text-[11px] uppercase tracking-wider text-gold-light font-montserrat font-bold mb-2">Nível da Visão</label>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {QUALITY_META.map(opt => (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => setQuality(opt.id)}
+              aria-pressed={quality === opt.id}
+              className={`text-left rounded-md border p-3 transition-all ${
+                quality === opt.id ? 'border-gold bg-gold/[0.08] shadow-[0_0_12px_rgba(218,165,32,0.25)]' : 'border-gold/15 hover:border-gold/40 bg-[rgba(4,12,24,0.4)]'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-cinzel text-sm text-foreground">{opt.label}</span>
+                <span className={`text-[10px] font-montserrat font-bold uppercase tracking-wider ${quality === opt.id ? 'text-gold-light' : 'text-text-dim'}`}>{opt.cost}</span>
+              </div>
+              <p className="font-merriweather text-[11px] text-text-dim leading-snug">{opt.desc}</p>
+            </button>
+          ))}
         </div>
       </div>
+
 
       {/* Botão pulsante — Gerar Imagem com Idriel */}
       <div className="flex flex-col items-center gap-3 mb-6">
@@ -425,8 +381,6 @@ export const TabGerarImagens: React.FC<Props> = ({ state, setGeneratedPrompt, ad
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 mb-4 text-[11px] font-montserrat">
               <div><dt className="text-text-dim uppercase tracking-wider text-[9px]">Tipo</dt><dd className="text-foreground">{typeMeta.emoji} {typeMeta.label}</dd></div>
               <div><dt className="text-text-dim uppercase tracking-wider text-[9px]">Tom</dt><dd className="text-foreground">{toneMeta.emoji} {toneMeta.label}</dd></div>
-              {extras && <div className="sm:col-span-2"><dt className="text-text-dim uppercase tracking-wider text-[9px]">Pedido livre</dt><dd className="text-foreground font-merriweather italic">{extras}</dd></div>}
-              {pickedRefs.length > 0 && <div className="sm:col-span-2"><dt className="text-text-dim uppercase tracking-wider text-[9px]">Referências</dt><dd className="text-foreground">{pickedRefs.length} imagem(ns) do Codex/Galeria</dd></div>}
             </dl>
 
             <div className="rounded-lg border border-gold/20 bg-gold/[0.05] p-3 mb-4 flex items-center justify-between">
