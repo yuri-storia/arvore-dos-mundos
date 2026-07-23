@@ -894,8 +894,8 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
               <div className="flex-1 min-w-0">
                 <div className="font-cinzel text-sm text-foreground">{style}</div>
                 <div className="mt-1 flex flex-wrap gap-1.5">
-                  <span className="text-[10px] font-montserrat px-2 py-0.5 rounded-full border border-gold/20 text-gold-light bg-gold/[0.06]">{typeMeta.emoji} {typeMeta.label}</span>
-                  <span className="text-[10px] font-montserrat px-2 py-0.5 rounded-full border border-gold/20 text-gold-light bg-gold/[0.06]">{toneMeta.emoji} {toneMeta.label}</span>
+                  <span className="text-[10px] font-montserrat px-2 py-0.5 rounded-full border border-gold/20 text-gold-light bg-gold/[0.06] inline-flex items-center gap-1"><typeMeta.icon className="w-3 h-3 drop-shadow-[0_0_4px_rgba(218,165,32,0.7)]" strokeWidth={2} />{typeMeta.label}</span>
+                  <span className="text-[10px] font-montserrat px-2 py-0.5 rounded-full border border-gold/20 text-gold-light bg-gold/[0.06] inline-flex items-center gap-1"><toneMeta.icon className="w-3 h-3 drop-shadow-[0_0_4px_rgba(218,165,32,0.7)]" strokeWidth={2} />{toneMeta.label}</span>
                   {pickedRefs.length > 0 && (
                     <span className="text-[10px] font-montserrat px-2 py-0.5 rounded-full border border-gold/20 text-gold-light bg-gold/[0.06]">{pickedRefs.length} referência{pickedRefs.length > 1 ? 's' : ''}</span>
                   )}
