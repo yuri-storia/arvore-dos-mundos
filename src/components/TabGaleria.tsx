@@ -123,6 +123,18 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   useEffect(() => { if (imageJobKey) { activeImageJobId ? localStorage.setItem(imageJobKey, activeImageJobId) : localStorage.removeItem(imageJobKey); } }, [imageJobKey, activeImageJobId]);
   useEffect(() => { if (visionKey) { activeVisionId ? localStorage.setItem(visionKey, activeVisionId) : localStorage.removeItem(visionKey); } }, [visionKey, activeVisionId]);
 
+  // Ao entrar na aba Galeria, fecha a última visão materializada (persistimos apenas no histórico).
+  // Se um job ainda estiver rodando, mantém para o usuário acompanhar; se já concluído, limpa.
+  useEffect(() => {
+    const imgJob = activeImageJobId ? idrielJobs.get<string>(activeImageJobId) : undefined;
+    if (!imgJob || imgJob.status !== 'running') {
+      setGeneratedImage('');
+      setActiveImageJobId(null);
+      setActiveVisionId(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // --- Group images per folder ---
   const imagesByFolder = useMemo(() => {
     const map = new Map<string, GalleryImage[]>();
