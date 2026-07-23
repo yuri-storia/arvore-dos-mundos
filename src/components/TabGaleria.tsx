@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { FRUITS, STYLE_OPTIONS, IMAGE_TYPE_OPTIONS, TONE_OPTIONS, GalleryImage } from '@/lib/data';
+import { FRUITS, STYLE_META, IMAGE_TYPE_META, TONE_META, GalleryImage } from '@/lib/data';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
