@@ -277,7 +277,7 @@ const Index = () => {
             {state.activeTab === 'construir' && <TabConstruir state={state} updateField={updateField} setCurrentFruit={setCurrentFruit} setMethod={setMethod} onNavigateCodex={() => setActiveTab('codex')} addToGallery={addToGallery} />}
             {state.activeTab === 'codex' && <TabCodex gallery={state.gallery} worldId={state.currentSaveId} worlds={worlds} />}
             {state.activeTab === 'escrever' && <TabEscrever worldId={state.currentSaveId} worlds={worlds} />}
-            {state.activeTab === 'galeria' && <TabGaleria gallery={state.gallery} setGallery={setGallery} state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />}
+            {state.activeTab === 'galeria' && <TabGaleria gallery={state.gallery} setGallery={setGallery} folderCovers={state.folderCovers} setFolderCovers={setFolderCovers} state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />}
           </React.Suspense>
         </main>
 
