@@ -103,9 +103,13 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, state, setGen
   const styleMeta = STYLE_META.find(s => s.label === style) || STYLE_META[0];
 
   useEffect(() => {
-    if (promptJob?.status === 'done' && typeof promptJob.result === 'string' && promptJob.result) setGeneratedPrompt(promptJob.result);
-    if (promptJob?.status === 'error') { const f = friendlyAIError(promptJob.error || ''); setError(`${f.title} ${f.hint}`); }
-  }, [promptJob?.status, promptJob?.result, promptJob?.error, setGeneratedPrompt]);
+    if (promptJob?.status === 'done' && typeof promptJob.result === 'string' && promptJob.result) {
+      setGeneratedPrompt(promptJob.result);
+      if (autoGenerate) { setAutoGenerate(false); handleGenerate(); }
+    }
+    if (promptJob?.status === 'error') { setAutoGenerate(false); const f = friendlyAIError(promptJob.error || ''); setError(`${f.title} ${f.hint}`); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [promptJob?.status, promptJob?.result, promptJob?.error]);
 
   useEffect(() => {
     if (imageJob?.status === 'done' && imageJob.result) {
