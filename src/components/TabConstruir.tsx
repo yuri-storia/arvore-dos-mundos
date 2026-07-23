@@ -33,9 +33,10 @@ interface Props {
   setCurrentFruit: (id: number) => void;
   setMethod: (m: MethodType) => void;
   onNavigateCodex?: () => void;
+  addToGallery?: (img: GalleryImage) => void;
 }
 
-export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFruit, setMethod, onNavigateCodex }) => {
+export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFruit, setMethod, onNavigateCodex, addToGallery }) => {
   const isMobile = useIsMobile();
   const { db, currentFruit, method, worldName, currentSaveId } = state;
   const { entries, createEntry, updateEntry } = useCodexEntries(currentSaveId || undefined);
