@@ -7,16 +7,18 @@ export interface PlanLimits {
   maxArtigos: number;
   canExport: boolean;
   canUseAI: boolean;
-  /** Pode criar novos Mundos (bloqueado em plano expirado / Semente) */
+  /** Pode criar novos Mundos (bloqueado em plano expirado / cancelado / Semente) */
   canCreateWorld: boolean;
-  /** Pode criar novas Fichas (bloqueado em plano expirado / Semente) */
+  /** Pode criar novas Fichas (bloqueado em plano expirado / cancelado / Semente) */
   canCreateFicha: boolean;
-  /** Pode criar novos Artigos (bloqueado em plano expirado / Semente) */
+  /** Pode criar novos Artigos (bloqueado em plano expirado / cancelado / Semente) */
   canCreateArtigo: boolean;
-  /** Pode adicionar imagens à Galeria (bloqueado em plano expirado / Semente) */
+  /** Pode adicionar imagens à Galeria (bloqueado em plano expirado / cancelado / Semente) */
   canUploadGallery: boolean;
-  /** Acesso à aba Escrever (sempre liberado — manuscritos do usuário ficam preservados) */
+  /** Acesso à aba Escrever (sempre liberado para leitura/exportação) */
   canWrite: boolean;
+  /** Pode editar qualquer conteúdo (fichas, artigos, manuscritos). Bloqueado em plano expirado/cancelado. */
+  canEdit: boolean;
   /** Plano já existiu mas não está ativo agora — usado para mensagens "plano expirado" */
   isExpired: boolean;
   planLabel: string;
@@ -33,6 +35,7 @@ const SEMENTE_LIMITS: PlanLimits = {
   canCreateArtigo: false,
   canUploadGallery: false,
   canWrite: true,
+  canEdit: false,
   isExpired: false,
   planLabel: 'Sem plano',
 };
@@ -48,8 +51,9 @@ const RAIZ_LIMITS: PlanLimits = {
   canCreateArtigo: true,
   canUploadGallery: true,
   canWrite: true,
+  canEdit: true,
   isExpired: false,
-  planLabel: 'Raiz',
+  planLabel: 'Criador',
 };
 
 const IDRIEL_LIMITS: PlanLimits = {
@@ -63,6 +67,7 @@ const IDRIEL_LIMITS: PlanLimits = {
   canCreateArtigo: true,
   canUploadGallery: true,
   canWrite: true,
+  canEdit: true,
   isExpired: false,
   planLabel: 'Idriel',
 };
@@ -78,17 +83,19 @@ const ADMIN_LIMITS: PlanLimits = {
   canCreateArtigo: true,
   canUploadGallery: true,
   canWrite: true,
+  canEdit: true,
   isExpired: false,
   planLabel: 'Admin',
 };
 
-// Plano expirado: como Semente, mas exportação permanece liberada para evitar
-// fricção em migração. Escrever segue liberado.
+// Plano expirado / cancelado: leitura + exportação PDF liberadas, mas
+// nenhuma edição ou criação de conteúdo. Escrever segue acessível como leitura.
 const EXPIRED_LIMITS: PlanLimits = {
   ...SEMENTE_LIMITS,
   canExport: true,
+  canEdit: false,
   isExpired: true,
-  planLabel: 'Plano expirado',
+  planLabel: 'Plano cancelado',
 };
 
 export function usePlanLimits(): PlanLimits & { loading: boolean } {
