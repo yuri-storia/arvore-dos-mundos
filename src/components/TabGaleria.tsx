@@ -57,11 +57,14 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
     setFolderCovers(next);
   };
 
-  // --- Upload state ---
+  // --- Upload state (per-file progress) ---
   const uploadRef = useRef<HTMLInputElement>(null);
   const coverRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState({ done: 0, total: 0 });
+  type UploadStatus = 'queued' | 'uploading' | 'processing' | 'done' | 'failed';
+  interface UploadItem { id: string; name: string; status: UploadStatus; progress: number; error?: string }
+  const [uploads, setUploads] = useState<UploadItem[]>([]);
+  const uploading = uploads.some(u => u.status !== 'done' && u.status !== 'failed');
+  const clearFinishedUploads = () => setUploads(prev => prev.filter(u => u.status !== 'done'));
 
   // --- Generator state (Visões de Idriel) ---
   const [showGenerator, setShowGenerator] = useState(false);
