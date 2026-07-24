@@ -30,14 +30,17 @@ export function useIdrielVisions(worldId?: string) {
     staleTime: 5 * 60_000,
     gcTime: 30 * 60_000,
     queryFn: async (): Promise<IdrielVision[]> => {
+      // Payload enxuto: descartamos o `prompt` (que pode chegar a >1KB por linha)
+      // no listagem. Se algum dia precisarmos reabrir com o prompt exato, buscamos
+      // sob demanda por id.
       const { data, error } = await supabase
         .from('idriel_visions')
-        .select('*')
+        .select('id,user_id,world_id,description,image_url,style,image_type,tone,extras,created_at')
         .eq('world_id', worldId!)
         .order('created_at', { ascending: false })
-        .limit(100);
+        .limit(60);
       if (error) { console.error(error); return []; }
-      return (data || []) as IdrielVision[];
+      return (data || []).map((r: any) => ({ ...r, prompt: '' })) as IdrielVision[];
     },
   });
 
