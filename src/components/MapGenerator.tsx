@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Map, Sparkles, Lock, Droplet, ArrowDown, RefreshCw, Wand2, Check, X, FolderOpen, Save, ScrollText, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { Map, Sparkles, Lock, Droplet, ArrowDown, RefreshCw, Wand2, Check, X, FolderOpen, Save, ScrollText, ChevronDown, ChevronUp, Trash2, Loader2 } from 'lucide-react';
 import { callAIText, callAIImage, friendlyAIError } from '@/lib/helpers';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
