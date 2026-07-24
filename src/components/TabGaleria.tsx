@@ -315,6 +315,29 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
     });
   };
 
+  const regenerateVision = async (v: { id: string; description: string; prompt?: string; image_url: string | null; style: string | null; image_type: string | null; tone: string | null }) => {
+    if (!planLimits.canUseAI) { toast.error('Plano ativo necessário para reprocessar.'); return; }
+    setRegenVisionId(v.id);
+    try {
+      // O `prompt` não vem no payload enxuto da listagem — busca sob demanda.
+      let prompt = v.prompt || '';
+      if (!prompt) prompt = (await fetchVisionPrompt(v.id)) || '';
+      if (!prompt) {
+        // Sem prompt salvo: reconstrói a partir dos parâmetros da visão.
+        const styleHint = STYLE_META.find(s => s.label === v.style)?.promptHint || '';
+        prompt = `${v.description}. Style: ${v.style || ''} (${styleHint}). Type: ${v.image_type || ''}. Tone: ${v.tone || ''}.`;
+      }
+      const url = await callAIImageConsistent(prompt, [], codexContext, []);
+      await updateVisionImage(v.id, url);
+      toast.success('Visão reprocessada');
+    } catch (e: any) {
+      const f = friendlyAIError(e?.message || '');
+      toast.error(`${f.title} ${f.hint}`);
+    } finally {
+      setRegenVisionId(null);
+    }
+  };
+
   const copyPrompt = () => { navigator.clipboard.writeText(generatedPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); };
 
   const typeMeta = IMAGE_TYPE_META.find(t => t.label === imgType) || IMAGE_TYPE_META[0];
