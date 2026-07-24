@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Crown, Leaf, Sparkles, CreditCard, Check, ArrowRight } from 'lucide-react';
-import { useSubscription, openCustomerPortal } from '@/hooks/useSubscription';
+import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { UpgradeIdrielDialog } from '@/components/UpgradeIdrielDialog';
 
