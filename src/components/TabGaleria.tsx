@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { FRUITS, STYLE_META, IMAGE_TYPE_META, TONE_META, GalleryImage } from '@/lib/data';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,7 +17,7 @@ import {
   Sparkles, Lock, ChevronDown, ChevronUp, Trash2, Palette, Leaf, ScrollText,
   X, Save, Apple, BarChart3, Check, ClipboardCopy, ArrowDown, RotateCw,
   Image as ImageIcon, ArrowRight, ArrowLeft, Info, Upload, ImagePlus,
-  FolderOpen, Wand2,
+  FolderOpen, Wand2, Loader2, RefreshCw, AlertTriangle, CheckCircle2,
 } from 'lucide-react';
 import { ImageReferencePicker, type PickedReference } from '@/components/ImageReferencePicker';
 import { StyleCarousel } from '@/components/StyleCarousel';
