@@ -7,6 +7,7 @@ import idrielAvatar from '@/assets/idriel-avatar.webp';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import { WORLDBUILDING_LESSONS, type WorldbuildingLesson } from '@/lib/idriel/worldbuildingLessons';
 import { IDRIEL_DIALOGUES, type Dialogue, type DialogueNode } from '@/lib/idriel/dialogues';
+import { PlanStatusCard } from '@/components/PlanStatusCard';
 
 /* ============================================================
  * Types
@@ -367,6 +368,7 @@ const HubMenu: React.FC<{
   onDialogues: () => void;
 }> = ({ onTour, onFaq, onLessons, onDialogues }) => (
   <div className="space-y-3.5">
+    <PlanStatusCard variant="help" />
     <p className="font-amiri italic text-[13px] text-text-secondary text-center mb-5">
       Escolha um caminho entre as raízes, viajante.
     </p>
