@@ -70,6 +70,16 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
   const debouncedSave = useCallback((value: string) => {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(async () => {
+      if (!plan.canEdit) {
+        setSaveStatus('error');
+        if (errorToastIdRef.current == null) {
+          errorToastIdRef.current = toast.error('Assinatura inativa — modo somente leitura.', {
+            description: 'Reative um plano para voltar a editar seus manuscritos.',
+            duration: 4000,
+          });
+        }
+        return;
+      }
       setSaveStatus('saving');
       try {
         await Promise.resolve(onContentSave(value));
@@ -90,7 +100,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
         });
       }
     }, 1500);
-  }, [onContentSave]);
+  }, [onContentSave, plan.canEdit]);
 
   const handleContentChange = useCallback((value: string) => {
     setContent(value);
