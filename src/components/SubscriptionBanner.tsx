@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useSubscription, openCheckout, STRIPE_PLANS, openCustomerPortal } from '@/hooks/useSubscription';
+import { useSubscription, openCheckout, STRIPE_PLANS } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { Lock, Sparkles, CreditCard, X, Leaf, Droplet, Droplets, ArrowRight, Clock } from 'lucide-react';
 import { RechargePackageDialog } from '@/components/RechargePackageDialog';
