@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { ArrowLeft, Save, Eye, EyeOff, User, KeyRound, ShieldCheck, Crown } from 'lucide-react';
+import { ArrowLeft, Save, Eye, EyeOff, User, KeyRound, Crown } from 'lucide-react';
 import { TwoFactorSection } from '@/components/TwoFactorSection';
 import { PlanStatusCard } from '@/components/PlanStatusCard';
 
