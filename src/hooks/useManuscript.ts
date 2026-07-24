@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { handlePlanEditError } from '@/lib/planErrors';
 
 export interface Manuscript {
   id: string;
@@ -149,7 +150,7 @@ export function useManuscript(worldId?: string) {
 
   const updateManuscript = useCallback(async (id: string, updates: Partial<Pick<Manuscript, 'title' | 'synopsis' | 'word_count_goal'>>) => {
     const { error } = await supabase.from('manuscripts').update(updates).eq('id', id);
-    if (error) { toast.error('Erro ao atualizar manuscrito'); return; }
+    if (error) { if (!handlePlanEditError(error)) toast.error('Erro ao atualizar manuscrito'); return; }
     setManuscripts(prev => prev.map(m => m.id === id ? { ...m, ...updates } : m));
     if (activeManuscript?.id === id) setActiveManuscript(prev => prev ? { ...prev, ...updates } : prev);
     if (updates.title !== undefined) {
@@ -187,7 +188,7 @@ export function useManuscript(worldId?: string) {
       finalUpdates.word_count = countWords(updates.content);
     }
     const { error } = await supabase.from('chapters').update(finalUpdates).eq('id', id);
-    if (error) { toast.error('Erro ao atualizar capítulo'); return; }
+    if (error) { if (!handlePlanEditError(error)) toast.error('Erro ao atualizar capítulo'); return; }
     setChapters(prev => prev.map(c => c.id === id ? { ...c, ...finalUpdates } : c));
   }, []);
 
@@ -250,7 +251,7 @@ export function useManuscript(worldId?: string) {
       finalUpdates.word_count = countWords(updates.content);
     }
     const { error } = await supabase.from('scenes').update(finalUpdates).eq('id', id);
-    if (error) { toast.error('Erro ao salvar arco'); return; }
+    if (error) { if (!handlePlanEditError(error)) toast.error('Erro ao salvar arco'); return; }
     setScenes(prev => prev.map(s => s.id === id ? { ...s, ...finalUpdates } : s));
   }, []);
 
