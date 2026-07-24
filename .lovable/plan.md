@@ -1,67 +1,126 @@
-# Linha do Tempo — nova funcionalidade do Codex
+## Escopo
 
-Uma trilha vertical dourada, ornamental (estética monárquica/medieval fantástica), que brota das raízes da Árvore dos Mundos e recebe fatos históricos do mundo do criador. Fichas/artigos podem ser ancorados em pontos da linha; entradas exclusivas nascem direto nela.
+São 6 entregas interdependentes. Vou implementar em ordem para minimizar retrabalho.
 
-## O que muda para o usuário
+---
 
-1. **Novo sub-modo no Codex**: acima dos filtros de Fichas/Artigos ganha um toggle "Enciclopédia | Linha do Tempo".
-2. **Frutos renomeados / integrados**:
-   - Fruto 3 "Linha do Tempo" → **"Fatos Históricos"** (só troca de nome, não muda ordem/estrutura).
-   - Ao usar "Consultar Idriel" nos Frutos **Fatos Históricos** e **Mitologia**, aparece uma opção extra "Enviar para a Linha do Tempo" além de "Criar ficha/artigo".
-3. **Linha do Tempo (visual)**:
-   - Tronco vertical dourado com filigranas, brotando de raízes SVG que casam com a hero da Árvore.
-   - Marcos (nós) em forma de gema/selo real, com halo pulsante suave.
-   - Cada nó abre um card lateral (drawer no mobile) com título, data narrativa (era/ano/mês livre em texto), descrição rica, tipo (Fato, Mito, Batalha, Descoberta, Nascimento, Queda, Ritual, Outro) e opcional: ficha/artigo vinculado.
-   - Ordenação por `sort_index` numérico + fallback por data textual; drag-and-drop para reordenar (dnd-kit, já instalado).
-4. **Ancoragem no Codex**: dentro de uma ficha/artigo, botão "Ancorar na Linha do Tempo" cria/relaciona um marco. No marco, botão "Abrir ficha vinculada" navega ao Codex.
-5. **Idriel**: persona e `PLATFORM_KNOWLEDGE` do `idriel-help` atualizados para descrever a Linha do Tempo, o novo nome do Fruto 3 e a integração Fatos Históricos/Mitologia → Linha do Tempo.
+### 1. Página **Gerenciar Minha Conta** (`/minha-conta`)
 
-## Escopo técnico
+Substitui o destino atual do botão "Gerenciar" (hoje vai direto para `/cancelar-plano`).
 
-### Banco (migração)
-- Nova tabela `public.timeline_events`:
-  - `id uuid pk`, `user_id uuid not null`, `world_id uuid not null references worlds(id) on delete cascade`
-  - `title text not null` (≤200), `description text` (≤10000), `era_label text` (texto livre curto, ex. "Era das Sombras · 342 AF")
-  - `event_type text not null default 'fato'` (fato|mito|batalha|descoberta|nascimento|queda|ritual|outro)
-  - `sort_index double precision not null default 0` (permite inserção entre dois nós sem renumerar tudo)
-  - `codex_entry_id uuid null references codex_entries(id) on delete set null`
-  - `fruit_id int null` (origem: 3 ou 6, quando criado pelo Construir)
-  - `created_at`, `updated_at` timestamptz default now()
-- GRANT SELECT/INSERT/UPDATE/DELETE para `authenticated`, ALL para `service_role`, sem `anon`.
-- RLS: `user_id = auth.uid()` em SELECT/INSERT/UPDATE/DELETE.
-- Trigger de validação de tamanho + `update_updated_at_column`.
+**Conteúdo da página:**
+- Card do plano ativo (nome, ciclo, próxima cobrança, benefícios) — reaproveita `PlanStatusCard`.
+- **Limites atuais em tempo real**: mundos usados/limite, entradas no Codex, manuscritos — consulta o Supabase e compara com `usePlanLimits`.
+- **Saldo de Elixir** (usadas no mês + bônus/recargas disponíveis) — vem do item 4.
+- **Ações**: Upgrade (→ `/planos`), Downgrade (→ `/planos` com destaque no plano inferior), Recargas avulsas (abre `RechargePackageDialog`), Cancelar (→ `/cancelar-plano`).
+- **Histórico de pagamentos e recargas** (item 4).
 
-### Frontend
-- `src/hooks/useTimelineEvents.ts`: CRUD + reorder via React Query (mesmo padrão do `useCodexEntries`).
-- `src/components/timeline/TimelineView.tsx`: layout desktop/tablet/mobile responsivo, SVG das raízes no topo, tronco central, nós à esquerda/direita alternados (mobile: só à direita do tronco).
-- `src/components/timeline/TimelineNode.tsx`: gema dourada com selo do tipo, hover glow, click abre editor.
-- `src/components/timeline/TimelineEventDialog.tsx`: form (título, era, tipo, descrição, vínculo com ficha via `CodexEntryPicker` existente).
-- `src/components/timeline/TimelineRootsSVG.tsx`: raízes SVG que reaproveitam paleta gold/blue-glow.
-- `src/components/TabCodex.tsx`: toggle Enciclopédia/Linha do Tempo persistido em `sessionStorage`.
-- `src/components/CodexAnalysis.tsx` / consulta Idriel nos Frutos 3 e 6: novo botão "Enviar para a Linha do Tempo" que chama `createTimelineEvent` com `fruit_id`.
-- `src/lib/data.ts`: renomear label do Fruto 3 para "Fatos Históricos" (mantendo id).
-- Atualizar `supabase/functions/_shared/idriel-persona.ts` e `PLATFORM_KNOWLEDGE` em `idriel-help/index.ts` para citar a Linha do Tempo, novo nome do Fruto e integrações.
+O botão "Gerenciar" em `PlanStatusCard` e `SubscriptionBanner` passa a apontar para `/minha-conta`.
 
-### Estilo
-- Tokens já existentes: `gold`, `gold-deep`, `gold-champagne`, `blue-glow`. Nenhum hardcode.
-- Ornamentos: filigranas via SVG inline + `drop-shadow(0 0 12px hsl(var(--gold)/0.35))`.
-- Animações suaves com `framer-motion` (já usado no projeto).
+---
 
-## Diagrama rápido
+### 2. Exportações premium (PDF/DOCX/EPUB)
 
-```text
-        [Raízes SVG douradas]
-                |
-        ◆ Nascimento do Reino  (Era I · 0)
-        |
-   ◈ Batalha da Aurora  (Era II · 142)
-        |
-        ◆ Fundação da Ordem  ← vinculado à ficha "Ordem dos Selos"
-        |
-        …
-```
+Redesenhar o layout dos arquivos gerados em `src/lib/manuscriptExport.ts` e `src/lib/codexPdfExport.ts`.
 
-## Fora de escopo (nesta entrega)
-- Zoom cronológico numérico automático (datas continuam texto livre).
-- Exportação PDF da Linha do Tempo.
-- Compartilhamento público.
+**Manuscrito (PDF):**
+- Capa com título, subtítulo do mundo, autor (display_name) e marca discreta "Árvore dos Mundos".
+- Sumário automático com números de página.
+- Tipografia serifada, entrelinha 1.6, capítulos começando em página nova com número + título hierárquico.
+- Cabeçalho com título do manuscrito, rodapé com número de página.
+
+**Codex (PDF):**
+- Capa "Compêndio do Mundo — <nome>".
+- Sumário agrupado por Fruto.
+- Fichas e Artigos com card sóbrio, chip do Fruto colorido, imagem quando houver.
+
+**DOCX/EPUB:** aplicar mesma hierarquia (Heading 1/2, quebras de página, estilos).
+
+Sem mudar assinaturas públicas — só melhora visual.
+
+---
+
+### 3. Auditoria de bloqueio pós-cancelamento
+
+Já existe `plan.canEdit`. Vou:
+- Varrer todos os hooks/componentes que fazem `update`/`insert`/`delete` e adicionar guarda `canEdit` + toast "Assinatura inativa" antes da chamada ao Supabase.
+- Alvos: `useCodexEntries` (create/update/delete), `useWorlds` (update), `useManuscript` (create/update/delete chapter e manuscript), `useTimelineEvents`, `useStorylines`, `useStorylineCards`, `useIdrielVisions`, `useMapHistory`, `useFreeWritings`.
+- Botões de "criar/editar/deletar" ficam com aparência desabilitada quando `!canEdit`.
+- Reforço no servidor: trigger `enforce_plan_creation` já bloqueia INSERT em worlds/codex quando não há assinatura ativa; vou estendê-lo para bloquear também UPDATE nas tabelas de conteúdo (`worlds`, `codex_entries`, `chapters`, `manuscripts`, `timeline_events`, `storylines`, `storyline_cards`, `free_writings`).
+
+---
+
+### 4. Histórico de recargas + saldo auditável de Elixir
+
+**DB:**
+- `user_credit_balance` já tem `bonus_drops`. Vou adicionar `total_purchased`, `total_consumed` para saldo auditável.
+- Nova tabela `elixir_ledger` (append-only): `id, user_id, kind ('recharge'|'consume'|'monthly_grant'|'bonus'), delta int, balance_after int, reference text, created_at`.
+- Trigger em `asaas_payments` (quando `kind='recharge'` e `status` vira paga): insere linha no ledger e credita `bonus_drops`.
+- Função `consume_drops(_user_id, _amount, _reference)` que decrementa e registra no ledger — chamada pelas edge functions de IA em vez do `increment_ai_usage` isolado.
+
+**Realtime:**
+- Habilitar Realtime em `user_credit_balance` e `elixir_ledger`.
+- Hook novo `useElixirBalance()` subscreve mudanças e atualiza contador em tempo real (o `DropsCounterBadge` passa a usar isso).
+
+**UI:**
+- Seção "Histórico de Elixir" dentro de `/minha-conta` listando compras e consumos com data/hora.
+
+---
+
+### 5. Webhooks do Asaas (sincronização servidor)
+
+Já existe `asaas-webhook`. Vou auditar e completar:
+- Confirmar tratamento de eventos: `PAYMENT_CONFIRMED`, `PAYMENT_RECEIVED`, `PAYMENT_OVERDUE`, `PAYMENT_REFUNDED`, `SUBSCRIPTION_CANCELLED`, `SUBSCRIPTION_UPDATED`.
+- Validar assinatura via header `asaas-access-token` = `ASAAS_WEBHOOK_TOKEN`.
+- Ao confirmar pagamento de assinatura: `subscriptions.status='active'`, atualizar `expires_at`.
+- Ao cancelar ou vencer: `status='cancelled'|'expired'`.
+- Ao confirmar recarga: credita ledger + `bonus_drops`.
+- Idempotência via `webhook_events` (tabela já existe).
+- Notificar frontend via Realtime na tabela `subscriptions` (habilitar).
+
+URL do webhook: `https://<project>.supabase.co/functions/v1/asaas-webhook`. Vou entregar a URL e o token que o usuário já configurou.
+
+---
+
+### 6. Fluxo de upgrade no HelpDrawer
+
+Substituir o CTA atual de upgrade no `HelpDrawer` por um mini-fluxo:
+- Se plano < Idriel: mostra card "Ganhe com Idriel" listando benefícios exclusivos (IAs, geração de imagens, 100 gotas/mês, importação automática).
+- Botão "Fazer upgrade" abre `ConfirmDialog` mostrando: preço, o que muda, e só então chama `openCheckout('idriel_mensal'|'idriel_anual')`.
+- Escolha entre mensal e anual dentro do próprio dialog (com selo de economia no anual).
+
+---
+
+### Detalhes técnicos
+
+**Ordem de execução:**
+1. Migração DB (ledger, colunas em `user_credit_balance`, triggers de bloqueio, realtime).
+2. Webhook `asaas-webhook` — completar handlers.
+3. `useElixirBalance` + `DropsCounterBadge` real-time.
+4. Página `/minha-conta` (rota, componente, integração com hooks).
+5. Guardas `canEdit` nos hooks/componentes de conteúdo.
+6. Upgrade dialog no `HelpDrawer`.
+7. Exportações premium (PDF/DOCX/EPUB).
+
+**Arquivos principais criados/modificados:**
+- Migração SQL (nova tabela `elixir_ledger`, colunas, triggers, realtime).
+- `supabase/functions/asaas-webhook/index.ts` (revisão completa).
+- `src/hooks/useElixirBalance.ts` (novo).
+- `src/hooks/useAccountUsage.ts` (novo — conta mundos/codex/manuscritos).
+- `src/pages/ManageAccountPage.tsx` (novo).
+- `src/App.tsx` (rota `/minha-conta`).
+- `src/components/PlanStatusCard.tsx` + `SubscriptionBanner.tsx` (destino do "Gerenciar").
+- `src/components/UpgradeConfirmDialog.tsx` (novo).
+- `src/components/HelpDrawer.tsx` (integrar dialog).
+- Hooks de conteúdo: guardas `canEdit`.
+- `src/lib/manuscriptExport.ts`, `src/lib/codexPdfExport.ts` (redesign visual).
+- `src/components/DropsCounterBadge.tsx` (usar `useElixirBalance`).
+
+**Custos e riscos:**
+- Migração toca em triggers de UPDATE em várias tabelas — vou testar com plano ativo para não bloquear usuários pagos.
+- `elixir_ledger` cresce sem parar; sem retenção agora (baixo volume esperado).
+- Redesign de PDF pode aumentar tempo de geração; ainda é síncrono no cliente, então mantenho leve.
+
+**Fora de escopo:**
+- Downgrade automático entre planos no Asaas (mantido como link para `/planos`, cancela+recontrata).
+- Notificações por e-mail de renovação/cobrança (podemos fazer depois).
