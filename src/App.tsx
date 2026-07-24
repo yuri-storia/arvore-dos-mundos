@@ -18,6 +18,7 @@ const LoginPage = lazy(() => import("./pages/LoginPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const CancelPlanPage = lazy(() => import("./pages/CancelPlanPage"));
+const ManageAccountPage = lazy(() => import("./pages/ManageAccountPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const ObrigadoPage = lazy(() => import("./pages/ObrigadoPage"));
