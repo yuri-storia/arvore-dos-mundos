@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Crown, Leaf, Sparkles, CreditCard, Check, ArrowRight } from 'lucide-react';
-import { useSubscription, openCustomerPortal } from '@/hooks/useSubscription';
+import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { UpgradeIdrielDialog } from '@/components/UpgradeIdrielDialog';
 
@@ -101,14 +101,14 @@ export const PlanStatusCard: React.FC<PlanStatusCardProps> = ({ variant = 'setti
             </div>
           </div>
           {sub.subscribed && !isAdmin && (
-            <button
-              onClick={() => { openCustomerPortal().catch(() => {}); }}
+            <Link
+              to="/cancelar-plano"
               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-montserrat font-bold uppercase tracking-wider border border-white/10 text-text-dim hover:text-foreground transition-colors shrink-0"
-              title="Gerenciar assinatura"
+              title="Gerenciar ou cancelar assinatura"
             >
               <CreditCard className="w-3 h-3" />
               <span className="hidden sm:inline">Gerenciar</span>
-            </button>
+            </Link>
           )}
         </div>
 
