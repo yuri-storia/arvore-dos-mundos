@@ -32,16 +32,19 @@ const PLANS: Record<string, PlanDef> = {
   recarga_50:    { name: "50 gotas de Elixir",  amount: 14.90, kind: "recharge", drops:  50 },
   recarga_100:   { name: "100 gotas de Elixir", amount: 27.90, kind: "recharge", drops: 100 },
   recarga_200:   { name: "200 gotas de Elixir", amount: 54.90, kind: "recharge", drops: 200 },
-  // Upgrades — sempre exigem login (validado abaixo)
-  upgrade_raiz_m_to_idriel_m: { name: "Upgrade Raiz->Idriel Mensal", amount:  20.00, kind: "upgrade" },
-  upgrade_raiz_m_to_idriel_a: { name: "Upgrade Raiz Mensal->Idriel Anual", amount: 329.00, kind: "upgrade" },
-  upgrade_raiz_a_to_idriel_a: { name: "Upgrade Raiz Anual->Idriel Anual", amount: 200.00, kind: "upgrade" },
+  // Upgrades — sempre exigem login (validado abaixo). Criam nova assinatura Idriel
+  // com o valor cheio do plano de destino; a assinatura anterior é substituída pelo webhook.
+  upgrade_raiz_m_to_idriel_m: { name: "Idriel - Mensal",  amount:  39.90, kind: "upgrade", cycle: "MONTHLY", hasIdriel: true },
+  upgrade_raiz_m_to_idriel_a: { name: "Idriel - Anual",   amount: 397.90, kind: "upgrade", cycle: "YEARLY",  hasIdriel: true },
+  upgrade_raiz_a_to_idriel_a: { name: "Idriel - Anual",   amount: 397.90, kind: "upgrade", cycle: "YEARLY",  hasIdriel: true },
+  upgrade_raiz_a_to_idriel_m: { name: "Idriel - Mensal",  amount:  39.90, kind: "upgrade", cycle: "MONTHLY", hasIdriel: true },
 };
 
 const UPGRADE_REQUIREMENT: Record<string, string[]> = {
   upgrade_raiz_m_to_idriel_m: ["raiz_mensal"],
   upgrade_raiz_m_to_idriel_a: ["raiz_mensal"],
   upgrade_raiz_a_to_idriel_a: ["raiz_anual"],
+  upgrade_raiz_a_to_idriel_m: ["raiz_anual"],
 };
 
 async function asaas(path: string, init: RequestInit = {}) {
@@ -135,16 +138,16 @@ Deno.serve(async (req) => {
     // Não enviamos customerData — o Asaas Checkout exige TODOS os campos quando presente.
     const isSubscription = plan.kind === "subscription";
     const isUpgrade = plan.kind === "upgrade";
+    // Upgrades entram como assinatura recorrente do plano de destino (Idriel)
+    const asRecurring = isSubscription || isUpgrade;
     const itemName = (`AdM — ${plan.name}`).slice(0, 30); // máx 30 chars
-    const description = isSubscription
+    const description = asRecurring
       ? `Assinatura ${plan.cycle === "YEARLY" ? "anual" : "mensal"} — ${plan.name}`
-      : isUpgrade
-      ? `Upgrade para Idriel — ${plan.name}`
       : `Recarga avulsa de ${plan.drops} gotas`;
 
     const checkoutPayload: Record<string, any> = {
-      billingTypes: isSubscription ? ["CREDIT_CARD"] : ["CREDIT_CARD", "PIX"],
-      chargeTypes: isSubscription ? ["RECURRENT"] : ["DETACHED"],
+      billingTypes: asRecurring ? ["CREDIT_CARD"] : ["CREDIT_CARD", "PIX"],
+      chargeTypes: asRecurring ? ["RECURRENT"] : ["DETACHED"],
       minutesToExpire: 60,
       callback: {
         successUrl: `${origin}/obrigado?ref=${encodeURIComponent(externalReference)}`,
@@ -161,7 +164,7 @@ Deno.serve(async (req) => {
       notificationEnabled: true,
     };
 
-    if (plan.kind === "subscription") {
+    if (asRecurring) {
       const nextDueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
       checkoutPayload.subscription = {
         cycle: plan.cycle,
