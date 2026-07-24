@@ -70,7 +70,7 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
 
   if (isMonthly) {
     options.push({
-      code: 'upgrade_raiz_m_to_idriel_m',
+      code: 'idriel_mensal',
       badge: 'Mais simples',
       title: 'Idriel Mensal',
       bullets: [
@@ -83,7 +83,7 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
       subLine: 'por mês · cancele quando quiser',
     });
     options.push({
-      code: 'upgrade_raiz_m_to_idriel_a',
+      code: 'idriel_anual',
       badge: 'Melhor custo-benefício',
       title: 'Idriel Anual',
       bullets: [
@@ -97,7 +97,7 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
     });
   } else if (isAnnual) {
     options.push({
-      code: 'upgrade_raiz_a_to_idriel_a',
+      code: 'idriel_anual',
       badge: 'Recomendado',
       title: 'Idriel Anual',
       bullets: [
@@ -110,7 +110,7 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
       subLine: 'por 1 ano · substitui seu Criador Anual',
     });
     options.push({
-      code: 'upgrade_raiz_a_to_idriel_m',
+      code: 'idriel_mensal',
       badge: 'Mais flexível',
       title: 'Idriel Mensal',
       bullets: [
@@ -162,7 +162,7 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
                 {opt.badge}
               </span>
               <div className="flex items-center gap-2 mb-2">
-                {opt.code.endsWith('_a') ? <Crown className="w-5 h-5 text-gold-light" /> : <TrendingUp className="w-5 h-5 text-gold-light" />}
+                {opt.code.includes('anual') ? <Crown className="w-5 h-5 text-gold-light" /> : <TrendingUp className="w-5 h-5 text-gold-light" />}
                 <h3 className="font-cinzel font-bold text-lg text-gold-light">{opt.title}</h3>
               </div>
               <div className="mb-3">

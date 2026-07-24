@@ -12,6 +12,7 @@ import { UpgradeIdrielDialog } from '@/components/UpgradeIdrielDialog';
  */
 interface PlanStatusCardProps {
   variant?: 'settings' | 'help';
+  onUpgradeRequest?: () => void;
 }
 
 const CRIADOR_FEATURES = [
@@ -47,7 +48,7 @@ const FUNDADOR_FEATURES = [
   'Depois R$ 39,90/mês — ou anual R$ 397,90',
 ];
 
-export const PlanStatusCard: React.FC<PlanStatusCardProps> = ({ variant = 'settings' }) => {
+export const PlanStatusCard: React.FC<PlanStatusCardProps> = ({ variant = 'settings', onUpgradeRequest }) => {
   const sub = useSubscription();
   const { isAdmin } = useAuth();
   const [showUpgrade, setShowUpgrade] = useState(false);
@@ -88,6 +89,14 @@ export const PlanStatusCard: React.FC<PlanStatusCardProps> = ({ variant = 'setti
     : accent === 'blue'
       ? 'rgba(59, 130, 246, 0.06)'
       : 'rgba(255,255,255,0.02)';
+
+  const handleUpgradeRequest = () => {
+    if (onUpgradeRequest) {
+      onUpgradeRequest();
+      return;
+    }
+    setShowUpgrade(true);
+  };
 
   return (
     <>
@@ -133,7 +142,7 @@ export const PlanStatusCard: React.FC<PlanStatusCardProps> = ({ variant = 'setti
           <div className="flex flex-col sm:flex-row gap-2 mt-2">
             {isCriador && (
               <button
-                onClick={() => setShowUpgrade(true)}
+                onClick={handleUpgradeRequest}
                 className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-[#1a0f00] hover:opacity-90 transition-opacity"
               >
                 <Sparkles className="w-3 h-3" />
@@ -149,7 +158,7 @@ export const PlanStatusCard: React.FC<PlanStatusCardProps> = ({ variant = 'setti
           </div>
         )}
       </div>
-      <UpgradeIdrielDialog open={showUpgrade} onClose={() => setShowUpgrade(false)} />
+      {!onUpgradeRequest && <UpgradeIdrielDialog open={showUpgrade} onClose={() => setShowUpgrade(false)} />}
     </>
   );
 };
