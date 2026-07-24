@@ -141,7 +141,7 @@ export function useCodexEntries(worldId?: string) {
       .insert({ ...entry, user_id: user.id, world_id: worldId })
       .select()
       .single();
-    if (error) { toast.error(`Erro ao criar ficha: ${error.message}`); console.error(error); return null; }
+    if (error) { if (!handlePlanEditError(error)) toast.error(`Erro ao criar ficha: ${error.message}`); console.error(error); return null; }
     qc.setQueryData(CODEX_KEY(worldId), (old: CodexEntry[] = []) => [data as any, ...old]);
     // Marca como hidratada — já temos o `content` completo em mãos, não precisa
     // refetch. Sem isso, `isContentHydrated` retornava false e o CodexCard
@@ -164,7 +164,7 @@ export function useCodexEntries(worldId?: string) {
       return;
     }
     const { error } = await supabase.from('codex_entries').update(updates).eq('id', id);
-    if (error) { toast.error('Erro ao atualizar ficha'); return; }
+    if (error) { if (!handlePlanEditError(error)) toast.error('Erro ao atualizar ficha'); return; }
     qc.setQueryData(CODEX_KEY(worldId), (old: CodexEntry[] = []) =>
       old.map(e => e.id === id ? { ...e, ...updates, updated_at: new Date().toISOString() } : e)
     );
