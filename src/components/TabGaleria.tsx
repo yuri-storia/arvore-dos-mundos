@@ -902,50 +902,84 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                       : <ChevronDown className="w-4 h-4 text-gold-light/80 group-hover:text-gold-light transition-colors shrink-0" />}
                   </button>
                   {showHistory && (
-                    <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
-                      {visions.map(v => (
-                        <div key={v.id} className="flex gap-3 rounded-md border border-gold/10 bg-background/40 p-3">
-                          {v.image_url ? (
-                            <img src={v.image_url} alt={v.description} loading="lazy"
-                              title="Reabrir no preview"
-                              className="w-20 h-20 object-cover rounded cursor-pointer flex-shrink-0 hover:ring-2 hover:ring-gold/40 transition-all"
-                              onClick={() => v.image_url && reopenVision(v.image_url, v.description, v.prompt)}
-                            />
-                          ) : (
-                            <div className="w-20 h-20 rounded bg-gold/5 border border-gold/10 flex items-center justify-center flex-shrink-0 text-gold-light/40 text-xs italic">(sem img)</div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-merriweather text-foreground line-clamp-2 mb-1">{v.description || 'Sem descrição'}</p>
-                            <p className="text-[10px] text-text-dim font-mono line-clamp-2 whitespace-pre-wrap">{v.prompt}</p>
-                            <div className="flex flex-wrap gap-1.5 mt-2">
-                              {v.image_url && (
-                                <button onClick={() => reopenVision(v.image_url!, v.description, v.prompt)}
-                                  className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/10 transition-colors">
-                                  <Sparkles className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reabrir
-                                </button>
-                              )}
-                              <button onClick={() => { navigator.clipboard.writeText(v.prompt); toast.success('Prompt copiado'); }}
-                                className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
-                                <ClipboardCopy className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Copiar prompt
-                              </button>
-                              <button onClick={() => { setGeneratedPrompt(v.prompt); setDesc(v.description); toast.success('Prompt restaurado'); }}
-                                className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
-                                <RotateCw className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reusar
-                              </button>
-                              {v.image_url && (
-                                <button onClick={() => addToGallery({ id: Date.now().toString(), src: v.image_url!, name: v.description.slice(0, 40) || 'Visão de Idriel', cat: FOLDER_FRUITS[0].name, status: 'unsorted' })}
-                                  className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
-                                  <Save className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />P/ Galeria
-                                </button>
-                              )}
-                              <button onClick={() => { if (confirm('Excluir esta visão do histórico?')) deleteVision(v.id); }}
-                                className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-red-alert/30 text-red-alert/80 hover:bg-red-alert/10 transition-colors ml-auto">
-                                <Trash2 className="w-3 h-3 inline" />
-                              </button>
+                    <div ref={visionScrollRef} className="max-h-[420px] overflow-y-auto pr-1"
+                      onScroll={() => {
+                        const el = visionScrollRef.current;
+                        if (!el || !hasMoreVisions || isFetchingMoreVisions) return;
+                        if (el.scrollTop + el.clientHeight >= el.scrollHeight - 120) loadMoreVisions();
+                      }}
+                    >
+                      <div style={{ height: visionVirt.getTotalSize(), position: 'relative', width: '100%' }}>
+                        {visionVirt.getVirtualItems().map(vi => {
+                          const isSentinel = vi.index >= visions.length;
+                          if (isSentinel) {
+                            return (
+                              <div key="load-more" ref={visionVirt.measureElement} data-index={vi.index}
+                                style={{ position: 'absolute', top: 0, left: 0, right: 0, transform: `translateY(${vi.start}px)` }}
+                                className="py-3 text-center text-[10px] font-montserrat text-gold-light/60">
+                                <Loader2 className="w-3.5 h-3.5 inline mr-1 animate-spin" strokeWidth={2} />Carregando mais visões…
+                              </div>
+                            );
+                          }
+                          const v = visions[vi.index];
+                          const isRegen = regenVisionId === v.id;
+                          return (
+                            <div key={v.id} ref={visionVirt.measureElement} data-index={vi.index}
+                              style={{ position: 'absolute', top: 0, left: 0, right: 0, transform: `translateY(${vi.start}px)`, paddingBottom: 12 }}
+                            >
+                              <div className="flex gap-3 rounded-md border border-gold/10 bg-background/40 p-3">
+                                {v.image_url ? (
+                                  <img src={v.image_url} alt={v.description} loading="lazy"
+                                    title="Reabrir no preview"
+                                    className="w-20 h-20 object-cover rounded cursor-pointer flex-shrink-0 hover:ring-2 hover:ring-gold/40 transition-all"
+                                    onClick={() => v.image_url && reopenVision(v.image_url, v.description, v.prompt)}
+                                  />
+                                ) : (
+                                  <div className="w-20 h-20 rounded bg-gold/5 border border-gold/10 flex items-center justify-center flex-shrink-0 text-gold-light/40 text-xs italic">(sem img)</div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-merriweather text-foreground line-clamp-2 mb-1">{v.description || 'Sem descrição'}</p>
+                                  <div className="flex flex-wrap gap-1.5 mt-1">
+                                    {v.image_url && (
+                                      <button onClick={() => reopenVision(v.image_url!, v.description, v.prompt)}
+                                        className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/10 transition-colors">
+                                        <Sparkles className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reabrir
+                                      </button>
+                                    )}
+                                    <button
+                                      disabled={isRegen || !planLimits.canUseAI}
+                                      onClick={() => regenerateVision(v)}
+                                      title="Reprocessar imagem (usa gotas)"
+                                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                      {isRegen
+                                        ? <><Loader2 className="inline-block w-3 h-3 mr-1 animate-spin align-[-0.1em]" strokeWidth={1.75} />Reprocessando…</>
+                                        : <><RefreshCw className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reprocessar</>}
+                                    </button>
+                                    <button onClick={async () => { const p = v.prompt || (await fetchVisionPrompt(v.id)); if (p) { navigator.clipboard.writeText(p); toast.success('Prompt copiado'); } }}
+                                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
+                                      <ClipboardCopy className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Copiar prompt
+                                    </button>
+                                    <button onClick={async () => { const p = v.prompt || (await fetchVisionPrompt(v.id)); if (p) { setGeneratedPrompt(p); setDesc(v.description); toast.success('Prompt restaurado'); } }}
+                                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
+                                      <RotateCw className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reusar
+                                    </button>
+                                    {v.image_url && (
+                                      <button onClick={() => addToGallery({ id: Date.now().toString(), src: v.image_url!, name: v.description.slice(0, 40) || 'Visão de Idriel', cat: FOLDER_FRUITS[0].name, status: 'unsorted' })}
+                                        className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
+                                        <Save className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />P/ Galeria
+                                      </button>
+                                    )}
+                                    <button onClick={() => { if (confirm('Excluir esta visão do histórico?')) deleteVision(v.id); }}
+                                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-red-alert/30 text-red-alert/80 hover:bg-red-alert/10 transition-colors ml-auto">
+                                      <Trash2 className="w-3 h-3 inline" />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      ))}
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>
