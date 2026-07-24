@@ -3,10 +3,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 // Pricing plans (gateway será integrado depois — IDs prontos para mapear)
+// Códigos internos "raiz_*" foram mantidos para preservar dados no DB/Asaas,
+// mas o nome comercial passou a ser "Criador".
 export const PLANS = {
   raiz_mensal: {
     id: "raiz_mensal",
-    name: "Raiz",
+    name: "Criador",
     price: "R$ 19,90/mês",
     priceValue: 19.90,
     period: "mensal",
@@ -14,9 +16,9 @@ export const PLANS = {
   },
   raiz_anual: {
     id: "raiz_anual",
-    name: "Raiz Anual",
-    price: "R$ 197/ano",
-    priceValue: 197,
+    name: "Criador Anual",
+    price: "R$ 197,90/ano",
+    priceValue: 197.90,
     period: "anual",
     hasIdriel: false,
   },
@@ -31,68 +33,37 @@ export const PLANS = {
   idriel_anual: {
     id: "idriel_anual",
     name: "Idriel Anual",
-    price: "R$ 397/ano",
-    priceValue: 397,
+    price: "R$ 397,90/ano",
+    priceValue: 397.90,
+    period: "anual",
+    hasIdriel: true,
+  },
+
+  // Plano exclusivo — só via convite do fundador
+  fundador_mensal: {
+    id: "fundador_mensal",
+    name: "Membro Fundador",
+    price: "R$ 19,90/mês (3 meses), depois R$ 39,90/mês",
+    priceValue: 19.90,
+    period: "mensal",
+    hasIdriel: true,
+  },
+  fundador_anual: {
+    id: "fundador_anual",
+    name: "Membro Fundador Anual",
+    price: "R$ 397,90/ano",
+    priceValue: 397.90,
     period: "anual",
     hasIdriel: true,
   },
 
   // Pacotes de recarga de Elixir dos Mundos (avulsos)
-  recarga_15: {
-    id: "recarga_15",
-    name: "15 gotas",
-    price: "R$ 4,90",
-    priceValue: 4.90,
-    drops: 15,
-    period: "avulso",
-    hasIdriel: false,
-  },
-  recarga_25: {
-    id: "recarga_25",
-    name: "25 gotas",
-    price: "R$ 7,90",
-    priceValue: 7.90,
-    drops: 25,
-    period: "avulso",
-    hasIdriel: false,
-  },
-  recarga_50: {
-    id: "recarga_50",
-    name: "50 gotas",
-    price: "R$ 14,90",
-    priceValue: 14.90,
-    drops: 50,
-    period: "avulso",
-    hasIdriel: false,
-  },
-  recarga_100: {
-    id: "recarga_100",
-    name: "100 gotas",
-    price: "R$ 27,90",
-    priceValue: 27.90,
-    drops: 100,
-    period: "avulso",
-    hasIdriel: false,
-  },
-  recarga_200: {
-    id: "recarga_200",
-    name: "200 gotas",
-    price: "R$ 54,90",
-    priceValue: 54.90,
-    drops: 200,
-    period: "avulso",
-    hasIdriel: false,
-  },
-  // Alias legado para compatibilidade
-  recarga_seiva: {
-    id: "recarga_100",
-    name: "Recarga de Elixir",
-    price: "R$ 27,90",
-    priceValue: 27.90,
-    drops: 100,
-    period: "avulso",
-    hasIdriel: false,
-  },
+  recarga_15: { id: "recarga_15", name: "15 gotas", price: "R$ 4,90", priceValue: 4.90, drops: 15, period: "avulso", hasIdriel: false },
+  recarga_25: { id: "recarga_25", name: "25 gotas", price: "R$ 7,90", priceValue: 7.90, drops: 25, period: "avulso", hasIdriel: false },
+  recarga_50: { id: "recarga_50", name: "50 gotas", price: "R$ 14,90", priceValue: 14.90, drops: 50, period: "avulso", hasIdriel: false },
+  recarga_100: { id: "recarga_100", name: "100 gotas", price: "R$ 27,90", priceValue: 27.90, drops: 100, period: "avulso", hasIdriel: false },
+  recarga_200: { id: "recarga_200", name: "200 gotas", price: "R$ 54,90", priceValue: 54.90, drops: 200, period: "avulso", hasIdriel: false },
+  recarga_seiva: { id: "recarga_100", name: "Recarga de Elixir", price: "R$ 27,90", priceValue: 27.90, drops: 100, period: "avulso", hasIdriel: false },
 } as const;
 
 // Pacotes de recarga em ordem de exibição (UI)
