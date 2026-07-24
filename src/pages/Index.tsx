@@ -25,6 +25,7 @@ const TabFallback = () => (
   </div>
 );
 import { useWorlds, type WorldRecord } from '@/hooks/useWorlds';
+import { useGalleryImages } from '@/hooks/useGalleryImages';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
@@ -70,6 +71,17 @@ const Index = () => {
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const initialLoadDone = useRef(false);
 
+  // Nova arquitetura de galeria: cada imagem é uma linha em `gallery_images`.
+  // Persistência atômica e cross-device, sem depender de debounce/JSONB.
+  const galleryStore = useGalleryImages(state.currentSaveId || undefined);
+  const gallery = galleryStore.gallery;
+
+  // Espelha a galeria do servidor no AppState para componentes legados que ainda
+  // leem `state.gallery` (ex: TabConstruir, referências visuais). Sem writes.
+  useEffect(() => {
+    setState(s => (s.gallery === gallery ? s : { ...s, gallery }));
+  }, [gallery]);
+
   // First-time tour trigger
   useEffect(() => {
     if (user && !hasDoneTour()) {
@@ -95,7 +107,6 @@ const Index = () => {
         const target = lastId ? worlds.find(w => w.id === lastId) : worlds[0];
         if (!target) return;
         setWorldLoading({ name: target.name });
-        // Otimização: faz fetch sob demanda do payload pesado (db + gallery).
         const full = await loadWorldFull(target.id);
         const data = full || target;
         setState(prev => ({
@@ -103,7 +114,7 @@ const Index = () => {
           worldName: data.name,
           db: data.db,
           method: data.method,
-          gallery: data.gallery,
+          gallery: [],
           folderCovers: data.folderCovers || {},
           currentSaveId: data.id,
           currentFruit: 0,
@@ -111,7 +122,6 @@ const Index = () => {
       } catch {
         // Local storage may be unavailable in restricted browser modes.
       } finally {
-        // Pequeno delay para permitir o overlay concluir a animação de progresso.
         setTimeout(() => setWorldLoading(null), 250);
       }
     })();
@@ -121,19 +131,21 @@ const Index = () => {
   const setWorldName = useCallback((worldName: string) => setState(s => ({ ...s, worldName })), []);
   const setCurrentFruit = useCallback((currentFruit: number) => setState(s => ({ ...s, currentFruit })), []);
   const setMethod = useCallback((method: MethodType) => setState(s => ({ ...s, method })), []);
-  const setGallery = useCallback((gallery: GalleryImage[]) => setState(s => ({ ...s, gallery })), []);
   const setFolderCovers = useCallback((folderCovers: Record<number, string>) => setState(s => ({ ...s, folderCovers })), []);
   const setGeneratedPrompt = useCallback((generatedPrompt: string) => setState(s => ({ ...s, generatedPrompt })), []);
+
+  // Wrappers de compatibilidade: agora escrevem direto na tabela `gallery_images`
+  // (persistência imediata, cross-device).
+  const setGallery = useCallback((next: GalleryImage[]) => { void galleryStore.replaceAll(next); }, [galleryStore]);
+  const addToGallery = useCallback((img: GalleryImage) => {
+    void galleryStore.addOne({ src: img.src, name: img.name, cat: img.cat, status: img.status });
+  }, [galleryStore]);
 
   const updateField = useCallback((fruitId: number, fieldId: string, value: string) => {
     setState(s => ({
       ...s,
       db: { ...s.db, [fruitId]: { ...(s.db[fruitId] || {}), [fieldId]: value } },
     }));
-  }, []);
-
-  const addToGallery = useCallback((img: GalleryImage) => {
-    setState(s => ({ ...s, gallery: [...s.gallery, img] }));
   }, []);
 
   useEffect(() => {
@@ -167,32 +179,26 @@ const Index = () => {
     return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
   }, [state.worldName, state.db, state.method, state.currentSaveId, user, updateWorld]);
 
-  // Auto-save de galeria e capas — debounce curto (ações explícitas: upload/mover/excluir)
-  // Persiste rapidamente para evitar perda ao trocar de mundo ou recarregar.
-  const gallerySaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Capas de pasta ainda vivem em worlds.folder_covers (payload pequeno; ~10 URLs).
+  // Escrita direta e imediata quando o usuário troca a capa.
   useEffect(() => {
     if (!state.currentSaveId || !user) return;
-    if (gallerySaveTimer.current) clearTimeout(gallerySaveTimer.current);
-    gallerySaveTimer.current = setTimeout(() => {
-      updateWorld(state.currentSaveId, {
-        gallery: state.gallery,
-        folderCovers: state.folderCovers,
-      });
-    }, 400);
-    return () => { if (gallerySaveTimer.current) clearTimeout(gallerySaveTimer.current); };
-  }, [state.gallery, state.folderCovers, state.currentSaveId, user, updateWorld]);
+    const t = setTimeout(() => {
+      updateWorld(state.currentSaveId, { folderCovers: state.folderCovers });
+    }, 300);
+    return () => clearTimeout(t);
+  }, [state.folderCovers, state.currentSaveId, user, updateWorld]);
 
-  // Flush síncrono ao fechar a aba / navegar: garante persistência de uploads recentes.
+  // Flush síncrono ao fechar a aba / navegar: garante o autosave principal
+  // (galeria já foi persistida imediatamente pelo hook).
   useEffect(() => {
     const flush = () => {
       if (!state.currentSaveId || !user) return;
       if (autoSaveTimer.current) { clearTimeout(autoSaveTimer.current); autoSaveTimer.current = null; }
-      if (gallerySaveTimer.current) { clearTimeout(gallerySaveTimer.current); gallerySaveTimer.current = null; }
       updateWorld(state.currentSaveId, {
         name: state.worldName || 'Mundo Sem Nome',
         method: state.method,
         db: state.db,
-        gallery: state.gallery,
         folderCovers: state.folderCovers,
       });
     };
@@ -223,25 +229,21 @@ const Index = () => {
   }, [user, state, createWorld, worlds.length, planLimits]);
 
   const handleLoadWorld = useCallback(async (world: WorldRecord) => {
-    // Ignora se já é o mundo ativo.
     if (world.id === state.currentSaveId) return;
-    // Flush pendentes do mundo atual (evita perder uploads/galerias recém-alterados).
+    // Flush pendentes do mundo atual (galeria já persiste imediatamente).
     if (state.currentSaveId && user) {
       if (autoSaveTimer.current) { clearTimeout(autoSaveTimer.current); autoSaveTimer.current = null; }
-      if (gallerySaveTimer.current) { clearTimeout(gallerySaveTimer.current); gallerySaveTimer.current = null; }
       try {
         await updateWorld(state.currentSaveId, {
           name: state.worldName || 'Mundo Sem Nome',
           method: state.method,
           db: state.db,
-          gallery: state.gallery,
           folderCovers: state.folderCovers,
         });
       } catch { /* segue com o load mesmo se falhar */ }
     }
     setWorldLoading({ name: world.name });
     try {
-      // Se o card da lista veio leve (sem db/gallery), busca o payload completo.
       const needsFull = !world.db || Object.keys(world.db).length === 0;
       const full = needsFull ? await loadWorldFull(world.id) : world;
       const data = full || world;
@@ -250,7 +252,7 @@ const Index = () => {
         worldName: data.name,
         db: data.db,
         method: data.method,
-        gallery: data.gallery,
+        gallery: [],
         folderCovers: (data as any).folderCovers || {},
         currentFruit: 0,
         currentSaveId: data.id,
@@ -262,6 +264,8 @@ const Index = () => {
       setTimeout(() => setWorldLoading(null), 250);
     }
   }, [loadWorldFull, state, user, updateWorld]);
+
+
 
   const handleNewWorld = useCallback(() => {
     setState(createNewState());
@@ -324,9 +328,9 @@ const Index = () => {
         <main>
           <React.Suspense fallback={<TabFallback />}>
             {state.activeTab === 'construir' && <TabConstruir state={state} updateField={updateField} setCurrentFruit={setCurrentFruit} setMethod={setMethod} onNavigateCodex={() => setActiveTab('codex')} addToGallery={addToGallery} />}
-            {state.activeTab === 'codex' && <TabCodex gallery={state.gallery} worldId={state.currentSaveId} worlds={worlds} />}
+            {state.activeTab === 'codex' && <TabCodex gallery={gallery} worldId={state.currentSaveId} worlds={worlds} />}
             {state.activeTab === 'escrever' && <TabEscrever worldId={state.currentSaveId} worlds={worlds} />}
-            {state.activeTab === 'galeria' && <TabGaleria gallery={state.gallery} setGallery={setGallery} folderCovers={state.folderCovers} setFolderCovers={setFolderCovers} state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />}
+            {state.activeTab === 'galeria' && <TabGaleria gallery={gallery} setGallery={setGallery} folderCovers={state.folderCovers} setFolderCovers={setFolderCovers} state={state} setGeneratedPrompt={setGeneratedPrompt} addToGallery={addToGallery} />}
           </React.Suspense>
         </main>
 
