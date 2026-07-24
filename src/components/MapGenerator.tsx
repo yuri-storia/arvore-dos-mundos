@@ -58,6 +58,8 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
   const { history, addMap, updateMapImage, deleteMap, hasMore, loadMore, isFetchingMore } = useMapHistory(worldId);
   const [showHistory, setShowHistory] = useState(false);
   const [regenId, setRegenId] = useState<string | null>(null);
+  type RegenPhase = 'prompt' | 'image' | 'saving' | 'done' | 'failed';
+  const [regenState, setRegenState] = useState<{ phase: RegenPhase; progress: number; error?: string } | null>(null);
 
   const previewRef = React.useRef<HTMLDivElement>(null);
   const reopen = (url: string) => {
