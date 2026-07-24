@@ -976,19 +976,20 @@ const LandingPage: React.FC = () => {
             <ChevronDown className={`w-4 h-4 transition-transform ${rechargesOpen ? 'rotate-180' : ''}`} strokeWidth={2} />
           </button>
           {rechargesOpen && (
-            <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="mt-4 grid grid-cols-2 sm:grid-cols-5 gap-3">
               {[
                 { gotas: 15, preco: 'R$ 4,90' },
-                { gotas: 50, preco: 'R$ 15,90' },
-                { gotas: 100, preco: 'R$ 29,90' },
-                { gotas: 200, preco: 'R$ 57,90' },
+                { gotas: 25, preco: 'R$ 7,90' },
+                { gotas: 50, preco: 'R$ 14,90' },
+                { gotas: 100, preco: 'R$ 27,90' },
+                { gotas: 200, preco: 'R$ 54,90' },
               ].map(r => (
                 <div key={r.gotas} className="rounded-lg border border-gold/20 bg-gold/[0.04] p-3 text-center">
                   <div className="font-cinzel font-bold text-lg text-gold-light">{r.gotas} gotas</div>
                   <div className="font-montserrat text-xs text-text-secondary mt-1">{r.preco}</div>
                 </div>
               ))}
-              <p className="col-span-2 sm:col-span-4 text-[11px] font-merriweather italic text-text-dim text-center">
+              <p className="col-span-2 sm:col-span-5 text-[11px] font-merriweather italic text-text-dim text-center">
                 Recargas disponíveis para assinantes Idriel.
               </p>
             </div>
