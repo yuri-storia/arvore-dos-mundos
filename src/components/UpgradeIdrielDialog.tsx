@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Sparkles, Crown, TrendingUp } from 'lucide-react';
+import { X, Sparkles, Crown, TrendingUp, CheckCircle2 } from 'lucide-react';
+import { PLANS } from '@/hooks/useSubscription';
 import { openCheckout } from '@/hooks/useSubscription';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useNavigate } from 'react-router-dom';
@@ -52,9 +53,17 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
     );
   }
 
-  // Detecta variante Raiz (mensal/anual) — heurística por código se disponível
+  // Detecta variante Criador (mensal/anual)
   const isAnnual = planCode === 'raiz_anual';
   const isMonthly = planCode === 'raiz_mensal' || (!isAnnual && !sub.hasIdriel);
+
+  // Info do plano atual (nome + preço) — mostrado no topo do modal
+  const currentPlanInfo = (() => {
+    if (!planCode) return null;
+    const p = (PLANS as any)[planCode];
+    if (!p) return null;
+    return { name: p.name as string, price: p.price as string };
+  })();
 
   const options: UpgradeOption[] = [];
 
@@ -65,12 +74,12 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
       title: 'Idriel Mensal',
       bullets: [
         'Acesso completo à Idriel',
-        'Apenas a diferença no 1º mês',
-        'A partir do 2º mês: R$ 39,90/mês',
+        'Geração de imagens, mapas e análises',
+        'Renovação mensal automática',
       ],
-      highlight: 'R$ 20,00 só agora',
-      priceLine: 'R$ 20,00',
-      subLine: 'no 1º mês · depois R$ 39,90/mês',
+      highlight: 'R$ 39,90/mês',
+      priceLine: 'R$ 39,90',
+      subLine: 'por mês · cancele quando quiser',
     });
     options.push({
       code: 'upgrade_raiz_m_to_idriel_a',
@@ -78,26 +87,39 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
       title: 'Idriel Anual',
       bullets: [
         '1 ano inteiro de Idriel',
-        'Promoção de upgrade exclusiva',
-        'Equivale a R$ 27,42/mês',
+        'Equivale a R$ 33,16/mês',
+        'Economize R$ 80,90 vs. mensal',
       ],
-      highlight: 'R$ 329,00 à vista',
-      priceLine: 'R$ 329,00',
-      subLine: '1 ano de acesso · economize R$ 150',
+      highlight: 'R$ 397,90/ano',
+      priceLine: 'R$ 397,90',
+      subLine: '1 ano de acesso · pagamento único',
     });
   } else if (isAnnual) {
     options.push({
       code: 'upgrade_raiz_a_to_idriel_a',
-      badge: 'Apenas a diferença',
+      badge: 'Recomendado',
       title: 'Idriel Anual',
       bullets: [
-        'Você paga só a diferença (R$ 397 − R$ 197)',
         '1 ano completo de Idriel',
+        'Equivale a R$ 33,16/mês',
         'Renovação automática só ao fim do ciclo',
       ],
-      highlight: 'R$ 200,00 à vista',
-      priceLine: 'R$ 200,00',
-      subLine: 'diferença do seu Raiz Anual atual',
+      highlight: 'R$ 397,90/ano',
+      priceLine: 'R$ 397,90',
+      subLine: 'por 1 ano · substitui seu Criador Anual',
+    });
+    options.push({
+      code: 'upgrade_raiz_a_to_idriel_m',
+      badge: 'Mais flexível',
+      title: 'Idriel Mensal',
+      bullets: [
+        'Acesso completo à Idriel',
+        'Cobrança mês a mês',
+        'Cancele quando quiser',
+      ],
+      highlight: 'R$ 39,90/mês',
+      priceLine: 'R$ 39,90',
+      subLine: 'por mês · substitui seu Criador Anual',
     });
   }
 
@@ -117,6 +139,15 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
           title="Subir para o plano Idriel"
           subtitle="Libere geração de imagens, análises, mapas e a hostess Idriel completa."
         />
+        {currentPlanInfo && (
+          <div className="mt-5 mx-auto max-w-md flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gold/20 bg-gold/[0.04]">
+            <CheckCircle2 className="w-4 h-4 text-gold-light shrink-0" />
+            <span className="text-xs font-montserrat text-text-secondary">
+              Plano atual: <span className="text-gold-light font-bold">{currentPlanInfo.name}</span>
+              <span className="text-text-dim"> · {currentPlanInfo.price}</span>
+            </span>
+          </div>
+        )}
         <div className={`mt-6 grid gap-4 ${options.length > 1 ? 'sm:grid-cols-2' : ''}`}>
           {options.map((opt) => (
             <button
@@ -147,7 +178,7 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
           ))}
         </div>
         <p className="mt-5 text-center text-[10px] font-merriweather italic text-text-dim">
-          Sua assinatura Raiz será substituída pela Idriel ao confirmar o pagamento.
+          Sua assinatura {currentPlanInfo?.name || 'atual'} será substituída pela Idriel ao confirmar o pagamento.
         </p>
       </Panel>
     </Backdrop>,
