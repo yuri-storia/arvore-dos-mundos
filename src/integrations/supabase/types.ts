@@ -372,6 +372,39 @@ export type Database = {
           },
         ]
       }
+      elixir_ledger: {
+        Row: {
+          balance_after: number | null
+          created_at: string
+          delta: number
+          id: string
+          kind: string
+          metadata: Json | null
+          reference: string | null
+          user_id: string
+        }
+        Insert: {
+          balance_after?: number | null
+          created_at?: string
+          delta: number
+          id?: string
+          kind: string
+          metadata?: Json | null
+          reference?: string | null
+          user_id: string
+        }
+        Update: {
+          balance_after?: number | null
+          created_at?: string
+          delta?: number
+          id?: string
+          kind?: string
+          metadata?: Json | null
+          reference?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       expiration_notifications_sent: {
         Row: {
           expires_at: string
@@ -1188,10 +1221,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      add_bonus_drops: {
-        Args: { _drops: number; _user_id: string }
-        Returns: undefined
-      }
+      add_bonus_drops:
+        | { Args: { _drops: number; _user_id: string }; Returns: undefined }
+        | {
+            Args: {
+              _drops: number
+              _kind?: string
+              _reference?: string
+              _user_id: string
+            }
+            Returns: undefined
+          }
       admin_remove_mfa_factors: {
         Args: { _user_id: string }
         Returns: undefined
