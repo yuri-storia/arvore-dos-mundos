@@ -38,6 +38,8 @@ const PLAN_CODES = [
   { value: 'raiz_anual', label: 'Raiz Anual (365d sem cobrança)' },
   { value: 'idriel_mensal', label: 'Idriel Mensal (30d sem cobrança)' },
   { value: 'idriel_anual', label: 'Idriel Anual (365d sem cobrança)' },
+  { value: 'fundador_mensal', label: 'Membro Fundador Mensal' },
+  { value: 'fundador_anual', label: 'Membro Fundador Anual' },
   { value: 'raiz_vitalicio', label: 'Raiz Vitalício (gratuito)' },
   
   { value: 'none', label: 'Cancelar / Sem plano' },
@@ -51,7 +53,7 @@ const planLabel = (code: string | null) => {
 const planTone = (code: string | null) => {
   if (!code) return 'bg-muted/30 text-text-dim border-border';
   if (code === 'raiz_vitalicio') return 'bg-gold/15 text-gold border-gold/40';
-  if (code.startsWith('idriel')) return 'bg-gold-warm/15 text-gold-warm border-gold-warm/40';
+  if (code.startsWith('idriel') || code.startsWith('fundador')) return 'bg-gold-warm/15 text-gold-warm border-gold-warm/40';
   return 'bg-blue-bright/15 text-blue-bright border-blue-bright/40';
 };
 
@@ -195,16 +197,18 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
   }, [users, q, filter, from, to]);
 
   const stats = useMemo(() => {
-    let raiz_mensal = 0, raiz_anual = 0, idriel_mensal = 0, idriel_anual = 0, vitalicio = 0, mrr = 0;
+    let raiz_mensal = 0, raiz_anual = 0, idriel_mensal = 0, idriel_anual = 0, fundador = 0, vitalicio = 0, mrr = 0;
     for (const u of users) {
       if (u.sub_status !== 'active') continue;
       if (u.plan_code === 'raiz_mensal')         { raiz_mensal++;   mrr += 19.90; }
-      else if (u.plan_code === 'raiz_anual')     { raiz_anual++;    mrr += 197 / 12; }
+      else if (u.plan_code === 'raiz_anual')     { raiz_anual++;    mrr += 197.90 / 12; }
       else if (u.plan_code === 'idriel_mensal')  { idriel_mensal++; mrr += 39.90; }
-      else if (u.plan_code === 'idriel_anual')   { idriel_anual++;  mrr += 397 / 12; }
+      else if (u.plan_code === 'idriel_anual')   { idriel_anual++;  mrr += 397.90 / 12; }
+      else if (u.plan_code === 'fundador_mensal') { fundador++;     mrr += 19.90; }
+      else if (u.plan_code === 'fundador_anual')  { fundador++;     mrr += 397.90 / 12; }
       else if (u.plan_code === 'raiz_vitalicio') { vitalicio++; }
     }
-    return { total: users.length, raiz_mensal, raiz_anual, idriel_mensal, idriel_anual, vitalicio, mrr };
+    return { total: users.length, raiz_mensal, raiz_anual, idriel_mensal, idriel_anual, fundador, vitalicio, mrr };
   }, [users]);
 
   const exportCsv = () => {
@@ -226,12 +230,13 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-7 gap-2">
         <StatCard label="Total usuários" value={stats.total} tone="blue" />
         <StatCard label="Raiz Mensal" value={stats.raiz_mensal} tone="blue" />
         <StatCard label="Raiz Anual" value={stats.raiz_anual} tone="blue" />
         <StatCard label="Idriel Mensal" value={stats.idriel_mensal} tone="gold" />
         <StatCard label="Idriel Anual" value={stats.idriel_anual} tone="gold" />
+          <StatCard label="Fundadores" value={stats.fundador} tone="gold" />
         <StatCard label="MRR estimado" value={fmtMoney(stats.mrr)} tone="gold" />
       </div>
 
@@ -248,6 +253,8 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
             <SelectItem value="raiz_anual">Raiz Anual</SelectItem>
             <SelectItem value="idriel_mensal">Idriel Mensal</SelectItem>
             <SelectItem value="idriel_anual">Idriel Anual</SelectItem>
+            <SelectItem value="fundador_mensal">Fundador Mensal</SelectItem>
+            <SelectItem value="fundador_anual">Fundador Anual</SelectItem>
             <SelectItem value="raiz_vitalicio">Vitalício</SelectItem>
             <SelectItem value="none">Sem plano ativo</SelectItem>
             <SelectItem value="admin">Apenas admins</SelectItem>

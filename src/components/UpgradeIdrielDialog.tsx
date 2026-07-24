@@ -173,7 +173,12 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
                 ))}
               </ul>
               <button
-                onClick={() => handleSelect(opt.code)}
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  handleSelect(opt.code);
+                }}
                 disabled={!!loading}
                 className={`mt-auto w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-[#1a0f00] hover:opacity-90 transition-opacity ${loading === opt.code ? 'opacity-60 cursor-wait' : ''} ${loading && loading !== opt.code ? 'opacity-40 cursor-not-allowed' : ''}`}
               >
@@ -194,9 +199,14 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
 
 const Backdrop: React.FC<{ onClose: () => void; children: React.ReactNode }> = ({ onClose, children }) => (
   <div
+    data-upgrade-idriel-dialog="true"
     className="fixed inset-0 z-[100] flex items-center justify-center p-4"
     style={{ background: 'rgba(2, 7, 13, 0.85)', backdropFilter: 'blur(8px)' }}
-    onClick={onClose}
+    onPointerDown={(event) => event.stopPropagation()}
+    onClick={(event) => {
+      event.stopPropagation();
+      if (event.currentTarget === event.target) onClose();
+    }}
   >
     {children}
   </div>
@@ -209,6 +219,7 @@ const Panel: React.FC<{ onClose: () => void; children: React.ReactNode }> = ({ o
       background: 'linear-gradient(180deg, rgba(20, 14, 4, 0.98) 0%, rgba(2, 7, 13, 0.98) 100%)',
       boxShadow: '0 0 60px rgba(218, 165, 32, 0.2)',
     }}
+    onPointerDown={(e) => e.stopPropagation()}
     onClick={(e) => e.stopPropagation()}
   >
     <button

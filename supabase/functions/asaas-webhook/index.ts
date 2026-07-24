@@ -8,18 +8,21 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, content-type, asaas-access-token",
 };
 
-const PLAN_MAP: Record<string, { hasIdriel: boolean; cycle: "monthly" | "yearly"; tier: "raiz" | "idriel"; displayName: string; amount: number }> = {
-  raiz_mensal:   { hasIdriel: false, cycle: "monthly", tier: "raiz",   displayName: "Raiz Mensal",   amount: 19.90  },
-  raiz_anual:    { hasIdriel: false, cycle: "yearly",  tier: "raiz",   displayName: "Raiz Anual",    amount: 197.00 },
-  idriel_mensal: { hasIdriel: true,  cycle: "monthly", tier: "idriel", displayName: "Idriel Mensal", amount: 39.90  },
-  idriel_anual:  { hasIdriel: true,  cycle: "yearly",  tier: "idriel", displayName: "Idriel Anual",  amount: 397.00 },
+const PLAN_MAP: Record<string, { hasIdriel: boolean; cycle: "monthly" | "yearly"; tier: "raiz" | "idriel" | "fundador"; displayName: string; amount: number }> = {
+  raiz_mensal:      { hasIdriel: false, cycle: "monthly", tier: "raiz",     displayName: "Criador Mensal",          amount: 19.90  },
+  raiz_anual:       { hasIdriel: false, cycle: "yearly",  tier: "raiz",     displayName: "Criador Anual",           amount: 197.90 },
+  idriel_mensal:    { hasIdriel: true,  cycle: "monthly", tier: "idriel",   displayName: "Idriel Mensal",           amount: 39.90  },
+  idriel_anual:     { hasIdriel: true,  cycle: "yearly",  tier: "idriel",   displayName: "Idriel Anual",            amount: 397.90 },
+  fundador_mensal:  { hasIdriel: true,  cycle: "monthly", tier: "fundador", displayName: "Membro Fundador Mensal",  amount: 19.90  },
+  fundador_anual:   { hasIdriel: true,  cycle: "yearly",  tier: "fundador", displayName: "Membro Fundador Anual",   amount: 397.90 },
 };
 
 // Upgrades: SKU avulso -> ativa Idriel + cria nova assinatura recorrente futura
-const UPGRADE_MAP: Record<string, { targetPlanCode: "idriel_mensal" | "idriel_anual"; firstChargeDelayDays: number; recurringAmount: number; recurringCycle: "MONTHLY" | "YEARLY"; displayName: string; firstAmount: number }> = {
-  upgrade_raiz_m_to_idriel_m: { targetPlanCode: "idriel_mensal", firstChargeDelayDays: 30,  recurringAmount: 39.90,  recurringCycle: "MONTHLY", displayName: "Upgrade Idriel Mensal", firstAmount:  20.00 },
-  upgrade_raiz_m_to_idriel_a: { targetPlanCode: "idriel_anual",  firstChargeDelayDays: 365, recurringAmount: 397.00, recurringCycle: "YEARLY",  displayName: "Upgrade Idriel Anual (promo)", firstAmount: 329.00 },
-  upgrade_raiz_a_to_idriel_a: { targetPlanCode: "idriel_anual",  firstChargeDelayDays: 365, recurringAmount: 397.00, recurringCycle: "YEARLY",  displayName: "Upgrade Idriel Anual (diferença)", firstAmount: 200.00 },
+const UPGRADE_MAP: Record<string, { targetPlanCode: "idriel_mensal" | "idriel_anual"; displayName: string; firstAmount: number }> = {
+  upgrade_raiz_m_to_idriel_m: { targetPlanCode: "idriel_mensal", displayName: "Idriel Mensal", firstAmount:  39.90 },
+  upgrade_raiz_m_to_idriel_a: { targetPlanCode: "idriel_anual",  displayName: "Idriel Anual",  firstAmount: 397.90 },
+  upgrade_raiz_a_to_idriel_a: { targetPlanCode: "idriel_anual",  displayName: "Idriel Anual",  firstAmount: 397.90 },
+  upgrade_raiz_a_to_idriel_m: { targetPlanCode: "idriel_mensal", displayName: "Idriel Mensal", firstAmount:  39.90 },
 };
 
 const RECHARGE_MAP: Record<string, { drops: number; displayName: string; amount: number }> = {
@@ -285,9 +288,30 @@ Deno.serve(async (req) => {
           updated_at: new Date().toISOString(),
         }, { onConflict: "user_id" });
         if (upsertErr) console.error("subscription upsert error:", upsertErr);
+
+        // Membro Fundador mensal: após as 3 primeiras cobranças confirmadas a
+        // recorrência passa automaticamente para o preço cheio da Idriel.
+        if (planCode === "fundador_mensal" && payment.subscription) {
+          const { count } = await supa
+            .from("asaas_payments")
+            .select("id", { count: "exact", head: true })
+            .eq("asaas_subscription_id", payment.subscription)
+            .eq("plan_code", "fundador_mensal")
+            .in("status", ["CONFIRMED", "RECEIVED", "paid", "PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"]);
+          if ((count ?? 0) >= 3) {
+            try {
+              await asaasFetch(`/subscriptions/${payment.subscription}`, {
+                method: "PUT",
+                body: JSON.stringify({ value: 39.90 }),
+              });
+            } catch (e: any) { console.warn("founder monthly price update failed:", e?.message); }
+          }
+        }
       }
 
-      // Upgrade flow: ativa Idriel agora + cria nova assinatura recorrente futura
+      // Upgrade flow: o checkout já cria a recorrência do plano Idriel pago.
+      // Aqui cancelamos a assinatura Criador anterior e vinculamos a assinatura
+      // recém-paga ao plano Idriel, evitando recorrência duplicada.
       const upgrade = UPGRADE_MAP[planCode];
       if (upgrade) {
         try {
@@ -299,44 +323,17 @@ Deno.serve(async (req) => {
             .eq("status", "active")
             .maybeSingle();
 
-          // 2. Cancela a assinatura Raiz antiga no Asaas (se houver)
-          if (currentSub?.asaas_subscription_id) {
+          // 2. Cancela a assinatura Criador antiga no Asaas (se houver)
+          if (currentSub?.asaas_subscription_id && currentSub.asaas_subscription_id !== payment.subscription) {
             try {
               await asaasFetch(`/subscriptions/${currentSub.asaas_subscription_id}`, { method: "DELETE" });
             } catch (e: any) { console.warn("cancel old sub failed:", e?.message); }
           }
 
-          // 3. Calcula nextDueDate da nova assinatura recorrente
-          // Para anual->anual (diferença), estende a partir do fim do ciclo atual quando útil
-          let nextDueAt = new Date(Date.now() + upgrade.firstChargeDelayDays * 24 * 60 * 60 * 1000);
-          if (planCode === "upgrade_raiz_a_to_idriel_a" && currentSub?.expires_at) {
-            const remaining = new Date(currentSub.expires_at).getTime();
-            // 365d a partir do fim do raiz atual (ou hoje+365, o que for maior)
-            const extended = new Date(remaining + 365 * 24 * 60 * 60 * 1000);
-            if (extended.getTime() > nextDueAt.getTime()) nextDueAt = extended;
-          }
-          const nextDueDateStr = nextDueAt.toISOString().slice(0, 10);
-
-          // 4. Cria nova assinatura recorrente Idriel no Asaas
-          let newAsaasSubId: string | null = null;
-          try {
-            const newSub = await asaasFetch("/subscriptions", {
-              method: "POST",
-              body: JSON.stringify({
-                customer: payment.customer,
-                billingType: "UNDEFINED", // cliente escolhe a forma a cada ciclo
-                value: upgrade.recurringAmount,
-                nextDueDate: nextDueDateStr,
-                cycle: upgrade.recurringCycle,
-                description: `Assinatura ${upgrade.displayName}`,
-                externalReference: `${userId}:${upgrade.targetPlanCode}`,
-              }),
-            });
-            newAsaasSubId = newSub?.id || null;
-          } catch (e: any) { console.error("create new sub failed:", e?.message); }
-
-          // 5. Upsert da subscriptions com Idriel ativo
+          // 3. Upsert da subscriptions com Idriel ativo
           const targetMeta = PLAN_MAP[upgrade.targetPlanCode];
+          const cycleDays = targetMeta.cycle === "yearly" ? 366 : 32;
+          const expires = new Date(Date.now() + cycleDays * 24 * 60 * 60 * 1000).toISOString();
           await supa.from("subscriptions").upsert({
             user_id: userId,
             plan: "pro",
@@ -345,10 +342,10 @@ Deno.serve(async (req) => {
             has_idriel: true,
             billing_cycle: targetMeta.cycle,
             asaas_customer_id: payment.customer,
-            asaas_subscription_id: newAsaasSubId,
+            asaas_subscription_id: payment.subscription || null,
             environment: "production",
             started_at: new Date().toISOString(),
-            expires_at: nextDueAt.toISOString(),
+            expires_at: expires,
             cancelled_at: null,
             updated_at: new Date().toISOString(),
           }, { onConflict: "user_id" });
