@@ -192,15 +192,9 @@ const SettingsPage: React.FC = () => {
             </div>
           </SectionCard>
 
-          {/* 2FA — ocupa as 2 colunas */}
+          {/* 2FA — ocupa as 2 colunas (traz seu próprio card) */}
           <div className="md:col-span-2">
-            <SectionCard
-              icon={<ShieldCheck className="w-4 h-4" strokeWidth={2} />}
-              title="Autenticação em duas etapas"
-              description="Adicione uma camada extra de proteção à sua conta."
-            >
-              <TwoFactorSection />
-            </SectionCard>
+            <TwoFactorSection />
           </div>
         </div>
       </div>
