@@ -88,6 +88,14 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState<string>(FOLDER_FRUITS[0].name);
   const [showHistory, setShowHistory] = useState(false);
+  const [regenVisionId, setRegenVisionId] = useState<string | null>(null);
+  const visionScrollRef = useRef<HTMLDivElement>(null);
+  const visionVirt = useVirtualizer({
+    count: visions.length + (hasMoreVisions ? 1 : 0),
+    getScrollElement: () => visionScrollRef.current,
+    estimateSize: () => 116,
+    overscan: 6,
+  });
   const previewRef = React.useRef<HTMLDivElement>(null);
   const reopenVision = (url: string, description?: string, prompt?: string) => {
     setGeneratedImage(url);
