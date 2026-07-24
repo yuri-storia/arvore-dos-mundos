@@ -60,7 +60,7 @@ const FAQ: Record<string, { label: string; items: { q: string; a: string }[] }> 
   geral: {
     label: 'Geral',
     items: [
-      { q: 'Quais são os planos?', a: '**Raiz (R$ 19,90/mês)** libera mundos, fichas, escrita e exportação. **Idriel (R$ 39,90/mês)** adiciona todas as IAs e 100 gotas por mês.' },
+      { q: 'Quais são os planos?', a: '**Criador (R$ 19,90/mês ou R$ 197,90/ano)** libera worldbuilding, fichas, escrita e exportação em PDF. **Idriel (R$ 39,90/mês ou R$ 397,90/ano)** adiciona todas as IAs, geração de imagens e 100 gotas de Elixir por mês.' },
       { q: 'Como criar múltiplos mundos?', a: 'Com plano ativo, use a barra lateral (desktop) ou o menu **Meus Projetos** (mobile) para criar um novo mundo.' },
     ],
   },
