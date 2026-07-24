@@ -212,7 +212,7 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
 const Backdrop: React.FC<{ onClose: () => void; children: React.ReactNode }> = ({ onClose, children }) => (
   <div
     data-upgrade-idriel-dialog="true"
-    className="fixed inset-0 z-[300] flex items-center justify-center p-4 pointer-events-auto"
+    className="fixed inset-0 z-[10050] flex items-center justify-center p-4 pointer-events-auto"
     style={{ background: 'rgba(2, 7, 13, 0.85)', backdropFilter: 'blur(8px)' }}
     onPointerDown={(event) => event.stopPropagation()}
     onClick={(event) => {
