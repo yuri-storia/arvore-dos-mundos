@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Sparkles, Crown, TrendingUp } from 'lucide-react';
+import { X, Sparkles, Crown, TrendingUp, CheckCircle2 } from 'lucide-react';
+import { PLANS } from '@/hooks/useSubscription';
 import { openCheckout } from '@/hooks/useSubscription';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useNavigate } from 'react-router-dom';
