@@ -55,8 +55,9 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState<string>(FOLDER_FRUITS[0].name);
 
-  const { history, addMap, deleteMap } = useMapHistory(worldId);
+  const { history, addMap, updateMapImage, deleteMap, hasMore, loadMore, isFetchingMore } = useMapHistory(worldId);
   const [showHistory, setShowHistory] = useState(false);
+  const [regenId, setRegenId] = useState<string | null>(null);
 
   const previewRef = React.useRef<HTMLDivElement>(null);
   const reopen = (url: string) => {
@@ -64,6 +65,42 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
     setError('');
     setTimeout(() => previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
+
+  const buildPromptFor = async (h: { style: string; style_label: string; description: string | null }) => {
+    const st = MAP_STYLES.find(s => s.id === h.style) || styleObj;
+    const ctx = buildWorldContext();
+    const stylePrompt = st.custom
+      ? (h.description || 'Custom map described by the user')
+      : `${st.label}: ${st.desc}. Style keywords: ${st.prompt}`;
+    const systemPrompt = 'You are an expert at writing detailed image generation prompts for fantasy world maps. Respond ONLY with the prompt in English. Be very specific about visual details, cartographic elements, labels, terrain features, colors, and artistic style.';
+    const userMsg = `Generate a detailed map image prompt for this fantasy world.\n\nWorld context:\n${ctx}\n\nMap style requested: ${stylePrompt}\n${h.description && !st.custom ? `Additional details: ${h.description}` : ''}`;
+    return callAIText([{ role: 'user', content: userMsg }], systemPrompt);
+  };
+
+  const regenerate = async (h: { id: string; style: string; style_label: string; description: string | null }) => {
+    if (!planLimits.canUseAI) { toast.error('Plano ativo necessário para reprocessar.'); return; }
+    setRegenId(h.id);
+    try {
+      const prompt = await buildPromptFor(h);
+      const url = await callAIImage(prompt);
+      await updateMapImage(h.id, url);
+      toast.success('Mapa reprocessado');
+    } catch (e: any) {
+      const f = friendlyAIError(e?.message || '');
+      toast.error(`${f.title} ${f.hint}`);
+    } finally {
+      setRegenId(null);
+    }
+  };
+
+  // Virtualização do histórico
+  const historyScrollRef = useRef<HTMLDivElement>(null);
+  const rowVirt = useVirtualizer({
+    count: history.length + (hasMore ? 1 : 0),
+    getScrollElement: () => historyScrollRef.current,
+    estimateSize: () => 108,
+    overscan: 6,
+  });
 
   const styleObj = MAP_STYLES.find(s => s.id === selectedStyle)!;
   const isBusy = phase !== 'idle';
