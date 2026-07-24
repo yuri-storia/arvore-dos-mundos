@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Crown, Sparkles, Check, ArrowLeft } from 'lucide-react';
 import { openCheckout } from '@/hooks/useSubscription';
-import { useAuth } from '@/contexts/AuthContext';
 
 /**
  * Página do plano exclusivo "Membro Fundador" — só acessível via convite.
@@ -16,7 +15,6 @@ import { useAuth } from '@/contexts/AuthContext';
 const FundadorInvitePage: React.FC = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
 
   const inviteToken = params.get('convite') || '';
@@ -24,7 +22,6 @@ const FundadorInvitePage: React.FC = () => {
   const validInvite = useMemo(() => inviteToken && inviteToken === expected, [inviteToken, expected]);
 
   const handleCheckout = async (planId: string) => {
-    if (!user) { navigate('/login?next=/fundador?convite=' + encodeURIComponent(inviteToken)); return; }
     setLoading(planId);
     try { await openCheckout(planId); } finally { setLoading(null); }
   };
