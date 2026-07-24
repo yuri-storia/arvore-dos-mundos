@@ -150,11 +150,9 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
         )}
         <div className={`mt-6 grid gap-4 ${options.length > 1 ? 'sm:grid-cols-2' : ''}`}>
           {options.map((opt) => (
-            <button
+            <div
               key={opt.code}
-              onClick={() => handleSelect(opt.code)}
-              disabled={!!loading}
-              className={`relative text-left rounded-xl border border-gold/30 bg-gold/[0.05] p-5 hover:bg-gold/[0.12] hover:border-gold/60 transition-all hover:-translate-y-0.5 ${loading === opt.code ? 'opacity-60' : ''}`}
+              className="relative flex flex-col text-left rounded-xl border border-gold/30 bg-gold/[0.05] p-5"
             >
               <span className="absolute -top-2 left-4 px-2 py-0.5 rounded-full text-[9px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-[#1a0f00]">
                 {opt.badge}
@@ -167,14 +165,22 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
                 <div className="font-cinzel font-bold text-2xl text-foreground">{opt.priceLine}</div>
                 <div className="text-[11px] font-montserrat text-text-dim mt-0.5">{opt.subLine}</div>
               </div>
-              <ul className="space-y-1.5">
+              <ul className="space-y-1.5 mb-4">
                 {opt.bullets.map((b, i) => (
                   <li key={i} className="text-xs text-text-secondary font-merriweather flex items-start gap-2">
                     <Sparkles className="w-3 h-3 text-gold-light mt-0.5 shrink-0" /> {b}
                   </li>
                 ))}
               </ul>
-            </button>
+              <button
+                onClick={() => handleSelect(opt.code)}
+                disabled={!!loading}
+                className={`mt-auto w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-[#1a0f00] hover:opacity-90 transition-opacity ${loading === opt.code ? 'opacity-60 cursor-wait' : ''} ${loading && loading !== opt.code ? 'opacity-40 cursor-not-allowed' : ''}`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                {loading === opt.code ? 'Abrindo checkout…' : `Assinar ${opt.title}`}
+              </button>
+            </div>
           ))}
         </div>
         <p className="mt-5 text-center text-[10px] font-merriweather italic text-text-dim">
