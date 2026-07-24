@@ -76,6 +76,12 @@ const Index = () => {
   const galleryStore = useGalleryImages(state.currentSaveId || undefined);
   const gallery = galleryStore.gallery;
 
+  // Espelha a galeria do servidor no AppState para componentes legados que ainda
+  // leem `state.gallery` (ex: TabConstruir, referências visuais). Sem writes.
+  useEffect(() => {
+    setState(s => (s.gallery === gallery ? s : { ...s, gallery }));
+  }, [gallery]);
+
   // First-time tour trigger
   useEffect(() => {
     if (user && !hasDoneTour()) {
