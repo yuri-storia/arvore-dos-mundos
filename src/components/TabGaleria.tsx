@@ -526,14 +526,60 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
           />
           <div
             onClick={() => !uploading && uploadRef.current?.click()}
-            className={`border-2 border-dashed border-gold/25 rounded-xl p-6 text-center cursor-pointer hover:border-gold/50 hover:bg-gold/[0.03] transition-all mb-5 ${uploading ? 'opacity-60 pointer-events-none' : ''}`}
+            className={`border-2 border-dashed border-gold/25 rounded-xl p-6 text-center cursor-pointer hover:border-gold/50 hover:bg-gold/[0.03] transition-all mb-3 ${uploading ? 'opacity-60 pointer-events-none' : ''}`}
           >
             <Upload className="w-6 h-6 mx-auto mb-2 text-gold-champagne" strokeWidth={1.75} />
             <p className="text-sm text-gold-light font-montserrat font-bold">
-              {uploading ? `Enviando ${uploadProgress.done}/${uploadProgress.total}…` : `Adicionar imagens em "${currentFolder.name}"`}
+              {uploading
+                ? `Enviando ${uploads.filter(u => u.status === 'done').length}/${uploads.length}…`
+                : `Adicionar imagens em "${currentFolder.name}"`}
             </p>
             <p className="text-xs text-text-dim font-merriweather italic mt-0.5">PNG, JPG ou WEBP — vários arquivos</p>
           </div>
+
+          {/* Per-file progress panel */}
+          {uploads.length > 0 && (
+            <div className="mb-5 rounded-lg border border-gold/15 bg-background/40 p-3 space-y-1.5">
+              <div className="flex items-center justify-between px-1 mb-1">
+                <span className="text-[10px] font-montserrat font-bold uppercase tracking-wider text-gold-light/80">
+                  Fila de envio ({uploads.filter(u => u.status === 'done').length}/{uploads.length})
+                </span>
+                {uploads.some(u => u.status === 'done' || u.status === 'failed') && (
+                  <button onClick={clearFinishedUploads} className="text-[10px] font-montserrat text-text-dim hover:text-foreground transition-colors">
+                    Limpar concluídos
+                  </button>
+                )}
+              </div>
+              {uploads.map(u => {
+                const label = u.status === 'queued' ? 'Aguardando'
+                  : u.status === 'processing' ? 'Otimizando…'
+                  : u.status === 'uploading' ? 'Enviando…'
+                  : u.status === 'done' ? 'Concluído'
+                  : `Falhou · ${u.error || 'erro'}`;
+                const barColor = u.status === 'failed' ? 'bg-red-alert/70'
+                  : u.status === 'done' ? 'bg-emerald-500/70'
+                  : 'bg-gradient-to-r from-gold-warm via-gold to-gold-champagne';
+                const Icon = u.status === 'failed' ? AlertTriangle
+                  : u.status === 'done' ? CheckCircle2
+                  : Loader2;
+                return (
+                  <div key={u.id} className="flex items-center gap-2.5 py-1">
+                    <Icon className={`w-3.5 h-3.5 shrink-0 ${u.status === 'failed' ? 'text-red-alert' : u.status === 'done' ? 'text-emerald-400' : 'text-gold-light animate-spin'}`} strokeWidth={2} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-montserrat text-foreground truncate">{u.name}</span>
+                        <span className={`text-[10px] font-montserrat shrink-0 ${u.status === 'failed' ? 'text-red-alert' : u.status === 'done' ? 'text-emerald-400' : 'text-gold-light/80'}`}>{label}</span>
+                      </div>
+                      <div className="mt-1 h-1 rounded-full bg-gold/10 overflow-hidden">
+                        <div className={`h-full ${barColor} transition-all duration-300`} style={{ width: `${u.status === 'failed' ? 100 : u.progress}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
 
           {/* Image grid */}
           {currentImages.length === 0 ? (
