@@ -476,6 +476,53 @@ export type Database = {
           },
         ]
       }
+      gallery_images: {
+        Row: {
+          created_at: string
+          folder_key: string
+          id: string
+          name: string
+          position: number
+          src: string
+          status: string
+          updated_at: string
+          user_id: string
+          world_id: string
+        }
+        Insert: {
+          created_at?: string
+          folder_key?: string
+          id?: string
+          name?: string
+          position?: number
+          src: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          world_id: string
+        }
+        Update: {
+          created_at?: string
+          folder_key?: string
+          id?: string
+          name?: string
+          position?: number
+          src?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          world_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gallery_images_world_id_fkey"
+            columns: ["world_id"]
+            isOneToOne: false
+            referencedRelation: "worlds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       idriel_help_usage: {
         Row: {
           count: number
