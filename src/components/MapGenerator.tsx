@@ -82,16 +82,21 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
   const regenerate = async (h: { id: string; style: string; style_label: string; description: string | null }) => {
     if (!planLimits.canUseAI) { toast.error('Plano ativo necessário para reprocessar.'); return; }
     setRegenId(h.id);
+    setRegenState({ phase: 'prompt', progress: 15 });
     try {
       const prompt = await buildPromptFor(h);
+      setRegenState({ phase: 'image', progress: 55 });
       const url = await callAIImage(prompt);
+      setRegenState({ phase: 'saving', progress: 88 });
       await updateMapImage(h.id, url);
+      setRegenState({ phase: 'done', progress: 100 });
       toast.success('Mapa reprocessado');
+      setTimeout(() => { setRegenId(null); setRegenState(null); }, 1200);
     } catch (e: any) {
       const f = friendlyAIError(e?.message || '');
+      setRegenState({ phase: 'failed', progress: 100, error: f.title });
       toast.error(`${f.title} ${f.hint}`);
-    } finally {
-      setRegenId(null);
+      setTimeout(() => { setRegenId(null); setRegenState(null); }, 3000);
     }
   };
 
