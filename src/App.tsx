@@ -13,6 +13,7 @@ import { SpellcheckProvider } from "@/lib/spellcheck/SpellcheckProvider";
 const Index = lazy(() => import("./pages/Index"));
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
+const FundadorInvitePage = lazy(() => import("./pages/FundadorInvitePage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
@@ -52,6 +53,7 @@ const App = () => (
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/inicio" element={<Navigate to="/" replace />} />
                   <Route path="/planos" element={<PricingPage />} />
+                  <Route path="/fundador" element={<FundadorInvitePage />} />
                   <Route path="/app" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                   <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
