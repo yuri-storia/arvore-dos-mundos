@@ -25,6 +25,7 @@ const TabFallback = () => (
   </div>
 );
 import { useWorlds, type WorldRecord } from '@/hooks/useWorlds';
+import { useGalleryImages } from '@/hooks/useGalleryImages';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
