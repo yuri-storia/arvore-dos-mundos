@@ -270,6 +270,28 @@ Deno.serve(async (req) => {
       // Subscription
       const planMeta = PLAN_MAP[planCode];
       if (planMeta) {
+        if (planMeta.hasIdriel && payment.subscription) {
+          const { data: currentSub } = await supa
+            .from("subscriptions")
+            .select("asaas_subscription_id, plan_code")
+            .eq("user_id", userId)
+            .eq("status", "active")
+            .maybeSingle();
+
+          if (
+            currentSub?.asaas_subscription_id &&
+            currentSub.asaas_subscription_id !== payment.subscription &&
+            typeof currentSub.plan_code === "string" &&
+            currentSub.plan_code.startsWith("raiz_")
+          ) {
+            try {
+              await asaasFetch(`/subscriptions/${currentSub.asaas_subscription_id}`, { method: "DELETE" });
+            } catch (e: any) {
+              console.warn("cancel previous creator sub failed:", e?.message);
+            }
+          }
+        }
+
         const cycleDays = planMeta.cycle === "yearly" ? 366 : 32;
         const expires = new Date(Date.now() + cycleDays * 24 * 60 * 60 * 1000).toISOString();
         const { error: upsertErr } = await supa.from("subscriptions").upsert({

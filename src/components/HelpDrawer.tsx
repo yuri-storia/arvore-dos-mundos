@@ -8,6 +8,7 @@ import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import { WORLDBUILDING_LESSONS, type WorldbuildingLesson } from '@/lib/idriel/worldbuildingLessons';
 import { IDRIEL_DIALOGUES, type Dialogue, type DialogueNode } from '@/lib/idriel/dialogues';
 import { PlanStatusCard } from '@/components/PlanStatusCard';
+import { UpgradeIdrielDialog } from '@/components/UpgradeIdrielDialog';
 
 /* ============================================================
  * Types
@@ -88,6 +89,7 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
   const [dialogueNode, setDialogueNode] = useState<DialogueNode | null>(null);
   const [dialogueLog, setDialogueLog] = useState<{ role: 'idriel' | 'user'; text: string }[]>([]);
   const [dragging, setDragging] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const heroVideoRef = useRef<HTMLVideoElement>(null);
@@ -321,6 +323,10 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
                   onFaq={() => setView('faq')}
                   onLessons={() => setView('lessons')}
                   onDialogues={() => setView('dialogues')}
+                  onUpgradeRequest={() => {
+                    setOpen(false);
+                    setShowUpgrade(true);
+                  }}
                 />
               )}
 
@@ -359,6 +365,7 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
           </ScrollArea>
         </SheetContent>
       </Sheet>
+      <UpgradeIdrielDialog open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </>
   );
 };
@@ -372,9 +379,10 @@ const HubMenu: React.FC<{
   onFaq: () => void;
   onLessons: () => void;
   onDialogues: () => void;
-}> = ({ onTour, onFaq, onLessons, onDialogues }) => (
+  onUpgradeRequest: () => void;
+}> = ({ onTour, onFaq, onLessons, onDialogues, onUpgradeRequest }) => (
   <div className="space-y-3.5">
-    <PlanStatusCard variant="help" />
+    <PlanStatusCard variant="help" onUpgradeRequest={onUpgradeRequest} />
     <p className="font-amiri italic text-[13px] text-text-secondary text-center mb-5">
       Escolha um caminho entre as raízes, viajante.
     </p>
