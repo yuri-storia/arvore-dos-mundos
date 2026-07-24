@@ -138,16 +138,16 @@ Deno.serve(async (req) => {
     // Não enviamos customerData — o Asaas Checkout exige TODOS os campos quando presente.
     const isSubscription = plan.kind === "subscription";
     const isUpgrade = plan.kind === "upgrade";
+    // Upgrades entram como assinatura recorrente do plano de destino (Idriel)
+    const asRecurring = isSubscription || isUpgrade;
     const itemName = (`AdM — ${plan.name}`).slice(0, 30); // máx 30 chars
-    const description = isSubscription
+    const description = asRecurring
       ? `Assinatura ${plan.cycle === "YEARLY" ? "anual" : "mensal"} — ${plan.name}`
-      : isUpgrade
-      ? `Upgrade para Idriel — ${plan.name}`
       : `Recarga avulsa de ${plan.drops} gotas`;
 
     const checkoutPayload: Record<string, any> = {
-      billingTypes: isSubscription ? ["CREDIT_CARD"] : ["CREDIT_CARD", "PIX"],
-      chargeTypes: isSubscription ? ["RECURRENT"] : ["DETACHED"],
+      billingTypes: asRecurring ? ["CREDIT_CARD"] : ["CREDIT_CARD", "PIX"],
+      chargeTypes: asRecurring ? ["RECURRENT"] : ["DETACHED"],
       minutesToExpire: 60,
       callback: {
         successUrl: `${origin}/obrigado?ref=${encodeURIComponent(externalReference)}`,
@@ -164,7 +164,7 @@ Deno.serve(async (req) => {
       notificationEnabled: true,
     };
 
-    if (plan.kind === "subscription") {
+    if (asRecurring) {
       const nextDueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
       checkoutPayload.subscription = {
         cycle: plan.cycle,
