@@ -60,6 +60,7 @@ const App = () => (
                   <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                   <Route path="/cancelar-plano" element={<ProtectedRoute><CancelPlanPage /></ProtectedRoute>} />
+                  <Route path="/minha-conta" element={<ProtectedRoute><ManageAccountPage /></ProtectedRoute>} />
                   
                   
                   <Route path="/obrigado" element={<ObrigadoPage />} />
