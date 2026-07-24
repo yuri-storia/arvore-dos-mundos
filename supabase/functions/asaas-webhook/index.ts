@@ -8,18 +8,21 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, content-type, asaas-access-token",
 };
 
-const PLAN_MAP: Record<string, { hasIdriel: boolean; cycle: "monthly" | "yearly"; tier: "raiz" | "idriel"; displayName: string; amount: number }> = {
-  raiz_mensal:   { hasIdriel: false, cycle: "monthly", tier: "raiz",   displayName: "Raiz Mensal",   amount: 19.90  },
-  raiz_anual:    { hasIdriel: false, cycle: "yearly",  tier: "raiz",   displayName: "Raiz Anual",    amount: 197.00 },
-  idriel_mensal: { hasIdriel: true,  cycle: "monthly", tier: "idriel", displayName: "Idriel Mensal", amount: 39.90  },
-  idriel_anual:  { hasIdriel: true,  cycle: "yearly",  tier: "idriel", displayName: "Idriel Anual",  amount: 397.00 },
+const PLAN_MAP: Record<string, { hasIdriel: boolean; cycle: "monthly" | "yearly"; tier: "raiz" | "idriel" | "fundador"; displayName: string; amount: number }> = {
+  raiz_mensal:      { hasIdriel: false, cycle: "monthly", tier: "raiz",     displayName: "Criador Mensal",          amount: 19.90  },
+  raiz_anual:       { hasIdriel: false, cycle: "yearly",  tier: "raiz",     displayName: "Criador Anual",           amount: 197.90 },
+  idriel_mensal:    { hasIdriel: true,  cycle: "monthly", tier: "idriel",   displayName: "Idriel Mensal",           amount: 39.90  },
+  idriel_anual:     { hasIdriel: true,  cycle: "yearly",  tier: "idriel",   displayName: "Idriel Anual",            amount: 397.90 },
+  fundador_mensal:  { hasIdriel: true,  cycle: "monthly", tier: "fundador", displayName: "Membro Fundador Mensal",  amount: 19.90  },
+  fundador_anual:   { hasIdriel: true,  cycle: "yearly",  tier: "fundador", displayName: "Membro Fundador Anual",   amount: 397.90 },
 };
 
 // Upgrades: SKU avulso -> ativa Idriel + cria nova assinatura recorrente futura
 const UPGRADE_MAP: Record<string, { targetPlanCode: "idriel_mensal" | "idriel_anual"; firstChargeDelayDays: number; recurringAmount: number; recurringCycle: "MONTHLY" | "YEARLY"; displayName: string; firstAmount: number }> = {
-  upgrade_raiz_m_to_idriel_m: { targetPlanCode: "idriel_mensal", firstChargeDelayDays: 30,  recurringAmount: 39.90,  recurringCycle: "MONTHLY", displayName: "Upgrade Idriel Mensal", firstAmount:  20.00 },
-  upgrade_raiz_m_to_idriel_a: { targetPlanCode: "idriel_anual",  firstChargeDelayDays: 365, recurringAmount: 397.00, recurringCycle: "YEARLY",  displayName: "Upgrade Idriel Anual (promo)", firstAmount: 329.00 },
-  upgrade_raiz_a_to_idriel_a: { targetPlanCode: "idriel_anual",  firstChargeDelayDays: 365, recurringAmount: 397.00, recurringCycle: "YEARLY",  displayName: "Upgrade Idriel Anual (diferença)", firstAmount: 200.00 },
+  upgrade_raiz_m_to_idriel_m: { targetPlanCode: "idriel_mensal", firstChargeDelayDays: 30,  recurringAmount: 39.90,  recurringCycle: "MONTHLY", displayName: "Idriel Mensal", firstAmount:  39.90 },
+  upgrade_raiz_m_to_idriel_a: { targetPlanCode: "idriel_anual",  firstChargeDelayDays: 365, recurringAmount: 397.90, recurringCycle: "YEARLY",  displayName: "Idriel Anual",  firstAmount: 397.90 },
+  upgrade_raiz_a_to_idriel_a: { targetPlanCode: "idriel_anual",  firstChargeDelayDays: 365, recurringAmount: 397.90, recurringCycle: "YEARLY",  displayName: "Idriel Anual",  firstAmount: 397.90 },
+  upgrade_raiz_a_to_idriel_m: { targetPlanCode: "idriel_mensal", firstChargeDelayDays: 30,  recurringAmount: 39.90,  recurringCycle: "MONTHLY", displayName: "Idriel Mensal", firstAmount:  39.90 },
 };
 
 const RECHARGE_MAP: Record<string, { drops: number; displayName: string; amount: number }> = {

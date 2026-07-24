@@ -249,6 +249,12 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
         <SheetContent
           side="right"
           className="border-l border-gold-bronze/40 p-0 flex flex-col w-full sm:w-[440px] md:w-[480px] lg:w-[520px] sm:max-w-[92vw]"
+          onInteractOutside={(event) => {
+            const target = event.detail.originalEvent.target;
+            if (target instanceof Element && target.closest('[data-upgrade-idriel-dialog="true"]')) {
+              event.preventDefault();
+            }
+          }}
           style={{
             background: 'radial-gradient(120% 60% at 80% 0%, hsl(34 50% 14% / 0.55) 0%, transparent 55%), linear-gradient(180deg, hsl(220 60% 4%) 0%, hsl(220 70% 2.5%) 100%)',
             boxShadow: '-18px 0 60px hsl(220 80% 1% / 0.7)',
