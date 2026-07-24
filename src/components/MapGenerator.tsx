@@ -58,6 +58,8 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
   const { history, addMap, updateMapImage, deleteMap, hasMore, loadMore, isFetchingMore } = useMapHistory(worldId);
   const [showHistory, setShowHistory] = useState(false);
   const [regenId, setRegenId] = useState<string | null>(null);
+  type RegenPhase = 'prompt' | 'image' | 'saving' | 'done' | 'failed';
+  const [regenState, setRegenState] = useState<{ phase: RegenPhase; progress: number; error?: string } | null>(null);
 
   const previewRef = React.useRef<HTMLDivElement>(null);
   const reopen = (url: string) => {
@@ -80,16 +82,21 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
   const regenerate = async (h: { id: string; style: string; style_label: string; description: string | null }) => {
     if (!planLimits.canUseAI) { toast.error('Plano ativo necessário para reprocessar.'); return; }
     setRegenId(h.id);
+    setRegenState({ phase: 'prompt', progress: 15 });
     try {
       const prompt = await buildPromptFor(h);
+      setRegenState({ phase: 'image', progress: 55 });
       const url = await callAIImage(prompt);
+      setRegenState({ phase: 'saving', progress: 88 });
       await updateMapImage(h.id, url);
+      setRegenState({ phase: 'done', progress: 100 });
       toast.success('Mapa reprocessado');
+      setTimeout(() => { setRegenId(null); setRegenState(null); }, 1200);
     } catch (e: any) {
       const f = friendlyAIError(e?.message || '');
+      setRegenState({ phase: 'failed', progress: 100, error: f.title });
       toast.error(`${f.title} ${f.hint}`);
-    } finally {
-      setRegenId(null);
+      setTimeout(() => { setRegenId(null); setRegenState(null); }, 3000);
     }
   };
 
@@ -347,6 +354,27 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
                           <p className="text-xs font-cinzel text-gold-light">{h.style_label}</p>
                           <p className="text-[10px] text-text-dim font-merriweather italic line-clamp-2">{h.description || 'Sem descrição adicional'}</p>
                           <p className="text-[9px] text-text-dim/70 font-montserrat mt-0.5">{new Date(h.created_at).toLocaleString('pt-BR')}</p>
+                          {isRegen && regenState && (() => {
+                            const label = regenState.phase === 'prompt' ? 'Tecendo prompt cartográfico…'
+                              : regenState.phase === 'image' ? 'Gerando mapa…'
+                              : regenState.phase === 'saving' ? 'Atualizando histórico…'
+                              : regenState.phase === 'done' ? 'Concluído'
+                              : `Falhou · ${regenState.error || 'erro'}`;
+                            const barColor = regenState.phase === 'failed' ? 'bg-red-alert/70'
+                              : regenState.phase === 'done' ? 'bg-emerald-500/70'
+                              : 'bg-gradient-to-r from-gold-warm via-gold to-gold-champagne';
+                            return (
+                              <div className="mt-1.5">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className={`text-[9px] font-montserrat ${regenState.phase === 'failed' ? 'text-red-alert' : regenState.phase === 'done' ? 'text-emerald-400' : 'text-gold-light/85'}`}>{label}</span>
+                                  <span className="text-[9px] font-montserrat text-text-dim/70">{regenState.progress}%</span>
+                                </div>
+                                <div className="mt-1 h-1 rounded-full bg-gold/10 overflow-hidden">
+                                  <div className={`h-full ${barColor} transition-all duration-300`} style={{ width: `${regenState.progress}%` }} />
+                                </div>
+                              </div>
+                            );
+                          })()}
                           <div className="flex flex-wrap gap-1.5 mt-2">
                             <button onClick={() => reopen(h.image_url)}
                               className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
