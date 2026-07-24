@@ -861,41 +861,43 @@ const LandingPage: React.FC = () => {
           <div className="card-glass rounded-2xl p-7 border border-gold/20 flex flex-col">
             <div className="flex items-center gap-2 mb-2">
               <Leaf className="w-5 h-5 text-gold-champagne" strokeWidth={1.75} />
-              <h3 className="font-cinzel font-bold text-xl">Raiz</h3>
+              <h3 className="font-cinzel font-bold text-xl">Criador</h3>
             </div>
             <p className="font-merriweather italic text-text-dim text-sm mb-5">
-              Toda a plataforma para construir, organizar e escrever seus mundos — sem assistência de IA.
+              Toda a plataforma para construir, organizar e escrever seus mundos — com corretor AI Powered.
             </p>
             <div className="mb-1">
-              <span className="font-cinzel font-bold text-4xl">{billing === 'mensal' ? 'R$ 19,90' : 'R$ 197'}</span>
+              <span className="font-cinzel font-bold text-4xl">{billing === 'mensal' ? 'R$ 19,90' : 'R$ 197,90'}</span>
               <span className="text-text-secondary text-sm font-montserrat ml-1">{billing === 'mensal' ? '/mês' : '/ano'}</span>
             </div>
             <p className="text-xs font-merriweather text-text-dim mb-5">
-              {billing === 'anual' ? 'Equivale a R$ 16,42 por mês · Economize R$ 41,80 no plano anual.' : 'Cobrança mensal · cancele quando quiser.'}
+              {billing === 'anual' ? 'Equivale a R$ 16,49 por mês · Economize R$ 40,90 no plano anual.' : 'Cobrança mensal · cancele quando quiser.'}
             </p>
             <button
               onClick={() => handleCheckout(raizKey)}
               disabled={checkoutLoading === raizKey}
               className="w-full py-3 rounded-md border border-gold text-gold-light hover:bg-gold/10 font-montserrat font-bold uppercase text-xs tracking-wider transition-colors mb-6 disabled:opacity-50"
             >
-              {checkoutLoading === raizKey ? 'Abrindo…' : 'Escolher Raiz'}
+              {checkoutLoading === raizKey ? 'Abrindo…' : 'Escolher Criador'}
             </button>
             <ul className="space-y-2 text-sm font-merriweather text-text-secondary">
               {[
-                'Mundos ilimitados',
+                'Até 3 Mundos',
+                'Até 20 entradas no Codex (fichas e artigos)',
+                'Linha do Tempo completa',
+                'Até 3 Manuscritos',
                 'Os 11 Frutos do Worldbuilding',
-                'Codex ilimitado · fichas e artigos ilimitados',
-                'Múltiplos manuscritos · capítulos ilimitados',
-                'Storylines personalizáveis',
-                'Galeria de referências · autosave',
-                'Importação de fichas e artigos entre mundos',
-                'Exportação em PDF, Word e Kindle',
-                'Atualizações da plataforma',
+                'Galeria de Referências',
+                'Exportação em PDF de Manuscritos, Fichas e Artigos',
+                'Corretor textual AI Powered (entende contexto)',
+                '5 gotas de Elixir no 1º mês',
+                'Recargas avulsas a partir de R$ 4,90',
               ].map(t => (
                 <li key={t} className="flex items-start gap-2"><Check className="w-4 h-4 text-gold-champagne mt-[3px] shrink-0" strokeWidth={2} /><span>{t}</span></li>
               ))}
             </ul>
           </div>
+
 
           {/* IDRIEL */}
           <div className="relative rounded-2xl p-[1px] bg-gradient-to-br from-gold via-gold-champagne to-gold-light flex">
@@ -911,11 +913,11 @@ const LandingPage: React.FC = () => {
                 Toda a plataforma acompanhada por uma assistente que conhece seu mundo.
               </p>
               <div className="mb-1">
-                <span className="font-cinzel font-bold text-4xl text-gold-light">{billing === 'mensal' ? 'R$ 39,90' : 'R$ 397'}</span>
+                <span className="font-cinzel font-bold text-4xl text-gold-light">{billing === 'mensal' ? 'R$ 39,90' : 'R$ 397,90'}</span>
                 <span className="text-text-secondary text-sm font-montserrat ml-1">{billing === 'mensal' ? '/mês' : '/ano'}</span>
               </div>
               <p className="text-xs font-merriweather text-text-dim mb-5">
-                {billing === 'anual' ? 'Equivale a R$ 33,08 por mês · Economize R$ 81,80 no plano anual.' : 'Cobrança mensal · cancele quando quiser.'}
+                {billing === 'anual' ? 'Equivale a R$ 33,15 por mês · Economize R$ 80,90 no plano anual.' : 'Cobrança mensal · cancele quando quiser.'}
               </p>
               <button
                 onClick={() => handleCheckout(idrielKey)}
@@ -924,7 +926,7 @@ const LandingPage: React.FC = () => {
               >
                 {checkoutLoading === idrielKey ? 'Abrindo…' : 'Continuar com Idriel'}
               </button>
-              <p className="text-[11px] font-montserrat uppercase tracking-wider text-gold-champagne mb-3">Tudo do Raiz, mais:</p>
+              <p className="text-[11px] font-montserrat uppercase tracking-wider text-gold-champagne mb-3">Tudo do Criador, mais:</p>
               <ul className="space-y-2 text-sm font-merriweather text-text-secondary">
                 {[
                   'Idriel — assistente contextual de worldbuilding',
