@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Sparkles, Crown, TrendingUp, CheckCircle2 } from 'lucide-react';
 import { PLANS } from '@/hooks/useSubscription';
@@ -25,6 +25,7 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
   const sub = useSubscription();
   const navigate = useNavigate();
   const [loading, setLoading] = useState<string | null>(null);
+  const checkoutStartedRef = useRef(false);
 
   if (!open) return null;
 
@@ -124,11 +125,13 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
   }
 
   const handleSelect = async (code: string) => {
-    if (loading) return;
+    if (loading || checkoutStartedRef.current) return;
+    checkoutStartedRef.current = true;
     setLoading(code);
     try {
       await openCheckout(code);
     } finally {
+      checkoutStartedRef.current = false;
       setLoading(null);
     }
   };
@@ -176,7 +179,11 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
               <button
                 type="button"
                 aria-label={`Ir para pagamento do plano ${opt.title}`}
-                onPointerDown={(event) => event.stopPropagation()}
+                onPointerDown={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  handleSelect(opt.code);
+                }}
                 onMouseDown={(event) => event.stopPropagation()}
                 onPointerUp={(event) => event.stopPropagation()}
                 onClick={(event) => {
