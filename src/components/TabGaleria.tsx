@@ -42,7 +42,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
   const planLimits = usePlanLimits();
   const worldId = state.currentSaveId || undefined;
   const { entries: codexEntries } = useCodexEntries(worldId);
-  const { visions, saveVision, updateVisionImage, deleteVision } = useIdrielVisions(worldId);
+  const { visions, saveVision, updateVisionImage, deleteVision, fetchVisionPrompt, hasMore: hasMoreVisions, loadMore: loadMoreVisions, isFetchingMore: isFetchingMoreVisions } = useIdrielVisions(worldId);
   const idrielJobs = useIdrielJobs();
 
   // --- Folder navigation state ---
