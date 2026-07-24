@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { FRUITS, STYLE_META, IMAGE_TYPE_META, TONE_META, GalleryImage } from '@/lib/data';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,7 +17,7 @@ import {
   Sparkles, Lock, ChevronDown, ChevronUp, Trash2, Palette, Leaf, ScrollText,
   X, Save, Apple, BarChart3, Check, ClipboardCopy, ArrowDown, RotateCw,
   Image as ImageIcon, ArrowRight, ArrowLeft, Info, Upload, ImagePlus,
-  FolderOpen, Wand2,
+  FolderOpen, Wand2, Loader2, RefreshCw, AlertTriangle, CheckCircle2,
 } from 'lucide-react';
 import { ImageReferencePicker, type PickedReference } from '@/components/ImageReferencePicker';
 import { StyleCarousel } from '@/components/StyleCarousel';
@@ -41,7 +42,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
   const planLimits = usePlanLimits();
   const worldId = state.currentSaveId || undefined;
   const { entries: codexEntries } = useCodexEntries(worldId);
-  const { visions, saveVision, updateVisionImage, deleteVision } = useIdrielVisions(worldId);
+  const { visions, saveVision, updateVisionImage, deleteVision, fetchVisionPrompt, hasMore: hasMoreVisions, loadMore: loadMoreVisions, isFetchingMore: isFetchingMoreVisions } = useIdrielVisions(worldId);
   const idrielJobs = useIdrielJobs();
 
   // --- Folder navigation state ---
@@ -56,11 +57,14 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
     setFolderCovers(next);
   };
 
-  // --- Upload state ---
+  // --- Upload state (per-file progress) ---
   const uploadRef = useRef<HTMLInputElement>(null);
   const coverRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState({ done: 0, total: 0 });
+  type UploadStatus = 'queued' | 'uploading' | 'processing' | 'done' | 'failed';
+  interface UploadItem { id: string; name: string; status: UploadStatus; progress: number; error?: string }
+  const [uploads, setUploads] = useState<UploadItem[]>([]);
+  const uploading = uploads.some(u => u.status !== 'done' && u.status !== 'failed');
+  const clearFinishedUploads = () => setUploads(prev => prev.filter(u => u.status !== 'done'));
 
   // --- Generator state (Visões de Idriel) ---
   const [showGenerator, setShowGenerator] = useState(false);
@@ -84,6 +88,14 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState<string>(FOLDER_FRUITS[0].name);
   const [showHistory, setShowHistory] = useState(false);
+  const [regenVisionId, setRegenVisionId] = useState<string | null>(null);
+  const visionScrollRef = useRef<HTMLDivElement>(null);
+  const visionVirt = useVirtualizer({
+    count: visions.length + (hasMoreVisions ? 1 : 0),
+    getScrollElement: () => visionScrollRef.current,
+    estimateSize: () => 116,
+    overscan: 6,
+  });
   const previewRef = React.useRef<HTMLDivElement>(null);
   const reopenVision = (url: string, description?: string, prompt?: string) => {
     setGeneratedImage(url);
@@ -146,7 +158,10 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
 
   const unsorted = useMemo(() => gallery.filter(i => i.status === 'unsorted'), [gallery]);
 
-  // --- Uploads ---
+  // --- Uploads (per-file: queued → processing → uploading → done/failed) ---
+  const patchUpload = (id: string, patch: Partial<UploadItem>) =>
+    setUploads(prev => prev.map(u => u.id === id ? { ...u, ...patch } : u));
+
   const uploadFiles = async (files: FileList | null, folderName: string) => {
     if (!files || !user) return;
     if (!planLimits.canUploadGallery) {
@@ -158,34 +173,47 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
     const items = Array.from(files).filter(f => /image\/(png|jpe?g|webp)/.test(f.type));
     if (items.length === 0) return;
 
-    setUploading(true);
-    setUploadProgress({ done: 0, total: items.length });
+    // Descarta anteriores concluídos e enfileira os novos.
+    const queued: UploadItem[] = items.map(f => ({
+      id: `up-${crypto.randomUUID()}`,
+      name: f.name,
+      status: 'queued',
+      progress: 0,
+    }));
+    setUploads(prev => [...prev.filter(u => u.status !== 'done'), ...queued]);
+
     const newImages: GalleryImage[] = [];
     for (let i = 0; i < items.length; i++) {
       const file = items[i];
+      const uid = queued[i].id;
       try {
+        patchUpload(uid, { status: 'processing', progress: 10 });
         const optimized = await optimizeImage(file);
+        patchUpload(uid, { status: 'uploading', progress: 45 });
         const ext = optimized.name.split('.').pop() || 'webp';
         const path = `${user.id}/gallery-${crypto.randomUUID()}.${ext}`;
         const { error } = await supabase.storage.from('codex-images').upload(path, optimized, {
           cacheControl: '31536000', contentType: optimized.type || 'image/webp',
         });
         if (error) throw error;
+        patchUpload(uid, { progress: 85 });
         const { data: { publicUrl } } = supabase.storage.from('codex-images').getPublicUrl(path);
         newImages.push({
           id: `${Date.now()}-${i}`, src: publicUrl,
           name: file.name.replace(/\.[^.]+$/, ''), cat: folderName, status: 'kept',
         });
+        patchUpload(uid, { status: 'done', progress: 100 });
       } catch (err: any) {
+        patchUpload(uid, { status: 'failed', error: err?.message || 'falha' });
         toast.error(`Erro em "${file.name}": ${err.message || 'falha'}`);
       }
-      setUploadProgress({ done: i + 1, total: items.length });
     }
     if (newImages.length > 0) {
       setGallery([...gallery, ...newImages]);
       toast.success(`${newImages.length} imagem(ns) adicionada(s) em "${folderName}"`);
     }
-    setUploading(false);
+    // Remove concluídos automaticamente após alguns segundos; falhas ficam para o usuário revisar.
+    setTimeout(() => setUploads(prev => prev.filter(u => u.status !== 'done')), 3500);
   };
 
   const uploadCover = async (file: File | null, fruitId: number) => {
@@ -285,6 +313,29 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
       label: `Materializando: ${desc.slice(0, 40)}`,
       task: () => callAIImageConsistent(promptToUse, legacyUrls, codexContext, structured),
     });
+  };
+
+  const regenerateVision = async (v: { id: string; description: string; prompt?: string; image_url: string | null; style: string | null; image_type: string | null; tone: string | null }) => {
+    if (!planLimits.canUseAI) { toast.error('Plano ativo necessário para reprocessar.'); return; }
+    setRegenVisionId(v.id);
+    try {
+      // O `prompt` não vem no payload enxuto da listagem — busca sob demanda.
+      let prompt = v.prompt || '';
+      if (!prompt) prompt = (await fetchVisionPrompt(v.id)) || '';
+      if (!prompt) {
+        // Sem prompt salvo: reconstrói a partir dos parâmetros da visão.
+        const styleHint = STYLE_META.find(s => s.label === v.style)?.promptHint || '';
+        prompt = `${v.description}. Style: ${v.style || ''} (${styleHint}). Type: ${v.image_type || ''}. Tone: ${v.tone || ''}.`;
+      }
+      const url = await callAIImageConsistent(prompt, [], codexContext, []);
+      await updateVisionImage(v.id, url);
+      toast.success('Visão reprocessada');
+    } catch (e: any) {
+      const f = friendlyAIError(e?.message || '');
+      toast.error(`${f.title} ${f.hint}`);
+    } finally {
+      setRegenVisionId(null);
+    }
   };
 
   const copyPrompt = () => { navigator.clipboard.writeText(generatedPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); };
@@ -506,14 +557,60 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
           />
           <div
             onClick={() => !uploading && uploadRef.current?.click()}
-            className={`border-2 border-dashed border-gold/25 rounded-xl p-6 text-center cursor-pointer hover:border-gold/50 hover:bg-gold/[0.03] transition-all mb-5 ${uploading ? 'opacity-60 pointer-events-none' : ''}`}
+            className={`border-2 border-dashed border-gold/25 rounded-xl p-6 text-center cursor-pointer hover:border-gold/50 hover:bg-gold/[0.03] transition-all mb-3 ${uploading ? 'opacity-60 pointer-events-none' : ''}`}
           >
             <Upload className="w-6 h-6 mx-auto mb-2 text-gold-champagne" strokeWidth={1.75} />
             <p className="text-sm text-gold-light font-montserrat font-bold">
-              {uploading ? `Enviando ${uploadProgress.done}/${uploadProgress.total}…` : `Adicionar imagens em "${currentFolder.name}"`}
+              {uploading
+                ? `Enviando ${uploads.filter(u => u.status === 'done').length}/${uploads.length}…`
+                : `Adicionar imagens em "${currentFolder.name}"`}
             </p>
             <p className="text-xs text-text-dim font-merriweather italic mt-0.5">PNG, JPG ou WEBP — vários arquivos</p>
           </div>
+
+          {/* Per-file progress panel */}
+          {uploads.length > 0 && (
+            <div className="mb-5 rounded-lg border border-gold/15 bg-background/40 p-3 space-y-1.5">
+              <div className="flex items-center justify-between px-1 mb-1">
+                <span className="text-[10px] font-montserrat font-bold uppercase tracking-wider text-gold-light/80">
+                  Fila de envio ({uploads.filter(u => u.status === 'done').length}/{uploads.length})
+                </span>
+                {uploads.some(u => u.status === 'done' || u.status === 'failed') && (
+                  <button onClick={clearFinishedUploads} className="text-[10px] font-montserrat text-text-dim hover:text-foreground transition-colors">
+                    Limpar concluídos
+                  </button>
+                )}
+              </div>
+              {uploads.map(u => {
+                const label = u.status === 'queued' ? 'Aguardando'
+                  : u.status === 'processing' ? 'Otimizando…'
+                  : u.status === 'uploading' ? 'Enviando…'
+                  : u.status === 'done' ? 'Concluído'
+                  : `Falhou · ${u.error || 'erro'}`;
+                const barColor = u.status === 'failed' ? 'bg-red-alert/70'
+                  : u.status === 'done' ? 'bg-emerald-500/70'
+                  : 'bg-gradient-to-r from-gold-warm via-gold to-gold-champagne';
+                const Icon = u.status === 'failed' ? AlertTriangle
+                  : u.status === 'done' ? CheckCircle2
+                  : Loader2;
+                return (
+                  <div key={u.id} className="flex items-center gap-2.5 py-1">
+                    <Icon className={`w-3.5 h-3.5 shrink-0 ${u.status === 'failed' ? 'text-red-alert' : u.status === 'done' ? 'text-emerald-400' : 'text-gold-light animate-spin'}`} strokeWidth={2} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-montserrat text-foreground truncate">{u.name}</span>
+                        <span className={`text-[10px] font-montserrat shrink-0 ${u.status === 'failed' ? 'text-red-alert' : u.status === 'done' ? 'text-emerald-400' : 'text-gold-light/80'}`}>{label}</span>
+                      </div>
+                      <div className="mt-1 h-1 rounded-full bg-gold/10 overflow-hidden">
+                        <div className={`h-full ${barColor} transition-all duration-300`} style={{ width: `${u.status === 'failed' ? 100 : u.progress}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
 
           {/* Image grid */}
           {currentImages.length === 0 ? (
@@ -805,50 +902,84 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                       : <ChevronDown className="w-4 h-4 text-gold-light/80 group-hover:text-gold-light transition-colors shrink-0" />}
                   </button>
                   {showHistory && (
-                    <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
-                      {visions.map(v => (
-                        <div key={v.id} className="flex gap-3 rounded-md border border-gold/10 bg-background/40 p-3">
-                          {v.image_url ? (
-                            <img src={v.image_url} alt={v.description} loading="lazy"
-                              title="Reabrir no preview"
-                              className="w-20 h-20 object-cover rounded cursor-pointer flex-shrink-0 hover:ring-2 hover:ring-gold/40 transition-all"
-                              onClick={() => v.image_url && reopenVision(v.image_url, v.description, v.prompt)}
-                            />
-                          ) : (
-                            <div className="w-20 h-20 rounded bg-gold/5 border border-gold/10 flex items-center justify-center flex-shrink-0 text-gold-light/40 text-xs italic">(sem img)</div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-merriweather text-foreground line-clamp-2 mb-1">{v.description || 'Sem descrição'}</p>
-                            <p className="text-[10px] text-text-dim font-mono line-clamp-2 whitespace-pre-wrap">{v.prompt}</p>
-                            <div className="flex flex-wrap gap-1.5 mt-2">
-                              {v.image_url && (
-                                <button onClick={() => reopenVision(v.image_url!, v.description, v.prompt)}
-                                  className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/10 transition-colors">
-                                  <Sparkles className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reabrir
-                                </button>
-                              )}
-                              <button onClick={() => { navigator.clipboard.writeText(v.prompt); toast.success('Prompt copiado'); }}
-                                className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
-                                <ClipboardCopy className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Copiar prompt
-                              </button>
-                              <button onClick={() => { setGeneratedPrompt(v.prompt); setDesc(v.description); toast.success('Prompt restaurado'); }}
-                                className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
-                                <RotateCw className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reusar
-                              </button>
-                              {v.image_url && (
-                                <button onClick={() => addToGallery({ id: Date.now().toString(), src: v.image_url!, name: v.description.slice(0, 40) || 'Visão de Idriel', cat: FOLDER_FRUITS[0].name, status: 'unsorted' })}
-                                  className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
-                                  <Save className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />P/ Galeria
-                                </button>
-                              )}
-                              <button onClick={() => { if (confirm('Excluir esta visão do histórico?')) deleteVision(v.id); }}
-                                className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-red-alert/30 text-red-alert/80 hover:bg-red-alert/10 transition-colors ml-auto">
-                                <Trash2 className="w-3 h-3 inline" />
-                              </button>
+                    <div ref={visionScrollRef} className="max-h-[420px] overflow-y-auto pr-1"
+                      onScroll={() => {
+                        const el = visionScrollRef.current;
+                        if (!el || !hasMoreVisions || isFetchingMoreVisions) return;
+                        if (el.scrollTop + el.clientHeight >= el.scrollHeight - 120) loadMoreVisions();
+                      }}
+                    >
+                      <div style={{ height: visionVirt.getTotalSize(), position: 'relative', width: '100%' }}>
+                        {visionVirt.getVirtualItems().map(vi => {
+                          const isSentinel = vi.index >= visions.length;
+                          if (isSentinel) {
+                            return (
+                              <div key="load-more" ref={visionVirt.measureElement} data-index={vi.index}
+                                style={{ position: 'absolute', top: 0, left: 0, right: 0, transform: `translateY(${vi.start}px)` }}
+                                className="py-3 text-center text-[10px] font-montserrat text-gold-light/60">
+                                <Loader2 className="w-3.5 h-3.5 inline mr-1 animate-spin" strokeWidth={2} />Carregando mais visões…
+                              </div>
+                            );
+                          }
+                          const v = visions[vi.index];
+                          const isRegen = regenVisionId === v.id;
+                          return (
+                            <div key={v.id} ref={visionVirt.measureElement} data-index={vi.index}
+                              style={{ position: 'absolute', top: 0, left: 0, right: 0, transform: `translateY(${vi.start}px)`, paddingBottom: 12 }}
+                            >
+                              <div className="flex gap-3 rounded-md border border-gold/10 bg-background/40 p-3">
+                                {v.image_url ? (
+                                  <img src={v.image_url} alt={v.description} loading="lazy"
+                                    title="Reabrir no preview"
+                                    className="w-20 h-20 object-cover rounded cursor-pointer flex-shrink-0 hover:ring-2 hover:ring-gold/40 transition-all"
+                                    onClick={() => v.image_url && reopenVision(v.image_url, v.description, v.prompt)}
+                                  />
+                                ) : (
+                                  <div className="w-20 h-20 rounded bg-gold/5 border border-gold/10 flex items-center justify-center flex-shrink-0 text-gold-light/40 text-xs italic">(sem img)</div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-merriweather text-foreground line-clamp-2 mb-1">{v.description || 'Sem descrição'}</p>
+                                  <div className="flex flex-wrap gap-1.5 mt-1">
+                                    {v.image_url && (
+                                      <button onClick={() => reopenVision(v.image_url!, v.description, v.prompt)}
+                                        className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/10 transition-colors">
+                                        <Sparkles className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reabrir
+                                      </button>
+                                    )}
+                                    <button
+                                      disabled={isRegen || !planLimits.canUseAI}
+                                      onClick={() => regenerateVision(v)}
+                                      title="Reprocessar imagem (usa gotas)"
+                                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                      {isRegen
+                                        ? <><Loader2 className="inline-block w-3 h-3 mr-1 animate-spin align-[-0.1em]" strokeWidth={1.75} />Reprocessando…</>
+                                        : <><RefreshCw className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reprocessar</>}
+                                    </button>
+                                    <button onClick={async () => { const p = v.prompt || (await fetchVisionPrompt(v.id)); if (p) { navigator.clipboard.writeText(p); toast.success('Prompt copiado'); } }}
+                                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
+                                      <ClipboardCopy className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Copiar prompt
+                                    </button>
+                                    <button onClick={async () => { const p = v.prompt || (await fetchVisionPrompt(v.id)); if (p) { setGeneratedPrompt(p); setDesc(v.description); toast.success('Prompt restaurado'); } }}
+                                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
+                                      <RotateCw className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reusar
+                                    </button>
+                                    {v.image_url && (
+                                      <button onClick={() => addToGallery({ id: Date.now().toString(), src: v.image_url!, name: v.description.slice(0, 40) || 'Visão de Idriel', cat: FOLDER_FRUITS[0].name, status: 'unsorted' })}
+                                        className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
+                                        <Save className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />P/ Galeria
+                                      </button>
+                                    )}
+                                    <button onClick={() => { if (confirm('Excluir esta visão do histórico?')) deleteVision(v.id); }}
+                                      className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-red-alert/30 text-red-alert/80 hover:bg-red-alert/10 transition-colors ml-auto">
+                                      <Trash2 className="w-3 h-3 inline" />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      ))}
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Map, Sparkles, Lock, Droplet, ArrowDown, RefreshCw, Wand2, Check, X, FolderOpen, Save, ScrollText, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { Map, Sparkles, Lock, Droplet, ArrowDown, RefreshCw, Wand2, Check, X, FolderOpen, Save, ScrollText, ChevronDown, ChevronUp, Trash2, Loader2 } from 'lucide-react';
 import { callAIText, callAIImage, friendlyAIError } from '@/lib/helpers';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
@@ -54,8 +55,9 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState<string>(FOLDER_FRUITS[0].name);
 
-  const { history, addMap, deleteMap } = useMapHistory(worldId);
+  const { history, addMap, updateMapImage, deleteMap, hasMore, loadMore, isFetchingMore } = useMapHistory(worldId);
   const [showHistory, setShowHistory] = useState(false);
+  const [regenId, setRegenId] = useState<string | null>(null);
 
   const previewRef = React.useRef<HTMLDivElement>(null);
   const reopen = (url: string) => {
@@ -63,6 +65,42 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
     setError('');
     setTimeout(() => previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
+
+  const buildPromptFor = async (h: { style: string; style_label: string; description: string | null }) => {
+    const st = MAP_STYLES.find(s => s.id === h.style) || styleObj;
+    const ctx = buildWorldContext();
+    const stylePrompt = st.custom
+      ? (h.description || 'Custom map described by the user')
+      : `${st.label}: ${st.desc}. Style keywords: ${st.prompt}`;
+    const systemPrompt = 'You are an expert at writing detailed image generation prompts for fantasy world maps. Respond ONLY with the prompt in English. Be very specific about visual details, cartographic elements, labels, terrain features, colors, and artistic style.';
+    const userMsg = `Generate a detailed map image prompt for this fantasy world.\n\nWorld context:\n${ctx}\n\nMap style requested: ${stylePrompt}\n${h.description && !st.custom ? `Additional details: ${h.description}` : ''}`;
+    return callAIText([{ role: 'user', content: userMsg }], systemPrompt);
+  };
+
+  const regenerate = async (h: { id: string; style: string; style_label: string; description: string | null }) => {
+    if (!planLimits.canUseAI) { toast.error('Plano ativo necessário para reprocessar.'); return; }
+    setRegenId(h.id);
+    try {
+      const prompt = await buildPromptFor(h);
+      const url = await callAIImage(prompt);
+      await updateMapImage(h.id, url);
+      toast.success('Mapa reprocessado');
+    } catch (e: any) {
+      const f = friendlyAIError(e?.message || '');
+      toast.error(`${f.title} ${f.hint}`);
+    } finally {
+      setRegenId(null);
+    }
+  };
+
+  // Virtualização do histórico
+  const historyScrollRef = useRef<HTMLDivElement>(null);
+  const rowVirt = useVirtualizer({
+    count: history.length + (hasMore ? 1 : 0),
+    getScrollElement: () => historyScrollRef.current,
+    estimateSize: () => 108,
+    overscan: 6,
+  });
 
   const styleObj = MAP_STYLES.find(s => s.id === selectedStyle)!;
   const isBusy = phase !== 'idle';
@@ -265,43 +303,85 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
               : <ChevronDown className="w-4 h-4 text-gold-light/80 group-hover:text-gold-light transition-colors shrink-0" />}
           </button>
           {showHistory && (
-            <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
-              {history.map(h => (
-                <div key={h.id} className="flex gap-3 rounded-md border border-gold/10 bg-background/40 p-3">
-                  <img
-                    src={h.image_url}
-                    alt={h.style_label}
-                    loading="lazy"
-                    className="w-20 h-20 object-cover rounded cursor-pointer flex-shrink-0"
-                    onClick={() => reopen(h.image_url)}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-cinzel text-gold-light">{h.style_label}</p>
-                    <p className="text-[10px] text-text-dim font-merriweather italic line-clamp-2">{h.description || 'Sem descrição adicional'}</p>
-                    <p className="text-[9px] text-text-dim/70 font-montserrat mt-0.5">{new Date(h.created_at).toLocaleString('pt-BR')}</p>
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      <button onClick={() => reopen(h.image_url)}
-                        className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
-                        <Sparkles className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reabrir
-                      </button>
-                      {addToGallery && (
-                        <button onClick={() => { addToGallery({ id: Date.now().toString(), src: h.image_url, name: `Mapa — ${h.style_label}`, cat: FRUITS[0].name, status: 'kept' }); toast.success('Mapa guardado na Galeria'); }}
-                          className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
-                          <Save className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />P/ Galeria
-                        </button>
-                      )}
-                      <a href={h.image_url} download={`mapa-${worldName || 'mundo'}.png`}
-                        className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
-                        <ArrowDown className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Baixar
-                      </a>
-                      <button onClick={() => { if (confirm('Remover este mapa do histórico?')) deleteMap(h.id); }}
-                        className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-red-alert/30 text-red-alert/80 hover:bg-red-alert/10 transition-colors ml-auto">
-                        <Trash2 className="w-3 h-3 inline" />
-                      </button>
+            <div ref={historyScrollRef} className="max-h-[420px] overflow-y-auto pr-1">
+              <div style={{ height: rowVirt.getTotalSize(), position: 'relative', width: '100%' }}>
+                {rowVirt.getVirtualItems().map(vi => {
+                  const isSentinel = vi.index >= history.length;
+                  if (isSentinel) {
+                    return (
+                      <div
+                        key="sentinel"
+                        ref={el => { if (el && !isFetchingMore) loadMore(); }}
+                        style={{ position: 'absolute', top: 0, left: 0, right: 0, transform: `translateY(${vi.start}px)`, height: vi.size }}
+                        className="flex items-center justify-center text-[10px] font-montserrat text-text-dim py-3"
+                      >
+                        <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />Carregando mais…
+                      </div>
+                    );
+                  }
+                  const h = history[vi.index];
+                  const isRegen = regenId === h.id;
+                  return (
+                    <div
+                      key={h.id}
+                      ref={rowVirt.measureElement}
+                      data-index={vi.index}
+                      style={{ position: 'absolute', top: 0, left: 0, right: 0, transform: `translateY(${vi.start}px)`, paddingBottom: 12 }}
+                    >
+                      <div className={`flex gap-3 rounded-md border bg-background/40 p-3 transition-colors ${isRegen ? 'border-gold/40 shadow-[0_0_16px_-4px_rgba(218,165,32,0.4)]' : 'border-gold/10'}`}>
+                        <div className="relative w-20 h-20 flex-shrink-0">
+                          <img
+                            src={h.image_url}
+                            alt={h.style_label}
+                            loading="lazy"
+                            className={`w-20 h-20 object-cover rounded cursor-pointer ${isRegen ? 'opacity-40' : ''}`}
+                            onClick={() => reopen(h.image_url)}
+                          />
+                          {isRegen && (
+                            <div className="absolute inset-0 flex items-center justify-center rounded bg-black/40 backdrop-blur-[1px]">
+                              <Loader2 className="w-5 h-5 text-gold-light animate-spin" strokeWidth={2} />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-cinzel text-gold-light">{h.style_label}</p>
+                          <p className="text-[10px] text-text-dim font-merriweather italic line-clamp-2">{h.description || 'Sem descrição adicional'}</p>
+                          <p className="text-[9px] text-text-dim/70 font-montserrat mt-0.5">{new Date(h.created_at).toLocaleString('pt-BR')}</p>
+                          <div className="flex flex-wrap gap-1.5 mt-2">
+                            <button onClick={() => reopen(h.image_url)}
+                              className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
+                              <Sparkles className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Reabrir
+                            </button>
+                            <button
+                              disabled={isRegen}
+                              onClick={() => regenerate(h)}
+                              title="Reprocessar com a mesma configuração (atualiza o histórico)"
+                              className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/30 text-gold-light hover:bg-gold/10 transition-colors disabled:opacity-50"
+                            >
+                              <RefreshCw className={`inline-block w-3 h-3 mr-1 align-[-0.1em] ${isRegen ? 'animate-spin' : ''}`} strokeWidth={1.75} />
+                              {isRegen ? 'Reprocessando…' : 'Reprocessar'}
+                            </button>
+                            {addToGallery && (
+                              <button onClick={() => { addToGallery({ id: Date.now().toString(), src: h.image_url, name: `Mapa — ${h.style_label}`, cat: FRUITS[0].name, status: 'kept' }); toast.success('Mapa guardado na Galeria'); }}
+                                className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
+                                <Save className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />P/ Galeria
+                              </button>
+                            )}
+                            <a href={h.image_url} download={`mapa-${worldName || 'mundo'}.png`}
+                              className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
+                              <ArrowDown className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={1.75} />Baixar
+                            </a>
+                            <button onClick={() => { if (confirm('Remover este mapa do histórico?')) deleteMap(h.id); }}
+                              className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-red-alert/30 text-red-alert/80 hover:bg-red-alert/10 transition-colors ml-auto">
+                              <Trash2 className="w-3 h-3 inline" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))}
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
