@@ -261,20 +261,6 @@ export const DropsCounterBadge: React.FC = () => {
     );
   }
 
-  // Sem Idriel
-  return (
-    <>
-      {wrap(
-        <button
-          onClick={() => setShowUpgrade(true)}
-          className="flex items-center justify-center gap-1.5 h-9 px-4 mx-auto rounded-full bg-gradient-to-r from-gold via-gold-warm to-gold-deep hover:from-gold-light hover:via-gold hover:to-gold-warm text-[#1a0f00] font-montserrat font-bold text-[11px] uppercase tracking-wider transition-all shadow-[0_0_12px_hsl(var(--gold)/0.3)]"
-          title="Acesse a Idriel: imagens, análises e mapas"
-        >
-          <Crown className="w-4 h-4" strokeWidth={2.25} />
-          <span>Desbloquear Elixir dos Mundos · Idriel</span>
-        </button>,
-      )}
-      <UpgradeIdrielDialog open={showUpgrade} onClose={() => setShowUpgrade(false)} />
-    </>
-  );
+  // Sem Idriel: sem CTA aqui — indicação de plano fica em Configurações e no menu da Idriel.
+  return null;
 };

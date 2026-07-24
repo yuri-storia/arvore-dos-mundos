@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, Eye, EyeOff } from 'lucide-react';
 import { TwoFactorSection } from '@/components/TwoFactorSection';
+import { PlanStatusCard } from '@/components/PlanStatusCard';
 
 const SettingsPage: React.FC = () => {
   const { user } = useAuth();
@@ -79,7 +80,14 @@ const SettingsPage: React.FC = () => {
         </button>
 
         <h1 className="font-cinzel font-bold text-2xl text-foreground mb-1">Configurações</h1>
-        <p className="font-merriweather italic text-text-dim text-sm mb-8">{user?.email}</p>
+        <p className="font-merriweather italic text-text-dim text-sm mb-6">{user?.email}</p>
+
+        {/* Meu Plano */}
+        <div className="mb-4">
+          <h2 className="font-montserrat font-bold text-xs uppercase tracking-wider text-gold-light mb-2">Minha Conta · Plano Ativo</h2>
+          <PlanStatusCard variant="settings" />
+        </div>
+
 
         {/* Display Name */}
         <div className="card-glass rounded-lg p-5 mb-4">
