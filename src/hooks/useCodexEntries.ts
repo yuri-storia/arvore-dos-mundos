@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { optimizeImage } from '@/lib/imageOptimizer';
+import { handlePlanEditError } from '@/lib/planErrors';
 
 export interface CodexEntry {
   id: string;
