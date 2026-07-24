@@ -124,6 +124,7 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
   }
 
   const handleSelect = async (code: string) => {
+    if (loading) return;
     setLoading(code);
     try {
       await openCheckout(code);
@@ -173,7 +174,11 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
                 ))}
               </ul>
               <button
+                type="button"
+                aria-label={`Ir para pagamento do plano ${opt.title}`}
                 onPointerDown={(event) => event.stopPropagation()}
+                onMouseDown={(event) => event.stopPropagation()}
+                onPointerUp={(event) => event.stopPropagation()}
                 onClick={(event) => {
                   event.preventDefault();
                   event.stopPropagation();
@@ -200,7 +205,7 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
 const Backdrop: React.FC<{ onClose: () => void; children: React.ReactNode }> = ({ onClose, children }) => (
   <div
     data-upgrade-idriel-dialog="true"
-    className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+    className="fixed inset-0 z-[300] flex items-center justify-center p-4 pointer-events-auto"
     style={{ background: 'rgba(2, 7, 13, 0.85)', backdropFilter: 'blur(8px)' }}
     onPointerDown={(event) => event.stopPropagation()}
     onClick={(event) => {
@@ -214,7 +219,7 @@ const Backdrop: React.FC<{ onClose: () => void; children: React.ReactNode }> = (
 
 const Panel: React.FC<{ onClose: () => void; children: React.ReactNode }> = ({ onClose, children }) => (
   <div
-    className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-gold/30 p-6 sm:p-8"
+    className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-gold/30 p-6 sm:p-8 pointer-events-auto"
     style={{
       background: 'linear-gradient(180deg, rgba(20, 14, 4, 0.98) 0%, rgba(2, 7, 13, 0.98) 100%)',
       boxShadow: '0 0 60px rgba(218, 165, 32, 0.2)',
@@ -223,6 +228,7 @@ const Panel: React.FC<{ onClose: () => void; children: React.ReactNode }> = ({ o
     onClick={(e) => e.stopPropagation()}
   >
     <button
+      type="button"
       onClick={onClose}
       className="absolute top-3 right-3 p-2 rounded-full text-text-dim hover:text-foreground hover:bg-white/5 transition-colors"
       aria-label="Fechar"
