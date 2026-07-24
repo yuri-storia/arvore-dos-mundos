@@ -150,7 +150,10 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
 
   const unsorted = useMemo(() => gallery.filter(i => i.status === 'unsorted'), [gallery]);
 
-  // --- Uploads ---
+  // --- Uploads (per-file: queued → processing → uploading → done/failed) ---
+  const patchUpload = (id: string, patch: Partial<UploadItem>) =>
+    setUploads(prev => prev.map(u => u.id === id ? { ...u, ...patch } : u));
+
   const uploadFiles = async (files: FileList | null, folderName: string) => {
     if (!files || !user) return;
     if (!planLimits.canUploadGallery) {
@@ -162,34 +165,47 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
     const items = Array.from(files).filter(f => /image\/(png|jpe?g|webp)/.test(f.type));
     if (items.length === 0) return;
 
-    setUploading(true);
-    setUploadProgress({ done: 0, total: items.length });
+    // Descarta anteriores concluídos e enfileira os novos.
+    const queued: UploadItem[] = items.map(f => ({
+      id: `up-${crypto.randomUUID()}`,
+      name: f.name,
+      status: 'queued',
+      progress: 0,
+    }));
+    setUploads(prev => [...prev.filter(u => u.status !== 'done'), ...queued]);
+
     const newImages: GalleryImage[] = [];
     for (let i = 0; i < items.length; i++) {
       const file = items[i];
+      const uid = queued[i].id;
       try {
+        patchUpload(uid, { status: 'processing', progress: 10 });
         const optimized = await optimizeImage(file);
+        patchUpload(uid, { status: 'uploading', progress: 45 });
         const ext = optimized.name.split('.').pop() || 'webp';
         const path = `${user.id}/gallery-${crypto.randomUUID()}.${ext}`;
         const { error } = await supabase.storage.from('codex-images').upload(path, optimized, {
           cacheControl: '31536000', contentType: optimized.type || 'image/webp',
         });
         if (error) throw error;
+        patchUpload(uid, { progress: 85 });
         const { data: { publicUrl } } = supabase.storage.from('codex-images').getPublicUrl(path);
         newImages.push({
           id: `${Date.now()}-${i}`, src: publicUrl,
           name: file.name.replace(/\.[^.]+$/, ''), cat: folderName, status: 'kept',
         });
+        patchUpload(uid, { status: 'done', progress: 100 });
       } catch (err: any) {
+        patchUpload(uid, { status: 'failed', error: err?.message || 'falha' });
         toast.error(`Erro em "${file.name}": ${err.message || 'falha'}`);
       }
-      setUploadProgress({ done: i + 1, total: items.length });
     }
     if (newImages.length > 0) {
       setGallery([...gallery, ...newImages]);
       toast.success(`${newImages.length} imagem(ns) adicionada(s) em "${folderName}"`);
     }
-    setUploading(false);
+    // Remove concluídos automaticamente após alguns segundos; falhas ficam para o usuário revisar.
+    setTimeout(() => setUploads(prev => prev.filter(u => u.status !== 'done')), 3500);
   };
 
   const uploadCover = async (file: File | null, fruitId: number) => {
