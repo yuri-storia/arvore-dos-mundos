@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, Eye, EyeOff } from 'lucide-react';
 import { TwoFactorSection } from '@/components/TwoFactorSection';
+import { PlanStatusCard } from '@/components/PlanStatusCard';
 
 const SettingsPage: React.FC = () => {
   const { user } = useAuth();
