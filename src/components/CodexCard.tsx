@@ -172,6 +172,12 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
       setSaveState('idle');
       return;
     }
+    // Plano cancelado / expirado / sem plano — leitura + exportação apenas.
+    if (!planLimits.canEdit) {
+      toast.error('Sua assinatura está inativa. Reative um plano para voltar a editar.');
+      setSaveState('idle');
+      return;
+    }
     setSaveState('saving');
     await onUpdate(entry.id, { title, content, fruit_id: editFruit });
     lastSavedRef.current = { title, content, fruit_id: editFruit };
