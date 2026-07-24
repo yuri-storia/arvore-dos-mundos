@@ -302,7 +302,7 @@ const LandingPage: React.FC = () => {
                 }}
               >
                 <Crown className="w-4 h-4" strokeWidth={2} />
-                Começar meu teste gratuito
+                Começar agora
                 <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" strokeWidth={2.25} />
               </button>
               <a
@@ -317,8 +317,8 @@ const LandingPage: React.FC = () => {
               className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-7 text-[11px] font-montserrat text-text-dim uppercase tracking-wider"
               style={{ textShadow: '0 1px 10px rgba(2,7,13,0.85)' }}
             >
-              <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={2} /> 14 dias de experiência completa</span>
-              <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={2} /> Sem cartão</span>
+              <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={2} /> Acesso completo desde o 1º minuto</span>
+              <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={2} /> Cancele a qualquer momento</span>
               <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={2} /> Seus conteúdos continuam sendo seus</span>
             </div>
           </motion.div>
