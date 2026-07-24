@@ -102,12 +102,12 @@ export const PlanStatusCard: React.FC<PlanStatusCardProps> = ({ variant = 'setti
           </div>
           {sub.subscribed && !isAdmin && (
             <Link
-              to="/cancelar-plano"
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-montserrat font-bold uppercase tracking-wider border border-white/10 text-text-dim hover:text-foreground transition-colors shrink-0"
-              title="Gerenciar ou cancelar assinatura"
+              to="/minha-conta"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-montserrat font-bold uppercase tracking-wider border border-gold/30 bg-gold/5 text-gold-light hover:bg-gold/10 hover:border-gold/50 transition-colors shrink-0"
+              title="Gerenciar minha conta"
             >
               <CreditCard className="w-3 h-3" />
-              <span className="hidden sm:inline">Gerenciar</span>
+              <span className="hidden sm:inline">Gerenciar conta</span>
             </Link>
           )}
         </div>
