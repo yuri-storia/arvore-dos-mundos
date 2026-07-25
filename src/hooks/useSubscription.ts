@@ -48,14 +48,6 @@ export const PLANS = {
     period: "mensal",
     hasIdriel: true,
   },
-  fundador_anual: {
-    id: "fundador_anual",
-    name: "Membro Fundador Anual",
-    price: "R$ 397,90/ano",
-    priceValue: 397.90,
-    period: "anual",
-    hasIdriel: true,
-  },
 
   // Pacotes de recarga de Elixir dos Mundos (avulsos)
   recarga_15: { id: "recarga_15", name: "15 gotas", price: "R$ 4,90", priceValue: 4.90, drops: 15, period: "avulso", hasIdriel: false },
