@@ -39,8 +39,8 @@ const PLAN_CODES = [
   { value: 'idriel_mensal', label: 'Idriel Mensal (30d sem cobrança)' },
   { value: 'idriel_anual', label: 'Idriel Anual (365d sem cobrança)' },
   { value: 'fundador_mensal', label: 'Membro Fundador Mensal' },
-  { value: 'fundador_anual', label: 'Membro Fundador Anual' },
   { value: 'raiz_vitalicio', label: 'Raiz Vitalício (gratuito)' },
+  
   
   { value: 'none', label: 'Cancelar / Sem plano' },
 ];
@@ -205,7 +205,6 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
       else if (u.plan_code === 'idriel_mensal')  { idriel_mensal++; mrr += 39.90; }
       else if (u.plan_code === 'idriel_anual')   { idriel_anual++;  mrr += 397.90 / 12; }
       else if (u.plan_code === 'fundador_mensal') { fundador++;     mrr += 19.90; }
-      else if (u.plan_code === 'fundador_anual')  { fundador++;     mrr += 397.90 / 12; }
       else if (u.plan_code === 'raiz_vitalicio') { vitalicio++; }
     }
     return { total: users.length, raiz_mensal, raiz_anual, idriel_mensal, idriel_anual, fundador, vitalicio, mrr };
@@ -254,7 +253,6 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
             <SelectItem value="idriel_mensal">Idriel Mensal</SelectItem>
             <SelectItem value="idriel_anual">Idriel Anual</SelectItem>
             <SelectItem value="fundador_mensal">Fundador Mensal</SelectItem>
-            <SelectItem value="fundador_anual">Fundador Anual</SelectItem>
             <SelectItem value="raiz_vitalicio">Vitalício</SelectItem>
             <SelectItem value="none">Sem plano ativo</SelectItem>
             <SelectItem value="admin">Apenas admins</SelectItem>
