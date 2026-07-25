@@ -26,7 +26,7 @@ const PLANS: Record<string, PlanDef> = {
   idriel_anual:  { name: "Idriel - Anual",     amount: 397.90, kind: "subscription", cycle: "YEARLY",  hasIdriel: true  },
   // Convite Fundador — R$ 19,90/mês por 3 meses, depois R$ 39,90/mês (ajuste manual/fluxo dedicado)
   fundador_mensal: { name: "Fundador - Mensal", amount: 19.90,  kind: "subscription", cycle: "MONTHLY", hasIdriel: true },
-  fundador_anual:  { name: "Fundador - Anual",  amount: 397.90, kind: "subscription", cycle: "YEARLY",  hasIdriel: true },
+  
   recarga_15:    { name: "15 gotas de Elixir",  amount:  4.90, kind: "recharge", drops:  15 },
   recarga_25:    { name: "25 gotas de Elixir",  amount:  7.90, kind: "recharge", drops:  25 },
   recarga_50:    { name: "50 gotas de Elixir",  amount: 14.90, kind: "recharge", drops:  50 },

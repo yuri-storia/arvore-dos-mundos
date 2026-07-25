@@ -10,7 +10,7 @@ import { openCheckout } from '@/hooks/useSubscription';
  *
  * Regra do plano:
  *   • Mensal: R$ 19,90/mês nos 3 primeiros meses, depois R$ 39,90/mês
- *   • Anual : R$ 397,90/ano (mesmo do Idriel padrão)
+ *   • Inclui todos os benefícios do Idriel + 100 gotas de Elixir por mês
  */
 const FundadorInvitePage: React.FC = () => {
   const [params] = useSearchParams();
@@ -70,7 +70,7 @@ const FundadorInvitePage: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="max-w-md mx-auto">
           <div className="rounded-2xl p-6 border border-gold/40" style={{ background: 'linear-gradient(180deg, rgba(20,14,4,0.85), rgba(2,7,13,0.9))' }}>
             <p className="font-montserrat uppercase tracking-wider text-[10px] text-gold-champagne mb-1">Mensal fundador</p>
             <p className="font-cinzel font-bold text-3xl text-foreground mb-1">R$ 19,90<span className="text-sm text-text-dim">/mês</span></p>
@@ -81,18 +81,6 @@ const FundadorInvitePage: React.FC = () => {
               className="w-full py-2.5 rounded-full bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-[#1a0f00] font-montserrat font-bold text-[11px] uppercase tracking-wider hover:opacity-90 disabled:opacity-60"
             >
               {loading === 'fundador_mensal' ? 'Abrindo…' : 'Assinar mensal fundador'}
-            </button>
-          </div>
-          <div className="rounded-2xl p-6 border border-gold/40" style={{ background: 'linear-gradient(180deg, rgba(20,14,4,0.85), rgba(2,7,13,0.9))' }}>
-            <p className="font-montserrat uppercase tracking-wider text-[10px] text-gold-champagne mb-1">Anual fundador</p>
-            <p className="font-cinzel font-bold text-3xl text-foreground mb-1">R$ 397,90<span className="text-sm text-text-dim">/ano</span></p>
-            <p className="text-[11px] text-text-dim mb-4">equivale a R$ 33,15/mês</p>
-            <button
-              onClick={() => handleCheckout('fundador_anual')}
-              disabled={!!loading}
-              className="w-full py-2.5 rounded-full bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-[#1a0f00] font-montserrat font-bold text-[11px] uppercase tracking-wider hover:opacity-90 disabled:opacity-60"
-            >
-              {loading === 'fundador_anual' ? 'Abrindo…' : 'Assinar anual fundador'}
             </button>
           </div>
         </div>

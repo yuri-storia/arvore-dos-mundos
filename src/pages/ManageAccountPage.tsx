@@ -23,7 +23,7 @@ const ManageAccountPage: React.FC = () => {
   const [rechargeOpen, setRechargeOpen] = React.useState(false);
   const [upgradeOpen, setUpgradeOpen] = React.useState(false);
 
-  const isFundador = sub.plan_code === 'fundador_mensal' || sub.plan_code === 'fundador_anual';
+  const isFundador = sub.plan_code === 'fundador_mensal';
   const isIdriel = sub.hasIdriel && !isFundador;
   const isCriador = sub.hasTemplate && !sub.hasIdriel;
   const isNone = !sub.subscribed && !isAdmin;

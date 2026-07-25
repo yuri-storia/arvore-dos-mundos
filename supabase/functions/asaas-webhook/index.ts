@@ -14,7 +14,7 @@ const PLAN_MAP: Record<string, { hasIdriel: boolean; cycle: "monthly" | "yearly"
   idriel_mensal:    { hasIdriel: true,  cycle: "monthly", tier: "idriel",   displayName: "Idriel Mensal",           amount: 39.90  },
   idriel_anual:     { hasIdriel: true,  cycle: "yearly",  tier: "idriel",   displayName: "Idriel Anual",            amount: 397.90 },
   fundador_mensal:  { hasIdriel: true,  cycle: "monthly", tier: "fundador", displayName: "Membro Fundador Mensal",  amount: 19.90  },
-  fundador_anual:   { hasIdriel: true,  cycle: "yearly",  tier: "fundador", displayName: "Membro Fundador Anual",   amount: 397.90 },
+  
 };
 
 // Upgrades: SKU avulso -> ativa Idriel + cria nova assinatura recorrente futura

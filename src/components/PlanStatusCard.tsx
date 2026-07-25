@@ -45,7 +45,8 @@ const IDRIEL_FEATURES = [
 const FUNDADOR_FEATURES = [
   'Todos os benefícios do plano Idriel',
   'R$ 19,90/mês nos 3 primeiros meses',
-  'Depois R$ 39,90/mês — ou anual R$ 397,90',
+  'Depois R$ 39,90/mês',
+  '100 gotas de Elixir por mês',
 ];
 
 export const PlanStatusCard: React.FC<PlanStatusCardProps> = ({ variant = 'settings', onUpgradeRequest }) => {
@@ -55,7 +56,7 @@ export const PlanStatusCard: React.FC<PlanStatusCardProps> = ({ variant = 'setti
 
   if (sub.loading) return null;
 
-  const isFundador = sub.plan_code === 'fundador_mensal' || sub.plan_code === 'fundador_anual';
+  const isFundador = sub.plan_code === 'fundador_mensal';
   const isIdriel = sub.hasIdriel && !isFundador;
   const isCriador = sub.hasTemplate && !sub.hasIdriel;
   const isNone = !sub.subscribed && !isAdmin;
