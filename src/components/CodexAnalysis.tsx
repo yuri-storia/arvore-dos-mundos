@@ -425,7 +425,7 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, worldId, onClose }) =>
   const planLimits = usePlanLimits();
   const { user } = useAuth();
 
-  const creditsRemaining = sub.creditLimit - sub.creditsUsed;
+  const creditsRemaining = Math.max(sub.creditLimit - sub.creditsUsed, 0) + (sub.bonusDrops || 0);
   const canAnalyze = planLimits.canUseAI && creditsRemaining >= ANALYSIS_COST;
 
   // Fetch history on mount (escopado ao mundo ativo)
