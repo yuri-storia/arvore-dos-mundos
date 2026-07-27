@@ -45,6 +45,9 @@ interface Props {
   worldId?: string;
   entryType?: 'ficha' | 'artigo';
   onCreated?: (action: 'codex' | 'continue') => void;
+  /** Chamado logo após o conteúdo ser salvo (novo ou anexado a existente).
+   * Usado pelo pai para limpar o campo — o texto já vive no Codex. */
+  onSaved?: () => void;
   timelineOption?: {
     label?: string;
     onSelect: (fieldValue: string, fieldLabel: string) => void;
@@ -52,7 +55,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fruitId, worldId, entryType = 'ficha', onCreated, timelineOption, children }) => {
+export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fruitId, worldId, entryType = 'ficha', onCreated, onSaved, timelineOption, children }) => {
   const { user } = useAuth();
   const { entries, createEntry, updateEntry } = useCodexEntries(worldId);
   const [showMenu, setShowMenu] = useState(false);
@@ -116,6 +119,7 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
         setShowMenu(false);
         setCreatedEntryName(title);
         setShowSuccessDialog(true);
+        onSaved?.();
       }
       // Em caso de erro, o hook já dispara toast e mantemos o dialog aberto
       // para o usuário tentar de novo sem perder o que digitou.
@@ -209,6 +213,7 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
                             const separator = e.content ? '\n\n---\n\n' : '';
                             await updateEntry(e.id, { content: `${e.content}${separator}**${fieldLabel}:**\n${fieldValue}` });
                             toast.success(`Adicionado a "${e.title}"`);
+                            onSaved?.();
                           } catch (err) {
                             toast.error('Não foi possível atualizar a ficha');
                             console.error(err);

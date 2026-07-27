@@ -27,6 +27,7 @@ const LIST_COLUMNS = 'id, title, image_url, entry_type, fruit_id, world_id, imag
 
 export function useCodexEntries(worldId?: string) {
   const { user } = useAuth();
+  const isUnlimited = (user?.email || '').toLowerCase() === 'erinsaurogonfenix@gmail.com';
   const qc = useQueryClient();
 
   // Rastreia quais entradas já tiveram o `content` completo carregado do banco.
@@ -134,8 +135,8 @@ export function useCodexEntries(worldId?: string) {
   const createEntry = useCallback(async (entry: { title: string; content: string; image_url?: string; entry_type: string; fruit_id?: number | null }) => {
     if (!user) { toast.error('Faça login para criar fichas'); return null; }
     if (!worldId) { toast.error('Selecione ou crie um mundo antes de salvar a ficha'); return null; }
-    if (entry.title && entry.title.length > 200) { toast.error('Título muito longo (máximo 200 caracteres)'); return null; }
-    if (entry.content && entry.content.length > 50000) { toast.error('Conteúdo muito longo (máximo 50.000 caracteres)'); return null; }
+    if (!isUnlimited && entry.title && entry.title.length > 200) { toast.error('Título muito longo (máximo 200 caracteres)'); return null; }
+    if (!isUnlimited && entry.content && entry.content.length > 50000) { toast.error('Conteúdo muito longo (máximo 50.000 caracteres)'); return null; }
     const { data, error } = await supabase
       .from('codex_entries')
       .insert({ ...entry, user_id: user.id, world_id: worldId })
@@ -143,9 +144,6 @@ export function useCodexEntries(worldId?: string) {
       .single();
     if (error) { if (!handlePlanEditError(error)) toast.error(`Erro ao criar ficha: ${error.message}`); console.error(error); return null; }
     qc.setQueryData(CODEX_KEY(worldId), (old: CodexEntry[] = []) => [data as any, ...old]);
-    // Marca como hidratada — já temos o `content` completo em mãos, não precisa
-    // refetch. Sem isso, `isContentHydrated` retornava false e o CodexCard
-    // travava a edição da ficha recém-criada até dar refresh.
     setHydratedIds(prev => {
       const id = (data as any)?.id;
       if (!id || prev.has(id)) return prev;
@@ -153,12 +151,12 @@ export function useCodexEntries(worldId?: string) {
     });
     toast.success(entry.entry_type === 'artigo' ? 'Artigo criado!' : 'Ficha criada!');
     return data as unknown as CodexEntry;
-  }, [user, worldId, qc]);
+  }, [user, worldId, qc, isUnlimited]);
 
 
   const updateEntry = useCallback(async (id: string, updates: Partial<Pick<CodexEntry, 'title' | 'content' | 'image_url' | 'entry_type' | 'fruit_id' | 'image_position'>>) => {
-    if (updates.title && updates.title.length > 200) { toast.error('Título muito longo (máximo 200 caracteres)'); return; }
-    if (updates.content && updates.content.length > 50000) { toast.error('Conteúdo muito longo (máximo 50.000 caracteres)'); return; }
+    if (!isUnlimited && updates.title && updates.title.length > 200) { toast.error('Título muito longo (máximo 200 caracteres)'); return; }
+    if (!isUnlimited && updates.content && updates.content.length > 50000) { toast.error('Conteúdo muito longo (máximo 50.000 caracteres)'); return; }
     if (updates.image_url && updates.image_url.startsWith('blob:')) {
       toast.error('Imagem temporária detectada. Faça upload novamente.');
       return;

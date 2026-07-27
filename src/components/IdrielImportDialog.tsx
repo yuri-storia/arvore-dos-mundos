@@ -20,7 +20,7 @@ import {
   History, Search, Trash2, CheckCircle2, Circle, AlertCircle, FileSearch,
 } from 'lucide-react';
 
-interface CodexEntryLite { id: string; title: string; fruit_id?: number | null }
+interface CodexEntryLite { id: string; title: string; fruit_id?: number | null; content?: string | null }
 
 interface Props {
   open: boolean;
@@ -28,9 +28,14 @@ interface Props {
   worldId: string | null | undefined;
   existingEntries: CodexEntryLite[];
   onCreate: (entries: Array<{ title: string; content: string; entry_type: 'ficha' | 'artigo'; fruit_id: number }>) => Promise<Array<{ id: string; title: string; fruit_id?: number | null }>>;
+  /** Anexa o resumo sugerido pela Idriel ao conteúdo de uma entrada já existente.
+   * O pai é responsável por hidratar o conteúdo atual e fazer o merge/append. */
+  onUpdate?: (id: string, appendSummary: string) => Promise<void>;
   canCreateMore: () => boolean;
   remaining: number;
 }
+
+type ConflictAction = 'add' | 'update' | 'ignore';
 
 type Step = 'upload' | 'review' | 'history';
 type SourceKind = IdrielImportRecord['source_kind'];
@@ -52,7 +57,7 @@ function matchExisting(s: ImportSuggestionStored, entries: CodexEntryLite[]): st
   return hit ? hit.id : null;
 }
 
-export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, worldId, existingEntries, onCreate, canCreateMore, remaining }) => {
+export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, worldId, existingEntries, onCreate, onUpdate, canCreateMore, remaining }) => {
   const [step, setStep] = useState<Step>('upload');
   const [extracting, setExtracting] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
@@ -65,6 +70,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, worldI
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [progress, setProgress] = useState<ImportProgress | null>(null);
   const [activeRecordId, setActiveRecordId] = useState<string | null>(null);
+  const [conflictActions, setConflictActions] = useState<Record<number, ConflictAction>>({});
 
   const { imports, loading: loadingImports, createRecord, updateSuggestions, deleteRecord, uploadSourceFile, refetch } = useIdrielImports(worldId);
 
@@ -83,6 +89,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, worldI
     setCreating(false);
     setProgress(null);
     setActiveRecordId(null);
+    setConflictActions({});
   };
 
   const handleClose = (v: boolean) => { if (!v) reset(); onOpenChange(v); };
@@ -233,33 +240,75 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, worldI
 
   // === Criar entradas selecionadas + sincronizar created_entry_id ===
   const handleCreate = async () => {
-    // só cria as selecionadas que ainda não têm correspondente vivo no codex
-    const toCreateIdx = Array.from(selected).filter(i => !reviewItems[i].existingEntryId);
-    if (toCreateIdx.length === 0) { toast.error('Selecione ao menos uma entrada nova.'); return; }
-    if (!canCreateMore()) { toast.error('Limite do plano atingido.'); return; }
-    if (toCreateIdx.length > remaining) { toast.error(`Seu plano permite criar apenas ${remaining} entrada(s) restante(s).`); return; }
+    // Novas + conflitos marcados como "adicionar mesmo assim"
+    const toCreateIdx = reviewItems
+      .filter(r => !r.existingEntryId && selected.has(r._key))
+      .map(r => r._key);
+    const toAddDupeIdx = reviewItems
+      .filter(r => r.existingEntryId && conflictActions[r._key] === 'add')
+      .map(r => r._key);
+    const toUpdateIdx = reviewItems
+      .filter(r => r.existingEntryId && conflictActions[r._key] === 'update')
+      .map(r => r._key);
+
+    const totalCreates = toCreateIdx.length + toAddDupeIdx.length;
+
+    if (totalCreates === 0 && toUpdateIdx.length === 0) {
+      toast.error('Selecione ao menos uma entrada nova ou defina uma ação para conflitos.');
+      return;
+    }
+    if (totalCreates > 0) {
+      if (!canCreateMore()) { toast.error('Limite do plano atingido.'); return; }
+      if (totalCreates > remaining) { toast.error(`Seu plano permite criar apenas ${remaining} entrada(s) restante(s).`); return; }
+    }
+    if (toUpdateIdx.length > 0 && !onUpdate) {
+      toast.error('Atualização de entradas não disponível.'); return;
+    }
+
     setCreating(true);
     try {
-      const payload = toCreateIdx.map(i => ({
-        title: suggestions[i].title.slice(0, 200),
-        content: suggestions[i].summary.slice(0, 50000),
-        entry_type: suggestions[i].type,
-        fruit_id: suggestions[i].fruit_id,
-      }));
-      const created = await onCreate(payload);
-      // mapeia ids criados por título+fruit_id (mesma ordem que enviei, mas robustece)
-      const nextSuggestions = suggestions.slice();
-      toCreateIdx.forEach((idx, k) => {
-        const c = created?.[k];
-        if (c) nextSuggestions[idx] = { ...nextSuggestions[idx], created_entry_id: c.id };
-      });
-      setSuggestions(nextSuggestions);
-      if (activeRecordId) await updateSuggestions(activeRecordId, nextSuggestions);
-      toast.success(`${toCreateIdx.length} entrada(s) criada(s)!`);
+      const createList = [...toCreateIdx, ...toAddDupeIdx];
+      let createdCount = 0;
+      if (createList.length > 0) {
+        const payload = createList.map(i => ({
+          title: suggestions[i].title.slice(0, 200),
+          content: suggestions[i].summary.slice(0, 50000),
+          entry_type: suggestions[i].type,
+          fruit_id: suggestions[i].fruit_id,
+        }));
+        const created = await onCreate(payload);
+        const nextSuggestions = suggestions.slice();
+        createList.forEach((idx, k) => {
+          const c = created?.[k];
+          if (c) nextSuggestions[idx] = { ...nextSuggestions[idx], created_entry_id: c.id };
+        });
+        setSuggestions(nextSuggestions);
+        if (activeRecordId) await updateSuggestions(activeRecordId, nextSuggestions);
+        createdCount = created?.length ?? 0;
+      }
+
+      let updatedCount = 0;
+      if (toUpdateIdx.length > 0 && onUpdate) {
+        for (const i of toUpdateIdx) {
+          const s = suggestions[i];
+          const existingId = reviewItems.find(r => r._key === i)?.existingEntryId;
+          if (!existingId || !s.summary) continue;
+          try {
+            await onUpdate(existingId, s.summary);
+            updatedCount++;
+          } catch (e) { console.error('update failed', e); }
+        }
+      }
+
+      const msgs: string[] = [];
+      if (createdCount) msgs.push(`${createdCount} criada(s)`);
+      if (updatedCount) msgs.push(`${updatedCount} atualizada(s)`);
+      toast.success(msgs.length ? msgs.join(' · ') : 'Nada aplicado.');
       setSelected(new Set());
+      setConflictActions({});
     } catch (err) {
       console.error(err);
-      toast.error(err instanceof Error ? err.message : 'Erro ao criar entradas.');
+      toast.error(err instanceof Error ? err.message : 'Erro ao aplicar sugestões.');
     } finally { setCreating(false); }
   };
 
@@ -274,6 +323,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, worldI
     setSelected(new Set(reviewItems.filter(r => !r.existingEntryId).map(r => r._key)));
   };
   const toggleOne = (i: number) => { const next = new Set(selected); next.has(i) ? next.delete(i) : next.add(i); setSelected(next); };
+  const setConflict = (i: number, action: ConflictAction) => setConflictActions(prev => ({ ...prev, [i]: action }));
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -395,29 +445,59 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, worldI
                 const wasDeleted = s.wasDeleted && !isExisting;
                 return (
                   <div key={s._key} className={`flex gap-3 p-3 rounded-md border ${isExisting ? 'border-emerald-700/40 bg-emerald-900/10' : wasDeleted ? 'border-stroke bg-background/30' : 'border-stroke bg-background/40'}`}>
-                    <Checkbox checked={selected.has(s._key)} disabled={isExisting} onCheckedChange={() => toggleOne(s._key)} className="mt-1" />
+                    {!isExisting && (
+                      <Checkbox checked={selected.has(s._key)} onCheckedChange={() => toggleOne(s._key)} className="mt-1" />
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         {isExisting ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> : <Circle className="h-3.5 w-3.5 text-foreground/40" />}
                         <span className="font-cinzel text-foreground/95">{s.title}</span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full ${isFicha ? 'bg-blue-500/20 text-blue-300' : 'bg-amber-500/20 text-amber-300'}`}>{isFicha ? 'Ficha' : 'Artigo'}</span>
                         {fruit && <span className="text-[10px] text-foreground/60">· {fruit.name}</span>}
-                        {isExisting && <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300">No Codex</span>}
+                        {isExisting && <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300">Já no Codex</span>}
                         {wasDeleted && <span className="text-[10px] px-2 py-0.5 rounded-full bg-foreground/10 text-foreground/60">Excluída — pode recriar</span>}
                       </div>
                       <p className="text-xs text-foreground/70 mt-1 line-clamp-3">{s.summary}</p>
+                      {isExisting && (
+                        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                          <span className="text-[10px] uppercase tracking-wider text-foreground/50 font-montserrat">Conflito:</span>
+                          {(['ignore','update','add'] as ConflictAction[]).map(act => {
+                            const active = (conflictActions[s._key] ?? 'ignore') === act;
+                            const label = act === 'ignore' ? 'Ignorar' : act === 'update' ? 'Atualizar existente' : 'Adicionar mesmo assim';
+                            return (
+                              <button
+                                key={act}
+                                type="button"
+                                onClick={() => setConflict(s._key, act)}
+                                className={`text-[10px] px-2 py-1 rounded-full border transition-colors font-montserrat ${active ? 'bg-gold/25 text-gold border-gold/60' : 'bg-background/40 text-foreground/70 border-stroke hover:border-gold/40'}`}
+                              >{label}</button>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
               })}
             </div>
 
-            <div className="flex justify-between gap-2 pt-2">
-              <Button variant="ghost" onClick={() => { setStep(activeRecordId ? 'history' : 'upload'); }} disabled={creating || analyzing} className="inline-flex items-center gap-1.5"><ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />Voltar</Button>
-              <Button onClick={handleCreate} disabled={creating || analyzing || selected.size === 0} className="bg-gold text-background hover:bg-gold/90">
-                {creating ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Criando...</> : `Criar ${selected.size} entrada(s)`}
-              </Button>
-            </div>
+            {(() => {
+              const newCount = reviewItems.filter(r => !r.existingEntryId && selected.has(r._key)).length;
+              const dupeAdd = reviewItems.filter(r => r.existingEntryId && conflictActions[r._key] === 'add').length;
+              const dupeUpd = reviewItems.filter(r => r.existingEntryId && conflictActions[r._key] === 'update').length;
+              const total = newCount + dupeAdd + dupeUpd;
+              const summary = total === 0
+                ? 'Nada selecionado'
+                : [newCount && `${newCount} nova(s)`, dupeAdd && `${dupeAdd} duplicada(s)`, dupeUpd && `${dupeUpd} atualização(ões)`].filter(Boolean).join(' · ');
+              return (
+                <div className="flex justify-between gap-2 pt-2">
+                  <Button variant="ghost" onClick={() => { setStep(activeRecordId ? 'history' : 'upload'); }} disabled={creating || analyzing} className="inline-flex items-center gap-1.5"><ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />Voltar</Button>
+                  <Button onClick={handleCreate} disabled={creating || analyzing || total === 0} className="bg-gold text-background hover:bg-gold/90">
+                    {creating ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Aplicando...</> : `Aplicar (${summary})`}
+                  </Button>
+                </div>
+              );
+            })()}
           </div>
         )}
       </DialogContent>

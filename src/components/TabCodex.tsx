@@ -52,6 +52,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   const { entries, loading, createEntry, updateEntry, deleteEntry, uploadImage, fetchEntriesFromWorld, importEntries, fetchEntryContent, isContentHydrated } = useCodexEntries(worldId || undefined);
   
   const [filterFruits, setFilterFruits] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const isUnlimited = (user?.email || '').toLowerCase() === 'erinsaurogonfenix@gmail.com';
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [mode, setMode] = useState<CodexMode>(() => {
     if (typeof window === 'undefined' || !worldId) return 'encyclopedia';
@@ -268,8 +270,14 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   }
 
   const filtered = entries.filter(e => {
-    if (filterFruits.length === 0) return true;
-    return filterFruits.includes(e.fruit_id ?? FRUIT_NONE);
+    if (filterFruits.length > 0 && !filterFruits.includes(e.fruit_id ?? FRUIT_NONE)) return false;
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      const inTitle = e.title.toLowerCase().includes(q);
+      const inContent = (e.content || '').toLowerCase().includes(q);
+      if (!inTitle && !inContent) return false;
+    }
+    return true;
   });
 
   const handleImageUpload = async (file: File, onUrl: (url: string) => void) => {
@@ -461,34 +469,94 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
       </div>
       <p className="font-merriweather italic text-text-dim text-sm mb-4">Suas fichas, artigos e anotações organizados por fruto</p>
 
-      {/* Toggle: Enciclopédia | Linha do Tempo */}
-      <div className="mb-5 inline-flex rounded-full border border-gold/25 bg-[hsl(var(--background)/0.55)] backdrop-blur-md p-1">
-        {([
-          { key: 'encyclopedia', label: 'Enciclopédia', Icon: BookOpen },
-          { key: 'timeline',     label: 'Linha do Tempo', Icon: Trees   },
-        ] as const).map(opt => {
-          const active = mode === opt.key;
-          const Icon = opt.Icon;
-          return (
-            <button
-              key={opt.key}
-              onClick={() => setMode(opt.key)}
-              className={`px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-montserrat font-bold uppercase tracking-wider transition-all inline-flex items-center gap-1.5 ${
-                active
-                  ? 'bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] shadow-[0_0_14px_hsl(var(--gold)/0.45)]'
-                  : 'text-text-dim hover:text-gold-champagne'
-              }`}
-            >
-              <Icon className="w-3.5 h-3.5" strokeWidth={1.85} />{opt.label}
-            </button>
-          );
-        })}
+      {/* Toggle: Enciclopédia | Linha do Tempo + Search + Filter */}
+      <div className="mb-5 flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="inline-flex rounded-full border border-gold/25 bg-[hsl(var(--background)/0.55)] backdrop-blur-md p-1 shrink-0">
+          {([
+            { key: 'encyclopedia', label: 'Enciclopédia', Icon: BookOpen },
+            { key: 'timeline',     label: 'Linha do Tempo', Icon: Trees   },
+          ] as const).map(opt => {
+            const active = mode === opt.key;
+            const Icon = opt.Icon;
+            return (
+              <button
+                key={opt.key}
+                onClick={() => setMode(opt.key)}
+                className={`px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-montserrat font-bold uppercase tracking-wider transition-all inline-flex items-center gap-1.5 ${
+                  active
+                    ? 'bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] shadow-[0_0_14px_hsl(var(--gold)/0.45)]'
+                    : 'text-text-dim hover:text-gold-champagne'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" strokeWidth={1.85} />{opt.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {mode === 'encyclopedia' && (
+          <div className="flex items-center gap-2 sm:ml-auto w-full sm:w-auto">
+            <div className="relative flex-1 sm:flex-none sm:w-64">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-dim" strokeWidth={1.75} />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Pesquisar fichas ou artigos…"
+                className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-full pl-8 pr-3 py-1.5 text-xs text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-ring/50"
+              />
+            </div>
+            <FruitFilterMenu
+              entries={entries}
+              filterFruits={filterFruits}
+              setFilterFruits={setFilterFruits}
+              inlineMode
+            />
+          </div>
+        )}
       </div>
 
       {mode === 'timeline' ? (
         <TimelineView worldId={worldId} codexEntries={entries} onOpenEntry={(id) => { setMode('encyclopedia'); setPersistedExpandedId(id); }} />
 
       ) : (<>
+
+      {/* Ritual da Guardiã — placed above entries so it's always reachable */}
+      {entries.length > 0 && (
+        <div className="mb-6">
+          {!showAnalysis ? (
+            <button
+              onClick={() => setShowAnalysis(true)}
+              className="consult-idriel-cta group relative w-full rounded-2xl px-5 py-4 sm:px-6 sm:py-5 flex items-center gap-4 text-left"
+            >
+              <div className="relative shrink-0">
+                <div className="absolute inset-0 -m-2 rounded-full bg-gold-warm/30 blur-xl opacity-60 group-hover:opacity-100 transition-opacity animate-idriel-pulse" />
+                <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-gold-warm/50 shadow-[0_0_20px_hsl(var(--gold-warm)/0.35)]">
+                  <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
+                </div>
+              </div>
+              <div className="relative flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <Trees className="w-3 h-3 text-gold-champagne" strokeWidth={1.75} />
+                  <span className="text-[9px] font-montserrat font-bold uppercase tracking-[0.22em] text-gold-champagne/80">Ritual da Guardiã</span>
+                </div>
+                <h3 className="font-cinzel font-bold text-base sm:text-lg leading-tight bg-gradient-to-r from-gold-champagne via-gold-light to-gold-champagne bg-clip-text text-transparent">
+                  Consultar Idriel
+                </h3>
+                <p className="font-merriweather italic text-[11px] sm:text-xs text-foreground/70 leading-snug max-w-xl">
+                  Análise da guardiã sobre suas entradas atuais.
+                </p>
+              </div>
+              <div className="hidden sm:flex relative shrink-0 w-9 h-9 rounded-full border border-gold-warm/40 items-center justify-center text-gold-champagne group-hover:border-gold-champagne/70 group-hover:text-gold-light group-hover:translate-x-0.5 transition-all">
+                <ChevronRight className="w-4 h-4" strokeWidth={2} />
+              </div>
+            </button>
+          ) : (
+            <CodexAnalysis entries={entries} worldId={worldId} onClose={() => setShowAnalysis(false)} />
+          )}
+        </div>
+      )}
+
 
 
       {/* Import panel */}
@@ -640,12 +708,33 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
         </div>
       )}
 
-      {/* Filters by fruit — retractable menu (popover desktop / sheet mobile) */}
-      <FruitFilterMenu
-        entries={entries}
-        filterFruits={filterFruits}
-        setFilterFruits={setFilterFruits}
-      />
+      {/* Active fruit filter chips (mobile-friendly summary) */}
+      {filterFruits.length > 0 && (
+        <div className="mb-4 flex flex-wrap gap-1.5">
+          {filterFruits.map(id => {
+            const f = FRUITS.find(x => x.id === id);
+            if (!f) return null;
+            return (
+              <button
+                key={id}
+                onClick={() => setFilterFruits(prev => prev.filter(x => x !== id))}
+                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-montserrat font-bold bg-primary/15 text-blue-light border border-ring/40 hover:bg-primary/25 transition-colors"
+              >
+                <f.Icon className="w-3 h-3 text-gold-light" strokeWidth={1.75} />
+                {f.name}
+                <X className="w-3 h-3 opacity-70" strokeWidth={2} />
+              </button>
+            );
+          })}
+          <button
+            onClick={() => setFilterFruits([])}
+            className="text-[10px] text-text-dim hover:text-foreground font-montserrat underline underline-offset-2 ml-1"
+          >
+            limpar tudo
+          </button>
+        </div>
+      )}
+
 
       {/* Create form (after choosing kind) */}
       {showCreate && createKind && (
@@ -655,7 +744,14 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <div>
-              <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Título</label>
+              <div className="flex items-baseline justify-between mb-1">
+                <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat">Título</label>
+                {!isUnlimited && (
+                  <span className={`text-[9px] font-montserrat tabular-nums ${newTitle.length > 200 ? 'text-destructive' : 'text-text-dim/70'}`}>
+                    {newTitle.length}/200
+                  </span>
+                )}
+              </div>
               <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder={createKind === 'ficha' ? 'Nome da ficha…' : 'Título do artigo…'} className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-ring/50" />
             </div>
             <div>
@@ -688,7 +784,14 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
           )}
 
           <div className="mb-3">
-            <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Conteúdo</label>
+            <div className="flex items-baseline justify-between mb-1">
+              <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat">Conteúdo</label>
+              {!isUnlimited && (
+                <span className={`text-[9px] font-montserrat tabular-nums ${newContent.length > 50000 ? 'text-destructive' : 'text-text-dim/70'}`}>
+                  {newContent.length.toLocaleString('pt-BR')}/50.000
+                </span>
+              )}
+            </div>
             <div className="border border-blue-bright/15 rounded-md overflow-hidden bg-[rgba(4,12,24,0.6)]">
               <RichTextEditor
                 entries={entries}
@@ -832,48 +935,6 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
         </>
       )}
 
-      {/* Analyze World — bottom CTA */}
-      {entries.length > 0 && (
-        <div className="mt-10 mb-4">
-          {!showAnalysis ? (
-            <button
-              onClick={() => setShowAnalysis(true)}
-              className="consult-idriel-cta group relative w-full rounded-2xl px-6 py-6 sm:px-8 sm:py-7 flex items-center gap-5 text-left"
-            >
-              {/* Avatar with pulsing halo */}
-              <div className="relative shrink-0">
-                <div className="absolute inset-0 -m-2 rounded-full bg-gold-warm/30 blur-xl opacity-60 group-hover:opacity-100 transition-opacity animate-idriel-pulse" />
-                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-gold-warm/50 shadow-[0_0_24px_hsl(var(--gold-warm)/0.35)]">
-                  <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
-                </div>
-              </div>
-
-              {/* Copy */}
-              <div className="relative flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <Trees className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />
-                  <span className="text-[10px] font-montserrat font-bold uppercase tracking-[0.22em] text-gold-champagne/80">
-                    Ritual da Guardiã
-                  </span>
-                </div>
-                <h3 className="font-cinzel font-bold text-lg sm:text-xl leading-tight bg-gradient-to-r from-gold-champagne via-gold-light to-gold-champagne bg-clip-text text-transparent">
-                  Consultar Idriel
-                </h3>
-                <p className="mt-1.5 font-merriweather italic text-xs sm:text-[13px] text-foreground/75 leading-relaxed max-w-xl">
-                  Peça à sábia guardiã para avaliar suas entradas e iluminar os próximos passos da sua criação.
-                </p>
-              </div>
-
-              {/* Trailing arrow chevron */}
-              <div className="hidden sm:flex relative shrink-0 w-10 h-10 rounded-full border border-gold-warm/40 items-center justify-center text-gold-champagne group-hover:border-gold-champagne/70 group-hover:text-gold-light group-hover:translate-x-0.5 transition-all">
-                <ChevronRight className="w-4 h-4" strokeWidth={2} />
-              </div>
-            </button>
-          ) : (
-            <CodexAnalysis entries={entries} worldId={worldId} onClose={() => setShowAnalysis(false)} />
-          )}
-        </div>
-      )}
       </>)}
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
@@ -882,7 +943,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
         open={showIdrielImport}
         onOpenChange={setShowIdrielImport}
         worldId={worldId}
-        existingEntries={entries.map(e => ({ id: e.id, title: e.title, fruit_id: e.fruit_id ?? null }))}
+        existingEntries={entries.map(e => ({ id: e.id, title: e.title, fruit_id: e.fruit_id ?? null, content: e.content ?? '' }))}
         remaining={(() => {
           const fichaCount = entries.filter(e => e.entry_type !== 'artigo').length;
           const artigoCount = entries.filter(e => e.entry_type === 'artigo').length;
@@ -909,6 +970,16 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
           }
           return created;
         }}
+        onUpdate={async (id, appendSummary) => {
+          // Hidrata conteúdo atual antes do merge para não sobrescrever nada.
+          let currentContent = entries.find(e => e.id === id)?.content ?? '';
+          if (!isContentHydrated(id)) {
+            try { const hydrated = await fetchEntryContent(id); if (typeof hydrated === 'string') currentContent = hydrated; } catch { /* segue */ }
+          }
+          const divider = `\n\n---\n**Idriel (${new Date().toLocaleDateString('pt-BR')}):**\n\n`;
+          const merged = (currentContent + divider + appendSummary).slice(0, 50000);
+          await updateEntry(id, { content: merged });
+        }}
       />
 
     </div>
@@ -920,9 +991,10 @@ type FruitFilterMenuProps = {
   entries: CodexEntry[];
   filterFruits: number[];
   setFilterFruits: React.Dispatch<React.SetStateAction<number[]>>;
+  inlineMode?: boolean;
 };
 
-const FruitFilterMenu: React.FC<FruitFilterMenuProps> = ({ entries, filterFruits, setFilterFruits }) => {
+const FruitFilterMenu: React.FC<FruitFilterMenuProps> = ({ entries, filterFruits, setFilterFruits, inlineMode }) => {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
 
@@ -1047,7 +1119,7 @@ const FruitFilterMenu: React.FC<FruitFilterMenuProps> = ({ entries, filterFruits
 
 
   return (
-    <div className="mb-6">
+    <div className={inlineMode ? '' : 'mb-6'}>
       {isMobile ? (
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>{Trigger}</SheetTrigger>
@@ -1066,7 +1138,7 @@ const FruitFilterMenu: React.FC<FruitFilterMenuProps> = ({ entries, filterFruits
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>{Trigger}</PopoverTrigger>
           <PopoverContent
-            align="start"
+            align={inlineMode ? 'end' : 'start'}
             sideOffset={8}
             className="w-[min(560px,90vw)] p-4 border-border/60 rounded-xl bg-[hsl(214_60%_5%/0.95)] backdrop-blur-xl"
           >
@@ -1081,7 +1153,7 @@ const FruitFilterMenu: React.FC<FruitFilterMenuProps> = ({ entries, filterFruits
           </PopoverContent>
         </Popover>
       )}
-      {ActiveChips}
+      {!inlineMode && ActiveChips}
     </div>
   );
 };
