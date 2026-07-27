@@ -89,19 +89,6 @@ const Particles: React.FC = () => {
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-[1]" />;
 };
 
-function calcProgress(db?: Record<number, Record<string, string>>): { filled: number; total: number } {
-  const total = FRUITS.length;
-  if (!db) return { filled: 0, total };
-  let filled = 0;
-  for (const fruit of FRUITS) {
-    const data = db[fruit.id];
-    if (data && Object.values(data).some(v => v && v.trim().length > 0)) {
-      filled++;
-    }
-  }
-  return { filled, total };
-}
-
 const formatDate = (ts: string) => {
   const d = new Date(ts);
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
