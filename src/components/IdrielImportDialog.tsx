@@ -20,7 +20,7 @@ import {
   History, Search, Trash2, CheckCircle2, Circle, AlertCircle, FileSearch,
 } from 'lucide-react';
 
-interface CodexEntryLite { id: string; title: string; fruit_id?: number | null }
+interface CodexEntryLite { id: string; title: string; fruit_id?: number | null; content?: string | null }
 
 interface Props {
   open: boolean;
