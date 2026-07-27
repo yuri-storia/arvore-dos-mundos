@@ -3,7 +3,7 @@ import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
 import heroVideo480 from '@/assets/arvore-hero-loop-480.mp4.asset.json';
 import heroPoster from '@/assets/arvore-mundos-hero.webp.asset.json';
 import { UserMenu } from '@/components/UserMenu';
-import { FRUITS } from '@/lib/data';
+
 import { Pencil, ChevronDown, FolderOpen, Plus, Trash2, ArrowDown } from 'lucide-react';
 import type { MethodType } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
@@ -89,19 +89,6 @@ const Particles: React.FC = () => {
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-[1]" />;
 };
 
-function calcProgress(db?: Record<number, Record<string, string>>): { filled: number; total: number } {
-  const total = FRUITS.length;
-  if (!db) return { filled: 0, total };
-  let filled = 0;
-  for (const fruit of FRUITS) {
-    const data = db[fruit.id];
-    if (data && Object.values(data).some(v => v && v.trim().length > 0)) {
-      filled++;
-    }
-  }
-  return { filled, total };
-}
-
 const formatDate = (ts: string) => {
   const d = new Date(ts);
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
@@ -110,8 +97,6 @@ const formatDate = (ts: string) => {
 export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, onCreateWorld, method, currentSaveId, db, worlds, onLoadWorld, onNewWorld, onDeleteWorld }) => {
   const isMobile = useIsMobile();
   const hasWorld = !!currentSaveId;
-  const progress = calcProgress(db);
-  const pct = progress.total > 0 ? Math.round((progress.filled / progress.total) * 100) : 0;
   const [editing, setEditing] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -273,28 +258,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
           )}
         </div>
 
-        {/* Context row: method + progress + user */}
+        {/* Context row: method + user */}
         <div className="flex items-center justify-center gap-4 mt-1 flex-wrap">
           {hasWorld && (
-            <>
-              <span className="text-[10px] font-montserrat uppercase tracking-wider text-text-dim">
-                <><ArrowDown className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={2} />{method === 'top-down' ? 'De Cima para Baixo' : 'De Baixo para Cima'}</>
-              </span>
-              <div className="flex items-center gap-2">
-                <div className="w-24 h-1.5 rounded-full bg-secondary overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${pct}%`,
-                      background: 'linear-gradient(90deg, hsl(var(--blue-bright)), hsl(var(--gold-light)))',
-                    }}
-                  />
-                </div>
-                <span className="text-[10px] font-montserrat text-text-dim">
-                  {progress.filled}/{progress.total} frutos
-                </span>
-              </div>
-            </>
+            <span className="text-[10px] font-montserrat uppercase tracking-wider text-text-dim">
+              <><ArrowDown className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={2} />{method === 'top-down' ? 'De Cima para Baixo' : 'De Baixo para Cima'}</>
+            </span>
           )}
           <UserMenu />
         </div>
