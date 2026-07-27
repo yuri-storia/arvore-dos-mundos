@@ -671,12 +671,33 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
         </div>
       )}
 
-      {/* Filters by fruit — retractable menu (popover desktop / sheet mobile) */}
-      <FruitFilterMenu
-        entries={entries}
-        filterFruits={filterFruits}
-        setFilterFruits={setFilterFruits}
-      />
+      {/* Active fruit filter chips (mobile-friendly summary) */}
+      {filterFruits.length > 0 && (
+        <div className="mb-4 flex flex-wrap gap-1.5">
+          {filterFruits.map(id => {
+            const f = FRUITS.find(x => x.id === id);
+            if (!f) return null;
+            return (
+              <button
+                key={id}
+                onClick={() => setFilterFruits(prev => prev.filter(x => x !== id))}
+                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-montserrat font-bold bg-primary/15 text-blue-light border border-ring/40 hover:bg-primary/25 transition-colors"
+              >
+                <f.Icon className="w-3 h-3 text-gold-light" strokeWidth={1.75} />
+                {f.name}
+                <X className="w-3 h-3 opacity-70" strokeWidth={2} />
+              </button>
+            );
+          })}
+          <button
+            onClick={() => setFilterFruits([])}
+            className="text-[10px] text-text-dim hover:text-foreground font-montserrat underline underline-offset-2 ml-1"
+          >
+            limpar tudo
+          </button>
+        </div>
+      )}
+
 
       {/* Create form (after choosing kind) */}
       {showCreate && createKind && (
