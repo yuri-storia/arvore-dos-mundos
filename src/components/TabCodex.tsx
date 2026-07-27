@@ -921,48 +921,6 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
         </>
       )}
 
-      {/* Analyze World — bottom CTA */}
-      {entries.length > 0 && (
-        <div className="mt-10 mb-4">
-          {!showAnalysis ? (
-            <button
-              onClick={() => setShowAnalysis(true)}
-              className="consult-idriel-cta group relative w-full rounded-2xl px-6 py-6 sm:px-8 sm:py-7 flex items-center gap-5 text-left"
-            >
-              {/* Avatar with pulsing halo */}
-              <div className="relative shrink-0">
-                <div className="absolute inset-0 -m-2 rounded-full bg-gold-warm/30 blur-xl opacity-60 group-hover:opacity-100 transition-opacity animate-idriel-pulse" />
-                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-gold-warm/50 shadow-[0_0_24px_hsl(var(--gold-warm)/0.35)]">
-                  <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
-                </div>
-              </div>
-
-              {/* Copy */}
-              <div className="relative flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <Trees className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />
-                  <span className="text-[10px] font-montserrat font-bold uppercase tracking-[0.22em] text-gold-champagne/80">
-                    Ritual da Guardiã
-                  </span>
-                </div>
-                <h3 className="font-cinzel font-bold text-lg sm:text-xl leading-tight bg-gradient-to-r from-gold-champagne via-gold-light to-gold-champagne bg-clip-text text-transparent">
-                  Consultar Idriel
-                </h3>
-                <p className="mt-1.5 font-merriweather italic text-xs sm:text-[13px] text-foreground/75 leading-relaxed max-w-xl">
-                  Peça à sábia guardiã para avaliar suas entradas e iluminar os próximos passos da sua criação.
-                </p>
-              </div>
-
-              {/* Trailing arrow chevron */}
-              <div className="hidden sm:flex relative shrink-0 w-10 h-10 rounded-full border border-gold-warm/40 items-center justify-center text-gold-champagne group-hover:border-gold-champagne/70 group-hover:text-gold-light group-hover:translate-x-0.5 transition-all">
-                <ChevronRight className="w-4 h-4" strokeWidth={2} />
-              </div>
-            </button>
-          ) : (
-            <CodexAnalysis entries={entries} worldId={worldId} onClose={() => setShowAnalysis(false)} />
-          )}
-        </div>
-      )}
       </>)}
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
