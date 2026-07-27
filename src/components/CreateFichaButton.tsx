@@ -119,6 +119,7 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
         setShowMenu(false);
         setCreatedEntryName(title);
         setShowSuccessDialog(true);
+        onSaved?.();
       }
       // Em caso de erro, o hook já dispara toast e mantemos o dialog aberto
       // para o usuário tentar de novo sem perder o que digitou.
