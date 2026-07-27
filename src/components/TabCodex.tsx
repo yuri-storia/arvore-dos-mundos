@@ -1079,7 +1079,7 @@ const FruitFilterMenu: React.FC<FruitFilterMenuProps> = ({ entries, filterFruits
 
 
   return (
-    <div className="mb-6">
+    <div className={inlineMode ? '' : 'mb-6'}>
       {isMobile ? (
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>{Trigger}</SheetTrigger>
@@ -1098,7 +1098,7 @@ const FruitFilterMenu: React.FC<FruitFilterMenuProps> = ({ entries, filterFruits
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>{Trigger}</PopoverTrigger>
           <PopoverContent
-            align="start"
+            align={inlineMode ? 'end' : 'start'}
             sideOffset={8}
             className="w-[min(560px,90vw)] p-4 border-border/60 rounded-xl bg-[hsl(214_60%_5%/0.95)] backdrop-blur-xl"
           >
@@ -1113,7 +1113,7 @@ const FruitFilterMenu: React.FC<FruitFilterMenuProps> = ({ entries, filterFruits
           </PopoverContent>
         </Popover>
       )}
-      {ActiveChips}
+      {!inlineMode && ActiveChips}
     </div>
   );
 };
