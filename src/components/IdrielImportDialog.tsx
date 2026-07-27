@@ -290,7 +290,8 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, worldI
       if (toUpdateIdx.length > 0 && onUpdate) {
         for (const i of toUpdateIdx) {
           const s = suggestions[i];
-          const existing = existingEntries.find(e => e.id === s.existingEntryId);
+          const existingId = reviewItems.find(r => r._key === i)?.existingEntryId;
+          const existing = existingEntries.find(e => e.id === existingId);
           if (!existing) continue;
           const divider = `\n\n---\n**Idriel (${new Date().toLocaleDateString('pt-BR')}):**\n\n`;
           const merged = ((existing.content || '') + divider + (s.summary || '')).slice(0, 50000);
