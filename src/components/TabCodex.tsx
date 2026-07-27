@@ -469,28 +469,51 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
       </div>
       <p className="font-merriweather italic text-text-dim text-sm mb-4">Suas fichas, artigos e anotações organizados por fruto</p>
 
-      {/* Toggle: Enciclopédia | Linha do Tempo */}
-      <div className="mb-5 inline-flex rounded-full border border-gold/25 bg-[hsl(var(--background)/0.55)] backdrop-blur-md p-1">
-        {([
-          { key: 'encyclopedia', label: 'Enciclopédia', Icon: BookOpen },
-          { key: 'timeline',     label: 'Linha do Tempo', Icon: Trees   },
-        ] as const).map(opt => {
-          const active = mode === opt.key;
-          const Icon = opt.Icon;
-          return (
-            <button
-              key={opt.key}
-              onClick={() => setMode(opt.key)}
-              className={`px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-montserrat font-bold uppercase tracking-wider transition-all inline-flex items-center gap-1.5 ${
-                active
-                  ? 'bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] shadow-[0_0_14px_hsl(var(--gold)/0.45)]'
-                  : 'text-text-dim hover:text-gold-champagne'
-              }`}
-            >
-              <Icon className="w-3.5 h-3.5" strokeWidth={1.85} />{opt.label}
-            </button>
-          );
-        })}
+      {/* Toggle: Enciclopédia | Linha do Tempo + Search + Filter */}
+      <div className="mb-5 flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="inline-flex rounded-full border border-gold/25 bg-[hsl(var(--background)/0.55)] backdrop-blur-md p-1 shrink-0">
+          {([
+            { key: 'encyclopedia', label: 'Enciclopédia', Icon: BookOpen },
+            { key: 'timeline',     label: 'Linha do Tempo', Icon: Trees   },
+          ] as const).map(opt => {
+            const active = mode === opt.key;
+            const Icon = opt.Icon;
+            return (
+              <button
+                key={opt.key}
+                onClick={() => setMode(opt.key)}
+                className={`px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-montserrat font-bold uppercase tracking-wider transition-all inline-flex items-center gap-1.5 ${
+                  active
+                    ? 'bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] shadow-[0_0_14px_hsl(var(--gold)/0.45)]'
+                    : 'text-text-dim hover:text-gold-champagne'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" strokeWidth={1.85} />{opt.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {mode === 'encyclopedia' && (
+          <div className="flex items-center gap-2 sm:ml-auto w-full sm:w-auto">
+            <div className="relative flex-1 sm:flex-none sm:w-64">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-dim" strokeWidth={1.75} />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Pesquisar fichas ou artigos…"
+                className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-full pl-8 pr-3 py-1.5 text-xs text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-ring/50"
+              />
+            </div>
+            <FruitFilterMenu
+              entries={entries}
+              filterFruits={filterFruits}
+              setFilterFruits={setFilterFruits}
+              inlineMode
+            />
+          </div>
+        )}
       </div>
 
       {mode === 'timeline' ? (
