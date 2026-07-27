@@ -1095,6 +1095,11 @@ Ao final do lote, opcionalmente adicione uma seção "### Observações do lote"
                 <p className="text-[10px] text-gold-champagne/80 font-montserrat italic tracking-wide">
                   está tecendo a análise do seu mundo…
                 </p>
+                {stageMessage && (
+                  <p className="mt-2 text-[11px] text-gold-light font-merriweather italic max-w-xs mx-auto leading-snug">
+                    {stageMessage}
+                  </p>
+                )}
               </div>
             </div>
 
