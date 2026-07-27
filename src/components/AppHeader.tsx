@@ -136,14 +136,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center gap-2 animate-[fade-in_0.6s_ease-out]">
+      <div className="relative z-10 flex flex-col items-center gap-1">
         {/* Brand badge */}
-        <div className="group inline-block px-4 py-1.5 rounded-full border border-blue-bright/20 bg-blue-bright/[0.05] backdrop-blur-xl transition-all duration-500 hover:border-blue-bright/40 hover:bg-blue-bright/[0.09] hover:shadow-[0_0_24px_hsl(var(--blue-bright)/0.20)]">
-          <span className="font-cinzel text-[10px] tracking-[0.22em] text-white/85 uppercase transition-colors group-hover:text-white">
+        <div className="inline-block px-3 py-1 rounded-full border border-blue-bright/15 bg-blue-bright/[0.04] backdrop-blur-sm">
+          <span className="font-cinzel text-[9px] tracking-[0.18em] text-white uppercase">
             A Árvore dos Mundos
           </span>
         </div>
-
 
         {/* Mobile: project switcher button */}
         {isMobile && worlds && (
@@ -259,18 +258,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
           )}
         </div>
 
-        {/* Method — linha própria centralizada */}
-        {hasWorld && (
-          <div className="flex justify-center mt-2">
-            <span className="inline-flex items-center gap-1.5 text-[10px] font-montserrat uppercase tracking-[0.2em] text-text-dim/80">
-              <ArrowDown className="w-3 h-3" strokeWidth={2} />
-              {method === 'top-down' ? 'De Cima para Baixo' : 'De Baixo para Cima'}
+        {/* Context row: method + user */}
+        <div className="flex items-center justify-center gap-4 mt-1 flex-wrap">
+          {hasWorld && (
+            <span className="text-[10px] font-montserrat uppercase tracking-wider text-text-dim">
+              <><ArrowDown className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={2} />{method === 'top-down' ? 'De Cima para Baixo' : 'De Baixo para Cima'}</>
             </span>
-          </div>
-        )}
-
-        {/* User card — linha própria, centralizada e equilibrada */}
-        <div className="flex justify-center mt-3 w-full">
+          )}
           <UserMenu />
         </div>
       </div>
