@@ -447,29 +447,59 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, worldI
                 const wasDeleted = s.wasDeleted && !isExisting;
                 return (
                   <div key={s._key} className={`flex gap-3 p-3 rounded-md border ${isExisting ? 'border-emerald-700/40 bg-emerald-900/10' : wasDeleted ? 'border-stroke bg-background/30' : 'border-stroke bg-background/40'}`}>
-                    <Checkbox checked={selected.has(s._key)} disabled={isExisting} onCheckedChange={() => toggleOne(s._key)} className="mt-1" />
+                    {!isExisting && (
+                      <Checkbox checked={selected.has(s._key)} onCheckedChange={() => toggleOne(s._key)} className="mt-1" />
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         {isExisting ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> : <Circle className="h-3.5 w-3.5 text-foreground/40" />}
                         <span className="font-cinzel text-foreground/95">{s.title}</span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full ${isFicha ? 'bg-blue-500/20 text-blue-300' : 'bg-amber-500/20 text-amber-300'}`}>{isFicha ? 'Ficha' : 'Artigo'}</span>
                         {fruit && <span className="text-[10px] text-foreground/60">· {fruit.name}</span>}
-                        {isExisting && <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300">No Codex</span>}
+                        {isExisting && <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300">Já no Codex</span>}
                         {wasDeleted && <span className="text-[10px] px-2 py-0.5 rounded-full bg-foreground/10 text-foreground/60">Excluída — pode recriar</span>}
                       </div>
                       <p className="text-xs text-foreground/70 mt-1 line-clamp-3">{s.summary}</p>
+                      {isExisting && (
+                        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                          <span className="text-[10px] uppercase tracking-wider text-foreground/50 font-montserrat">Conflito:</span>
+                          {(['ignore','update','add'] as ConflictAction[]).map(act => {
+                            const active = (conflictActions[s._key] ?? 'ignore') === act;
+                            const label = act === 'ignore' ? 'Ignorar' : act === 'update' ? 'Atualizar existente' : 'Adicionar mesmo assim';
+                            return (
+                              <button
+                                key={act}
+                                type="button"
+                                onClick={() => setConflict(s._key, act)}
+                                className={`text-[10px] px-2 py-1 rounded-full border transition-colors font-montserrat ${active ? 'bg-gold/25 text-gold border-gold/60' : 'bg-background/40 text-foreground/70 border-stroke hover:border-gold/40'}`}
+                              >{label}</button>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
               })}
             </div>
 
-            <div className="flex justify-between gap-2 pt-2">
-              <Button variant="ghost" onClick={() => { setStep(activeRecordId ? 'history' : 'upload'); }} disabled={creating || analyzing} className="inline-flex items-center gap-1.5"><ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />Voltar</Button>
-              <Button onClick={handleCreate} disabled={creating || analyzing || selected.size === 0} className="bg-gold text-background hover:bg-gold/90">
-                {creating ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Criando...</> : `Criar ${selected.size} entrada(s)`}
-              </Button>
-            </div>
+            {(() => {
+              const newCount = reviewItems.filter(r => !r.existingEntryId && selected.has(r._key)).length;
+              const dupeAdd = reviewItems.filter(r => r.existingEntryId && conflictActions[r._key] === 'add').length;
+              const dupeUpd = reviewItems.filter(r => r.existingEntryId && conflictActions[r._key] === 'update').length;
+              const total = newCount + dupeAdd + dupeUpd;
+              const summary = total === 0
+                ? 'Nada selecionado'
+                : [newCount && `${newCount} nova(s)`, dupeAdd && `${dupeAdd} duplicada(s)`, dupeUpd && `${dupeUpd} atualização(ões)`].filter(Boolean).join(' · ');
+              return (
+                <div className="flex justify-between gap-2 pt-2">
+                  <Button variant="ghost" onClick={() => { setStep(activeRecordId ? 'history' : 'upload'); }} disabled={creating || analyzing} className="inline-flex items-center gap-1.5"><ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />Voltar</Button>
+                  <Button onClick={handleCreate} disabled={creating || analyzing || total === 0} className="bg-gold text-background hover:bg-gold/90">
+                    {creating ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Aplicando...</> : `Aplicar (${summary})`}
+                  </Button>
+                </div>
+              );
+            })()}
           </div>
         )}
       </DialogContent>
