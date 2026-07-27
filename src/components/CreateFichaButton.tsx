@@ -45,6 +45,9 @@ interface Props {
   worldId?: string;
   entryType?: 'ficha' | 'artigo';
   onCreated?: (action: 'codex' | 'continue') => void;
+  /** Chamado logo após o conteúdo ser salvo (novo ou anexado a existente).
+   * Usado pelo pai para limpar o campo — o texto já vive no Codex. */
+  onSaved?: () => void;
   timelineOption?: {
     label?: string;
     onSelect: (fieldValue: string, fieldLabel: string) => void;
@@ -52,7 +55,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fruitId, worldId, entryType = 'ficha', onCreated, timelineOption, children }) => {
+export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fruitId, worldId, entryType = 'ficha', onCreated, onSaved, timelineOption, children }) => {
   const { user } = useAuth();
   const { entries, createEntry, updateEntry } = useCodexEntries(worldId);
   const [showMenu, setShowMenu] = useState(false);
