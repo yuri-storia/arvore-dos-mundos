@@ -943,7 +943,7 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
         open={showIdrielImport}
         onOpenChange={setShowIdrielImport}
         worldId={worldId}
-        existingEntries={entries.map(e => ({ id: e.id, title: e.title, fruit_id: e.fruit_id ?? null }))}
+        existingEntries={entries.map(e => ({ id: e.id, title: e.title, fruit_id: e.fruit_id ?? null, content: e.content ?? '' }))}
         remaining={(() => {
           const fichaCount = entries.filter(e => e.entry_type !== 'artigo').length;
           const artigoCount = entries.filter(e => e.entry_type === 'artigo').length;
@@ -969,6 +969,11 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
             if (res) created.push({ id: res.id, title: res.title, fruit_id: res.fruit_id });
           }
           return created;
+        }}
+        onUpdate={async (id, content) => {
+          // Garante conteúdo já hidratado antes do append (o dialog já faz o merge).
+          if (!isContentHydrated(id)) { try { await fetchEntryContent(id); } catch { /* segue mesmo assim */ } }
+          await updateEntry(id, { content });
         }}
       />
 
