@@ -27,6 +27,7 @@ const LIST_COLUMNS = 'id, title, image_url, entry_type, fruit_id, world_id, imag
 
 export function useCodexEntries(worldId?: string) {
   const { user } = useAuth();
+  const isUnlimited = (user?.email || '').toLowerCase() === 'erinsaurogonfenix@gmail.com';
   const qc = useQueryClient();
 
   // Rastreia quais entradas já tiveram o `content` completo carregado do banco.
