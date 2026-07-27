@@ -239,33 +239,77 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, worldI
 
   // === Criar entradas selecionadas + sincronizar created_entry_id ===
   const handleCreate = async () => {
-    // só cria as selecionadas que ainda não têm correspondente vivo no codex
-    const toCreateIdx = Array.from(selected).filter(i => !reviewItems[i].existingEntryId);
-    if (toCreateIdx.length === 0) { toast.error('Selecione ao menos uma entrada nova.'); return; }
-    if (!canCreateMore()) { toast.error('Limite do plano atingido.'); return; }
-    if (toCreateIdx.length > remaining) { toast.error(`Seu plano permite criar apenas ${remaining} entrada(s) restante(s).`); return; }
+    // Novas + conflitos marcados como "adicionar mesmo assim"
+    const toCreateIdx = reviewItems
+      .filter(r => !r.existingEntryId && selected.has(r._key))
+      .map(r => r._key);
+    const toAddDupeIdx = reviewItems
+      .filter(r => r.existingEntryId && conflictActions[r._key] === 'add')
+      .map(r => r._key);
+    const toUpdateIdx = reviewItems
+      .filter(r => r.existingEntryId && conflictActions[r._key] === 'update')
+      .map(r => r._key);
+
+    const totalCreates = toCreateIdx.length + toAddDupeIdx.length;
+
+    if (totalCreates === 0 && toUpdateIdx.length === 0) {
+      toast.error('Selecione ao menos uma entrada nova ou defina uma ação para conflitos.');
+      return;
+    }
+    if (totalCreates > 0) {
+      if (!canCreateMore()) { toast.error('Limite do plano atingido.'); return; }
+      if (totalCreates > remaining) { toast.error(`Seu plano permite criar apenas ${remaining} entrada(s) restante(s).`); return; }
+    }
+    if (toUpdateIdx.length > 0 && !onUpdate) {
+      toast.error('Atualização de entradas não disponível.'); return;
+    }
+
     setCreating(true);
     try {
-      const payload = toCreateIdx.map(i => ({
-        title: suggestions[i].title.slice(0, 200),
-        content: suggestions[i].summary.slice(0, 50000),
-        entry_type: suggestions[i].type,
-        fruit_id: suggestions[i].fruit_id,
-      }));
-      const created = await onCreate(payload);
-      // mapeia ids criados por título+fruit_id (mesma ordem que enviei, mas robustece)
-      const nextSuggestions = suggestions.slice();
-      toCreateIdx.forEach((idx, k) => {
-        const c = created?.[k];
-        if (c) nextSuggestions[idx] = { ...nextSuggestions[idx], created_entry_id: c.id };
-      });
-      setSuggestions(nextSuggestions);
-      if (activeRecordId) await updateSuggestions(activeRecordId, nextSuggestions);
-      toast.success(`${toCreateIdx.length} entrada(s) criada(s)!`);
+      const createList = [...toCreateIdx, ...toAddDupeIdx];
+      let createdCount = 0;
+      if (createList.length > 0) {
+        const payload = createList.map(i => ({
+          title: suggestions[i].title.slice(0, 200),
+          content: suggestions[i].summary.slice(0, 50000),
+          entry_type: suggestions[i].type,
+          fruit_id: suggestions[i].fruit_id,
+        }));
+        const created = await onCreate(payload);
+        const nextSuggestions = suggestions.slice();
+        createList.forEach((idx, k) => {
+          const c = created?.[k];
+          if (c) nextSuggestions[idx] = { ...nextSuggestions[idx], created_entry_id: c.id };
+        });
+        setSuggestions(nextSuggestions);
+        if (activeRecordId) await updateSuggestions(activeRecordId, nextSuggestions);
+        createdCount = created?.length ?? 0;
+      }
+
+      let updatedCount = 0;
+      if (toUpdateIdx.length > 0 && onUpdate) {
+        for (const i of toUpdateIdx) {
+          const s = suggestions[i];
+          const existing = existingEntries.find(e => e.id === s.existingEntryId);
+          if (!existing) continue;
+          const divider = `\n\n---\n**Idriel (${new Date().toLocaleDateString('pt-BR')}):**\n\n`;
+          const merged = ((existing.content || '') + divider + (s.summary || '')).slice(0, 50000);
+          try {
+            await onUpdate(existing.id, merged);
+            updatedCount++;
+          } catch (e) { console.error('update failed', e); }
+        }
+      }
+
+      const msgs: string[] = [];
+      if (createdCount) msgs.push(`${createdCount} criada(s)`);
+      if (updatedCount) msgs.push(`${updatedCount} atualizada(s)`);
+      toast.success(msgs.length ? msgs.join(' · ') : 'Nada aplicado.');
       setSelected(new Set());
+      setConflictActions({});
     } catch (err) {
       console.error(err);
-      toast.error(err instanceof Error ? err.message : 'Erro ao criar entradas.');
+      toast.error(err instanceof Error ? err.message : 'Erro ao aplicar sugestões.');
     } finally { setCreating(false); }
   };
 
@@ -280,6 +324,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, worldI
     setSelected(new Set(reviewItems.filter(r => !r.existingEntryId).map(r => r._key)));
   };
   const toggleOne = (i: number) => { const next = new Set(selected); next.has(i) ? next.delete(i) : next.add(i); setSelected(next); };
+  const setConflict = (i: number, action: ConflictAction) => setConflictActions(prev => ({ ...prev, [i]: action }));
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
