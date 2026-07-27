@@ -28,8 +28,9 @@ interface Props {
   worldId: string | null | undefined;
   existingEntries: CodexEntryLite[];
   onCreate: (entries: Array<{ title: string; content: string; entry_type: 'ficha' | 'artigo'; fruit_id: number }>) => Promise<Array<{ id: string; title: string; fruit_id?: number | null }>>;
-  /** Anexa o resumo sugerido pela Idriel ao conteúdo de uma entrada já existente. */
-  onUpdate?: (id: string, content: string) => Promise<void>;
+  /** Anexa o resumo sugerido pela Idriel ao conteúdo de uma entrada já existente.
+   * O pai é responsável por hidratar o conteúdo atual e fazer o merge/append. */
+  onUpdate?: (id: string, appendSummary: string) => Promise<void>;
   canCreateMore: () => boolean;
   remaining: number;
 }
