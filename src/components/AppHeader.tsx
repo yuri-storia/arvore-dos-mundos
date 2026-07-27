@@ -258,28 +258,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
           )}
         </div>
 
-        {/* Context row: method + progress + user */}
+        {/* Context row: method + user */}
         <div className="flex items-center justify-center gap-4 mt-1 flex-wrap">
           {hasWorld && (
-            <>
-              <span className="text-[10px] font-montserrat uppercase tracking-wider text-text-dim">
-                <><ArrowDown className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={2} />{method === 'top-down' ? 'De Cima para Baixo' : 'De Baixo para Cima'}</>
-              </span>
-              <div className="flex items-center gap-2">
-                <div className="w-24 h-1.5 rounded-full bg-secondary overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${pct}%`,
-                      background: 'linear-gradient(90deg, hsl(var(--blue-bright)), hsl(var(--gold-light)))',
-                    }}
-                  />
-                </div>
-                <span className="text-[10px] font-montserrat text-text-dim">
-                  {progress.filled}/{progress.total} frutos
-                </span>
-              </div>
-            </>
+            <span className="text-[10px] font-montserrat uppercase tracking-wider text-text-dim">
+              <><ArrowDown className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={2} />{method === 'top-down' ? 'De Cima para Baixo' : 'De Baixo para Cima'}</>
+            </span>
           )}
           <UserMenu />
         </div>
