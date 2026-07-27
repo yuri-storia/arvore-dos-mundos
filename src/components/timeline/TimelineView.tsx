@@ -393,10 +393,29 @@ export const TimelineView: React.FC<Props> = ({ worldId, codexEntries, onOpenEnt
             className="pointer-events-none absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[3px] rounded-full bg-gradient-to-b from-gold-champagne/40 via-gold to-gold-deep/60 shadow-[0_0_10px_hsl(var(--gold)/0.35)]"
           />
 
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
+          {(() => {
+            const q = search.trim().toLowerCase();
+            const displayItems = q
+              ? items.filter(it => {
+                  if (it.kind === 'present') return false;
+                  const ev = it.ev;
+                  return (
+                    ev.title?.toLowerCase().includes(q) ||
+                    (ev.description ?? '').toLowerCase().includes(q) ||
+                    (ev.era_label ?? '').toLowerCase().includes(q) ||
+                    (ev.year ?? '').toLowerCase().includes(q)
+                  );
+                })
+              : items;
+            const displayIds = displayItems.map(it => it.kind === 'present' ? PRESENT_ID : it.ev.id);
+            return (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={q ? () => {} : handleDragEnd}>
+            <SortableContext items={displayIds} strategy={verticalListSortingStrategy}>
               <div className="relative space-y-3 sm:space-y-4">
-                {items.map((it, i) => {
+                {q && displayItems.length === 0 && (
+                  <div className="text-center py-8 text-text-dim font-merriweather italic text-sm">Nenhum marco corresponde à sua busca.</div>
+                )}
+                {displayItems.map((it, i) => {
                   if (it.kind === 'present') {
                     return (
                       <SortablePresent
