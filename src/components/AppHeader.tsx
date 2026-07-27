@@ -97,8 +97,6 @@ const formatDate = (ts: string) => {
 export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, onCreateWorld, method, currentSaveId, db, worlds, onLoadWorld, onNewWorld, onDeleteWorld }) => {
   const isMobile = useIsMobile();
   const hasWorld = !!currentSaveId;
-  const progress = calcProgress(db);
-  const pct = progress.total > 0 ? Math.round((progress.filled / progress.total) * 100) : 0;
   const [editing, setEditing] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
