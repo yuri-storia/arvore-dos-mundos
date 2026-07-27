@@ -75,16 +75,19 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "messages must be an array with 1-50 items" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    const MAX_MSG_CHARS = 60000;
+    const MAX_SYSTEM_CHARS = 20000;
     const validRoles = new Set(["user", "assistant", "system"]);
     for (const msg of messages) {
-      if (!msg || typeof msg !== "object" || typeof msg.role !== "string" || !validRoles.has(msg.role) || typeof msg.content !== "string" || msg.content.length > 30000) {
-        return new Response(JSON.stringify({ error: "Each message must have a valid role (user/assistant/system) and content (string, max 10000 chars)" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (!msg || typeof msg !== "object" || typeof msg.role !== "string" || !validRoles.has(msg.role) || typeof msg.content !== "string" || msg.content.length > MAX_MSG_CHARS) {
+        return new Response(JSON.stringify({ error: `Each message must have a valid role (user/assistant/system) and content (string, max ${MAX_MSG_CHARS} chars)` }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
     }
 
-    if (systemPrompt !== undefined && (typeof systemPrompt !== "string" || systemPrompt.length > 10000)) {
-      return new Response(JSON.stringify({ error: "systemPrompt must be a string with max 10000 chars" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (systemPrompt !== undefined && (typeof systemPrompt !== "string" || systemPrompt.length > MAX_SYSTEM_CHARS)) {
+      return new Response(JSON.stringify({ error: `systemPrompt must be a string with max ${MAX_SYSTEM_CHARS} chars` }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+
 
     // Call Lovable AI
     const aiMessages = [];
