@@ -744,7 +744,14 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <div>
-              <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Título</label>
+              <div className="flex items-baseline justify-between mb-1">
+                <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat">Título</label>
+                {!isUnlimited && (
+                  <span className={`text-[9px] font-montserrat tabular-nums ${newTitle.length > 200 ? 'text-destructive' : 'text-text-dim/70'}`}>
+                    {newTitle.length}/200
+                  </span>
+                )}
+              </div>
               <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder={createKind === 'ficha' ? 'Nome da ficha…' : 'Título do artigo…'} className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-ring/50" />
             </div>
             <div>
