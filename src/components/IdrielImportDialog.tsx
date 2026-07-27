@@ -28,9 +28,13 @@ interface Props {
   worldId: string | null | undefined;
   existingEntries: CodexEntryLite[];
   onCreate: (entries: Array<{ title: string; content: string; entry_type: 'ficha' | 'artigo'; fruit_id: number }>) => Promise<Array<{ id: string; title: string; fruit_id?: number | null }>>;
+  /** Anexa o resumo sugerido pela Idriel ao conteúdo de uma entrada já existente. */
+  onUpdate?: (id: string, content: string) => Promise<void>;
   canCreateMore: () => boolean;
   remaining: number;
 }
+
+type ConflictAction = 'add' | 'update' | 'ignore';
 
 type Step = 'upload' | 'review' | 'history';
 type SourceKind = IdrielImportRecord['source_kind'];
