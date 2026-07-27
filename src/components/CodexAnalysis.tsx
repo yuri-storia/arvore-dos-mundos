@@ -419,6 +419,7 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, worldId, onClose }) =>
   const [showHistory, setShowHistory] = useState(false);
   const [revealedChars, setRevealedChars] = useState(0);
   const [isRevealing, setIsRevealing] = useState(false);
+  const [stageMessage, setStageMessage] = useState<string>('');
   const revealTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const sub = useSubscription();
