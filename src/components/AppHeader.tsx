@@ -258,13 +258,18 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
           )}
         </div>
 
-        {/* Context row: method + user */}
-        <div className="flex items-center justify-center gap-4 mt-1 flex-wrap">
-          {hasWorld && (
-            <span className="text-[10px] font-montserrat uppercase tracking-wider text-text-dim">
-              <><ArrowDown className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={2} />{method === 'top-down' ? 'De Cima para Baixo' : 'De Baixo para Cima'}</>
+        {/* Method — linha própria centralizada */}
+        {hasWorld && (
+          <div className="flex justify-center mt-2">
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-montserrat uppercase tracking-[0.2em] text-text-dim/80">
+              <ArrowDown className="w-3 h-3" strokeWidth={2} />
+              {method === 'top-down' ? 'De Cima para Baixo' : 'De Baixo para Cima'}
             </span>
-          )}
+          </div>
+        )}
+
+        {/* User card — linha própria, centralizada e equilibrada */}
+        <div className="flex justify-center mt-3 w-full">
           <UserMenu />
         </div>
       </div>
