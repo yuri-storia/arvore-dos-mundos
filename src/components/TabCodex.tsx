@@ -53,6 +53,10 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   
   const [filterFruits, setFilterFruits] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const PAGE_SIZE = 12;
+  const [fichaPage, setFichaPage] = useState(1);
+  const [artigoPage, setArtigoPage] = useState(1);
+  useEffect(() => { setFichaPage(1); setArtigoPage(1); }, [searchQuery, filterFruits, worldId]);
   const isUnlimited = (user?.email || '').toLowerCase() === 'erinsaurogonfenix@gmail.com';
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [mode, setMode] = useState<CodexMode>(() => {
@@ -854,61 +858,105 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
         </div>
       ) : (
         <>
-          {/* Fichas section */}
-          {filtered.some(e => e.entry_type === 'ficha') && (
-            <div className="mb-8">
-              <h2 className="font-cinzel font-bold text-base text-blue-light mb-3 flex items-center gap-2">
-                <span className="w-8 h-[2px] bg-gradient-to-r from-ring to-transparent" />
-                <ClipboardList className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Fichas
-                <span className="text-[10px] font-montserrat font-bold text-text-dim uppercase">({filtered.filter(e => e.entry_type === 'ficha').length})</span>
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {filtered.filter(e => e.entry_type === 'ficha').map(entry => (
-                  <CodexCard
-                    key={entry.id}
-                    entry={entry}
-                    expanded={false}
-                    onToggle={() => setPersistedExpandedId(entry.id)}
-                    onUpdate={updateEntry}
-                    onDelete={deleteEntry}
-                    onImageUpload={uploadImage}
-                    onLightbox={setLightbox}
-                    gallery={gallery}
-                    siblings={entries}
-                    onOpenEntry={setPersistedExpandedId}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+          {(() => {
+            const fichasAll = filtered.filter(e => e.entry_type === 'ficha');
+            const artigosAll = filtered.filter(e => e.entry_type === 'artigo');
+            const fichaTotalPages = Math.max(1, Math.ceil(fichasAll.length / PAGE_SIZE));
+            const artigoTotalPages = Math.max(1, Math.ceil(artigosAll.length / PAGE_SIZE));
+            const fichaCurrent = Math.min(fichaPage, fichaTotalPages);
+            const artigoCurrent = Math.min(artigoPage, artigoTotalPages);
+            const fichasPage = fichasAll.slice((fichaCurrent - 1) * PAGE_SIZE, fichaCurrent * PAGE_SIZE);
+            const artigosPage = artigosAll.slice((artigoCurrent - 1) * PAGE_SIZE, artigoCurrent * PAGE_SIZE);
 
-          {/* Artigos section */}
-          {filtered.some(e => e.entry_type === 'artigo') && (
-            <div className="mb-8">
-              <h2 className="font-cinzel font-bold text-base text-gold mb-3 flex items-center gap-2">
-                <span className="w-8 h-[2px] bg-gradient-to-r from-gold to-transparent" />
-                <PencilLine className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Artigos
-                <span className="text-[10px] font-montserrat font-bold text-text-dim uppercase">({filtered.filter(e => e.entry_type === 'artigo').length})</span>
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {filtered.filter(e => e.entry_type === 'artigo').map(entry => (
-                  <CodexCard
-                    key={entry.id}
-                    entry={entry}
-                    expanded={false}
-                    onToggle={() => setPersistedExpandedId(entry.id)}
-                    onUpdate={updateEntry}
-                    onDelete={deleteEntry}
-                    onImageUpload={uploadImage}
-                    onLightbox={setLightbox}
-                    gallery={gallery}
-                    siblings={entries}
-                    onOpenEntry={setPersistedExpandedId}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+            const Pager = ({ page, totalPages, onChange, tone }: { page: number; totalPages: number; onChange: (p: number) => void; tone: 'blue' | 'gold' }) => {
+              if (totalPages <= 1) return null;
+              const accent = tone === 'blue' ? 'text-blue-light border-blue-bright/40 hover:border-blue-bright/70' : 'text-gold border-gold/40 hover:border-gold/70';
+              return (
+                <div className="mt-4 flex items-center justify-center gap-2 font-montserrat text-[11px] uppercase tracking-wider">
+                  <button
+                    type="button"
+                    onClick={() => onChange(Math.max(1, page - 1))}
+                    disabled={page <= 1}
+                    className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 bg-transparent transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${accent}`}
+                    aria-label="Página anterior"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" strokeWidth={2} /> Anterior
+                  </button>
+                  <span className="text-text-dim">Página {page} de {totalPages}</span>
+                  <button
+                    type="button"
+                    onClick={() => onChange(Math.min(totalPages, page + 1))}
+                    disabled={page >= totalPages}
+                    className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 bg-transparent transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${accent}`}
+                    aria-label="Próxima página"
+                  >
+                    Próxima <ChevronRight className="w-3.5 h-3.5" strokeWidth={2} />
+                  </button>
+                </div>
+              );
+            };
+
+            return (
+              <>
+                {fichasAll.length > 0 && (
+                  <div className="mb-8">
+                    <h2 className="font-cinzel font-bold text-base text-blue-light mb-3 flex items-center gap-2">
+                      <span className="w-8 h-[2px] bg-gradient-to-r from-ring to-transparent" />
+                      <ClipboardList className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Fichas
+                      <span className="text-[10px] font-montserrat font-bold text-text-dim uppercase">({fichasAll.length})</span>
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {fichasPage.map(entry => (
+                        <CodexCard
+                          key={entry.id}
+                          entry={entry}
+                          expanded={false}
+                          onToggle={() => setPersistedExpandedId(entry.id)}
+                          onUpdate={updateEntry}
+                          onDelete={deleteEntry}
+                          onImageUpload={uploadImage}
+                          onLightbox={setLightbox}
+                          gallery={gallery}
+                          siblings={entries}
+                          onOpenEntry={setPersistedExpandedId}
+                        />
+                      ))}
+                    </div>
+                    <Pager page={fichaCurrent} totalPages={fichaTotalPages} onChange={setFichaPage} tone="blue" />
+                  </div>
+                )}
+
+                {artigosAll.length > 0 && (
+                  <div className="mb-8">
+                    <h2 className="font-cinzel font-bold text-base text-gold mb-3 flex items-center gap-2">
+                      <span className="w-8 h-[2px] bg-gradient-to-r from-gold to-transparent" />
+                      <PencilLine className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Artigos
+                      <span className="text-[10px] font-montserrat font-bold text-text-dim uppercase">({artigosAll.length})</span>
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {artigosPage.map(entry => (
+                        <CodexCard
+                          key={entry.id}
+                          entry={entry}
+                          expanded={false}
+                          onToggle={() => setPersistedExpandedId(entry.id)}
+                          onUpdate={updateEntry}
+                          onDelete={deleteEntry}
+                          onImageUpload={uploadImage}
+                          onLightbox={setLightbox}
+                          gallery={gallery}
+                          siblings={entries}
+                          onOpenEntry={setPersistedExpandedId}
+                        />
+                      ))}
+                    </div>
+                    <Pager page={artigoCurrent} totalPages={artigoTotalPages} onChange={setArtigoPage} tone="gold" />
+                  </div>
+                )}
+              </>
+            );
+          })()}
+
 
           {/* Expanded card — custom isolated layer so drag/click events never reach the page behind it */}
           {expandedEntry && createPortal(
