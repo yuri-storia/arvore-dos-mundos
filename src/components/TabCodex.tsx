@@ -52,6 +52,8 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   const { entries, loading, createEntry, updateEntry, deleteEntry, uploadImage, fetchEntriesFromWorld, importEntries, fetchEntryContent, isContentHydrated } = useCodexEntries(worldId || undefined);
   
   const [filterFruits, setFilterFruits] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const isUnlimited = (user?.email || '').toLowerCase() === 'erinsaurogonfenix@gmail.com';
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [mode, setMode] = useState<CodexMode>(() => {
     if (typeof window === 'undefined' || !worldId) return 'encyclopedia';
@@ -268,8 +270,14 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   }
 
   const filtered = entries.filter(e => {
-    if (filterFruits.length === 0) return true;
-    return filterFruits.includes(e.fruit_id ?? FRUIT_NONE);
+    if (filterFruits.length > 0 && !filterFruits.includes(e.fruit_id ?? FRUIT_NONE)) return false;
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      const inTitle = e.title.toLowerCase().includes(q);
+      const inContent = (e.content || '').toLowerCase().includes(q);
+      if (!inTitle && !inContent) return false;
+    }
+    return true;
   });
 
   const handleImageUpload = async (file: File, onUrl: (url: string) => void) => {
