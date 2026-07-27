@@ -951,9 +951,10 @@ type FruitFilterMenuProps = {
   entries: CodexEntry[];
   filterFruits: number[];
   setFilterFruits: React.Dispatch<React.SetStateAction<number[]>>;
+  inlineMode?: boolean;
 };
 
-const FruitFilterMenu: React.FC<FruitFilterMenuProps> = ({ entries, filterFruits, setFilterFruits }) => {
+const FruitFilterMenu: React.FC<FruitFilterMenuProps> = ({ entries, filterFruits, setFilterFruits, inlineMode }) => {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
 
