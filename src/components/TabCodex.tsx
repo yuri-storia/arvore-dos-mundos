@@ -784,7 +784,14 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
           )}
 
           <div className="mb-3">
-            <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Conteúdo</label>
+            <div className="flex items-baseline justify-between mb-1">
+              <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat">Conteúdo</label>
+              {!isUnlimited && (
+                <span className={`text-[9px] font-montserrat tabular-nums ${newContent.length > 50000 ? 'text-destructive' : 'text-text-dim/70'}`}>
+                  {newContent.length.toLocaleString('pt-BR')}/50.000
+                </span>
+              )}
+            </div>
             <div className="border border-blue-bright/15 rounded-md overflow-hidden bg-[rgba(4,12,24,0.6)]">
               <RichTextEditor
                 entries={entries}
