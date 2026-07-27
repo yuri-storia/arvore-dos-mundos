@@ -56,7 +56,7 @@ function matchExisting(s: ImportSuggestionStored, entries: CodexEntryLite[]): st
   return hit ? hit.id : null;
 }
 
-export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, worldId, existingEntries, onCreate, canCreateMore, remaining }) => {
+export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, worldId, existingEntries, onCreate, onUpdate, canCreateMore, remaining }) => {
   const [step, setStep] = useState<Step>('upload');
   const [extracting, setExtracting] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
@@ -69,6 +69,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, worldI
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [progress, setProgress] = useState<ImportProgress | null>(null);
   const [activeRecordId, setActiveRecordId] = useState<string | null>(null);
+  const [conflictActions, setConflictActions] = useState<Record<number, ConflictAction>>({});
 
   const { imports, loading: loadingImports, createRecord, updateSuggestions, deleteRecord, uploadSourceFile, refetch } = useIdrielImports(worldId);
 
@@ -87,6 +88,7 @@ export const IdrielImportDialog: React.FC<Props> = ({ open, onOpenChange, worldI
     setCreating(false);
     setProgress(null);
     setActiveRecordId(null);
+    setConflictActions({});
   };
 
   const handleClose = (v: boolean) => { if (!v) reset(); onOpenChange(v); };
