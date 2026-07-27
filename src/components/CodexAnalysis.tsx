@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { Trees, X, ScrollText, Trash2, Droplet, Droplets, Leaf, Sparkles, RefreshCw, Check, Gem, AlertTriangle, Eye, Compass, Award, ArrowRight, Star, ClipboardList, PencilLine, Wand2, Quote, BookMarked, ChevronDown } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FRUITS, type Fruit } from '@/lib/data';
-import { callAITextStream, friendlyAIError } from '@/lib/helpers';
+import { callAIText, callAITextStream, friendlyAIError } from '@/lib/helpers';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
@@ -419,6 +419,7 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, worldId, onClose }) =>
   const [showHistory, setShowHistory] = useState(false);
   const [revealedChars, setRevealedChars] = useState(0);
   const [isRevealing, setIsRevealing] = useState(false);
+  const [stageMessage, setStageMessage] = useState<string>('');
   const revealTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const sub = useSubscription();
@@ -507,6 +508,7 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, worldId, onClose }) =>
     return lastNewline > 0 ? slice.slice(0, lastNewline) : slice;
   }, [analysis, revealedChars, isRevealing, viewingHistoryId]);
 
+  // Build a compact single-shot prompt (small codices only).
   const buildPrompt = () => {
     const lines: string[] = [];
     FRUITS.forEach(fruit => {
@@ -534,15 +536,39 @@ export const CodexAnalysis: React.FC<Props> = ({ entries, worldId, onClose }) =>
     return lines.join('\n');
   };
 
-  const handleAnalyze = async () => {
-    if (entries.length === 0 || !canAnalyze || !user) return;
-    setLoading(true);
-    setError('');
-    setAnalysis('');
-    setViewingHistoryId(null);
-    setShowHistory(false);
+  // Serialize a single entry for staged (deep) analysis. Uses more content
+  // per entry than the single-shot preview so Idriel can assimilate depth.
+  const serializeEntryDeep = (e: CodexEntry, maxChars = 4000): string => {
+    const fruit = FRUITS.find(f => f.id === e.fruit_id)?.name || 'Sem fruto';
+    const typeLabel = e.entry_type === 'ficha' ? 'Ficha' : 'Artigo';
+    const body = (e.content || '').slice(0, maxChars);
+    return `### ${typeLabel} — ${e.title}\n*Fruto:* ${fruit}\n\n${body || '(sem conteúdo)'}\n`;
+  };
 
-    const systemPrompt = `Você é ${IDRIEL_NAME}, a ${IDRIEL_TITLE} — uma sábia ancestral que observa mundos florescerem. Nunca se descreva como "élfica" ou "imortal"; use apenas o título "Guardiã da Árvore dos Mundos". Fale com elegância, sofisticação e sabedoria contida. Seja objetiva, concisa e premium. Trate o usuário como "viajante".
+  // Chunk entries so each batch's serialized text stays under a safe size for
+  // the AI gateway (edge function accepts up to 60k chars per message).
+  const BATCH_TARGET_CHARS = 25_000;
+  const SINGLE_SHOT_THRESHOLD = 38_000;
+
+  const planBatches = (list: CodexEntry[]): CodexEntry[][] => {
+    const batches: CodexEntry[][] = [];
+    let cur: CodexEntry[] = [];
+    let curLen = 0;
+    for (const e of list) {
+      const blockLen = serializeEntryDeep(e).length;
+      if (cur.length && curLen + blockLen > BATCH_TARGET_CHARS) {
+        batches.push(cur);
+        cur = [];
+        curLen = 0;
+      }
+      cur.push(e);
+      curLen += blockLen;
+    }
+    if (cur.length) batches.push(cur);
+    return batches;
+  };
+
+  const IDRIEL_SYSTEM_ANALYSIS = `Você é ${IDRIEL_NAME}, a ${IDRIEL_TITLE} — uma sábia ancestral que observa mundos florescerem. Nunca se descreva como "élfica" ou "imortal"; use apenas o título "Guardiã da Árvore dos Mundos". Fale com elegância, sofisticação e sabedoria contida. Seja objetiva, concisa e premium. Trate o usuário como "viajante".
 
 REGRAS DE ESTILO INVIOLÁVEIS:
 - NÃO use emojis em nenhuma circunstância (sem 🌟, ⭐, ✨, 🌿, 🌳, etc.). A estética é editorial e refinada, não infantil.
@@ -588,32 +614,141 @@ Liste 3 ações concretas e prioritárias, ordenadas por importância. Priorize 
 
 Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${IDRIEL_TITLE}".`;
 
-    try {
-      // Throttle stream updates to ~10fps to prevent flicker from re-rendering
-      // large markdown trees on every token.
-      let lastFlush = 0;
-      let pending: string | null = null;
-      let rafId: number | null = null;
-      const flush = () => {
-        rafId = null;
-        if (pending == null) return;
-        setAnalysis(pending);
-        setRevealedChars(pending.length);
-        pending = null;
-        lastFlush = performance.now();
-      };
-      const content = await callAITextStream(
-        [{ role: 'user', content: `Aqui estão todas as entradas do meu Codex:\n\n${buildPrompt()}` }],
-        systemPrompt,
-        (acc) => {
-          pending = acc;
-          const now = performance.now();
-          if (now - lastFlush >= 100 && rafId == null) {
-            rafId = requestAnimationFrame(flush);
-          }
+  const IDRIEL_SYSTEM_BATCH_NOTES = `Você é ${IDRIEL_NAME}, a ${IDRIEL_TITLE}. Sua tarefa AGORA é APENAS assimilar um lote de entradas de um Codex e devolver anotações compactas, para uma análise final posterior. NÃO escreva saudações, conclusões, avaliações por estrelas nem seções fechadas. NÃO use emojis. Use Markdown sóbrio.
+
+Para CADA entrada recebida, produza um item no formato:
+- **[Ficha|Artigo] — Título** *(Fruto: X)*: 2 a 4 bullets curtos com fatos-chave (nomes próprios, poderes/regras, locais, datas, relações, motivações). Se detectar contradição interna ou com outra entrada do MESMO lote, adicione um bullet iniciando com "Conflito:".
+
+Ao final do lote, opcionalmente adicione uma seção "### Observações do lote" com padrões notados (temas recorrentes, lacunas óbvias, tom). Seja telegráfica e densa: cada bullet no máximo 160 caracteres. Não repita o conteúdo bruto — sintetize.`;
+
+  const runStagedAnalysis = async (): Promise<string> => {
+    // Order entries by fruit for coherent batches.
+    const ordered = [...entries].sort((a, b) => {
+      const fa = a.fruit_id ?? 999;
+      const fb = b.fruit_id ?? 999;
+      if (fa !== fb) return fa - fb;
+      return a.title.localeCompare(b.title, 'pt-BR');
+    });
+    const batches = planBatches(ordered);
+    const total = batches.length;
+    const allNotes: string[] = [];
+
+    let processed = 0;
+    for (let i = 0; i < batches.length; i++) {
+      const batch = batches[i];
+      const from = processed + 1;
+      const to = processed + batch.length;
+      setStageMessage(`Etapa ${i + 1}/${total + 1} — Assimilando entradas ${from}–${to} de ${ordered.length}…`);
+
+      const batchBody = batch.map(serializeEntryDeep).join('\n');
+      const userMsg = `LOTE ${i + 1} DE ${total} — entradas ${from}–${to} (de ${ordered.length}).\n\n${batchBody}`;
+      const notes = await callAIText([{ role: 'user', content: userMsg }], IDRIEL_SYSTEM_BATCH_NOTES);
+      allNotes.push(`## Notas do lote ${i + 1} (entradas ${from}–${to})\n${notes.trim()}`);
+      processed = to;
+    }
+
+    setStageMessage(`Etapa ${total + 1}/${total + 1} — Tecendo a análise final a partir de todas as anotações…`);
+
+    // If the concatenated notes still overflow, keep only the tail of each block.
+    let notesBundle = allNotes.join('\n\n');
+    if (notesBundle.length > 55_000) {
+      // Truncate gracefully by keeping proportional slices from each batch.
+      const perBatchCap = Math.max(1500, Math.floor(50_000 / allNotes.length));
+      notesBundle = allNotes.map(n => n.length > perBatchCap ? n.slice(0, perBatchCap) + '\n…(anotações truncadas)…' : n).join('\n\n');
+    }
+
+    const fruitsIndex = FRUITS.map(f => {
+      const c = ordered.filter(e => e.fruit_id === f.id).length;
+      return `- ${f.name}: ${c} entrada(s)`;
+    }).join('\n');
+
+    const finalUser = `Você já percorreu meu Codex em ${total} lote(s) e produziu anotações internas por lote. AGORA, com base APENAS nessas anotações somadas, produza a análise final completa, respeitando estritamente as seções pedidas (Saudação, Avaliação dos Frutos, Furos de Enredo, Inconsistências de Worldbuilding, Oportunidades de Expansão, Pontos Fortes, Por Onde Continuar).\n\nRESUMO NUMÉRICO POR FRUTO:\n${fruitsIndex}\n\nANOTAÇÕES DOS LOTES:\n\n${notesBundle}`;
+
+    let lastFlush = 0;
+    let pending: string | null = null;
+    let rafId: number | null = null;
+    const flush = () => {
+      rafId = null;
+      if (pending == null) return;
+      setAnalysis(pending);
+      setRevealedChars(pending.length);
+      pending = null;
+      lastFlush = performance.now();
+    };
+    const content = await callAITextStream(
+      [{ role: 'user', content: finalUser }],
+      IDRIEL_SYSTEM_ANALYSIS,
+      (acc) => {
+        pending = acc;
+        const now = performance.now();
+        if (now - lastFlush >= 100 && rafId == null) {
+          rafId = requestAnimationFrame(flush);
         }
+      },
+    );
+    if (rafId != null) cancelAnimationFrame(rafId);
+    return content;
+  };
+
+  const runSingleShotAnalysis = async (): Promise<string> => {
+    let lastFlush = 0;
+    let pending: string | null = null;
+    let rafId: number | null = null;
+    const flush = () => {
+      rafId = null;
+      if (pending == null) return;
+      setAnalysis(pending);
+      setRevealedChars(pending.length);
+      pending = null;
+      lastFlush = performance.now();
+    };
+    const content = await callAITextStream(
+      [{ role: 'user', content: `Aqui estão todas as entradas do meu Codex:\n\n${buildPrompt()}` }],
+      IDRIEL_SYSTEM_ANALYSIS,
+      (acc) => {
+        pending = acc;
+        const now = performance.now();
+        if (now - lastFlush >= 100 && rafId == null) {
+          rafId = requestAnimationFrame(flush);
+        }
+      },
+    );
+    if (rafId != null) cancelAnimationFrame(rafId);
+    return content;
+  };
+
+  const handleAnalyze = async () => {
+    if (entries.length === 0 || !canAnalyze || !user) return;
+
+    // Decide strategy up front and warn about cost if staged.
+    const singleShotSize = buildPrompt().length;
+    const needsStaging = singleShotSize > SINGLE_SHOT_THRESHOLD;
+    let plannedBatches = 0;
+    if (needsStaging) {
+      const ordered = [...entries].sort((a, b) => (a.fruit_id ?? 999) - (b.fruit_id ?? 999));
+      plannedBatches = planBatches(ordered).length;
+      const cost = plannedBatches + 1;
+      if (creditsRemaining < cost) {
+        setError(`Seu Codex é grande e a análise precisará ser feita em ${plannedBatches} etapas + 1 síntese final (custo total: ${cost} gotas). Você tem ${creditsRemaining} gota(s). Adquira mais gotas ou remova/enxugue algumas entradas.`);
+        return;
+      }
+      const ok = window.confirm(
+        `Seu Codex tem ${entries.length} entradas e é muito extenso para uma análise única.\n\n` +
+        `Idriel fará a leitura em ${plannedBatches} etapa(s) e depois construirá a análise final — informando o progresso a cada etapa.\n\n` +
+        `Custo total: ${plannedBatches + 1} gotas (${plannedBatches} de leitura + 1 da síntese final).\nVocê tem ${creditsRemaining} gota(s) disponíveis.\n\nDeseja prosseguir?`
       );
-      if (rafId != null) cancelAnimationFrame(rafId);
+      if (!ok) return;
+    }
+
+    setLoading(true);
+    setError('');
+    setAnalysis('');
+    setStageMessage(needsStaging ? `Preparando ${plannedBatches} etapa(s) de leitura + síntese final…` : '');
+    setViewingHistoryId(null);
+    setShowHistory(false);
+
+    try {
+      const content = needsStaging ? await runStagedAnalysis() : await runSingleShotAnalysis();
 
       // Parse per-fruit scores out of Idriel's response so the fruit grid can use them
       const { parseFruitScoresFromAnalysis } = await import('@/hooks/useLatestAnalysis');
@@ -624,7 +759,7 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
       const artigos = entries.filter(e => e.entry_type === 'artigo').length;
       const coveredFruits = FRUITS.filter(f => entries.some(e => e.fruit_id === f.id)).length;
 
-      await supabase.from('world_analyses').insert({
+      const { error: insertErr } = await supabase.from('world_analyses').insert({
         user_id: user.id,
         world_id: worldId,
         analysis_text: content,
@@ -634,10 +769,12 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
         covered_fruits: coveredFruits,
         fruit_scores: fruitScores as any,
       });
+      if (insertErr) console.error('world_analyses insert failed', insertErr);
 
       setAnalysis(content);
       setRevealedChars(content.length);
       setIsRevealing(false);
+      setStageMessage('');
       fetchHistory();
 
     } catch (e: any) {
@@ -645,8 +782,10 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
       setError(`${f.title} ${f.hint}`);
     } finally {
       setLoading(false);
+      setStageMessage('');
     }
   };
+
 
   const handleDeleteAnalysis = async (id: string) => {
     await supabase.from('world_analyses').delete().eq('id', id);
@@ -956,6 +1095,11 @@ Seja construtiva, honesta e SUCINTA. Assine ao final apenas com "— Idriel, ${I
                 <p className="text-[10px] text-gold-champagne/80 font-montserrat italic tracking-wide">
                   está tecendo a análise do seu mundo…
                 </p>
+                {stageMessage && (
+                  <p className="mt-2 text-[11px] text-gold-light font-merriweather italic max-w-xs mx-auto leading-snug">
+                    {stageMessage}
+                  </p>
+                )}
               </div>
             </div>
 
