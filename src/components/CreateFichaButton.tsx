@@ -213,6 +213,7 @@ export const CreateFichaButton: React.FC<Props> = ({ fieldValue, fieldLabel, fru
                             const separator = e.content ? '\n\n---\n\n' : '';
                             await updateEntry(e.id, { content: `${e.content}${separator}**${fieldLabel}:**\n${fieldValue}` });
                             toast.success(`Adicionado a "${e.title}"`);
+                            onSaved?.();
                           } catch (err) {
                             toast.error('Não foi possível atualizar a ficha');
                             console.error(err);
