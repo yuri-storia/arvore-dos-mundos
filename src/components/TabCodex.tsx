@@ -53,6 +53,10 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
   
   const [filterFruits, setFilterFruits] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const PAGE_SIZE = 12;
+  const [fichaPage, setFichaPage] = useState(1);
+  const [artigoPage, setArtigoPage] = useState(1);
+  useEffect(() => { setFichaPage(1); setArtigoPage(1); }, [searchQuery, filterFruits, worldId]);
   const isUnlimited = (user?.email || '').toLowerCase() === 'erinsaurogonfenix@gmail.com';
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [mode, setMode] = useState<CodexMode>(() => {
