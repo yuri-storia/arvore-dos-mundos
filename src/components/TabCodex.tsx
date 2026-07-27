@@ -970,10 +970,15 @@ export const TabCodex: React.FC<Props> = ({ gallery, worldId, worlds }) => {
           }
           return created;
         }}
-        onUpdate={async (id, content) => {
-          // Garante conteúdo já hidratado antes do append (o dialog já faz o merge).
-          if (!isContentHydrated(id)) { try { await fetchEntryContent(id); } catch { /* segue mesmo assim */ } }
-          await updateEntry(id, { content });
+        onUpdate={async (id, appendSummary) => {
+          // Hidrata conteúdo atual antes do merge para não sobrescrever nada.
+          let currentContent = entries.find(e => e.id === id)?.content ?? '';
+          if (!isContentHydrated(id)) {
+            try { const hydrated = await fetchEntryContent(id); if (typeof hydrated === 'string') currentContent = hydrated; } catch { /* segue */ }
+          }
+          const divider = `\n\n---\n**Idriel (${new Date().toLocaleDateString('pt-BR')}):**\n\n`;
+          const merged = (currentContent + divider + appendSummary).slice(0, 50000);
+          await updateEntry(id, { content: merged });
         }}
       />
 
