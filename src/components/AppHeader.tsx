@@ -136,13 +136,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center gap-1">
+      <div className="relative z-10 flex flex-col items-center gap-2 animate-[fade-in_0.6s_ease-out]">
         {/* Brand badge */}
-        <div className="inline-block px-3 py-1 rounded-full border border-blue-bright/15 bg-blue-bright/[0.04] backdrop-blur-sm">
-          <span className="font-cinzel text-[9px] tracking-[0.18em] text-white uppercase">
+        <div className="group inline-block px-4 py-1.5 rounded-full border border-blue-bright/20 bg-blue-bright/[0.05] backdrop-blur-xl transition-all duration-500 hover:border-blue-bright/40 hover:bg-blue-bright/[0.09] hover:shadow-[0_0_24px_hsl(var(--blue-bright)/0.20)]">
+          <span className="font-cinzel text-[10px] tracking-[0.22em] text-white/85 uppercase transition-colors group-hover:text-white">
             A Árvore dos Mundos
           </span>
         </div>
+
 
         {/* Mobile: project switcher button */}
         {isMobile && worlds && (

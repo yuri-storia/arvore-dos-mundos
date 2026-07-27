@@ -32,34 +32,58 @@ export const UserMenu: React.FC = () => {
   const initial = (displayLabel[0] || 'V').toUpperCase();
 
   return (
-    <div className="relative w-full max-w-[380px] mx-auto px-3">
-      {/* Card com moldura dourada sutil */}
-      <div className="p-[1px] rounded-2xl bg-gradient-to-b from-gold/30 via-gold/10 to-transparent">
+    <div className="relative w-full max-w-[440px] mx-auto px-3 animate-[fade-in_0.5s_ease-out]">
+      {/* Card com moldura dourada sutil e halo */}
+      <div
+        className="relative p-[1px] rounded-2xl transition-shadow duration-500 hover:shadow-[0_0_28px_hsl(var(--gold)/0.18)]"
+        style={{ background: 'linear-gradient(140deg, hsl(var(--gold) / 0.45) 0%, hsl(var(--gold) / 0.08) 40%, transparent 70%, hsl(var(--gold) / 0.15) 100%)' }}
+      >
         <div
-          className="rounded-[15px] px-3 py-2.5 backdrop-blur-xl border border-white/[0.04]"
-          style={{ background: 'linear-gradient(180deg, hsl(214 60% 5% / 0.85) 0%, hsl(214 60% 3% / 0.75) 100%)' }}
+          className="rounded-[15px] px-5 py-4 backdrop-blur-2xl border border-white/[0.06]"
+          style={{
+            background:
+              'radial-gradient(120% 140% at 50% -20%, hsl(211 76% 42% / 0.12) 0%, transparent 55%), linear-gradient(180deg, hsl(214 60% 6% / 0.72) 0%, hsl(214 60% 3% / 0.62) 100%)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), inset 0 -1px 0 rgba(0,0,0,0.4)',
+          }}
         >
           {/* Identidade do viajante */}
-          <div className="flex items-center justify-center gap-2 mb-2.5">
-            <div className="w-6 h-6 rounded-full border border-gold/40 bg-gold/10 flex items-center justify-center shrink-0">
-              <span className="font-cinzel font-bold text-[11px] text-gold-light leading-none">{initial}</span>
+          <div className="flex items-center justify-center gap-2.5 mb-3.5">
+            <div
+              className="w-7 h-7 rounded-full border border-gold/45 flex items-center justify-center shrink-0 shadow-[0_0_10px_hsl(var(--gold)/0.25)]"
+              style={{ background: 'radial-gradient(circle at 30% 30%, hsl(var(--gold) / 0.35), hsl(var(--gold) / 0.05))' }}
+            >
+              <span className="font-cinzel font-bold text-[12px] text-gold-light leading-none">{initial}</span>
             </div>
-            <span className="text-[11px] font-montserrat text-foreground/80 truncate max-w-[240px]">
+            <span className="text-[12px] font-montserrat text-foreground/85 truncate max-w-[260px] tracking-wide">
               {displayLabel}
             </span>
           </div>
 
-          {/* Controles equilibrados em grid 3 */}
-          <div className="grid grid-cols-3 gap-1.5">
+          {/* Divisor ornamental */}
+          <div
+            className="h-px w-full mb-3.5"
+            style={{ background: 'linear-gradient(90deg, transparent, hsl(var(--gold) / 0.28), transparent)' }}
+            aria-hidden="true"
+          />
+
+          {/* Controles em grid equilibrado */}
+          <div className="grid grid-cols-3 gap-2.5">
             <button
               onClick={() => setMenuOpen((v) => !v)}
               aria-label="Abrir opções"
               aria-expanded={menuOpen}
-              className="flex items-center justify-center gap-1 h-8 rounded-lg border border-blue-bright/25 bg-blue-bright/[0.04] hover:bg-blue-bright/[0.10] hover:border-blue-bright/45 text-blue-light/80 hover:text-blue-light transition-all"
+              className="group relative flex items-center justify-center gap-1.5 h-10 px-3 rounded-xl border border-blue-bright/25 bg-blue-bright/[0.05] hover:bg-blue-bright/[0.13] hover:border-blue-bright/50 text-blue-light/85 hover:text-blue-light transition-all duration-300 ease-out hover:-translate-y-[1px] hover:shadow-[0_4px_18px_hsl(var(--blue-bright)/0.22)] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 backdrop-blur-md overflow-hidden"
             >
-              <Settings className="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden="true" />
-              <span className="text-[10px] font-montserrat font-bold uppercase tracking-wider">Opções</span>
-              {menuOpen ? <ChevronUp className="w-2.5 h-2.5" aria-hidden="true" /> : <ChevronDown className="w-2.5 h-2.5" aria-hidden="true" />}
+              <span
+                className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{ background: 'radial-gradient(60% 80% at 50% 0%, hsl(var(--blue-bright) / 0.20), transparent 70%)' }}
+                aria-hidden="true"
+              />
+              <Settings className="relative w-3.5 h-3.5 transition-transform duration-500 group-hover:rotate-45" strokeWidth={1.75} aria-hidden="true" />
+              <span className="relative text-[10px] font-montserrat font-bold uppercase tracking-[0.14em]">Opções</span>
+              {menuOpen
+                ? <ChevronUp className="relative w-2.5 h-2.5 transition-transform" aria-hidden="true" />
+                : <ChevronDown className="relative w-2.5 h-2.5 transition-transform" aria-hidden="true" />}
             </button>
 
             <BugReportDialog
@@ -67,18 +91,28 @@ export const UserMenu: React.FC = () => {
                 <button
                   title="Reportar problema"
                   aria-label="Reportar problema"
-                  className="flex items-center justify-center gap-1 h-8 rounded-lg border border-gold/30 bg-gold/[0.05] hover:bg-gold/[0.12] hover:border-gold/50 text-gold-light/85 hover:text-gold-light transition-all"
+                  className="group relative flex items-center justify-center gap-1.5 h-10 px-3 rounded-xl border border-gold/30 bg-gold/[0.05] hover:bg-gold/[0.13] hover:border-gold/55 text-gold-light/85 hover:text-gold-light transition-all duration-300 ease-out hover:-translate-y-[1px] hover:shadow-[0_4px_18px_hsl(var(--gold)/0.22)] focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 backdrop-blur-md overflow-hidden"
                 >
-                  <Bug className="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden="true" />
-                  <span className="text-[10px] font-montserrat font-bold uppercase tracking-wider">Bug</span>
+                  <span
+                    className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    style={{ background: 'radial-gradient(60% 80% at 50% 0%, hsl(var(--gold) / 0.22), transparent 70%)' }}
+                    aria-hidden="true"
+                  />
+                  <Bug className="relative w-3.5 h-3.5 transition-transform duration-300 group-hover:-rotate-12" strokeWidth={1.75} aria-hidden="true" />
+                  <span className="relative text-[10px] font-montserrat font-bold uppercase tracking-[0.14em]">Bug</span>
                 </button>
               }
             />
 
             <ConfirmDialog
               trigger={
-                <button className="flex items-center justify-center h-8 rounded-lg border border-red-alert/40 bg-red-alert/[0.06] text-red-alert hover:bg-red-alert/20 hover:border-red-alert/60 transition-all text-[10px] font-montserrat font-bold uppercase tracking-wider">
-                  Sair
+                <button className="group relative flex items-center justify-center h-10 px-3 rounded-xl border border-red-alert/40 bg-red-alert/[0.06] text-red-alert hover:bg-red-alert/[0.18] hover:border-red-alert/65 transition-all duration-300 ease-out hover:-translate-y-[1px] hover:shadow-[0_4px_18px_hsl(var(--red-alert)/0.28)] focus:outline-none focus-visible:ring-2 focus-visible:ring-red-alert/50 backdrop-blur-md overflow-hidden text-[10px] font-montserrat font-bold uppercase tracking-[0.14em]">
+                  <span
+                    className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    style={{ background: 'radial-gradient(60% 80% at 50% 0%, hsl(var(--red-alert) / 0.22), transparent 70%)' }}
+                    aria-hidden="true"
+                  />
+                  <span className="relative">Sair</span>
                 </button>
               }
               title="Sair da conta"
@@ -92,6 +126,7 @@ export const UserMenu: React.FC = () => {
           </div>
         </div>
       </div>
+
 
       {/* Options dropdown */}
       {menuOpen && (
