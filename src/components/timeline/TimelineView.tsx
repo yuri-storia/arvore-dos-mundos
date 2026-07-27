@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Trees, Plus, ScrollText, ChevronsDownUp, ChevronsUpDown, Link2, X, GripVertical } from 'lucide-react';
+import { Trees, Plus, ScrollText, ChevronsDownUp, ChevronsUpDown, Link2, X, GripVertical, Search } from 'lucide-react';
 import { useTimelineEvents, type TimelineEvent, type TimelineEventType } from '@/hooks/useTimelineEvents';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { TimelineNode } from './TimelineNode';
