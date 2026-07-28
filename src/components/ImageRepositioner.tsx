@@ -177,14 +177,14 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
             <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground font-montserrat">{subtitle}</p>
           </div>
           <span className="self-start rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-[10px] font-montserrat font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
-            Arraste ↕ ↔
+            {lockAxis === 'x' ? 'Arraste ↕' : lockAxis === 'y' ? 'Arraste ↔' : 'Arraste ↕ ↔'}
           </span>
         </div>
 
         <div className="px-4 sm:px-5 pt-3 -mb-1">
           <p className="text-[11px] sm:text-xs text-muted-foreground font-montserrat leading-snug">
             <Move className="w-3.5 h-3.5 inline-block mr-1 align-[-0.2em] text-primary" strokeWidth={1.75} />
-            Dica: arraste a imagem <strong className="text-foreground">na horizontal e na vertical</strong> para escolher qual parte fica visível na prévia.
+            Dica: arraste a imagem <strong className="text-foreground">{lockAxis === 'x' ? 'na vertical' : lockAxis === 'y' ? 'na horizontal' : 'na horizontal e na vertical'}</strong> para escolher qual parte fica visível na prévia.
           </p>
         </div>
 
