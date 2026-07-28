@@ -60,6 +60,7 @@ type Draft = { title: string; content: string; fruit_id: number | null; ts: numb
 
 export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate, onDelete, onImageUpload, onLightbox, gallery, siblings, onOpenEntry, contentHydrated }) => {
   const planLimits = usePlanLimits();
+  const { addOne: addToGallery } = useGalleryImages(entry.world_id || undefined);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(entry.title);
   const [content, setContent] = useState(entry.content);
