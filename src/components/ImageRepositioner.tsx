@@ -135,11 +135,11 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
     return () => { document.body.style.overflow = previousOverflow; };
   }, []);
 
-  // Moldura no mesmo formato da prévia real.
-  // Collapsed: paisagem (2:1). Expanded: retrato (~1:2), mas limitado no mobile.
+  // Moldura no mesmo formato da prévia real, limitada pelo viewport para não
+  // cortar botões nem imagens em telas pequenas.
   const frameClass = mode === 'expanded'
-    ? 'w-[260px] sm:w-[300px] h-[420px] sm:h-[520px]'
-    : 'w-full h-[220px] sm:h-[280px]';
+    ? 'w-[min(78vw,300px)] h-[min(55vh,520px)] sm:h-[min(60vh,520px)]'
+    : 'w-full max-w-[520px] h-[min(38vh,280px)]';
 
   const title = mode === 'expanded' ? 'Ajustar prévia interna (card aberto)' : 'Ajustar prévia externa (card fechado)';
   const subtitle = mode === 'expanded'
@@ -148,26 +148,33 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
 
   const content = (
     <div
-      className="fixed inset-0 z-[300] bg-background/80 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 z-[300] bg-background/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
       onClick={onCancel}
       onPointerDown={e => e.stopPropagation()}
       onMouseDown={e => e.stopPropagation()}
     >
       <div
-        className="w-full max-w-[760px] rounded-2xl border border-border bg-card/95 shadow-2xl"
+        className="w-full max-w-[760px] my-auto rounded-2xl border border-border bg-card/95 shadow-2xl max-h-[96vh] flex flex-col"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-border px-4 py-4 sm:px-5">
-          <div>
-            <h3 className="font-cinzel font-bold text-base text-foreground">{title}</h3>
-            <p className="mt-1 text-xs text-muted-foreground font-montserrat">{subtitle}</p>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4 border-b border-border px-4 py-3 sm:px-5 sm:py-4">
+          <div className="min-w-0">
+            <h3 className="font-cinzel font-bold text-sm sm:text-base text-foreground">{title}</h3>
+            <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground font-montserrat">{subtitle}</p>
           </div>
-          <span className="rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-[10px] font-montserrat font-bold uppercase tracking-wider text-muted-foreground">
-            Arraste em qualquer direção
+          <span className="self-start rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-[10px] font-montserrat font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+            Arraste ↕ ↔
           </span>
         </div>
 
-        <div className="flex justify-center p-4 sm:p-5">
+        <div className="px-4 sm:px-5 pt-3 -mb-1">
+          <p className="text-[11px] sm:text-xs text-muted-foreground font-montserrat leading-snug">
+            <Move className="w-3.5 h-3.5 inline-block mr-1 align-[-0.2em] text-primary" strokeWidth={1.75} />
+            Dica: arraste a imagem <strong className="text-foreground">na horizontal e na vertical</strong> para escolher qual parte fica visível na prévia.
+          </p>
+        </div>
+
+        <div className="flex justify-center p-3 sm:p-5 overflow-auto">
           <div
             ref={containerRef}
             className={`relative ${frameClass} rounded-xl overflow-hidden border-2 bg-secondary/30 ${dragging ? 'border-primary cursor-grabbing' : 'border-border cursor-grab'} transition-colors select-none touch-none`}
@@ -209,19 +216,19 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-4 sm:px-5">
+        <div className="flex items-center justify-between gap-2 sm:gap-3 border-t border-border px-3 py-3 sm:px-5 sm:py-4">
           <button
             onClick={onCancel}
-            className="px-5 py-2.5 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+            className="px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground text-[11px] sm:text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
           >
             Cancelar
           </button>
           <button
             onClick={handleSave}
-            className="px-6 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-montserrat font-bold uppercase tracking-wider transition-all shadow-lg flex items-center gap-2"
+            className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-montserrat font-bold uppercase tracking-wider transition-all shadow-lg flex items-center gap-1.5 sm:gap-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-            Confirmar prévia
+            Confirmar
           </button>
         </div>
       </div>

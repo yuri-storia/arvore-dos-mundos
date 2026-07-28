@@ -170,9 +170,20 @@ const EntryPreviewPanel: React.FC<{
           <X className="w-3.5 h-3.5" />
         </button>
       </div>
-      {entry.image_url && (
-        <img src={entry.image_url} alt={entry.title} className="w-full h-[120px] object-cover" loading="lazy" />
-      )}
+      {entry.image_url && (() => {
+        const raw = entry.image_position as { x?: number; y?: number } | null | undefined;
+        const posX = typeof raw?.x === 'number' ? raw.x : 50;
+        const posY = typeof raw?.y === 'number' ? raw.y : 50;
+        return (
+          <img
+            src={entry.image_url}
+            alt={entry.title}
+            className="w-full h-[150px] object-cover"
+            style={{ objectPosition: `${posX}% ${posY}%` }}
+            loading="lazy"
+          />
+        );
+      })()}
       <ScrollArea className="flex-1">
         <div className="p-3 text-xs text-foreground/85 font-merriweather leading-relaxed">
           {hasContent ? (

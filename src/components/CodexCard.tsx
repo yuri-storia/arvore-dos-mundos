@@ -9,9 +9,30 @@ import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ImageRepositioner } from '@/components/ImageRepositioner';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
+import { useGalleryImages } from '@/hooks/useGalleryImages';
 import { buildEntriesByName, renderMentionChildren, renderInlineMentions } from '@/components/escritor/MentionChip';
 import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor';
 import { htmlToPlainText } from '@/lib/htmlToText';
+
+/**
+ * Ao subir uma imagem manualmente para uma ficha, arquivamos uma cópia
+ * automática na pasta da Galeria que combina com o Fruto da ficha. Assim,
+ * ao inserir a foto do "Phillip Hewitt" (Personagens), ela reaparece na
+ * pasta Personagens sem ação extra do usuário.
+ */
+const FRUIT_TO_GALLERY_FOLDER: Record<number, string> = {
+  0: 'Mapa do Mundo',
+  1: 'Geral',
+  2: 'Geral',
+  3: 'Cultura',
+  4: 'Artefatos',
+  5: 'Criaturas',
+  6: 'Geral',
+  7: 'Cultura',
+  8: 'Cultura',
+  9: 'Personagens',
+  10: 'Geral',
+};
 
 const isHTMLContent = (s: string) => /^\s*<(p|div|h[1-6]|ul|ol|blockquote|pre|span|strong|em)[\s>]/i.test(s || '');
 
@@ -39,6 +60,7 @@ type Draft = { title: string; content: string; fruit_id: number | null; ts: numb
 
 export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate, onDelete, onImageUpload, onLightbox, gallery, siblings, onOpenEntry, contentHydrated }) => {
   const planLimits = usePlanLimits();
+  const { addOne: addToGallery } = useGalleryImages(entry.world_id || undefined);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(entry.title);
   const [content, setContent] = useState(entry.content);
@@ -208,6 +230,17 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
       const defaultPosition = { x: 50, y: 50 };
       setImgPos(defaultPosition);
       await onUpdate(entry.id, { image_url: url, image_position: defaultPosition });
+      // Arquiva automaticamente na pasta da Galeria correspondente ao Fruto.
+      // Evita duplicar quando a mesma URL já existe (ex.: reupload).
+      try {
+        if (entry.world_id && !gallery.some(g => g.src === url)) {
+          const folder = (entry.fruit_id !== null && FRUIT_TO_GALLERY_FOLDER[entry.fruit_id]) || 'Geral';
+          await addToGallery({ src: url, name: entry.title || 'Sem título', cat: folder, status: 'kept' });
+          toast.success(`Imagem arquivada em "${folder}".`);
+        }
+      } catch (err) {
+        console.error('Falha ao arquivar imagem na galeria:', err);
+      }
     }
     setUploading(false);
     setShowImageMenu(false);
