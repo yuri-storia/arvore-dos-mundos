@@ -17,7 +17,7 @@ import {
   Sparkles, Lock, ChevronDown, ChevronUp, Trash2, Palette, Leaf, ScrollText,
   X, Save, Apple, BarChart3, Check, ClipboardCopy, ArrowDown, RotateCw,
   Image as ImageIcon, ArrowRight, ArrowLeft, Info, Upload, ImagePlus,
-  FolderOpen, Wand2, Loader2, RefreshCw, AlertTriangle, CheckCircle2,
+  FolderOpen, Wand2, Loader2, RefreshCw, AlertTriangle, CheckCircle2, Move,
 } from 'lucide-react';
 import { ImageReferencePicker, type PickedReference } from '@/components/ImageReferencePicker';
 import { StyleCarousel } from '@/components/StyleCarousel';
