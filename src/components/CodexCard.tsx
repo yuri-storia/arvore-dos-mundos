@@ -9,9 +9,30 @@ import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ImageRepositioner } from '@/components/ImageRepositioner';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
+import { useGalleryImages } from '@/hooks/useGalleryImages';
 import { buildEntriesByName, renderMentionChildren, renderInlineMentions } from '@/components/escritor/MentionChip';
 import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor';
 import { htmlToPlainText } from '@/lib/htmlToText';
+
+/**
+ * Ao subir uma imagem manualmente para uma ficha, arquivamos uma cópia
+ * automática na pasta da Galeria que combina com o Fruto da ficha. Assim,
+ * ao inserir a foto do "Phillip Hewitt" (Personagens), ela reaparece na
+ * pasta Personagens sem ação extra do usuário.
+ */
+const FRUIT_TO_GALLERY_FOLDER: Record<number, string> = {
+  0: 'Mapa do Mundo',
+  1: 'Geral',
+  2: 'Geral',
+  3: 'Cultura',
+  4: 'Artefatos',
+  5: 'Criaturas',
+  6: 'Geral',
+  7: 'Cultura',
+  8: 'Cultura',
+  9: 'Personagens',
+  10: 'Geral',
+};
 
 const isHTMLContent = (s: string) => /^\s*<(p|div|h[1-6]|ul|ol|blockquote|pre|span|strong|em)[\s>]/i.test(s || '');
 
