@@ -17,10 +17,11 @@ import {
   Sparkles, Lock, ChevronDown, ChevronUp, Trash2, Palette, Leaf, ScrollText,
   X, Save, Apple, BarChart3, Check, ClipboardCopy, ArrowDown, RotateCw,
   Image as ImageIcon, ArrowRight, ArrowLeft, Info, Upload, ImagePlus,
-  FolderOpen, Wand2, Loader2, RefreshCw, AlertTriangle, CheckCircle2,
+  FolderOpen, Wand2, Loader2, RefreshCw, AlertTriangle, CheckCircle2, Move,
 } from 'lucide-react';
 import { ImageReferencePicker, type PickedReference } from '@/components/ImageReferencePicker';
 import { StyleCarousel } from '@/components/StyleCarousel';
+import { ImageRepositioner } from '@/components/ImageRepositioner';
 import type { AppState } from '@/lib/data';
 import { createPortal } from 'react-dom';
 
@@ -56,6 +57,35 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
     if (url) next[fruitId] = url; else delete next[fruitId];
     setFolderCovers(next);
   };
+
+  // --- Cover positions (per-world, localStorage) ---
+  const coverPosKey = worldId ? `galeria:coverPos:${worldId}` : null;
+  const [coverPositions, setCoverPositions] = useState<Record<number, { x: number; y: number }>>(() => {
+    if (!coverPosKey) return {};
+    try { return JSON.parse(localStorage.getItem(coverPosKey) || '{}'); } catch { return {}; }
+  });
+  useEffect(() => {
+    if (!coverPosKey) return;
+    setCoverPositions(() => {
+      try { return JSON.parse(localStorage.getItem(coverPosKey) || '{}'); } catch { return {}; }
+    });
+  }, [coverPosKey]);
+  const saveCoverPosition = (fruitId: number, pos: { x: number; y: number } | null) => {
+    setCoverPositions(prev => {
+      const next = { ...prev };
+      if (pos) next[fruitId] = pos; else delete next[fruitId];
+      if (coverPosKey) localStorage.setItem(coverPosKey, JSON.stringify(next));
+      return next;
+    });
+  };
+  const coverStyle = (fruitId: number): React.CSSProperties => {
+    const p = coverPositions[fruitId];
+    return p ? { objectPosition: `${p.x}% ${p.y}%` } : {};
+  };
+
+  // --- Modals: pick Idriel vision / reposition cover ---
+  const [visionPickerFor, setVisionPickerFor] = useState<number | null>(null);
+  const [repositionFor, setRepositionFor] = useState<number | null>(null);
 
   // --- Upload state (per-file progress) ---
   const uploadRef = useRef<HTMLInputElement>(null);
@@ -412,6 +442,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                 >
                   <img
                     src={cover} alt={f.name} loading="lazy" decoding="async"
+                    style={coverStyle(f.id)}
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.08]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/10" />
@@ -509,7 +540,11 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
         <div className="animate-fadeUp">
           {/* Cover banner */}
           <div className="relative rounded-2xl overflow-hidden border border-gold/20 mb-5 aspect-[16/6] sm:aspect-[16/5]">
-            <img src={currentCover!} alt={currentFolder.name} className="absolute inset-0 w-full h-full object-cover" />
+            <img
+              src={currentCover!} alt={currentFolder.name}
+              style={coverStyle(currentFolder.id)}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/20" />
 
             <button
@@ -519,7 +554,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
               <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />Todas as pastas
             </button>
 
-            <div className="absolute top-3 right-3 flex gap-2">
+            <div className="absolute top-3 right-3 flex flex-wrap gap-2 justify-end max-w-[calc(100%-1.5rem)]">
               <input ref={coverRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden"
                 onChange={e => { uploadCover(e.target.files?.[0] || null, currentFolder.id); if (coverRef.current) coverRef.current.value = ''; }}
               />
@@ -530,9 +565,23 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
               >
                 <ImagePlus className="w-3.5 h-3.5" strokeWidth={2} />Trocar capa
               </button>
+              <button
+                onClick={() => setVisionPickerFor(currentFolder.id)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 border border-gold/25 backdrop-blur-md text-xs text-gold-light font-montserrat hover:bg-gold/15 transition-colors"
+                title="Usar uma visão de Idriel como capa"
+              >
+                <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />Visão de Idriel
+              </button>
+              <button
+                onClick={() => setRepositionFor(currentFolder.id)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 border border-white/15 backdrop-blur-md text-xs text-foreground font-montserrat hover:bg-black/70 transition-colors"
+                title="Ajustar enquadramento da capa"
+              >
+                <Move className="w-3.5 h-3.5" strokeWidth={2} />Ajustar prévia
+              </button>
               {customCovers[currentFolder.id] && (
                 <button
-                  onClick={() => { setCover(currentFolder.id, null); toast.success('Capa restaurada'); }}
+                  onClick={() => { setCover(currentFolder.id, null); saveCoverPosition(currentFolder.id, null); toast.success('Capa restaurada'); }}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 border border-white/15 backdrop-blur-md text-xs text-foreground font-montserrat hover:bg-black/70 transition-colors"
                   title="Voltar à capa original"
                 >
@@ -1072,6 +1121,91 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
         </div>,
         document.body
       )}
+
+      {/* ============ Modal: escolher visão de Idriel como capa ============ */}
+      {visionPickerFor !== null && createPortal(
+        <div
+          className="fixed inset-0 z-[300] bg-background/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
+          onClick={() => setVisionPickerFor(null)}
+        >
+          <div
+            className="w-full max-w-3xl rounded-2xl border border-gold/25 bg-card/95 shadow-2xl max-h-[90vh] flex flex-col"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between border-b border-gold/15 px-5 py-4">
+              <div>
+                <h3 className="font-cinzel font-bold text-base text-foreground flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-gold-light" strokeWidth={1.75} />
+                  Escolher visão de Idriel como capa
+                </h3>
+                <p className="mt-1 text-xs text-text-dim font-montserrat">
+                  Selecione uma imagem do histórico para definir como capa desta pasta.
+                </p>
+              </div>
+              <button onClick={() => setVisionPickerFor(null)} className="text-text-dim hover:text-foreground transition-colors">
+                <X className="w-5 h-5" strokeWidth={2} />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto">
+              {visions.filter(v => !!v.image_url).length === 0 ? (
+                <div className="text-center py-10">
+                  <ScrollText className="w-8 h-8 mx-auto mb-3 text-gold-champagne/60" strokeWidth={1.5} />
+                  <p className="font-merriweather text-sm text-text-dim">
+                    Você ainda não tem visões de Idriel neste mundo. Gere uma abaixo e volte aqui.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {visions.filter(v => !!v.image_url).map(v => (
+                    <button
+                      key={v.id}
+                      onClick={() => {
+                        setCover(visionPickerFor!, v.image_url!);
+                        saveCoverPosition(visionPickerFor!, null);
+                        setVisionPickerFor(null);
+                        toast.success('Capa atualizada com visão de Idriel');
+                      }}
+                      className="group relative aspect-square rounded-lg overflow-hidden border border-gold/20 hover:border-gold/60 hover:shadow-[0_0_20px_rgba(218,165,32,0.25)] transition-all text-left"
+                    >
+                      <img src={v.image_url!} alt={v.description} loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-2">
+                        <p className="text-[10px] font-montserrat text-foreground line-clamp-2">{v.description}</p>
+                      </div>
+                    </button>
+                  ))}
+                  {hasMoreVisions && (
+                    <button
+                      onClick={loadMoreVisions}
+                      disabled={isFetchingMoreVisions}
+                      className="aspect-square rounded-lg border border-dashed border-gold/25 flex items-center justify-center text-xs font-montserrat text-gold-light/80 hover:border-gold/50 hover:bg-gold/[0.04] transition-colors disabled:opacity-50"
+                    >
+                      {isFetchingMoreVisions ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Carregar mais'}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ============ Modal: ajustar prévia da capa ============ */}
+      {repositionFor !== null && (() => {
+        const url = customCovers[repositionFor] || GALLERY_COVER_PLACEHOLDERS[repositionFor];
+        const fruit = FOLDER_FRUITS.find(f => f.id === repositionFor);
+        return (
+          <ImageRepositioner
+            src={url}
+            alt={fruit?.name || 'Capa'}
+            mode="collapsed"
+            initialPosition={coverPositions[repositionFor] || { x: 50, y: 50 }}
+            onSave={pos => { saveCoverPosition(repositionFor!, pos); setRepositionFor(null); toast.success('Prévia da capa ajustada'); }}
+            onCancel={() => setRepositionFor(null)}
+          />
+        );
+      })()}
     </div>
   );
 };
+
