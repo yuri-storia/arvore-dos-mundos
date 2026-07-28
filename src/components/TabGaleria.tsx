@@ -1267,17 +1267,23 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
         document.body
       )}
 
-      {/* ============ Modal: ajustar prévia da capa ============ */}
+      {/* ============ Modal: ajustar prévia da capa (por dispositivo) ============ */}
       {repositionFor !== null && (() => {
-        const url = customCovers[repositionFor] || GALLERY_COVER_PLACEHOLDERS[repositionFor];
-        const fruit = FOLDER_FRUITS.find(f => f.id === repositionFor);
+        const { fruitId, device } = repositionFor;
+        const url = customCovers[fruitId] || GALLERY_COVER_PLACEHOLDERS[fruitId];
+        const fruit = FOLDER_FRUITS.find(f => f.id === fruitId);
+        const initial = coverPositions[fruitId]?.[device] || { x: 50, y: 50 };
         return (
           <ImageRepositioner
             src={url}
             alt={fruit?.name || 'Capa'}
             mode="collapsed"
-            initialPosition={coverPositions[repositionFor] || { x: 50, y: 50 }}
-            onSave={pos => { saveCoverPosition(repositionFor!, pos); setRepositionFor(null); toast.success('Prévia da capa ajustada'); }}
+            initialPosition={initial}
+            onSave={pos => {
+              saveCoverPosition(fruitId, device, pos);
+              setRepositionFor(null);
+              toast.success(device === 'mobile' ? 'Prévia mobile ajustada' : 'Prévia desktop/tablet ajustada');
+            }}
             onCancel={() => setRepositionFor(null)}
           />
         );
