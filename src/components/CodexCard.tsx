@@ -62,6 +62,7 @@ type Draft = { title: string; content: string; fruit_id: number | null; ts: numb
 export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate, onDelete, onImageUpload, onLightbox, gallery, siblings, onOpenEntry, contentHydrated }) => {
   const planLimits = usePlanLimits();
   const { addOne: addToGallery } = useGalleryImages(entry.world_id || undefined);
+  const isMobile = useIsMobile();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(entry.title);
   const [content, setContent] = useState(entry.content);
@@ -73,11 +74,11 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   const [aiPrompt, setAiPrompt] = useState('');
   const [generatingAi, setGeneratingAi] = useState(false);
   const [consistent, setConsistent] = useState(true);
-  const [showRepositioner, setShowRepositioner] = useState<null | 'collapsed' | 'expanded'>(null);
-  const [showReposMenu, setShowReposMenu] = useState(false);
-  // A prévia interna (expanded) usa uma posição própria, guardada junto do
-  // objeto `image_position` como `expandedX`/`expandedY`. Se ainda não foi
-  // definida, herda da prévia externa para não quebrar comportamento antigo.
+  const [showRepositioner, setShowRepositioner] = useState<null | 'collapsed' | 'expanded' | 'expandedMobile'>(null);
+  // Prévia interna (card aberto) é agora sensível ao dispositivo:
+  // - Desktop/tablet exibe recorte vertical (~300×600) → slot `expanded` (expandedX/Y)
+  // - Mobile exibe recorte horizontal (full×200) → slot `expandedMobile` (expandedMobileX/Y)
+  // Assim, ajustar num dispositivo não estraga o enquadramento no outro.
   const readCollapsedPos = (raw: any) => ({
     x: typeof raw?.x === 'number' ? raw.x : 50,
     y: typeof raw?.y === 'number' ? raw.y : 50,
@@ -86,8 +87,16 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
     x: typeof raw?.expandedX === 'number' ? raw.expandedX : (typeof raw?.x === 'number' ? raw.x : 50),
     y: typeof raw?.expandedY === 'number' ? raw.expandedY : (typeof raw?.y === 'number' ? raw.y : 50),
   });
+  const readExpandedMobilePos = (raw: any) => ({
+    // Só o eixo Y importa (arraste vertical); X trava em 50 para centralizar.
+    x: 50,
+    y: typeof raw?.expandedMobileY === 'number'
+      ? raw.expandedMobileY
+      : (typeof raw?.y === 'number' ? raw.y : 50),
+  });
   const [imgPos, setImgPos] = useState<{ x: number; y: number }>(readCollapsedPos(entry.image_position));
   const [imgPosExpanded, setImgPosExpanded] = useState<{ x: number; y: number }>(readExpandedPos(entry.image_position));
+  const [imgPosExpandedMobile, setImgPosExpandedMobile] = useState<{ x: number; y: number }>(readExpandedMobilePos(entry.image_position));
   const fileRef = useRef<HTMLInputElement>(null);
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedRef = useRef({ title: entry.title, content: entry.content, fruit_id: entry.fruit_id });
@@ -95,6 +104,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   useEffect(() => {
     setImgPos(readCollapsedPos(entry.image_position));
     setImgPosExpanded(readExpandedPos(entry.image_position));
+    setImgPosExpandedMobile(readExpandedMobilePos(entry.image_position));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entry.id, entry.image_position]);
 
