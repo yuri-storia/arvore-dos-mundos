@@ -60,34 +60,64 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
     setFolderCovers(next);
   };
 
-  // --- Cover positions (per-world, localStorage) ---
-  const coverPosKey = worldId ? `galeria:coverPos:${worldId}` : null;
-  const [coverPositions, setCoverPositions] = useState<Record<number, { x: number; y: number }>>(() => {
+  // --- Cover positions per device (per-world, localStorage) ---
+  // Estrutura: { [fruitId]: { desktop?: {x,y}, mobile?: {x,y} } }
+  // Migração retro: chave antiga `galeria:coverPos:<worldId>` armazenava {fruitId: {x,y}}
+  // (interpretada como desktop). Lemos ambas para não perder ajustes salvos.
+  type Pos = { x: number; y: number };
+  type CoverPosMap = Record<number, { desktop?: Pos; mobile?: Pos }>;
+  const isMobile = useIsMobile();
+  const coverPosKey = worldId ? `galeria:coverPosV2:${worldId}` : null;
+  const legacyKey = worldId ? `galeria:coverPos:${worldId}` : null;
+  const readCoverPositions = (): CoverPosMap => {
     if (!coverPosKey) return {};
-    try { return JSON.parse(localStorage.getItem(coverPosKey) || '{}'); } catch { return {}; }
-  });
-  useEffect(() => {
-    if (!coverPosKey) return;
-    setCoverPositions(() => {
-      try { return JSON.parse(localStorage.getItem(coverPosKey) || '{}'); } catch { return {}; }
+    try {
+      const v2 = JSON.parse(localStorage.getItem(coverPosKey) || '{}') as CoverPosMap;
+      if (Object.keys(v2).length) return v2;
+      // migra do formato antigo (tratado como desktop)
+      if (legacyKey) {
+        const legacy = JSON.parse(localStorage.getItem(legacyKey) || '{}') as Record<number, Pos>;
+        const migrated: CoverPosMap = {};
+        Object.entries(legacy).forEach(([k, v]) => { migrated[Number(k)] = { desktop: v }; });
+        if (Object.keys(migrated).length) localStorage.setItem(coverPosKey, JSON.stringify(migrated));
+        return migrated;
+      }
+      return {};
+    } catch { return {}; }
+  };
+  const [coverPositions, setCoverPositions] = useState<CoverPosMap>(readCoverPositions);
+  useEffect(() => { setCoverPositions(readCoverPositions()); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [coverPosKey]);
+  const saveCoverPosition = (fruitId: number, device: 'desktop' | 'mobile', pos: Pos | null) => {
+    setCoverPositions(prev => {
+      const cur = prev[fruitId] || {};
+      const nextForFruit = { ...cur };
+      if (pos) nextForFruit[device] = pos; else delete nextForFruit[device];
+      const next = { ...prev };
+      if (nextForFruit.desktop || nextForFruit.mobile) next[fruitId] = nextForFruit; else delete next[fruitId];
+      if (coverPosKey) localStorage.setItem(coverPosKey, JSON.stringify(next));
+      return next;
     });
-  }, [coverPosKey]);
-  const saveCoverPosition = (fruitId: number, pos: { x: number; y: number } | null) => {
+  };
+  const clearCoverPositions = (fruitId: number) => {
     setCoverPositions(prev => {
       const next = { ...prev };
-      if (pos) next[fruitId] = pos; else delete next[fruitId];
+      delete next[fruitId];
       if (coverPosKey) localStorage.setItem(coverPosKey, JSON.stringify(next));
       return next;
     });
   };
   const coverStyle = (fruitId: number): React.CSSProperties => {
-    const p = coverPositions[fruitId];
+    const entry = coverPositions[fruitId];
+    if (!entry) return {};
+    const p = isMobile ? (entry.mobile || entry.desktop) : (entry.desktop || entry.mobile);
     return p ? { objectPosition: `${p.x}% ${p.y}%` } : {};
   };
 
   // --- Modals: pick Idriel vision / reposition cover ---
   const [visionPickerFor, setVisionPickerFor] = useState<number | null>(null);
-  const [repositionFor, setRepositionFor] = useState<number | null>(null);
+  const [repositionFor, setRepositionFor] = useState<{ fruitId: number; device: 'desktop' | 'mobile' } | null>(null);
+  const [settingsOpenFor, setSettingsOpenFor] = useState<number | null>(null);
+
 
   // --- Upload state (per-file progress) ---
   const uploadRef = useRef<HTMLInputElement>(null);
