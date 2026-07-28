@@ -1238,7 +1238,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                       key={v.id}
                       onClick={() => {
                         setCover(visionPickerFor!, v.image_url!);
-                        saveCoverPosition(visionPickerFor!, null);
+                        clearCoverPositions(visionPickerFor!);
                         setVisionPickerFor(null);
                         toast.success('Capa atualizada com visão de Idriel');
                       }}
