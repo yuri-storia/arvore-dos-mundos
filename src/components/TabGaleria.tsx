@@ -98,10 +98,16 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
       return next;
     });
   };
-  const clearCoverPositions = (fruitId: number) => {
+  const clearCoverPositions = (fruitId: number, device?: 'desktop' | 'mobile') => {
     setCoverPositions(prev => {
       const next = { ...prev };
-      delete next[fruitId];
+      if (!device) {
+        delete next[fruitId];
+      } else {
+        const cur = { ...(next[fruitId] || {}) };
+        delete cur[device];
+        if (cur.desktop || cur.mobile) next[fruitId] = cur; else delete next[fruitId];
+      }
       if (coverPosKey) localStorage.setItem(coverPosKey, JSON.stringify(next));
       return next;
     });
