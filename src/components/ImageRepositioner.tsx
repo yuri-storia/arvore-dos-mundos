@@ -12,16 +12,22 @@ interface Props {
    * Qual prévia está sendo ajustada:
    * - `collapsed`: miniatura do card fechado (paisagem, ~2:1)
    * - `expanded`: imagem lateral do card aberto (retrato, ~1:2 no desktop)
+   * - `expandedMobile`: imagem topo do card aberto no mobile (paisagem, ~2:1)
    */
-  mode?: 'collapsed' | 'expanded';
+  mode?: 'collapsed' | 'expanded' | 'expandedMobile';
+  /**
+   * Trava o arraste em um único eixo. Útil no mobile, onde a prévia interna
+   * é horizontal e só faz sentido ajustar verticalmente.
+   */
+  lockAxis?: 'x' | 'y';
 }
 
 /**
  * Reposicionador de imagem estilo Facebook cover.
- * Permite arraste horizontal E vertical, com moldura no mesmo formato
- * da prévia que será exibida (fechada ou aberta).
+ * Permite arraste horizontal E vertical (respeitando `lockAxis`), com moldura
+ * no mesmo formato da prévia que será exibida.
  */
-export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, onSave, onCancel, mode = 'collapsed' }) => {
+export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, onSave, onCancel, mode = 'collapsed', lockAxis }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const [dragging, setDragging] = useState(false);
