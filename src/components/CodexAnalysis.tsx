@@ -962,14 +962,8 @@ Ao final do lote, opcionalmente adicione uma seção "### Observações do lote"
                             </span>
                           </p>
                           <div className="flex flex-wrap gap-1.5 mt-1.5">
-                            <span className="text-[10px] font-montserrat px-1.5 py-0.5 rounded-md bg-blue-main/12 text-blue-light/90 border border-blue-bright/25 inline-flex items-center gap-1">
-                              <ClipboardList className="w-2.5 h-2.5" strokeWidth={2} />{item.ficha_count}
-                            </span>
-                            <span className="text-[10px] font-montserrat px-1.5 py-0.5 rounded-md bg-gold-warm/12 text-gold-light border border-gold-warm/30 inline-flex items-center gap-1">
-                              <PencilLine className="w-2.5 h-2.5" strokeWidth={2} />{item.artigo_count}
-                            </span>
-                            <span className="text-[10px] font-montserrat px-1.5 py-0.5 rounded-md bg-gold-champagne/12 text-gold-champagne border border-gold-champagne/30 inline-flex items-center gap-1">
-                              <Leaf className="w-2.5 h-2.5" strokeWidth={2} />{item.covered_fruits}/11
+                            <span className="text-[10px] font-montserrat px-1.5 py-0.5 rounded-md bg-gold-warm/10 text-gold-champagne border border-gold-warm/25 inline-flex items-center gap-1">
+                              <ScrollText className="w-2.5 h-2.5" strokeWidth={2} />{item.entry_count} entradas
                             </span>
                           </div>
                         </button>
