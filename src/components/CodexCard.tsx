@@ -650,7 +650,11 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               src={entry.image_url}
               alt={entry.title}
               className="w-full h-full object-cover cursor-zoom-in select-none"
-              style={{ objectPosition: `${imgPosExpanded.x}% ${imgPosExpanded.y}%` }}
+              style={{
+                objectPosition: isMobile
+                  ? `${imgPosExpandedMobile.x}% ${imgPosExpandedMobile.y}%`
+                  : `${imgPosExpanded.x}% ${imgPosExpanded.y}%`,
+              }}
               onClick={e => { e.stopPropagation(); onLightbox({ src: entry.image_url!, alt: entry.title }); }}
               draggable={false}
             />
@@ -662,33 +666,18 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
           {entry.image_url && (
             <div className="absolute top-2 right-2">
               <button
-                onClick={e => { e.stopPropagation(); setShowReposMenu(v => !v); }}
+                onClick={e => {
+                  e.stopPropagation();
+                  // Detecta automaticamente o dispositivo e abre o ajuste no
+                  // slot correto — mobile e desktop têm posições independentes.
+                  setShowRepositioner(isMobile ? 'expandedMobile' : 'expanded');
+                }}
                 className="px-2 py-1 bg-card/85 hover:bg-card text-foreground rounded-md text-[9px] font-montserrat font-bold uppercase tracking-wider border border-border transition-colors backdrop-blur-sm flex items-center gap-1.5"
-                title="Ajustar posição da imagem"
+                title={isMobile ? 'Ajustar prévia (mobile)' : 'Ajustar prévia (desktop/tablet)'}
               >
                 <Move className="w-3.5 h-3.5" strokeWidth={1.75} />
                 Ajustar prévia
-                <span className="text-[8px] opacity-70">▾</span>
               </button>
-              {showReposMenu && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={e => { e.stopPropagation(); setShowReposMenu(false); }} />
-                  <div className="absolute right-0 top-full mt-1 z-50 w-48 rounded-md border border-border bg-card/95 backdrop-blur-sm shadow-lg overflow-hidden">
-                    <button
-                      onClick={e => { e.stopPropagation(); setShowReposMenu(false); setShowRepositioner('expanded'); }}
-                      className="w-full px-3 py-2 text-left text-[10px] font-montserrat font-semibold uppercase tracking-wider text-foreground hover:bg-accent/20 transition-colors border-b border-border/50"
-                    >
-                      Prévia interna <span className="opacity-60 normal-case tracking-normal">(vertical)</span>
-                    </button>
-                    <button
-                      onClick={e => { e.stopPropagation(); setShowReposMenu(false); setShowRepositioner('collapsed'); }}
-                      className="w-full px-3 py-2 text-left text-[10px] font-montserrat font-semibold uppercase tracking-wider text-foreground hover:bg-accent/20 transition-colors"
-                    >
-                      Prévia externa <span className="opacity-60 normal-case tracking-normal">(horizontal)</span>
-                    </button>
-                  </div>
-                </>
-              )}
             </div>
           )}
           <button
@@ -706,24 +695,38 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
           )}
         </div>
 
-        {/* Repositioner modal */}
+        {/* Repositioner modal — device-aware persistence */}
         {showRepositioner && entry.image_url && (
           <ImageRepositioner
             src={entry.image_url}
             alt={entry.title}
             mode={showRepositioner}
-            initialPosition={showRepositioner === 'expanded' ? imgPosExpanded : imgPos}
+            lockAxis={showRepositioner === 'expandedMobile' ? 'x' : undefined}
+            initialPosition={
+              showRepositioner === 'expanded'
+                ? imgPosExpanded
+                : showRepositioner === 'expandedMobile'
+                  ? imgPosExpandedMobile
+                  : imgPos
+            }
             onSave={async (pos) => {
               const mode = showRepositioner;
               setShowRepositioner(null);
+              const base = (entry.image_position as any) || {};
               if (mode === 'expanded') {
                 setImgPosExpanded(pos);
-                const merged = { x: imgPos.x, y: imgPos.y, expandedX: pos.x, expandedY: pos.y } as any;
+                const merged = { ...base, x: imgPos.x, y: imgPos.y, expandedX: pos.x, expandedY: pos.y };
                 await onUpdate(entry.id, { image_position: merged });
-                toast.success('Prévia interna ajustada!');
+                toast.success('Prévia interna (desktop) ajustada!');
+              } else if (mode === 'expandedMobile') {
+                // No mobile só usamos o eixo Y (imagem em landscape).
+                setImgPosExpandedMobile({ x: 50, y: pos.y });
+                const merged = { ...base, x: imgPos.x, y: imgPos.y, expandedMobileX: 50, expandedMobileY: pos.y };
+                await onUpdate(entry.id, { image_position: merged });
+                toast.success('Prévia interna (mobile) ajustada!');
               } else {
                 setImgPos(pos);
-                const merged = { x: pos.x, y: pos.y, expandedX: imgPosExpanded.x, expandedY: imgPosExpanded.y } as any;
+                const merged = { ...base, x: pos.x, y: pos.y };
                 await onUpdate(entry.id, { image_position: merged });
                 toast.success('Prévia externa ajustada!');
               }
