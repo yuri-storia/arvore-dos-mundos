@@ -540,7 +540,11 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
         <div className="animate-fadeUp">
           {/* Cover banner */}
           <div className="relative rounded-2xl overflow-hidden border border-gold/20 mb-5 aspect-[16/6] sm:aspect-[16/5]">
-            <img src={currentCover!} alt={currentFolder.name} className="absolute inset-0 w-full h-full object-cover" />
+            <img
+              src={currentCover!} alt={currentFolder.name}
+              style={coverStyle(currentFolder.id)}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/20" />
 
             <button
@@ -550,7 +554,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
               <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />Todas as pastas
             </button>
 
-            <div className="absolute top-3 right-3 flex gap-2">
+            <div className="absolute top-3 right-3 flex flex-wrap gap-2 justify-end max-w-[calc(100%-1.5rem)]">
               <input ref={coverRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden"
                 onChange={e => { uploadCover(e.target.files?.[0] || null, currentFolder.id); if (coverRef.current) coverRef.current.value = ''; }}
               />
@@ -561,9 +565,23 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
               >
                 <ImagePlus className="w-3.5 h-3.5" strokeWidth={2} />Trocar capa
               </button>
+              <button
+                onClick={() => setVisionPickerFor(currentFolder.id)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 border border-gold/25 backdrop-blur-md text-xs text-gold-light font-montserrat hover:bg-gold/15 transition-colors"
+                title="Usar uma visão de Idriel como capa"
+              >
+                <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />Visão de Idriel
+              </button>
+              <button
+                onClick={() => setRepositionFor(currentFolder.id)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 border border-white/15 backdrop-blur-md text-xs text-foreground font-montserrat hover:bg-black/70 transition-colors"
+                title="Ajustar enquadramento da capa"
+              >
+                <Move className="w-3.5 h-3.5" strokeWidth={2} />Ajustar prévia
+              </button>
               {customCovers[currentFolder.id] && (
                 <button
-                  onClick={() => { setCover(currentFolder.id, null); toast.success('Capa restaurada'); }}
+                  onClick={() => { setCover(currentFolder.id, null); saveCoverPosition(currentFolder.id, null); toast.success('Capa restaurada'); }}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 border border-white/15 backdrop-blur-md text-xs text-foreground font-montserrat hover:bg-black/70 transition-colors"
                   title="Voltar à capa original"
                 >
