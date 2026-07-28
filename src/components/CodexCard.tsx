@@ -51,6 +51,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   const [generatingAi, setGeneratingAi] = useState(false);
   const [consistent, setConsistent] = useState(true);
   const [showRepositioner, setShowRepositioner] = useState<null | 'collapsed' | 'expanded'>(null);
+  const [showReposMenu, setShowReposMenu] = useState(false);
   // A prévia interna (expanded) usa uma posição própria, guardada junto do
   // objeto `image_position` como `expandedX`/`expandedY`. Se ainda não foi
   // definida, herda da prévia externa para não quebrar comportamento antigo.
