@@ -571,13 +571,15 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
       {currentFolder && (
         <div className="animate-fadeUp">
           {/* Cover banner */}
-          <div className="relative rounded-2xl overflow-hidden border border-gold/20 mb-5 aspect-[16/6] sm:aspect-[16/5]">
-            <img
-              src={currentCover!} alt={currentFolder.name}
-              style={coverStyle(currentFolder.id)}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/20" />
+          <div className="relative rounded-2xl border border-gold/20 mb-5 aspect-[16/6] sm:aspect-[16/5]">
+            <div className="absolute inset-0 rounded-2xl overflow-hidden">
+              <img
+                src={currentCover!} alt={currentFolder.name}
+                style={coverStyle(currentFolder.id)}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/20" />
+            </div>
 
             <button
               onClick={() => setOpenFolder(null)}
