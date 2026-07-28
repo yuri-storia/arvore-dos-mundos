@@ -586,41 +586,86 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
               <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />Todas as pastas
             </button>
 
-            <div className="absolute top-3 right-3 flex flex-wrap gap-2 justify-end max-w-[calc(100%-1.5rem)]">
+            <div className="absolute top-3 right-3">
               <input ref={coverRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden"
                 onChange={e => { uploadCover(e.target.files?.[0] || null, currentFolder.id); if (coverRef.current) coverRef.current.value = ''; }}
               />
-              <button
-                onClick={() => coverRef.current?.click()}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 border border-white/15 backdrop-blur-md text-xs text-foreground font-montserrat hover:bg-black/70 transition-colors"
-                title="Trocar imagem de capa"
-              >
-                <ImagePlus className="w-3.5 h-3.5" strokeWidth={2} />Trocar capa
-              </button>
-              <button
-                onClick={() => setVisionPickerFor(currentFolder.id)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 border border-gold/25 backdrop-blur-md text-xs text-gold-light font-montserrat hover:bg-gold/15 transition-colors"
-                title="Usar uma visão de Idriel como capa"
-              >
-                <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />Visão de Idriel
-              </button>
-              <button
-                onClick={() => setRepositionFor(currentFolder.id)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 border border-white/15 backdrop-blur-md text-xs text-foreground font-montserrat hover:bg-black/70 transition-colors"
-                title="Ajustar enquadramento da capa"
-              >
-                <Move className="w-3.5 h-3.5" strokeWidth={2} />Ajustar prévia
-              </button>
-              {customCovers[currentFolder.id] && (
+              <div className="relative">
                 <button
-                  onClick={() => { setCover(currentFolder.id, null); saveCoverPosition(currentFolder.id, null); toast.success('Capa restaurada'); }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 border border-white/15 backdrop-blur-md text-xs text-foreground font-montserrat hover:bg-black/70 transition-colors"
-                  title="Voltar à capa original"
+                  onClick={() => setSettingsOpenFor(v => v === currentFolder.id ? null : currentFolder.id)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 border border-white/15 backdrop-blur-md text-xs text-foreground font-montserrat hover:bg-black/80 transition-colors"
+                  title="Opções da capa"
+                  aria-haspopup="menu"
+                  aria-expanded={settingsOpenFor === currentFolder.id}
                 >
-                  <RotateCw className="w-3.5 h-3.5" strokeWidth={2} />Padrão
+                  <Settings className={`w-4 h-4 transition-transform ${settingsOpenFor === currentFolder.id ? 'rotate-90' : ''}`} strokeWidth={2} />
+                  <span className="hidden sm:inline">Opções da capa</span>
                 </button>
-              )}
+
+                {settingsOpenFor === currentFolder.id && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setSettingsOpenFor(null)} />
+                    <div
+                      role="menu"
+                      className="absolute right-0 mt-2 w-64 z-50 rounded-xl border border-gold/25 bg-card/95 backdrop-blur-xl shadow-2xl overflow-hidden animate-fadeUp"
+                    >
+                      <button
+                        role="menuitem"
+                        onClick={() => { setSettingsOpenFor(null); coverRef.current?.click(); }}
+                        className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-xs text-foreground font-montserrat hover:bg-secondary/60 transition-colors"
+                      >
+                        <ImagePlus className="w-4 h-4 text-foreground/80" strokeWidth={2} />Trocar capa (upload)
+                      </button>
+                      <button
+                        role="menuitem"
+                        onClick={() => { setSettingsOpenFor(null); setVisionPickerFor(currentFolder.id); }}
+                        className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-xs text-gold-light font-montserrat hover:bg-gold/10 transition-colors"
+                      >
+                        <Sparkles className="w-4 h-4" strokeWidth={2} />Visão de Idriel
+                      </button>
+                      <div className="border-t border-border/60 my-0.5" />
+                      <div className="px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider font-montserrat text-muted-foreground">Ajustar prévia</div>
+                      <button
+                        role="menuitem"
+                        onClick={() => { setSettingsOpenFor(null); setRepositionFor({ fruitId: currentFolder.id, device: 'desktop' }); }}
+                        className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-xs text-foreground font-montserrat hover:bg-secondary/60 transition-colors"
+                      >
+                        <Monitor className="w-4 h-4 text-foreground/80" strokeWidth={2} />
+                        <span className="flex-1">Desktop & tablet</span>
+                        {coverPositions[currentFolder.id]?.desktop && <Check className="w-3.5 h-3.5 text-gold" strokeWidth={2.5} />}
+                      </button>
+                      <button
+                        role="menuitem"
+                        onClick={() => { setSettingsOpenFor(null); setRepositionFor({ fruitId: currentFolder.id, device: 'mobile' }); }}
+                        className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-xs text-foreground font-montserrat hover:bg-secondary/60 transition-colors"
+                      >
+                        <Smartphone className="w-4 h-4 text-foreground/80" strokeWidth={2} />
+                        <span className="flex-1">Mobile</span>
+                        {coverPositions[currentFolder.id]?.mobile && <Check className="w-3.5 h-3.5 text-gold" strokeWidth={2.5} />}
+                      </button>
+                      {(customCovers[currentFolder.id] || coverPositions[currentFolder.id]) && (
+                        <>
+                          <div className="border-t border-border/60 my-0.5" />
+                          <button
+                            role="menuitem"
+                            onClick={() => {
+                              setSettingsOpenFor(null);
+                              if (customCovers[currentFolder.id]) setCover(currentFolder.id, null);
+                              clearCoverPositions(currentFolder.id);
+                              toast.success('Capa e prévias restauradas');
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-xs text-muted-foreground font-montserrat hover:bg-secondary/60 transition-colors"
+                          >
+                            <RotateCw className="w-4 h-4" strokeWidth={2} />Restaurar padrão
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
+
 
             <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">
               <span className="text-[10px] font-montserrat font-bold uppercase tracking-wider text-gold-light/90">
