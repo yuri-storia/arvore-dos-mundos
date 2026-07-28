@@ -12,16 +12,22 @@ interface Props {
    * Qual prévia está sendo ajustada:
    * - `collapsed`: miniatura do card fechado (paisagem, ~2:1)
    * - `expanded`: imagem lateral do card aberto (retrato, ~1:2 no desktop)
+   * - `expandedMobile`: imagem topo do card aberto no mobile (paisagem, ~2:1)
    */
-  mode?: 'collapsed' | 'expanded';
+  mode?: 'collapsed' | 'expanded' | 'expandedMobile';
+  /**
+   * Trava o arraste em um único eixo. Útil no mobile, onde a prévia interna
+   * é horizontal e só faz sentido ajustar verticalmente.
+   */
+  lockAxis?: 'x' | 'y';
 }
 
 /**
  * Reposicionador de imagem estilo Facebook cover.
- * Permite arraste horizontal E vertical, com moldura no mesmo formato
- * da prévia que será exibida (fechada ou aberta).
+ * Permite arraste horizontal E vertical (respeitando `lockAxis`), com moldura
+ * no mesmo formato da prévia que será exibida.
  */
-export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, onSave, onCancel, mode = 'collapsed' }) => {
+export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, onSave, onCancel, mode = 'collapsed', lockAxis }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -66,10 +72,10 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
   const clamp = useCallback((next: { x: number; y: number }) => {
     const { maxX, maxY } = getGeometry();
     return {
-      x: Math.max(-maxX, Math.min(maxX, next.x)),
-      y: Math.max(-maxY, Math.min(maxY, next.y)),
+      x: lockAxis === 'x' ? 0 : Math.max(-maxX, Math.min(maxX, next.x)),
+      y: lockAxis === 'y' ? 0 : Math.max(-maxY, Math.min(maxY, next.y)),
     };
-  }, [getGeometry]);
+  }, [getGeometry, lockAxis]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -83,10 +89,10 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
     if (!dragStartRef.current || dragStartRef.current.pointerId !== e.pointerId) return;
     e.preventDefault();
     e.stopPropagation();
-    const dx = e.clientX - dragStartRef.current.clientX;
-    const dy = e.clientY - dragStartRef.current.clientY;
+    const dx = lockAxis === 'y' ? 0 : e.clientX - dragStartRef.current.clientX;
+    const dy = lockAxis === 'x' ? 0 : e.clientY - dragStartRef.current.clientY;
     setOffset(clamp({ x: dragStartRef.current.startX + dx, y: dragStartRef.current.startY + dy }));
-  }, [clamp]);
+  }, [clamp, lockAxis]);
 
   const handlePointerEnd = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (dragStartRef.current?.pointerId === e.pointerId) {
@@ -139,12 +145,20 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
   // cortar botões nem imagens em telas pequenas.
   const frameClass = mode === 'expanded'
     ? 'w-[min(78vw,300px)] h-[min(55vh,520px)] sm:h-[min(60vh,520px)]'
-    : 'w-full max-w-[520px] h-[min(38vh,280px)]';
+    : mode === 'expandedMobile'
+      ? 'w-full max-w-[520px] h-[min(32vh,220px)]'
+      : 'w-full max-w-[520px] h-[min(38vh,280px)]';
 
-  const title = mode === 'expanded' ? 'Ajustar prévia interna (card aberto)' : 'Ajustar prévia externa (card fechado)';
+  const title = mode === 'expanded'
+    ? 'Ajustar prévia interna — desktop'
+    : mode === 'expandedMobile'
+      ? 'Ajustar prévia interna — mobile'
+      : 'Ajustar prévia externa (card fechado)';
   const subtitle = mode === 'expanded'
-    ? 'Isso altera como a imagem aparece dentro da ficha expandida.'
-    : 'Isso altera apenas a miniatura da ficha na listagem.';
+    ? 'Isso altera como a imagem aparece dentro da ficha expandida no desktop/tablet.'
+    : mode === 'expandedMobile'
+      ? 'Isso altera como a imagem aparece dentro da ficha expandida no mobile. No mobile a prévia é horizontal — só o eixo vertical é ajustável.'
+      : 'Isso altera apenas a miniatura da ficha na listagem.';
 
   const content = (
     <div
@@ -163,14 +177,14 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
             <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground font-montserrat">{subtitle}</p>
           </div>
           <span className="self-start rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-[10px] font-montserrat font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
-            Arraste ↕ ↔
+            {lockAxis === 'x' ? 'Arraste ↕' : lockAxis === 'y' ? 'Arraste ↔' : 'Arraste ↕ ↔'}
           </span>
         </div>
 
         <div className="px-4 sm:px-5 pt-3 -mb-1">
           <p className="text-[11px] sm:text-xs text-muted-foreground font-montserrat leading-snug">
             <Move className="w-3.5 h-3.5 inline-block mr-1 align-[-0.2em] text-primary" strokeWidth={1.75} />
-            Dica: arraste a imagem <strong className="text-foreground">na horizontal e na vertical</strong> para escolher qual parte fica visível na prévia.
+            Dica: arraste a imagem <strong className="text-foreground">{lockAxis === 'x' ? 'na vertical' : lockAxis === 'y' ? 'na horizontal' : 'na horizontal e na vertical'}</strong> para escolher qual parte fica visível na prévia.
           </p>
         </div>
 
