@@ -605,7 +605,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               src={entry.image_url}
               alt={entry.title}
               className="w-full h-full object-cover cursor-zoom-in select-none"
-              style={{ objectPosition: `${imgPos.x}% ${imgPos.y}%` }}
+              style={{ objectPosition: `${imgPosExpanded.x}% ${imgPosExpanded.y}%` }}
               onClick={e => { e.stopPropagation(); onLightbox({ src: entry.image_url!, alt: entry.title }); }}
               draggable={false}
             />
@@ -615,13 +615,22 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             </div>
           )}
           {entry.image_url && (
-            <button
-              onClick={e => { e.stopPropagation(); setShowRepositioner(true); }}
-              className="absolute top-2 right-2 px-2 py-1 bg-card/80 hover:bg-card text-foreground rounded-md text-[9px] font-montserrat font-bold uppercase tracking-wider border border-border transition-colors backdrop-blur-sm"
-              title="Ajustar a prévia da ficha"
-            >
-              <><Move className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Ajustar prévia</>
-            </button>
+            <div className="absolute top-2 right-2 flex flex-col gap-1.5 items-end">
+              <button
+                onClick={e => { e.stopPropagation(); setShowRepositioner('expanded'); }}
+                className="px-2 py-1 bg-card/85 hover:bg-card text-foreground rounded-md text-[9px] font-montserrat font-bold uppercase tracking-wider border border-border transition-colors backdrop-blur-sm"
+                title="Ajustar a imagem dentro do card aberto"
+              >
+                <><Move className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Ajustar prévia interna</>
+              </button>
+              <button
+                onClick={e => { e.stopPropagation(); setShowRepositioner('collapsed'); }}
+                className="px-2 py-1 bg-card/70 hover:bg-card text-foreground/85 rounded-md text-[9px] font-montserrat font-bold uppercase tracking-wider border border-border/70 transition-colors backdrop-blur-sm"
+                title="Ajustar a miniatura do card fechado na listagem"
+              >
+                <><Move className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Ajustar prévia externa</>
+              </button>
+            </div>
           )}
           <button
             onClick={e => { e.stopPropagation(); setShowImageMenu(!showImageMenu); }}
@@ -643,14 +652,24 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
           <ImageRepositioner
             src={entry.image_url}
             alt={entry.title}
-            initialPosition={imgPos}
+            mode={showRepositioner}
+            initialPosition={showRepositioner === 'expanded' ? imgPosExpanded : imgPos}
             onSave={async (pos) => {
-              setImgPos(pos);
-              setShowRepositioner(false);
-              await onUpdate(entry.id, { image_position: pos });
-              toast.success('Prévia ajustada!');
+              const mode = showRepositioner;
+              setShowRepositioner(null);
+              if (mode === 'expanded') {
+                setImgPosExpanded(pos);
+                const merged = { x: imgPos.x, y: imgPos.y, expandedX: pos.x, expandedY: pos.y } as any;
+                await onUpdate(entry.id, { image_position: merged });
+                toast.success('Prévia interna ajustada!');
+              } else {
+                setImgPos(pos);
+                const merged = { x: pos.x, y: pos.y, expandedX: imgPosExpanded.x, expandedY: imgPosExpanded.y } as any;
+                await onUpdate(entry.id, { image_position: merged });
+                toast.success('Prévia externa ajustada!');
+              }
             }}
-            onCancel={() => setShowRepositioner(false)}
+            onCancel={() => setShowRepositioner(null)}
           />
         )}
 
