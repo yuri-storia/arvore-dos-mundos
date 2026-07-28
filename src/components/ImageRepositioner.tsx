@@ -216,19 +216,19 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-4 sm:px-5">
+        <div className="flex items-center justify-between gap-2 sm:gap-3 border-t border-border px-3 py-3 sm:px-5 sm:py-4">
           <button
             onClick={onCancel}
-            className="px-5 py-2.5 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+            className="px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground text-[11px] sm:text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
           >
             Cancelar
           </button>
           <button
             onClick={handleSave}
-            className="px-6 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-montserrat font-bold uppercase tracking-wider transition-all shadow-lg flex items-center gap-2"
+            className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-montserrat font-bold uppercase tracking-wider transition-all shadow-lg flex items-center gap-1.5 sm:gap-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-            Confirmar prévia
+            Confirmar
           </button>
         </div>
       </div>
