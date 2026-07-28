@@ -83,9 +83,20 @@ export const MentionChip: React.FC<Props> = React.memo(({ name, entry, onClick, 
           sideOffset={6}
           className="w-72 p-0 overflow-hidden border-blue-bright/20 bg-[hsl(var(--bg-deep))]"
         >
-          {entry.image_url && (
-            <img src={entry.image_url} alt={entry.title} className="w-full h-24 object-cover" loading="lazy" />
-          )}
+          {entry.image_url && (() => {
+            const raw = entry.image_position as { x?: number; y?: number } | null | undefined;
+            const posX = typeof raw?.x === 'number' ? raw.x : 50;
+            const posY = typeof raw?.y === 'number' ? raw.y : 50;
+            return (
+              <img
+                src={entry.image_url}
+                alt={entry.title}
+                className="w-full h-[150px] object-cover"
+                style={{ objectPosition: `${posX}% ${posY}%` }}
+                loading="lazy"
+              />
+            );
+          })()}
           <div className="p-3">
             <p className="text-[9px] font-montserrat uppercase tracking-widest text-text-dim mb-0.5 inline-flex items-center gap-1">
               <span>{isFicha ? 'Ficha' : 'Artigo'}</span>
