@@ -26,9 +26,6 @@ interface AnalysisRecord {
   id: string;
   analysis_text: string;
   entry_count: number;
-  ficha_count: number;
-  artigo_count: number;
-  covered_fruits: number;
   created_at: string;
 }
 
