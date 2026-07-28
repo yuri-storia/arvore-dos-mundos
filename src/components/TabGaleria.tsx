@@ -58,6 +58,35 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
     setFolderCovers(next);
   };
 
+  // --- Cover positions (per-world, localStorage) ---
+  const coverPosKey = worldId ? `galeria:coverPos:${worldId}` : null;
+  const [coverPositions, setCoverPositions] = useState<Record<number, { x: number; y: number }>>(() => {
+    if (!coverPosKey) return {};
+    try { return JSON.parse(localStorage.getItem(coverPosKey) || '{}'); } catch { return {}; }
+  });
+  useEffect(() => {
+    if (!coverPosKey) return;
+    setCoverPositions(() => {
+      try { return JSON.parse(localStorage.getItem(coverPosKey) || '{}'); } catch { return {}; }
+    });
+  }, [coverPosKey]);
+  const saveCoverPosition = (fruitId: number, pos: { x: number; y: number } | null) => {
+    setCoverPositions(prev => {
+      const next = { ...prev };
+      if (pos) next[fruitId] = pos; else delete next[fruitId];
+      if (coverPosKey) localStorage.setItem(coverPosKey, JSON.stringify(next));
+      return next;
+    });
+  };
+  const coverStyle = (fruitId: number): React.CSSProperties => {
+    const p = coverPositions[fruitId];
+    return p ? { objectPosition: `${p.x}% ${p.y}%` } : {};
+  };
+
+  // --- Modals: pick Idriel vision / reposition cover ---
+  const [visionPickerFor, setVisionPickerFor] = useState<number | null>(null);
+  const [repositionFor, setRepositionFor] = useState<number | null>(null);
+
   // --- Upload state (per-file progress) ---
   const uploadRef = useRef<HTMLInputElement>(null);
   const coverRef = useRef<HTMLInputElement>(null);
