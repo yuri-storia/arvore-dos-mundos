@@ -174,7 +174,7 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
           </p>
         </div>
 
-        <div className="flex justify-center p-4 sm:p-5">
+        <div className="flex justify-center p-3 sm:p-5 overflow-auto">
           <div
             ref={containerRef}
             className={`relative ${frameClass} rounded-xl overflow-hidden border-2 bg-secondary/30 ${dragging ? 'border-primary cursor-grabbing' : 'border-border cursor-grab'} transition-colors select-none touch-none`}
