@@ -18,7 +18,9 @@ import {
   X, Save, Apple, BarChart3, Check, ClipboardCopy, ArrowDown, RotateCw,
   Image as ImageIcon, ArrowRight, ArrowLeft, Info, Upload, ImagePlus,
   FolderOpen, Wand2, Loader2, RefreshCw, AlertTriangle, CheckCircle2, Move,
+  Settings, Smartphone, Monitor,
 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { ImageReferencePicker, type PickedReference } from '@/components/ImageReferencePicker';
 import { StyleCarousel } from '@/components/StyleCarousel';
 import { ImageRepositioner } from '@/components/ImageRepositioner';
