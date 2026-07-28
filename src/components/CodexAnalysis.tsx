@@ -752,18 +752,11 @@ Ao final do lote, opcionalmente adicione uma seção "### Observações do lote"
       const fruitScores = parseFruitScoresFromAnalysis(content);
 
       // Save to history
-      const fichas = entries.filter(e => e.entry_type === 'ficha').length;
-      const artigos = entries.filter(e => e.entry_type === 'artigo').length;
-      const coveredFruits = FRUITS.filter(f => entries.some(e => e.fruit_id === f.id)).length;
-
       const { error: insertErr } = await supabase.from('world_analyses').insert({
         user_id: user.id,
         world_id: worldId,
         analysis_text: content,
         entry_count: entries.length,
-        ficha_count: fichas,
-        artigo_count: artigos,
-        covered_fruits: coveredFruits,
         fruit_scores: fruitScores as any,
       });
       if (insertErr) console.error('world_analyses insert failed', insertErr);
