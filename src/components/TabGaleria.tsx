@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { ImageReferencePicker, type PickedReference } from '@/components/ImageReferencePicker';
 import { StyleCarousel } from '@/components/StyleCarousel';
+import { ImageRepositioner } from '@/components/ImageRepositioner';
 import type { AppState } from '@/lib/data';
 import { createPortal } from 'react-dom';
 
