@@ -51,6 +51,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   const [generatingAi, setGeneratingAi] = useState(false);
   const [consistent, setConsistent] = useState(true);
   const [showRepositioner, setShowRepositioner] = useState<null | 'collapsed' | 'expanded'>(null);
+  const [showReposMenu, setShowReposMenu] = useState(false);
   // A prévia interna (expanded) usa uma posição própria, guardada junto do
   // objeto `image_position` como `expandedX`/`expandedY`. Se ainda não foi
   // definida, herda da prévia externa para não quebrar comportamento antigo.
@@ -615,21 +616,35 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
             </div>
           )}
           {entry.image_url && (
-            <div className="absolute top-2 right-2 flex flex-col gap-1.5 items-end">
+            <div className="absolute top-2 right-2">
               <button
-                onClick={e => { e.stopPropagation(); setShowRepositioner('expanded'); }}
-                className="px-2 py-1 bg-card/85 hover:bg-card text-foreground rounded-md text-[9px] font-montserrat font-bold uppercase tracking-wider border border-border transition-colors backdrop-blur-sm"
-                title="Ajustar a imagem dentro do card aberto"
+                onClick={e => { e.stopPropagation(); setShowReposMenu(v => !v); }}
+                className="px-2 py-1 bg-card/85 hover:bg-card text-foreground rounded-md text-[9px] font-montserrat font-bold uppercase tracking-wider border border-border transition-colors backdrop-blur-sm flex items-center gap-1.5"
+                title="Ajustar posição da imagem"
               >
-                <><Move className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Ajustar prévia interna</>
+                <Move className="w-3.5 h-3.5" strokeWidth={1.75} />
+                Ajustar prévia
+                <span className="text-[8px] opacity-70">▾</span>
               </button>
-              <button
-                onClick={e => { e.stopPropagation(); setShowRepositioner('collapsed'); }}
-                className="px-2 py-1 bg-card/70 hover:bg-card text-foreground/85 rounded-md text-[9px] font-montserrat font-bold uppercase tracking-wider border border-border/70 transition-colors backdrop-blur-sm"
-                title="Ajustar a miniatura do card fechado na listagem"
-              >
-                <><Move className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Ajustar prévia externa</>
-              </button>
+              {showReposMenu && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={e => { e.stopPropagation(); setShowReposMenu(false); }} />
+                  <div className="absolute right-0 top-full mt-1 z-50 w-48 rounded-md border border-border bg-card/95 backdrop-blur-sm shadow-lg overflow-hidden">
+                    <button
+                      onClick={e => { e.stopPropagation(); setShowReposMenu(false); setShowRepositioner('expanded'); }}
+                      className="w-full px-3 py-2 text-left text-[10px] font-montserrat font-semibold uppercase tracking-wider text-foreground hover:bg-accent/20 transition-colors border-b border-border/50"
+                    >
+                      Prévia interna <span className="opacity-60 normal-case tracking-normal">(vertical)</span>
+                    </button>
+                    <button
+                      onClick={e => { e.stopPropagation(); setShowReposMenu(false); setShowRepositioner('collapsed'); }}
+                      className="w-full px-3 py-2 text-left text-[10px] font-montserrat font-semibold uppercase tracking-wider text-foreground hover:bg-accent/20 transition-colors"
+                    >
+                      Prévia externa <span className="opacity-60 normal-case tracking-normal">(horizontal)</span>
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           )}
           <button
