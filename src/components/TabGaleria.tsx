@@ -624,24 +624,14 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                         <Sparkles className="w-4 h-4" strokeWidth={2} />Visão de Idriel
                       </button>
                       <div className="border-t border-border/60 my-0.5" />
-                      <div className="px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider font-montserrat text-muted-foreground">Ajustar prévia</div>
                       <button
                         role="menuitem"
-                        onClick={() => { setSettingsOpenFor(null); setRepositionFor({ fruitId: currentFolder.id, device: 'desktop' }); }}
+                        onClick={() => { setSettingsOpenFor(null); setRepositionFor({ fruitId: currentFolder.id, device: isMobile ? 'mobile' : 'desktop' }); }}
                         className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-xs text-foreground font-montserrat hover:bg-secondary/60 transition-colors"
                       >
-                        <Monitor className="w-4 h-4 text-foreground/80" strokeWidth={2} />
-                        <span className="flex-1">Desktop & tablet</span>
-                        {coverPositions[currentFolder.id]?.desktop && <Check className="w-3.5 h-3.5 text-gold" strokeWidth={2.5} />}
-                      </button>
-                      <button
-                        role="menuitem"
-                        onClick={() => { setSettingsOpenFor(null); setRepositionFor({ fruitId: currentFolder.id, device: 'mobile' }); }}
-                        className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-xs text-foreground font-montserrat hover:bg-secondary/60 transition-colors"
-                      >
-                        <Smartphone className="w-4 h-4 text-foreground/80" strokeWidth={2} />
-                        <span className="flex-1">Mobile</span>
-                        {coverPositions[currentFolder.id]?.mobile && <Check className="w-3.5 h-3.5 text-gold" strokeWidth={2.5} />}
+                        {isMobile ? <Smartphone className="w-4 h-4 text-foreground/80" strokeWidth={2} /> : <Monitor className="w-4 h-4 text-foreground/80" strokeWidth={2} />}
+                        <span className="flex-1">Ajustar prévia ({isMobile ? 'mobile' : 'desktop'})</span>
+                        {coverPositions[currentFolder.id]?.[isMobile ? 'mobile' : 'desktop'] && <Check className="w-3.5 h-3.5 text-gold" strokeWidth={2.5} />}
                       </button>
                       {(customCovers[currentFolder.id] || coverPositions[currentFolder.id]) && (
                         <>
