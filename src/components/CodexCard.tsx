@@ -13,6 +13,7 @@ import { useGalleryImages } from '@/hooks/useGalleryImages';
 import { buildEntriesByName, renderMentionChildren, renderInlineMentions } from '@/components/escritor/MentionChip';
 import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor';
 import { htmlToPlainText } from '@/lib/htmlToText';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 /**
  * Ao subir uma imagem manualmente para uma ficha, arquivamos uma cópia
