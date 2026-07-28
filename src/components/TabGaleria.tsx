@@ -641,6 +641,19 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                         <span className="flex-1">Ajustar prévia ({isMobile ? 'mobile' : 'desktop'})</span>
                         {coverPositions[currentFolder.id]?.[isMobile ? 'mobile' : 'desktop'] && <Check className="w-3.5 h-3.5 text-gold" strokeWidth={2.5} />}
                       </button>
+                      {coverPositions[currentFolder.id]?.[isMobile ? 'mobile' : 'desktop'] && (
+                        <button
+                          role="menuitem"
+                          onClick={() => {
+                            setSettingsOpenFor(null);
+                            clearCoverPositions(currentFolder.id, isMobile ? 'mobile' : 'desktop');
+                            toast.success(`Prévia (${isMobile ? 'mobile' : 'desktop'}) restaurada`);
+                          }}
+                          className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-xs text-muted-foreground font-montserrat hover:bg-secondary/60 transition-colors"
+                        >
+                          <RotateCw className="w-4 h-4" strokeWidth={2} />Restaurar prévia ({isMobile ? 'mobile' : 'desktop'})
+                        </button>
+                      )}
                       {(customCovers[currentFolder.id] || coverPositions[currentFolder.id]) && (
                         <>
                           <div className="border-t border-border/60 my-0.5" />
@@ -654,7 +667,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                             }}
                             className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-xs text-muted-foreground font-montserrat hover:bg-secondary/60 transition-colors"
                           >
-                            <RotateCw className="w-4 h-4" strokeWidth={2} />Restaurar padrão
+                            <RotateCw className="w-4 h-4" strokeWidth={2} />Restaurar tudo (ambos dispositivos)
                           </button>
                         </>
                       )}
