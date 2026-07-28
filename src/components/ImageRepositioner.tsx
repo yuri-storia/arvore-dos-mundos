@@ -145,12 +145,20 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
   // cortar botões nem imagens em telas pequenas.
   const frameClass = mode === 'expanded'
     ? 'w-[min(78vw,300px)] h-[min(55vh,520px)] sm:h-[min(60vh,520px)]'
-    : 'w-full max-w-[520px] h-[min(38vh,280px)]';
+    : mode === 'expandedMobile'
+      ? 'w-full max-w-[520px] h-[min(32vh,220px)]'
+      : 'w-full max-w-[520px] h-[min(38vh,280px)]';
 
-  const title = mode === 'expanded' ? 'Ajustar prévia interna (card aberto)' : 'Ajustar prévia externa (card fechado)';
+  const title = mode === 'expanded'
+    ? 'Ajustar prévia interna — desktop'
+    : mode === 'expandedMobile'
+      ? 'Ajustar prévia interna — mobile'
+      : 'Ajustar prévia externa (card fechado)';
   const subtitle = mode === 'expanded'
-    ? 'Isso altera como a imagem aparece dentro da ficha expandida.'
-    : 'Isso altera apenas a miniatura da ficha na listagem.';
+    ? 'Isso altera como a imagem aparece dentro da ficha expandida no desktop/tablet.'
+    : mode === 'expandedMobile'
+      ? 'Isso altera como a imagem aparece dentro da ficha expandida no mobile. No mobile a prévia é horizontal — só o eixo vertical é ajustável.'
+      : 'Isso altera apenas a miniatura da ficha na listagem.';
 
   const content = (
     <div
