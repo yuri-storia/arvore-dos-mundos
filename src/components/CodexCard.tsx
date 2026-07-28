@@ -230,6 +230,17 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
       const defaultPosition = { x: 50, y: 50 };
       setImgPos(defaultPosition);
       await onUpdate(entry.id, { image_url: url, image_position: defaultPosition });
+      // Arquiva automaticamente na pasta da Galeria correspondente ao Fruto.
+      // Evita duplicar quando a mesma URL já existe (ex.: reupload).
+      try {
+        if (entry.world_id && !gallery.some(g => g.src === url)) {
+          const folder = (entry.fruit_id !== null && FRUIT_TO_GALLERY_FOLDER[entry.fruit_id]) || 'Geral';
+          await addToGallery({ src: url, name: entry.title || 'Sem título', cat: folder, status: 'kept' });
+          toast.success(`Imagem arquivada em "${folder}".`);
+        }
+      } catch (err) {
+        console.error('Falha ao arquivar imagem na galeria:', err);
+      }
     }
     setUploading(false);
     setShowImageMenu(false);
