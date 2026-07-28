@@ -72,10 +72,10 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
   const clamp = useCallback((next: { x: number; y: number }) => {
     const { maxX, maxY } = getGeometry();
     return {
-      x: Math.max(-maxX, Math.min(maxX, next.x)),
-      y: Math.max(-maxY, Math.min(maxY, next.y)),
+      x: lockAxis === 'x' ? 0 : Math.max(-maxX, Math.min(maxX, next.x)),
+      y: lockAxis === 'y' ? 0 : Math.max(-maxY, Math.min(maxY, next.y)),
     };
-  }, [getGeometry]);
+  }, [getGeometry, lockAxis]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -89,10 +89,10 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
     if (!dragStartRef.current || dragStartRef.current.pointerId !== e.pointerId) return;
     e.preventDefault();
     e.stopPropagation();
-    const dx = e.clientX - dragStartRef.current.clientX;
-    const dy = e.clientY - dragStartRef.current.clientY;
+    const dx = lockAxis === 'y' ? 0 : e.clientX - dragStartRef.current.clientX;
+    const dy = lockAxis === 'x' ? 0 : e.clientY - dragStartRef.current.clientY;
     setOffset(clamp({ x: dragStartRef.current.startX + dx, y: dragStartRef.current.startY + dy }));
-  }, [clamp]);
+  }, [clamp, lockAxis]);
 
   const handlePointerEnd = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (dragStartRef.current?.pointerId === e.pointerId) {
