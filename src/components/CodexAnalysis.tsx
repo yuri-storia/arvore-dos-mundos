@@ -26,9 +26,6 @@ interface AnalysisRecord {
   id: string;
   analysis_text: string;
   entry_count: number;
-  ficha_count: number;
-  artigo_count: number;
-  covered_fruits: number;
   created_at: string;
 }
 
@@ -755,18 +752,11 @@ Ao final do lote, opcionalmente adicione uma seção "### Observações do lote"
       const fruitScores = parseFruitScoresFromAnalysis(content);
 
       // Save to history
-      const fichas = entries.filter(e => e.entry_type === 'ficha').length;
-      const artigos = entries.filter(e => e.entry_type === 'artigo').length;
-      const coveredFruits = FRUITS.filter(f => entries.some(e => e.fruit_id === f.id)).length;
-
       const { error: insertErr } = await supabase.from('world_analyses').insert({
         user_id: user.id,
         world_id: worldId,
         analysis_text: content,
         entry_count: entries.length,
-        ficha_count: fichas,
-        artigo_count: artigos,
-        covered_fruits: coveredFruits,
         fruit_scores: fruitScores as any,
       });
       if (insertErr) console.error('world_analyses insert failed', insertErr);
@@ -972,14 +962,8 @@ Ao final do lote, opcionalmente adicione uma seção "### Observações do lote"
                             </span>
                           </p>
                           <div className="flex flex-wrap gap-1.5 mt-1.5">
-                            <span className="text-[10px] font-montserrat px-1.5 py-0.5 rounded-md bg-blue-main/12 text-blue-light/90 border border-blue-bright/25 inline-flex items-center gap-1">
-                              <ClipboardList className="w-2.5 h-2.5" strokeWidth={2} />{item.ficha_count}
-                            </span>
-                            <span className="text-[10px] font-montserrat px-1.5 py-0.5 rounded-md bg-gold-warm/12 text-gold-light border border-gold-warm/30 inline-flex items-center gap-1">
-                              <PencilLine className="w-2.5 h-2.5" strokeWidth={2} />{item.artigo_count}
-                            </span>
-                            <span className="text-[10px] font-montserrat px-1.5 py-0.5 rounded-md bg-gold-champagne/12 text-gold-champagne border border-gold-champagne/30 inline-flex items-center gap-1">
-                              <Leaf className="w-2.5 h-2.5" strokeWidth={2} />{item.covered_fruits}/11
+                            <span className="text-[10px] font-montserrat px-1.5 py-0.5 rounded-md bg-gold-warm/10 text-gold-champagne border border-gold-warm/25 inline-flex items-center gap-1">
+                              <ScrollText className="w-2.5 h-2.5" strokeWidth={2} />{item.entry_count} entradas
                             </span>
                           </div>
                         </button>
