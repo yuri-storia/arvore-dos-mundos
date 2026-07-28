@@ -442,6 +442,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                 >
                   <img
                     src={cover} alt={f.name} loading="lazy" decoding="async"
+                    style={coverStyle(f.id)}
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.08]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/10" />
