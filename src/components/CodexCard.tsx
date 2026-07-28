@@ -50,14 +50,28 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   const [aiPrompt, setAiPrompt] = useState('');
   const [generatingAi, setGeneratingAi] = useState(false);
   const [consistent, setConsistent] = useState(true);
-  const [showRepositioner, setShowRepositioner] = useState(false);
-  const [imgPos, setImgPos] = useState<{ x: number; y: number }>(entry.image_position || { x: 50, y: 50 });
+  const [showRepositioner, setShowRepositioner] = useState<null | 'collapsed' | 'expanded'>(null);
+  // A prévia interna (expanded) usa uma posição própria, guardada junto do
+  // objeto `image_position` como `expandedX`/`expandedY`. Se ainda não foi
+  // definida, herda da prévia externa para não quebrar comportamento antigo.
+  const readCollapsedPos = (raw: any) => ({
+    x: typeof raw?.x === 'number' ? raw.x : 50,
+    y: typeof raw?.y === 'number' ? raw.y : 50,
+  });
+  const readExpandedPos = (raw: any) => ({
+    x: typeof raw?.expandedX === 'number' ? raw.expandedX : (typeof raw?.x === 'number' ? raw.x : 50),
+    y: typeof raw?.expandedY === 'number' ? raw.expandedY : (typeof raw?.y === 'number' ? raw.y : 50),
+  });
+  const [imgPos, setImgPos] = useState<{ x: number; y: number }>(readCollapsedPos(entry.image_position));
+  const [imgPosExpanded, setImgPosExpanded] = useState<{ x: number; y: number }>(readExpandedPos(entry.image_position));
   const fileRef = useRef<HTMLInputElement>(null);
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedRef = useRef({ title: entry.title, content: entry.content, fruit_id: entry.fruit_id });
 
   useEffect(() => {
-    setImgPos(entry.image_position || { x: 50, y: 50 });
+    setImgPos(readCollapsedPos(entry.image_position));
+    setImgPosExpanded(readExpandedPos(entry.image_position));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entry.id, entry.image_position]);
 
   // Ressincroniza o state local sempre que o `entry` mudar (hidratação
