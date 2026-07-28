@@ -1183,11 +1183,8 @@ export type Database = {
       world_analyses: {
         Row: {
           analysis_text: string
-          artigo_count: number
-          covered_fruits: number
           created_at: string
           entry_count: number
-          ficha_count: number
           fruit_scores: Json
           id: string
           user_id: string
@@ -1195,11 +1192,8 @@ export type Database = {
         }
         Insert: {
           analysis_text: string
-          artigo_count?: number
-          covered_fruits?: number
           created_at?: string
           entry_count?: number
-          ficha_count?: number
           fruit_scores?: Json
           id?: string
           user_id: string
@@ -1207,11 +1201,8 @@ export type Database = {
         }
         Update: {
           analysis_text?: string
-          artigo_count?: number
-          covered_fruits?: number
           created_at?: string
           entry_count?: number
-          ficha_count?: number
           fruit_scores?: Json
           id?: string
           user_id?: string
