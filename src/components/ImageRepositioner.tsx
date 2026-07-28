@@ -8,67 +8,85 @@ interface Props {
   initialPosition: { x: number; y: number };
   onSave: (pos: { x: number; y: number }) => void;
   onCancel: () => void;
+  /**
+   * Qual prévia está sendo ajustada:
+   * - `collapsed`: miniatura do card fechado (paisagem, ~2:1)
+   * - `expanded`: imagem lateral do card aberto (retrato, ~1:2 no desktop)
+   */
+  mode?: 'collapsed' | 'expanded';
 }
 
 /**
- * Facebook-style cover image repositioner.
- * Opens a full-screen overlay where the user drags the image to reposition it.
+ * Reposicionador de imagem estilo Facebook cover.
+ * Permite arraste horizontal E vertical, com moldura no mesmo formato
+ * da prévia que será exibida (fechada ou aberta).
  */
-export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, onSave, onCancel }) => {
+export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, onSave, onCancel, mode = 'collapsed' }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const [dragging, setDragging] = useState(false);
   const [imgNatural, setImgNatural] = useState({ w: 0, h: 0 });
-  const [offsetY, setOffsetY] = useState(0); // px offset from center
-  const dragStartRef = useRef<{ pointerId: number; clientY: number; startOffset: number } | null>(null);
+  // Offset em pixels a partir do centro do container (ambos os eixos).
+  const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const dragStartRef = useRef<{ pointerId: number; clientX: number; clientY: number; startX: number; startY: number } | null>(null);
 
-  // Convert initial % position to pixel offset once image loads
-  const handleImgLoad = useCallback(() => {
-    if (!imgRef.current || !containerRef.current) return;
-    const nat = { w: imgRef.current.naturalWidth, h: imgRef.current.naturalHeight };
-    setImgNatural(nat);
-
-    const containerH = containerRef.current.clientHeight;
+  // A imagem é escalonada para COBRIR o container (object-fit: cover),
+  // então precisamos calcular a menor escala que ainda cobre ambos os eixos
+  // e a partir daí descobrir o máximo de deslocamento em cada eixo.
+  const getGeometry = useCallback(() => {
+    if (!imgRef.current || !containerRef.current || !imgNatural.w || !imgNatural.h) {
+      return { scale: 1, scaledW: 0, scaledH: 0, containerW: 0, containerH: 0, maxX: 0, maxY: 0 };
+    }
     const containerW = containerRef.current.clientWidth;
-    const scale = containerW / nat.w;
-    const scaledH = nat.h * scale;
-    const maxOffset = Math.max(0, (scaledH - containerH) / 2);
-
-    // Convert % (0-100) to offset. 50% = 0 offset, 0% = +maxOffset, 100% = -maxOffset
-    const pct = initialPosition.y;
-    const off = ((50 - pct) / 50) * maxOffset;
-    setOffsetY(off);
-  }, [initialPosition.y]);
-
-  const getMaxOffset = useCallback(() => {
-    if (!imgRef.current || !containerRef.current) return 0;
     const containerH = containerRef.current.clientHeight;
-    const containerW = containerRef.current.clientWidth;
-    const scale = containerW / imgNatural.w;
+    const scale = Math.max(containerW / imgNatural.w, containerH / imgNatural.h);
+    const scaledW = imgNatural.w * scale;
     const scaledH = imgNatural.h * scale;
-    return Math.max(0, (scaledH - containerH) / 2);
+    const maxX = Math.max(0, (scaledW - containerW) / 2);
+    const maxY = Math.max(0, (scaledH - containerH) / 2);
+    return { scale, scaledW, scaledH, containerW, containerH, maxX, maxY };
   }, [imgNatural]);
 
-  const clampOffset = useCallback((off: number) => {
-    const max = getMaxOffset();
-    return Math.max(-max, Math.min(max, off));
-  }, [getMaxOffset]);
+  const handleImgLoad = useCallback(() => {
+    if (!imgRef.current) return;
+    const nat = { w: imgRef.current.naturalWidth, h: imgRef.current.naturalHeight };
+    setImgNatural(nat);
+  }, []);
+
+  // Converte a % inicial para offset em px assim que temos as dimensões.
+  useEffect(() => {
+    if (!imgNatural.w) return;
+    const { maxX, maxY } = getGeometry();
+    const offX = ((50 - initialPosition.x) / 50) * maxX;
+    const offY = ((50 - initialPosition.y) / 50) * maxY;
+    setOffset({ x: offX, y: offY });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imgNatural, mode]);
+
+  const clamp = useCallback((next: { x: number; y: number }) => {
+    const { maxX, maxY } = getGeometry();
+    return {
+      x: Math.max(-maxX, Math.min(maxX, next.x)),
+      y: Math.max(-maxY, Math.min(maxY, next.y)),
+    };
+  }, [getGeometry]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     e.currentTarget.setPointerCapture(e.pointerId);
     setDragging(true);
-    dragStartRef.current = { pointerId: e.pointerId, clientY: e.clientY, startOffset: offsetY };
-  }, [offsetY]);
+    dragStartRef.current = { pointerId: e.pointerId, clientX: e.clientX, clientY: e.clientY, startX: offset.x, startY: offset.y };
+  }, [offset]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragStartRef.current || dragStartRef.current.pointerId !== e.pointerId) return;
     e.preventDefault();
     e.stopPropagation();
-    const delta = e.clientY - dragStartRef.current.clientY;
-    setOffsetY(clampOffset(dragStartRef.current.startOffset + delta));
-  }, [clampOffset]);
+    const dx = e.clientX - dragStartRef.current.clientX;
+    const dy = e.clientY - dragStartRef.current.clientY;
+    setOffset(clamp({ x: dragStartRef.current.startX + dx, y: dragStartRef.current.startY + dy }));
+  }, [clamp]);
 
   const handlePointerEnd = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (dragStartRef.current?.pointerId === e.pointerId) {
@@ -80,7 +98,6 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
     }
   }, []);
 
-  // Global selection lock while dragging
   useEffect(() => {
     if (!dragging) return;
     const previousUserSelect = document.body.style.userSelect;
@@ -96,14 +113,16 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
     };
   }, [dragging]);
 
-  // Convert offset back to % on save
   const handleSave = useCallback(() => {
-    const max = getMaxOffset();
-    const pct = max === 0 ? 50 : Math.round(50 - (offsetY / max) * 50);
-    onSave({ x: 50, y: Math.max(0, Math.min(100, pct)) });
-  }, [offsetY, getMaxOffset, onSave]);
+    const { maxX, maxY } = getGeometry();
+    const pctX = maxX === 0 ? 50 : Math.round(50 - (offset.x / maxX) * 50);
+    const pctY = maxY === 0 ? 50 : Math.round(50 - (offset.y / maxY) * 50);
+    onSave({
+      x: Math.max(0, Math.min(100, pctX)),
+      y: Math.max(0, Math.min(100, pctY)),
+    });
+  }, [offset, getGeometry, onSave]);
 
-  // Close on Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel(); };
     window.addEventListener('keydown', handler);
@@ -113,10 +132,19 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
+    return () => { document.body.style.overflow = previousOverflow; };
   }, []);
+
+  // Moldura no mesmo formato da prévia real.
+  // Collapsed: paisagem (2:1). Expanded: retrato (~1:2), mas limitado no mobile.
+  const frameClass = mode === 'expanded'
+    ? 'w-[260px] sm:w-[300px] h-[420px] sm:h-[520px]'
+    : 'w-full h-[220px] sm:h-[280px]';
+
+  const title = mode === 'expanded' ? 'Ajustar prévia interna (card aberto)' : 'Ajustar prévia externa (card fechado)';
+  const subtitle = mode === 'expanded'
+    ? 'Isso altera como a imagem aparece dentro da ficha expandida.'
+    : 'Isso altera apenas a miniatura da ficha na listagem.';
 
   const content = (
     <div
@@ -131,49 +159,54 @@ export const ImageRepositioner: React.FC<Props> = ({ src, alt, initialPosition, 
       >
         <div className="flex items-start justify-between gap-4 border-b border-border px-4 py-4 sm:px-5">
           <div>
-            <h3 className="font-cinzel font-bold text-base text-foreground">Ajustar prévia da imagem</h3>
-            <p className="mt-1 text-xs text-muted-foreground font-montserrat">Isso altera apenas a miniatura da ficha antes da expansão.</p>
+            <h3 className="font-cinzel font-bold text-base text-foreground">{title}</h3>
+            <p className="mt-1 text-xs text-muted-foreground font-montserrat">{subtitle}</p>
           </div>
           <span className="rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-[10px] font-montserrat font-bold uppercase tracking-wider text-muted-foreground">
-            Arraste verticalmente
+            Arraste em qualquer direção
           </span>
         </div>
 
-        <div
-          ref={containerRef}
-          className={`relative m-4 h-[300px] sm:m-5 sm:h-[380px] rounded-xl overflow-hidden border-2 bg-secondary/30 ${dragging ? 'border-primary cursor-grabbing' : 'border-border cursor-grab'} transition-colors select-none touch-none`}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerEnd}
-          onPointerCancel={handlePointerEnd}
-        >
-          <div className="absolute inset-0 pointer-events-none z-10">
-            <div className="absolute top-0 left-0 right-0 h-px bg-border" />
-            <div className="absolute bottom-0 left-0 right-0 h-px bg-border" />
-            <div className="absolute top-1/3 left-0 right-0 h-px border-t border-dashed border-border/70" />
-            <div className="absolute top-2/3 left-0 right-0 h-px border-t border-dashed border-border/70" />
-          </div>
-
-          <img
-            ref={imgRef}
-            src={src}
-            alt={alt}
-            onLoad={handleImgLoad}
-            className="absolute left-0 w-full pointer-events-none"
-            style={{
-              top: '50%',
-              transform: `translateY(calc(-50% + ${offsetY}px))`,
-            }}
-            draggable={false}
-          />
-
-          {!dragging && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="px-4 py-2 rounded-full border border-border bg-card/85 text-foreground text-sm font-montserrat font-bold backdrop-blur-sm flex items-center gap-2 shadow-lg">
-                <Move className="w-4 h-4 inline-block mr-1.5 align-[-0.2em]" strokeWidth={1.75} /> Arraste para reposicionar
-              </span>
+        <div className="flex justify-center p-4 sm:p-5">
+          <div
+            ref={containerRef}
+            className={`relative ${frameClass} rounded-xl overflow-hidden border-2 bg-secondary/30 ${dragging ? 'border-primary cursor-grabbing' : 'border-border cursor-grab'} transition-colors select-none touch-none`}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerEnd}
+            onPointerCancel={handlePointerEnd}
+          >
+            <div className="absolute inset-0 pointer-events-none z-10">
+              <div className="absolute top-1/3 left-0 right-0 h-px border-t border-dashed border-border/70" />
+              <div className="absolute top-2/3 left-0 right-0 h-px border-t border-dashed border-border/70" />
+              <div className="absolute left-1/3 top-0 bottom-0 w-px border-l border-dashed border-border/70" />
+              <div className="absolute left-2/3 top-0 bottom-0 w-px border-l border-dashed border-border/70" />
             </div>
-          )}
+
+            <img
+              ref={imgRef}
+              src={src}
+              alt={alt}
+              onLoad={handleImgLoad}
+              className="absolute pointer-events-none max-w-none"
+              style={{
+                left: '50%',
+                top: '50%',
+                width: imgNatural.w ? `${imgNatural.w * getGeometry().scale}px` : 'auto',
+                height: imgNatural.h ? `${imgNatural.h * getGeometry().scale}px` : 'auto',
+                transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px))`,
+              }}
+              draggable={false}
+            />
+
+            {!dragging && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <span className="px-4 py-2 rounded-full border border-border bg-card/85 text-foreground text-sm font-montserrat font-bold backdrop-blur-sm flex items-center gap-2 shadow-lg">
+                  <Move className="w-4 h-4 inline-block mr-1.5 align-[-0.2em]" strokeWidth={1.75} /> Arraste para reposicionar
+                </span>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-4 sm:px-5">
