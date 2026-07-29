@@ -623,7 +623,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
       {/* Save Idriel response as ficha/artigo dialog */}
       <Dialog open={!!savingAs} onOpenChange={(open) => { if (!open) { setSavingAs(null); setSaveDraft({ title: '', content: '' }); } }}>
-        <DialogContent className="card-glass-gold border-gold/30 max-w-xl">
+        <DialogContent className="card-glass-gold border-gold/30 max-w-xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-cinzel text-gold-light">
               <Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Salvar como {savingAs === 'ficha' ? 'Ficha' : 'Artigo'}
