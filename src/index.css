@@ -342,6 +342,17 @@
 }
 .card-glass-gold:hover::before { opacity: 1; }
 
+/* Modais (Radix Dialog) usam .card-glass/.card-glass-gold como skin. As regras
+   acima definem `position: relative` e um `transform` no hover — o que quebrava
+   o posicionamento fixo e a centralização do overlay (o modal caía para o fim
+   do fluxo, cortado na base da tela). Aqui restauramos o comportamento fixo. */
+.card-glass.fixed,
+.card-glass-gold.fixed { position: fixed; }
+
+.card-glass.fixed.left-\[50\%\]:hover,
+.card-glass-gold.fixed.left-\[50\%\]:hover { transform: translate(-50%, -50%); }
+
+
 .card-glass-gold-premium {
   background:
     linear-gradient(135deg,
