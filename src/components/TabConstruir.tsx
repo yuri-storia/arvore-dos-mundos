@@ -5,6 +5,7 @@ import { FRUITS, getOrderedFruits, METHOD_DESCRIPTIONS, MethodType, GalleryImage
 import { getFruitProgress, callAIText, exportWorldMarkdown, summarizeIdrielResponse, friendlyAIError } from '@/lib/helpers';
 import { FRUIT_IMAGES } from '@/assets/fruitImages';
 import { FruitGuideBlock } from '@/components/FruitGuideBlock';
+import { IdrielMarkdown } from '@/components/IdrielMarkdown';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { CreateFichaButton } from '@/components/CreateFichaButton';
 import { MapGenerator } from '@/components/MapGenerator';
@@ -83,13 +84,16 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
     if (!text.trim()) return;
     setSavingAs(kind);
     setSaveLoading(true);
-    setSaveDraft({ title: `${FRUITS[currentFruit].name} — sugestão de Idriel`, content: 'Resumindo…' });
+    setSaveDraft({ title: '', content: 'Resumindo…' });
     try {
-      const summary = await summarizeIdrielResponse(text, kind);
-      setSaveDraft(prev => ({ ...prev, content: summary }));
+      const draft = await summarizeIdrielResponse(text, kind);
+      setSaveDraft({
+        title: draft.title || `${FRUITS[currentFruit].name} — sugestão de Idriel`,
+        content: draft.content,
+      });
     } catch (e: any) {
       toast.error(e.message || 'Erro ao resumir');
-      setSaveDraft(prev => ({ ...prev, content: text }));
+      setSaveDraft({ title: `${FRUITS[currentFruit].name} — sugestão de Idriel`, content: text });
     } finally {
       setSaveLoading(false);
     }
@@ -463,7 +467,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 {aiResponse && !aiLoading && (
                   <div className="animate-fadeUp border-l-[3px] border-gold-light pl-4 py-3 bg-gold/[0.04] rounded-r-md">
                     <span className="font-cinzel text-[10px] text-gold-light mb-2 inline-flex items-center gap-1.5"><Leaf className="w-3 h-3 text-gold-champagne" strokeWidth={1.75} />Idriel responde</span>
-                    <p className="font-merriweather text-sm text-foreground/95 whitespace-pre-wrap leading-relaxed">{aiResponse}</p>
+                    <IdrielMarkdown>{aiResponse}</IdrielMarkdown>
                     <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gold/15">
                       <button
                         onClick={() => handleOpenSaveDialog('ficha')}
@@ -591,9 +595,9 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                   {new Date(s.created_at).toLocaleString('pt-BR')}
                 </p>
                 <p className="text-xs font-bold text-foreground mb-2 inline-flex items-start gap-1.5"><HelpCircle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-gold-champagne" strokeWidth={1.75} />{s.question}</p>
-                <p className="text-xs font-merriweather text-foreground/90 whitespace-pre-wrap leading-relaxed mb-3 max-h-[200px] overflow-y-auto">
-                  {s.response}
-                </p>
+                <div className="mb-3 max-h-[200px] overflow-y-auto">
+                  <IdrielMarkdown compact>{s.response}</IdrielMarkdown>
+                </div>
                 <div className="flex flex-wrap gap-1.5">
                   <button
                     onClick={() => { handleOpenSaveDialog('ficha', s.response); setShowHistory(false); }}

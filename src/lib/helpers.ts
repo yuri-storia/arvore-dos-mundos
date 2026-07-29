@@ -401,10 +401,49 @@ export async function importStoredPdfWithIdriel(
 }
 
 
-// Summarize an Idriel response into clean prose suitable for a Codex entry
-export async function summarizeIdrielResponse(response: string, kind: 'ficha' | 'artigo'): Promise<string> {
-  const sysPrompt = `Você é um editor enxuto. Resuma o conselho de worldbuilding a seguir em ${kind === 'ficha' ? '2-4 parágrafos curtos e diretos, focados nos fatos e ideias concretas (não inclua perguntas retóricas, vocativos como "querido criador" ou linguagem mística)' : '3-5 parágrafos objetivos e bem estruturados (sem trejeitos místicos, vocativos ou repetições). Use um título ## para cada seção temática quando houver mais de uma ideia clara'}. Responda em português brasileiro. NÃO use prefácios — entregue apenas o resumo limpo.`;
-  return await callAIText([{ role: 'user', content: response }], sysPrompt);
+// Summarize an Idriel response into clean prose suitable for a Codex entry.
+// Também pede um título curto que reflita o que foi CRIADO (ex.: "Orvalho de Âmbar"),
+// em vez de um rótulo genérico com o nome do Fruto.
+export interface IdrielEntryDraft { title: string; content: string }
+
+export async function summarizeIdrielResponse(
+  response: string,
+  kind: 'ficha' | 'artigo'
+): Promise<IdrielEntryDraft> {
+  const shape = kind === 'ficha'
+    ? '2-4 parágrafos curtos e diretos, focados nos fatos e ideias concretas (não inclua perguntas retóricas, vocativos como "querido criador" ou linguagem mística)'
+    : '3-5 parágrafos objetivos e bem estruturados (sem trejeitos místicos, vocativos ou repetições). Use um título ## para cada seção temática quando houver mais de uma ideia clara';
+  const sysPrompt = `Você é um editor enxuto de enciclopédia de worldbuilding. Responda em português brasileiro.
+
+Formato obrigatório da resposta:
+TITULO: <título curto>
+---
+<resumo>
+
+Regras do TITULO:
+- Deve nomear o elemento concreto que foi criado ou descrito no texto (ex.: "Orvalho de Âmbar", "Conclave das Lamentações", "Phillip Hewitt").
+- Se houver mais de um elemento, escolha o principal.
+- Máximo de 60 caracteres, sem aspas, sem markdown, sem o nome do Fruto e sem a expressão "sugestão de Idriel".
+- Se nenhum nome próprio existir, crie um título temático curto e específico.
+
+Regras do resumo: ${shape}. NÃO use prefácios — entregue apenas o resumo limpo.`;
+
+  const raw = await callAIText([{ role: 'user', content: response }], sysPrompt);
+  return parseIdrielEntryDraft(raw);
+}
+
+export function parseIdrielEntryDraft(raw: string): IdrielEntryDraft {
+  const text = (raw || '').trim();
+  const m = text.match(/^\s*(?:\*{0,2})T[ÍI]TULO(?:\*{0,2})\s*:\s*(.+)$/im);
+  let title = '';
+  let content = text;
+  if (m) {
+    title = m[1].trim();
+    content = text.slice((m.index ?? 0) + m[0].length);
+  }
+  content = content.replace(/^\s*(?:-{3,}|\*{3,})\s*/, '').trim();
+  title = title.replace(/^["'“”*]+|["'“”*]+$/g, '').trim().slice(0, 120);
+  return { title, content: content || text };
 }
 
 // Export PDF
