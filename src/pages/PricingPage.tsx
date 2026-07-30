@@ -7,7 +7,7 @@ import {
   Leaf, Feather, Star, Plus, Droplet, Trees, Crown, Compass, LogIn,
   PlayCircle, Film, Eye, MessageCircle,
 } from 'lucide-react';
-import { openCheckout, PLANS } from '@/hooks/useSubscription';
+import { openCheckout, PLANS, useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import heroVideo1080 from '@/assets/arvore-hero-loop-1080.mp4.asset.json';
 import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
@@ -26,10 +26,16 @@ import previewGaleria from '@/assets/plataforma-galeria.jpg.asset.json';
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const sub = useSubscription();
   const [loading, setLoading] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'mensal' | 'anual'>('anual');
 
   const handleCheckout = async (plan: string) => {
+    // Recargas de Elixir são exclusivas de assinantes Idriel.
+    if (plan.startsWith('recarga_') && !sub.hasIdriel) {
+      alert('As recargas de Elixir são exclusivas para assinantes do plano Idriel. Assine o Idriel para comprar gotas avulsas.');
+      return;
+    }
     setLoading(plan);
     try {
       await openCheckout(plan);
