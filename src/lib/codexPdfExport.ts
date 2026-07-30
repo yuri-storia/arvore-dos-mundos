@@ -374,19 +374,31 @@ function starfield(ctx: PdfCtx, height: number) {
   const { doc, pageW } = ctx;
   let seed = 20260730;
   const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
-  for (let i = 0; i < 260; i++) {
+  for (let i = 0; i < 320; i++) {
     const x = rnd() * pageW;
-    const y = rnd() * height;
+    const y = rnd() * height * 0.95;
     const r = 0.12 + rnd() * 0.45;
     const tone = 150 + Math.floor(rnd() * 105);
     doc.setFillColor(tone, tone, 255);
     doc.circle(x, y, r, 'F');
   }
-  // halo central
+  // halo central com a árvore
   doc.setDrawColor(...GOLD_SOFT);
-  doc.setLineWidth(0.2);
-  doc.circle(pageW / 2, height * 0.55, 30, 'S');
-  treeEmblem(ctx, pageW / 2, height * 0.62, 22);
+  doc.setLineWidth(0.25);
+  doc.circle(pageW / 2, height * 0.5, 30, 'S');
+  doc.setLineWidth(0.15);
+  doc.circle(pageW / 2, height * 0.5, 34, 'S');
+  treeEmblem(ctx, pageW / 2, height * 0.62, 34);
+  // esmaecimento inferior
+  const GS = (doc as unknown as { GState?: new (o: { opacity: number }) => unknown }).GState;
+  const bands = 60;
+  const bandH = (height * 0.45) / bands;
+  for (let i = 0; i < bands; i++) {
+    if (GS) doc.setGState(new GS({ opacity: Math.min(1, (i / bands) ** 1.5 + 0.03) }) as never);
+    doc.setFillColor(...BG);
+    doc.rect(0, height * 0.55 + i * bandH, pageW, bandH + 0.4, 'F');
+  }
+  if (GS) doc.setGState(new GS({ opacity: 1 }) as never);
 }
 
 /** Pequena árvore vetorial dourada. */
@@ -449,7 +461,7 @@ async function addCover(ctx: PdfCtx, title: string, subtitle?: string, kicker?: 
 
   pageFrame(ctx);
 
-  ctx.y = pageH * 0.56;
+  ctx.y = pageH * 0.54;
   ornament(ctx, 34);
   ctx.y += 20;
 
@@ -485,7 +497,7 @@ async function addCover(ctx: PdfCtx, title: string, subtitle?: string, kicker?: 
   ornament(ctx, 34);
 
   // emblema
-  const cy = Math.max(ctx.y + 30, pageH - 56);
+  const cy = pageH - 54;
   doc.setDrawColor(...GOLD_SOFT);
   doc.setLineWidth(0.35);
   doc.circle(pageW / 2, cy, 13, 'S');
