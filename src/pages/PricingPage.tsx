@@ -7,7 +7,7 @@ import {
   Leaf, Feather, Star, Plus, Droplet, Trees, Crown, Compass, LogIn,
   PlayCircle, Film, Eye, MessageCircle,
 } from 'lucide-react';
-import { openCheckout, PLANS } from '@/hooks/useSubscription';
+import { openCheckout, PLANS, useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import heroVideo1080 from '@/assets/arvore-hero-loop-1080.mp4.asset.json';
 import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
@@ -26,10 +26,16 @@ import previewGaleria from '@/assets/plataforma-galeria.jpg.asset.json';
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const sub = useSubscription();
   const [loading, setLoading] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'mensal' | 'anual'>('anual');
 
   const handleCheckout = async (plan: string) => {
+    // Recargas de Elixir são exclusivas de assinantes Idriel.
+    if (plan.startsWith('recarga_') && !sub.hasIdriel) {
+      alert('As recargas de Elixir são exclusivas para assinantes do plano Idriel. Assine o Idriel para comprar gotas avulsas.');
+      return;
+    }
     setLoading(plan);
     try {
       await openCheckout(plan);
@@ -56,17 +62,16 @@ const PricingPage: React.FC = () => {
       ctaAction: () => handleCheckout(raizPriceId),
       popular: false,
       features: [
-        'Até 3 Mundos',
-        'Até 20 entradas no Codex + Linha do Tempo',
-        'Até 3 Manuscritos',
+        'Mundos ilimitados',
+        'Codex ilimitado + Linha do Tempo',
+        'Manuscritos ilimitados',
         '11 Frutos de Worldbuilding',
         'Galeria de Referências',
         'Exportação PDF (Manuscritos, Fichas, Artigos)',
         'Corretor textual AI Powered',
-        '5 gotas de Elixir no 1º mês',
-        'Recargas avulsas a partir de R$ 4,90',
+        '5 gotas de Elixir no 1º mês (para experimentar a Idriel)',
       ],
-      missing: ['Idriel (IA de texto e imagens)', 'Mapas IA e análise de mundo', 'Exportação E-pub/Kindle'],
+      missing: ['Idriel (IA de texto e imagens)', 'Mapas IA e análise de mundo', 'Exportação E-pub/Kindle', 'Recargas de Elixir avulsas'],
     },
     {
       id: 'idriel',
@@ -80,9 +85,9 @@ const PricingPage: React.FC = () => {
       ctaAction: () => handleCheckout(idrielPriceId),
       popular: true,
       features: [
-        'Até 10 Mundos',
-        'Até 50 entradas no Codex + Linha do Tempo',
-        'Até 10 Manuscritos',
+        'Mundos ilimitados',
+        'Codex ilimitado + Linha do Tempo',
+        'Manuscritos ilimitados',
         '11 Frutos de Worldbuilding',
         'Suporte de Idriel para criação de ideias',
         'Análise completa de Worldbuilding (1 clique)',
@@ -91,7 +96,7 @@ const PricingPage: React.FC = () => {
         'Identificação automática de fichas e artigos',
         'Corretor textual AI Powered',
         '100 gotas de Elixir por mês',
-        'Recargas avulsas a partir de R$ 4,90',
+        'Recargas avulsas a partir de R$ 4,90 (exclusivo Idriel)',
       ],
       missing: [],
     },
@@ -853,8 +858,8 @@ const PricingPage: React.FC = () => {
               </span>
             </div>
             <p className="font-amiri italic text-text-secondary text-base max-w-xl mx-auto leading-relaxed">
-              Acabaram suas gotas? Compre recarga avulsa sem mexer na assinatura.
-              Quanto mais gotas, mais barata cada uma.
+              Acabaram suas gotas? Assinantes do plano <strong className="text-gold-champagne">Idriel</strong> compram
+              recargas avulsas sem mexer na assinatura. Quanto mais gotas, mais barata cada uma.
             </p>
           </div>
 

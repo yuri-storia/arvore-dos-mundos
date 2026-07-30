@@ -159,12 +159,13 @@ export function useSubscription(): SubscriptionInfo {
   return data ?? EMPTY_INFO;
 }
 
-// Asaas Checkout — redireciona na mesma aba para o checkout hospedado do Asaas.
-// Funciona com OU sem login. O Asaas coleta CPF, nome e dados de pagamento.
-export async function openCheckout(planId: string) {
+// Stripe Checkout — redireciona na mesma aba para o checkout hospedado da Stripe.
+// Assinaturas funcionam com OU sem login (a conta é criada após o pagamento).
+// Recargas de Elixir exigem login + plano Idriel ativo.
+export async function openCheckout(planId: string, invite?: string) {
   try {
-    const { data, error } = await supabase.functions.invoke('asaas-create-checkout', {
-      body: { planId },
+    const { data, error } = await supabase.functions.invoke('stripe-create-checkout', {
+      body: { planId, invite },
     });
 
     if (error) {
@@ -189,7 +190,7 @@ export async function openCheckout(planId: string) {
 export async function openCustomerPortal() {
   if (!confirm('Deseja cancelar sua assinatura ativa? O acesso permanece até o fim do ciclo já pago.')) return;
   try {
-    const { data, error } = await supabase.functions.invoke('asaas-cancel-subscription');
+    const { data, error } = await supabase.functions.invoke('cancel-subscription');
     if (error) throw error;
     alert('Assinatura cancelada. O acesso continua até o fim do ciclo já pago.');
   } catch (e: any) {

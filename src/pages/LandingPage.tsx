@@ -882,16 +882,15 @@ const LandingPage: React.FC = () => {
             </button>
             <ul className="space-y-2 text-sm font-merriweather text-text-secondary">
               {[
-                'Até 3 Mundos',
-                'Até 20 entradas no Codex (fichas e artigos)',
+                'Mundos ilimitados',
+                'Codex ilimitado (fichas e artigos)',
                 'Linha do Tempo completa',
-                'Até 3 Manuscritos',
+                'Manuscritos ilimitados',
                 'Os 11 Frutos do Worldbuilding',
                 'Galeria de Referências',
                 'Exportação em PDF de Manuscritos, Fichas e Artigos',
                 'Corretor textual AI Powered (entende contexto)',
-                '5 gotas de Elixir no 1º mês',
-                'Recargas avulsas a partir de R$ 4,90',
+                '5 gotas de Elixir no 1º mês (para experimentar a Idriel)',
               ].map(t => (
                 <li key={t} className="flex items-start gap-2"><Check className="w-4 h-4 text-gold-champagne mt-[3px] shrink-0" strokeWidth={2} /><span>{t}</span></li>
               ))}

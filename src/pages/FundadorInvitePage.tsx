@@ -23,7 +23,7 @@ const FundadorInvitePage: React.FC = () => {
 
   const handleCheckout = async (planId: string) => {
     setLoading(planId);
-    try { await openCheckout(planId); } finally { setLoading(null); }
+    try { await openCheckout(planId, inviteToken); } finally { setLoading(null); }
   };
 
   if (!validInvite) {
@@ -45,7 +45,7 @@ const FundadorInvitePage: React.FC = () => {
 
   const benefits = [
     'Todos os benefícios do plano Idriel',
-    'Até 10 Mundos, 50 entradas no Codex, 10 Manuscritos',
+    'Mundos, Codex e Manuscritos ilimitados',
     'Idriel completa: ideias, análises, imagens, mapas',
     '100 gotas de Elixir por mês',
     'Recargas avulsas a partir de R$ 4,90',

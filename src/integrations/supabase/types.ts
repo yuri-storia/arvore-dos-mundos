@@ -176,7 +176,7 @@ export type Database = {
       asaas_payments: {
         Row: {
           amount: number
-          asaas_customer_id: string
+          asaas_customer_id: string | null
           asaas_payment_id: string
           asaas_subscription_id: string | null
           billing_type: string | null
@@ -188,6 +188,7 @@ export type Database = {
           kind: string
           paid_at: string | null
           plan_code: string
+          provider: string
           raw: Json | null
           status: string
           updated_at: string
@@ -195,7 +196,7 @@ export type Database = {
         }
         Insert: {
           amount: number
-          asaas_customer_id: string
+          asaas_customer_id?: string | null
           asaas_payment_id: string
           asaas_subscription_id?: string | null
           billing_type?: string | null
@@ -207,6 +208,7 @@ export type Database = {
           kind: string
           paid_at?: string | null
           plan_code: string
+          provider?: string
           raw?: Json | null
           status: string
           updated_at?: string
@@ -214,7 +216,7 @@ export type Database = {
         }
         Update: {
           amount?: number
-          asaas_customer_id?: string
+          asaas_customer_id?: string | null
           asaas_payment_id?: string
           asaas_subscription_id?: string | null
           billing_type?: string | null
@@ -226,6 +228,7 @@ export type Database = {
           kind?: string
           paid_at?: string | null
           plan_code?: string
+          provider?: string
           raw?: Json | null
           status?: string
           updated_at?: string
@@ -1012,8 +1015,11 @@ export type Database = {
           id: string
           plan: Database["public"]["Enums"]["plan_type"]
           plan_code: string | null
+          provider: string
           started_at: string
           status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           updated_at: string
           user_id: string
         }
@@ -1031,8 +1037,11 @@ export type Database = {
           id?: string
           plan?: Database["public"]["Enums"]["plan_type"]
           plan_code?: string | null
+          provider?: string
           started_at?: string
           status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1050,8 +1059,11 @@ export type Database = {
           id?: string
           plan?: Database["public"]["Enums"]["plan_type"]
           plan_code?: string | null
+          provider?: string
           started_at?: string
           status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           user_id?: string
         }

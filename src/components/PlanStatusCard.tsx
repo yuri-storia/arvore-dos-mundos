@@ -16,21 +16,20 @@ interface PlanStatusCardProps {
 }
 
 const CRIADOR_FEATURES = [
-  'Até 3 Mundos',
-  'Até 20 entradas no Codex',
-  'Até 3 Manuscritos',
+  'Mundos ilimitados',
+  'Codex ilimitado',
+  'Manuscritos ilimitados',
   '11 Frutos de Worldbuilding',
   'Galeria de Referências',
   'Exportação PDF de Manuscritos, Fichas e Artigos',
   'Corretor textual AI Powered',
-  '5 gotas de Elixir no 1º mês',
-  'Recargas avulsas a partir de R$ 4,90',
+  '5 gotas de Elixir no 1º mês (para experimentar a Idriel)',
 ];
 
 const IDRIEL_FEATURES = [
-  'Até 10 Mundos',
-  'Até 50 entradas no Codex',
-  'Até 10 Manuscritos',
+  'Mundos ilimitados',
+  'Codex ilimitado',
+  'Manuscritos ilimitados',
   '11 Frutos de Worldbuilding',
   'Suporte de Idriel para criação de ideias',
   'Análise completa de Worldbuilding',
@@ -39,7 +38,7 @@ const IDRIEL_FEATURES = [
   'Identificação automática de fichas/artigos',
   'Corretor textual AI Powered',
   '100 gotas de Elixir por mês',
-  'Recargas avulsas a partir de R$ 4,90',
+  'Recargas avulsas a partir de R$ 4,90 (exclusivo Idriel)',
 ];
 
 const FUNDADOR_FEATURES = [
