@@ -386,8 +386,8 @@ async function addCover(ctx: PdfCtx, title: string, subtitle?: string, kicker?: 
     }
     const GSr = (doc as unknown as { GState?: (o: { opacity: number }) => unknown }).GState;
     if (GSr) doc.setGState(GSr.call(doc, { opacity: 1 }) as never);
-  } catch {
-    /* segue sem arte */
+  } catch (e) {
+    console.warn('cover art fail', e);
   }
 
   pageFrame(ctx);
