@@ -372,6 +372,8 @@ function centeredTracked(ctx: PdfCtx, text: string, y: number, charSpace: number
 /** Céu estrelado + silhueta de árvore, usado quando não há imagem na entrada. */
 function starfield(ctx: PdfCtx, height: number) {
   const { doc, pageW } = ctx;
+  doc.setFillColor(...BG);
+  doc.rect(0, 0, pageW, height + 2, 'F');
   let seed = 20260730;
   const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
   for (let i = 0; i < 320; i++) {
@@ -493,11 +495,10 @@ async function addCover(ctx: PdfCtx, title: string, subtitle?: string, kicker?: 
     ctx.y += 6;
   }
 
-  ctx.y += 14;
-  ornament(ctx, 34);
-
   // emblema
   const cy = pageH - 54;
+  ctx.y = cy - 22;
+  ornament(ctx, 34);
   doc.setDrawColor(...GOLD_SOFT);
   doc.setLineWidth(0.35);
   doc.circle(pageW / 2, cy, 13, 'S');
