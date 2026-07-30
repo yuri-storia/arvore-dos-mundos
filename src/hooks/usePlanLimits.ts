@@ -15,6 +15,8 @@ export interface PlanLimits {
   canCreateArtigo: boolean;
   /** Pode adicionar imagens à Galeria (bloqueado em plano expirado / cancelado / Semente) */
   canUploadGallery: boolean;
+  /** Pode comprar recargas avulsas de Elixir (somente plano Idriel) */
+  canRecharge: boolean;
   /** Acesso à aba Escrever (sempre liberado para leitura/exportação) */
   canWrite: boolean;
   /** Pode editar qualquer conteúdo (fichas, artigos, manuscritos). Bloqueado em plano expirado/cancelado. */
@@ -34,6 +36,7 @@ const SEMENTE_LIMITS: PlanLimits = {
   canCreateFicha: false,
   canCreateArtigo: false,
   canUploadGallery: false,
+  canRecharge: false,
   canWrite: true,
   canEdit: false,
   isExpired: false,
@@ -50,6 +53,7 @@ const RAIZ_LIMITS: PlanLimits = {
   canCreateFicha: true,
   canCreateArtigo: true,
   canUploadGallery: true,
+  canRecharge: false,
   canWrite: true,
   canEdit: true,
   isExpired: false,
@@ -66,6 +70,7 @@ const IDRIEL_LIMITS: PlanLimits = {
   canCreateFicha: true,
   canCreateArtigo: true,
   canUploadGallery: true,
+  canRecharge: true,
   canWrite: true,
   canEdit: true,
   isExpired: false,
@@ -82,6 +87,7 @@ const ADMIN_LIMITS: PlanLimits = {
   canCreateFicha: true,
   canCreateArtigo: true,
   canUploadGallery: true,
+  canRecharge: true,
   canWrite: true,
   canEdit: true,
   isExpired: false,
