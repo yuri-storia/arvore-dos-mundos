@@ -26,7 +26,7 @@ const CancelPlanPage: React.FC = () => {
   const handleCancel = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase.functions.invoke('asaas-cancel-subscription');
+      const { error } = await supabase.functions.invoke('cancel-subscription');
       if (error) throw error;
       await qc.invalidateQueries({ queryKey: ['subscription'] });
       toast.success('Assinatura cancelada. Seu acesso continua em modo leitura.');
