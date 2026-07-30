@@ -364,35 +364,95 @@ function addFruitSection(ctx: PdfCtx, fruitId: number, count: number) {
 }
 
 // ─── Capa ────────────────────────────────────────
-async function addCover(ctx: PdfCtx, title: string, subtitle?: string, kicker?: string) {
+/** Texto centralizado respeitando o espaçamento entre letras. */
+function centeredTracked(ctx: PdfCtx, text: string, y: number, charSpace: number) {
+  const w = ctx.doc.getTextWidth(text) + charSpace * Math.max(0, text.length - 1);
+  ctx.doc.text(text, (ctx.pageW - w) / 2, y, { charSpace });
+}
+
+/** Céu estrelado + silhueta de árvore, usado quando não há imagem na entrada. */
+function starfield(ctx: PdfCtx, height: number) {
+  const { doc, pageW } = ctx;
+  let seed = 20260730;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+  for (let i = 0; i < 260; i++) {
+    const x = rnd() * pageW;
+    const y = rnd() * height;
+    const r = 0.12 + rnd() * 0.45;
+    const tone = 150 + Math.floor(rnd() * 105);
+    doc.setFillColor(tone, tone, 255);
+    doc.circle(x, y, r, 'F');
+  }
+  // halo central
+  doc.setDrawColor(...GOLD_SOFT);
+  doc.setLineWidth(0.2);
+  doc.circle(pageW / 2, height * 0.55, 30, 'S');
+  treeEmblem(ctx, pageW / 2, height * 0.62, 22);
+}
+
+/** Pequena árvore vetorial dourada. */
+function treeEmblem(ctx: PdfCtx, cx: number, baseY: number, size: number) {
+  const { doc } = ctx;
+  doc.setDrawColor(...GOLD);
+  doc.setLineWidth(size * 0.045);
+  doc.line(cx, baseY, cx, baseY - size * 0.55);
+  const branches: [number, number][] = [
+    [-0.42, -0.95],
+    [0.42, -0.95],
+    [-0.24, -1.05],
+    [0.24, -1.05],
+    [0, -1.1],
+  ];
+  branches.forEach(([dx, dy]) => {
+    doc.line(cx, baseY - size * 0.5, cx + dx * size, baseY + dy * size * 0.55);
+  });
+  doc.setLineWidth(size * 0.03);
+  [-0.5, -0.22, 0.22, 0.5].forEach(dx => doc.line(cx, baseY, cx + dx * size, baseY + size * 0.28));
+  doc.setLineWidth(size * 0.02);
+  doc.circle(cx, baseY - size * 0.42, size * 0.62, 'S');
+}
+
+async function addCover(ctx: PdfCtx, title: string, subtitle?: string, kicker?: string, artUrl?: string | null) {
   const { doc, pageW, pageH } = ctx;
   ctx.page = 1;
   paintBg(ctx);
 
-  // arte de fundo (topo), esmaecida em direção ao corpo
-  try {
-    const art = await loadImage(coverAsset.url);
-    const h = pageH * 0.5;
-    const w = h * (art.w / art.h);
-    const x = (pageW - Math.max(w, pageW)) / 2;
-    doc.addImage(art.data, 'JPEG', x, 0, Math.max(w, pageW), h);
-    // degradê simulado por faixas sobre a base da imagem
-    for (let i = 0; i < 26; i++) {
-      const alpha = i / 26;
-      const GS = (doc as unknown as { GState?: (o: { opacity: number }) => unknown }).GState;
-      if (GS) doc.setGState(GS.call(doc, { opacity: alpha }) as never);
+  const artH = pageH * 0.48;
+  let hasArt = false;
+  if (artUrl) {
+    try {
+      const art = await loadImage(artUrl);
+      const ratio = art.w / art.h;
+      let w = pageW;
+      let h = w / ratio;
+      if (h < artH) {
+        h = artH;
+        w = h * ratio;
+      }
+      doc.addImage(art.data, 'JPEG', (pageW - w) / 2, 0, w, h, undefined, 'FAST');
+      hasArt = true;
+      // esmaecimento em faixas até o fundo da página
+      const GS = (doc as unknown as { GState?: new (o: { opacity: number }) => unknown }).GState;
+      const fadeTop = artH * 0.55;
+      const bands = 40;
+      const bandH = (Math.min(h, artH) - fadeTop) / bands;
+      for (let i = 0; i < bands; i++) {
+        if (GS) doc.setGState(new GS({ opacity: Math.min(1, (i / bands) ** 1.4 + 0.05) }) as never);
+        doc.setFillColor(...BG);
+        doc.rect(0, fadeTop + i * bandH, pageW, bandH + 0.4, 'F');
+      }
+      if (GS) doc.setGState(new GS({ opacity: 1 }) as never);
       doc.setFillColor(...BG);
-      doc.rect(0, h - 34 + i * 1.32, pageW, 1.4, 'F');
+      doc.rect(0, artH, pageW, pageH - artH, 'F');
+    } catch {
+      hasArt = false;
     }
-    const GSr = (doc as unknown as { GState?: (o: { opacity: number }) => unknown }).GState;
-    if (GSr) doc.setGState(GSr.call(doc, { opacity: 1 }) as never);
-  } catch (e) {
-    console.warn('cover art fail', e);
   }
+  if (!hasArt) starfield(ctx, artH);
 
   pageFrame(ctx);
 
-  ctx.y = pageH * 0.55;
+  ctx.y = pageH * 0.56;
   ornament(ctx, 34);
   ctx.y += 20;
 
@@ -416,33 +476,29 @@ async function addCover(ctx: PdfCtx, title: string, subtitle?: string, kicker?: 
   }
 
   if (kicker) {
-    ctx.y += 4;
+    ctx.y += 5;
     doc.setFontSize(8.5);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...GOLD_SOFT);
-    doc.text(kicker.toUpperCase(), pageW / 2, ctx.y, { align: 'center', charSpace: 1.2 });
+    doc.setTextColor(...GOLD);
+    centeredTracked(ctx, kicker.toUpperCase(), ctx.y, 1.2);
     ctx.y += 6;
   }
 
   ctx.y += 12;
   ornament(ctx, 34);
 
-  // emblema circular
-  const cy = pageH - 62;
+  // emblema
+  const cy = pageH - 58;
   doc.setDrawColor(...GOLD_SOFT);
-  doc.setLineWidth(0.4);
-  doc.circle(pageW / 2, cy, 12, 'S');
-  doc.setLineWidth(0.25);
-  doc.circle(pageW / 2, cy, 14.5, 'S');
-  doc.setFont('times', 'normal');
-  doc.setFontSize(16);
-  doc.setTextColor(...GOLD);
-  doc.text('❦', pageW / 2, cy + 4, { align: 'center' });
+  doc.setLineWidth(0.35);
+  doc.circle(pageW / 2, cy, 13, 'S');
+  treeEmblem(ctx, pageW / 2, cy + 5.5, 11);
 
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...GOLD);
-  doc.text('ÁRVORE DOS MUNDOS', pageW / 2, pageH - 36, { align: 'center', charSpace: 2 });
+  centeredTracked(ctx, 'ÁRVORE DOS MUNDOS', pageH - 33, 2);
+
   doc.setFont('times', 'italic');
   doc.setTextColor(...DIM_CLR);
   doc.setFontSize(8.5);
