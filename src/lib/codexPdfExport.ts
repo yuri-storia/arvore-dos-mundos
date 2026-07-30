@@ -379,12 +379,13 @@ async function addCover(ctx: PdfCtx, title: string, subtitle?: string, kicker?: 
     // degradê simulado por faixas sobre a base da imagem
     for (let i = 0; i < 26; i++) {
       const alpha = i / 26;
-      const gs = doc.GState ? new doc.GState({ opacity: alpha }) : null;
-      if (gs) doc.setGState(gs);
+      const GS = (doc as unknown as { GState?: (o: { opacity: number }) => unknown }).GState;
+      if (GS) doc.setGState(GS.call(doc, { opacity: alpha }) as never);
       doc.setFillColor(...BG);
       doc.rect(0, h - 34 + i * 1.32, pageW, 1.4, 'F');
     }
-    if (doc.GState) doc.setGState(new doc.GState({ opacity: 1 }));
+    const GSr = (doc as unknown as { GState?: (o: { opacity: number }) => unknown }).GState;
+    if (GSr) doc.setGState(GSr.call(doc, { opacity: 1 }) as never);
   } catch {
     /* segue sem arte */
   }
