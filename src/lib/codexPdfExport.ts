@@ -392,23 +392,21 @@ function starfield(ctx: PdfCtx, height: number) {
 /** Pequena árvore vetorial dourada. */
 function treeEmblem(ctx: PdfCtx, cx: number, baseY: number, size: number) {
   const { doc } = ctx;
+  const top = baseY - size * 0.55;
   doc.setDrawColor(...GOLD);
-  doc.setLineWidth(size * 0.045);
-  doc.line(cx, baseY, cx, baseY - size * 0.55);
-  const branches: [number, number][] = [
-    [-0.42, -0.95],
-    [0.42, -0.95],
-    [-0.24, -1.05],
-    [0.24, -1.05],
-    [0, -1.1],
-  ];
-  branches.forEach(([dx, dy]) => {
-    doc.line(cx, baseY - size * 0.5, cx + dx * size, baseY + dy * size * 0.55);
-  });
+  doc.setLineWidth(size * 0.05);
+  doc.line(cx, baseY, cx, top);
+  // galhos
+  doc.setLineWidth(size * 0.035);
+  ([[-0.42, -0.95], [0.42, -0.95], [-0.2, -1.15], [0.2, -1.15]] as [number, number][]).forEach(
+    ([dx, dy]) => doc.line(cx, top + size * 0.12, cx + dx * size * 0.55, baseY + dy * size * 0.55),
+  );
+  // raízes
   doc.setLineWidth(size * 0.03);
-  [-0.5, -0.22, 0.22, 0.5].forEach(dx => doc.line(cx, baseY, cx + dx * size, baseY + size * 0.28));
-  doc.setLineWidth(size * 0.02);
-  doc.circle(cx, baseY - size * 0.42, size * 0.62, 'S');
+  [-0.45, -0.18, 0.18, 0.45].forEach(dx => doc.line(cx, baseY, cx + dx * size * 0.6, baseY + size * 0.26));
+  // copa
+  doc.setLineWidth(size * 0.028);
+  doc.circle(cx, baseY - size * 0.6, size * 0.45, 'S');
 }
 
 async function addCover(ctx: PdfCtx, title: string, subtitle?: string, kicker?: string, artUrl?: string | null) {
@@ -432,8 +430,8 @@ async function addCover(ctx: PdfCtx, title: string, subtitle?: string, kicker?: 
       hasArt = true;
       // esmaecimento em faixas até o fundo da página
       const GS = (doc as unknown as { GState?: new (o: { opacity: number }) => unknown }).GState;
-      const fadeTop = artH * 0.55;
-      const bands = 40;
+      const fadeTop = artH * 0.42;
+      const bands = 90;
       const bandH = (Math.min(h, artH) - fadeTop) / bands;
       for (let i = 0; i < bands; i++) {
         if (GS) doc.setGState(new GS({ opacity: Math.min(1, (i / bands) ** 1.4 + 0.05) }) as never);
@@ -483,15 +481,15 @@ async function addCover(ctx: PdfCtx, title: string, subtitle?: string, kicker?: 
     ctx.y += 6;
   }
 
-  ctx.y += 12;
+  ctx.y += 14;
   ornament(ctx, 34);
 
   // emblema
-  const cy = pageH - 58;
+  const cy = Math.max(ctx.y + 30, pageH - 56);
   doc.setDrawColor(...GOLD_SOFT);
   doc.setLineWidth(0.35);
   doc.circle(pageW / 2, cy, 13, 'S');
-  treeEmblem(ctx, pageW / 2, cy + 5.5, 11);
+  treeEmblem(ctx, pageW / 2, cy + 6, 11);
 
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
