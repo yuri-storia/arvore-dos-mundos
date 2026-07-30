@@ -53,6 +53,41 @@ async function loadImage(url: string) {
   return out;
 }
 
+/** Compõe a arte da capa com um degradê suave até o fundo (evita faixas). */
+async function coverArt(url: string, aspect: number) {
+  const img = await loadImage(url);
+  const cw = 1200;
+  const ch = Math.round(cw / aspect);
+  const canvas = document.createElement('canvas');
+  canvas.width = cw;
+  canvas.height = ch;
+  const c = canvas.getContext('2d')!;
+  c.fillStyle = `rgb(${BG[0]},${BG[1]},${BG[2]})`;
+  c.fillRect(0, 0, cw, ch);
+  // cobre a área mantendo proporção
+  const r = img.w / img.h;
+  let dw = cw;
+  let dh = dw / r;
+  if (dh < ch) {
+    dh = ch;
+    dw = dh * r;
+  }
+  const el = new Image();
+  await new Promise<void>((res, rej) => {
+    el.onload = () => res();
+    el.onerror = () => rej(new Error('img fail'));
+    el.src = img.data;
+  });
+  c.drawImage(el, (cw - dw) / 2, 0, dw, dh);
+  const g = c.createLinearGradient(0, ch * 0.3, 0, ch);
+  g.addColorStop(0, `rgba(${BG[0]},${BG[1]},${BG[2]},0)`);
+  g.addColorStop(0.55, `rgba(${BG[0]},${BG[1]},${BG[2]},0.75)`);
+  g.addColorStop(1, `rgb(${BG[0]},${BG[1]},${BG[2]})`);
+  c.fillStyle = g;
+  c.fillRect(0, 0, cw, ch);
+  return canvas.toDataURL('image/jpeg', 0.92);
+}
+
 function createDoc(runningTitle: string): PdfCtx {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pageW = doc.internal.pageSize.getWidth();
@@ -428,33 +463,13 @@ async function addCover(ctx: PdfCtx, title: string, subtitle?: string, kicker?: 
   ctx.page = 1;
   paintBg(ctx);
 
-  const artH = pageH * 0.48;
+  const artH = pageH * 0.56;
   let hasArt = false;
   if (artUrl) {
     try {
-      const art = await loadImage(artUrl);
-      const ratio = art.w / art.h;
-      let w = pageW;
-      let h = w / ratio;
-      if (h < artH) {
-        h = artH;
-        w = h * ratio;
-      }
-      doc.addImage(art.data, 'JPEG', (pageW - w) / 2, 0, w, h, undefined, 'FAST');
+      const art = await coverArt(artUrl, pageW / artH);
+      doc.addImage(art, 'JPEG', 0, 0, pageW, artH, undefined, 'FAST');
       hasArt = true;
-      // esmaecimento em faixas até o fundo da página
-      const GS = (doc as unknown as { GState?: new (o: { opacity: number }) => unknown }).GState;
-      const fadeTop = artH * 0.42;
-      const bands = 90;
-      const bandH = (Math.min(h, artH) - fadeTop) / bands;
-      for (let i = 0; i < bands; i++) {
-        if (GS) doc.setGState(new GS({ opacity: Math.min(1, (i / bands) ** 1.4 + 0.05) }) as never);
-        doc.setFillColor(...BG);
-        doc.rect(0, fadeTop + i * bandH, pageW, bandH + 0.4, 'F');
-      }
-      if (GS) doc.setGState(new GS({ opacity: 1 }) as never);
-      doc.setFillColor(...BG);
-      doc.rect(0, artH, pageW, pageH - artH, 'F');
     } catch {
       hasArt = false;
     }
