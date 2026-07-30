@@ -2,7 +2,6 @@ import jsPDF from 'jspdf';
 import { FRUITS } from '@/lib/data';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
 import { htmlToPlainText } from '@/lib/htmlToText';
-import coverAsset from '@/assets/arvore-mundos-hero-1280.webp.asset.json';
 
 // ─── Palette (grimório noturno) ──────────────────
 const BG: [number, number, number] = [8, 18, 38];
@@ -528,7 +527,7 @@ export async function exportSingleEntry(entry: CodexEntry) {
   const label = entry.entry_type === 'artigo' ? 'Artigo do Codex' : 'Ficha do Codex';
   const fruit = fruitName(entry);
   const ctx = createDoc(entry.title);
-  await addCover(ctx, entry.title, label, fruit ? `Fruto · ${fruit}` : undefined);
+  await addCover(ctx, entry.title, label, fruit ? `Fruto · ${fruit}` : undefined, entry.image_url);
   await renderEntry(ctx, entry, true);
   ctx.doc.save(`${entry.entry_type === 'artigo' ? 'artigo' : 'ficha'}-${fileSafe(entry.title)}.pdf`);
 }
