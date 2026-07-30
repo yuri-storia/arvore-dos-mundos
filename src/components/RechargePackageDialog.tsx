@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Sparkles, X, Droplet } from 'lucide-react';
-import { RECHARGE_PACKAGES, openCheckout } from '@/hooks/useSubscription';
+import { useNavigate } from 'react-router-dom';
+import { Sparkles, X, Droplet, Crown } from 'lucide-react';
+import { RECHARGE_PACKAGES, openCheckout, useSubscription } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface RechargePackageDialogProps {
   open: boolean;
@@ -10,8 +12,56 @@ interface RechargePackageDialogProps {
 
 export const RechargePackageDialog: React.FC<RechargePackageDialogProps> = ({ open, onClose }) => {
   const [loading, setLoading] = useState<string | null>(null);
+  const sub = useSubscription();
+  const { isAdmin } = useAuth();
+  const navigate = useNavigate();
 
   if (!open) return null;
+
+  // Recargas de Elixir são exclusivas de assinantes Idriel.
+  const canRecharge = sub.hasIdriel || isAdmin;
+  if (!canRecharge) {
+    return createPortal(
+      <div
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+        style={{ background: 'rgba(2, 7, 13, 0.85)', backdropFilter: 'blur(8px)' }}
+        onClick={onClose}
+      >
+        <div
+          className="relative w-full max-w-md rounded-2xl border border-gold/30 p-7 text-center"
+          style={{
+            background: 'linear-gradient(180deg, rgba(20, 14, 4, 0.98) 0%, rgba(2, 7, 13, 0.98) 100%)',
+            boxShadow: '0 0 60px rgba(218, 165, 32, 0.2)',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-3 p-2 rounded-full text-text-dim hover:text-foreground hover:bg-white/5 transition-colors"
+            aria-label="Fechar"
+          >
+            <X className="w-4 h-4" />
+          </button>
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gold/10 border border-gold/30 mb-3">
+            <Crown className="w-6 h-6 text-gold-light" />
+          </div>
+          <h2 className="font-cinzel font-bold text-xl text-gold-light mb-2">
+            Recargas são exclusivas do plano Idriel
+          </h2>
+          <p className="font-merriweather italic text-text-dim text-sm mb-6">
+            Apenas assinantes do plano Idriel (mensal ou anual) podem comprar gotas avulsas de Elixir dos Mundos.
+          </p>
+          <button
+            onClick={() => { onClose(); navigate('/planos'); }}
+            className="px-5 py-2.5 rounded-full text-[11px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-[#1a0f00] hover:opacity-90 transition-opacity"
+          >
+            Conhecer o plano Idriel
+          </button>
+        </div>
+      </div>,
+      document.body,
+    );
+  }
 
   const handleSelect = async (id: string) => {
     setLoading(id);
