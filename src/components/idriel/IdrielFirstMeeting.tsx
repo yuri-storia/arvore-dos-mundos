@@ -12,15 +12,14 @@ import { toast } from 'sonner';
 
 /**
  * Primeiro encontro com Idriel — abre uma única vez por usuário
- * (marca `profiles.idriel_intro_done = true`). Captura como o criador
- * quer ser chamado e a motivação que o trouxe à Árvore.
+ * (marca `profiles.idriel_intro_done = true`). Captura apenas como o criador
+ * quer ser chamado e, em seguida, emenda direto no tutorial guiado.
  */
-export const IdrielFirstMeeting: React.FC = () => {
+export const IdrielFirstMeeting: React.FC<{ onResolved?: (needsIntro: boolean) => void; onComplete?: () => void }> = ({ onResolved, onComplete }) => {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState<0 | 1 | 2>(0);
+  const [step, setStep] = useState<0 | 1>(0);
   const [name, setName] = useState('');
-  const [intro, setIntro] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -33,13 +32,15 @@ export const IdrielFirstMeeting: React.FC = () => {
         .eq('user_id', user.id)
         .maybeSingle();
       if (cancelled) return;
-      if (data && !data.idriel_intro_done) {
-        if (data.display_name) setName(data.display_name);
+      const needsIntro = !!data && !data.idriel_intro_done;
+      if (needsIntro) {
+        if (data?.display_name) setName(data.display_name);
         setOpen(true);
       }
+      onResolved?.(needsIntro);
     })();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user, onResolved]);
 
   const finish = async () => {
     if (!user) return;
@@ -48,7 +49,6 @@ export const IdrielFirstMeeting: React.FC = () => {
       .from('profiles')
       .update({
         display_name: name.trim() || null,
-        idriel_intro: intro.trim() || null,
         idriel_intro_done: true,
       })
       .eq('user_id', user.id);
@@ -59,6 +59,7 @@ export const IdrielFirstMeeting: React.FC = () => {
     }
     setOpen(false);
     toast.success('A Árvore agora te reconhece pelo nome. 🌿');
+    onComplete?.();
   };
 
   return (
