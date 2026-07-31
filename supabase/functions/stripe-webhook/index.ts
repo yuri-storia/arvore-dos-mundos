@@ -129,13 +129,14 @@ Deno.serve(async (req) => {
 
       let userId: string | null = meta.user_id || null;
       const email = session.customer_details?.email || session.customer_email || undefined;
-      const name = session.customer_details?.name || undefined;
       let isNewUser = false;
+      let tempPassword: string | undefined;
 
       if (!userId && email) {
-        const r = await ensureUser(supa, email, name);
+        const r = await ensureUser(supa, email);
         userId = r.userId;
         isNewUser = r.isNewUser;
+        tempPassword = r.tempPassword;
       }
       if (!userId) throw new Error("Não foi possível resolver o usuário do checkout");
 
