@@ -12,17 +12,42 @@ const APP_ORIGIN = "https://arvoredosmundos.app";
 
 type Supa = ReturnType<typeof createClient>;
 
-async function ensureUser(supa: Supa, email: string, name?: string) {
+/** Gera uma senha temporária legível e forte (letras, dígitos e um símbolo). */
+function generateTempPassword(): string {
+  const alpha = "abcdefghijkmnopqrstuvwxyz";
+  const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const digits = "23456789";
+  const symbols = "!@#$%&*";
+  const pick = (set: string, n: number) =>
+    Array.from(crypto.getRandomValues(new Uint32Array(n)))
+      .map((v) => set[v % set.length])
+      .join("");
+  const raw = pick(upper, 2) + pick(alpha, 6) + pick(digits, 3) + pick(symbols, 1);
+  // embaralha
+  const arr = raw.split("");
+  const rnd = crypto.getRandomValues(new Uint32Array(arr.length));
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = rnd[i] % (i + 1);
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.join("");
+}
+
+async function ensureUser(supa: Supa, email: string) {
   const { data: list } = await supa.auth.admin.listUsers({ page: 1, perPage: 200 });
   const existing = list?.users?.find((u: any) => (u.email || "").toLowerCase() === email.toLowerCase());
-  if (existing) return { userId: existing.id, isNewUser: false };
+  if (existing) return { userId: existing.id, isNewUser: false, tempPassword: undefined as string | undefined };
+  const tempPassword = generateTempPassword();
   const { data: created, error } = await supa.auth.admin.createUser({
     email,
+    password: tempPassword,
     email_confirm: true,
-    user_metadata: name ? { display_name: name } : {},
+    // Nunca usamos o nome do titular do cartão — o nome é definido pelo próprio
+    // usuário no primeiro encontro com Idriel.
+    user_metadata: {},
   });
   if (error || !created?.user) throw new Error(`Falha ao criar usuário: ${error?.message}`);
-  return { userId: created.user.id, isNewUser: true };
+  return { userId: created.user.id, isNewUser: true, tempPassword };
 }
 
 async function magicLink(supa: Supa, email: string) {
