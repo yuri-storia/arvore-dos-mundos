@@ -12,17 +12,42 @@ const APP_ORIGIN = "https://arvoredosmundos.app";
 
 type Supa = ReturnType<typeof createClient>;
 
-async function ensureUser(supa: Supa, email: string, name?: string) {
+/** Gera uma senha temporária legível e forte (letras, dígitos e um símbolo). */
+function generateTempPassword(): string {
+  const alpha = "abcdefghijkmnopqrstuvwxyz";
+  const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const digits = "23456789";
+  const symbols = "!@#$%&*";
+  const pick = (set: string, n: number) =>
+    Array.from(crypto.getRandomValues(new Uint32Array(n)))
+      .map((v) => set[v % set.length])
+      .join("");
+  const raw = pick(upper, 2) + pick(alpha, 6) + pick(digits, 3) + pick(symbols, 1);
+  // embaralha
+  const arr = raw.split("");
+  const rnd = crypto.getRandomValues(new Uint32Array(arr.length));
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = rnd[i] % (i + 1);
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.join("");
+}
+
+async function ensureUser(supa: Supa, email: string) {
   const { data: list } = await supa.auth.admin.listUsers({ page: 1, perPage: 200 });
   const existing = list?.users?.find((u: any) => (u.email || "").toLowerCase() === email.toLowerCase());
-  if (existing) return { userId: existing.id, isNewUser: false };
+  if (existing) return { userId: existing.id, isNewUser: false, tempPassword: undefined as string | undefined };
+  const tempPassword = generateTempPassword();
   const { data: created, error } = await supa.auth.admin.createUser({
     email,
+    password: tempPassword,
     email_confirm: true,
-    user_metadata: name ? { display_name: name } : {},
+    // Nunca usamos o nome do titular do cartão — o nome é definido pelo próprio
+    // usuário no primeiro encontro com Idriel.
+    user_metadata: {},
   });
   if (error || !created?.user) throw new Error(`Falha ao criar usuário: ${error?.message}`);
-  return { userId: created.user.id, isNewUser: true };
+  return { userId: created.user.id, isNewUser: true, tempPassword };
 }
 
 async function magicLink(supa: Supa, email: string) {
@@ -104,13 +129,14 @@ Deno.serve(async (req) => {
 
       let userId: string | null = meta.user_id || null;
       const email = session.customer_details?.email || session.customer_email || undefined;
-      const name = session.customer_details?.name || undefined;
       let isNewUser = false;
+      let tempPassword: string | undefined;
 
       if (!userId && email) {
-        const r = await ensureUser(supa, email, name);
+        const r = await ensureUser(supa, email);
         userId = r.userId;
         isNewUser = r.isNewUser;
+        tempPassword = r.tempPassword;
       }
       if (!userId) throw new Error("Não foi possível resolver o usuário do checkout");
 
@@ -187,11 +213,20 @@ Deno.serve(async (req) => {
       }
 
       let mailTo = email;
-      let mailName = name;
+      // O nome vem SEMPRE do perfil do usuário (definido por ele), nunca do
+      // titular do cartão usado no pagamento.
+      let mailName: string | undefined;
+      {
+        const { data: prof } = await supa
+          .from("profiles")
+          .select("display_name")
+          .eq("user_id", userId)
+          .maybeSingle();
+        mailName = (prof as any)?.display_name || undefined;
+      }
       if (!mailTo) {
         const { data: u } = await supa.auth.admin.getUserById(userId);
         mailTo = u?.user?.email ?? undefined;
-        mailName = (u?.user?.user_metadata as any)?.display_name;
       }
       if (mailTo) {
         const link = await magicLink(supa, mailTo);
@@ -201,6 +236,7 @@ Deno.serve(async (req) => {
           planName: plan.name,
           amount: (session.amount_total ?? 0) / 100,
           isNewUser,
+          tempPassword,
           magicLink: link,
           loginUrl: link || `${APP_ORIGIN}/login`,
         });

@@ -13,6 +13,7 @@ interface Payload {
   isNewUser: boolean;
   magicLink?: string; // obrigatório se isNewUser
   loginUrl?: string;  // fallback para usuário existente
+  tempPassword?: string; // senha inicial gerada para contas novas
 }
 
 function renderHtml(p: Payload): string {
@@ -22,11 +23,21 @@ function renderHtml(p: Payload): string {
     : `<a href="${p.loginUrl}" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#d4b27a,#8a6a3a);color:#1a0f00;text-decoration:none;border-radius:10px;font-family:Georgia,serif;font-weight:bold;letter-spacing:1px;text-transform:uppercase;font-size:13px;">Entrar no aplicativo</a>`;
 
   const intro = p.isNewUser
-    ? `Sua jornada na <strong>Árvore dos Mundos</strong> começa agora. Criamos uma conta para você com este e-mail. Use o botão abaixo para entrar sem precisar de senha — o link é único e expira em 1 hora.`
+    ? `Sua jornada na <strong>Árvore dos Mundos</strong> começa agora. Criamos uma conta para você com este e-mail e uma <strong>senha de acesso</strong> logo abaixo. Você pode entrar pelo botão (link único, válido por 1 hora) ou usando e-mail e senha na tela de login.`
     : `Sua assinatura <strong>${p.planName}</strong> foi ativada. Já pode entrar e continuar a construir seus mundos.`;
 
   const credentialsBlock = p.isNewUser
-    ? `<p style="font-size:13px;color:#9aa0a6;line-height:1.6;margin:24px 0 0;">Se preferir definir uma senha, faça login pelo botão acima e vá em <em>Configurações → Conta</em>. Você também pode entrar pela tela de login usando "Esqueci a senha" — enviaremos um novo link.</p>`
+    ? `
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:24px 0 0;background:rgba(212,178,122,0.06);border:1px solid rgba(212,178,122,0.25);border-radius:12px;">
+        <tr>
+          <td style="padding:18px 20px;font-size:14px;color:#e8e4d8;line-height:1.8;">
+            <strong style="color:#d4b27a;letter-spacing:1px;">SEUS DADOS DE ACESSO</strong><br>
+            E-mail: <strong>${p.email}</strong><br>
+            ${p.tempPassword ? `Senha: <strong style="font-family:'Courier New',monospace;font-size:16px;letter-spacing:1px;color:#e8d9b8;">${p.tempPassword}</strong>` : ""}
+          </td>
+        </tr>
+      </table>
+      <p style="font-size:13px;color:#9aa0a6;line-height:1.6;margin:14px 0 0;">Por segurança, troque essa senha depois de entrar em <em>Configurações → Conta</em>. Se preferir, você também pode entrar sempre pelo link "Esqueci a senha" na tela de login.</p>`
     : "";
 
   return `<!doctype html>
