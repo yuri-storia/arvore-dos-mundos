@@ -210,7 +210,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
         )}
 
         {/* World name display / input */}
-        <div className="flex items-center justify-center gap-2 mt-1 w-full max-w-lg">
+        <div data-tour="world-name" className="flex items-center justify-center gap-2 mt-1 w-full max-w-lg">
           {editing ? (
             <input
               ref={inputRef}
@@ -248,6 +248,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
               />
               {worldName && !currentSaveId && onCreateWorld && (
                 <button
+                  data-tour="create-world"
                   onClick={onCreateWorld}
                   className="px-4 py-1.5 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light bg-gold/[0.08] hover:bg-gold/[0.18] transition-all"
                 >

@@ -82,12 +82,11 @@ const Index = () => {
     setState(s => (s.gallery === gallery ? s : { ...s, gallery }));
   }, [gallery]);
 
-  // First-time tour trigger
-  useEffect(() => {
-    if (user && !hasDoneTour()) {
-      setTourActive(true);
-    }
-  }, [user]);
+  // Tutorial só começa depois que Idriel souber o nome do criador.
+  const handleIntroResolved = useCallback((needsIntro: boolean) => {
+    if (!needsIntro && !hasDoneTour()) setTourActive(true);
+  }, []);
+  const handleIntroComplete = useCallback(() => setTourActive(true), []);
 
   // Allow other components (e.g. HelpDrawer) to start the tour on demand
   useEffect(() => {
@@ -297,7 +296,7 @@ const Index = () => {
         <TabNav activeTab={state.activeTab} setActiveTab={setActiveTab} />
         {!tourActive && <OnboardingTips tab={state.activeTab} />}
         <HelpDrawer tab={state.activeTab} />
-        <IdrielFirstMeeting />
+        <IdrielFirstMeeting onResolved={handleIntroResolved} onComplete={handleIntroComplete} />
 
         {/* Interactive Tour */}
         <InteractiveTour active={tourActive} onFinish={() => setTourActive(false)} setActiveTab={setActiveTab} setCurrentFruit={setCurrentFruit} setMethod={setMethod} />
