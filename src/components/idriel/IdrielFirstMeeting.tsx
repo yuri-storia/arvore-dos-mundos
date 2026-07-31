@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+
 import { Sparkles } from 'lucide-react';
 import idrielAvatar from '@/assets/idriel-avatar.webp';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
