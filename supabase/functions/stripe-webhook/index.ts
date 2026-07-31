@@ -213,11 +213,20 @@ Deno.serve(async (req) => {
       }
 
       let mailTo = email;
-      let mailName = name;
+      // O nome vem SEMPRE do perfil do usuário (definido por ele), nunca do
+      // titular do cartão usado no pagamento.
+      let mailName: string | undefined;
+      {
+        const { data: prof } = await supa
+          .from("profiles")
+          .select("display_name")
+          .eq("user_id", userId)
+          .maybeSingle();
+        mailName = (prof as any)?.display_name || undefined;
+      }
       if (!mailTo) {
         const { data: u } = await supa.auth.admin.getUserById(userId);
         mailTo = u?.user?.email ?? undefined;
-        mailName = (u?.user?.user_metadata as any)?.display_name;
       }
       if (mailTo) {
         const link = await magicLink(supa, mailTo);
@@ -227,6 +236,7 @@ Deno.serve(async (req) => {
           planName: plan.name,
           amount: (session.amount_total ?? 0) / 100,
           isNewUser,
+          tempPassword,
           magicLink: link,
           loginUrl: link || `${APP_ORIGIN}/login`,
         });
