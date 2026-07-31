@@ -138,16 +138,23 @@ export const AccountBillingPanel: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {(isNone || isCriador) && (
+            {isCriador && (
               <button
-                onClick={() => isCriador ? setUpgradeOpen(true) : undefined}
-                {...(isNone ? {} : {})}
+                onClick={() => setUpgradeOpen(true)}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-[#1a0f00] hover:opacity-90 transition-opacity"
               >
-                <Sparkles className="w-3 h-3" />
-                {isCriador ? 'Upgrade para Idriel' : 'Escolher plano'}
+                <Sparkles className="w-3 h-3" /> Upgrade para Idriel
               </button>
             )}
+            {isNone && (
+              <Link
+                to="/planos"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-[#1a0f00] hover:opacity-90 transition-opacity"
+              >
+                <Sparkles className="w-3 h-3" /> Escolher plano
+              </Link>
+            )}
+
             {sub.hasIdriel && (
               <button
                 onClick={() => setRechargeOpen(true)}
