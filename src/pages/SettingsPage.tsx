@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { ArrowLeft, Save, Eye, EyeOff, User, KeyRound, Crown } from 'lucide-react';
 import { TwoFactorSection } from '@/components/TwoFactorSection';
 import { PlanStatusCard } from '@/components/PlanStatusCard';
+import { AccountBillingPanel } from '@/components/AccountBillingPanel';
 
 const SectionCard: React.FC<{
   icon: React.ReactNode;
@@ -117,10 +118,18 @@ const SettingsPage: React.FC = () => {
         <div className="mb-8">
           <SectionCard
             icon={<Crown className="w-4 h-4" strokeWidth={2} />}
-            title="Minha Conta · Plano Ativo"
-            description="Visão geral dos benefícios do seu plano e gerenciamento da assinatura."
+            title="Minha Conta · Plano e Cobrança"
+            description="Plano atual, status da assinatura, gotas de Elixir disponíveis e histórico de cobranças."
           >
-            <PlanStatusCard variant="settings" />
+            <AccountBillingPanel />
+            <details className="mt-4 group">
+              <summary className="cursor-pointer text-[10px] font-montserrat uppercase tracking-wider text-text-dim hover:text-foreground transition-colors">
+                Ver benefícios inclusos no plano
+              </summary>
+              <div className="mt-3">
+                <PlanStatusCard variant="settings" />
+              </div>
+            </details>
           </SectionCard>
         </div>
 
