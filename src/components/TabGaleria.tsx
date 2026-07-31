@@ -693,6 +693,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
             onChange={e => { uploadFiles(e.target.files, currentFolder.name); if (uploadRef.current) uploadRef.current.value = ''; }}
           />
           <div
+            data-tour="gallery-upload"
             onClick={() => !uploading && uploadRef.current?.click()}
             className={`border-2 border-dashed border-gold/25 rounded-xl p-6 text-center cursor-pointer hover:border-gold/50 hover:bg-gold/[0.03] transition-all mb-3 ${uploading ? 'opacity-60 pointer-events-none' : ''}`}
           >
