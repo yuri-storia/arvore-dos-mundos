@@ -127,6 +127,7 @@ export const IdrielFirstMeeting: React.FC<{ onResolved?: (needsIntro: boolean) =
             <div className="space-y-4 animate-fade-in">
               <p className="font-amiri text-[15px] leading-relaxed text-foreground">
                 Como você gostaria que eu te chamasse? Um nome, um apelido, um título — o que soar como você.
+                Fica guardado nas configurações da sua conta e pode ser trocado quando quiser.
               </p>
               <Input
                 autoFocus
@@ -134,44 +135,17 @@ export const IdrielFirstMeeting: React.FC<{ onResolved?: (needsIntro: boolean) =
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ex.: Yuri, criadora, viajante das marés…"
                 maxLength={60}
+                onKeyDown={(e) => { if (e.key === 'Enter' && name.trim() && !saving) finish(); }}
                 className="bg-black/30 border-gold-bronze/40"
               />
               <div className="flex justify-between">
-                <Button variant="ghost" onClick={() => setStep(0)}>Voltar</Button>
+                <Button variant="ghost" onClick={() => setStep(0)} disabled={saving}>Voltar</Button>
                 <Button
-                  disabled={!name.trim()}
-                  onClick={() => setStep(2)}
+                  disabled={!name.trim() || saving}
+                  onClick={finish}
                   className="bg-gradient-to-r from-[hsl(46_95%_78%)] via-[hsl(42_90%_62%)] to-[hsl(34_80%_48%)] text-[#1a0f00] font-cinzel disabled:opacity-40"
                 >
-                  Continuar
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="space-y-4 animate-fade-in">
-              <p className="font-amiri text-[15px] leading-relaxed text-foreground">
-                {name.trim() ? `${name.trim()}, ` : ''}me diga em poucas palavras: <span className="text-gold-champagne">o que te trouxe até a Árvore?</span>{' '}
-                Uma ideia que não te larga, uma saudade, um sonho antigo? Vou guardar essa fala para lembrar de você quando conversarmos.
-              </p>
-              <Textarea
-                autoFocus
-                value={intro}
-                onChange={(e) => setIntro(e.target.value)}
-                placeholder="Ex.: Quero escrever a saga de um reino que meu irmão inventou quando éramos crianças…"
-                maxLength={400}
-                rows={4}
-                className="bg-black/30 border-gold-bronze/40 font-amiri"
-              />
-              <div className="flex justify-between">
-                <Button variant="ghost" onClick={() => setStep(1)} disabled={saving}>Voltar</Button>
-                <Button
-                  onClick={finish}
-                  disabled={saving}
-                  className="bg-gradient-to-r from-[hsl(46_95%_78%)] via-[hsl(42_90%_62%)] to-[hsl(34_80%_48%)] text-[#1a0f00] font-cinzel"
-                >
-                  {saving ? 'Guardando…' : 'A Árvore ouviu'}
+                  {saving ? 'Guardando…' : 'Começar o tutorial'}
                 </Button>
               </div>
             </div>
