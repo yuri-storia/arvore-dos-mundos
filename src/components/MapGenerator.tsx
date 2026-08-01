@@ -138,17 +138,15 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
     setError('');
     setGeneratedImage('');
     try {
-      setPhase('prompt');
-      const ctx = buildWorldContext();
-      const stylePrompt = styleObj.custom ? customDesc : `${styleObj.label}: ${styleObj.desc}. Style keywords: ${styleObj.prompt}`;
-      const systemPrompt = 'You are an expert at writing detailed image generation prompts for fantasy world maps. Respond ONLY with the prompt in English. Be very specific about visual details, cartographic elements, labels, terrain features, colors, and artistic style.';
-      const userMsg = `Generate a detailed map image prompt for this fantasy world.\n\nWorld context:\n${ctx}\n\nMap style requested: ${stylePrompt}\n${customDesc && !styleObj.custom ? `Additional details: ${customDesc}` : ''}`;
-      const prompt = await callAIText([{ role: 'user', content: userMsg }], systemPrompt);
-
       setPhase('image');
-      const url = await callAIImage(prompt);
+      const url = await generateMap({
+        style: styleFor(styleObj.id),
+        description: customDesc,
+        worldContext: buildWorldContext(),
+      });
       setGeneratedImage(url);
       await addMap({ image_url: url, style: styleObj.id, style_label: styleObj.label, description: customDesc });
+
     } catch (e: any) {
       const f = friendlyAIError(e?.message || '');
       setError(`${f.title} ${f.hint}`);
