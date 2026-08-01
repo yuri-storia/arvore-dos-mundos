@@ -458,11 +458,12 @@ const LandingPage: React.FC = () => {
             >
               <img
                 src={previewConstruir.url}
-                alt="Prévia da aba Construir da Árvore dos Mundos"
+                alt="Prévia da plataforma: aba Construir com os Frutos do Worldbuilding"
                 loading="lazy"
                 decoding="async"
-                className="w-full h-[26vh] sm:h-[30vh] object-cover object-top"
+                className="w-full h-[28vh] sm:h-[34vh] object-cover object-top"
               />
+
               <div
                 aria-hidden
                 className="absolute inset-0"
