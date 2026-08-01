@@ -234,7 +234,7 @@ const PricingPage: React.FC = () => {
         </motion.div>
 
         {/* Pricing cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-8 mb-28 max-w-4xl mx-auto items-start pt-20 md:pt-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-8 mb-28 max-w-4xl mx-auto items-start pt-28 md:pt-32">
           {tiers.map((tier, i) => {
             const Icon = tier.Icon;
             const isPopular = tier.popular;
