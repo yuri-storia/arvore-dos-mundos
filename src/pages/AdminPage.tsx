@@ -355,7 +355,11 @@ const UserRow = memo<UserRowProps>(({ user: u, callerId, onOpenDetail, onChanged
         );
       })()}
     </td>
-    <td className="px-3 py-2.5 text-right font-montserrat text-foreground">{u.has_idriel || u.plan_code === 'raiz_vitalicio' ? <InfinityIcon className="w-3.5 h-3.5 inline text-gold" /> : u.bonus_drops}</td>
+    <td className="px-3 py-2.5 text-right font-montserrat text-foreground">
+      {u.bonus_drops}
+      {u.has_idriel && u.sub_status === 'active' && <span className="block text-[9px] text-gold">+150/mês</span>}
+    </td>
+
     <td className="px-3 py-2.5 text-right text-xs text-text-secondary">{u.ai_text_month}/{u.ai_image_month}<span className="block text-[9px] text-text-dim">total {u.ai_text_total}/{u.ai_image_total}</span></td>
     <td className="px-3 py-2.5 text-right text-xs text-text-secondary">{u.recharges_count}<span className="block text-[9px] text-text-dim">{fmtMoney(u.recharge_total)}</span></td>
     <td className="px-3 py-2.5 text-right text-xs text-text-secondary">{fmtMoney(u.lifetime_total)}</td>
