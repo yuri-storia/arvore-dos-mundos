@@ -118,3 +118,23 @@ export const STRIPE_PLANS: Record<string, StripePlanDef> = {
 export function planByPriceId(priceId: string): StripePlanDef | undefined {
   return Object.values(STRIPE_PLANS).find((p) => p.priceId === priceId);
 }
+
+/** Ranking usado para decidir upgrade x downgrade x troca de ciclo. */
+export function planRank(plan: StripePlanDef): { tier: number; cycle: number } {
+  return {
+    tier: plan.hasIdriel ? 2 : 1,
+    cycle: plan.cycle === "yearly" ? 2 : 1,
+  };
+}
+
+export type PlanChangeDirection = "upgrade" | "downgrade" | "same";
+
+/** Compara dois planos de assinatura: tier pesa mais que ciclo. */
+export function comparePlans(from: StripePlanDef, to: StripePlanDef): PlanChangeDirection {
+  const a = planRank(from);
+  const b = planRank(to);
+  if (a.tier !== b.tier) return b.tier > a.tier ? "upgrade" : "downgrade";
+  if (a.cycle !== b.cycle) return b.cycle > a.cycle ? "upgrade" : "downgrade";
+  return "same";
+}
+
