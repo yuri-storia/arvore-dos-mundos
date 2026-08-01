@@ -408,15 +408,16 @@ const LandingPage: React.FC = () => {
             </h1>
 
             <p
-              className="font-manrope text-[15px] sm:text-base text-text-secondary leading-[1.9] mb-11 max-w-[58ch] mx-auto"
-              style={{ textShadow: '0 2px 18px rgba(2,7,13,0.9)' }}
+              className="font-manrope text-[16.5px] sm:text-[18px] text-foreground/90 font-medium leading-[1.85] mb-11 max-w-[56ch] mx-auto"
+              style={{ textShadow: '0 2px 20px rgba(2,7,13,0.95), 0 1px 6px rgba(2,7,13,0.9)' }}
             >
-              Construa universos profundos com os <strong className="text-foreground font-semibold">11 Frutos</strong>,
-              organize tudo em um <strong className="text-foreground font-semibold">Codex vivo</strong> com linha do tempo, mapas e galeria,
+              Construa universos profundos com os <strong className="text-gold-champagne font-semibold">11 Frutos</strong>,
+              organize tudo em um <strong className="text-gold-champagne font-semibold">Codex vivo</strong> com linha do tempo, mapas e galeria,
               escreva seus manuscritos capítulo a capítulo e exporte em PDF, Word ou Kindle — com{' '}
-              <strong className="text-foreground font-semibold">Idriel</strong> ao seu lado, sem entregar sua voz,
+              <strong className="text-gold-champagne font-semibold">Idriel</strong> ao seu lado, sem entregar sua voz,
               suas escolhas ou sua autoria à inteligência artificial.
             </p>
+
 
             <div className="flex flex-wrap gap-3 justify-center">
               <a href="#planos" className={goldButton} style={goldButtonStyle}>
