@@ -14,6 +14,8 @@ import mapCity from '@/assets/style-thumbs/map-city.jpg';
 import { createPortal } from 'react-dom';
 import { StyleCarousel } from '@/components/StyleCarousel';
 import { toast } from 'sonner';
+import { GenerationProgress, useGenerationProgress } from '@/components/GenerationProgress';
+
 
 const FOLDER_FRUITS = FRUITS.filter(f => f.id !== 10);
 
