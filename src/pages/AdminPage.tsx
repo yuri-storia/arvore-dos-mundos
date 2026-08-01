@@ -33,15 +33,15 @@ interface BugReport {
   attachment_path?: string | null; attachment_type?: string | null;
 }
 
+// Planos ativos hoje (espelham src/hooks/useSubscription.ts).
+// Os códigos internos "raiz_*" foram mantidos por compatibilidade com o
+// histórico do banco/Stripe, mas o nome comercial é "Criador".
 const PLAN_CODES = [
-  { value: 'raiz_mensal', label: 'Raiz Mensal (30d sem cobrança)' },
-  { value: 'raiz_anual', label: 'Raiz Anual (365d sem cobrança)' },
+  { value: 'raiz_mensal', label: 'Criador Mensal (30d sem cobrança)' },
+  { value: 'raiz_anual', label: 'Criador Anual (365d sem cobrança)' },
   { value: 'idriel_mensal', label: 'Idriel Mensal (30d sem cobrança)' },
   { value: 'idriel_anual', label: 'Idriel Anual (365d sem cobrança)' },
   { value: 'fundador_mensal', label: 'Membro Fundador Mensal' },
-  { value: 'raiz_vitalicio', label: 'Raiz Vitalício (gratuito)' },
-  
-  
   { value: 'none', label: 'Cancelar / Sem plano' },
 ];
 
@@ -52,10 +52,10 @@ const planLabel = (code: string | null) => {
 
 const planTone = (code: string | null) => {
   if (!code) return 'bg-muted/30 text-text-dim border-border';
-  if (code === 'raiz_vitalicio') return 'bg-gold/15 text-gold border-gold/40';
   if (code.startsWith('idriel') || code.startsWith('fundador')) return 'bg-gold-warm/15 text-gold-warm border-gold-warm/40';
   return 'bg-blue-bright/15 text-blue-bright border-blue-bright/40';
 };
+
 
 const fmtDate = (s: string | null) => s ? new Date(s).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
 const fmtMoney = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
