@@ -22,7 +22,8 @@ import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
 import heroVideo480 from '@/assets/arvore-hero-loop-480.mp4.asset.json';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
-import previewConstruir from '@/assets/plataforma-construir.jpg.asset.json';
+import previewConstruir from '@/assets/plataforma-preview-construir.png.asset.json';
+import ebookMockup from '@/assets/ebook-mockup-devices.png.asset.json';
 import { DemoVideo } from '@/components/marketing/DemoVideo';
 import { Reveal } from '@/components/marketing/Reveal';
 import { useSmoothScroll } from '@/components/marketing/useSmoothScroll';
@@ -83,13 +84,43 @@ const Eyebrow: React.FC<{ children: React.ReactNode; Icon?: React.ElementType }>
 );
 
 const Title: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <h2 className={`font-cinzel font-bold text-[clamp(1.6rem,3vw,2.4rem)] leading-[1.22] tracking-[-0.01em] ${className}`}>
+  <h2 className={`font-cinzel font-bold text-[clamp(1.6rem,3vw,2.4rem)] leading-[1.24] tracking-[-0.01em] ${className}`}>
     {children}
   </h2>
 );
 
+/** Cabeçalho de seção centralizado — mesma estrutura em toda a página. */
+const SectionHead: React.FC<{
+  eyebrow: string;
+  Icon?: React.ElementType;
+  title: React.ReactNode;
+  lede?: React.ReactNode;
+  className?: string;
+}> = ({ eyebrow, Icon, title, lede, className = '' }) => (
+  <Reveal className={`text-center max-w-[68ch] mx-auto mb-14 sm:mb-16 ${className}`}>
+    <Eyebrow Icon={Icon}>{eyebrow}</Eyebrow>
+    <Title>{title}</Title>
+    {lede && (
+      <p className="font-manrope text-[15px] sm:text-base text-text-secondary leading-[1.9] max-w-[60ch] mx-auto mt-5">
+        {lede}
+      </p>
+    )}
+  </Reveal>
+);
+
+/** Retângulo arredondado de borda discreta — dá ordem e agrupamento ao conteúdo. */
+const Panel: React.FC<{ children: React.ReactNode; className?: string; soft?: boolean }> = ({
+  children, className = '', soft = false,
+}) => (
+  <div
+    className={`rounded-2xl border ${soft ? 'border-gold/[0.07] bg-[rgba(4,12,24,0.28)]' : 'border-gold/[0.11] bg-[rgba(4,12,24,0.42)]'} backdrop-blur-[2px] p-6 sm:p-8 ${className}`}
+  >
+    {children}
+  </div>
+);
+
 const Lede: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <p className={`font-manrope text-[15px] sm:text-base text-text-secondary leading-[1.85] max-w-[62ch] ${className}`}>
+  <p className={`font-manrope text-[15px] sm:text-base text-text-secondary leading-[1.9] max-w-[62ch] ${className}`}>
     {children}
   </p>
 );
@@ -97,13 +128,23 @@ const Lede: React.FC<{ children: React.ReactNode; className?: string }> = ({ chi
 const CheckList: React.FC<{ items: string[]; columns?: 1 | 2; className?: string }> = ({ items, columns = 1, className = '' }) => (
   <ul className={`${columns === 2 ? 'sm:columns-2 sm:gap-x-10' : ''} space-y-2.5 ${className}`}>
     {items.map(t => (
-      <li key={t} className="flex items-start gap-2.5 font-manrope text-[14.5px] text-text-secondary leading-[1.7] break-inside-avoid">
+      <li key={t} className="flex items-start gap-2.5 font-manrope text-[14.5px] text-text-secondary leading-[1.75] break-inside-avoid">
         <Check className="w-4 h-4 text-gold-champagne/80 mt-[4px] shrink-0" strokeWidth={2} />
         <span>{t}</span>
       </li>
     ))}
   </ul>
 );
+
+/** Legenda editorial padrão sob os vídeos — mesma hierarquia em toda a página. */
+const VideoCaption: React.FC<{ kicker: string; title: string; children: React.ReactNode }> = ({ kicker, title, children }) => (
+  <div className="mt-5 px-1">
+    <p className="font-manrope font-semibold uppercase tracking-[0.2em] text-[10px] text-gold-champagne/80 mb-2">{kicker}</p>
+    <h4 className="font-cinzel font-bold text-base text-foreground mb-2">{title}</h4>
+    <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85] max-w-[50ch]">{children}</p>
+  </div>
+);
+
 
 /** Momento de respiro: uma única frase forte sobre o fundo. */
 const Breather: React.FC<{ children: React.ReactNode; sub?: string }> = ({ children, sub }) => (
@@ -147,28 +188,31 @@ const EBOOK_TESTIMONIALS = [
 ];
 
 const EbookTestimonials: React.FC = () => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-12">
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
     {EBOOK_TESTIMONIALS.map((t, i) => (
-      <Reveal as="figure" key={t.name} delay={i * 0.08} className="relative flex flex-col">
-        <Quote className="w-6 h-6 text-gold-champagne/40 mb-4" strokeWidth={1.25} />
-        <blockquote className="font-merriweather text-[14.5px] text-text-secondary leading-[1.9] flex-1">
-          “{t.quote}”
-        </blockquote>
-        <figcaption className="flex items-center gap-3 mt-6">
-          <span className="w-9 h-9 rounded-full border border-gold/25 bg-gold/[0.06] grid place-items-center font-cinzel font-bold text-sm text-gold-champagne">
-            {t.name.charAt(0)}
-          </span>
-          <span>
-            <span className="block font-cinzel font-bold text-sm text-foreground">{t.name}</span>
-            <span className="block font-manrope uppercase tracking-[0.22em] text-[9px] text-text-dim mt-0.5">
-              Leitor(a) do e-book
+      <Reveal key={t.name} delay={i * 0.08} className="h-full">
+        <Panel soft className="h-full flex flex-col">
+          <Quote className="w-6 h-6 text-gold-champagne/40 mb-4" strokeWidth={1.25} />
+          <blockquote className="font-merriweather text-[14.5px] text-text-secondary leading-[1.9] flex-1">
+            “{t.quote}”
+          </blockquote>
+          <div className="flex items-center gap-3 mt-6 pt-5 border-t border-gold/[0.08]">
+            <span className="w-9 h-9 rounded-full border border-gold/25 bg-gold/[0.06] grid place-items-center font-cinzel font-bold text-sm text-gold-champagne">
+              {t.name.charAt(0)}
             </span>
-          </span>
-        </figcaption>
+            <span>
+              <span className="block font-cinzel font-bold text-sm text-foreground">{t.name}</span>
+              <span className="block font-manrope tracking-[0.06em] text-[11px] text-text-dim mt-0.5">
+                Leitor(a) do e-book
+              </span>
+            </span>
+          </div>
+        </Panel>
       </Reveal>
     ))}
   </div>
 );
+
 
 const TestimonialPlaceholder: React.FC<{ kind: 'ebook' | 'beta'; count: number }> = ({ kind, count }) => (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-10">
@@ -367,15 +411,16 @@ const LandingPage: React.FC = () => {
             </h1>
 
             <p
-              className="font-manrope text-[15px] sm:text-base text-text-secondary leading-[1.9] mb-11 max-w-[58ch] mx-auto"
-              style={{ textShadow: '0 2px 18px rgba(2,7,13,0.9)' }}
+              className="font-manrope text-[16.5px] sm:text-[18px] text-foreground/90 font-medium leading-[1.85] mb-11 max-w-[56ch] mx-auto"
+              style={{ textShadow: '0 2px 20px rgba(2,7,13,0.95), 0 1px 6px rgba(2,7,13,0.9)' }}
             >
-              Construa universos profundos com os <strong className="text-foreground font-semibold">11 Frutos</strong>,
-              organize tudo em um <strong className="text-foreground font-semibold">Codex vivo</strong> com linha do tempo, mapas e galeria,
+              Construa universos profundos com os <strong className="text-gold-champagne font-semibold">11 Frutos</strong>,
+              organize tudo em um <strong className="text-gold-champagne font-semibold">Codex vivo</strong> com linha do tempo, mapas e galeria,
               escreva seus manuscritos capítulo a capítulo e exporte em PDF, Word ou Kindle — com{' '}
-              <strong className="text-foreground font-semibold">Idriel</strong> ao seu lado, sem entregar sua voz,
+              <strong className="text-gold-champagne font-semibold">Idriel</strong> ao seu lado, sem entregar sua voz,
               suas escolhas ou sua autoria à inteligência artificial.
             </p>
+
 
             <div className="flex flex-wrap gap-3 justify-center">
               <a href="#planos" className={goldButton} style={goldButtonStyle}>
@@ -416,11 +461,12 @@ const LandingPage: React.FC = () => {
             >
               <img
                 src={previewConstruir.url}
-                alt="Prévia da aba Construir da Árvore dos Mundos"
+                alt="Prévia da plataforma: aba Construir com os Frutos do Worldbuilding"
                 loading="lazy"
                 decoding="async"
-                className="w-full h-[26vh] sm:h-[30vh] object-cover object-top"
+                className="w-full h-[28vh] sm:h-[34vh] object-cover object-top"
               />
+
               <div
                 aria-hidden
                 className="absolute inset-0"
@@ -434,83 +480,75 @@ const LandingPage: React.FC = () => {
       {/* ============================== 2. PROBLEMA ========================= */}
       <Band tone="mist">
         <Shell>
-          <div className="grid grid-cols-1 lg:grid-cols-[40%_1fr] gap-12 lg:gap-20">
-            <Reveal>
-              <Eyebrow>O ponto de partida</Eyebrow>
-              <Title>
-                Você não tem falta de ideias. Tem ideias demais vivendo em{' '}
-                <span className="text-gold-champagne">lugares diferentes</span>.
-              </Title>
-            </Reveal>
-            <Reveal delay={0.1}>
-              <Lede>
-                Um personagem em um documento. A religião de um povo em uma anotação antiga.
-                O mapa em uma pasta. A linha do tempo em uma planilha. As melhores respostas que você recebeu
-                de uma IA, desaparecidas em um histórico que você nunca mais encontrou. O mundo se expande —
-                mas a história não avança.
-              </Lede>
-              <p className="font-merriweather italic text-text-dim leading-[1.9] mt-6 max-w-[58ch]">
-                A Árvore dos Mundos reúne esse processo em um único ambiente: da construção do universo à escrita do manuscrito.
-              </p>
+          <SectionHead
+            eyebrow="O ponto de partida"
+            title={<>Você não tem falta de ideias. Tem ideias demais vivendo em <span className="text-gold-champagne">lugares diferentes</span>.</>}
+            lede="Um personagem em um documento. A religião de um povo em uma anotação antiga. O mapa em uma pasta. A linha do tempo em uma planilha. O mundo se expande — mas a história não avança."
+          />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-8 mt-12 pt-10 border-t border-gold/[0.10]">
-                <div>
-                  <p className="font-manrope font-semibold uppercase tracking-[0.28em] text-[10px] text-red-300/60 mb-4">Antes</p>
-                  <ul className="space-y-2.5">
-                    {['Documentos soltos no computador', 'Notas e rascunhos perdidos', 'Imagens em pastas diferentes', 'Planilhas para linha do tempo', 'Conversas com IA que somem do histórico'].map(t => (
-                      <li key={t} className="flex gap-2.5 font-manrope text-[14px] text-text-dim leading-[1.7]">
-                        <span className="text-red-300/50 mt-[1px]">×</span><span>{t}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <p className="font-manrope font-semibold uppercase tracking-[0.28em] text-[10px] text-gold-champagne mb-4">Com a Árvore dos Mundos</p>
-                  <CheckList items={['Mundo centralizado em um só lugar', 'Codex vivo de fichas e artigos', 'Galeria de referências e mapas', 'Manuscritos com capítulos e Storylines', 'Idriel contextual conhece o que você criou']} />
-                </div>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-[980px] mx-auto items-stretch">
+            <Reveal className="h-full">
+              <Panel soft className="h-full">
+                <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-red-300/70 mb-5">Antes</p>
+                <ul className="space-y-2.5">
+                  {['Documentos soltos no computador', 'Notas e rascunhos perdidos', 'Imagens em pastas diferentes', 'Planilhas para linha do tempo', 'Conversas com IA que somem do histórico'].map(t => (
+                    <li key={t} className="flex gap-2.5 font-manrope text-[14px] text-text-dim leading-[1.75]">
+                      <span className="text-red-300/50 mt-[1px]">×</span><span>{t}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Panel>
+            </Reveal>
+            <Reveal delay={0.08} className="h-full">
+              <Panel className="h-full">
+                <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne mb-5">Com a Árvore dos Mundos</p>
+                <CheckList items={['Mundo centralizado em um só lugar', 'Codex vivo de fichas e artigos', 'Galeria de referências e mapas', 'Manuscritos com capítulos e Storylines', 'Idriel contextual conhece o que você criou']} />
+              </Panel>
             </Reveal>
           </div>
+
+          <Reveal delay={0.1}>
+            <p className="font-merriweather italic text-text-dim leading-[1.9] mt-10 max-w-[58ch] mx-auto text-center">
+              A Árvore dos Mundos reúne esse processo em um único ambiente: da construção do universo à escrita do manuscrito.
+            </p>
+          </Reveal>
         </Shell>
       </Band>
+
 
       {/* ============================== 3. COMO FUNCIONA ==================== */}
       <Band id="tour">
         <Shell>
-          <Reveal className="max-w-[46ch] mb-16 sm:mb-20">
-            <Eyebrow>Como funciona</Eyebrow>
-            <Title>Da primeira semente ao manuscrito.</Title>
-            <p className="font-merriweather italic text-text-dim mt-5 leading-[1.9]">
-              A Árvore dos Mundos organiza o processo de criação em quatro movimentos.
-            </p>
-          </Reveal>
+          <SectionHead
+            eyebrow="Como funciona"
+            title="Da primeira semente ao manuscrito."
+            lede="A Árvore dos Mundos organiza o processo de criação em quatro movimentos."
+          />
 
-          <div className="divide-y divide-gold/[0.08]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
             {[
               { n: '01', title: 'Plante', desc: 'Crie seu mundo e registre a ideia que dará origem a ele. Você não precisa saber tudo antes de começar.', Icon: Leaf },
               { n: '02', title: 'Cultive', desc: 'Desenvolva povos, lugares, culturas, conflitos, sistemas e linguagens pelos 11 Frutos do Worldbuilding.', Icon: Trees },
               { n: '03', title: 'Organize', desc: 'Transforme descobertas em fichas e artigos dentro de um Codex vivo, criado para conectar cada parte do universo.', Icon: Library },
               { n: '04', title: 'Escreva', desc: 'Leve tudo o que foi construído para seus manuscritos, capítulos e Storylines.', Icon: Feather },
             ].map((s, i) => (
-              <Reveal key={s.n} delay={i * 0.07}>
-                <div className="group grid grid-cols-[auto_1fr] sm:grid-cols-[6rem_14rem_1fr] gap-x-6 gap-y-2 items-baseline py-8">
-                  <span className="font-cinzel font-bold text-gold-champagne/35 text-3xl sm:text-4xl transition-colors duration-500 group-hover:text-gold-champagne/60">
-                    {s.n}
-                  </span>
-                  <h3 className="font-cinzel font-bold text-lg sm:text-xl flex items-center gap-2.5">
-                    <s.Icon className="w-4 h-4 text-gold-champagne/70 transition-opacity duration-500 group-hover:opacity-100 opacity-70" strokeWidth={1.5} />
-                    {s.title}
-                  </h3>
-                  <p className="col-span-2 sm:col-span-1 font-manrope text-[14.5px] text-text-secondary leading-[1.85] max-w-[58ch]">
-                    {s.desc}
-                  </p>
-                </div>
+              <Reveal key={s.n} delay={i * 0.07} className="h-full">
+                <Panel soft className="h-full group transition-colors duration-500 hover:border-gold/25">
+                  <div className="flex items-center justify-between mb-5">
+                    <s.Icon className="w-5 h-5 text-gold-champagne/75" strokeWidth={1.5} />
+                    <span className="font-cinzel font-bold text-gold-champagne/30 text-2xl transition-colors duration-500 group-hover:text-gold-champagne/55">
+                      {s.n}
+                    </span>
+                  </div>
+                  <h3 className="font-cinzel font-bold text-lg mb-2.5">{s.title}</h3>
+                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">{s.desc}</p>
+                </Panel>
               </Reveal>
             ))}
           </div>
 
           <Reveal delay={0.1}>
-            <p className="font-merriweather italic text-sm text-text-dim mt-12">
+            <p className="font-merriweather italic text-sm text-text-dim mt-12 text-center max-w-[58ch] mx-auto">
               Nas próximas seções você vê cada movimento acontecendo na tela — gravado direto da plataforma.
             </p>
           </Reveal>
@@ -520,137 +558,150 @@ const LandingPage: React.FC = () => {
       {/* ============================== 4. 11 FRUTOS ======================== */}
       <Band tone="mist">
         <Shell>
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_46%] gap-14 lg:gap-20 items-center">
-            <Reveal>
-              <Eyebrow Icon={Trees}>Os 11 Frutos</Eyebrow>
-              <Title className="mb-6">
-                Você não precisa construir um universo diante de uma página vazia.
-              </Title>
-              <Lede>
-                Muitos criadores sabem que desejam construir um mundo profundo, mas não sabem qual pergunta fazer primeiro.
-                Os 11 Frutos organizam as grandes dimensões do worldbuilding e ajudam você a enxergar o que ainda precisa ser desenvolvido.
-              </Lede>
-              <CheckList
-                className="mt-8"
-                items={[
-                  'Explicações sobre cada aspecto do mundo',
-                  'Perguntas guiadas e campos de construção',
-                  'Orientações sobre fichas e artigos',
-                  'Sugestões contextuais de Idriel',
-                  'Caminhos Top-Down e Bottom-Up',
-                ]}
-              />
-              <p className="font-merriweather italic text-text-dim text-sm leading-[1.9] mt-8 max-w-[54ch]">
-                Você pode começar por onde fizer mais sentido. Não existe obrigação de preencher tudo. Não existe uma ordem única.
-              </p>
+          <SectionHead
+            eyebrow="Os 11 Frutos"
+            Icon={Trees}
+            title="Você não precisa construir um universo diante de uma página vazia."
+            lede="Muitos criadores sabem que desejam construir um mundo profundo, mas não sabem qual pergunta fazer primeiro. Os 11 Frutos organizam as grandes dimensões do worldbuilding e mostram o que ainda pode ser desenvolvido."
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
+            <Reveal className="h-full">
+              <Panel className="h-full flex flex-col justify-center">
+                <CheckList
+                  items={[
+                    'Explicações sobre cada aspecto do mundo',
+                    'Perguntas guiadas e campos de construção',
+                    'Orientações sobre fichas e artigos',
+                    'Sugestões contextuais de Idriel',
+                    'Caminhos Top-Down e Bottom-Up',
+                  ]}
+                />
+                <p className="font-merriweather italic text-text-dim text-sm leading-[1.9] mt-7 pt-6 border-t border-gold/[0.10]">
+                  Você pode começar por onde fizer mais sentido. Não existe obrigação de preencher tudo. Não existe uma ordem única.
+                </p>
+              </Panel>
             </Reveal>
 
-            <Reveal delay={0.12}>
-              <DemoVideo
-                bare
-                src={vidFichas.url}
-                poster={vidFichasPoster.url}
-                kicker="Construir"
-                duration="45s"
-                title="Criando fichas através dos Frutos"
-                desc="Responda às perguntas de um Fruto e transforme a descoberta em ficha ou artigo do Codex."
-              />
-              <div className="mt-5 pl-1">
-                <p className="font-manrope font-semibold uppercase tracking-[0.24em] text-[10px] text-gold-champagne/80 mb-2">Construir · 45s</p>
-                <h4 className="font-cinzel font-bold text-base text-foreground mb-2">Criando fichas através dos Frutos</h4>
-                <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.8] max-w-[46ch]">
+            <Reveal delay={0.1} className="h-full">
+              <Panel soft className="h-full">
+                <DemoVideo
+                  bare
+                  src={vidFichas.url}
+                  poster={vidFichasPoster.url}
+                  kicker="Construir"
+                  duration="45s"
+                  title="Criando fichas através dos Frutos"
+                  desc="Responda às perguntas de um Fruto e transforme a descoberta em ficha ou artigo do Codex."
+                />
+                <VideoCaption kicker="Construir · 45s" title="Criando fichas através dos Frutos">
                   Responda às perguntas de um Fruto e transforme a descoberta em ficha ou artigo do Codex sem sair do lugar — com autosave e apoio de Idriel.
-                </p>
-              </div>
+                </VideoCaption>
+              </Panel>
             </Reveal>
           </div>
 
           <Reveal delay={0.05} className="mt-20 lg:mt-24">
-            <div className="max-w-[64ch] mx-auto text-center">
-              <p className="font-manrope font-semibold uppercase tracking-[0.28em] text-[10px] text-gold-champagne/80 mb-4">
+            <figure className="max-w-[820px] mx-auto mb-10">
+              <img
+                src={ebookMockup.url}
+                alt="O e-book A Árvore dos Mundos exibido em celular, tablet e notebook"
+                loading="lazy"
+                decoding="async"
+                className="w-full h-auto mx-auto"
+                style={{ filter: 'drop-shadow(0 30px 70px rgba(0,0,0,0.55))' }}
+              />
+            </figure>
+            <Panel className="max-w-[68ch] mx-auto text-center">
+              <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne/80 mb-4">
                 Uma metodologia que já existia antes da plataforma
               </p>
               <h3 className="font-cinzel font-bold text-xl sm:text-2xl mb-4">Do e-book ao ambiente vivo</h3>
-              <p className="font-manrope text-[14.5px] text-text-secondary leading-[1.9]">
+              <p className="font-manrope text-[14.5px] text-text-secondary leading-[1.9] max-w-[58ch] mx-auto">
                 Os 11 Frutos nasceram no e-book <em>A Árvore dos Mundos</em>, uma metodologia de worldbuilding que já vendeu
                 mais de <strong className="text-foreground font-semibold">1.500 exemplares</strong>. Agora, o método deixou de existir apenas
                 nas páginas e se transformou em um ambiente vivo de criação.
               </p>
-              <div className="inline-flex items-center gap-2 mt-6 text-[11px] font-manrope uppercase tracking-[0.22em] text-gold-champagne/80">
+              <div className="inline-flex items-center gap-2 mt-6 text-[11px] font-manrope uppercase tracking-[0.2em] text-gold-champagne/80">
                 <Star className="w-3.5 h-3.5" strokeWidth={2} /> +1.500 exemplares vendidos
               </div>
-            </div>
+            </Panel>
           </Reveal>
         </Shell>
       </Band>
+
 
       {/* ============================== 5. CODEX ============================ */}
       <Band>
         <Shell>
-          <div className="grid grid-cols-1 lg:grid-cols-[44%_1fr] gap-14 lg:gap-20 items-center">
-            <Reveal className="lg:order-2">
-              <Eyebrow Icon={Library}>Codex</Eyebrow>
-              <Title className="mb-6">Cada personagem, lugar e descoberta encontra seu lugar.</Title>
-              <Lede>
-                Um universo cresce por meio de relações. Personagens pertencem a povos. Povos ocupam territórios.
-                Religiões influenciam conflitos. Eventos mudam culturas. Objetos carregam histórias. O Codex reúne cada uma dessas partes dentro do mundo ao qual pertencem.
-              </Lede>
+          <SectionHead
+            eyebrow="Codex"
+            Icon={Library}
+            title="Cada personagem, lugar e descoberta encontra seu lugar."
+            lede="Um universo cresce por meio de relações: personagens pertencem a povos, povos ocupam territórios, religiões influenciam conflitos. O Codex reúne cada uma dessas partes dentro do mundo ao qual pertencem."
+          />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-7 mt-10">
-                <div>
-                  <FileText className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
-                  <h3 className="font-cinzel font-bold text-base mb-2">Fichas</h3>
-                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.8]">
-                    Para elementos objetivos: personagens, lugares, organizações e itens.
-                  </p>
-                </div>
-                <div>
-                  <BookOpen className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
-                  <h3 className="font-cinzel font-bold text-base mb-2">Artigos</h3>
-                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.8]">
-                    Para conceitos amplos: sistemas mágicos, períodos históricos, religiões, culturas e acontecimentos.
-                  </p>
-                </div>
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
+            <Reveal className="h-full">
+              <Panel soft className="h-full">
+                <DemoVideo
+                  bare
+                  src={vidCodex.url}
+                  poster={vidCodexPoster.url}
+                  kicker="Codex"
+                  duration="16s"
+                  title="Análise de Mundo dentro do Codex"
+                  desc="Idriel lê o que você registrou e devolve pontos fortes, lacunas e caminhos de aprofundamento."
+                />
+                <VideoCaption kicker="Codex · 16s" title="Análise de Mundo dentro do Codex">
+                  Idriel lê tudo o que você registrou e devolve pontos fortes, lacunas, inconsistências e caminhos de aprofundamento — organizados por seção.
+                </VideoCaption>
+              </Panel>
             </Reveal>
 
-            <Reveal delay={0.12} className="lg:order-1">
-              <DemoVideo
-                bare
-                src={vidCodex.url}
-                poster={vidCodexPoster.url}
-                kicker="Codex"
-                duration="16s"
-                title="Análise de Mundo dentro do Codex"
-                desc="Idriel lê o que você registrou e devolve pontos fortes, lacunas e caminhos de aprofundamento."
-              />
-              <div className="mt-5 pl-1">
-                <p className="font-manrope font-semibold uppercase tracking-[0.24em] text-[10px] text-gold-champagne/80 mb-2">Codex · 16s</p>
-                <h4 className="font-cinzel font-bold text-base text-foreground mb-2">Análise de Mundo dentro do Codex</h4>
-                <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.8] max-w-[46ch]">
-                  Idriel lê tudo o que você registrou e devolve pontos fortes, lacunas, inconsistências e caminhos de aprofundamento — organizados por seção.
-                </p>
+            <Reveal delay={0.1} className="h-full">
+              <div className="h-full grid grid-rows-2 gap-6">
+                <Panel>
+                  <FileText className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
+                  <h3 className="font-cinzel font-bold text-base mb-2">Fichas</h3>
+                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">
+                    Para elementos objetivos: personagens, lugares, organizações e itens.
+                  </p>
+                </Panel>
+                <Panel>
+                  <BookOpen className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
+                  <h3 className="font-cinzel font-bold text-base mb-2">Artigos</h3>
+                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">
+                    Para conceitos amplos: sistemas mágicos, períodos históricos, religiões, culturas e acontecimentos.
+                  </p>
+                </Panel>
               </div>
             </Reveal>
           </div>
 
-          <Reveal delay={0.08} className="mt-16 pt-12 border-t border-gold/[0.08]">
-            <CheckList
-              columns={2}
-              items={[
-                'Criar fichas com imagens',
-                'Escrever artigos completos',
-                'Editar títulos e conteúdos diretamente',
-                'Organizar entradas por mundo',
-                'Importar conteúdos entre mundos',
-                'Consultar referências durante a escrita',
-                'Exportar entradas em PDF',
-                'Manter uma memória central do universo',
-              ]}
-            />
+          <Reveal delay={0.08} className="mt-8">
+            <Panel soft>
+              <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne/80 mb-5">
+                O que você faz no Codex
+              </p>
+              <CheckList
+                columns={2}
+                items={[
+                  'Criar fichas com imagens',
+                  'Escrever artigos completos',
+                  'Editar títulos e conteúdos diretamente',
+                  'Organizar entradas por mundo',
+                  'Importar conteúdos entre mundos',
+                  'Consultar referências durante a escrita',
+                  'Exportar entradas em PDF',
+                  'Manter uma memória central do universo',
+                ]}
+              />
+            </Panel>
           </Reveal>
         </Shell>
       </Band>
+
 
       <Breather>
         Um mundo não se constrói de uma vez. Ele cresce — e precisa de um lugar que cresça junto.
@@ -678,9 +729,10 @@ const LandingPage: React.FC = () => {
         </Shell>
 
         {/* Composição com a personagem ultrapassando o container */}
-        <div className="relative w-full max-w-[1400px] mx-auto px-5 sm:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[42%_1fr] gap-14 lg:gap-16 items-center">
-            <Reveal className="relative lg:-ml-[7%] xl:-ml-[10%]">
+        <div className="relative w-full max-w-[1240px] mx-auto px-5 sm:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[42%_1fr] gap-12 lg:gap-14 items-center">
+            <Reveal className="relative">
+
               <div
                 aria-hidden
                 className="absolute -inset-16 rounded-full blur-[90px] -z-10"
@@ -717,92 +769,91 @@ const LandingPage: React.FC = () => {
               </motion.div>
             </Reveal>
 
-            <Reveal delay={0.12} className="lg:pr-[4%]">
-              <Title className="mb-6">
-                Uma inteligência que conhece seu mundo — sem tomar o lugar de quem o criou.
-              </Title>
-              <Lede>
-                Idriel é a assistente de worldbuilding da Árvore dos Mundos. Ela não existe para escrever o livro por você.
-                Ela existe para ajudar você a enxergar melhor o mundo que está construindo.
-              </Lede>
-              <CheckList
-                className="mt-8"
-                columns={2}
-                items={[
-                  'Fazer perguntas que aprofundam uma ideia',
-                  'Sugerir possibilidades para cada Fruto',
-                  'Identificar lacunas e inconsistências',
-                  'Explorar consequências',
-                  'Ajudar a criar sistemas, calendários e idiomas',
-                  'Resumir descobertas e transformá-las em fichas/artigos',
-                  'Analisar a coerência do universo',
-                ]}
-              />
-              <p className="font-cinzel text-lg text-gold-light mt-10">
-                Idriel sugere. Você decide. Você escreve.
-              </p>
-              <p className="font-merriweather italic text-text-dim text-sm leading-[1.9] mt-3 max-w-[54ch]">
-                A voz continua sendo sua. As escolhas continuam sendo suas. A autoria continua sendo sua.
-              </p>
+            <Reveal delay={0.12}>
+              <Panel>
+                <Title className="mb-5">
+                  Uma inteligência que conhece seu mundo — sem tomar o lugar de quem o criou.
+                </Title>
+                <Lede>
+                  Idriel é a assistente de worldbuilding da Árvore dos Mundos. Ela não existe para escrever o livro por você.
+                  Ela existe para ajudar você a enxergar melhor o mundo que está construindo.
+                </Lede>
+                <CheckList
+                  className="mt-7 pt-7 border-t border-gold/[0.10]"
+                  columns={2}
+                  items={[
+                    'Fazer perguntas que aprofundam uma ideia',
+                    'Sugerir possibilidades para cada Fruto',
+                    'Identificar lacunas e inconsistências',
+                    'Explorar consequências',
+                    'Ajudar a criar sistemas, calendários e idiomas',
+                    'Resumir descobertas e transformá-las em fichas/artigos',
+                    'Analisar a coerência do universo',
+                  ]}
+                />
+                <p className="font-cinzel text-lg text-gold-light mt-8">
+                  Idriel sugere. Você decide. Você escreve.
+                </p>
+                <p className="font-merriweather italic text-text-dim text-sm leading-[1.9] mt-3 max-w-[54ch]">
+                  A voz continua sendo sua. As escolhas continuam sendo suas. A autoria continua sendo sua.
+                </p>
+              </Panel>
             </Reveal>
           </div>
         </div>
 
-        <Shell className="mt-20 lg:mt-24">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_46%] gap-14 lg:gap-20 items-center">
-            <Reveal>
-              <div className="flex items-center gap-2.5 mb-4">
-                <Brain className="w-4 h-4 text-gold-champagne/80" strokeWidth={1.6} />
-                <h3 className="font-cinzel font-bold text-lg">Análise de Mundo</h3>
-              </div>
-              <p className="font-manrope text-[14.5px] text-text-secondary leading-[1.85] mb-6 max-w-[54ch]">
-                Idriel pode analisar o contexto construído e apresentar:
-              </p>
-              <div className="flex flex-wrap gap-2.5">
-                {['Pontos fortes', 'Lacunas', 'Inconsistências', 'Furos narrativos', 'Oportunidades', 'Recomendações de aprofundamento'].map(t => (
-                  <span key={t} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-gold/[0.14] bg-gold/[0.03] text-[12.5px] font-manrope text-text-secondary transition-colors duration-500 hover:border-gold/30">
-                    <span className="w-1 h-1 rounded-full bg-gold-champagne" />{t}
-                  </span>
-                ))}
-              </div>
+        <Shell className="mt-16 lg:mt-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
+            <Reveal className="h-full">
+              <Panel soft className="h-full flex flex-col justify-center">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <Brain className="w-4 h-4 text-gold-champagne/80" strokeWidth={1.6} />
+                  <h3 className="font-cinzel font-bold text-lg">Análise de Mundo</h3>
+                </div>
+                <p className="font-manrope text-[14.5px] text-text-secondary leading-[1.85] mb-6 max-w-[54ch]">
+                  Idriel pode analisar o contexto construído e apresentar:
+                </p>
+                <div className="flex flex-wrap gap-2.5">
+                  {['Pontos fortes', 'Lacunas', 'Inconsistências', 'Furos narrativos', 'Oportunidades', 'Recomendações de aprofundamento'].map(t => (
+                    <span key={t} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-gold/[0.14] bg-gold/[0.03] text-[12.5px] font-manrope text-text-secondary transition-colors duration-500 hover:border-gold/30">
+                      <span className="w-1 h-1 rounded-full bg-gold-champagne" />{t}
+                    </span>
+                  ))}
+                </div>
+              </Panel>
             </Reveal>
 
-            <Reveal delay={0.12}>
-              <DemoVideo
-                bare
-                src={vidIdriel.url}
-                poster={vidIdrielPoster.url}
-                kicker="Ritual da Guardiã"
-                duration="23s"
-                title="Consultando Idriel dentro de um Fruto"
-                desc="Você traz a ideia, Idriel responde a partir do que já existe no seu mundo."
-              />
-              <div className="mt-5 pl-1">
-                <p className="font-manrope font-semibold uppercase tracking-[0.24em] text-[10px] text-gold-champagne/80 mb-2">Ritual da Guardiã · 23s</p>
-                <h4 className="font-cinzel font-bold text-base text-foreground mb-2">Consultando Idriel dentro de um Fruto</h4>
-                <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.8] max-w-[46ch]">
+            <Reveal delay={0.1} className="h-full">
+              <Panel soft className="h-full">
+                <DemoVideo
+                  bare
+                  src={vidIdriel.url}
+                  poster={vidIdrielPoster.url}
+                  kicker="Ritual da Guardiã"
+                  duration="23s"
+                  title="Consultando Idriel dentro de um Fruto"
+                  desc="Você traz a ideia, Idriel responde a partir do que já existe no seu mundo."
+                />
+                <VideoCaption kicker="Ritual da Guardiã · 23s" title="Consultando Idriel dentro de um Fruto">
                   Você traz a ideia, Idriel responde a partir do que já existe no seu mundo — e o resultado pode virar ficha ou artigo no Codex com um clique.
-                </p>
-              </div>
+                </VideoCaption>
+              </Panel>
             </Reveal>
           </div>
         </Shell>
+
       </section>
 
       {/* ============================== 7. OFÍCIO COMPLETO ================== */}
       <Band tone="mist">
         <Shell>
-          <Reveal className="max-w-[58ch] mb-16">
-            <Eyebrow>O ofício completo</Eyebrow>
-            <Title className="mb-6">Do planejamento à escrita, sem abandonar o seu mundo.</Title>
-            <Lede>
-              Worldbuilding não termina quando povos, mapas e sistemas estão prontos. Um mundo só ganha vida
-              quando começa a afetar escolhas, conflitos, cenas e personagens. Por isso, A Árvore dos Mundos reúne
-              construção, organização e escrita dentro do mesmo ambiente.
-            </Lede>
-          </Reveal>
+          <SectionHead
+            eyebrow="O ofício completo"
+            title="Do planejamento à escrita, sem abandonar o seu mundo."
+            lede="Um mundo só ganha vida quando começa a afetar escolhas, conflitos, cenas e personagens. Por isso a Árvore reúne construção, organização e escrita dentro do mesmo ambiente."
+          />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-14 gap-y-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8 items-stretch">
             {[
               {
                 Icon: Feather, title: 'Manuscritos',
@@ -821,52 +872,50 @@ const LandingPage: React.FC = () => {
                 items: ['Pomodoro com intervalos configuráveis', 'Ciclos de trabalho e sons suaves', 'Ambiente de escrita mais imersivo'],
               },
             ].map((b, i) => (
-              <Reveal key={b.title} delay={i * 0.07}>
-                <div className="flex items-center gap-2.5 mb-4 pb-4 border-b border-gold/[0.10]">
-                  <b.Icon className="w-5 h-5 text-gold-champagne/80" strokeWidth={1.4} />
-                  <h3 className="font-cinzel font-bold text-lg">{b.title}</h3>
-                </div>
-                <CheckList items={b.items} />
+              <Reveal key={b.title} delay={i * 0.07} className="h-full">
+                <Panel soft className="h-full">
+                  <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-gold/[0.10]">
+                    <b.Icon className="w-5 h-5 text-gold-champagne/80" strokeWidth={1.4} />
+                    <h3 className="font-cinzel font-bold text-lg">{b.title}</h3>
+                  </div>
+                  <CheckList items={b.items} />
+                </Panel>
               </Reveal>
             ))}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-14 gap-y-12 mt-20">
-            <Reveal>
-              <DemoVideo
-                bare
-                src={vidExport.url}
-                poster={vidExportPoster.url}
-                kicker="Escrever"
-                duration="24s"
-                title="Exportando o manuscrito"
-                desc="Leve o manuscrito inteiro para PDF, Word ou Kindle."
-              />
-              <div className="mt-5 pl-1">
-                <p className="font-manrope font-semibold uppercase tracking-[0.24em] text-[10px] text-gold-champagne/80 mb-2">Escrever · 24s</p>
-                <h4 className="font-cinzel font-bold text-base text-foreground mb-2">Exportando o manuscrito</h4>
-                <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.8] max-w-[50ch]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mt-8 items-stretch">
+            <Reveal className="h-full">
+              <Panel className="h-full">
+                <DemoVideo
+                  bare
+                  src={vidExport.url}
+                  poster={vidExportPoster.url}
+                  kicker="Escrever"
+                  duration="24s"
+                  title="Exportando o manuscrito"
+                  desc="Leve o manuscrito inteiro para PDF, Word ou Kindle."
+                />
+                <VideoCaption kicker="Escrever · 24s" title="Exportando o manuscrito">
                   Termine o capítulo e leve o manuscrito inteiro para PDF, Word ou Kindle — com capa, sumário e formatação pronta para revisão ou publicação.
-                </p>
-              </div>
+                </VideoCaption>
+              </Panel>
             </Reveal>
-            <Reveal delay={0.1}>
-              <DemoVideo
-                bare
-                src={vidImagem.url}
-                poster={vidImagemPoster.url}
-                kicker="Galeria"
-                duration="27s"
-                title="Gerando uma Visão de Idriel"
-                desc="Retratos e paisagens fiéis ao seu Codex, arquivados automaticamente."
-              />
-              <div className="mt-5 pl-1">
-                <p className="font-manrope font-semibold uppercase tracking-[0.24em] text-[10px] text-gold-champagne/80 mb-2">Galeria · 27s</p>
-                <h4 className="font-cinzel font-bold text-base text-foreground mb-2">Gerando uma Visão de Idriel</h4>
-                <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.8] max-w-[50ch]">
+            <Reveal delay={0.1} className="h-full">
+              <Panel className="h-full">
+                <DemoVideo
+                  bare
+                  src={vidImagem.url}
+                  poster={vidImagemPoster.url}
+                  kicker="Galeria"
+                  duration="27s"
+                  title="Gerando uma Visão de Idriel"
+                  desc="Retratos e paisagens fiéis ao seu Codex, arquivados automaticamente."
+                />
+                <VideoCaption kicker="Galeria · 27s" title="Gerando uma Visão de Idriel">
                   Escolha o estilo, descreva a cena e receba retratos e paisagens fiéis ao seu Codex — arquivados automaticamente na pasta certa da Galeria.
-                </p>
-              </div>
+                </VideoCaption>
+              </Panel>
             </Reveal>
           </div>
         </Shell>
@@ -876,28 +925,28 @@ const LandingPage: React.FC = () => {
       {SHOW_IMPORT_BLOCK && (
         <Band>
           <Shell>
-            <div className="grid grid-cols-1 lg:grid-cols-[38%_1fr] gap-12 lg:gap-20">
-              <Reveal>
-                <Eyebrow Icon={Upload}>Importação inteligente</Eyebrow>
-                <Title>Você não precisa começar outra vez.</Title>
-              </Reveal>
-              <Reveal delay={0.1}>
-                <Lede>
-                  Talvez seu mundo já exista há anos. Em documentos, resumos, rascunhos, livros, anotações.
-                  Com a importação inteligente, você envia seus textos e Idriel identifica elementos que podem
-                  se transformar em fichas e artigos.
-                </Lede>
-                <div className="flex flex-wrap gap-2.5 mt-8">
+            <SectionHead
+              eyebrow="Importação inteligente"
+              Icon={Upload}
+              title="Você não precisa começar outra vez."
+              lede="Talvez seu mundo já exista há anos — em documentos, resumos, rascunhos e anotações. Você envia seus textos e Idriel identifica elementos que podem se transformar em fichas e artigos."
+            />
+            <Reveal>
+              <Panel className="max-w-[900px] mx-auto text-center">
+                <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne/80 mb-5">
+                  O que Idriel reconhece nos seus textos
+                </p>
+                <div className="flex flex-wrap justify-center gap-2.5">
                   {['Personagens', 'Lugares', 'Organizações', 'Povos', 'Acontecimentos', 'Sistemas', 'Objetos', 'Conceitos', 'Relações importantes'].map(t => (
                     <span key={t} className="px-3.5 py-1.5 rounded-full border border-gold/[0.14] bg-gold/[0.03] text-[12.5px] font-manrope text-text-secondary transition-colors duration-500 hover:border-gold/30">{t}</span>
                   ))}
                 </div>
-                <p className="font-manrope text-[14px] text-text-dim leading-[1.85] mt-8 max-w-[58ch]">
+                <p className="font-manrope text-[14px] text-text-dim leading-[1.9] mt-7 max-w-[58ch] mx-auto">
                   Você recebe uma lista de sugestões: pode revisar, editar, ignorar, criar individualmente ou criar todas.
                   Seu trabalho anterior não precisa ser descartado para que você comece a utilizar a plataforma.
                 </p>
-              </Reveal>
-            </div>
+              </Panel>
+            </Reveal>
           </Shell>
         </Band>
       )}
@@ -905,17 +954,14 @@ const LandingPage: React.FC = () => {
       {/* ============================== 9. SEGURANÇA ======================== */}
       <Band tone="deep">
         <Shell>
-          <Reveal className="max-w-[58ch] mb-16">
-            <Eyebrow Icon={ShieldCheck}>Segurança</Eyebrow>
-            <Title className="mb-6">Suas ideias pertencem a você. E continuarão pertencendo.</Title>
-            <Lede>
-              Um universo ficcional pode representar anos de trabalho. Personagens, mapas, sistemas, culturas,
-              manuscritos e ideias ainda não publicadas não são apenas dados — são propriedade intelectual.
-              Por isso, segurança e privacidade são compromissos do produto.
-            </Lede>
-          </Reveal>
+          <SectionHead
+            eyebrow="Segurança"
+            Icon={ShieldCheck}
+            title="Suas ideias pertencem a você. E continuarão pertencendo."
+            lede="Personagens, mapas, sistemas, culturas e manuscritos ainda não publicados não são apenas dados — são propriedade intelectual. Segurança e privacidade são compromissos do produto."
+          />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-11">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6 items-stretch">
             {[
               { Icon: Lock, title: 'Conteúdos isolados por usuário', desc: 'Políticas de acesso impedem que uma conta consulte os mundos pertencentes a outra.' },
               { Icon: ShieldCheck, title: 'Conexão protegida', desc: 'A comunicação entre o navegador e a plataforma utiliza conexão criptografada.' },
@@ -924,15 +970,17 @@ const LandingPage: React.FC = () => {
               { Icon: Feather, title: 'Idriel não usa sua obra como propriedade', desc: 'A assistência processa o contexto necessário para executar as ações solicitadas, conforme a Política de Privacidade.' },
               { Icon: Layers, title: 'Exclusão de dados', desc: 'A plataforma oferece meios para excluir mundos, conteúdos e a própria conta, observadas as regras descritas nos termos.' },
             ].map((c, i) => (
-              <Reveal key={c.title} delay={i * 0.05}>
-                <c.Icon className="w-5 h-5 text-gold-champagne/75 mb-4" strokeWidth={1.4} />
-                <h3 className="font-cinzel font-bold text-[15px] mb-2.5 leading-snug">{c.title}</h3>
-                <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">{c.desc}</p>
+              <Reveal key={c.title} delay={i * 0.05} className="h-full">
+                <Panel soft className="h-full">
+                  <c.Icon className="w-5 h-5 text-gold-champagne/75 mb-4" strokeWidth={1.4} />
+                  <h3 className="font-cinzel font-bold text-[15px] mb-2.5 leading-snug">{c.title}</h3>
+                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">{c.desc}</p>
+                </Panel>
               </Reveal>
             ))}
           </div>
 
-          <Reveal delay={0.1}>
+          <Reveal delay={0.1} className="text-center">
             <Link
               to="/seguranca"
               className="inline-flex items-center gap-2 mt-14 px-6 py-3 rounded-xl border border-gold/30 text-gold-light/90 hover:text-gold-light hover:border-gold/50 hover:bg-gold/[0.06] font-manrope font-bold uppercase text-[11px] tracking-[0.18em] transition-all duration-500 hover:-translate-y-[2px]"
@@ -943,31 +991,30 @@ const LandingPage: React.FC = () => {
         </Shell>
       </Band>
 
+
       {/* ============================== 10. PROVAS ========================== */}
       <Band>
         <Shell>
           <div className="space-y-24">
             <div>
-              <Reveal className="max-w-[52ch] mb-14">
-                <Eyebrow>Quem já plantou</Eyebrow>
-                <Title>Antes de virar plataforma, a Árvore já ajudava escritores a construir mundos.</Title>
-                <p className="font-merriweather italic text-text-dim mt-5 leading-[1.9] text-sm">
-                  Estes depoimentos referem-se ao e-book e à metodologia original — não ao uso do aplicativo.
-                </p>
-              </Reveal>
+              <SectionHead
+                eyebrow="Quem já plantou"
+                title="Antes de virar plataforma, a Árvore já ajudava escritores a construir mundos."
+                lede="Estes depoimentos referem-se ao e-book e à metodologia original — não ao uso do aplicativo."
+              />
               <EbookTestimonials />
             </div>
 
             <div>
-              <Reveal className="max-w-[52ch] mb-14">
-                <Title>Mundos que já começaram a criar raízes dentro da plataforma.</Title>
-                <p className="font-merriweather italic text-text-dim mt-5 leading-[1.9] text-sm">
-                  Primeiros usuários que estão construindo seus universos dentro da Árvore dos Mundos.
-                </p>
-              </Reveal>
+              <SectionHead
+                eyebrow="Primeiros mundos"
+                title="Mundos que já começaram a criar raízes dentro da plataforma."
+                lede="Primeiros usuários que estão construindo seus universos dentro da Árvore dos Mundos."
+              />
               <TestimonialPlaceholder kind="beta" count={3} />
             </div>
           </div>
+
         </Shell>
       </Band>
 
@@ -1193,7 +1240,9 @@ const LandingPage: React.FC = () => {
             <Title>Tudo o que costuma ser perguntado antes de plantar.</Title>
           </Reveal>
 
+          <Panel soft className="py-2 sm:py-4">
           <Accordion type="single" collapsible className="w-full">
+
             {[
               {
                 q: 'Idriel escreve meu livro por mim?',
@@ -1258,6 +1307,8 @@ const LandingPage: React.FC = () => {
               </AccordionItem>
             ))}
           </Accordion>
+          </Panel>
+
         </div>
       </Band>
 
