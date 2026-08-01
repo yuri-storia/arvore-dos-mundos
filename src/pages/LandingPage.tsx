@@ -1307,6 +1307,8 @@ const LandingPage: React.FC = () => {
               </AccordionItem>
             ))}
           </Accordion>
+          </Panel>
+
         </div>
       </Band>
 
