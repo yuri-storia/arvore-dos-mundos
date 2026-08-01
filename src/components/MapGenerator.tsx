@@ -184,9 +184,10 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
       </p>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
         <span className="inline-flex items-center gap-1 text-[10px] font-montserrat font-semibold text-gold-champagne">
-          <Droplet className="w-3.5 h-3.5" strokeWidth={1.75} />Custo: 5 gotas por mapa
+          <Droplet className="w-3.5 h-3.5" strokeWidth={1.75} />Custo: {mapCost} gotas por mapa ({quality === 'alta' ? 'Alta Fidelidade' : 'Essencial'})
         </span>
       </div>
+
 
       {!planLimits.canUseAI ? (
         <div className="relative rounded-xl overflow-hidden border border-gold/20 mb-4">
