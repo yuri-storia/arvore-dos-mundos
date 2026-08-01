@@ -253,19 +253,15 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
         <div className="text-red-alert text-xs font-montserrat mt-4 p-2 rounded border border-red-alert/20 bg-red-alert/5">{error}</div>
       )}
 
-      {isBusy && (
-        <div className="flex items-center gap-3 mt-4 p-3 rounded-lg card-glass">
-          <img src={idrielAvatar} alt="Idriel" className="w-8 h-8 rounded-full border border-gold/40" />
-          <div className="flex gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce" />
-            <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-2" />
-            <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-3" />
-          </div>
-          <span className="font-merriweather italic text-xs text-gold-light">
-            {phase === 'prompt' ? 'Traçando as linhas do firmamento…' : 'O Elixir molda o território…'}
-          </span>
-        </div>
+      {mainProg.active && (
+        <GenerationProgress
+          state={mainProg}
+          cost="5 gotas"
+          title={mainProg.status === 'done' ? 'Mapa materializado' : 'Idriel desenha seu território…'}
+          className="mt-4"
+        />
       )}
+
 
       {generatedImage && !isBusy && (
         <div ref={previewRef} className="animate-fadeUp mt-4 card-glass rounded-lg p-4 border border-gold/20 relative scroll-mt-24">
