@@ -746,64 +746,112 @@ const PricingPage: React.FC = () => {
               Faça as contas
             </p>
             <h2 className="font-cinzel font-bold text-[clamp(1.8rem,4vw,2.8rem)] text-foreground mb-4 leading-tight">
-              Quanto custaria <span className="text-gradient-gold">fazer tudo isso separado?</span>
+              Um ano inteiro de Idriel <span className="text-gradient-gold">custa menos que um mês das outras ferramentas</span>
             </h2>
             <p className="font-amiri italic text-text-secondary text-lg max-w-2xl mx-auto leading-relaxed">
-              Compare o que você gastaria assinando cada ferramenta especializada — e em inglês.
+              Compare o que você gastaria montando esse mesmo arsenal peça por peça — e em inglês.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div className="space-y-3">
-              {[
-                { name: 'ChatGPT Plus (IA de texto)', price: 'R$ 115/mês' },
-                { name: 'Midjourney (IA de imagens)', price: 'R$ 58/mês' },
-                { name: 'World Anvil Author (worldbuilding)', price: 'R$ 125/mês' },
-                { name: 'Scrivener (manuscrito)', price: 'R$ 320 vitalício' },
-                { name: 'Notion AI (organização)', price: 'R$ 60/mês' },
-              ].map((c) => (
-                <div key={c.name} className="flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-[rgba(4,12,24,0.45)] px-5 py-3.5">
-                  <span className="font-manrope text-[14px] text-foreground/85">{c.name}</span>
-                  <span className="font-manrope font-bold text-[13px] text-text-secondary line-through whitespace-nowrap">{c.price}</span>
-                </div>
-              ))}
-              <div className="flex items-center justify-between rounded-xl border-2 border-red-alert/40 bg-red-alert/[0.06] px-5 py-4 mt-3">
-                <span className="font-cinzel font-bold text-base text-red-300">Total mensal</span>
-                <span className="font-cinzel font-bold text-2xl text-red-300">R$ 358+/mês</span>
-              </div>
-
-            </div>
-
-            <div
-              className="relative rounded-2xl border-2 border-gold-warm/60 p-8 text-center"
-              style={{
-                background: 'radial-gradient(ellipse at top, hsl(34 38% 30% / 0.28) 0%, hsl(214 60% 4% / 0.94) 80%)',
-                boxShadow: '0 0 70px hsl(var(--gold-bronze) / 0.3)',
-              }}
-            >
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-gradient-gold-premium text-[10px] font-manrope font-bold uppercase tracking-[0.22em] text-[#1a0f00] whitespace-nowrap flex items-center gap-1.5">
-                <Sparkles className="w-3 h-3" />
-                Tudo num plano só
-              </span>
-              <div className="mx-auto mb-4 w-14 h-14 rounded-full bg-gradient-gold-premium flex items-center justify-center shadow-[0_4px_24px_hsl(var(--gold-warm)/0.5)]">
-                <Crown className="w-6 h-6 text-[#1a0f00]" strokeWidth={1.75} />
-              </div>
-              <h3 className="font-cinzel font-bold text-2xl text-gradient-gold mb-1.5">Idriel Anual</h3>
-              <p className="font-amiri italic text-text-secondary text-base mb-5">
-                Worldbuilding + Escrita + IA + Exportação
-              </p>
-              <div className="flex items-baseline justify-center gap-1.5 mb-1.5">
-                <span className="font-cinzel font-bold text-6xl text-gradient-gold">R$ 33</span>
-                <span className="font-manrope text-text-secondary">/mês</span>
-              </div>
-              <p className="font-manrope text-[11px] text-text-secondary mb-6 tracking-wider">
-                R$ 397,90/ano · cobrança única · 2 meses grátis
-              </p>
-              <div className="inline-block px-4 py-2 rounded-full bg-gold-champagne/15 border border-gold-champagne/40 text-gold-champagne font-manrope font-bold text-xs uppercase tracking-[0.18em]">
-                Economia de ~R$ 325/mês
-              </div>
-            </div>
+          {/* Tabela comparativa */}
+          <div className="overflow-x-auto rounded-2xl border border-gold-bronze/35 bg-[rgba(4,12,24,0.55)] backdrop-blur-md">
+            <table className="w-full min-w-[640px] border-collapse">
+              <thead>
+                <tr className="border-b border-gold-bronze/30">
+                  <th className="text-left font-manrope uppercase tracking-[0.2em] text-[10px] text-text-secondary px-5 py-4">
+                    Ferramenta
+                  </th>
+                  <th className="text-left font-manrope uppercase tracking-[0.2em] text-[10px] text-text-secondary px-5 py-4">
+                    O que resolve
+                  </th>
+                  <th className="text-right font-manrope uppercase tracking-[0.2em] text-[10px] text-text-secondary px-5 py-4 whitespace-nowrap">
+                    Custo
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { name: 'ChatGPT Plus', role: 'IA de texto e ideias', price: 'R$ 115/mês' },
+                  { name: 'Midjourney', role: 'IA de imagens e mapas', price: 'R$ 58/mês' },
+                  { name: 'World Anvil Author', role: 'Worldbuilding e wiki', price: 'R$ 125/mês' },
+                  { name: 'Scrivener', role: 'Manuscrito e exportação', price: 'R$ 320 vitalício' },
+                  { name: 'Notion AI', role: 'Organização do projeto', price: 'R$ 60/mês' },
+                ].map((c) => (
+                  <tr key={c.name} className="border-b border-border/40 last:border-0 hover:bg-[rgba(255,255,255,0.02)] transition-colors">
+                    <td className="px-5 py-4 font-manrope text-[14px] text-foreground/90 whitespace-nowrap">{c.name}</td>
+                    <td className="px-5 py-4 font-manrope text-[13px] text-text-secondary">{c.role}</td>
+                    <td className="px-5 py-4 text-right font-manrope font-bold text-[13px] text-text-secondary line-through whitespace-nowrap">
+                      {c.price}
+                    </td>
+                  </tr>
+                ))}
+                <tr className="bg-red-alert/[0.07] border-t-2 border-red-alert/40">
+                  <td className="px-5 py-4 font-cinzel font-bold text-[15px] text-red-300" colSpan={2}>
+                    Primeiro mês somando tudo
+                  </td>
+                  <td className="px-5 py-4 text-right font-cinzel font-bold text-xl text-red-300 whitespace-nowrap">
+                    R$ 678
+                  </td>
+                </tr>
+                <tr className="bg-red-alert/[0.04]">
+                  <td className="px-5 py-3 font-manrope text-[13px] text-red-200/80" colSpan={2}>
+                    Depois, todo mês
+                  </td>
+                  <td className="px-5 py-3 text-right font-manrope font-bold text-[15px] text-red-200/80 whitespace-nowrap">
+                    R$ 358/mês
+                  </td>
+                </tr>
+                <tr
+                  className="border-t-2 border-gold-warm/60"
+                  style={{ background: 'linear-gradient(90deg, hsl(34 38% 30% / 0.22) 0%, hsl(214 60% 4% / 0.6) 100%)' }}
+                >
+                  <td className="px-5 py-5" colSpan={2}>
+                    <div className="flex items-center gap-3">
+                      <span className="w-9 h-9 rounded-full bg-gradient-gold-premium flex items-center justify-center shrink-0">
+                        <Crown className="w-4 h-4 text-[#1a0f00]" strokeWidth={1.9} />
+                      </span>
+                      <div>
+                        <p className="font-cinzel font-bold text-lg text-gradient-gold leading-tight">Idriel Anual</p>
+                        <p className="font-amiri italic text-[13px] text-text-secondary">
+                          Worldbuilding + Escrita + IA de texto e imagem + Exportação
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-5 py-5 text-right whitespace-nowrap">
+                    <p className="font-cinzel font-bold text-3xl text-gradient-gold leading-none">R$ 397,90</p>
+                    <p className="font-manrope text-[11px] text-text-secondary mt-1">o ano inteiro · R$ 33/mês</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
+
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { label: '1 ano de Idriel', value: 'R$ 397,90', note: 'cobrança única · 2 meses grátis' },
+              { label: '1 mês das outras', value: 'R$ 678', note: 'somando o vitalício do Scrivener' },
+              { label: 'Economia no 1º ano', value: '~R$ 4.200', note: 'e tudo num só lugar, em português' },
+            ].map((s, i) => (
+              <div
+                key={s.label}
+                className={`rounded-xl border p-5 text-center ${
+                  i === 2 ? 'border-gold-warm/60 bg-gold-champagne/[0.07]' : 'border-gold-bronze/30 bg-[rgba(4,12,24,0.45)]'
+                }`}
+              >
+                <p className="font-manrope uppercase tracking-[0.2em] text-[10px] text-text-secondary mb-2">{s.label}</p>
+                <p className={`font-cinzel font-bold text-2xl mb-1 ${i === 2 ? 'text-gradient-gold' : 'text-foreground'}`}>
+                  {s.value}
+                </p>
+                <p className="font-manrope text-[11px] text-text-secondary">{s.note}</p>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-6 text-center font-manrope text-[11px] text-text-secondary/70">
+            Valores de referência convertidos para reais em 2026. Sujeitos a variação cambial de cada fornecedor.
+          </p>
+
         </motion.section>
 
         {/* =============== POR QUE ESCOLHER =============== */}
