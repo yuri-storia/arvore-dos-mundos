@@ -86,12 +86,12 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
     setRegenId(h.id);
     regenProg.start();
     try {
-      regenProg.setStage('generating');
       const url = await generateMap({
         style: styleFor(h.style),
         description: h.description || '',
         worldContext: buildWorldContext(),
-      });
+        qualityTier: quality,
+      }, regenProg.setStage);
       regenProg.setStage('saving');
       await updateMapImage(h.id, url);
       regenProg.setStage('charging');
