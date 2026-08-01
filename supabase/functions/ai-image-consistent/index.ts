@@ -93,7 +93,9 @@ serve(async (req) => {
 
     const canonText = typeof referenceText === "string" ? referenceText.slice(0, 4000) : "";
 
-    return ndjsonStream(corsHeaders, async (emit) => {
+    const jobId = await createJob(adminClient, userId, "vision", q.cost, q.tier);
+
+    runJob(adminClient, jobId, async (emit) => {
       emit.phase("compiling", 8);
       const finalPrompt = await compileVisionPrompt(LOVABLE_API_KEY, {
         basePrompt: prompt.slice(0, 6000),
@@ -110,8 +112,11 @@ serve(async (req) => {
       emit.phase("charging", 96);
       await adminClient.rpc("increment_ai_usage", { _user_id: userId, _type: "image", _cost_override: q.cost });
 
-      return { imageUrl, prompt: finalPrompt, quota, referencesUsed: allRefs.length, quality: q.tier, cost: q.cost };
+      return { imageUrl, prompt: finalPrompt };
     });
+
+    return json({ jobId, quota, referencesUsed: allRefs.length, quality: q.tier, cost: q.cost });
+
   } catch (e) {
     console.error("ai-image-consistent error:", e);
     if (e instanceof ImageGenError) return json({ error: e.message }, e.status);
