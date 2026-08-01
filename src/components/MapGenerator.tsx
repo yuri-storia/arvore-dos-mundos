@@ -141,23 +141,31 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
     setShowReview(false);
     setError('');
     setGeneratedImage('');
+    mainProg.start();
     try {
       setPhase('image');
+      mainProg.setStage('generating');
       const url = await generateMap({
         style: styleFor(styleObj.id),
         description: customDesc,
         worldContext: buildWorldContext(),
       });
       setGeneratedImage(url);
+      mainProg.setStage('saving');
       await addMap({ image_url: url, style: styleObj.id, style_label: styleObj.label, description: customDesc });
-
+      mainProg.setStage('charging');
+      mainProg.succeed();
+      setTimeout(() => mainProg.reset(), 1400);
     } catch (e: any) {
       const f = friendlyAIError(e?.message || '');
       setError(`${f.title} ${f.hint}`);
+      mainProg.fail(f.title);
+      setTimeout(() => mainProg.reset(), 3000);
     } finally {
       setPhase('idle');
     }
   };
+
 
   return (
     <div className="border-t border-gold-warm/20 pt-6">
