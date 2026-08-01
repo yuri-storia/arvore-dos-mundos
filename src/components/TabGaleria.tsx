@@ -6,6 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { callAIText, callAIImageConsistent, friendlyAIError } from '@/lib/helpers';
+import { GenerationProgress, useGenerationProgress } from '@/components/GenerationProgress';
+
 import { optimizeImage } from '@/lib/imageOptimizer';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useCodexEntries } from '@/hooks/useCodexEntries';
