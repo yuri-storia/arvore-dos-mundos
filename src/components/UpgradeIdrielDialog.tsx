@@ -2,7 +2,8 @@ import React, { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Sparkles, Crown, TrendingUp, CheckCircle2 } from 'lucide-react';
 import { PLANS } from '@/hooks/useSubscription';
-import { openCheckout } from '@/hooks/useSubscription';
+import { openCheckout, applyPlanChange, useRefreshSubscription } from '@/hooks/useSubscription';
+import { toast } from 'sonner';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useNavigate } from 'react-router-dom';
 
@@ -26,6 +27,7 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
   const navigate = useNavigate();
   const [loading, setLoading] = useState<string | null>(null);
   const checkoutStartedRef = useRef(false);
+  const refreshSub = useRefreshSubscription();
 
   if (!open) return null;
 
@@ -129,7 +131,24 @@ export const UpgradeIdrielDialog: React.FC<UpgradeIdrielDialogProps> = ({ open, 
     checkoutStartedRef.current = true;
     setLoading(code);
     try {
-      await openCheckout(code);
+      // Já é assinante com cobrança ativa na Stripe: upgrade proporcional,
+      // sem novo checkout e com acesso liberado na hora.
+      if (sub.subscribed && sub.canChangePlan) {
+        const res = await applyPlanChange(code);
+        if (res?.needsCheckout) {
+          await openCheckout(code);
+        } else if (res?.error) {
+          toast.error('Não foi possível fazer o upgrade', { description: res.error });
+        } else {
+          refreshSub();
+          toast.success('Upgrade concluído — Idriel já está liberada!', {
+            description: 'Cobramos apenas a diferença proporcional do período atual.',
+          });
+          onClose();
+        }
+      } else {
+        await openCheckout(code);
+      }
     } finally {
       checkoutStartedRef.current = false;
       setLoading(null);
