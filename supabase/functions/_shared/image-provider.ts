@@ -21,11 +21,12 @@ export class ImageGenError extends Error {
 
 export type ImageSize = "1024x1024" | "1536x1024" | "1024x1536";
 
-/** Gera uma imagem em alta qualidade e devolve o PNG em base64 (sem prefixo data:). */
+/** Gera uma imagem e devolve o PNG em base64 (sem prefixo data:). */
 export async function generateImageB64(
   apiKey: string,
   prompt: string,
   size: ImageSize = "1024x1024",
+  quality: "medium" | "high" = "high",
 ): Promise<string> {
   const safePrompt = prompt.length > 8000 ? prompt.slice(0, 8000) : prompt;
 
@@ -36,7 +37,7 @@ export async function generateImageB64(
       model: IMAGE_MODEL,
       prompt: safePrompt,
       size,
-      quality: "high",
+      quality,
       n: 1,
     }),
   });

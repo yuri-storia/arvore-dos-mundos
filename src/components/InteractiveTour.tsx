@@ -175,7 +175,7 @@ const TOUR_STEPS: TourStep[] = [
     type: 'highlight',
     target: 'visoes-idriel',
     title: 'Visões de Idriel — geração de imagens',
-    desc: 'Descreva a cena, escolha estilo e qualidade — Rascunho (2 gotas), Padrão (5) ou Máxima (15) — e eu materializo a imagem. Disponível no plano Idriel.',
+    desc: 'Descreva a cena, escolha estilo e qualidade — Essencial (5 gotas) ou Alta Fidelidade (9 gotas) — e eu materializo a imagem. Disponível no plano Idriel.',
     Icon: Sparkles,
     tooltipPos: 'top',
     mobileCard: 'auto',

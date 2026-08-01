@@ -205,14 +205,102 @@ export async function callAITextStream(
 }
 
 
-// Todas as gerações visuais usam GPT Image 2 em alta qualidade (nível único).
-export async function callAIImage(prompt: string, canonText = '') {
-  const { data, error } = await supabase.functions.invoke('ai-image', {
-    body: { purpose: 'vision', prompt, canonText: canonText.slice(0, 4000) },
+// ---------------------------------------------------------------------------
+// Gerações visuais (GPT Image 2) — resposta em NDJSON com heartbeat.
+// A Alta Fidelidade pode ultrapassar 150s; o stream mantém a conexão viva e
+// entrega as fases reais do servidor.
+// ---------------------------------------------------------------------------
+import type { GenStageId } from '@/components/GenerationProgress';
+import type { QualityTier } from '@/lib/imageQuality';
+
+const PHASE_TO_STAGE: Record<string, GenStageId> = {
+  compiling: 'prompt',
+  generating: 'generating',
+  converting: 'converting',
+  saving: 'saving',
+  charging: 'charging',
+};
+
+export type GenStageCallback = (stage: GenStageId) => void;
+
+async function invokeImageStream(
+  fn: 'ai-image' | 'ai-image-consistent',
+  body: Record<string, unknown>,
+  onStage?: GenStageCallback,
+): Promise<{ imageUrl: string; prompt?: string }> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token;
+  if (!token) throw new Error('Sessão expirada. Entre novamente para gerar imagens.');
+
+  const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${fn}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
   });
-  if (error) await throwInvokeError(error, 'Erro ao gerar imagem');
-  if (data?.error) throw new Error(data.error);
-  return data?.imageUrl || '';
+
+  if (!res.ok) {
+    let message = `Erro ao gerar imagem (${res.status}).`;
+    try {
+      const payload = await res.json();
+      if (payload?.error) message = String(payload.error);
+    } catch { /* corpo não-JSON */ }
+    throw new Error(message);
+  }
+  if (!res.body) throw new Error('Resposta inválida do servidor.');
+
+  const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
+  let buffer = '';
+  let result: { imageUrl: string; prompt?: string } | null = null;
+  let streamError: string | null = null;
+
+  const handleLine = (line: string) => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+    let msg: Record<string, unknown>;
+    try { msg = JSON.parse(trimmed); } catch { return; }
+    if (msg.t === 'phase' && typeof msg.phase === 'string') {
+      const stage = PHASE_TO_STAGE[msg.phase];
+      if (stage) onStage?.(stage);
+    } else if (msg.t === 'done') {
+      result = { imageUrl: String(msg.imageUrl || ''), prompt: msg.prompt ? String(msg.prompt) : undefined };
+    } else if (msg.t === 'error') {
+      streamError = String(msg.error || 'Falha na geração da imagem.');
+    }
+  };
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += value;
+    const parts = buffer.split('\n');
+    buffer = parts.pop() ?? '';
+    for (const line of parts) handleLine(line);
+  }
+  if (buffer) handleLine(buffer);
+
+  if (streamError) throw new Error(streamError);
+  if (!result?.imageUrl) throw new Error('A imagem não foi gerada. Tente novamente.');
+  return result;
+}
+
+export async function callAIImage(
+  prompt: string,
+  canonText = '',
+  qualityTier: QualityTier = 'essencial',
+  onStage?: GenStageCallback,
+) {
+  const out = await invokeImageStream('ai-image', {
+    purpose: 'vision',
+    prompt,
+    canonText: canonText.slice(0, 4000),
+    qualityTier,
+  }, onStage);
+  return out.imageUrl;
 }
 
 // Forja de mapas: o cliente envia apenas parâmetros; o prompt cartográfico é
@@ -221,19 +309,17 @@ export interface MapGenParams {
   style: { id: string; label: string; desc: string; prompt: string; custom?: boolean };
   description?: string;
   worldContext?: string;
+  qualityTier?: QualityTier;
 }
-export async function generateMap(params: MapGenParams): Promise<string> {
-  const { data, error } = await supabase.functions.invoke('ai-image', {
-    body: {
-      purpose: 'map',
-      style: params.style,
-      description: (params.description || '').slice(0, 2000),
-      worldContext: (params.worldContext || '').slice(0, 4000),
-    },
-  });
-  if (error) await throwInvokeError(error, 'Erro ao gerar mapa');
-  if (data?.error) throw new Error(data.error);
-  return data?.imageUrl || '';
+export async function generateMap(params: MapGenParams, onStage?: GenStageCallback): Promise<string> {
+  const out = await invokeImageStream('ai-image', {
+    purpose: 'map',
+    style: params.style,
+    description: (params.description || '').slice(0, 2000),
+    worldContext: (params.worldContext || '').slice(0, 4000),
+    qualityTier: params.qualityTier || 'essencial',
+  }, onStage);
+  return out.imageUrl;
 }
 
 // Geração com referências do Codex/Galeria (até 3, cada uma com um papel).
@@ -243,19 +329,18 @@ export async function callAIImageConsistent(
   prompt: string,
   referenceImageUrls: string[] = [],
   referenceText = '',
-  references: StructuredImageRef[] = []
+  references: StructuredImageRef[] = [],
+  qualityTier: QualityTier = 'essencial',
+  onStage?: GenStageCallback,
 ): Promise<string> {
-  const { data, error } = await supabase.functions.invoke('ai-image-consistent', {
-    body: {
-      prompt,
-      referenceImageUrls: referenceImageUrls.slice(0, 3),
-      referenceText: referenceText.slice(0, 4000),
-      references: references.slice(0, 3),
-    },
-  });
-  if (error) await throwInvokeError(error, 'Erro ao gerar imagem consistente');
-  if (data?.error) throw new Error(data.error);
-  return data?.imageUrl || '';
+  const out = await invokeImageStream('ai-image-consistent', {
+    prompt,
+    referenceImageUrls: referenceImageUrls.slice(0, 3),
+    referenceText: referenceText.slice(0, 4000),
+    references: references.slice(0, 3),
+    qualityTier,
+  }, onStage);
+  return out.imageUrl;
 }
 
 

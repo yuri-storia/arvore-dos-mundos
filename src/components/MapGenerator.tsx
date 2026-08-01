@@ -15,6 +15,8 @@ import { createPortal } from 'react-dom';
 import { StyleCarousel } from '@/components/StyleCarousel';
 import { toast } from 'sonner';
 import { GenerationProgress, useGenerationProgress } from '@/components/GenerationProgress';
+import { QualitySelector } from '@/components/QualitySelector';
+import { qualityCost, type QualityTier } from '@/lib/imageQuality';
 
 
 const FOLDER_FRUITS = FRUITS.filter(f => f.id !== 10);
@@ -49,6 +51,7 @@ type Phase = 'idle' | 'prompt' | 'image';
 export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGallery }) => {
   const planLimits = usePlanLimits();
   const [selectedStyle, setSelectedStyle] = useState<string>('explorer');
+  const [quality, setQuality] = useState<QualityTier>('essencial');
   const [customDesc, setCustomDesc] = useState('');
   const [generatedImage, setGeneratedImage] = useState('');
   const [phase, setPhase] = useState<Phase>('idle');
@@ -56,6 +59,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
   const [showReview, setShowReview] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState<string>(FOLDER_FRUITS[0].name);
+  const mapCost = qualityCost('map', quality);
 
   const { history, addMap, updateMapImage, deleteMap, hasMore, loadMore, isFetchingMore } = useMapHistory(worldId);
   const [showHistory, setShowHistory] = useState(false);
@@ -82,12 +86,12 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
     setRegenId(h.id);
     regenProg.start();
     try {
-      regenProg.setStage('generating');
       const url = await generateMap({
         style: styleFor(h.style),
         description: h.description || '',
         worldContext: buildWorldContext(),
-      });
+        qualityTier: quality,
+      }, regenProg.setStage);
       regenProg.setStage('saving');
       await updateMapImage(h.id, url);
       regenProg.setStage('charging');
@@ -146,12 +150,12 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
     mainProg.start();
     try {
       setPhase('image');
-      mainProg.setStage('generating');
       const url = await generateMap({
         style: styleFor(styleObj.id),
         description: customDesc,
         worldContext: buildWorldContext(),
-      });
+        qualityTier: quality,
+      }, mainProg.setStage);
       setGeneratedImage(url);
       mainProg.setStage('saving');
       await addMap({ image_url: url, style: styleObj.id, style_label: styleObj.label, description: customDesc });
@@ -180,9 +184,10 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
       </p>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
         <span className="inline-flex items-center gap-1 text-[10px] font-montserrat font-semibold text-gold-champagne">
-          <Droplet className="w-3.5 h-3.5" strokeWidth={1.75} />Custo: 5 gotas por mapa
+          <Droplet className="w-3.5 h-3.5" strokeWidth={1.75} />Custo: {mapCost} gotas por mapa ({quality === 'alta' ? 'Alta Fidelidade' : 'Essencial'})
         </span>
       </div>
+
 
       {!planLimits.canUseAI ? (
         <div className="relative rounded-xl overflow-hidden border border-gold/20 mb-4">
@@ -224,6 +229,14 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
           </div>
 
 
+          <QualitySelector
+            surface="map"
+            value={quality}
+            onChange={setQuality}
+            disabled={isBusy}
+            className="mb-4"
+          />
+
           <textarea
             value={customDesc}
             onChange={e => setCustomDesc(e.target.value)}
@@ -244,8 +257,9 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
               <Wand2 className="w-4 h-4" strokeWidth={2} />
               {isBusy ? 'Idriel está desenhando…' : 'Gerar Mapa com Idriel'}
             </button>
-            <p className="font-merriweather italic text-[10px] text-text-dim">Você poderá revisar antes de confirmar as 5 gotas.</p>
+            <p className="font-merriweather italic text-[10px] text-text-dim">Você poderá revisar antes de confirmar as {mapCost} gotas.</p>
           </div>
+
         </>
       )}
 
@@ -256,7 +270,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
       {mainProg.active && (
         <GenerationProgress
           state={mainProg}
-          cost="5 gotas"
+          cost={`${mapCost} gotas`}
           title={mainProg.status === 'done' ? 'Mapa materializado' : 'Idriel desenha seu território…'}
           className="mt-4"
         />
@@ -432,10 +446,10 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
 
             <div className="rounded-lg border border-gold/20 bg-gold/[0.05] p-3 mb-4 flex items-center justify-between">
               <div>
-                <div className="font-cinzel text-xs text-gold-light">Custo</div>
-                <div className="font-merriweather text-[10px] text-text-dim">Tempo estimado ~30s</div>
+                <div className="font-cinzel text-xs text-gold-light">Custo · {quality === 'alta' ? 'Alta Fidelidade' : 'Essencial'}</div>
+                <div className="font-merriweather text-[10px] text-text-dim">Tempo estimado {quality === 'alta' ? '~2min' : '~1min'}</div>
               </div>
-              <div className="font-montserrat font-bold text-sm text-gold inline-flex items-center gap-1"><Droplet className="w-3.5 h-3.5" />5 gotas</div>
+              <div className="font-montserrat font-bold text-sm text-gold inline-flex items-center gap-1"><Droplet className="w-3.5 h-3.5" />{mapCost} gotas</div>
             </div>
 
             <div className="flex gap-2 justify-end">

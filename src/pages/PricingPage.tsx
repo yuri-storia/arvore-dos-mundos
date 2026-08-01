@@ -101,7 +101,7 @@ const PricingPage: React.FC = () => {
         'Exportação PDF e E-pub/Kindle',
         'Identificação automática de fichas e artigos',
         'Corretor textual AI Powered',
-        '100 gotas de Elixir por mês',
+        '150 gotas de Elixir por mês',
         'Recargas avulsas a partir de R$ 4,90 (exclusivo Idriel)',
       ],
       missing: [],
@@ -782,9 +782,9 @@ const PricingPage: React.FC = () => {
             {[
               { q: 'Como começo?', a: 'Escolha Raiz ou Idriel, finalize o checkout e sua Árvore é plantada na hora. Não há versão gratuita: cada plano dá acesso completo às funcionalidades do seu nível desde o primeiro minuto.' },
               { q: 'Qual a diferença entre Raiz e Idriel?', a: 'Raiz te dá worldbuilding e escrita ilimitados, com exportação. Idriel acrescenta toda a parte de IA: assistente Idriel, geração de imagens, mapas e análise de mundo. Comece pelo Raiz e suba para Idriel quando quiser turbinar com IA.' },
-              { q: 'O que é o Elixir dos Mundos?', a: 'É a poção que Idriel destila a partir da Seiva Lendária da Árvore dos Mundos — a essência que alimenta toda a magia da plataforma. Cada gota é um pedaço dessa Seiva: texto, consulta a Idriel, análise de mundo e import de documentos custam 1 gota; imagens vão de 2 gotas (Rascunho) a 5 (Padrão) ou 15 (Qualidade Máxima cinematográfica). O plano Idriel inclui 100 gotas renovadas por mês, e você pode recarregar avulso a partir de R$ 4,90 sem mexer na assinatura.' },
+              { q: 'O que é o Elixir dos Mundos?', a: 'É a poção que Idriel destila a partir da Seiva Lendária da Árvore dos Mundos — a essência que alimenta toda a magia da plataforma. Cada gota é um pedaço dessa Seiva: texto, consulta a Idriel, análise de mundo e import de documentos custam 1 gota; imagens da Galeria custam 5 gotas (Essencial) ou 9 (Alta Fidelidade) e mapas 7 ou 10 gotas. O plano Idriel inclui 150 gotas renovadas por mês, e você pode recarregar avulso a partir de R$ 4,90 sem mexer na assinatura.' },
               { q: 'Meus mundos ficam salvos? Posso exportar tudo?', a: 'Sim. Tudo é salvo automaticamente na nuvem. Exporte seu Codex e Manuscrito em PDF, Word ou Kindle a qualquer momento — o conteúdo é seu, para sempre.' },
-              { q: 'A IA é boa mesmo? Que modelo vocês usam?', a: 'Idriel roda nos modelos mais recentes do mercado: Gemini 3 Flash Preview para texto e análises, Nano Banana Pro (Gemini 3 Pro Image) para imagens padrão com canon do Codex, e GPT Image 2 da OpenAI no nível Qualidade Máxima — todos com prompts adaptados em pt-BR.' },
+              { q: 'A IA é boa mesmo? Que modelo vocês usam?', a: 'Idriel roda nos modelos mais recentes do mercado: Gemini 3 Flash Preview para texto e análises, Nano Banana Pro (Gemini 3 Pro Image) para imagens padrão com canon do Codex, e GPT Image 2 da OpenAI nas gerações visuais — todos com prompts adaptados em pt-BR.' },
               { q: 'Como funciona o pagamento?', a: 'Cartão de crédito, boleto ou Pix processados via Asaas (instituição de pagamento brasileira regulamentada pelo Banco Central). No anual, cobrança única com 2 meses grátis. No mensal, cobrança recorrente. Sem fidelidade — cancele a qualquer momento.' },
             ].map((item, i) => (
               <details key={i} className="group rounded-xl border border-gold-bronze/25 bg-card/40 backdrop-blur-md overflow-hidden hover:border-gold-warm/40 transition-colors">
@@ -862,8 +862,8 @@ const PricingPage: React.FC = () => {
               { drops: 15, price: 'R$ 4,90', perDrop: '0,33', id: 'recarga_15', badge: null },
               { drops: 25, price: 'R$ 7,90', perDrop: '0,32', id: 'recarga_25', badge: null },
               { drops: 50, price: 'R$ 14,90', perDrop: '0,30', id: 'recarga_50', badge: null },
-              { drops: 100, price: 'R$ 27,90', perDrop: '0,28', id: 'recarga_100', badge: 'Popular' },
-              { drops: 200, price: 'R$ 54,90', perDrop: '0,27', id: 'recarga_200', badge: 'Melhor valor' },
+              { drops: 100, price: 'R$ 28,90', perDrop: '0,28', id: 'recarga_100', badge: 'Popular' },
+              { drops: 200, price: 'R$ 56,90', perDrop: '0,27', id: 'recarga_200', badge: 'Melhor valor' },
             ].map((pkg) => {
               const highlighted = !!pkg.badge;
               return (

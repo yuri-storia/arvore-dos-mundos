@@ -7,6 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { callAIText, callAIImageConsistent, friendlyAIError } from '@/lib/helpers';
 import { GenerationProgress, useGenerationProgress } from '@/components/GenerationProgress';
+import { QualitySelector } from '@/components/QualitySelector';
+import { qualityCost, type QualityTier } from '@/lib/imageQuality';
 
 import { optimizeImage } from '@/lib/imageOptimizer';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
@@ -161,6 +163,8 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
   const [regenVisionId, setRegenVisionId] = useState<string | null>(null);
   const regenProg = useGenerationProgress();
   const genProg = useGenerationProgress();
+  const [quality, setQuality] = useState<QualityTier>('essencial');
+  const galleryCost = qualityCost('gallery', quality);
 
   const visionScrollRef = useRef<HTMLDivElement>(null);
   const visionVirt = useVirtualizer({
@@ -404,7 +408,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
     idrielJobs.run({
       id: jobId, kind: 'image',
       label: `Materializando: ${desc.slice(0, 40)}`,
-      task: () => callAIImageConsistent(promptToUse, legacyUrls, codexContext, structured),
+      task: () => callAIImageConsistent(promptToUse, legacyUrls, codexContext, structured, quality, genProg.setStage),
     });
   };
 
@@ -421,8 +425,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
         const styleHint = STYLE_META.find(s => s.label === v.style)?.promptHint || '';
         prompt = `${v.description}. Style: ${v.style || ''} (${styleHint}). Type: ${v.image_type || ''}. Tone: ${v.tone || ''}.`;
       }
-      regenProg.setStage('generating');
-      const url = await callAIImageConsistent(prompt, [], codexContext, []);
+      const url = await callAIImageConsistent(prompt, [], codexContext, [], quality, regenProg.setStage);
       regenProg.setStage('saving');
       await updateVisionImage(v.id, url);
       regenProg.setStage('charging');
@@ -977,6 +980,14 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                     </section>
                   </div>
 
+                  <QualitySelector
+                    surface="gallery"
+                    value={quality}
+                    onChange={setQuality}
+                    disabled={loading1 || loading2}
+                    className="pt-1"
+                  />
+
                   {/* 4) Botão pulsante único */}
                   <div className="flex flex-col items-center gap-2 pt-2">
                     <button
@@ -989,7 +1000,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                       {(loading1 || loading2) ? 'Idriel está trabalhando…' : 'Gerar Imagem com Idriel'}
                     </button>
                     <p className="font-merriweather italic text-[11px] text-text-dim text-center max-w-md">
-                      Você poderá revisar todas as escolhas antes de confirmar o gasto de gotas.
+                      Você poderá revisar todas as escolhas antes de confirmar as {galleryCost} gotas.
                     </p>
                   </div>
 
@@ -998,7 +1009,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                   {(genProg.active || loading1 || loading2) && (
                     <GenerationProgress
                       state={genProg.active ? genProg : { active: true, status: 'running', stage: loading1 ? 'prompt' : 'generating', stageIndex: loading1 ? 0 : 1, pct: loading1 ? 8 : 45, elapsed: 0 }}
-                      cost="16 gotas"
+                      cost={`${galleryCost} gotas`}
                       title={genProg.status === 'done' ? 'Visão materializada' : 'Idriel materializa sua visão…'}
                       className="mt-4"
                     />
@@ -1215,10 +1226,10 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
 
             <div className="rounded-lg border border-gold/20 bg-gold/[0.05] p-3 mb-4 flex items-center justify-between">
               <div>
-                <div className="font-cinzel text-xs text-gold-light">Custo</div>
-                <div className="font-merriweather text-[10px] text-text-dim">Alta qualidade (GPT Image 2) · até ~2 min</div>
+                <div className="font-cinzel text-xs text-gold-light">Custo · {quality === 'alta' ? 'Alta Fidelidade' : 'Essencial'}</div>
+                <div className="font-merriweather text-[10px] text-text-dim">GPT Image 2 · {quality === 'alta' ? 'até ~2 min' : 'até ~1 min'}</div>
               </div>
-              <div className="font-montserrat font-bold text-sm text-gold">16 gotas</div>
+              <div className="font-montserrat font-bold text-sm text-gold">{galleryCost} gotas</div>
             </div>
 
 

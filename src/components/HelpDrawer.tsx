@@ -55,13 +55,13 @@ const FAQ: Record<string, { label: string; items: { q: string; a: string }[] }> 
     label: 'Galeria',
     items: [
       { q: 'Como funcionam as pastas?', a: 'A Galeria tem **10 pastas** — uma para cada Fruto — e organiza suas imagens automaticamente.' },
-      { q: 'O que são as Visões de Idriel?', a: 'Geração de imagens em 3 níveis: **Rascunho (2 gotas)**, **Padrão (5 gotas)** e **Qualidade Máxima (15 gotas)**.' },
+      { q: 'O que são as Visões de Idriel?', a: 'Geração de imagens em 2 níveis: **Essencial (5 gotas)** e **Alta Fidelidade (9 gotas)**. Mapas custam 7 ou 10 gotas.' },
     ],
   },
   geral: {
     label: 'Geral',
     items: [
-      { q: 'Quais são os planos?', a: '**Criador (R$ 19,90/mês ou R$ 197,90/ano)** libera worldbuilding, fichas, escrita e exportação em PDF. **Idriel (R$ 39,90/mês ou R$ 397,90/ano)** adiciona todas as IAs, geração de imagens e 100 gotas de Elixir por mês.' },
+      { q: 'Quais são os planos?', a: '**Criador (R$ 19,90/mês ou R$ 197,90/ano)** libera worldbuilding, fichas, escrita e exportação em PDF. **Idriel (R$ 39,90/mês ou R$ 397,90/ano)** adiciona todas as IAs, geração de imagens e 150 gotas de Elixir por mês.' },
       { q: 'Como criar múltiplos mundos?', a: 'Com plano ativo, use a barra lateral (desktop) ou o menu **Meus Projetos** (mobile) para criar um novo mundo.' },
     ],
   },

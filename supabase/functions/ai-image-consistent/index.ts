@@ -3,6 +3,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { generateImageB64, persistImage, ImageGenError } from "../_shared/image-provider.ts";
 import { compileVisionPrompt, type RefIntent, type StructuredRef } from "../_shared/prompt-compilers.ts";
+import { resolveQuality } from "../_shared/image-quality.ts";
+import { ndjsonStream } from "../_shared/ndjson-stream.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -43,8 +45,23 @@ serve(async (req) => {
     const rl = await checkRateLimit(adminClient, userId, "ai-image-consistent", 6);
     if (rl) return rl;
 
-    // Nível único de qualidade na Galeria → sempre `image_premium` (15 gotas).
-    const { data: quota } = await adminClient.rpc("check_ai_quota", { _user_id: userId, _type: "image_premium" });
+    let body: unknown;
+    try { body = await req.json(); } catch { return json({ error: "Invalid JSON body" }, 400); }
+    if (!body || typeof body !== "object" || Array.isArray(body)) return json({ error: "Invalid request body" }, 400);
+
+    const { prompt, referenceImageUrls, referenceText, references, qualityTier } = body as Record<string, unknown>;
+    if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
+      return json({ error: "prompt must be a non-empty string" }, 400);
+    }
+
+    // Qualidade/custo definidos pela matriz central da Galeria.
+    const q = resolveQuality("gallery", qualityTier);
+
+    const { data: quota } = await adminClient.rpc("check_ai_quota", {
+      _user_id: userId,
+      _type: "image",
+      _cost_override: q.cost,
+    });
     if (!quota?.allowed) {
       const reason = quota?.reason || "unknown";
       const messages: Record<string, string> = {
@@ -52,15 +69,6 @@ serve(async (req) => {
         credit_limit_reached: "Gotas insuficientes. Faça uma recarga ou aguarde a renovação mensal.",
       };
       return json({ error: messages[reason] || "Quota exceeded", quota }, 403);
-    }
-
-    let body: unknown;
-    try { body = await req.json(); } catch { return json({ error: "Invalid JSON body" }, 400); }
-    if (!body || typeof body !== "object" || Array.isArray(body)) return json({ error: "Invalid request body" }, 400);
-
-    const { prompt, referenceImageUrls, referenceText, references } = body as Record<string, unknown>;
-    if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
-      return json({ error: "prompt must be a non-empty string" }, 400);
     }
 
     // Referências com papéis (identidade/estilo/ambiente/composição/paleta) — no máximo 3.
@@ -75,7 +83,6 @@ serve(async (req) => {
         }).slice(0, 3)
       : [];
 
-    // Compatibilidade: lista simples de imagens de cânone do Codex.
     const legacyUrls: string[] = Array.isArray(referenceImageUrls)
       ? (referenceImageUrls as unknown[]).filter((u): u is string => typeof u === "string" && u.length < 4000).slice(0, 3)
       : [];
@@ -86,18 +93,25 @@ serve(async (req) => {
 
     const canonText = typeof referenceText === "string" ? referenceText.slice(0, 4000) : "";
 
-    const finalPrompt = await compileVisionPrompt(LOVABLE_API_KEY, {
-      basePrompt: prompt.slice(0, 6000),
-      canonText,
-      references: allRefs,
+    return ndjsonStream(corsHeaders, async (emit) => {
+      emit.phase("compiling", 8);
+      const finalPrompt = await compileVisionPrompt(LOVABLE_API_KEY, {
+        basePrompt: prompt.slice(0, 6000),
+        canonText,
+        references: allRefs,
+      });
+
+      emit.phase("generating", 25);
+      const b64 = await generateImageB64(LOVABLE_API_KEY, finalPrompt, "1024x1024", q.quality);
+
+      emit.phase("saving", 88);
+      const imageUrl = await persistImage(adminClient, userId, b64, "vision");
+
+      emit.phase("charging", 96);
+      await adminClient.rpc("increment_ai_usage", { _user_id: userId, _type: "image", _cost_override: q.cost });
+
+      return { imageUrl, prompt: finalPrompt, quota, referencesUsed: allRefs.length, quality: q.tier, cost: q.cost };
     });
-
-    const b64 = await generateImageB64(LOVABLE_API_KEY, finalPrompt, "1024x1024");
-    const imageUrl = await persistImage(adminClient, userId, b64, "vision");
-
-    await adminClient.rpc("increment_ai_usage", { _user_id: userId, _type: "image_premium" });
-
-    return json({ imageUrl, prompt: finalPrompt, quota, referencesUsed: allRefs.length });
   } catch (e) {
     console.error("ai-image-consistent error:", e);
     if (e instanceof ImageGenError) return json({ error: e.message }, e.status);

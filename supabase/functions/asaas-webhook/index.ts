@@ -29,8 +29,8 @@ const RECHARGE_MAP: Record<string, { drops: number; displayName: string; amount:
   recarga_15:  { drops: 15,  displayName: "15 gotas",  amount: 4.90  },
   recarga_25:  { drops: 25,  displayName: "25 gotas",  amount: 7.90  },
   recarga_50:  { drops: 50,  displayName: "50 gotas",  amount: 14.90 },
-  recarga_100: { drops: 100, displayName: "100 gotas", amount: 27.90 },
-  recarga_200: { drops: 200, displayName: "200 gotas", amount: 54.90 },
+  recarga_100: { drops: 100, displayName: "100 gotas", amount: 28.90 },
+  recarga_200: { drops: 200, displayName: "200 gotas", amount: 56.90 },
 };
 
 const ASAAS_BASE = "https://api.asaas.com/v3";

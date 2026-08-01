@@ -28,7 +28,7 @@ const TAB_TIPS: Record<string, Tip[]> = {
   ],
   galeria: [
     { Icon: ImageIcon, title: 'Referências visuais', desc: 'Traga as imagens que inspiram seu mundo — concept arts, mapas, paisagens. Categorize por Fruto para encontrar facilmente.' },
-    { Icon: Sparkles, title: 'Visões de Idriel (plano completo)', desc: 'Logo abaixo da galeria, abra "Visões de Idriel" para gerar imagens com IA em 3 níveis: Rascunho (2 gotas), Padrão (5 gotas) ou Qualidade Máxima (15 gotas). Descreva o que imagina e Idriel materializa. Recurso exclusivo do plano Template + Idriel.' },
+    { Icon: Sparkles, title: 'Visões de Idriel (plano completo)', desc: 'Logo abaixo da galeria, abra "Visões de Idriel" para gerar imagens com IA em 2 níveis: Essencial (5 gotas) ou Alta Fidelidade (9 gotas). Descreva o que imagina e Idriel materializa. Recurso exclusivo do plano Template + Idriel.' },
   ],
 };
 
