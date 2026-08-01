@@ -163,7 +163,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
 
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center gap-1">
+      <div className={`relative z-10 flex flex-col items-center ${isMobile ? 'flex-1 justify-center gap-2 py-4' : 'gap-1 pt-6 pb-4'}`}>
         {/* Brand badge */}
         <div className="inline-block px-3 py-1 rounded-full border border-blue-bright/15 bg-blue-bright/[0.04] backdrop-blur-sm">
           <span className="font-cinzel text-[9px] tracking-[0.18em] text-white uppercase">
