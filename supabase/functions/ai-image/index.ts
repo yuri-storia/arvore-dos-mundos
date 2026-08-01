@@ -70,7 +70,10 @@ serve(async (req) => {
       return json({ error: "prompt or map parameters are required" }, 400);
     }
 
-    return ndjsonStream(corsHeaders, async (emit) => {
+    // Trabalho assíncrono: respondemos já com o jobId e seguimos em background.
+    const jobId = await createJob(adminClient, userId, purpose, q.cost, q.tier);
+
+    runJob(adminClient, jobId, async (emit) => {
       emit.phase("compiling", 8);
 
       let finalPrompt = "";
@@ -104,8 +107,11 @@ serve(async (req) => {
       emit.phase("charging", 96);
       await adminClient.rpc("increment_ai_usage", { _user_id: userId, _type: "image", _cost_override: q.cost });
 
-      return { imageUrl, prompt: finalPrompt, quota, purpose, quality: q.tier, cost: q.cost };
+      return { imageUrl, prompt: finalPrompt };
     });
+
+    return json({ jobId, quota, purpose, quality: q.tier, cost: q.cost });
+
   } catch (e) {
     console.error("ai-image error:", e);
     if (e instanceof ImageGenError) return json({ error: e.message }, e.status);
