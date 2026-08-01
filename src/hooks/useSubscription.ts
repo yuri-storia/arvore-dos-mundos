@@ -1,4 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -75,6 +77,15 @@ export interface SubscriptionInfo {
   hasIdriel: boolean;
   hasTemplate: boolean;
   subscriptionEnd: string | null;
+  /** 'monthly' | 'yearly' */
+  billingCycle: string | null;
+  /** Assinatura ativa, mas já cancelada — segue até o fim do ciclo pago */
+  cancelAtPeriodEnd: boolean;
+  /** Existe assinatura na Stripe capaz de troca de plano sem novo checkout */
+  canChangePlan: boolean;
+  /** Downgrade agendado para o fim do ciclo */
+  scheduledPlanCode: string | null;
+  scheduledAt: string | null;
   // Legacy compat
   active: boolean;
   creditsUsed: number;
@@ -82,7 +93,7 @@ export interface SubscriptionInfo {
   bonusDrops: number;
 }
 
-const CREDIT_LIMIT = 100;
+const CREDIT_LIMIT = 150;
 const IMAGE_CREDIT_COST = 5;
 
 const EMPTY_INFO: SubscriptionInfo = {
@@ -93,6 +104,11 @@ const EMPTY_INFO: SubscriptionInfo = {
   hasIdriel: false,
   hasTemplate: false,
   subscriptionEnd: null,
+  billingCycle: null,
+  cancelAtPeriodEnd: false,
+  canChangePlan: false,
+  scheduledPlanCode: null,
+  scheduledAt: null,
   active: false,
   creditsUsed: 0,
   creditLimit: CREDIT_LIMIT,
@@ -100,6 +116,7 @@ const EMPTY_INFO: SubscriptionInfo = {
 };
 
 const NO_USER_INFO: SubscriptionInfo = { ...EMPTY_INFO, loading: false };
+
 
 // React Query compartilha o resultado entre TODOS os componentes que
 // chamam useSubscription (DropsCounterBadge, SubscriptionBanner,
@@ -144,10 +161,16 @@ export function useSubscription(): SubscriptionInfo {
           hasIdriel: !!data.has_idriel,
           hasTemplate: !!(data.has_template || data.has_idriel),
           subscriptionEnd: data.subscription_end,
+          billingCycle: data.billing_cycle ?? null,
+          cancelAtPeriodEnd: !!data.cancel_at_period_end,
+          canChangePlan: !!data.can_change_plan,
+          scheduledPlanCode: data.scheduled_plan_code ?? null,
+          scheduledAt: data.scheduled_at ?? null,
           active: !!data.has_idriel,
           creditsUsed,
           creditLimit: CREDIT_LIMIT,
           bonusDrops: data.bonus_drops || 0,
+
         };
       } catch {
         return { ...EMPTY_INFO, loading: false };
@@ -185,6 +208,62 @@ export async function openCheckout(planId: string, invite?: string) {
   }
 }
 
+// ── Troca de plano (upgrade / downgrade / ciclo) ─────────────────────────
+export type PlanChangeDirection = 'upgrade' | 'downgrade' | 'same';
+
+export interface PlanChangePreview {
+  ok?: boolean;
+  needsCheckout?: boolean;
+  error?: string;
+  direction?: PlanChangeDirection;
+  currentPlanCode?: string | null;
+  targetPlanCode?: string;
+  effectiveAt?: 'now' | 'period_end';
+  periodEnd?: string | null;
+  amountDue?: number | null;
+  credit?: number | null;
+  cancelAtPeriodEnd?: boolean;
+}
+
+async function callChangePlan(body: Record<string, unknown>): Promise<any> {
+  const { data, error } = await supabase.functions.invoke('stripe-change-plan', { body });
+  if (error) {
+    // Erros HTTP da edge function trazem o corpo em error.context
+    let detail = error.message;
+    try { detail = await (error as any).context?.text?.() ?? detail; } catch { /* noop */ }
+    try { const parsed = JSON.parse(detail); detail = parsed.error || detail; } catch { /* noop */ }
+    return { error: detail };
+  }
+  return data;
+}
+
+/** Simula a troca: direção, valor proporcional e data de efeito. */
+export function previewPlanChange(planId: string): Promise<PlanChangePreview> {
+  return callChangePlan({ planId, action: 'preview' });
+}
+
+/** Aplica a troca de plano. */
+export function applyPlanChange(planId: string): Promise<PlanChangePreview> {
+  return callChangePlan({ planId, action: 'apply' });
+}
+
+/** Desfaz um cancelamento pendente. */
+export function reactivateSubscription(): Promise<any> {
+  return callChangePlan({ action: 'reactivate' });
+}
+
+/** Desfaz um downgrade agendado. */
+export function cancelScheduledChange(): Promise<any> {
+  return callChangePlan({ action: 'cancel_scheduled' });
+}
+
+/** Hook para revalidar o estado da assinatura após uma mudança. */
+export function useRefreshSubscription() {
+  const qc = useQueryClient();
+  return useCallback(() => {
+    qc.invalidateQueries({ queryKey: ['subscription'] });
+  }, [qc]);
+}
 
 
 export async function openCustomerPortal() {

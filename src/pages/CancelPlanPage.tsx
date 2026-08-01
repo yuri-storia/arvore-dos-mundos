@@ -62,7 +62,7 @@ const CancelPlanPage: React.FC = () => {
             <p className="text-sm text-text-secondary font-merriweather leading-relaxed">
               Sua assinatura foi cancelada. <strong className="text-foreground">Você mantém acesso à sua conta</strong>,
               mas em modo somente leitura: pode consultar mundos, fichas, artigos e manuscritos e
-              exportar em PDF. Novas edições e criações ficam bloqueadas até você reativar um plano.
+              exportar em PDF e Word (.docx). Novas edições e criações ficam bloqueadas até você reativar um plano.
             </p>
             <div className="flex flex-wrap gap-2 pt-2">
               <Link to="/planos" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-[#1a0f00] text-xs font-montserrat font-bold uppercase tracking-wider">
@@ -93,7 +93,7 @@ const CancelPlanPage: React.FC = () => {
             </div>
             <ul className="space-y-2 text-sm text-text-secondary font-merriweather">
               <li className="flex gap-2"><Check className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" /> Sua conta e todos os seus mundos, fichas, artigos e manuscritos permanecem preservados.</li>
-              <li className="flex gap-2"><Check className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" /> Você continua podendo exportar Manuscritos, Fichas e Artigos em PDF.</li>
+              <li className="flex gap-2"><Check className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" /> Você continua podendo exportar Manuscritos, Fichas e Artigos em PDF e Word (.docx). Nada é apagado — a exclusão só acontece se você pedir em Configurações.</li>
               <li className="flex gap-2"><ShieldOff className="w-4 h-4 text-red-alert mt-0.5 shrink-0" /> Você não poderá mais editar, criar ou usar recursos com Idriel até reativar um plano.</li>
               <li className="flex gap-2"><ShieldOff className="w-4 h-4 text-red-alert mt-0.5 shrink-0" /> O acesso a novas gerações de imagem, mapas e análises fica desativado.</li>
             </ul>

@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
     const nowIso = new Date().toISOString();
     const { data: sub } = await supa
       .from("subscriptions")
-      .select("plan_code, has_idriel, expires_at, status")
+      .select("plan_code, has_idriel, expires_at, status, cancelled_at, billing_cycle, stripe_subscription_id")
       .eq("user_id", userId)
       .eq("status", "active")
       .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
@@ -64,11 +64,40 @@ Deno.serve(async (req) => {
         has_template: false,
         subscription_end: latest?.expires_at ?? null,
         bonus_drops: bonusDrops,
+        billing_cycle: null,
+        cancel_at_period_end: false,
+        can_change_plan: false,
+        scheduled_plan_code: null,
+        scheduled_at: null,
       }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const hasIdriel = !!sub.has_idriel;
     const planKey = hasIdriel ? "idriel" : "template";
+
+    // Downgrade agendado (registrado pela função stripe-change-plan via Stripe schedule)
+    let scheduledPlanCode: string | null = null;
+    let scheduledAt: string | null = null;
+    if (sub.stripe_subscription_id && Deno.env.get("STRIPE_SECRET_KEY")) {
+      try {
+        const Stripe = (await import("https://esm.sh/stripe@18.5.0")).default;
+        const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, { apiVersion: "2025-08-27.basil" });
+        const { STRIPE_PLANS } = await import("../_shared/stripe-plans.ts");
+        const s = await stripe.subscriptions.retrieve(sub.stripe_subscription_id as string);
+        if (s.schedule) {
+          const schedId = typeof s.schedule === "string" ? s.schedule : (s.schedule as any).id;
+          const sched = await stripe.subscriptionSchedules.retrieve(schedId);
+          const next = sched.phases?.[1];
+          const nextPrice = (next?.items?.[0] as any)?.price;
+          const nextPriceId = typeof nextPrice === "string" ? nextPrice : nextPrice?.id;
+          const match = Object.values(STRIPE_PLANS).find((p: any) => p.priceId === nextPriceId) as any;
+          if (match) {
+            scheduledPlanCode = match.code;
+            scheduledAt = next?.start_date ? new Date(next.start_date * 1000).toISOString() : null;
+          }
+        }
+      } catch (_e) { /* silencioso — não bloqueia a leitura do plano */ }
+    }
 
     return new Response(JSON.stringify({
       subscribed: true,
@@ -78,7 +107,13 @@ Deno.serve(async (req) => {
       has_template: true,
       subscription_end: sub.expires_at,
       bonus_drops: bonusDrops,
+      billing_cycle: sub.billing_cycle ?? null,
+      cancel_at_period_end: !!sub.cancelled_at,
+      can_change_plan: !!sub.stripe_subscription_id,
+      scheduled_plan_code: scheduledPlanCode,
+      scheduled_at: scheduledAt,
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err?.message || "error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }

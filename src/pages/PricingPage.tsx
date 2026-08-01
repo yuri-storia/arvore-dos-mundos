@@ -8,7 +8,17 @@ import {
   Leaf, Feather, Star, Plus, Droplet, Trees, Crown, Compass, LogIn,
   PlayCircle, Film, Eye, MessageCircle,
 } from 'lucide-react';
-import { openCheckout, PLANS, useSubscription } from '@/hooks/useSubscription';
+import { toast } from 'sonner';
+import { PlanChangeDialog } from '@/components/PlanChangeDialog';
+import {
+  openCheckout,
+  PLANS,
+  useSubscription,
+  useRefreshSubscription,
+  reactivateSubscription,
+  cancelScheduledChange,
+} from '@/hooks/useSubscription';
+
 import { useAuth } from '@/contexts/AuthContext';
 import DemoVideo from '@/components/marketing/DemoVideo';
 import heroVideo1080 from '@/assets/arvore-hero-loop-1080.mp4.asset.json';
@@ -31,12 +41,34 @@ import vidImagemPoster from '@/assets/demo-gerar-imagem.jpg.asset.json';
 import vidIdriel from '@/assets/demo-consultar-idriel.mp4.asset.json';
 import vidIdrielPoster from '@/assets/demo-consultar-idriel.jpg.asset.json';
 
+// Ranking local para decidir upgrade x downgrade (espelha o backend)
+const PLAN_RANK: Record<string, { tier: number; cycle: number }> = {
+  raiz_mensal: { tier: 1, cycle: 1 },
+  raiz_anual: { tier: 1, cycle: 2 },
+  idriel_mensal: { tier: 2, cycle: 1 },
+  fundador_mensal: { tier: 2, cycle: 1 },
+  idriel_anual: { tier: 2, cycle: 2 },
+};
+
+function planDirection(from: string | null, to: string): 'upgrade' | 'downgrade' | 'same' | 'unknown' {
+  if (!from) return 'unknown';
+  const a = PLAN_RANK[from];
+  const b = PLAN_RANK[to];
+  if (!a || !b) return 'unknown';
+  if (a.tier !== b.tier) return b.tier > a.tier ? 'upgrade' : 'downgrade';
+  if (a.cycle !== b.cycle) return b.cycle > a.cycle ? 'upgrade' : 'downgrade';
+  return 'same';
+}
+
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const sub = useSubscription();
+  const refreshSub = useRefreshSubscription();
   const [loading, setLoading] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'mensal' | 'anual'>('anual');
+  const [changeTarget, setChangeTarget] = useState<string | null>(null);
+  const [changeOpen, setChangeOpen] = useState(false);
 
   const handleCheckout = async (plan: string) => {
     // Recargas de Elixir são exclusivas de assinantes Idriel.
@@ -54,8 +86,61 @@ const PricingPage: React.FC = () => {
     }
   };
 
+  const openPlanChange = (planCode: string) => {
+    setChangeTarget(planCode);
+    setChangeOpen(true);
+  };
+
+  const handleReactivate = async () => {
+    setLoading('reactivate');
+    const res = await reactivateSubscription();
+    setLoading(null);
+    if (res?.error) toast.error('Não foi possível reativar', { description: res.error });
+    else { refreshSub(); toast.success('Assinatura reativada — a renovação automática voltou a valer.'); }
+  };
+
+  const handleCancelScheduled = async () => {
+    setLoading('cancel_scheduled');
+    const res = await cancelScheduledChange();
+    setLoading(null);
+    if (res?.error) toast.error('Não foi possível desfazer', { description: res.error });
+    else { refreshSub(); toast.success('Mudança agendada desfeita. Você segue no plano atual.'); }
+  };
+
+  /** Decide o rótulo/ação do botão de cada card conforme o plano vigente. */
+  const ctaFor = (targetCode: string, planName: string) => {
+    const isSubscriber = !!user && sub.subscribed && sub.canChangePlan;
+    if (!isSubscriber) {
+      return { label: `Assinar ${planName}`, onClick: () => handleCheckout(targetCode), disabled: false, note: null as string | null };
+    }
+    if (sub.plan_code === targetCode) {
+      return {
+        label: 'Seu plano atual',
+        onClick: () => navigate('/minha-conta'),
+        disabled: true,
+        note: sub.cancelAtPeriodEnd ? 'Cancelamento agendado — reative para manter o acesso.' : 'Gerencie sua assinatura em Minha conta.',
+      };
+    }
+    if (sub.scheduledPlanCode === targetCode) {
+      return { label: 'Mudança agendada', onClick: () => {}, disabled: true, note: 'Passa a valer no fim do ciclo atual.' };
+    }
+    const dir = planDirection(sub.plan_code, targetCode);
+    if (dir === 'downgrade') {
+      return { label: 'Mudar para este plano', onClick: () => openPlanChange(targetCode), disabled: false, note: 'A mudança vale a partir do próximo ciclo.' };
+    }
+    return {
+      label: dir === 'upgrade' ? `Fazer upgrade para ${planName}` : `Mudar para ${planName}`,
+      onClick: () => openPlanChange(targetCode),
+      disabled: false,
+      note: dir === 'upgrade' ? 'Liberado na hora, você paga só a diferença proporcional.' : null,
+    };
+  };
+
   const raizPriceId = billingCycle === 'mensal' ? PLANS.raiz_mensal.id : PLANS.raiz_anual.id;
   const idrielPriceId = billingCycle === 'mensal' ? PLANS.idriel_mensal.id : PLANS.idriel_anual.id;
+
+  const raizCta = ctaFor(raizPriceId, 'Criador');
+  const idrielCta = ctaFor(idrielPriceId, 'Idriel');
 
   const tiers = [
     {
@@ -66,8 +151,10 @@ const PricingPage: React.FC = () => {
       price: billingCycle === 'mensal' ? 'R$ 19,90' : 'R$ 197,90',
       priceDetail: billingCycle === 'mensal' ? '/mês' : '/ano',
       savings: billingCycle === 'anual' ? '2 meses grátis nesse plano' : null,
-      cta: 'Assinar Criador',
-      ctaAction: () => handleCheckout(raizPriceId),
+      cta: raizCta.label,
+      ctaAction: raizCta.onClick,
+      ctaDisabled: raizCta.disabled,
+      ctaNote: raizCta.note,
       popular: false,
       features: [
         'Mundos ilimitados',
@@ -75,7 +162,7 @@ const PricingPage: React.FC = () => {
         'Manuscritos ilimitados',
         '11 Frutos de Worldbuilding',
         'Galeria de Referências',
-        'Exportação PDF (Manuscritos, Fichas, Artigos)',
+        'Exportação PDF e Word (Manuscritos, Fichas, Artigos)',
         'Corretor textual AI Powered',
         '5 gotas de Elixir no 1º mês (para experimentar a Idriel)',
       ],
@@ -89,8 +176,10 @@ const PricingPage: React.FC = () => {
       price: billingCycle === 'mensal' ? 'R$ 39,90' : 'R$ 397,90',
       priceDetail: billingCycle === 'mensal' ? '/mês' : '/ano',
       savings: billingCycle === 'anual' ? '2 meses grátis nesse plano' : null,
-      cta: 'Assinar Idriel',
-      ctaAction: () => handleCheckout(idrielPriceId),
+      cta: idrielCta.label,
+      ctaAction: idrielCta.onClick,
+      ctaDisabled: idrielCta.disabled,
+      ctaNote: idrielCta.note,
       popular: true,
       features: [
         'Mundos ilimitados',
@@ -100,7 +189,7 @@ const PricingPage: React.FC = () => {
         'Suporte de Idriel para criação de ideias',
         'Análise completa de Worldbuilding (1 clique)',
         'Geração de Imagens com Idriel',
-        'Exportação PDF e E-pub/Kindle',
+        'Exportação PDF, Word e E-pub/Kindle',
         'Identificação automática de fichas e artigos',
         'Corretor textual AI Powered',
         '150 gotas de Elixir por mês',
@@ -109,6 +198,7 @@ const PricingPage: React.FC = () => {
       missing: [],
     },
   ];
+
 
   return (
     <div className="min-h-screen relative font-manrope" style={{ background: '#02070d' }}>
@@ -344,15 +434,40 @@ const PricingPage: React.FC = () => {
 
                   <button
                     onClick={tier.ctaAction}
-                    disabled={!!loading}
-                    className={`w-full py-4 rounded-xl text-[10.5px] font-manrope font-bold uppercase tracking-[0.24em] transition-all mb-8 ${
-                      isPopular
+                    disabled={!!loading || tier.ctaDisabled}
+                    className={`w-full py-4 rounded-xl text-[10.5px] font-manrope font-bold uppercase tracking-[0.24em] transition-all ${
+                      tier.ctaDisabled
+                        ? 'border border-white/15 bg-white/[0.04] text-foreground/60 cursor-default'
+                        : isPopular
                         ? 'bg-gradient-gold-premium text-[#1a0f00] shadow-[0_8px_32px_hsl(var(--gold-bronze)/0.4)] hover:-translate-y-0.5'
                         : 'bg-gradient-blue-premium text-white shadow-[0_6px_24px_hsl(var(--blue-bright)/0.35)] hover:-translate-y-0.5'
                     }`}
                   >
                     {tier.cta}
                   </button>
+                  {tier.ctaNote ? (
+                    <p className="mt-3 text-center font-manrope text-[11.5px] leading-[1.6] text-foreground/55">{tier.ctaNote}</p>
+                  ) : null}
+                  {sub.plan_code === (tier.id === 'raiz' ? raizPriceId : idrielPriceId) && sub.cancelAtPeriodEnd && (
+                    <button
+                      onClick={handleReactivate}
+                      disabled={!!loading}
+                      className="mt-3 w-full py-2.5 rounded-xl border border-gold-warm/40 bg-gold-deep/15 text-[10.5px] font-manrope font-bold uppercase tracking-[0.2em] text-gold-champagne hover:bg-gold-deep/25 transition"
+                    >
+                      Reativar renovação
+                    </button>
+                  )}
+                  {sub.scheduledPlanCode === (tier.id === 'raiz' ? raizPriceId : idrielPriceId) && (
+                    <button
+                      onClick={handleCancelScheduled}
+                      disabled={!!loading}
+                      className="mt-3 w-full py-2.5 rounded-xl border border-white/15 bg-white/[0.04] text-[10.5px] font-manrope font-bold uppercase tracking-[0.2em] text-foreground/70 hover:bg-white/[0.08] transition"
+                    >
+                      Desfazer mudança agendada
+                    </button>
+                  )}
+                  <div className="mb-8" />
+
 
                   <ul className="space-y-3 border-t border-white/[0.06] pt-7">
                     {tier.features.map((f) => (
@@ -869,6 +984,13 @@ const PricingPage: React.FC = () => {
           </p>
         </div>
       </div>
+
+      <PlanChangeDialog
+        planId={changeTarget}
+        open={changeOpen}
+        onOpenChange={setChangeOpen}
+        onNeedsCheckout={(id) => handleCheckout(id)}
+      />
     </div>
   );
 };
