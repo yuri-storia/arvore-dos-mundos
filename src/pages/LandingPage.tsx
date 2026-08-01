@@ -188,28 +188,31 @@ const EBOOK_TESTIMONIALS = [
 ];
 
 const EbookTestimonials: React.FC = () => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-12">
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
     {EBOOK_TESTIMONIALS.map((t, i) => (
-      <Reveal as="figure" key={t.name} delay={i * 0.08} className="relative flex flex-col">
-        <Quote className="w-6 h-6 text-gold-champagne/40 mb-4" strokeWidth={1.25} />
-        <blockquote className="font-merriweather text-[14.5px] text-text-secondary leading-[1.9] flex-1">
-          “{t.quote}”
-        </blockquote>
-        <figcaption className="flex items-center gap-3 mt-6">
-          <span className="w-9 h-9 rounded-full border border-gold/25 bg-gold/[0.06] grid place-items-center font-cinzel font-bold text-sm text-gold-champagne">
-            {t.name.charAt(0)}
-          </span>
-          <span>
-            <span className="block font-cinzel font-bold text-sm text-foreground">{t.name}</span>
-            <span className="block font-manrope uppercase tracking-[0.22em] text-[9px] text-text-dim mt-0.5">
-              Leitor(a) do e-book
+      <Reveal key={t.name} delay={i * 0.08} className="h-full">
+        <Panel soft className="h-full flex flex-col">
+          <Quote className="w-6 h-6 text-gold-champagne/40 mb-4" strokeWidth={1.25} />
+          <blockquote className="font-merriweather text-[14.5px] text-text-secondary leading-[1.9] flex-1">
+            “{t.quote}”
+          </blockquote>
+          <div className="flex items-center gap-3 mt-6 pt-5 border-t border-gold/[0.08]">
+            <span className="w-9 h-9 rounded-full border border-gold/25 bg-gold/[0.06] grid place-items-center font-cinzel font-bold text-sm text-gold-champagne">
+              {t.name.charAt(0)}
             </span>
-          </span>
-        </figcaption>
+            <span>
+              <span className="block font-cinzel font-bold text-sm text-foreground">{t.name}</span>
+              <span className="block font-manrope tracking-[0.06em] text-[11px] text-text-dim mt-0.5">
+                Leitor(a) do e-book
+              </span>
+            </span>
+          </div>
+        </Panel>
       </Reveal>
     ))}
   </div>
 );
+
 
 const TestimonialPlaceholder: React.FC<{ kind: 'ebook' | 'beta'; count: number }> = ({ kind, count }) => (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-10">
