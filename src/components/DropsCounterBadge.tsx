@@ -261,6 +261,26 @@ export const DropsCounterBadge: React.FC = () => {
     );
   }
 
-  // Sem Idriel: sem CTA aqui — indicação de plano fica em Configurações e no menu da Idriel.
+  // Plano Criador: mostra apenas o saldo de gotas de cortesia (sem recarga).
+  if (sub.bonusDrops > 0) {
+    return (
+      <TooltipProvider delayDuration={150}>
+        {wrap(
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex-1 min-w-0 cursor-help">
+                <ElixirBar available={sub.bonusDrops} total={sub.bonusDrops} />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="border-gold/40 bg-[#0a0d14]/95 backdrop-blur-md p-3 shadow-[0_0_20px_hsl(var(--gold)/0.15)]">
+              {renderTooltip(0, sub.bonusDrops, sub.bonusDrops, sub.bonusDrops, false)}
+            </TooltipContent>
+          </Tooltip>,
+        )}
+      </TooltipProvider>
+    );
+  }
+
+  // Sem Idriel e sem gotas: indicação de plano fica em Configurações e no menu da Idriel.
   return null;
 };

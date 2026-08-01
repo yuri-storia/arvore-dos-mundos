@@ -21,7 +21,7 @@ export const DemoVideo: React.FC<DemoVideoProps> = ({
   src, poster, kicker, title, desc, duration, className = '', bare = false,
 }) => {
   const ref = useRef<HTMLVideoElement>(null);
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState(true);
 
   const toggle = () => {
     const v = ref.current;
@@ -47,10 +47,12 @@ export const DemoVideo: React.FC<DemoVideoProps> = ({
           poster={poster}
           muted
           loop
+          autoPlay
           playsInline
-          preload="none"
+          preload="metadata"
           onClick={toggle}
-          onEnded={() => setPlaying(false)}
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
           aria-label={`${kicker} — ${title}`}
           className="absolute inset-0 w-full h-full object-contain cursor-pointer"
         />
