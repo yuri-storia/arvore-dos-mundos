@@ -464,10 +464,11 @@
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: hsl(var(--blue-main) / 0.3); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: hsl(var(--blue-main) / 0.5); }
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: hsl(var(--gold) / 0.06); }
+::-webkit-scrollbar-thumb { background: hsl(var(--gold) / 0.55); border-radius: 6px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--gold-light) / 0.85); background-clip: padding-box; }
+* { scrollbar-color: hsl(var(--gold) / 0.55) hsl(var(--gold) / 0.06); scrollbar-width: thin; }
 
 @keyframes shimmer {
   0% { background-position: 200% 0; }
