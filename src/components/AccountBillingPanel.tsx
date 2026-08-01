@@ -3,9 +3,16 @@ import { Link } from 'react-router-dom';
 import {
   Crown, Leaf, Droplet, CreditCard, ReceiptText, ExternalLink, RefreshCw,
   CheckCircle2, AlertTriangle, Clock, Sparkles, ShieldOff, Loader2,
+  ArrowUpRight, ArrowDownRight, CalendarClock, Undo2,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useSubscription } from '@/hooks/useSubscription';
+import {
+  useSubscription,
+  useRefreshSubscription,
+  reactivateSubscription,
+  cancelScheduledChange,
+} from '@/hooks/useSubscription';
+import { PlanChangeDialog } from '@/components/PlanChangeDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useElixirBalance } from '@/hooks/useElixirBalance';
 import { useBillingHistory, openBillingPortal, type BillingCharge } from '@/hooks/useBillingHistory';
@@ -46,6 +53,31 @@ export const AccountBillingPanel: React.FC = () => {
   const [rechargeOpen, setRechargeOpen] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [changeTarget, setChangeTarget] = useState<string | null>(null);
+  const [changeOpen, setChangeOpen] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
+  const refreshSub = useRefreshSubscription();
+
+  const openChange = (code: string) => { setChangeTarget(code); setChangeOpen(true); };
+
+  const isYearly = sub.billingCycle === 'yearly';
+  const canManage = sub.subscribed && sub.canChangePlan && !isAdmin;
+
+  const handleReactivate = async () => {
+    setBusy('reactivate');
+    const res = await reactivateSubscription();
+    setBusy(null);
+    if (res?.error) toast.error('Não foi possível reativar', { description: res.error });
+    else { refreshSub(); toast.success('Renovação automática reativada.'); }
+  };
+
+  const handleUndoScheduled = async () => {
+    setBusy('undo');
+    const res = await cancelScheduledChange();
+    setBusy(null);
+    if (res?.error) toast.error('Não foi possível desfazer', { description: res.error });
+    else { refreshSub(); toast.success('Mudança agendada desfeita.'); }
+  };
 
   const isFundador = sub.plan_code === 'fundador_mensal';
   const isIdriel = sub.hasIdriel && !isFundador;
@@ -140,7 +172,7 @@ export const AccountBillingPanel: React.FC = () => {
           <div className="flex flex-wrap gap-2">
             {isCriador && (
               <button
-                onClick={() => setUpgradeOpen(true)}
+                onClick={() => (canManage ? openChange(isYearly ? 'idriel_anual' : 'idriel_mensal') : setUpgradeOpen(true))}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-[#1a0f00] hover:opacity-90 transition-opacity"
               >
                 <Sparkles className="w-3 h-3" /> Upgrade para Idriel
@@ -161,6 +193,24 @@ export const AccountBillingPanel: React.FC = () => {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 bg-gold/10 text-gold-light hover:bg-gold/20 transition-all"
               >
                 <Droplet className="w-3 h-3" /> Recarregar Elixir
+              </button>
+            )}
+            {canManage && !isYearly && (
+              <button
+                onClick={() => openChange(sub.hasIdriel ? 'idriel_anual' : 'raiz_anual')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 bg-gold/10 text-gold-light hover:bg-gold/20 transition-all"
+                title="Economize 2 meses pagando anualmente"
+              >
+                <ArrowUpRight className="w-3 h-3" /> Mudar para anual
+              </button>
+            )}
+            {canManage && sub.hasIdriel && !isFundador && (
+              <button
+                onClick={() => openChange(isYearly ? 'raiz_anual' : 'raiz_mensal')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-white/12 text-text-dim hover:text-foreground hover:border-white/25 transition-colors"
+                title="Downgrade — passa a valer no fim do ciclo já pago"
+              >
+                <ArrowDownRight className="w-3 h-3" /> Mudar para Criador
               </button>
             )}
             <button
@@ -189,6 +239,49 @@ export const AccountBillingPanel: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Avisos de ciclo: cancelamento pendente / mudança agendada */}
+      {canManage && sub.cancelAtPeriodEnd && (
+        <div className="rounded-lg border border-red-alert/35 bg-red-alert/[0.07] p-4 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-[12px] font-merriweather text-foreground/85 flex items-start gap-2 min-w-0">
+            <AlertTriangle className="w-4 h-4 text-red-alert shrink-0 mt-0.5" />
+            <span>
+              Sua assinatura está <strong>cancelada</strong> e não será renovada.
+              {endLabel ? <> O acesso completo continua até <strong>{endLabel}</strong>.</> : null}{' '}
+              Depois disso, seus mundos continuam salvos em modo somente leitura, com exportação em PDF e Word liberadas.
+            </span>
+          </p>
+          <button
+            onClick={handleReactivate}
+            disabled={busy === 'reactivate'}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-[#1a0f00] hover:opacity-90 transition-opacity disabled:opacity-50"
+          >
+            {busy === 'reactivate' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Undo2 className="w-3 h-3" />}
+            Reativar assinatura
+          </button>
+        </div>
+      )}
+
+      {canManage && sub.scheduledPlanCode && (
+        <div className="rounded-lg border border-gold/30 bg-gold/[0.07] p-4 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-[12px] font-merriweather text-foreground/85 flex items-start gap-2 min-w-0">
+            <CalendarClock className="w-4 h-4 text-gold-light shrink-0 mt-0.5" />
+            <span>
+              Mudança agendada para <strong>{PLAN_LABEL[sub.scheduledPlanCode] ?? sub.scheduledPlanCode}</strong>
+              {sub.scheduledAt ? <> em <strong>{new Date(sub.scheduledAt).toLocaleDateString('pt-BR')}</strong></> : null}.
+              Até lá, nada muda no seu plano atual.
+            </span>
+          </p>
+          <button
+            onClick={handleUndoScheduled}
+            disabled={busy === 'undo'}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-white/15 text-text-dim hover:text-foreground transition-colors disabled:opacity-50"
+          >
+            {busy === 'undo' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Undo2 className="w-3 h-3" />}
+            Desfazer
+          </button>
+        </div>
+      )}
 
       {/* Gotas */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
