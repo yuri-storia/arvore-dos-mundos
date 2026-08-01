@@ -7,15 +7,21 @@ interface SeoProps {
   description: string;
   path: string;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  /** Remove a página dos buscadores (páginas privadas / pós-compra) */
+  noindex?: boolean;
 }
 
-export const Seo = ({ title, description, path, jsonLd }: SeoProps) => {
+export const Seo = ({ title, description, path, jsonLd, noindex }: SeoProps) => {
   const url = `${SITE_URL}${path}`;
   return (
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
-      <link rel="canonical" href={url} />
+      {noindex ? (
+        <meta name="robots" content="noindex, nofollow" />
+      ) : (
+        <link rel="canonical" href={url} />
+      )}
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
