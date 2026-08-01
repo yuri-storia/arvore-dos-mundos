@@ -55,64 +55,49 @@ const fadeUp = {
 /*  Placeholders reservados                                                    */
 /* -------------------------------------------------------------------------- */
 
-const VideoPlaceholder: React.FC<{
-  title: string;
-  duration: string;
-  bullets: string[];
-  ratio?: string; // ex 'aspect-video'
-  screenshot?: { url: string; alt: string };
-}> = ({ title, duration, bullets, ratio = 'aspect-video', screenshot }) => (
-  <figure
-    aria-label={`Prévia da plataforma referente ao vídeo: ${title}. Duração ${duration}.`}
-    className="group relative rounded-2xl overflow-hidden border border-gold-warm/25 bg-[rgba(4,12,24,0.72)] backdrop-blur-xl shadow-[0_18px_60px_-24px_rgba(0,0,0,0.85),inset_0_1px_0_hsl(var(--gold-champagne)/0.10)]"
-  >
-    <div className={`relative ${ratio} w-full overflow-hidden`}>
-      {screenshot ? (
-        <>
-          <img
-            src={screenshot.url}
-            alt={screenshot.alt}
-            loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover object-left-top transition-transform duration-[900ms] ease-out group-hover:scale-[1.025]"
-          />
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                'linear-gradient(180deg, hsl(214 60% 3% / 0) 45%, hsl(214 60% 3% / 0.78) 100%)',
-            }}
-            aria-hidden="true"
-          />
-          <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-gold-warm/40 bg-[rgba(4,12,24,0.75)] backdrop-blur-md px-2.5 py-1">
-            <Play className="w-3 h-3 text-gold-champagne" strokeWidth={2.2} />
-            <span className="font-montserrat uppercase tracking-[0.22em] text-[9px] text-gold-champagne">
-              Vídeo em breve · print da plataforma
-            </span>
-          </div>
-        </>
-      ) : (
-        <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-gold/[0.04] via-transparent to-gold/[0.06]">
-          <div className="mx-auto w-14 h-14 rounded-full border border-gold/40 bg-gold/[0.08] flex items-center justify-center">
-            <Play className="w-6 h-6 text-gold-champagne" strokeWidth={1.5} />
-          </div>
-        </div>
-      )}
-    </div>
+const EBOOK_TESTIMONIALS = [
+  {
+    name: 'Mayara',
+    quote:
+      'Eu amei!! Eu gosto muito de criar mundos, mas geralmente são coisas bem aleatórias e com o material eu consegui estruturar minhas ideias!! Muito obrigada por compartilhar!!',
+  },
+  {
+    name: 'Janderson',
+    quote:
+      'MUITO BOM! Para um criador de mundo e história de RPG como eu, está sendo ótimo! Destravei bloqueios que eu tinha, sem falar da comunidade que você pode trocar ideia com outros criadores.',
+  },
+  {
+    name: 'Letícia Campos',
+    quote:
+      'Eu comprei e adorei, me ajudou muito na escrita do meu livro 😍😍❤️',
+  },
+];
 
-    <figcaption className="relative px-5 sm:px-6 py-5 border-t border-gold-warm/20 bg-[rgba(4,12,24,0.55)]">
-      <p className="font-montserrat uppercase tracking-[0.22em] text-[10px] text-gold-champagne mb-1.5">
-        Roteiro do vídeo · {duration}
-      </p>
-      <h4 className="font-cinzel font-bold text-base sm:text-lg text-foreground mb-3">{title}</h4>
-      <ol className="space-y-1.5 font-merriweather text-[13px] sm:text-sm text-text-secondary leading-relaxed list-decimal list-inside marker:text-gold-champagne/70">
-        {bullets.map((b) => (
-          <li key={b} className="pl-1">
-            {b}
-          </li>
-        ))}
-      </ol>
-    </figcaption>
-  </figure>
+const EbookTestimonials: React.FC = () => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {EBOOK_TESTIMONIALS.map((t) => (
+      <figure
+        key={t.name}
+        className="card-glass rounded-lg border border-gold/20 p-6 flex flex-col"
+      >
+        <Quote className="w-5 h-5 text-gold-champagne/70 mb-3" strokeWidth={1.5} />
+        <blockquote className="font-merriweather text-sm text-text-secondary leading-relaxed flex-1">
+          “{t.quote}”
+        </blockquote>
+        <figcaption className="flex items-center gap-3 mt-5 pt-4 border-t border-gold/10">
+          <span className="w-9 h-9 rounded-full border border-gold/30 bg-gold/[0.08] grid place-items-center font-cinzel font-bold text-sm text-gold-champagne">
+            {t.name.charAt(0)}
+          </span>
+          <span>
+            <span className="block font-cinzel font-bold text-sm text-foreground">{t.name}</span>
+            <span className="block font-montserrat uppercase tracking-[0.18em] text-[9px] text-text-dim">
+              Leitor(a) do e-book
+            </span>
+          </span>
+        </figcaption>
+      </figure>
+    ))}
+  </div>
 );
 
 const TestimonialPlaceholder: React.FC<{ kind: 'ebook' | 'beta'; count: number }> = ({ kind, count }) => (
@@ -141,7 +126,7 @@ const TestimonialPlaceholder: React.FC<{ kind: 'ebook' | 'beta'; count: number }
     <p className="sm:col-span-2 lg:col-span-3 text-center font-merriweather italic text-xs text-text-dim mt-2">
       {kind === 'ebook'
         ? 'Em curadoria — depoimentos do e-book serão adicionados após seleção (4 a 6).'
-        : 'Em curadoria — depoimentos serão adicionados após seleção (3 a 5).'}
+        : 'Em curadoria — depoimentos de quem já usa a plataforma chegam em breve.'}
     </p>
   </div>
 );
