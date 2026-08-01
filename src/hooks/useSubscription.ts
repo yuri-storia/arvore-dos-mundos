@@ -206,6 +206,62 @@ export async function openCheckout(planId: string, invite?: string) {
   }
 }
 
+// ── Troca de plano (upgrade / downgrade / ciclo) ─────────────────────────
+export type PlanChangeDirection = 'upgrade' | 'downgrade' | 'same';
+
+export interface PlanChangePreview {
+  ok?: boolean;
+  needsCheckout?: boolean;
+  error?: string;
+  direction?: PlanChangeDirection;
+  currentPlanCode?: string | null;
+  targetPlanCode?: string;
+  effectiveAt?: 'now' | 'period_end';
+  periodEnd?: string | null;
+  amountDue?: number | null;
+  credit?: number | null;
+  cancelAtPeriodEnd?: boolean;
+}
+
+async function callChangePlan(body: Record<string, unknown>): Promise<any> {
+  const { data, error } = await supabase.functions.invoke('stripe-change-plan', { body });
+  if (error) {
+    // Erros HTTP da edge function trazem o corpo em error.context
+    let detail = error.message;
+    try { detail = await (error as any).context?.text?.() ?? detail; } catch { /* noop */ }
+    try { const parsed = JSON.parse(detail); detail = parsed.error || detail; } catch { /* noop */ }
+    return { error: detail };
+  }
+  return data;
+}
+
+/** Simula a troca: direção, valor proporcional e data de efeito. */
+export function previewPlanChange(planId: string): Promise<PlanChangePreview> {
+  return callChangePlan({ planId, action: 'preview' });
+}
+
+/** Aplica a troca de plano. */
+export function applyPlanChange(planId: string): Promise<PlanChangePreview> {
+  return callChangePlan({ planId, action: 'apply' });
+}
+
+/** Desfaz um cancelamento pendente. */
+export function reactivateSubscription(): Promise<any> {
+  return callChangePlan({ action: 'reactivate' });
+}
+
+/** Desfaz um downgrade agendado. */
+export function cancelScheduledChange(): Promise<any> {
+  return callChangePlan({ action: 'cancel_scheduled' });
+}
+
+/** Hook para revalidar o estado da assinatura após uma mudança. */
+export function useRefreshSubscription() {
+  const qc = useQueryClient();
+  return useCallback(() => {
+    qc.invalidateQueries({ queryKey: ['subscription'] });
+  }, [qc]);
+}
 
 
 export async function openCustomerPortal() {
