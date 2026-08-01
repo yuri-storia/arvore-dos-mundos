@@ -446,10 +446,10 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
 
             <div className="rounded-lg border border-gold/20 bg-gold/[0.05] p-3 mb-4 flex items-center justify-between">
               <div>
-                <div className="font-cinzel text-xs text-gold-light">Custo</div>
-                <div className="font-merriweather text-[10px] text-text-dim">Tempo estimado ~30s</div>
+                <div className="font-cinzel text-xs text-gold-light">Custo · {quality === 'alta' ? 'Alta Fidelidade' : 'Essencial'}</div>
+                <div className="font-merriweather text-[10px] text-text-dim">Tempo estimado {quality === 'alta' ? '~2min' : '~1min'}</div>
               </div>
-              <div className="font-montserrat font-bold text-sm text-gold inline-flex items-center gap-1"><Droplet className="w-3.5 h-3.5" />5 gotas</div>
+              <div className="font-montserrat font-bold text-sm text-gold inline-flex items-center gap-1"><Droplet className="w-3.5 h-3.5" />{mapCost} gotas</div>
             </div>
 
             <div className="flex gap-2 justify-end">
