@@ -427,8 +427,10 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
   const confirmReview = () => {
     setShowReview(false);
     setAutoGenerate(true);
+    genProg.start();
     handleCreatePrompt();
   };
+
 
   const confirmSave = () => {
     if (!generatedImage) return;
