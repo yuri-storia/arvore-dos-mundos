@@ -1359,9 +1359,9 @@ const LandingPage: React.FC = () => {
               E transforme esse universo em uma história que possa ser escrita, revisada e compartilhada.
             </p>
             <div className="flex flex-wrap gap-3 justify-center mb-7">
-              <button onClick={() => navigate('/login')} className={goldButton} style={goldButtonStyle}>
+              <a href="#planos" className={goldButton} style={goldButtonStyle}>
                 <Crown className="w-4 h-4" strokeWidth={2} /> Criar meu primeiro mundo
-              </button>
+              </a>
               <a
                 href="#tour"
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-gold/25 text-gold-light/90 hover:text-gold-light hover:border-gold/45 hover:bg-gold/[0.06] font-manrope font-bold uppercase text-[11px] tracking-[0.2em] transition-all duration-500"
