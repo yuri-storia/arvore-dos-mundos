@@ -270,7 +270,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
       {mainProg.active && (
         <GenerationProgress
           state={mainProg}
-          cost="5 gotas"
+          cost={`${mapCost} gotas`}
           title={mainProg.status === 'done' ? 'Mapa materializado' : 'Idriel desenha seu território…'}
           className="mt-4"
         />
