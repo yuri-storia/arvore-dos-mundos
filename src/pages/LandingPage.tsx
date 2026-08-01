@@ -41,6 +41,8 @@ import vidExport from '@/assets/demo-exportar-manuscrito.mp4.asset.json';
 import vidExportPoster from '@/assets/demo-exportar-manuscrito.jpg.asset.json';
 import vidImagem from '@/assets/demo-gerar-imagem.mp4.asset.json';
 import vidImagemPoster from '@/assets/demo-gerar-imagem.jpg.asset.json';
+import vidImportacao from '@/assets/demo-importacao.mp4.asset.json';
+import vidImportacaoPoster from '@/assets/demo-importacao.jpg.asset.json';
 
 const heroSrcSet = `${hero640.url} 640w, ${hero960.url} 960w, ${hero1280.url} 1280w, ${hero1600.url} 1600w`;
 
