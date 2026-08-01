@@ -404,7 +404,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
     idrielJobs.run({
       id: jobId, kind: 'image',
       label: `Materializando: ${desc.slice(0, 40)}`,
-      task: () => callAIImageConsistent(promptToUse, legacyUrls, codexContext, structured),
+      task: () => callAIImageConsistent(promptToUse, legacyUrls, codexContext, structured, quality, genProg.setStage),
     });
   };
 
