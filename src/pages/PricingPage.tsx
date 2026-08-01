@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Seo from '@/components/Seo';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -111,6 +112,24 @@ const PricingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen relative font-manrope" style={{ background: '#02070d' }}>
+      <Seo
+        title="Planos e Assinaturas — A Árvore dos Mundos"
+        description="Escolha entre os planos Criador e Idriel: mensal ou anual, com Codex ilimitado, mapas, galeria e as gotas de Elixir para as funções de IA."
+        path="/planos"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: "Assinatura A Árvore dos Mundos",
+          description: "Plataforma de worldbuilding e escrita criativa com Codex, linha do tempo, mapas, galeria e a assistente Idriel.",
+          brand: { "@type": "Brand", name: "A Árvore dos Mundos" },
+          offers: [
+            { "@type": "Offer", name: "Criador Mensal", price: "19.90", priceCurrency: "BRL", url: "https://arvoredosmundos.app/planos", availability: "https://schema.org/InStock" },
+            { "@type": "Offer", name: "Criador Anual", price: "197.90", priceCurrency: "BRL", url: "https://arvoredosmundos.app/planos", availability: "https://schema.org/InStock" },
+            { "@type": "Offer", name: "Idriel Mensal", price: "39.90", priceCurrency: "BRL", url: "https://arvoredosmundos.app/planos", availability: "https://schema.org/InStock" },
+            { "@type": "Offer", name: "Idriel Anual", price: "397.90", priceCurrency: "BRL", url: "https://arvoredosmundos.app/planos", availability: "https://schema.org/InStock" },
+          ],
+        }}
+      />
       {/* ---------------- HERO ---------------- */}
       <section className="relative w-full overflow-hidden" style={{ minHeight: '92vh' }}>
         <video

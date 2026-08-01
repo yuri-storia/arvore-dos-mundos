@@ -147,9 +147,10 @@ export const AppSidebar: React.FC<Props> = ({
                           <button
                             onClick={(e) => e.stopPropagation()}
                             className="shrink-0 w-6 h-6 flex items-center justify-center rounded transition-all text-transparent group-hover:text-text-dim/50 hover:!text-red-alert"
-                            title="Excluir"
+                            title="Excluir mundo"
+                            aria-label="Excluir mundo"
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <Trash2 className="w-3 h-3" aria-hidden="true" />
                           </button>
                         }
                         title="Excluir mundo"

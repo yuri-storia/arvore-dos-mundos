@@ -1,4 +1,5 @@
 import React from 'react';
+import Seo from '@/components/Seo';
 import { motion } from 'framer-motion';
 import { Shield, Lock, KeyRound, FileDown, Ban, Database, Eye, ScrollText, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -55,6 +56,11 @@ const PILLARS: Pillar[] = [
 const SegurancaPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[hsl(var(--bg-deep))] text-foreground">
+      <Seo
+        title="Segurança e privacidade — A Árvore dos Mundos"
+        description="Como protegemos seus mundos: criptografia TLS 1.3, isolamento por usuário com RLS, exportação livre e nenhum treinamento de IA com seu conteúdo."
+        path="/seguranca"
+      />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
         {/* Back link */}
         <Link

@@ -1,0 +1,15 @@
+# A Árvore dos Mundos
+
+> Plataforma brasileira de worldbuilding e escrita criativa: construa universos com os 11 Frutos, organize um Codex vivo com linha do tempo, mapas e galeria, e escreva manuscritos capítulo a capítulo com apoio da assistente Idriel.
+
+A Árvore dos Mundos reúne metodologia de worldbuilding, Codex (fichas e artigos), linha do tempo, geração de mapas e imagens, escrita de manuscritos e exportação em PDF, Word e Kindle.
+
+## Pages
+
+- [Início](/): Visão geral da plataforma, metodologia dos 11 Frutos e demonstrações em vídeo.
+- [Planos](/planos): Planos Criador e Idriel, valores mensais e anuais, e o sistema de gotas de Elixir.
+- [Segurança](/seguranca): Como os dados e os conteúdos dos autores são protegidos.
+
+## Optional
+
+- [Entrar](/login): Acesso à plataforma para assinantes.

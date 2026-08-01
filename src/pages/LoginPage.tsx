@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Seo from '@/components/Seo';
 import { lovable } from '@/integrations/lovable';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -323,6 +324,11 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background relative flex items-center justify-center overflow-hidden">
+      <Seo
+        title="Entrar — A Árvore dos Mundos"
+        description="Acesse sua conta da Árvore dos Mundos para continuar construindo seus mundos, seu Codex e seus manuscritos."
+        path="/login"
+      />
       {/* Background */}
       <div className="absolute inset-0 z-0">
         <video

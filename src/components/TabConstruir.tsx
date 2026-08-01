@@ -306,7 +306,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
             {/* Idriel methodology note */}
             <div className="mb-5 flex items-start gap-3 p-3.5 rounded-lg bg-idriel/[0.04] border border-idriel/15">
-              <img src={idrielAvatar} alt="Idriel" className="w-7 h-7 rounded-full object-cover border border-idriel/30 shrink-0 mt-0.5" />
+              <img src={idrielAvatar} alt="Idriel, a assistente criativa da Árvore dos Mundos" className="w-7 h-7 rounded-full object-cover border border-idriel/30 shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <p className="font-merriweather italic text-sm text-text-secondary leading-relaxed">
                   {method === 'top-down'

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Seo from '@/components/Seo';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
@@ -307,6 +308,11 @@ const LandingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#02070d] text-foreground overflow-x-hidden antialiased">
+      <Seo
+        title="A Árvore dos Mundos | Worldbuilding e escrita criativa"
+        description="Construa universos com os 11 Frutos, organize um Codex vivo com linha do tempo, mapas e galeria, e escreva seus manuscritos capítulo a capítulo."
+        path="/"
+      />
       {/* ============================== Navbar ============================== */}
       <header
         className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ease-out ${
