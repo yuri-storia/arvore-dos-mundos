@@ -61,6 +61,8 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
   const [showHistory, setShowHistory] = useState(false);
   const [regenId, setRegenId] = useState<string | null>(null);
   const regenProg = useGenerationProgress();
+  const mainProg = useGenerationProgress();
+
 
 
   const previewRef = React.useRef<HTMLDivElement>(null);
