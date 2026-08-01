@@ -700,17 +700,24 @@ const LandingPage: React.FC = () => {
           ))}
         </div>
 
-        <VideoPlaceholder
-          screenshot={{ url: previewEscrever.url, alt: "Aba Escrever com o manuscrito e a lista de capítulos" }}
-          title="Vídeo do Ofício"
-          duration="30 a 40s"
-          bullets={[
-            'Troca entre dois manuscritos · abertura de um capítulo',
-            'Referência do Codex visualizada sem sair da escrita',
-            'Card sendo movido em uma Storyline · Galeria · Mapa',
-            'Modo Zen · Pomodoro sendo ativado',
-          ]}
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <DemoVideo
+            src={vidExport.url}
+            poster={vidExportPoster.url}
+            kicker="Escrever"
+            duration="24s"
+            title="Exportando o manuscrito"
+            desc="Termine o capítulo e leve o manuscrito inteiro para PDF, Word ou Kindle — com capa, sumário e formatação pronta para revisão ou publicação."
+          />
+          <DemoVideo
+            src={vidImagem.url}
+            poster={vidImagemPoster.url}
+            kicker="Galeria"
+            duration="27s"
+            title="Gerando uma Visão de Idriel"
+            desc="Escolha o estilo, descreva a cena e receba retratos e paisagens fiéis ao seu Codex — arquivados automaticamente na pasta certa da Galeria."
+          />
+        </div>
       </section>
 
       {/* ============================== 8. IMPORTAÇÃO ======================= */}
