@@ -330,20 +330,17 @@ const UserRow = memo<UserRowProps>(({ user: u, callerId, onOpenDetail, onChanged
     <td className="px-3 py-2.5">
       <div className="flex items-center gap-1 flex-wrap">
         <Badge variant="outline" className={`text-[10px] ${planTone(u.plan_code)}`}>{planLabel(u.plan_code)}</Badge>
-        {u.billing_cycle === 'LIFETIME_COURTESY' && (
-          <Badge variant="outline" className="text-[9px] border-gold/50 bg-gold/10 text-gold-light font-bold uppercase tracking-wider">Cortesia</Badge>
+        {u.plan_code && u.sub_status !== 'active' && (
+          <Badge variant="outline" className="text-[9px] border-red-alert/50 bg-red-alert/10 text-red-alert font-bold uppercase tracking-wider">Cancelado</Badge>
         )}
         {u.billing_cycle === 'manual' && (
           <Badge variant="outline" className="text-[9px] border-blue-bright/50 bg-blue-bright/10 text-blue-light font-bold uppercase tracking-wider">Manual</Badge>
-        )}
-        {u.billing_cycle === 'lifetime' && (
-          <Badge variant="outline" className="text-[9px] border-gold/50 bg-gold/10 text-gold font-bold uppercase tracking-wider">Vitalício</Badge>
         )}
         {!u.plan_code && (
           <Badge variant="outline" className="text-[9px] border-text-dim/40 bg-white/5 text-text-dim font-bold uppercase tracking-wider">Gratuito</Badge>
         )}
       </div>
-      {u.expires_at === null && u.plan_code === 'raiz_vitalicio' && <span className="block text-[9px] text-gold mt-0.5">sem expiração</span>}
+
       {u.expires_at && (() => {
         const days = daysUntil(u.expires_at);
         const expired = days !== null && days < 0;
