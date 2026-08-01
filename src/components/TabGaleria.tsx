@@ -980,6 +980,14 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                     </section>
                   </div>
 
+                  <QualitySelector
+                    surface="gallery"
+                    value={quality}
+                    onChange={setQuality}
+                    disabled={loading1 || loading2}
+                    className="pt-1"
+                  />
+
                   {/* 4) Botão pulsante único */}
                   <div className="flex flex-col items-center gap-2 pt-2">
                     <button
@@ -992,7 +1000,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                       {(loading1 || loading2) ? 'Idriel está trabalhando…' : 'Gerar Imagem com Idriel'}
                     </button>
                     <p className="font-merriweather italic text-[11px] text-text-dim text-center max-w-md">
-                      Você poderá revisar todas as escolhas antes de confirmar o gasto de gotas.
+                      Você poderá revisar todas as escolhas antes de confirmar as {galleryCost} gotas.
                     </p>
                   </div>
 
@@ -1001,7 +1009,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                   {(genProg.active || loading1 || loading2) && (
                     <GenerationProgress
                       state={genProg.active ? genProg : { active: true, status: 'running', stage: loading1 ? 'prompt' : 'generating', stageIndex: loading1 ? 0 : 1, pct: loading1 ? 8 : 45, elapsed: 0 }}
-                      cost="16 gotas"
+                      cost={`${galleryCost} gotas`}
                       title={genProg.status === 'done' ? 'Visão materializada' : 'Idriel materializa sua visão…'}
                       className="mt-4"
                     />
