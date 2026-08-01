@@ -9,6 +9,8 @@ interface DemoVideoProps {
   desc: string;
   duration?: string;
   className?: string;
+  /** Mostra apenas o quadro do vídeo — o texto vive fora, na composição editorial. */
+  bare?: boolean;
 }
 
 /**
@@ -16,7 +18,7 @@ interface DemoVideoProps {
  * em loop). Carregamento preguiçoso para não pesar a página de vendas.
  */
 export const DemoVideo: React.FC<DemoVideoProps> = ({
-  src, poster, kicker, title, desc, duration, className = '',
+  src, poster, kicker, title, desc, duration, className = '', bare = false,
 }) => {
   const ref = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -35,8 +37,9 @@ export const DemoVideo: React.FC<DemoVideoProps> = ({
 
   return (
     <figure
-      className={`group relative rounded-2xl overflow-hidden border border-gold-warm/25 bg-[rgba(4,12,24,0.72)] backdrop-blur-xl shadow-[0_18px_60px_-24px_rgba(0,0,0,0.85)] ${className}`}
+      className={`group relative rounded-2xl overflow-hidden border border-gold-warm/15 bg-[rgba(4,12,24,0.55)] backdrop-blur-xl shadow-[0_30px_90px_-40px_rgba(0,0,0,0.95)] transition-transform duration-500 ease-out hover:-translate-y-1 ${className}`}
     >
+
       <div className="relative aspect-video w-full overflow-hidden bg-[#02070d]">
         <video
           ref={ref}
