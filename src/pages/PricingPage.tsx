@@ -233,7 +233,7 @@ const PricingPage: React.FC = () => {
         </motion.div>
 
         {/* Pricing cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-7 mb-24 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-8 mb-28 max-w-4xl mx-auto items-start pt-20 md:pt-24">
           {tiers.map((tier, i) => {
             const Icon = tier.Icon;
             const isPopular = tier.popular;
@@ -243,49 +243,37 @@ const PricingPage: React.FC = () => {
                 initial={{ opacity: 0, y: 32 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 + i * 0.15, duration: 0.7 }}
-                className={`group relative rounded-[1.25rem] p-[1px] transition-all duration-500 ${
+                className={`relative rounded-[1.5rem] border backdrop-blur-xl transition-all duration-500 ${
                   isPopular
-                    ? 'md:-mt-5 shadow-gold-glow-strong hover:shadow-[0_14px_60px_-16px_hsl(var(--gold-warm)/0.55),0_0_100px_-20px_hsl(var(--gold-bronze)/0.35)]'
-                    : 'shadow-blue-glow hover:shadow-blue-glow-strong'
+                    ? 'border-gold-warm/45 shadow-[0_40px_120px_-50px_rgba(0,0,0,0.95),0_0_80px_-40px_hsl(var(--gold-warm)/0.45)] hover:-translate-y-1'
+                    : 'border-blue-bright/25 shadow-[0_40px_120px_-50px_rgba(0,0,0,0.95)] hover:-translate-y-1'
                 }`}
                 style={{
                   background: isPopular
-                    ? 'linear-gradient(140deg, hsl(var(--gold-bronze)) 0%, hsl(var(--gold-warm)) 25%, hsl(var(--gold-champagne)) 50%, hsl(var(--gold-warm)) 75%, hsl(var(--gold-bronze)) 100%)'
-                    : 'linear-gradient(140deg, hsl(var(--blue-main)) 0%, hsl(var(--blue-bright)) 35%, hsl(var(--blue-light)) 70%, hsl(var(--blue-main)) 100%)',
+                    ? 'linear-gradient(180deg, hsl(35 40% 20% / 0.55) 0%, hsl(214 62% 4% / 0.96) 55%)'
+                    : 'linear-gradient(180deg, hsl(211 70% 22% / 0.45) 0%, hsl(214 62% 4% / 0.96) 55%)',
                 }}
               >
-                <div
-                  className={`relative rounded-[1.18rem] p-8 sm:p-10 backdrop-blur-md transition-all duration-500 overflow-visible ${
-                    isPopular ? 'pt-12 sm:pt-14 md:pb-12' : ''
-                  }`}
-                  style={{
-                    background: isPopular
-                      ? 'radial-gradient(ellipse 120% 80% at 50% 0%, hsl(34 42% 38% / 0.32) 0%, hsl(35 36% 14% / 0.55) 35%, hsl(214 60% 4% / 0.98) 72%)'
-                      : 'radial-gradient(ellipse 120% 80% at 50% 0%, hsl(211 76% 38% / 0.22) 0%, hsl(211 76% 22% / 0.32) 35%, hsl(214 60% 4% / 0.98) 72%)',
-                  }}
-                >
+                <div className="relative rounded-[1.5rem] px-7 sm:px-9 pt-14 pb-9">
                   {isPopular && (
                     <>
-                      {/* Avatar de Idriel flutuante */}
-                      <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-20">
-                        <div className="relative">
-                          <div className="absolute inset-0 rounded-full animate-idriel-pulse scale-110" />
-                          <div
-                            className="relative w-16 h-16 rounded-full p-[2px]"
-                            style={{
-                              background: 'linear-gradient(135deg, hsl(var(--gold-bronze)) 0%, hsl(var(--gold-warm)) 35%, hsl(var(--gold-champagne)) 70%, hsl(var(--gold-bronze)) 100%)',
-                              boxShadow: '0 0 32px hsl(var(--gold-warm)/0.6), 0 0 64px hsl(var(--gold-champagne)/0.3), inset 0 0 0 1px hsl(var(--gold-cream)/0.5)',
-                            }}
-                          >
-                            <img
-                              src={idrielPoster}
-                              alt="Idriel"
-                              className="w-full h-full rounded-full object-cover border-2 border-[#02070d]"
-                            />
-                          </div>
+                      {/* Avatar de Idriel — acima do selo, sem sobreposição */}
+                      <div className="absolute -top-[4.25rem] left-1/2 -translate-x-1/2 z-10">
+                        <div
+                          className="w-[4.5rem] h-[4.5rem] rounded-full p-[2px]"
+                          style={{
+                            background: 'linear-gradient(135deg, hsl(var(--gold-bronze)) 0%, hsl(var(--gold-warm)) 35%, hsl(var(--gold-champagne)) 70%, hsl(var(--gold-bronze)) 100%)',
+                            boxShadow: '0 0 40px hsl(var(--gold-warm)/0.45)',
+                          }}
+                        >
+                          <img
+                            src={idrielPoster}
+                            alt="Idriel, a guardiã da Árvore"
+                            className="w-full h-full rounded-full object-cover border-2 border-[#02070d]"
+                          />
                         </div>
                       </div>
-                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-gold-premium text-[10px] font-montserrat font-bold uppercase tracking-[0.22em] text-[#1a0f00] shadow-[0_6px_28px_hsl(var(--gold-warm)/0.55)] flex items-center gap-1.5 whitespace-nowrap z-10">
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-gold-premium text-[9.5px] font-manrope font-bold uppercase tracking-[0.22em] text-[#1a0f00] shadow-[0_6px_28px_hsl(var(--gold-warm)/0.5)] flex items-center gap-1.5 whitespace-nowrap">
                         <Star className="w-3 h-3 fill-current" />
                         Mais escolhido
                       </div>
@@ -293,46 +281,39 @@ const PricingPage: React.FC = () => {
                   )}
 
                   <div className="text-center mb-8">
-                    <div
-                      className={`mx-auto mb-6 w-16 h-16 rounded-full flex items-center justify-center ${
-                        isPopular
-                          ? 'bg-gradient-gold-premium shadow-[0_6px_28px_hsl(var(--gold-bronze)/0.65),inset_0_1px_0_hsl(var(--gold-cream)/0.5)]'
-                          : 'bg-gradient-blue-premium shadow-[0_6px_28px_hsl(var(--blue-bright)/0.55),inset_0_1px_0_hsl(var(--blue-glow)/0.45)]'
-                      }`}
-                    >
-                      <Icon
-                        className={`w-7 h-7 ${isPopular ? 'text-[#1a0f00]' : 'text-white'}`}
-                        strokeWidth={1.75}
-                      />
-                    </div>
+                    {!isPopular && (
+                      <div className="mx-auto mb-6 w-14 h-14 rounded-full bg-gradient-blue-premium flex items-center justify-center shadow-[0_6px_28px_hsl(var(--blue-bright)/0.45)]">
+                        <Icon className="w-6 h-6 text-white" strokeWidth={1.75} />
+                      </div>
+                    )}
                     <h3
-                      className={`font-cinzel font-bold text-[1.75rem] tracking-[0.04em] mb-2 ${
+                      className={`font-cinzel font-bold text-[1.6rem] sm:text-[1.75rem] tracking-[0.05em] mb-2.5 ${
                         isPopular ? 'text-gradient-gold' : 'text-gradient-blue-premium'
                       }`}
                     >
                       {tier.name}
                     </h3>
-                    <p className="font-amiri italic text-text-secondary text-[1.05rem] mb-6 leading-relaxed">
+                    <p className="font-manrope text-text-secondary text-[13.5px] leading-[1.7] max-w-[19rem] mx-auto mb-7">
                       {tier.tagline}
                     </p>
                     <div className="flex items-baseline justify-center gap-1.5">
                       <span
-                        className={`font-cinzel font-bold text-[3.5rem] sm:text-[4rem] leading-none ${
+                        className={`font-cinzel font-bold text-[2.9rem] sm:text-[3.3rem] leading-none ${
                           isPopular ? 'text-gradient-gold' : 'text-gradient-blue-premium'
                         }`}
                       >
                         {tier.price}
                       </span>
-                      <span className="text-text-secondary text-base font-montserrat">
+                      <span className="text-text-secondary text-sm font-manrope">
                         {tier.priceDetail}
                       </span>
                     </div>
                     {tier.savings && (
                       <div className={`mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border ${
-                        isPopular ? 'border-gold-warm/50 bg-gold-deep/25' : 'border-blue-bright/40 bg-blue-main/15'
+                        isPopular ? 'border-gold-warm/45 bg-gold-deep/20' : 'border-blue-bright/35 bg-blue-main/15'
                       }`}>
                         <Sparkles className={`w-3 h-3 ${isPopular ? 'text-gold-champagne' : 'text-blue-light'}`} strokeWidth={2} />
-                        <span className={`text-[10px] font-montserrat font-bold uppercase tracking-[0.18em] ${
+                        <span className={`text-[9.5px] font-manrope font-bold uppercase tracking-[0.18em] ${
                           isPopular ? 'text-gold-champagne' : 'text-blue-light'
                         }`}>
                           {tier.savings}
@@ -344,29 +325,29 @@ const PricingPage: React.FC = () => {
                   <button
                     onClick={tier.ctaAction}
                     disabled={!!loading}
-                    className={`w-full py-4 rounded-xl text-[11px] font-montserrat font-bold uppercase tracking-[0.24em] transition-all mb-8 ${
+                    className={`w-full py-4 rounded-xl text-[10.5px] font-manrope font-bold uppercase tracking-[0.24em] transition-all mb-8 ${
                       isPopular
-                        ? 'bg-gradient-gold-premium text-[#1a0f00] shadow-[0_8px_32px_hsl(var(--gold-bronze)/0.45),inset_0_1px_0_hsl(var(--gold-cream)/0.45)] hover:shadow-[0_12px_48px_hsl(var(--gold-warm)/0.65),inset_0_1px_0_hsl(var(--gold-cream)/0.55)] hover:-translate-y-0.5'
-                        : 'bg-gradient-blue-premium text-white shadow-[0_6px_24px_hsl(var(--blue-bright)/0.4),inset_0_1px_0_hsl(var(--blue-glow)/0.45)] hover:shadow-[0_10px_40px_hsl(var(--blue-bright)/0.6),inset_0_1px_0_hsl(var(--blue-glow)/0.55)] hover:-translate-y-0.5'
+                        ? 'bg-gradient-gold-premium text-[#1a0f00] shadow-[0_8px_32px_hsl(var(--gold-bronze)/0.4)] hover:-translate-y-0.5'
+                        : 'bg-gradient-blue-premium text-white shadow-[0_6px_24px_hsl(var(--blue-bright)/0.35)] hover:-translate-y-0.5'
                     }`}
                   >
                     {tier.cta}
                   </button>
 
-                  <ul className="space-y-3">
+                  <ul className="space-y-3 border-t border-white/[0.06] pt-7">
                     {tier.features.map((f) => (
-                      <li key={f} className="flex items-start gap-3 text-[15px]">
+                      <li key={f} className="flex items-start gap-3">
                         <Check
-                          className={`w-4 h-4 mt-1 shrink-0 ${isPopular ? 'text-gold-champagne' : 'text-blue-light'}`}
+                          className={`w-4 h-4 mt-[3px] shrink-0 ${isPopular ? 'text-gold-champagne' : 'text-blue-light'}`}
                           strokeWidth={2.5}
                         />
-                        <span className="text-foreground/90 font-amiri leading-snug">{f}</span>
+                        <span className="text-foreground/85 font-manrope text-[13.5px] leading-[1.65]">{f}</span>
                       </li>
                     ))}
                     {tier.missing.map((f) => (
-                      <li key={f} className="flex items-start gap-3 text-[15px] opacity-40">
-                        <X className="w-4 h-4 mt-1 shrink-0" />
-                        <span className="font-amiri line-through leading-snug">{f}</span>
+                      <li key={f} className="flex items-start gap-3 opacity-35">
+                        <X className="w-4 h-4 mt-[3px] shrink-0" />
+                        <span className="font-manrope text-[13.5px] line-through leading-[1.65]">{f}</span>
                       </li>
                     ))}
                   </ul>
@@ -375,6 +356,7 @@ const PricingPage: React.FC = () => {
             );
           })}
         </div>
+
 
         {/* =============== QUEM É IDRIEL =============== */}
         <motion.section
