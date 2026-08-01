@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Map, Sparkles, Lock, Droplet, ArrowDown, RefreshCw, Wand2, Check, X, FolderOpen, Save, ScrollText, ChevronDown, ChevronUp, Trash2, Loader2 } from 'lucide-react';
-import { callAIText, callAIImage, friendlyAIError } from '@/lib/helpers';
+import { generateMap, friendlyAIError } from '@/lib/helpers';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useMapHistory } from '@/hooks/useMapHistory';
@@ -68,15 +68,9 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
     setTimeout(() => previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
 
-  const buildPromptFor = async (h: { style: string; style_label: string; description: string | null }) => {
-    const st = MAP_STYLES.find(s => s.id === h.style) || styleObj;
-    const ctx = buildWorldContext();
-    const stylePrompt = st.custom
-      ? (h.description || 'Custom map described by the user')
-      : `${st.label}: ${st.desc}. Style keywords: ${st.prompt}`;
-    const systemPrompt = 'You are an expert at writing detailed image generation prompts for fantasy world maps. Respond ONLY with the prompt in English. Be very specific about visual details, cartographic elements, labels, terrain features, colors, and artistic style.';
-    const userMsg = `Generate a detailed map image prompt for this fantasy world.\n\nWorld context:\n${ctx}\n\nMap style requested: ${stylePrompt}\n${h.description && !st.custom ? `Additional details: ${h.description}` : ''}`;
-    return callAIText([{ role: 'user', content: userMsg }], systemPrompt);
+  const styleFor = (id: string) => {
+    const st = MAP_STYLES.find(s => s.id === id) || styleObj;
+    return { id: st.id, label: st.label, desc: st.desc, prompt: st.prompt, custom: !!st.custom };
   };
 
   const regenerate = async (h: { id: string; style: string; style_label: string; description: string | null }) => {
@@ -84,9 +78,12 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
     setRegenId(h.id);
     setRegenState({ phase: 'prompt', progress: 15 });
     try {
-      const prompt = await buildPromptFor(h);
       setRegenState({ phase: 'image', progress: 55 });
-      const url = await callAIImage(prompt);
+      const url = await generateMap({
+        style: styleFor(h.style),
+        description: h.description || '',
+        worldContext: buildWorldContext(),
+      });
       setRegenState({ phase: 'saving', progress: 88 });
       await updateMapImage(h.id, url);
       setRegenState({ phase: 'done', progress: 100 });
@@ -99,6 +96,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
       setTimeout(() => { setRegenId(null); setRegenState(null); }, 3000);
     }
   };
+
 
   // Virtualização do histórico
   const historyScrollRef = useRef<HTMLDivElement>(null);
@@ -140,17 +138,15 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
     setError('');
     setGeneratedImage('');
     try {
-      setPhase('prompt');
-      const ctx = buildWorldContext();
-      const stylePrompt = styleObj.custom ? customDesc : `${styleObj.label}: ${styleObj.desc}. Style keywords: ${styleObj.prompt}`;
-      const systemPrompt = 'You are an expert at writing detailed image generation prompts for fantasy world maps. Respond ONLY with the prompt in English. Be very specific about visual details, cartographic elements, labels, terrain features, colors, and artistic style.';
-      const userMsg = `Generate a detailed map image prompt for this fantasy world.\n\nWorld context:\n${ctx}\n\nMap style requested: ${stylePrompt}\n${customDesc && !styleObj.custom ? `Additional details: ${customDesc}` : ''}`;
-      const prompt = await callAIText([{ role: 'user', content: userMsg }], systemPrompt);
-
       setPhase('image');
-      const url = await callAIImage(prompt);
+      const url = await generateMap({
+        style: styleFor(styleObj.id),
+        description: customDesc,
+        worldContext: buildWorldContext(),
+      });
       setGeneratedImage(url);
       await addMap({ image_url: url, style: styleObj.id, style_label: styleObj.label, description: customDesc });
+
     } catch (e: any) {
       const f = friendlyAIError(e?.message || '');
       setError(`${f.title} ${f.hint}`);
