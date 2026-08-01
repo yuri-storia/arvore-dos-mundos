@@ -249,12 +249,12 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
           <SelectTrigger className="w-[180px] bg-[rgba(4,12,24,0.6)] border-blue-bright/20"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os planos</SelectItem>
-            <SelectItem value="raiz_mensal">Raiz Mensal</SelectItem>
-            <SelectItem value="raiz_anual">Raiz Anual</SelectItem>
+            <SelectItem value="raiz_mensal">Criador Mensal</SelectItem>
+            <SelectItem value="raiz_anual">Criador Anual</SelectItem>
             <SelectItem value="idriel_mensal">Idriel Mensal</SelectItem>
             <SelectItem value="idriel_anual">Idriel Anual</SelectItem>
             <SelectItem value="fundador_mensal">Fundador Mensal</SelectItem>
-            <SelectItem value="raiz_vitalicio">Vitalício</SelectItem>
+
             <SelectItem value="none">Sem plano ativo</SelectItem>
             <SelectItem value="admin">Apenas admins</SelectItem>
           </SelectContent>
