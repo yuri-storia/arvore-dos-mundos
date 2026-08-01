@@ -159,10 +159,16 @@ export function useSubscription(): SubscriptionInfo {
           hasIdriel: !!data.has_idriel,
           hasTemplate: !!(data.has_template || data.has_idriel),
           subscriptionEnd: data.subscription_end,
+          billingCycle: data.billing_cycle ?? null,
+          cancelAtPeriodEnd: !!data.cancel_at_period_end,
+          canChangePlan: !!data.can_change_plan,
+          scheduledPlanCode: data.scheduled_plan_code ?? null,
+          scheduledAt: data.scheduled_at ?? null,
           active: !!data.has_idriel,
           creditsUsed,
           creditLimit: CREDIT_LIMIT,
           bonusDrops: data.bonus_drops || 0,
+
         };
       } catch {
         return { ...EMPTY_INFO, loading: false };
