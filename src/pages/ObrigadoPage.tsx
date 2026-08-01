@@ -1,21 +1,52 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Sparkles, Mail, CheckCircle2 } from "lucide-react";
+import { Sparkles, Mail, CheckCircle2, Loader2 } from "lucide-react";
 import Seo from "@/components/Seo";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function ObrigadoPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const ref = params.get("ref") || "";
-  // A página só é legítima quando vem de um checkout (Stripe devolve session_id / ref).
-  const hasCheckoutToken = Boolean(params.get("session_id") || ref);
+  const sessionId = params.get("session_id") || "";
+  const [state, setState] = useState<"checking" | "valid" | "invalid">("checking");
 
   useEffect(() => {
     document.title = "Pagamento confirmado — Árvore dos Mundos";
   }, []);
 
-  if (!hasCheckoutToken) return <Navigate to="/" replace />;
+  useEffect(() => {
+    let active = true;
+    if (!sessionId) {
+      setState("invalid");
+      return;
+    }
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("verify-checkout-session", {
+          body: { session_id: sessionId },
+        });
+        if (!active) return;
+        setState(!error && data?.valid ? "valid" : "invalid");
+      } catch {
+        if (active) setState("invalid");
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [sessionId]);
+
+  if (state === "checking") {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#02070d" }}>
+        <Loader2 className="w-6 h-6 animate-spin text-gold-champagne" />
+      </div>
+    );
+  }
+
+  if (state === "invalid") return <Navigate to="/" replace />;
+
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-16" style={{ background: "#02070d" }}>
