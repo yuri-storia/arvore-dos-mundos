@@ -6,6 +6,8 @@ export interface PlanLimits {
   maxFichas: number;
   maxArtigos: number;
   canExport: boolean;
+  /** Exportação E-pub/Kindle — exclusiva do plano Idriel (bloqueada em plano cancelado) */
+  canExportEpub: boolean;
   canUseAI: boolean;
   /** Pode criar novos Mundos (bloqueado em plano expirado / cancelado / Semente) */
   canCreateWorld: boolean;
@@ -31,6 +33,7 @@ const SEMENTE_LIMITS: PlanLimits = {
   maxFichas: 0,
   maxArtigos: 0,
   canExport: false,
+  canExportEpub: false,
   canUseAI: false,
   canCreateWorld: false,
   canCreateFicha: false,
@@ -48,6 +51,7 @@ const RAIZ_LIMITS: PlanLimits = {
   maxFichas: Infinity,
   maxArtigos: Infinity,
   canExport: true,
+  canExportEpub: false,
   // Criador tem acesso às funcionalidades de Idriel enquanto houver gotas
   // (5 gotas de cortesia). O saldo é validado no servidor (check_ai_quota).
   canUseAI: true,
@@ -67,6 +71,7 @@ const IDRIEL_LIMITS: PlanLimits = {
   maxFichas: Infinity,
   maxArtigos: Infinity,
   canExport: true,
+  canExportEpub: true,
   canUseAI: true,
   canCreateWorld: true,
   canCreateFicha: true,
@@ -84,6 +89,7 @@ const ADMIN_LIMITS: PlanLimits = {
   maxFichas: Infinity,
   maxArtigos: Infinity,
   canExport: true,
+  canExportEpub: true,
   canUseAI: true,
   canCreateWorld: true,
   canCreateFicha: true,
@@ -101,6 +107,7 @@ const ADMIN_LIMITS: PlanLimits = {
 const EXPIRED_LIMITS: PlanLimits = {
   ...SEMENTE_LIMITS,
   canExport: true,
+  canExportEpub: false,
   canEdit: false,
   isExpired: true,
   planLabel: 'Plano cancelado',
