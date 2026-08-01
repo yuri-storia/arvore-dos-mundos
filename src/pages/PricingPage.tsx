@@ -640,12 +640,12 @@ const PricingPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-7">
             {[
               {
-                Icon: Trees,
-                kicker: 'Construir',
-                title: 'Criando fichas através dos Frutos',
-                video: vidFichas.url,
-                poster: vidFichasPoster.url,
-                body: 'De cosmologia a povos, cada Fruto é um pilar do seu universo. Responda ao preenchimento guiado e transforme a descoberta em ficha ou artigo do Codex sem sair da tela.',
+                Icon: FileDown,
+                kicker: 'Importação',
+                title: 'Importe seu manuscrito com Idriel',
+                video: vidImportacao.url,
+                poster: vidImportacaoPoster.url,
+                body: 'Traga o que já escreveu em .docx, .pdf, .epub ou .txt: Idriel organiza tudo em manuscrito e capítulos, com polimento opcional e orientação livre sua.',
               },
               {
                 Icon: Library,
