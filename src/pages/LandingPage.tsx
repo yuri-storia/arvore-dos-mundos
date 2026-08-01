@@ -276,10 +276,11 @@ const LandingPage: React.FC = () => {
                 textShadow: '0 2px 20px rgba(2,7,13,0.95), 0 1px 6px rgba(2,7,13,0.85)',
               }}
             >
-              Construa universos profundos e coerentes com os <strong className="text-foreground">11 Frutos</strong>,
-              organize tudo em um <strong className="text-foreground">Codex vivo</strong> e
-              escreva suas histórias com a assistência de <strong className="text-foreground">Idriel</strong> —
-              sem entregar sua voz, suas escolhas ou sua autoria à inteligência artificial.
+              Construa universos profundos com os <strong className="text-foreground">11 Frutos</strong>,
+              organize tudo em um <strong className="text-foreground">Codex vivo</strong> com linha do tempo, mapas e galeria,
+              escreva seus manuscritos capítulo a capítulo e exporte em PDF, Word ou Kindle — com{' '}
+              <strong className="text-foreground">Idriel</strong> ao seu lado, sem entregar sua voz,
+              suas escolhas ou sua autoria à inteligência artificial.
             </p>
 
             <div className="flex flex-wrap gap-3 justify-center">
