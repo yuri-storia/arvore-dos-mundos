@@ -411,6 +411,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
   const regenerateVision = async (v: { id: string; description: string; prompt?: string; image_url: string | null; style: string | null; image_type: string | null; tone: string | null }) => {
     if (!planLimits.canUseAI) { toast.error('Plano ativo necessário para reprocessar.'); return; }
     setRegenVisionId(v.id);
+    regenProg.start();
     try {
       // O `prompt` não vem no payload enxuto da listagem — busca sob demanda.
       let prompt = v.prompt || '';
@@ -420,16 +421,22 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
         const styleHint = STYLE_META.find(s => s.label === v.style)?.promptHint || '';
         prompt = `${v.description}. Style: ${v.style || ''} (${styleHint}). Type: ${v.image_type || ''}. Tone: ${v.tone || ''}.`;
       }
+      regenProg.setStage('generating');
       const url = await callAIImageConsistent(prompt, [], codexContext, []);
+      regenProg.setStage('saving');
       await updateVisionImage(v.id, url);
+      regenProg.setStage('charging');
+      regenProg.succeed();
       toast.success('Visão reprocessada');
+      setTimeout(() => { setRegenVisionId(null); regenProg.reset(); }, 1200);
     } catch (e: any) {
       const f = friendlyAIError(e?.message || '');
+      regenProg.fail(f.title);
       toast.error(`${f.title} ${f.hint}`);
-    } finally {
-      setRegenVisionId(null);
+      setTimeout(() => { setRegenVisionId(null); regenProg.reset(); }, 3000);
     }
   };
+
 
   const copyPrompt = () => { navigator.clipboard.writeText(generatedPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); };
 
