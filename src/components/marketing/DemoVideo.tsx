@@ -78,19 +78,22 @@ export const DemoVideo: React.FC<DemoVideoProps> = ({
         </button>
 
         {duration && !playing && (
-          <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-gold-warm/40 bg-[rgba(4,12,24,0.75)] backdrop-blur-md px-2.5 py-1 font-montserrat uppercase tracking-[0.22em] text-[9px] text-gold-champagne pointer-events-none">
+          <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-gold-warm/30 bg-[rgba(4,12,24,0.7)] backdrop-blur-md px-2.5 py-1 font-manrope font-semibold uppercase tracking-[0.22em] text-[9px] text-gold-champagne pointer-events-none">
             {kicker} · {duration}
           </span>
         )}
       </div>
 
-      <figcaption className="relative px-5 sm:px-6 py-5 border-t border-gold-warm/20 bg-[rgba(4,12,24,0.55)]">
-        <p className="font-montserrat uppercase tracking-[0.22em] text-[10px] text-gold-champagne mb-1.5">
-          {kicker}
-        </p>
-        <h4 className="font-cinzel font-bold text-base sm:text-lg text-foreground mb-2">{title}</h4>
-        <p className="font-merriweather text-[13px] sm:text-sm text-text-secondary leading-relaxed">{desc}</p>
-      </figcaption>
+      {!bare && (
+        <figcaption className="relative px-5 sm:px-6 py-5 border-t border-gold-warm/15 bg-[rgba(4,12,24,0.45)]">
+          <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne mb-1.5">
+            {kicker}
+          </p>
+          <h4 className="font-cinzel font-bold text-base sm:text-lg text-foreground mb-2">{title}</h4>
+          <p className="font-manrope text-[13px] sm:text-sm text-text-secondary leading-[1.75]">{desc}</p>
+        </figcaption>
+      )}
+
     </figure>
   );
 };
