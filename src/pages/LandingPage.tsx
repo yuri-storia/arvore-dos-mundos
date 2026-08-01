@@ -453,9 +453,7 @@ const LandingPage: React.FC = () => {
             >
               Construa universos profundos com os <strong className="text-gold-champagne font-semibold">11 Frutos</strong>,
               organize tudo em um <strong className="text-gold-champagne font-semibold">Codex vivo</strong> com linha do tempo, mapas e galeria,
-              escreva seus manuscritos capítulo a capítulo e exporte em PDF, Word ou Kindle — com{' '}
-              <strong className="text-gold-champagne font-semibold">Idriel</strong> ao seu lado, sem entregar sua voz,
-              suas escolhas ou sua autoria à inteligência artificial.
+              escreva seus manuscritos capítulo a capítulo e exporte em PDF, Word ou Kindle.
             </p>
 
 
@@ -1098,7 +1096,7 @@ const LandingPage: React.FC = () => {
               <SectionHead
                 eyebrow="Quem já plantou"
                 title="Antes de virar plataforma, a Árvore já ajudava escritores a construir mundos."
-                lede="Estes depoimentos referem-se ao e-book e à metodologia original — não ao uso do aplicativo."
+                lede="Estes depoimentos referem-se ao e-book e à metodologia original da Árvore dos Mundos."
               />
               <EbookTestimonials />
             </div>
@@ -1131,8 +1129,7 @@ const LandingPage: React.FC = () => {
             <Eyebrow>Planos</Eyebrow>
             <Title>Como você deseja cultivar seus mundos?</Title>
             <p className="font-manrope text-[15px] text-text-secondary max-w-[58ch] mx-auto leading-[1.9] mt-5">
-              Experimente a experiência completa por <strong className="text-foreground font-semibold">14 dias</strong>, sem cartão.
-              Ao final, escolha entre Raiz e Idriel. Seus mundos, fichas, artigos e manuscritos continuam salvos.
+              Organização, análise, formatação e suporte visual em um só lugar: <strong className="text-foreground font-semibold">escolha como será a sua experiência</strong> com a Árvore dos Mundos.
             </p>
           </Reveal>
 
@@ -1443,7 +1440,7 @@ const LandingPage: React.FC = () => {
               </a>
             </div>
             <p className="text-[11px] font-manrope tracking-[0.06em] text-text-dim">
-              14 dias de experiência completa · Sem cartão · Seus conteúdos continuam sendo seus
+              Crie Mundos Fantásticos · Seus conteúdos continuam sendo seus
             </p>
             <p className="font-merriweather italic text-gold-champagne/90 mt-10">
               Onde mundos criam raízes e narrativas dão frutos.
