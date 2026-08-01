@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
+import heroVideoDesktopMaster from '@/assets/arvore-hero-desktop-master.mp4.asset.json';
 import heroVideoMobile from '@/assets/arvore-hero-mobile-master-1080.mp4.asset.json';
 import heroPoster from '@/assets/arvore-mundos-hero.webp.asset.json';
 import heroMobilePoster from '@/assets/arvore-hero-mobile-master-poster.png.asset.json';
@@ -142,8 +142,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
                 className="absolute inset-0 h-full w-full object-cover object-[center_30%] opacity-60"
               />
               <video
-                key="desktop"
-                src={heroVideo720.url}
+                key="desktop-master"
+                src={heroVideoDesktopMaster.url}
                 poster={heroPoster.url}
                 autoPlay
                 muted
