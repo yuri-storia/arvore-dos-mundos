@@ -434,15 +434,40 @@ const PricingPage: React.FC = () => {
 
                   <button
                     onClick={tier.ctaAction}
-                    disabled={!!loading}
-                    className={`w-full py-4 rounded-xl text-[10.5px] font-manrope font-bold uppercase tracking-[0.24em] transition-all mb-8 ${
-                      isPopular
+                    disabled={!!loading || tier.ctaDisabled}
+                    className={`w-full py-4 rounded-xl text-[10.5px] font-manrope font-bold uppercase tracking-[0.24em] transition-all ${
+                      tier.ctaDisabled
+                        ? 'border border-white/15 bg-white/[0.04] text-foreground/60 cursor-default'
+                        : isPopular
                         ? 'bg-gradient-gold-premium text-[#1a0f00] shadow-[0_8px_32px_hsl(var(--gold-bronze)/0.4)] hover:-translate-y-0.5'
                         : 'bg-gradient-blue-premium text-white shadow-[0_6px_24px_hsl(var(--blue-bright)/0.35)] hover:-translate-y-0.5'
                     }`}
                   >
                     {tier.cta}
                   </button>
+                  {tier.ctaNote ? (
+                    <p className="mt-3 text-center font-manrope text-[11.5px] leading-[1.6] text-foreground/55">{tier.ctaNote}</p>
+                  ) : null}
+                  {sub.plan_code === (tier.id === 'raiz' ? raizPriceId : idrielPriceId) && sub.cancelAtPeriodEnd && (
+                    <button
+                      onClick={handleReactivate}
+                      disabled={!!loading}
+                      className="mt-3 w-full py-2.5 rounded-xl border border-gold-warm/40 bg-gold-deep/15 text-[10.5px] font-manrope font-bold uppercase tracking-[0.2em] text-gold-champagne hover:bg-gold-deep/25 transition"
+                    >
+                      Reativar renovação
+                    </button>
+                  )}
+                  {sub.scheduledPlanCode === (tier.id === 'raiz' ? raizPriceId : idrielPriceId) && (
+                    <button
+                      onClick={handleCancelScheduled}
+                      disabled={!!loading}
+                      className="mt-3 w-full py-2.5 rounded-xl border border-white/15 bg-white/[0.04] text-[10.5px] font-manrope font-bold uppercase tracking-[0.2em] text-foreground/70 hover:bg-white/[0.08] transition"
+                    >
+                      Desfazer mudança agendada
+                    </button>
+                  )}
+                  <div className="mb-8" />
+
 
                   <ul className="space-y-3 border-t border-white/[0.06] pt-7">
                     {tier.features.map((f) => (
