@@ -516,40 +516,36 @@ const LandingPage: React.FC = () => {
       {/* ============================== 3. COMO FUNCIONA ==================== */}
       <Band id="tour">
         <Shell>
-          <Reveal className="max-w-[46ch] mb-16 sm:mb-20">
-            <Eyebrow>Como funciona</Eyebrow>
-            <Title>Da primeira semente ao manuscrito.</Title>
-            <p className="font-merriweather italic text-text-dim mt-5 leading-[1.9]">
-              A Árvore dos Mundos organiza o processo de criação em quatro movimentos.
-            </p>
-          </Reveal>
+          <SectionHead
+            eyebrow="Como funciona"
+            title="Da primeira semente ao manuscrito."
+            lede="A Árvore dos Mundos organiza o processo de criação em quatro movimentos."
+          />
 
-          <div className="divide-y divide-gold/[0.08]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
             {[
               { n: '01', title: 'Plante', desc: 'Crie seu mundo e registre a ideia que dará origem a ele. Você não precisa saber tudo antes de começar.', Icon: Leaf },
               { n: '02', title: 'Cultive', desc: 'Desenvolva povos, lugares, culturas, conflitos, sistemas e linguagens pelos 11 Frutos do Worldbuilding.', Icon: Trees },
               { n: '03', title: 'Organize', desc: 'Transforme descobertas em fichas e artigos dentro de um Codex vivo, criado para conectar cada parte do universo.', Icon: Library },
               { n: '04', title: 'Escreva', desc: 'Leve tudo o que foi construído para seus manuscritos, capítulos e Storylines.', Icon: Feather },
             ].map((s, i) => (
-              <Reveal key={s.n} delay={i * 0.07}>
-                <div className="group grid grid-cols-[auto_1fr] sm:grid-cols-[6rem_14rem_1fr] gap-x-6 gap-y-2 items-baseline py-8">
-                  <span className="font-cinzel font-bold text-gold-champagne/35 text-3xl sm:text-4xl transition-colors duration-500 group-hover:text-gold-champagne/60">
-                    {s.n}
-                  </span>
-                  <h3 className="font-cinzel font-bold text-lg sm:text-xl flex items-center gap-2.5">
-                    <s.Icon className="w-4 h-4 text-gold-champagne/70 transition-opacity duration-500 group-hover:opacity-100 opacity-70" strokeWidth={1.5} />
-                    {s.title}
-                  </h3>
-                  <p className="col-span-2 sm:col-span-1 font-manrope text-[14.5px] text-text-secondary leading-[1.85] max-w-[58ch]">
-                    {s.desc}
-                  </p>
-                </div>
+              <Reveal key={s.n} delay={i * 0.07} className="h-full">
+                <Panel soft className="h-full group transition-colors duration-500 hover:border-gold/25">
+                  <div className="flex items-center justify-between mb-5">
+                    <s.Icon className="w-5 h-5 text-gold-champagne/75" strokeWidth={1.5} />
+                    <span className="font-cinzel font-bold text-gold-champagne/30 text-2xl transition-colors duration-500 group-hover:text-gold-champagne/55">
+                      {s.n}
+                    </span>
+                  </div>
+                  <h3 className="font-cinzel font-bold text-lg mb-2.5">{s.title}</h3>
+                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">{s.desc}</p>
+                </Panel>
               </Reveal>
             ))}
           </div>
 
           <Reveal delay={0.1}>
-            <p className="font-merriweather italic text-sm text-text-dim mt-12">
+            <p className="font-merriweather italic text-sm text-text-dim mt-12 text-center max-w-[58ch] mx-auto">
               Nas próximas seções você vê cada movimento acontecendo na tela — gravado direto da plataforma.
             </p>
           </Reveal>
@@ -559,69 +555,78 @@ const LandingPage: React.FC = () => {
       {/* ============================== 4. 11 FRUTOS ======================== */}
       <Band tone="mist">
         <Shell>
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_46%] gap-14 lg:gap-20 items-center">
-            <Reveal>
-              <Eyebrow Icon={Trees}>Os 11 Frutos</Eyebrow>
-              <Title className="mb-6">
-                Você não precisa construir um universo diante de uma página vazia.
-              </Title>
-              <Lede>
-                Muitos criadores sabem que desejam construir um mundo profundo, mas não sabem qual pergunta fazer primeiro.
-                Os 11 Frutos organizam as grandes dimensões do worldbuilding e ajudam você a enxergar o que ainda precisa ser desenvolvido.
-              </Lede>
-              <CheckList
-                className="mt-8"
-                items={[
-                  'Explicações sobre cada aspecto do mundo',
-                  'Perguntas guiadas e campos de construção',
-                  'Orientações sobre fichas e artigos',
-                  'Sugestões contextuais de Idriel',
-                  'Caminhos Top-Down e Bottom-Up',
-                ]}
-              />
-              <p className="font-merriweather italic text-text-dim text-sm leading-[1.9] mt-8 max-w-[54ch]">
-                Você pode começar por onde fizer mais sentido. Não existe obrigação de preencher tudo. Não existe uma ordem única.
-              </p>
+          <SectionHead
+            eyebrow="Os 11 Frutos"
+            Icon={Trees}
+            title="Você não precisa construir um universo diante de uma página vazia."
+            lede="Muitos criadores sabem que desejam construir um mundo profundo, mas não sabem qual pergunta fazer primeiro. Os 11 Frutos organizam as grandes dimensões do worldbuilding e mostram o que ainda pode ser desenvolvido."
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
+            <Reveal className="h-full">
+              <Panel className="h-full flex flex-col justify-center">
+                <CheckList
+                  items={[
+                    'Explicações sobre cada aspecto do mundo',
+                    'Perguntas guiadas e campos de construção',
+                    'Orientações sobre fichas e artigos',
+                    'Sugestões contextuais de Idriel',
+                    'Caminhos Top-Down e Bottom-Up',
+                  ]}
+                />
+                <p className="font-merriweather italic text-text-dim text-sm leading-[1.9] mt-7 pt-6 border-t border-gold/[0.10]">
+                  Você pode começar por onde fizer mais sentido. Não existe obrigação de preencher tudo. Não existe uma ordem única.
+                </p>
+              </Panel>
             </Reveal>
 
-            <Reveal delay={0.12}>
-              <DemoVideo
-                bare
-                src={vidFichas.url}
-                poster={vidFichasPoster.url}
-                kicker="Construir"
-                duration="45s"
-                title="Criando fichas através dos Frutos"
-                desc="Responda às perguntas de um Fruto e transforme a descoberta em ficha ou artigo do Codex."
-              />
-              <div className="mt-5 pl-1">
-                <p className="font-manrope font-semibold uppercase tracking-[0.24em] text-[10px] text-gold-champagne/80 mb-2">Construir · 45s</p>
-                <h4 className="font-cinzel font-bold text-base text-foreground mb-2">Criando fichas através dos Frutos</h4>
-                <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.8] max-w-[46ch]">
+            <Reveal delay={0.1} className="h-full">
+              <Panel soft className="h-full">
+                <DemoVideo
+                  bare
+                  src={vidFichas.url}
+                  poster={vidFichasPoster.url}
+                  kicker="Construir"
+                  duration="45s"
+                  title="Criando fichas através dos Frutos"
+                  desc="Responda às perguntas de um Fruto e transforme a descoberta em ficha ou artigo do Codex."
+                />
+                <VideoCaption kicker="Construir · 45s" title="Criando fichas através dos Frutos">
                   Responda às perguntas de um Fruto e transforme a descoberta em ficha ou artigo do Codex sem sair do lugar — com autosave e apoio de Idriel.
-                </p>
-              </div>
+                </VideoCaption>
+              </Panel>
             </Reveal>
           </div>
 
           <Reveal delay={0.05} className="mt-20 lg:mt-24">
-            <div className="max-w-[64ch] mx-auto text-center">
-              <p className="font-manrope font-semibold uppercase tracking-[0.28em] text-[10px] text-gold-champagne/80 mb-4">
+            <figure className="max-w-[820px] mx-auto mb-10">
+              <img
+                src={ebookMockup.url}
+                alt="O e-book A Árvore dos Mundos exibido em celular, tablet e notebook"
+                loading="lazy"
+                decoding="async"
+                className="w-full h-auto mx-auto"
+                style={{ filter: 'drop-shadow(0 30px 70px rgba(0,0,0,0.55))' }}
+              />
+            </figure>
+            <Panel className="max-w-[68ch] mx-auto text-center">
+              <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne/80 mb-4">
                 Uma metodologia que já existia antes da plataforma
               </p>
               <h3 className="font-cinzel font-bold text-xl sm:text-2xl mb-4">Do e-book ao ambiente vivo</h3>
-              <p className="font-manrope text-[14.5px] text-text-secondary leading-[1.9]">
+              <p className="font-manrope text-[14.5px] text-text-secondary leading-[1.9] max-w-[58ch] mx-auto">
                 Os 11 Frutos nasceram no e-book <em>A Árvore dos Mundos</em>, uma metodologia de worldbuilding que já vendeu
                 mais de <strong className="text-foreground font-semibold">1.500 exemplares</strong>. Agora, o método deixou de existir apenas
                 nas páginas e se transformou em um ambiente vivo de criação.
               </p>
-              <div className="inline-flex items-center gap-2 mt-6 text-[11px] font-manrope uppercase tracking-[0.22em] text-gold-champagne/80">
+              <div className="inline-flex items-center gap-2 mt-6 text-[11px] font-manrope uppercase tracking-[0.2em] text-gold-champagne/80">
                 <Star className="w-3.5 h-3.5" strokeWidth={2} /> +1.500 exemplares vendidos
               </div>
-            </div>
+            </Panel>
           </Reveal>
         </Shell>
       </Band>
+
 
       {/* ============================== 5. CODEX ============================ */}
       <Band>
