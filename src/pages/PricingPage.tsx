@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { openCheckout, PLANS, useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
+import DemoVideo from '@/components/marketing/DemoVideo';
 import heroVideo1080 from '@/assets/arvore-hero-loop-1080.mp4.asset.json';
 import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
 import heroVideo480 from '@/assets/arvore-hero-loop-480.mp4.asset.json';
@@ -109,7 +110,7 @@ const PricingPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen relative font-amiri" style={{ background: '#02070d' }}>
+    <div className="min-h-screen relative font-manrope" style={{ background: '#02070d' }}>
       {/* ---------------- HERO ---------------- */}
       <section className="relative w-full overflow-hidden" style={{ minHeight: '92vh' }}>
         <video
@@ -156,7 +157,7 @@ const PricingPage: React.FC = () => {
           <div className="flex items-center justify-center sm:justify-end mb-20">
             <button
               onClick={() => navigate(user ? '/' : '/login')}
-              className="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-montserrat font-bold uppercase tracking-[0.22em] text-[11px] text-[#1a0f00] transition-all hover:-translate-y-0.5"
+              className="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-manrope font-bold uppercase tracking-[0.22em] text-[11px] text-[#1a0f00] transition-all hover:-translate-y-0.5"
               style={{
                 background: 'linear-gradient(135deg, hsl(42 55% 90%) 0%, hsl(40 50% 78%) 30%, hsl(34 42% 58%) 65%, hsl(30 30% 42%) 100%)',
                 boxShadow: '0 8px 28px hsl(30 30% 30% / 0.5), inset 0 1px 0 hsl(42 60% 96% / 0.7), inset 0 -2px 0 hsl(28 32% 22% / 0.4)',
@@ -176,7 +177,7 @@ const PricingPage: React.FC = () => {
           >
             <div className="inline-flex items-center gap-2.5 px-4 py-1.5 mb-8 rounded-full border border-gold-warm/30 bg-gold-deep/10 backdrop-blur-sm">
               <Sparkles className="w-3.5 h-3.5 text-gold-champagne" />
-              <span className="font-montserrat uppercase tracking-[0.32em] text-[10px] text-gold-champagne">
+              <span className="font-manrope uppercase tracking-[0.32em] text-[10px] text-gold-champagne">
                 A Árvore dos Mundos
               </span>
             </div>
@@ -186,7 +187,7 @@ const PricingPage: React.FC = () => {
               <span className="text-gradient-gold">Mundos e Histórias</span>
             </h1>
 
-            <p className="font-amiri text-text-secondary text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+            <p className="font-manrope text-text-secondary text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
               O santuário do autor de fantasia e ficção. Construa universos vivos e escreva
               suas histórias com <span className="text-gold-champagne">Idriel ao seu lado</span> —
               uma assistente que <em className="text-gold-cream">ajuda você a enxergar ideias,
@@ -208,7 +209,7 @@ const PricingPage: React.FC = () => {
           <div className="inline-flex p-1 rounded-full border border-gold-bronze/40 bg-card/60 backdrop-blur-md">
             <button
               onClick={() => setBillingCycle('mensal')}
-              className={`px-7 py-2.5 rounded-full text-[11px] font-montserrat font-bold uppercase tracking-[0.18em] transition-all ${
+              className={`px-7 py-2.5 rounded-full text-[11px] font-manrope font-bold uppercase tracking-[0.18em] transition-all ${
                 billingCycle === 'mensal'
                   ? 'bg-gradient-gold-premium text-[#1a0f00] shadow-[0_4px_20px_rgba(0,0,0,0.4)]'
                   : 'text-text-secondary hover:text-foreground'
@@ -218,7 +219,7 @@ const PricingPage: React.FC = () => {
             </button>
             <button
               onClick={() => setBillingCycle('anual')}
-              className={`relative px-7 py-2.5 rounded-full text-[11px] font-montserrat font-bold uppercase tracking-[0.18em] transition-all ${
+              className={`relative px-7 py-2.5 rounded-full text-[11px] font-manrope font-bold uppercase tracking-[0.18em] transition-all ${
                 billingCycle === 'anual'
                   ? 'bg-gradient-gold-premium text-[#1a0f00] shadow-[0_4px_20px_rgba(0,0,0,0.4)]'
                   : 'text-text-secondary hover:text-foreground'
@@ -233,7 +234,7 @@ const PricingPage: React.FC = () => {
         </motion.div>
 
         {/* Pricing cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-7 mb-24 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-8 mb-28 max-w-4xl mx-auto items-start pt-28 md:pt-32">
           {tiers.map((tier, i) => {
             const Icon = tier.Icon;
             const isPopular = tier.popular;
@@ -243,49 +244,37 @@ const PricingPage: React.FC = () => {
                 initial={{ opacity: 0, y: 32 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 + i * 0.15, duration: 0.7 }}
-                className={`group relative rounded-[1.25rem] p-[1px] transition-all duration-500 ${
+                className={`relative rounded-[1.5rem] border backdrop-blur-xl transition-all duration-500 ${
                   isPopular
-                    ? 'md:-mt-5 shadow-gold-glow-strong hover:shadow-[0_14px_60px_-16px_hsl(var(--gold-warm)/0.55),0_0_100px_-20px_hsl(var(--gold-bronze)/0.35)]'
-                    : 'shadow-blue-glow hover:shadow-blue-glow-strong'
+                    ? 'border-gold-warm/45 shadow-[0_40px_120px_-50px_rgba(0,0,0,0.95),0_0_80px_-40px_hsl(var(--gold-warm)/0.45)] hover:-translate-y-1'
+                    : 'border-blue-bright/25 shadow-[0_40px_120px_-50px_rgba(0,0,0,0.95)] hover:-translate-y-1'
                 }`}
                 style={{
                   background: isPopular
-                    ? 'linear-gradient(140deg, hsl(var(--gold-bronze)) 0%, hsl(var(--gold-warm)) 25%, hsl(var(--gold-champagne)) 50%, hsl(var(--gold-warm)) 75%, hsl(var(--gold-bronze)) 100%)'
-                    : 'linear-gradient(140deg, hsl(var(--blue-main)) 0%, hsl(var(--blue-bright)) 35%, hsl(var(--blue-light)) 70%, hsl(var(--blue-main)) 100%)',
+                    ? 'linear-gradient(180deg, hsl(35 40% 20% / 0.55) 0%, hsl(214 62% 4% / 0.96) 55%)'
+                    : 'linear-gradient(180deg, hsl(211 70% 22% / 0.45) 0%, hsl(214 62% 4% / 0.96) 55%)',
                 }}
               >
-                <div
-                  className={`relative rounded-[1.18rem] p-8 sm:p-10 backdrop-blur-md transition-all duration-500 overflow-visible ${
-                    isPopular ? 'pt-12 sm:pt-14 md:pb-12' : ''
-                  }`}
-                  style={{
-                    background: isPopular
-                      ? 'radial-gradient(ellipse 120% 80% at 50% 0%, hsl(34 42% 38% / 0.32) 0%, hsl(35 36% 14% / 0.55) 35%, hsl(214 60% 4% / 0.98) 72%)'
-                      : 'radial-gradient(ellipse 120% 80% at 50% 0%, hsl(211 76% 38% / 0.22) 0%, hsl(211 76% 22% / 0.32) 35%, hsl(214 60% 4% / 0.98) 72%)',
-                  }}
-                >
+                <div className="relative rounded-[1.5rem] px-7 sm:px-9 pt-14 pb-9">
                   {isPopular && (
                     <>
-                      {/* Avatar de Idriel flutuante */}
-                      <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-20">
-                        <div className="relative">
-                          <div className="absolute inset-0 rounded-full animate-idriel-pulse scale-110" />
-                          <div
-                            className="relative w-16 h-16 rounded-full p-[2px]"
-                            style={{
-                              background: 'linear-gradient(135deg, hsl(var(--gold-bronze)) 0%, hsl(var(--gold-warm)) 35%, hsl(var(--gold-champagne)) 70%, hsl(var(--gold-bronze)) 100%)',
-                              boxShadow: '0 0 32px hsl(var(--gold-warm)/0.6), 0 0 64px hsl(var(--gold-champagne)/0.3), inset 0 0 0 1px hsl(var(--gold-cream)/0.5)',
-                            }}
-                          >
-                            <img
-                              src={idrielPoster}
-                              alt="Idriel"
-                              className="w-full h-full rounded-full object-cover border-2 border-[#02070d]"
-                            />
-                          </div>
+                      {/* Avatar de Idriel — acima do selo, sem sobreposição */}
+                      <div className="absolute -top-[6.5rem] left-1/2 -translate-x-1/2 z-10">
+                        <div
+                          className="w-[4.5rem] h-[4.5rem] rounded-full p-[2px]"
+                          style={{
+                            background: 'linear-gradient(135deg, hsl(var(--gold-bronze)) 0%, hsl(var(--gold-warm)) 35%, hsl(var(--gold-champagne)) 70%, hsl(var(--gold-bronze)) 100%)',
+                            boxShadow: '0 0 40px hsl(var(--gold-warm)/0.45)',
+                          }}
+                        >
+                          <img
+                            src={idrielPoster}
+                            alt="Idriel, a guardiã da Árvore"
+                            className="w-full h-full rounded-full object-cover border-2 border-[#02070d]"
+                          />
                         </div>
                       </div>
-                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-gold-premium text-[10px] font-montserrat font-bold uppercase tracking-[0.22em] text-[#1a0f00] shadow-[0_6px_28px_hsl(var(--gold-warm)/0.55)] flex items-center gap-1.5 whitespace-nowrap z-10">
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-gold-premium text-[9.5px] font-manrope font-bold uppercase tracking-[0.22em] text-[#1a0f00] shadow-[0_6px_28px_hsl(var(--gold-warm)/0.5)] flex items-center gap-1.5 whitespace-nowrap">
                         <Star className="w-3 h-3 fill-current" />
                         Mais escolhido
                       </div>
@@ -293,46 +282,39 @@ const PricingPage: React.FC = () => {
                   )}
 
                   <div className="text-center mb-8">
-                    <div
-                      className={`mx-auto mb-6 w-16 h-16 rounded-full flex items-center justify-center ${
-                        isPopular
-                          ? 'bg-gradient-gold-premium shadow-[0_6px_28px_hsl(var(--gold-bronze)/0.65),inset_0_1px_0_hsl(var(--gold-cream)/0.5)]'
-                          : 'bg-gradient-blue-premium shadow-[0_6px_28px_hsl(var(--blue-bright)/0.55),inset_0_1px_0_hsl(var(--blue-glow)/0.45)]'
-                      }`}
-                    >
-                      <Icon
-                        className={`w-7 h-7 ${isPopular ? 'text-[#1a0f00]' : 'text-white'}`}
-                        strokeWidth={1.75}
-                      />
-                    </div>
+                    {!isPopular && (
+                      <div className="mx-auto mb-6 w-14 h-14 rounded-full bg-gradient-blue-premium flex items-center justify-center shadow-[0_6px_28px_hsl(var(--blue-bright)/0.45)]">
+                        <Icon className="w-6 h-6 text-white" strokeWidth={1.75} />
+                      </div>
+                    )}
                     <h3
-                      className={`font-cinzel font-bold text-[1.75rem] tracking-[0.04em] mb-2 ${
+                      className={`font-cinzel font-bold text-[1.6rem] sm:text-[1.75rem] tracking-[0.05em] mb-2.5 ${
                         isPopular ? 'text-gradient-gold' : 'text-gradient-blue-premium'
                       }`}
                     >
                       {tier.name}
                     </h3>
-                    <p className="font-amiri italic text-text-secondary text-[1.05rem] mb-6 leading-relaxed">
+                    <p className="font-manrope text-text-secondary text-[13.5px] leading-[1.7] max-w-[19rem] mx-auto mb-7">
                       {tier.tagline}
                     </p>
                     <div className="flex items-baseline justify-center gap-1.5">
                       <span
-                        className={`font-cinzel font-bold text-[3.5rem] sm:text-[4rem] leading-none ${
+                        className={`font-cinzel font-bold text-[2.9rem] sm:text-[3.3rem] leading-none ${
                           isPopular ? 'text-gradient-gold' : 'text-gradient-blue-premium'
                         }`}
                       >
                         {tier.price}
                       </span>
-                      <span className="text-text-secondary text-base font-montserrat">
+                      <span className="text-text-secondary text-sm font-manrope">
                         {tier.priceDetail}
                       </span>
                     </div>
                     {tier.savings && (
                       <div className={`mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border ${
-                        isPopular ? 'border-gold-warm/50 bg-gold-deep/25' : 'border-blue-bright/40 bg-blue-main/15'
+                        isPopular ? 'border-gold-warm/45 bg-gold-deep/20' : 'border-blue-bright/35 bg-blue-main/15'
                       }`}>
                         <Sparkles className={`w-3 h-3 ${isPopular ? 'text-gold-champagne' : 'text-blue-light'}`} strokeWidth={2} />
-                        <span className={`text-[10px] font-montserrat font-bold uppercase tracking-[0.18em] ${
+                        <span className={`text-[9.5px] font-manrope font-bold uppercase tracking-[0.18em] ${
                           isPopular ? 'text-gold-champagne' : 'text-blue-light'
                         }`}>
                           {tier.savings}
@@ -344,29 +326,29 @@ const PricingPage: React.FC = () => {
                   <button
                     onClick={tier.ctaAction}
                     disabled={!!loading}
-                    className={`w-full py-4 rounded-xl text-[11px] font-montserrat font-bold uppercase tracking-[0.24em] transition-all mb-8 ${
+                    className={`w-full py-4 rounded-xl text-[10.5px] font-manrope font-bold uppercase tracking-[0.24em] transition-all mb-8 ${
                       isPopular
-                        ? 'bg-gradient-gold-premium text-[#1a0f00] shadow-[0_8px_32px_hsl(var(--gold-bronze)/0.45),inset_0_1px_0_hsl(var(--gold-cream)/0.45)] hover:shadow-[0_12px_48px_hsl(var(--gold-warm)/0.65),inset_0_1px_0_hsl(var(--gold-cream)/0.55)] hover:-translate-y-0.5'
-                        : 'bg-gradient-blue-premium text-white shadow-[0_6px_24px_hsl(var(--blue-bright)/0.4),inset_0_1px_0_hsl(var(--blue-glow)/0.45)] hover:shadow-[0_10px_40px_hsl(var(--blue-bright)/0.6),inset_0_1px_0_hsl(var(--blue-glow)/0.55)] hover:-translate-y-0.5'
+                        ? 'bg-gradient-gold-premium text-[#1a0f00] shadow-[0_8px_32px_hsl(var(--gold-bronze)/0.4)] hover:-translate-y-0.5'
+                        : 'bg-gradient-blue-premium text-white shadow-[0_6px_24px_hsl(var(--blue-bright)/0.35)] hover:-translate-y-0.5'
                     }`}
                   >
                     {tier.cta}
                   </button>
 
-                  <ul className="space-y-3">
+                  <ul className="space-y-3 border-t border-white/[0.06] pt-7">
                     {tier.features.map((f) => (
-                      <li key={f} className="flex items-start gap-3 text-[15px]">
+                      <li key={f} className="flex items-start gap-3">
                         <Check
-                          className={`w-4 h-4 mt-1 shrink-0 ${isPopular ? 'text-gold-champagne' : 'text-blue-light'}`}
+                          className={`w-4 h-4 mt-[3px] shrink-0 ${isPopular ? 'text-gold-champagne' : 'text-blue-light'}`}
                           strokeWidth={2.5}
                         />
-                        <span className="text-foreground/90 font-amiri leading-snug">{f}</span>
+                        <span className="text-foreground/85 font-manrope text-[13.5px] leading-[1.65]">{f}</span>
                       </li>
                     ))}
                     {tier.missing.map((f) => (
-                      <li key={f} className="flex items-start gap-3 text-[15px] opacity-40">
-                        <X className="w-4 h-4 mt-1 shrink-0" />
-                        <span className="font-amiri line-through leading-snug">{f}</span>
+                      <li key={f} className="flex items-start gap-3 opacity-35">
+                        <X className="w-4 h-4 mt-[3px] shrink-0" />
+                        <span className="font-manrope text-[13.5px] line-through leading-[1.65]">{f}</span>
                       </li>
                     ))}
                   </ul>
@@ -375,6 +357,7 @@ const PricingPage: React.FC = () => {
             );
           })}
         </div>
+
 
         {/* =============== QUEM É IDRIEL =============== */}
         <motion.section
@@ -433,13 +416,13 @@ const PricingPage: React.FC = () => {
 
             {/* Texto */}
             <div className="order-1 lg:order-2">
-              <p className="font-montserrat uppercase tracking-[0.35em] text-[10px] text-gold-champagne mb-4">
+              <p className="font-manrope uppercase tracking-[0.35em] text-[10px] text-gold-champagne mb-4">
                 Conheça a assistente
               </p>
               <h2 className="font-cinzel font-bold text-[clamp(1.9rem,4.2vw,3rem)] text-foreground mb-6 leading-[1.1]">
                 Quem é <span className="text-gradient-gold">Idriel?</span>
               </h2>
-              <div className="space-y-5 font-amiri text-[1.05rem] sm:text-[1.1rem] leading-[1.75] text-text-secondary">
+              <div className="space-y-5 font-manrope text-[1.05rem] sm:text-[1.1rem] leading-[1.75] text-text-secondary">
                 <p>
                   Idriel é a <em className="text-gold-cream">assistente</em> da Árvore dos Mundos —
                   a Guardiã que caminha entre cosmologias e agora se debruça sobre o seu
@@ -461,17 +444,17 @@ const PricingPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3 mt-8">
                 {[
-                  { Icon: Feather, label: 'Texto em Gemini 2.5 Pro' },
-                  { Icon: ImageIcon, label: 'Imagens em Gemini 3 Pro' },
+                  { Icon: Feather, label: 'Texto em Gemini 3 Flash' },
+                  { Icon: ImageIcon, label: 'Imagens em GPT Image 2' },
                   { Icon: Map, label: 'Mapas cartográficos' },
                   { Icon: Brain, label: 'Análise de mundo' },
                 ].map(({ Icon, label }) => (
                   <div
                     key={label}
-                    className="flex items-center gap-2.5 rounded-lg border border-gold-bronze/30 bg-card/40 backdrop-blur-md px-3.5 py-2.5"
+                    className="flex items-center gap-2.5 rounded-xl border border-gold-bronze/25 bg-[rgba(4,12,24,0.5)] backdrop-blur-md px-3.5 py-3"
                   >
                     <Icon className="w-4 h-4 text-gold-champagne shrink-0" strokeWidth={1.75} />
-                    <span className="font-amiri text-[13.5px] text-foreground/85 leading-tight">
+                    <span className="font-manrope text-[12.5px] text-foreground/85 leading-tight">
                       {label}
                     </span>
                   </div>
@@ -480,34 +463,17 @@ const PricingPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-12 rounded-2xl overflow-hidden border border-gold-warm/25 bg-bg-deep/60 backdrop-blur-xl">
-            <div className="relative aspect-video bg-bg-deep">
-              <video
-                src={vidIdriel.url}
-                poster={vidIdrielPoster.url}
-                controls
-                muted
-                loop
-                playsInline
-                preload="none"
-                aria-label="Consultando Idriel dentro de um Fruto"
-                className="absolute inset-0 w-full h-full object-contain"
-              />
-            </div>
-            <div className="px-5 sm:px-6 py-5 border-t border-gold-warm/20">
-              <p className="font-montserrat uppercase tracking-[0.28em] text-[9.5px] text-gold-champagne/90 mb-1.5">
-                Ritual da Guardiã
-              </p>
-              <h3 className="font-cinzel font-bold text-foreground text-[1.1rem] mb-1.5">
-                Consultando Idriel dentro de um Fruto
-              </h3>
-              <p className="font-amiri text-text-secondary text-[0.98rem] leading-[1.7]">
-                Você traz a ideia, Idriel responde a partir do que já existe no seu mundo — e o resultado
-                pode virar ficha ou artigo no Codex com um clique. Recurso exclusivo dos planos Idriel.
-              </p>
-            </div>
+          <div className="mt-14 max-w-3xl mx-auto">
+            <DemoVideo
+              src={vidIdriel.url}
+              poster={vidIdrielPoster.url}
+              kicker="Ritual da Guardiã"
+              title="Consultando Idriel dentro de um Fruto"
+              desc="Você traz a ideia, Idriel responde a partir do que já existe no seu mundo — e o resultado pode virar ficha ou artigo no Codex com um clique. Recurso exclusivo dos planos Idriel."
+            />
           </div>
         </motion.section>
+
 
 
         {/* =============== VEJA A PLATAFORMA POR DENTRO =============== */}
@@ -522,7 +488,7 @@ const PricingPage: React.FC = () => {
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 rounded-full border border-gold-warm/40 bg-gold-deep/20 backdrop-blur-md px-4 py-1.5 mb-4">
               <Film className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={2} />
-              <span className="font-montserrat uppercase tracking-[0.32em] text-[10px] text-gold-champagne">
+              <span className="font-manrope uppercase tracking-[0.32em] text-[10px] text-gold-champagne">
                 Um tour pela plataforma
               </span>
             </div>
@@ -532,7 +498,7 @@ const PricingPage: React.FC = () => {
             >
               Veja a Árvore <span className="text-gradient-gold">por dentro</span>
             </h2>
-            <p className="font-amiri text-text-secondary text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="font-manrope text-text-secondary text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
               Quatro espaços conectados. Cada um com Idriel como assistente silenciosa,
               esperando o momento em que você precisa de um segundo olhar.
             </p>
@@ -572,45 +538,17 @@ const PricingPage: React.FC = () => {
                 poster: vidImagemPoster.url,
                 body: 'Escolha o estilo, descreva a cena e receba retratos e paisagens fiéis ao seu Codex — arquivados automaticamente nas pastas da sua biblioteca visual.',
               },
-            ].map(({ Icon, kicker, title, video, poster, body }) => (
-              <article
+            ].map(({ kicker, title, video, poster, body }) => (
+              <DemoVideo
                 key={kicker}
-                className="card-glass-gold rounded-2xl overflow-hidden group"
-              >
-                <div className="relative aspect-video overflow-hidden border-b border-gold-warm/20 bg-bg-deep">
-                  <video
-                    src={video}
-                    poster={poster}
-                    controls
-                    muted
-                    loop
-                    playsInline
-                    preload="none"
-                    aria-label={`${kicker} — ${title}`}
-                    className="absolute inset-0 w-full h-full object-contain"
-                  />
-                </div>
-
-                <div className="p-5 sm:p-6 space-y-3">
-                  <div className="flex items-center gap-2.5">
-                    <span className="shrink-0 w-9 h-9 rounded-lg bg-gradient-gold-premium grid place-items-center shadow-gold-glow">
-                      <Icon className="w-5 h-5 text-bg-deep" strokeWidth={2.2} />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="font-montserrat uppercase tracking-[0.28em] text-[9.5px] text-gold-champagne/90">
-                        {kicker}
-                      </p>
-                      <h3 className="font-cinzel font-bold text-foreground text-[1.05rem] sm:text-[1.15rem] leading-tight">
-                        {title}
-                      </h3>
-                    </div>
-                  </div>
-                  <p className="font-amiri text-text-secondary text-[0.98rem] leading-[1.7]">
-                    {body}
-                  </p>
-                </div>
-              </article>
+                src={video}
+                poster={poster}
+                kicker={kicker}
+                title={title}
+                desc={body}
+              />
             ))}
+
           </div>
         </motion.section>
 
@@ -626,7 +564,7 @@ const PricingPage: React.FC = () => {
           className="mb-24"
         >
           <div className="text-center mb-12">
-            <p className="font-montserrat uppercase tracking-[0.35em] text-[10px] text-gold-champagne mb-4">
+            <p className="font-manrope uppercase tracking-[0.35em] text-[10px] text-gold-champagne mb-4">
               Tudo num só lugar
             </p>
             <h2 className="font-cinzel font-bold text-[clamp(1.8rem,4vw,2.8rem)] text-foreground mb-4 leading-tight">
@@ -644,8 +582,8 @@ const PricingPage: React.FC = () => {
               { Icon: Trees, title: '11 Frutos de Worldbuilding', desc: 'Roteiro guiado para construir mundos do topo (cosmologia) à base (cultura cotidiana). Top-down ou bottom-up.' },
               { Icon: BookOpen, title: 'Manuscrito por capítulos', desc: 'Escreva direto em capítulos, com contador de palavras, autosave e foco total. Sem hierarquia confusa de cenas.' },
               { Icon: Wand2, title: 'Mural de Arcos', desc: 'Visualize sua história em colunas estilo storyboard. Arraste, reorganize e enxergue o ritmo da narrativa.' },
-              { Icon: Feather, title: 'Idriel — IA elfa em pt-BR', desc: 'Brainstorm de mundo, expansão de cenas, análise de coerência. Gemini 2.5 Pro alimentada pelo seu Codex inteiro.' },
-              { Icon: ImageIcon, title: 'Visões de Idriel', desc: 'Retratos de personagens, lugares e objetos com consistência visual gerados em Gemini 3 Pro.' },
+              { Icon: Feather, title: 'Idriel — IA elfa em pt-BR', desc: 'Brainstorm de mundo, expansão de cenas, análise de coerência. Gemini 3 Flash alimentada pelo seu Codex inteiro.' },
+              { Icon: ImageIcon, title: 'Visões de Idriel', desc: 'Retratos de personagens, lugares e objetos com consistência visual gerados em GPT Image 2.' },
               { Icon: Map, title: 'Mapas cartográficos', desc: 'Gere o mapa do seu mundo em 6 estilos diferentes — do pergaminho clássico ao satélite moderno.' },
               { Icon: Brain, title: 'Análise de mundo (6 dimensões)', desc: 'A Idriel lê seu mundo e devolve notas de 1 a 5 estrelas em coerência, originalidade e profundidade.' },
               { Icon: FileDown, title: 'Exportação completa', desc: 'Baixe seu Codex e seu Manuscrito em PDF, Word ou Kindle, prontos para publicação.' },
@@ -655,7 +593,7 @@ const PricingPage: React.FC = () => {
                   <Icon className="w-5 h-5 text-gold-champagne" strokeWidth={1.75} />
                 </div>
                 <h3 className="font-cinzel font-bold text-lg text-foreground mb-2 tracking-wide">{title}</h3>
-                <p className="font-amiri text-[15px] text-text-secondary leading-relaxed">{desc}</p>
+                <p className="font-manrope text-[15px] text-text-secondary leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -671,7 +609,7 @@ const PricingPage: React.FC = () => {
           style={{ background: 'linear-gradient(135deg, hsl(34 38% 30% / 0.14) 0%, hsl(214 60% 4% / 0.94) 100%)' }}
         >
           <div className="text-center mb-10">
-            <p className="font-montserrat uppercase tracking-[0.35em] text-[10px] text-gold-champagne mb-4">
+            <p className="font-manrope uppercase tracking-[0.35em] text-[10px] text-gold-champagne mb-4">
               Faça as contas
             </p>
             <h2 className="font-cinzel font-bold text-[clamp(1.8rem,4vw,2.8rem)] text-foreground mb-4 leading-tight">
@@ -685,21 +623,22 @@ const PricingPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div className="space-y-3">
               {[
-                { name: 'ChatGPT Plus (IA texto)', price: 'R$ 104/mês' },
-                { name: 'Midjourney (IA imagens)', price: 'R$ 55/mês' },
-                { name: 'World Anvil Author', price: 'R$ 115/mês' },
-                { name: 'Scrivener (manuscrito)', price: 'R$ 290 vitalício' },
-                { name: 'Notion AI (organização)', price: 'R$ 55/mês' },
+                { name: 'ChatGPT Plus (IA de texto)', price: 'R$ 115/mês' },
+                { name: 'Midjourney (IA de imagens)', price: 'R$ 58/mês' },
+                { name: 'World Anvil Author (worldbuilding)', price: 'R$ 125/mês' },
+                { name: 'Scrivener (manuscrito)', price: 'R$ 320 vitalício' },
+                { name: 'Notion AI (organização)', price: 'R$ 60/mês' },
               ].map((c) => (
-                <div key={c.name} className="flex items-center justify-between rounded-lg border border-border/60 bg-card/40 px-5 py-3.5">
-                  <span className="font-amiri text-[15px] text-foreground/85">{c.name}</span>
-                  <span className="font-montserrat font-bold text-sm text-text-secondary line-through">{c.price}</span>
+                <div key={c.name} className="flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-[rgba(4,12,24,0.45)] px-5 py-3.5">
+                  <span className="font-manrope text-[14px] text-foreground/85">{c.name}</span>
+                  <span className="font-manrope font-bold text-[13px] text-text-secondary line-through whitespace-nowrap">{c.price}</span>
                 </div>
               ))}
-              <div className="flex items-center justify-between rounded-lg border-2 border-red-alert/40 bg-red-alert/[0.06] px-5 py-4 mt-3">
+              <div className="flex items-center justify-between rounded-xl border-2 border-red-alert/40 bg-red-alert/[0.06] px-5 py-4 mt-3">
                 <span className="font-cinzel font-bold text-base text-red-300">Total mensal</span>
-                <span className="font-cinzel font-bold text-2xl text-red-300">R$ 329+/mês</span>
+                <span className="font-cinzel font-bold text-2xl text-red-300">R$ 358+/mês</span>
               </div>
+
             </div>
 
             <div
@@ -709,7 +648,7 @@ const PricingPage: React.FC = () => {
                 boxShadow: '0 0 70px hsl(var(--gold-bronze) / 0.3)',
               }}
             >
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-gradient-gold-premium text-[10px] font-montserrat font-bold uppercase tracking-[0.22em] text-[#1a0f00] whitespace-nowrap flex items-center gap-1.5">
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-gradient-gold-premium text-[10px] font-manrope font-bold uppercase tracking-[0.22em] text-[#1a0f00] whitespace-nowrap flex items-center gap-1.5">
                 <Sparkles className="w-3 h-3" />
                 Tudo num plano só
               </span>
@@ -722,13 +661,13 @@ const PricingPage: React.FC = () => {
               </p>
               <div className="flex items-baseline justify-center gap-1.5 mb-1.5">
                 <span className="font-cinzel font-bold text-6xl text-gradient-gold">R$ 33</span>
-                <span className="font-montserrat text-text-secondary">/mês</span>
+                <span className="font-manrope text-text-secondary">/mês</span>
               </div>
-              <p className="font-montserrat text-[11px] text-text-secondary mb-6 tracking-wider">
-                R$ 397/ano · cobrança única · 2 meses grátis
+              <p className="font-manrope text-[11px] text-text-secondary mb-6 tracking-wider">
+                R$ 397,90/ano · cobrança única · 2 meses grátis
               </p>
-              <div className="inline-block px-4 py-2 rounded-full bg-gold-champagne/15 border border-gold-champagne/40 text-gold-champagne font-montserrat font-bold text-xs uppercase tracking-[0.18em]">
-                Economia de ~R$ 296/mês
+              <div className="inline-block px-4 py-2 rounded-full bg-gold-champagne/15 border border-gold-champagne/40 text-gold-champagne font-manrope font-bold text-xs uppercase tracking-[0.18em]">
+                Economia de ~R$ 325/mês
               </div>
             </div>
           </div>
@@ -758,7 +697,7 @@ const PricingPage: React.FC = () => {
               <div key={title} className="rounded-xl border border-gold-bronze/25 bg-card/40 backdrop-blur-md p-6 text-center hover:border-gold-warm/50 transition-all">
                 <Icon className="w-7 h-7 text-gold-champagne mx-auto mb-3" strokeWidth={1.5} />
                 <h3 className="font-cinzel font-bold text-base text-foreground mb-2 tracking-wide">{title}</h3>
-                <p className="font-amiri text-[14px] text-text-secondary leading-relaxed">{desc}</p>
+                <p className="font-manrope text-[14px] text-text-secondary leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -784,7 +723,7 @@ const PricingPage: React.FC = () => {
               { q: 'Qual a diferença entre Raiz e Idriel?', a: 'Raiz te dá worldbuilding e escrita ilimitados, com exportação. Idriel acrescenta toda a parte de IA: assistente Idriel, geração de imagens, mapas e análise de mundo. Comece pelo Raiz e suba para Idriel quando quiser turbinar com IA.' },
               { q: 'O que é o Elixir dos Mundos?', a: 'É a poção que Idriel destila a partir da Seiva Lendária da Árvore dos Mundos — a essência que alimenta toda a magia da plataforma. Cada gota é um pedaço dessa Seiva: texto, consulta a Idriel, análise de mundo e import de documentos custam 1 gota; imagens da Galeria custam 5 gotas (Essencial) ou 9 (Alta Fidelidade) e mapas 7 ou 10 gotas. O plano Idriel inclui 150 gotas renovadas por mês, e você pode recarregar avulso a partir de R$ 4,90 sem mexer na assinatura.' },
               { q: 'Meus mundos ficam salvos? Posso exportar tudo?', a: 'Sim. Tudo é salvo automaticamente na nuvem. Exporte seu Codex e Manuscrito em PDF, Word ou Kindle a qualquer momento — o conteúdo é seu, para sempre.' },
-              { q: 'A IA é boa mesmo? Que modelo vocês usam?', a: 'Idriel roda nos modelos mais recentes do mercado: Gemini 3 Flash Preview para texto e análises, Nano Banana Pro (Gemini 3 Pro Image) para imagens padrão com canon do Codex, e GPT Image 2 da OpenAI nas gerações visuais — todos com prompts adaptados em pt-BR.' },
+              { q: 'A IA é boa mesmo? Que modelo vocês usam?', a: 'Idriel roda nos modelos mais recentes do mercado: Gemini 3 Flash para texto, análises e importações, e GPT Image 2 (OpenAI) para todas as gerações visuais — visões da Galeria e mapas do mundo, com dois níveis de qualidade (Essencial e Alta Fidelidade) — todos com prompts adaptados em pt-BR.' },
               { q: 'Como funciona o pagamento?', a: 'Cartão de crédito, boleto ou Pix processados via Asaas (instituição de pagamento brasileira regulamentada pelo Banco Central). No anual, cobrança única com 2 meses grátis. No mensal, cobrança recorrente. Sem fidelidade — cancele a qualquer momento.' },
             ].map((item, i) => (
               <details key={i} className="group rounded-xl border border-gold-bronze/25 bg-card/40 backdrop-blur-md overflow-hidden hover:border-gold-warm/40 transition-colors">
@@ -792,7 +731,7 @@ const PricingPage: React.FC = () => {
                   <span className="font-cinzel font-bold text-base sm:text-lg text-foreground tracking-wide">{item.q}</span>
                   <Plus className="w-5 h-5 text-gold-champagne transition-transform group-open:rotate-45 shrink-0" strokeWidth={1.75} />
                 </summary>
-                <div className="px-6 pb-5 font-amiri text-[15px] text-text-secondary leading-relaxed">{item.a}</div>
+                <div className="px-6 pb-5 font-manrope text-[15px] text-text-secondary leading-relaxed">{item.a}</div>
               </details>
             ))}
           </div>
@@ -823,12 +762,12 @@ const PricingPage: React.FC = () => {
           <button
             onClick={() => handleCheckout(idrielPriceId)}
             disabled={!!loading}
-            className="inline-flex items-center gap-2.5 px-9 py-4 rounded-xl bg-gradient-gold-premium text-[#1a0f00] font-montserrat font-bold uppercase tracking-[0.22em] text-xs hover:shadow-[0_10px_42px_hsl(var(--gold-warm)/0.6)] hover:-translate-y-0.5 transition-all"
+            className="inline-flex items-center gap-2.5 px-9 py-4 rounded-xl bg-gradient-gold-premium text-[#1a0f00] font-manrope font-bold uppercase tracking-[0.22em] text-xs hover:shadow-[0_10px_42px_hsl(var(--gold-warm)/0.6)] hover:-translate-y-0.5 transition-all"
           >
             <Crown className="w-4 h-4" strokeWidth={2} />
             Começar com Idriel Anual
           </button>
-          <p className="mt-5 font-montserrat text-[11px] text-text-secondary tracking-wider">
+          <p className="mt-5 font-manrope text-[11px] text-text-secondary tracking-wider">
             R$ 397/ano · 2 meses grátis · cancele a qualquer momento
           </p>
         </motion.section>
@@ -879,7 +818,7 @@ const PricingPage: React.FC = () => {
                 >
                   {pkg.badge && (
                     <span
-                      className={`absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-full text-[8px] font-montserrat font-bold uppercase tracking-wider ${
+                      className={`absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-full text-[8px] font-manrope font-bold uppercase tracking-wider ${
                         pkg.badge === 'Popular'
                           ? 'bg-gradient-gold-premium text-[#1a0f00]'
                           : 'bg-gold-champagne text-[#1a0f00]'
@@ -890,9 +829,9 @@ const PricingPage: React.FC = () => {
                   )}
                   <Droplet className="w-6 h-6 text-gold-champagne mb-2" strokeWidth={1.5} />
                   <span className="font-cinzel font-bold text-2xl text-gradient-gold">{pkg.drops}</span>
-                  <span className="font-montserrat text-[10px] text-text-secondary uppercase tracking-wider mb-2">gotas</span>
-                  <span className="font-montserrat font-bold text-sm text-foreground">{pkg.price}</span>
-                  <span className="font-montserrat text-[10px] text-text-secondary mt-1">R$ {pkg.perDrop}/gota</span>
+                  <span className="font-manrope text-[10px] text-text-secondary uppercase tracking-wider mb-2">gotas</span>
+                  <span className="font-manrope font-bold text-sm text-foreground">{pkg.price}</span>
+                  <span className="font-manrope text-[10px] text-text-secondary mt-1">R$ {pkg.perDrop}/gota</span>
                 </button>
               );
             })}
@@ -903,11 +842,11 @@ const PricingPage: React.FC = () => {
         <div className="text-center pb-8 space-y-3">
           <a
             href="/seguranca"
-            className="inline-block font-montserrat text-[10px] uppercase tracking-[0.3em] text-gold-champagne/80 hover:text-gold-champagne transition-colors"
+            className="inline-block font-manrope text-[10px] uppercase tracking-[0.3em] text-gold-champagne/80 hover:text-gold-champagne transition-colors"
           >
             Segurança & Privacidade
           </a>
-          <p className="font-montserrat text-[10px] uppercase tracking-[0.3em] text-text-secondary/60">
+          <p className="font-manrope text-[10px] uppercase tracking-[0.3em] text-text-secondary/60">
             Universo STORIA · Todos os direitos reservados
           </p>
         </div>
