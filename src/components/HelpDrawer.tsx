@@ -62,6 +62,11 @@ const FAQ: Record<string, { label: string; items: { q: string; a: string }[] }> 
     label: 'Geral',
     items: [
       { q: 'Quais são os planos?', a: '**Criador (R$ 19,90/mês ou R$ 197,90/ano)** libera worldbuilding, fichas, escrita e exportação em PDF. **Idriel (R$ 39,90/mês ou R$ 397,90/ano)** adiciona todas as IAs, geração de imagens e 150 gotas de Elixir por mês.' },
+      { q: 'Como faço upgrade de plano?', a: 'Em **Configurações → Minha conta** ou na página **/planos**, clique em *Fazer upgrade*. O upgrade vale **na hora** e você paga apenas a diferença proporcional aos dias restantes do ciclo atual.' },
+      { q: 'E se eu quiser voltar para um plano menor?', a: 'É o **downgrade**: nada é cobrado agora e você mantém todos os recursos do plano atual até o fim do período já pago. A mudança entra em vigor na renovação seguinte — e pode ser desfeita a qualquer momento antes disso.' },
+      { q: 'Mudar de mensal para anual vale a pena?', a: 'Sim: o anual equivale a **2 meses grátis**. A troca é feita como upgrade imediato, com crédito proporcional do que você já pagou no mês.' },
+      { q: 'O que acontece se eu cancelar?', a: 'Você mantém o acesso completo até o fim do ciclo já pago. Depois disso **nada é apagado**: seus mundos, fichas, artigos e manuscritos continuam salvos em **modo somente leitura**, com exportação em **PDF e Word** liberada para você levar o conteúdo. A exclusão só acontece se você mesmo pedir em Configurações.' },
+      { q: 'Posso reativar depois de cancelar?', a: 'Sim. Enquanto o ciclo pago não terminar, aparece o botão **Reativar assinatura** em Minha conta. Depois disso, basta assinar novamente e tudo volta a ficar editável.' },
       { q: 'Como criar múltiplos mundos?', a: 'Com plano ativo, use a barra lateral (desktop) ou o menu **Meus Projetos** (mobile) para criar um novo mundo.' },
     ],
   },
