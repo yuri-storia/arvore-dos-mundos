@@ -237,7 +237,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
         )}
 
         {/* World name display / input */}
-        <div data-tour="world-name" className="flex items-center justify-center gap-2 mt-1 w-full max-w-lg">
+        <div data-tour="world-name" className="flex items-center justify-center gap-2 mt-0 sm:mt-1 w-full max-w-lg">
           {editing ? (
             <input
               ref={inputRef}
