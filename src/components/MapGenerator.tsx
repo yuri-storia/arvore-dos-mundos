@@ -5,7 +5,6 @@ import { generateMap, friendlyAIError } from '@/lib/helpers';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useMapHistory } from '@/hooks/useMapHistory';
-import idrielAvatar from '@/assets/idriel-avatar.webp';
 import mapPolitical from '@/assets/style-thumbs/map-political.jpg';
 import mapGeographic from '@/assets/style-thumbs/map-geographic.jpg';
 import mapNautical from '@/assets/style-thumbs/map-nautical.jpg';
