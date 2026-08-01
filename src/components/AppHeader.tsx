@@ -107,7 +107,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
   }, [editing]);
 
   return (
-    <header className="relative text-center pt-6 pb-4 px-4 min-h-[230px] mb-0">
+    <header className={`relative text-center pt-6 pb-4 px-4 mb-0 ${isMobile ? 'min-h-[320px]' : 'min-h-[230px]'}`}>
       {/* Background — vídeo da Árvore com poster otimizado (fonte escolhida por dispositivo) */}
       <div className="absolute inset-0 overflow-hidden z-0">
         <div className="absolute inset-0">
@@ -115,13 +115,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
           <img
             src={isMobile ? heroMobilePoster.url : heroPoster.url}
             alt=""
-            className={`absolute inset-0 w-full h-full object-cover opacity-60 ${isMobile ? 'object-[center_28%]' : 'object-[center_30%]'}`}
+            className={`absolute inset-0 w-full h-full object-cover opacity-60 ${isMobile ? 'object-[center_40%]' : 'object-[center_30%]'}`}
             aria-hidden="true"
           />
           <video
             key={isMobile ? 'mobile' : 'desktop'}
             src={isMobile ? heroVideoMobile.url : heroVideo720.url}
-            className={`absolute inset-0 w-full h-full object-cover opacity-60 ${isMobile ? 'object-[center_28%]' : 'object-[center_30%]'}`}
+            className={`absolute inset-0 w-full h-full object-cover opacity-60 ${isMobile ? 'object-[center_40%]' : 'object-[center_30%]'}`}
+
             poster={isMobile ? heroMobilePoster.url : heroPoster.url}
             autoPlay
             muted
