@@ -229,6 +229,14 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
           </div>
 
 
+          <QualitySelector
+            surface="map"
+            value={quality}
+            onChange={setQuality}
+            disabled={isBusy}
+            className="mb-4"
+          />
+
           <textarea
             value={customDesc}
             onChange={e => setCustomDesc(e.target.value)}
@@ -249,8 +257,9 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
               <Wand2 className="w-4 h-4" strokeWidth={2} />
               {isBusy ? 'Idriel está desenhando…' : 'Gerar Mapa com Idriel'}
             </button>
-            <p className="font-merriweather italic text-[10px] text-text-dim">Você poderá revisar antes de confirmar as 5 gotas.</p>
+            <p className="font-merriweather italic text-[10px] text-text-dim">Você poderá revisar antes de confirmar as {mapCost} gotas.</p>
           </div>
+
         </>
       )}
 
