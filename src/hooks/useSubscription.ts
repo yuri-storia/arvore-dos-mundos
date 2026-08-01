@@ -75,6 +75,15 @@ export interface SubscriptionInfo {
   hasIdriel: boolean;
   hasTemplate: boolean;
   subscriptionEnd: string | null;
+  /** 'monthly' | 'yearly' */
+  billingCycle: string | null;
+  /** Assinatura ativa, mas já cancelada — segue até o fim do ciclo pago */
+  cancelAtPeriodEnd: boolean;
+  /** Existe assinatura na Stripe capaz de troca de plano sem novo checkout */
+  canChangePlan: boolean;
+  /** Downgrade agendado para o fim do ciclo */
+  scheduledPlanCode: string | null;
+  scheduledAt: string | null;
   // Legacy compat
   active: boolean;
   creditsUsed: number;
@@ -82,7 +91,7 @@ export interface SubscriptionInfo {
   bonusDrops: number;
 }
 
-const CREDIT_LIMIT = 100;
+const CREDIT_LIMIT = 150;
 const IMAGE_CREDIT_COST = 5;
 
 const EMPTY_INFO: SubscriptionInfo = {
@@ -93,6 +102,11 @@ const EMPTY_INFO: SubscriptionInfo = {
   hasIdriel: false,
   hasTemplate: false,
   subscriptionEnd: null,
+  billingCycle: null,
+  cancelAtPeriodEnd: false,
+  canChangePlan: false,
+  scheduledPlanCode: null,
+  scheduledAt: null,
   active: false,
   creditsUsed: 0,
   creditLimit: CREDIT_LIMIT,
@@ -100,6 +114,7 @@ const EMPTY_INFO: SubscriptionInfo = {
 };
 
 const NO_USER_INFO: SubscriptionInfo = { ...EMPTY_INFO, loading: false };
+
 
 // React Query compartilha o resultado entre TODOS os componentes que
 // chamam useSubscription (DropsCounterBadge, SubscriptionBanner,
