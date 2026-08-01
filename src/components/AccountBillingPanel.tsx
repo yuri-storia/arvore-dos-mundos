@@ -341,6 +341,13 @@ export const AccountBillingPanel: React.FC = () => {
 
       <RechargePackageDialog open={rechargeOpen} onClose={() => setRechargeOpen(false)} />
       <UpgradeIdrielDialog open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
+      <PlanChangeDialog
+        planId={changeTarget}
+        open={changeOpen}
+        onOpenChange={setChangeOpen}
+        onNeedsCheckout={() => setUpgradeOpen(true)}
+      />
+
     </div>
   );
 };
