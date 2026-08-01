@@ -1077,6 +1077,8 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                                 )}
                                 <div className="flex-1 min-w-0">
                                   <p className="text-xs font-merriweather text-foreground line-clamp-2 mb-1">{v.description || 'Sem descrição'}</p>
+                                  {isRegen && regenProg.active && <GenerationProgress state={regenProg} compact className="mb-1" />}
+
                                   <div className="flex flex-wrap gap-1.5 mt-1">
                                     {v.image_url && (
                                       <button onClick={() => reopenVision(v.image_url!, v.description, v.prompt)}
