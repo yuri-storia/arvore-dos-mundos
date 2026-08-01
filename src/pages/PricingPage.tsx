@@ -862,8 +862,8 @@ const PricingPage: React.FC = () => {
               { drops: 15, price: 'R$ 4,90', perDrop: '0,33', id: 'recarga_15', badge: null },
               { drops: 25, price: 'R$ 7,90', perDrop: '0,32', id: 'recarga_25', badge: null },
               { drops: 50, price: 'R$ 14,90', perDrop: '0,30', id: 'recarga_50', badge: null },
-              { drops: 100, price: 'R$ 27,90', perDrop: '0,28', id: 'recarga_100', badge: 'Popular' },
-              { drops: 200, price: 'R$ 54,90', perDrop: '0,27', id: 'recarga_200', badge: 'Melhor valor' },
+              { drops: 100, price: 'R$ 28,90', perDrop: '0,28', id: 'recarga_100', badge: 'Popular' },
+              { drops: 200, price: 'R$ 56,90', perDrop: '0,27', id: 'recarga_200', badge: 'Melhor valor' },
             ].map((pkg) => {
               const highlighted = !!pkg.badge;
               return (

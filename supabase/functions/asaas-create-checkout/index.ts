@@ -30,8 +30,8 @@ const PLANS: Record<string, PlanDef> = {
   recarga_15:    { name: "15 gotas de Elixir",  amount:  4.90, kind: "recharge", drops:  15 },
   recarga_25:    { name: "25 gotas de Elixir",  amount:  7.90, kind: "recharge", drops:  25 },
   recarga_50:    { name: "50 gotas de Elixir",  amount: 14.90, kind: "recharge", drops:  50 },
-  recarga_100:   { name: "100 gotas de Elixir", amount: 27.90, kind: "recharge", drops: 100 },
-  recarga_200:   { name: "200 gotas de Elixir", amount: 54.90, kind: "recharge", drops: 200 },
+  recarga_100:   { name: "100 gotas de Elixir", amount: 28.90, kind: "recharge", drops: 100 },
+  recarga_200:   { name: "200 gotas de Elixir", amount: 56.90, kind: "recharge", drops: 200 },
   // Upgrades — sempre exigem login (validado abaixo). Criam nova assinatura Idriel
   // com o valor cheio do plano de destino; a assinatura anterior é substituída pelo webhook.
   upgrade_raiz_m_to_idriel_m: { name: "Idriel - Mensal",  amount:  39.90, kind: "upgrade", cycle: "MONTHLY", hasIdriel: true },

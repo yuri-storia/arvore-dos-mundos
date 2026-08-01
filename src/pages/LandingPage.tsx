@@ -1274,8 +1274,8 @@ const LandingPage: React.FC = () => {
                     { gotas: 15, preco: 'R$ 4,90' },
                     { gotas: 25, preco: 'R$ 7,90' },
                     { gotas: 50, preco: 'R$ 14,90' },
-                    { gotas: 100, preco: 'R$ 27,90' },
-                    { gotas: 200, preco: 'R$ 54,90' },
+                    { gotas: 100, preco: 'R$ 28,90' },
+                    { gotas: 200, preco: 'R$ 56,90' },
                   ].map(r => (
                     <div key={r.gotas} className="rounded-xl border border-gold/[0.14] bg-gold/[0.03] p-3.5 text-center transition-transform duration-500 hover:-translate-y-[3px]">
                       <div className="font-cinzel font-bold text-lg text-gold-light">{r.gotas} gotas</div>
