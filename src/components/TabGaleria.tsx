@@ -1195,10 +1195,11 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
             <div className="rounded-lg border border-gold/20 bg-gold/[0.05] p-3 mb-4 flex items-center justify-between">
               <div>
                 <div className="font-cinzel text-xs text-gold-light">Custo</div>
-                <div className="font-merriweather text-[10px] text-text-dim">Prompt + imagem · ~30s</div>
+                <div className="font-merriweather text-[10px] text-text-dim">Alta qualidade (GPT Image 2) · até ~2 min</div>
               </div>
-              <div className="font-montserrat font-bold text-sm text-gold">4 gotas</div>
+              <div className="font-montserrat font-bold text-sm text-gold">16 gotas</div>
             </div>
+
 
             <div className="flex gap-2 justify-end">
               <button onClick={() => setShowReview(false)} className="px-4 py-2 rounded-md text-xs font-montserrat text-text-dim border border-border hover:text-foreground transition-colors">Cancelar</button>
