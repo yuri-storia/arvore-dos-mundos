@@ -7,6 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { callAIText, callAIImageConsistent, friendlyAIError } from '@/lib/helpers';
 import { GenerationProgress, useGenerationProgress } from '@/components/GenerationProgress';
+import { QualitySelector } from '@/components/QualitySelector';
+import { qualityCost, type QualityTier } from '@/lib/imageQuality';
 
 import { optimizeImage } from '@/lib/imageOptimizer';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
