@@ -678,6 +678,54 @@ export type Database = {
         }
         Relationships: []
       }
+      image_jobs: {
+        Row: {
+          cost: number
+          created_at: string
+          error: string | null
+          id: string
+          image_url: string | null
+          kind: string
+          pct: number
+          phase: string
+          prompt: string | null
+          quality: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cost?: number
+          created_at?: string
+          error?: string | null
+          id?: string
+          image_url?: string | null
+          kind?: string
+          pct?: number
+          phase?: string
+          prompt?: string | null
+          quality?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cost?: number
+          created_at?: string
+          error?: string | null
+          id?: string
+          image_url?: string | null
+          kind?: string
+          pct?: number
+          phase?: string
+          prompt?: string | null
+          quality?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       manuscripts: {
         Row: {
           created_at: string

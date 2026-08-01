@@ -223,6 +223,10 @@ const PHASE_TO_STAGE: Record<string, GenStageId> = {
 
 export type GenStageCallback = (stage: GenStageId) => void;
 
+/** Tempo máximo de acompanhamento no cliente (gerações longas são normais). */
+const JOB_MAX_WAIT_MS = 9 * 60 * 1000;
+const JOB_POLL_MS = 2500;
+
 async function invokeImageStream(
   fn: 'ai-image' | 'ai-image-consistent',
   body: Record<string, unknown>,
@@ -251,42 +255,40 @@ async function invokeImageStream(
     } catch { /* corpo não-JSON */ }
     throw new Error(message);
   }
-  if (!res.body) throw new Error('Resposta inválida do servidor.');
 
-  const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
-  let buffer = '';
-  let result: { imageUrl: string; prompt?: string } | null = null;
-  let streamError: string | null = null;
+  const started = await res.json().catch(() => null);
+  const jobId = started?.jobId as string | undefined;
+  if (!jobId) throw new Error('A geração não pôde ser iniciada. Tente novamente.');
 
-  const handleLine = (line: string) => {
-    const trimmed = line.trim();
-    if (!trimmed) return;
-    let msg: Record<string, unknown>;
-    try { msg = JSON.parse(trimmed); } catch { return; }
-    if (msg.t === 'phase' && typeof msg.phase === 'string') {
-      const stage = PHASE_TO_STAGE[msg.phase];
-      if (stage) onStage?.(stage);
-    } else if (msg.t === 'done') {
-      result = { imageUrl: String(msg.imageUrl || ''), prompt: msg.prompt ? String(msg.prompt) : undefined };
-    } else if (msg.t === 'error') {
-      streamError = String(msg.error || 'Falha na geração da imagem.');
+  // Acompanhamento por polling: a geração roda no servidor e não é cancelada
+  // se a conexão oscilar. Só desistimos após JOB_MAX_WAIT_MS.
+  onStage?.('prompt');
+  const deadline = Date.now() + JOB_MAX_WAIT_MS;
+  let lastStage: GenStageId | null = null;
+
+  while (Date.now() < deadline) {
+    await new Promise((r) => setTimeout(r, JOB_POLL_MS));
+    const { data, error } = await supabase
+      .from('image_jobs')
+      .select('status,phase,image_url,prompt,error')
+      .eq('id', jobId)
+      .maybeSingle();
+    if (error || !data) continue; // falha momentânea de rede: seguimos tentando
+
+    const stage = PHASE_TO_STAGE[data.phase as string];
+    if (stage && stage !== lastStage) { lastStage = stage; onStage?.(stage); }
+
+    if (data.status === 'done' && data.image_url) {
+      return { imageUrl: data.image_url as string, prompt: (data.prompt as string) || undefined };
     }
-  };
-
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    buffer += value;
-    const parts = buffer.split('\n');
-    buffer = parts.pop() ?? '';
-    for (const line of parts) handleLine(line);
+    if (data.status === 'error') {
+      throw new Error((data.error as string) || 'Falha na geração da imagem.');
+    }
   }
-  if (buffer) handleLine(buffer);
 
-  if (streamError) throw new Error(streamError);
-  if (!result?.imageUrl) throw new Error('A imagem não foi gerada. Tente novamente.');
-  return result;
+  throw new Error('A geração está demorando mais que o normal. Ela continua em andamento — verifique o histórico em instantes.');
 }
+
 
 export async function callAIImage(
   prompt: string,
