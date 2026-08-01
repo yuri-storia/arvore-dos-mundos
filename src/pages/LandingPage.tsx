@@ -471,16 +471,13 @@ const LandingPage: React.FC = () => {
             </motion.div>
           </div>
 
-          <VideoPlaceholder
-            screenshot={{ url: previewConstruir.url, alt: "Aba Construir da plataforma, mostrando o carrossel dos 11 Frutos" }}
-            title="Microvídeo dos 11 Frutos"
-            duration="20 a 30s"
-            bullets={[
-              'Lista/visualização dos Frutos · abertura de um Fruto',
-              'Bloco “Sobre este Fruto” · campo sendo preenchido',
-              'Indicação de que aquele conteúdo pode gerar ficha/artigo',
-              'Autosave funcionando · sugestão de Idriel',
-            ]}
+          <DemoVideo
+            src={vidFichas.url}
+            poster={vidFichasPoster.url}
+            kicker="Construir"
+            duration="45s"
+            title="Criando fichas através dos Frutos"
+            desc="Responda às perguntas de um Fruto e transforme a descoberta em ficha ou artigo do Codex sem sair do lugar — com autosave e apoio de Idriel."
           />
         </div>
       </section>
