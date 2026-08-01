@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
-import heroVideo480 from '@/assets/arvore-hero-loop-480.mp4.asset.json';
+import heroVideoMobile from '@/assets/arvore-hero-mobile-1080.mp4.asset.json';
 import heroPoster from '@/assets/arvore-mundos-hero.webp.asset.json';
+import heroMobilePoster from '@/assets/arvore-hero-mobile-poster.webp.asset.json';
 import { UserMenu } from '@/components/UserMenu';
 
 import { Pencil, ChevronDown, FolderOpen, Plus, Trash2, ArrowDown } from 'lucide-react';
@@ -107,33 +108,34 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
 
   return (
     <header className="relative text-center pt-6 pb-4 px-4 min-h-[230px] mb-0">
-      {/* Background — vídeo da Árvore com poster otimizado */}
+      {/* Background — vídeo da Árvore com poster otimizado (fonte escolhida por dispositivo) */}
       <div className="absolute inset-0 overflow-hidden z-0">
         <div className="absolute inset-0">
+          {/* Fallback sempre presente (caso o vídeo falhe ou não carregue) */}
           <img
-            src={heroPoster.url}
+            src={isMobile ? heroMobilePoster.url : heroPoster.url}
             alt=""
-            className="absolute inset-0 w-full h-full object-cover object-[center_30%] opacity-60"
+            className={`absolute inset-0 w-full h-full object-cover opacity-60 ${isMobile ? 'object-[center_28%]' : 'object-[center_30%]'}`}
             aria-hidden="true"
           />
           <video
-            className="absolute inset-0 w-full h-full object-cover object-[center_30%] opacity-60"
-            poster={heroPoster.url}
+            key={isMobile ? 'mobile' : 'desktop'}
+            src={isMobile ? heroVideoMobile.url : heroVideo720.url}
+            className={`absolute inset-0 w-full h-full object-cover opacity-60 ${isMobile ? 'object-[center_28%]' : 'object-[center_30%]'}`}
+            poster={isMobile ? heroMobilePoster.url : heroPoster.url}
             autoPlay
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="auto"
             aria-hidden="true"
-          >
-            <source src={heroVideo720.url} type="video/mp4" media="(min-width: 768px)" />
-            <source src={heroVideo480.url} type="video/mp4" />
-          </video>
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent from-20% via-[#02070d]/70 via-60% to-[#02070d]" />
           <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-b from-transparent to-[#02070d]" />
         </div>
         <Particles />
       </div>
+
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center gap-1">
