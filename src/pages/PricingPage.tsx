@@ -30,8 +30,8 @@ import hero1280 from '@/assets/arvore-mundos-hero-1280.webp.asset.json';
 import hero1600 from '@/assets/arvore-mundos-hero-1600.webp.asset.json';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
-import vidFichas from '@/assets/demo-fichas-frutos.mp4.asset.json';
-import vidFichasPoster from '@/assets/demo-fichas-frutos.jpg.asset.json';
+import vidImportacao from '@/assets/demo-importacao.mp4.asset.json';
+import vidImportacaoPoster from '@/assets/demo-importacao.jpg.asset.json';
 import vidCodex from '@/assets/demo-codex-analise.mp4.asset.json';
 import vidCodexPoster from '@/assets/demo-codex-analise.jpg.asset.json';
 import vidExport from '@/assets/demo-exportar-manuscrito.mp4.asset.json';
@@ -640,12 +640,12 @@ const PricingPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-7">
             {[
               {
-                Icon: Trees,
-                kicker: 'Construir',
-                title: 'Criando fichas através dos Frutos',
-                video: vidFichas.url,
-                poster: vidFichasPoster.url,
-                body: 'De cosmologia a povos, cada Fruto é um pilar do seu universo. Responda ao preenchimento guiado e transforme a descoberta em ficha ou artigo do Codex sem sair da tela.',
+                Icon: FileDown,
+                kicker: 'Importação',
+                title: 'Importe seu manuscrito com Idriel',
+                video: vidImportacao.url,
+                poster: vidImportacaoPoster.url,
+                body: 'Traga o que já escreveu em .docx, .pdf, .epub ou .txt: Idriel organiza tudo em manuscrito e capítulos, com polimento opcional e orientação livre sua.',
               },
               {
                 Icon: Library,
