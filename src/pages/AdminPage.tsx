@@ -197,7 +197,7 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
   }, [users, q, filter, from, to]);
 
   const stats = useMemo(() => {
-    let raiz_mensal = 0, raiz_anual = 0, idriel_mensal = 0, idriel_anual = 0, fundador = 0, vitalicio = 0, mrr = 0;
+    let raiz_mensal = 0, raiz_anual = 0, idriel_mensal = 0, idriel_anual = 0, fundador = 0, mrr = 0;
     for (const u of users) {
       if (u.sub_status !== 'active') continue;
       if (u.plan_code === 'raiz_mensal')         { raiz_mensal++;   mrr += 19.90; }
@@ -205,10 +205,10 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
       else if (u.plan_code === 'idriel_mensal')  { idriel_mensal++; mrr += 39.90; }
       else if (u.plan_code === 'idriel_anual')   { idriel_anual++;  mrr += 397.90 / 12; }
       else if (u.plan_code === 'fundador_mensal') { fundador++;     mrr += 19.90; }
-      else if (u.plan_code === 'raiz_vitalicio') { vitalicio++; }
     }
-    return { total: users.length, raiz_mensal, raiz_anual, idriel_mensal, idriel_anual, fundador, vitalicio, mrr };
+    return { total: users.length, raiz_mensal, raiz_anual, idriel_mensal, idriel_anual, fundador, mrr };
   }, [users]);
+
 
   const exportCsv = () => {
     if (!filtered.length) { toast.error('Nenhum usuário para exportar.'); return; }
