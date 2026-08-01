@@ -22,9 +22,6 @@ import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
 import heroVideo480 from '@/assets/arvore-hero-loop-480.mp4.asset.json';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
-import previewConstruir from '@/assets/plataforma-construir.jpg.asset.json';
-import previewCodex from '@/assets/plataforma-codex.jpg.asset.json';
-import previewEscrever from '@/assets/plataforma-escrever.jpg.asset.json';
 import { DemoVideo } from '@/components/marketing/DemoVideo';
 import vidFichas from '@/assets/demo-fichas-frutos.mp4.asset.json';
 import vidFichasPoster from '@/assets/demo-fichas-frutos.jpg.asset.json';
@@ -774,7 +771,7 @@ const LandingPage: React.FC = () => {
                 Estes depoimentos referem-se ao e-book e à metodologia original — não ao uso do aplicativo.
               </p>
             </motion.div>
-            <TestimonialPlaceholder kind="ebook" count={3} />
+            <EbookTestimonials />
           </div>
 
           <div>
