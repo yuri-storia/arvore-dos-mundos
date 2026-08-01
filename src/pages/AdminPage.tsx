@@ -231,8 +231,9 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
     <div className="space-y-4">
         <div className="grid grid-cols-2 md:grid-cols-7 gap-2">
         <StatCard label="Total usuários" value={stats.total} tone="blue" />
-        <StatCard label="Raiz Mensal" value={stats.raiz_mensal} tone="blue" />
-        <StatCard label="Raiz Anual" value={stats.raiz_anual} tone="blue" />
+        <StatCard label="Criador Mensal" value={stats.raiz_mensal} tone="blue" />
+        <StatCard label="Criador Anual" value={stats.raiz_anual} tone="blue" />
+
         <StatCard label="Idriel Mensal" value={stats.idriel_mensal} tone="gold" />
         <StatCard label="Idriel Anual" value={stats.idriel_anual} tone="gold" />
           <StatCard label="Fundadores" value={stats.fundador} tone="gold" />
