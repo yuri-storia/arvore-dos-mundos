@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, memo, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Loader2, Plus, Shield, ShieldOff, Trash2, RefreshCw, Search, Bug, Users, Mail, Crown, Sparkles, Infinity as InfinityIcon, Download, Clock, AlertCircle } from 'lucide-react';
+import { Loader2, Plus, Shield, ShieldOff, Trash2, RefreshCw, Search, Bug, Users, Mail, Crown, Sparkles, Download, Clock, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -33,15 +33,15 @@ interface BugReport {
   attachment_path?: string | null; attachment_type?: string | null;
 }
 
+// Planos ativos hoje (espelham src/hooks/useSubscription.ts).
+// Os códigos internos "raiz_*" foram mantidos por compatibilidade com o
+// histórico do banco/Stripe, mas o nome comercial é "Criador".
 const PLAN_CODES = [
-  { value: 'raiz_mensal', label: 'Raiz Mensal (30d sem cobrança)' },
-  { value: 'raiz_anual', label: 'Raiz Anual (365d sem cobrança)' },
+  { value: 'raiz_mensal', label: 'Criador Mensal (30d sem cobrança)' },
+  { value: 'raiz_anual', label: 'Criador Anual (365d sem cobrança)' },
   { value: 'idriel_mensal', label: 'Idriel Mensal (30d sem cobrança)' },
   { value: 'idriel_anual', label: 'Idriel Anual (365d sem cobrança)' },
   { value: 'fundador_mensal', label: 'Membro Fundador Mensal' },
-  { value: 'raiz_vitalicio', label: 'Raiz Vitalício (gratuito)' },
-  
-  
   { value: 'none', label: 'Cancelar / Sem plano' },
 ];
 
@@ -52,10 +52,10 @@ const planLabel = (code: string | null) => {
 
 const planTone = (code: string | null) => {
   if (!code) return 'bg-muted/30 text-text-dim border-border';
-  if (code === 'raiz_vitalicio') return 'bg-gold/15 text-gold border-gold/40';
   if (code.startsWith('idriel') || code.startsWith('fundador')) return 'bg-gold-warm/15 text-gold-warm border-gold-warm/40';
   return 'bg-blue-bright/15 text-blue-bright border-blue-bright/40';
 };
+
 
 const fmtDate = (s: string | null) => s ? new Date(s).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
 const fmtMoney = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -197,7 +197,7 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
   }, [users, q, filter, from, to]);
 
   const stats = useMemo(() => {
-    let raiz_mensal = 0, raiz_anual = 0, idriel_mensal = 0, idriel_anual = 0, fundador = 0, vitalicio = 0, mrr = 0;
+    let raiz_mensal = 0, raiz_anual = 0, idriel_mensal = 0, idriel_anual = 0, fundador = 0, mrr = 0;
     for (const u of users) {
       if (u.sub_status !== 'active') continue;
       if (u.plan_code === 'raiz_mensal')         { raiz_mensal++;   mrr += 19.90; }
@@ -205,10 +205,10 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
       else if (u.plan_code === 'idriel_mensal')  { idriel_mensal++; mrr += 39.90; }
       else if (u.plan_code === 'idriel_anual')   { idriel_anual++;  mrr += 397.90 / 12; }
       else if (u.plan_code === 'fundador_mensal') { fundador++;     mrr += 19.90; }
-      else if (u.plan_code === 'raiz_vitalicio') { vitalicio++; }
     }
-    return { total: users.length, raiz_mensal, raiz_anual, idriel_mensal, idriel_anual, fundador, vitalicio, mrr };
+    return { total: users.length, raiz_mensal, raiz_anual, idriel_mensal, idriel_anual, fundador, mrr };
   }, [users]);
+
 
   const exportCsv = () => {
     if (!filtered.length) { toast.error('Nenhum usuário para exportar.'); return; }
@@ -231,8 +231,9 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
     <div className="space-y-4">
         <div className="grid grid-cols-2 md:grid-cols-7 gap-2">
         <StatCard label="Total usuários" value={stats.total} tone="blue" />
-        <StatCard label="Raiz Mensal" value={stats.raiz_mensal} tone="blue" />
-        <StatCard label="Raiz Anual" value={stats.raiz_anual} tone="blue" />
+        <StatCard label="Criador Mensal" value={stats.raiz_mensal} tone="blue" />
+        <StatCard label="Criador Anual" value={stats.raiz_anual} tone="blue" />
+
         <StatCard label="Idriel Mensal" value={stats.idriel_mensal} tone="gold" />
         <StatCard label="Idriel Anual" value={stats.idriel_anual} tone="gold" />
           <StatCard label="Fundadores" value={stats.fundador} tone="gold" />
@@ -248,12 +249,12 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
           <SelectTrigger className="w-[180px] bg-[rgba(4,12,24,0.6)] border-blue-bright/20"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os planos</SelectItem>
-            <SelectItem value="raiz_mensal">Raiz Mensal</SelectItem>
-            <SelectItem value="raiz_anual">Raiz Anual</SelectItem>
+            <SelectItem value="raiz_mensal">Criador Mensal</SelectItem>
+            <SelectItem value="raiz_anual">Criador Anual</SelectItem>
             <SelectItem value="idriel_mensal">Idriel Mensal</SelectItem>
             <SelectItem value="idriel_anual">Idriel Anual</SelectItem>
             <SelectItem value="fundador_mensal">Fundador Mensal</SelectItem>
-            <SelectItem value="raiz_vitalicio">Vitalício</SelectItem>
+
             <SelectItem value="none">Sem plano ativo</SelectItem>
             <SelectItem value="admin">Apenas admins</SelectItem>
           </SelectContent>
@@ -329,20 +330,17 @@ const UserRow = memo<UserRowProps>(({ user: u, callerId, onOpenDetail, onChanged
     <td className="px-3 py-2.5">
       <div className="flex items-center gap-1 flex-wrap">
         <Badge variant="outline" className={`text-[10px] ${planTone(u.plan_code)}`}>{planLabel(u.plan_code)}</Badge>
-        {u.billing_cycle === 'LIFETIME_COURTESY' && (
-          <Badge variant="outline" className="text-[9px] border-gold/50 bg-gold/10 text-gold-light font-bold uppercase tracking-wider">Cortesia</Badge>
+        {u.plan_code && u.sub_status !== 'active' && (
+          <Badge variant="outline" className="text-[9px] border-red-alert/50 bg-red-alert/10 text-red-alert font-bold uppercase tracking-wider">Cancelado</Badge>
         )}
         {u.billing_cycle === 'manual' && (
           <Badge variant="outline" className="text-[9px] border-blue-bright/50 bg-blue-bright/10 text-blue-light font-bold uppercase tracking-wider">Manual</Badge>
-        )}
-        {u.billing_cycle === 'lifetime' && (
-          <Badge variant="outline" className="text-[9px] border-gold/50 bg-gold/10 text-gold font-bold uppercase tracking-wider">Vitalício</Badge>
         )}
         {!u.plan_code && (
           <Badge variant="outline" className="text-[9px] border-text-dim/40 bg-white/5 text-text-dim font-bold uppercase tracking-wider">Gratuito</Badge>
         )}
       </div>
-      {u.expires_at === null && u.plan_code === 'raiz_vitalicio' && <span className="block text-[9px] text-gold mt-0.5">sem expiração</span>}
+
       {u.expires_at && (() => {
         const days = daysUntil(u.expires_at);
         const expired = days !== null && days < 0;
@@ -357,7 +355,11 @@ const UserRow = memo<UserRowProps>(({ user: u, callerId, onOpenDetail, onChanged
         );
       })()}
     </td>
-    <td className="px-3 py-2.5 text-right font-montserrat text-foreground">{u.has_idriel || u.plan_code === 'raiz_vitalicio' ? <InfinityIcon className="w-3.5 h-3.5 inline text-gold" /> : u.bonus_drops}</td>
+    <td className="px-3 py-2.5 text-right font-montserrat text-foreground">
+      {u.bonus_drops}
+      {u.has_idriel && u.sub_status === 'active' && <span className="block text-[9px] text-gold">+150/mês</span>}
+    </td>
+
     <td className="px-3 py-2.5 text-right text-xs text-text-secondary">{u.ai_text_month}/{u.ai_image_month}<span className="block text-[9px] text-text-dim">total {u.ai_text_total}/{u.ai_image_total}</span></td>
     <td className="px-3 py-2.5 text-right text-xs text-text-secondary">{u.recharges_count}<span className="block text-[9px] text-text-dim">{fmtMoney(u.recharge_total)}</span></td>
     <td className="px-3 py-2.5 text-right text-xs text-text-secondary">{fmtMoney(u.lifetime_total)}</td>
@@ -459,13 +461,14 @@ const UserActionsMenu: React.FC<{ user: AdminUser; callerId: string; onChanged: 
                 onChange={e => setDurationDays(e.target.value)}
                 placeholder="Vazio = 30 (mensal) ou 365 (anual)"
                 className="bg-background border-blue-bright/30 mt-1"
-                disabled={planCode === 'none' || planCode === 'raiz_vitalicio'}
+                disabled={planCode === 'none'}
               />
             </div>
             <p className="text-[10px] text-text-dim mt-1.5">
               Nada é cobrado. Após expirar, o usuário poderá pagar normalmente para renovar.
-              <br />Vitalício = Raiz sem expiração.
+              <br />Membro Fundador inclui todas as funcionalidades de Idriel.
             </p>
+
             <ConfirmDialog
               title="Aplicar alteração de plano?"
               description={`Confirma alterar o plano de ${user.email} para "${PLAN_CODES.find(p => p.value === planCode)?.label || planCode}"${durationDays ? ` por ${durationDays} dias` : ''}? O plano atual será substituído imediatamente, sem cobrança.`}
