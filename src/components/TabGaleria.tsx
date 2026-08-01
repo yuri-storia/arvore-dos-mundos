@@ -995,30 +995,15 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
 
                   {error && <p className="text-red-alert text-sm mt-3">{error}</p>}
 
-                  {(loading1 || loading2) && (
-                    <div className="mt-4 animate-fadeUp">
-                      <div className="flex items-center gap-3 mb-3">
-
-                        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gold/60 shadow-[0_0_16px_rgba(218,165,32,0.4)] shrink-0">
-                          <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
-                        </div>
-                        <div className="flex-1">
-                          <span className="font-merriweather italic text-xs text-gold-light">
-                            {loading1 ? 'Idriel está tecendo a essência da sua visão…' : 'O Elixir dos Mundos flui… sua visão está tomando forma…'}
-                          </span>
-                          <div className="w-full h-1.5 bg-gold/10 rounded-full overflow-hidden mt-1.5">
-                            <div className="h-full rounded-full bg-gradient-to-r from-gold/60 via-gold to-gold/60"
-                              style={{ width: loading1 ? '60%' : '80%', transition: 'width 3s ease-out' }}
-                            />
-                          </div>
-                          <p className="text-[9px] text-text-dim/50 mt-1 font-montserrat">
-                            {loading1 ? 'Preparando visão…' : 'Materializando (até 30s)'}
-                          </p>
-
-                        </div>
-                      </div>
-                    </div>
+                  {(genProg.active || loading1 || loading2) && (
+                    <GenerationProgress
+                      state={genProg.active ? genProg : { active: true, status: 'running', stage: loading1 ? 'prompt' : 'generating', stageIndex: loading1 ? 0 : 1, pct: loading1 ? 8 : 45, elapsed: 0 }}
+                      cost="16 gotas"
+                      title={genProg.status === 'done' ? 'Visão materializada' : 'Idriel materializa sua visão…'}
+                      className="mt-4"
+                    />
                   )}
+
                 </div>
               )}
 
