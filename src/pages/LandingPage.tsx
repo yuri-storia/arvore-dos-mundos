@@ -535,16 +535,13 @@ const LandingPage: React.FC = () => {
           ))}
         </ul>
 
-        <VideoPlaceholder
-          screenshot={{ url: previewCodex.url, alt: "Aba Codex com fichas e artigos organizados por Fruto" }}
-          title="Vídeo do Codex"
-          duration="20 a 30s"
-          bullets={[
-            'Grade do Codex · ficha visual com imagem · artigo aprofundado',
-            'Abertura rápida da entrada · edição simples',
-            'Busca/filtro · entrada consultada dentro da aba Escrever',
-            'Conteúdo ficcional de qualidade, nunca lorem ipsum',
-          ]}
+        <DemoVideo
+          src={vidCodex.url}
+          poster={vidCodexPoster.url}
+          kicker="Codex"
+          duration="16s"
+          title="Análise de Mundo dentro do Codex"
+          desc="Idriel lê tudo o que você registrou e devolve pontos fortes, lacunas, inconsistências e caminhos de aprofundamento — organizados por seção."
         />
       </section>
 
