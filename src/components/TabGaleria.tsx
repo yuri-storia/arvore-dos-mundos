@@ -1226,10 +1226,10 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
 
             <div className="rounded-lg border border-gold/20 bg-gold/[0.05] p-3 mb-4 flex items-center justify-between">
               <div>
-                <div className="font-cinzel text-xs text-gold-light">Custo</div>
-                <div className="font-merriweather text-[10px] text-text-dim">Alta qualidade (GPT Image 2) · até ~2 min</div>
+                <div className="font-cinzel text-xs text-gold-light">Custo · {quality === 'alta' ? 'Alta Fidelidade' : 'Essencial'}</div>
+                <div className="font-merriweather text-[10px] text-text-dim">GPT Image 2 · {quality === 'alta' ? 'até ~2 min' : 'até ~1 min'}</div>
               </div>
-              <div className="font-montserrat font-bold text-sm text-gold">16 gotas</div>
+              <div className="font-montserrat font-bold text-sm text-gold">{galleryCost} gotas</div>
             </div>
 
 
