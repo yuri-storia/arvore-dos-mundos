@@ -107,7 +107,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
   }, [editing]);
 
   return (
-    <header className={`relative text-center pt-6 pb-4 px-4 mb-0 ${isMobile ? 'min-h-[390px]' : 'min-h-[230px]'}`}>
+    <header className={`relative text-center px-4 mb-0 flex flex-col ${isMobile ? 'min-h-[390px]' : 'min-h-[230px]'}`}>
       {/* Background: renderizações independentes para preservar a definição em cada formato. */}
       <div className="absolute inset-0 overflow-hidden z-0">
         <div className="absolute inset-0 bg-background">
