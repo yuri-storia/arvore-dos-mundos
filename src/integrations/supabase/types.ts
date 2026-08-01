@@ -95,6 +95,7 @@ export type Database = {
       ai_usage: {
         Row: {
           created_at: string
+          extra_cost: number
           id: string
           image_count: number
           image_draft_count: number
@@ -106,6 +107,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          extra_cost?: number
           id?: string
           image_count?: number
           image_draft_count?: number
@@ -117,6 +119,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          extra_cost?: number
           id?: string
           image_count?: number
           image_draft_count?: number
@@ -1309,7 +1312,7 @@ export type Database = {
         }[]
       }
       check_ai_quota: {
-        Args: { _type: string; _user_id: string }
+        Args: { _cost_override?: number; _type: string; _user_id: string }
         Returns: Json
       }
       check_rate_limit: {
@@ -1324,7 +1327,7 @@ export type Database = {
         }[]
       }
       increment_ai_usage: {
-        Args: { _type: string; _user_id: string }
+        Args: { _cost_override?: number; _type: string; _user_id: string }
         Returns: undefined
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
