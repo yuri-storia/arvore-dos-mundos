@@ -726,9 +726,10 @@ const LandingPage: React.FC = () => {
         </Shell>
 
         {/* Composição com a personagem ultrapassando o container */}
-        <div className="relative w-full max-w-[1400px] mx-auto px-5 sm:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[42%_1fr] gap-14 lg:gap-16 items-center">
-            <Reveal className="relative lg:-ml-[7%] xl:-ml-[10%]">
+        <div className="relative w-full max-w-[1240px] mx-auto px-5 sm:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[42%_1fr] gap-12 lg:gap-14 items-center">
+            <Reveal className="relative">
+
               <div
                 aria-hidden
                 className="absolute -inset-16 rounded-full blur-[90px] -z-10"
