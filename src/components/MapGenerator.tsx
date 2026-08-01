@@ -15,6 +15,8 @@ import { createPortal } from 'react-dom';
 import { StyleCarousel } from '@/components/StyleCarousel';
 import { toast } from 'sonner';
 import { GenerationProgress, useGenerationProgress } from '@/components/GenerationProgress';
+import { QualitySelector } from '@/components/QualitySelector';
+import { qualityCost, type QualityTier } from '@/lib/imageQuality';
 
 
 const FOLDER_FRUITS = FRUITS.filter(f => f.id !== 10);
