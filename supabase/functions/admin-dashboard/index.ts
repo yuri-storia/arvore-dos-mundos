@@ -98,27 +98,28 @@ Deno.serve(async (req) => {
         // Manually set a user's subscription. No payment is charged; the user can be billed
         // normally after expires_at.
         // body: { user_id, plan_code, duration_days? }
-        // plan_code: 'raiz_mensal'|'raiz_anual'|'idriel_mensal'|'idriel_anual'|'raiz_vitalicio'|'beta_raiz'|'none'
+        // plan_code: 'raiz_mensal'|'raiz_anual'|'idriel_mensal'|'idriel_anual'|'fundador_mensal'|'none'
         const targetId = body?.user_id as string;
         const planCode = body?.plan_code as string;
         const durationDays = Number(body?.duration_days ?? 0);
         if (!targetId || !planCode) return json({ error: "user_id and plan_code required" }, 400);
 
+        const VALID_PLANS = ["raiz_mensal", "raiz_anual", "idriel_mensal", "idriel_anual", "fundador_mensal", "none"];
+        if (!VALID_PLANS.includes(planCode)) return json({ error: `plano inválido: ${planCode}` }, 400);
+
         if (planCode === "none") {
-          const { error } = await supa.from("subscriptions").update({ status: "cancelled", cancelled_at: new Date().toISOString() }).eq("user_id", targetId).eq("status", "active");
+          const { error } = await supa.from("subscriptions").update({ status: "cancelled", cancelled_at: new Date().toISOString(), has_idriel: false, expires_at: new Date().toISOString() }).eq("user_id", targetId).eq("status", "active");
           if (error) return json({ error: error.message }, 500);
           return json({ ok: true });
         }
 
         const now = new Date();
 
-
-        const hasIdriel = planCode.startsWith("idriel_");
-        const isLifetime = planCode === "raiz_vitalicio";
+        // Fundador tem todos os recursos de Idriel.
+        const hasIdriel = planCode.startsWith("idriel_") || planCode === "fundador_mensal";
         const isAnnual = planCode.endsWith("_anual");
-        let expiresAt: string | null;
-        if (isLifetime) expiresAt = null;
-        else if (durationDays > 0) expiresAt = new Date(now.getTime() + durationDays * 86400_000).toISOString();
+        let expiresAt: string;
+        if (durationDays > 0) expiresAt = new Date(now.getTime() + durationDays * 86400_000).toISOString();
         else if (isAnnual) expiresAt = new Date(now.getTime() + 365 * 86400_000).toISOString();
         else expiresAt = new Date(now.getTime() + 30 * 86400_000).toISOString();
 
@@ -129,13 +130,14 @@ Deno.serve(async (req) => {
           plan_code: planCode,
           status: "active",
           has_idriel: hasIdriel,
-          billing_cycle: isLifetime ? "lifetime" : (isAnnual ? "YEARLY" : "MONTHLY"),
+          billing_cycle: isAnnual ? "YEARLY" : "MONTHLY",
           started_at: now.toISOString(),
           expires_at: expiresAt,
           cancelled_at: null,
           environment: "manual",
           asaas_subscription_id: `manual_admin_${targetId}_${now.getTime()}`,
         }, { onConflict: "user_id" });
+
         if (error) return json({ error: error.message }, 500);
         return json({ ok: true, expires_at: expiresAt });
       }
