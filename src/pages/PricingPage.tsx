@@ -8,7 +8,17 @@ import {
   Leaf, Feather, Star, Plus, Droplet, Trees, Crown, Compass, LogIn,
   PlayCircle, Film, Eye, MessageCircle,
 } from 'lucide-react';
-import { openCheckout, PLANS, useSubscription } from '@/hooks/useSubscription';
+import { toast } from 'sonner';
+import { PlanChangeDialog } from '@/components/PlanChangeDialog';
+import {
+  openCheckout,
+  PLANS,
+  useSubscription,
+  useRefreshSubscription,
+  reactivateSubscription,
+  cancelScheduledChange,
+} from '@/hooks/useSubscription';
+
 import { useAuth } from '@/contexts/AuthContext';
 import DemoVideo from '@/components/marketing/DemoVideo';
 import heroVideo1080 from '@/assets/arvore-hero-loop-1080.mp4.asset.json';
