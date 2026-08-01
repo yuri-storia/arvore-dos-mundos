@@ -844,17 +844,13 @@ const LandingPage: React.FC = () => {
       {/* ============================== 7. OFÍCIO COMPLETO ================== */}
       <Band tone="mist">
         <Shell>
-          <Reveal className="max-w-[58ch] mb-16">
-            <Eyebrow>O ofício completo</Eyebrow>
-            <Title className="mb-6">Do planejamento à escrita, sem abandonar o seu mundo.</Title>
-            <Lede>
-              Worldbuilding não termina quando povos, mapas e sistemas estão prontos. Um mundo só ganha vida
-              quando começa a afetar escolhas, conflitos, cenas e personagens. Por isso, A Árvore dos Mundos reúne
-              construção, organização e escrita dentro do mesmo ambiente.
-            </Lede>
-          </Reveal>
+          <SectionHead
+            eyebrow="O ofício completo"
+            title="Do planejamento à escrita, sem abandonar o seu mundo."
+            lede="Um mundo só ganha vida quando começa a afetar escolhas, conflitos, cenas e personagens. Por isso a Árvore reúne construção, organização e escrita dentro do mesmo ambiente."
+          />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-14 gap-y-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8 items-stretch">
             {[
               {
                 Icon: Feather, title: 'Manuscritos',
@@ -873,52 +869,50 @@ const LandingPage: React.FC = () => {
                 items: ['Pomodoro com intervalos configuráveis', 'Ciclos de trabalho e sons suaves', 'Ambiente de escrita mais imersivo'],
               },
             ].map((b, i) => (
-              <Reveal key={b.title} delay={i * 0.07}>
-                <div className="flex items-center gap-2.5 mb-4 pb-4 border-b border-gold/[0.10]">
-                  <b.Icon className="w-5 h-5 text-gold-champagne/80" strokeWidth={1.4} />
-                  <h3 className="font-cinzel font-bold text-lg">{b.title}</h3>
-                </div>
-                <CheckList items={b.items} />
+              <Reveal key={b.title} delay={i * 0.07} className="h-full">
+                <Panel soft className="h-full">
+                  <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-gold/[0.10]">
+                    <b.Icon className="w-5 h-5 text-gold-champagne/80" strokeWidth={1.4} />
+                    <h3 className="font-cinzel font-bold text-lg">{b.title}</h3>
+                  </div>
+                  <CheckList items={b.items} />
+                </Panel>
               </Reveal>
             ))}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-14 gap-y-12 mt-20">
-            <Reveal>
-              <DemoVideo
-                bare
-                src={vidExport.url}
-                poster={vidExportPoster.url}
-                kicker="Escrever"
-                duration="24s"
-                title="Exportando o manuscrito"
-                desc="Leve o manuscrito inteiro para PDF, Word ou Kindle."
-              />
-              <div className="mt-5 pl-1">
-                <p className="font-manrope font-semibold uppercase tracking-[0.24em] text-[10px] text-gold-champagne/80 mb-2">Escrever · 24s</p>
-                <h4 className="font-cinzel font-bold text-base text-foreground mb-2">Exportando o manuscrito</h4>
-                <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.8] max-w-[50ch]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mt-8 items-stretch">
+            <Reveal className="h-full">
+              <Panel className="h-full">
+                <DemoVideo
+                  bare
+                  src={vidExport.url}
+                  poster={vidExportPoster.url}
+                  kicker="Escrever"
+                  duration="24s"
+                  title="Exportando o manuscrito"
+                  desc="Leve o manuscrito inteiro para PDF, Word ou Kindle."
+                />
+                <VideoCaption kicker="Escrever · 24s" title="Exportando o manuscrito">
                   Termine o capítulo e leve o manuscrito inteiro para PDF, Word ou Kindle — com capa, sumário e formatação pronta para revisão ou publicação.
-                </p>
-              </div>
+                </VideoCaption>
+              </Panel>
             </Reveal>
-            <Reveal delay={0.1}>
-              <DemoVideo
-                bare
-                src={vidImagem.url}
-                poster={vidImagemPoster.url}
-                kicker="Galeria"
-                duration="27s"
-                title="Gerando uma Visão de Idriel"
-                desc="Retratos e paisagens fiéis ao seu Codex, arquivados automaticamente."
-              />
-              <div className="mt-5 pl-1">
-                <p className="font-manrope font-semibold uppercase tracking-[0.24em] text-[10px] text-gold-champagne/80 mb-2">Galeria · 27s</p>
-                <h4 className="font-cinzel font-bold text-base text-foreground mb-2">Gerando uma Visão de Idriel</h4>
-                <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.8] max-w-[50ch]">
+            <Reveal delay={0.1} className="h-full">
+              <Panel className="h-full">
+                <DemoVideo
+                  bare
+                  src={vidImagem.url}
+                  poster={vidImagemPoster.url}
+                  kicker="Galeria"
+                  duration="27s"
+                  title="Gerando uma Visão de Idriel"
+                  desc="Retratos e paisagens fiéis ao seu Codex, arquivados automaticamente."
+                />
+                <VideoCaption kicker="Galeria · 27s" title="Gerando uma Visão de Idriel">
                   Escolha o estilo, descreva a cena e receba retratos e paisagens fiéis ao seu Codex — arquivados automaticamente na pasta certa da Galeria.
-                </p>
-              </div>
+                </VideoCaption>
+              </Panel>
             </Reveal>
           </div>
         </Shell>
@@ -928,28 +922,28 @@ const LandingPage: React.FC = () => {
       {SHOW_IMPORT_BLOCK && (
         <Band>
           <Shell>
-            <div className="grid grid-cols-1 lg:grid-cols-[38%_1fr] gap-12 lg:gap-20">
-              <Reveal>
-                <Eyebrow Icon={Upload}>Importação inteligente</Eyebrow>
-                <Title>Você não precisa começar outra vez.</Title>
-              </Reveal>
-              <Reveal delay={0.1}>
-                <Lede>
-                  Talvez seu mundo já exista há anos. Em documentos, resumos, rascunhos, livros, anotações.
-                  Com a importação inteligente, você envia seus textos e Idriel identifica elementos que podem
-                  se transformar em fichas e artigos.
-                </Lede>
-                <div className="flex flex-wrap gap-2.5 mt-8">
+            <SectionHead
+              eyebrow="Importação inteligente"
+              Icon={Upload}
+              title="Você não precisa começar outra vez."
+              lede="Talvez seu mundo já exista há anos — em documentos, resumos, rascunhos e anotações. Você envia seus textos e Idriel identifica elementos que podem se transformar em fichas e artigos."
+            />
+            <Reveal>
+              <Panel className="max-w-[900px] mx-auto text-center">
+                <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne/80 mb-5">
+                  O que Idriel reconhece nos seus textos
+                </p>
+                <div className="flex flex-wrap justify-center gap-2.5">
                   {['Personagens', 'Lugares', 'Organizações', 'Povos', 'Acontecimentos', 'Sistemas', 'Objetos', 'Conceitos', 'Relações importantes'].map(t => (
                     <span key={t} className="px-3.5 py-1.5 rounded-full border border-gold/[0.14] bg-gold/[0.03] text-[12.5px] font-manrope text-text-secondary transition-colors duration-500 hover:border-gold/30">{t}</span>
                   ))}
                 </div>
-                <p className="font-manrope text-[14px] text-text-dim leading-[1.85] mt-8 max-w-[58ch]">
+                <p className="font-manrope text-[14px] text-text-dim leading-[1.9] mt-7 max-w-[58ch] mx-auto">
                   Você recebe uma lista de sugestões: pode revisar, editar, ignorar, criar individualmente ou criar todas.
                   Seu trabalho anterior não precisa ser descartado para que você comece a utilizar a plataforma.
                 </p>
-              </Reveal>
-            </div>
+              </Panel>
+            </Reveal>
           </Shell>
         </Band>
       )}
@@ -957,17 +951,14 @@ const LandingPage: React.FC = () => {
       {/* ============================== 9. SEGURANÇA ======================== */}
       <Band tone="deep">
         <Shell>
-          <Reveal className="max-w-[58ch] mb-16">
-            <Eyebrow Icon={ShieldCheck}>Segurança</Eyebrow>
-            <Title className="mb-6">Suas ideias pertencem a você. E continuarão pertencendo.</Title>
-            <Lede>
-              Um universo ficcional pode representar anos de trabalho. Personagens, mapas, sistemas, culturas,
-              manuscritos e ideias ainda não publicadas não são apenas dados — são propriedade intelectual.
-              Por isso, segurança e privacidade são compromissos do produto.
-            </Lede>
-          </Reveal>
+          <SectionHead
+            eyebrow="Segurança"
+            Icon={ShieldCheck}
+            title="Suas ideias pertencem a você. E continuarão pertencendo."
+            lede="Personagens, mapas, sistemas, culturas e manuscritos ainda não publicados não são apenas dados — são propriedade intelectual. Segurança e privacidade são compromissos do produto."
+          />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-11">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6 items-stretch">
             {[
               { Icon: Lock, title: 'Conteúdos isolados por usuário', desc: 'Políticas de acesso impedem que uma conta consulte os mundos pertencentes a outra.' },
               { Icon: ShieldCheck, title: 'Conexão protegida', desc: 'A comunicação entre o navegador e a plataforma utiliza conexão criptografada.' },
@@ -976,15 +967,17 @@ const LandingPage: React.FC = () => {
               { Icon: Feather, title: 'Idriel não usa sua obra como propriedade', desc: 'A assistência processa o contexto necessário para executar as ações solicitadas, conforme a Política de Privacidade.' },
               { Icon: Layers, title: 'Exclusão de dados', desc: 'A plataforma oferece meios para excluir mundos, conteúdos e a própria conta, observadas as regras descritas nos termos.' },
             ].map((c, i) => (
-              <Reveal key={c.title} delay={i * 0.05}>
-                <c.Icon className="w-5 h-5 text-gold-champagne/75 mb-4" strokeWidth={1.4} />
-                <h3 className="font-cinzel font-bold text-[15px] mb-2.5 leading-snug">{c.title}</h3>
-                <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">{c.desc}</p>
+              <Reveal key={c.title} delay={i * 0.05} className="h-full">
+                <Panel soft className="h-full">
+                  <c.Icon className="w-5 h-5 text-gold-champagne/75 mb-4" strokeWidth={1.4} />
+                  <h3 className="font-cinzel font-bold text-[15px] mb-2.5 leading-snug">{c.title}</h3>
+                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">{c.desc}</p>
+                </Panel>
               </Reveal>
             ))}
           </div>
 
-          <Reveal delay={0.1}>
+          <Reveal delay={0.1} className="text-center">
             <Link
               to="/seguranca"
               className="inline-flex items-center gap-2 mt-14 px-6 py-3 rounded-xl border border-gold/30 text-gold-light/90 hover:text-gold-light hover:border-gold/50 hover:bg-gold/[0.06] font-manrope font-bold uppercase text-[11px] tracking-[0.18em] transition-all duration-500 hover:-translate-y-[2px]"
@@ -994,6 +987,7 @@ const LandingPage: React.FC = () => {
           </Reveal>
         </Shell>
       </Band>
+
 
       {/* ============================== 10. PROVAS ========================== */}
       <Band>
