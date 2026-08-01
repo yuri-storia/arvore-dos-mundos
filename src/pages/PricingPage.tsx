@@ -496,11 +496,10 @@ const PricingPage: React.FC = () => {
               id="platform-preview-title"
               className="font-cinzel font-bold text-[clamp(1.9rem,4vw,2.8rem)] text-foreground mb-3 leading-[1.1]"
             >
-              Veja a Árvore <span className="text-gradient-gold">por dentro</span>
+              Conheça o poder de <span className="text-gradient-gold">Idriel</span>
             </h2>
             <p className="font-manrope text-text-secondary text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-              Quatro espaços conectados. Cada um com Idriel como assistente silenciosa,
-              esperando o momento em que você precisa de um segundo olhar.
+              Quando Idriel desperta, você pode importar gerar fichas automaticamente, receber uma análise completa do seu mundo, gerar imagens e muito mais!
             </p>
           </div>
 
