@@ -175,7 +175,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
         {isMobile && worlds && (
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-gold/[0.10] border border-gold/30 hover:bg-gold/[0.18] hover:border-gold/50 transition-all backdrop-blur-sm mt-2 group"
+            className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-gold/[0.10] border border-gold/30 hover:bg-gold/[0.18] hover:border-gold/50 transition-all backdrop-blur-sm mt-0 sm:mt-2 group"
           >
             <FolderOpen className="w-3 h-3 text-gold/70 group-hover:text-gold-light transition-colors" />
             <span className="font-cinzel text-[9px] uppercase tracking-[0.2em] text-gold group-hover:text-gold-light transition-colors">
