@@ -631,70 +631,74 @@ const LandingPage: React.FC = () => {
       {/* ============================== 5. CODEX ============================ */}
       <Band>
         <Shell>
-          <div className="grid grid-cols-1 lg:grid-cols-[44%_1fr] gap-14 lg:gap-20 items-center">
-            <Reveal className="lg:order-2">
-              <Eyebrow Icon={Library}>Codex</Eyebrow>
-              <Title className="mb-6">Cada personagem, lugar e descoberta encontra seu lugar.</Title>
-              <Lede>
-                Um universo cresce por meio de relações. Personagens pertencem a povos. Povos ocupam territórios.
-                Religiões influenciam conflitos. Eventos mudam culturas. Objetos carregam histórias. O Codex reúne cada uma dessas partes dentro do mundo ao qual pertencem.
-              </Lede>
+          <SectionHead
+            eyebrow="Codex"
+            Icon={Library}
+            title="Cada personagem, lugar e descoberta encontra seu lugar."
+            lede="Um universo cresce por meio de relações: personagens pertencem a povos, povos ocupam territórios, religiões influenciam conflitos. O Codex reúne cada uma dessas partes dentro do mundo ao qual pertencem."
+          />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-7 mt-10">
-                <div>
-                  <FileText className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
-                  <h3 className="font-cinzel font-bold text-base mb-2">Fichas</h3>
-                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.8]">
-                    Para elementos objetivos: personagens, lugares, organizações e itens.
-                  </p>
-                </div>
-                <div>
-                  <BookOpen className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
-                  <h3 className="font-cinzel font-bold text-base mb-2">Artigos</h3>
-                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.8]">
-                    Para conceitos amplos: sistemas mágicos, períodos históricos, religiões, culturas e acontecimentos.
-                  </p>
-                </div>
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
+            <Reveal className="h-full">
+              <Panel soft className="h-full">
+                <DemoVideo
+                  bare
+                  src={vidCodex.url}
+                  poster={vidCodexPoster.url}
+                  kicker="Codex"
+                  duration="16s"
+                  title="Análise de Mundo dentro do Codex"
+                  desc="Idriel lê o que você registrou e devolve pontos fortes, lacunas e caminhos de aprofundamento."
+                />
+                <VideoCaption kicker="Codex · 16s" title="Análise de Mundo dentro do Codex">
+                  Idriel lê tudo o que você registrou e devolve pontos fortes, lacunas, inconsistências e caminhos de aprofundamento — organizados por seção.
+                </VideoCaption>
+              </Panel>
             </Reveal>
 
-            <Reveal delay={0.12} className="lg:order-1">
-              <DemoVideo
-                bare
-                src={vidCodex.url}
-                poster={vidCodexPoster.url}
-                kicker="Codex"
-                duration="16s"
-                title="Análise de Mundo dentro do Codex"
-                desc="Idriel lê o que você registrou e devolve pontos fortes, lacunas e caminhos de aprofundamento."
-              />
-              <div className="mt-5 pl-1">
-                <p className="font-manrope font-semibold uppercase tracking-[0.24em] text-[10px] text-gold-champagne/80 mb-2">Codex · 16s</p>
-                <h4 className="font-cinzel font-bold text-base text-foreground mb-2">Análise de Mundo dentro do Codex</h4>
-                <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.8] max-w-[46ch]">
-                  Idriel lê tudo o que você registrou e devolve pontos fortes, lacunas, inconsistências e caminhos de aprofundamento — organizados por seção.
-                </p>
+            <Reveal delay={0.1} className="h-full">
+              <div className="h-full grid grid-rows-2 gap-6">
+                <Panel>
+                  <FileText className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
+                  <h3 className="font-cinzel font-bold text-base mb-2">Fichas</h3>
+                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">
+                    Para elementos objetivos: personagens, lugares, organizações e itens.
+                  </p>
+                </Panel>
+                <Panel>
+                  <BookOpen className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
+                  <h3 className="font-cinzel font-bold text-base mb-2">Artigos</h3>
+                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">
+                    Para conceitos amplos: sistemas mágicos, períodos históricos, religiões, culturas e acontecimentos.
+                  </p>
+                </Panel>
               </div>
             </Reveal>
           </div>
 
-          <Reveal delay={0.08} className="mt-16 pt-12 border-t border-gold/[0.08]">
-            <CheckList
-              columns={2}
-              items={[
-                'Criar fichas com imagens',
-                'Escrever artigos completos',
-                'Editar títulos e conteúdos diretamente',
-                'Organizar entradas por mundo',
-                'Importar conteúdos entre mundos',
-                'Consultar referências durante a escrita',
-                'Exportar entradas em PDF',
-                'Manter uma memória central do universo',
-              ]}
-            />
+          <Reveal delay={0.08} className="mt-8">
+            <Panel soft>
+              <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne/80 mb-5">
+                O que você faz no Codex
+              </p>
+              <CheckList
+                columns={2}
+                items={[
+                  'Criar fichas com imagens',
+                  'Escrever artigos completos',
+                  'Editar títulos e conteúdos diretamente',
+                  'Organizar entradas por mundo',
+                  'Importar conteúdos entre mundos',
+                  'Consultar referências durante a escrita',
+                  'Exportar entradas em PDF',
+                  'Manter uma memória central do universo',
+                ]}
+              />
+            </Panel>
           </Reveal>
         </Shell>
       </Band>
+
 
       <Breather>
         Um mundo não se constrói de uma vez. Ele cresce — e precisa de um lugar que cresça junto.
