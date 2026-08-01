@@ -483,6 +483,34 @@ const PricingPage: React.FC = () => {
               </div>
             </div>
           </div>
+
+          <div className="mt-12 rounded-2xl overflow-hidden border border-gold-warm/25 bg-bg-deep/60 backdrop-blur-xl">
+            <div className="relative aspect-video bg-bg-deep">
+              <video
+                src={vidIdriel.url}
+                poster={vidIdrielPoster.url}
+                controls
+                muted
+                loop
+                playsInline
+                preload="none"
+                aria-label="Consultando Idriel dentro de um Fruto"
+                className="absolute inset-0 w-full h-full object-contain"
+              />
+            </div>
+            <div className="px-5 sm:px-6 py-5 border-t border-gold-warm/20">
+              <p className="font-montserrat uppercase tracking-[0.28em] text-[9.5px] text-gold-champagne/90 mb-1.5">
+                Ritual da Guardiã
+              </p>
+              <h3 className="font-cinzel font-bold text-foreground text-[1.1rem] mb-1.5">
+                Consultando Idriel dentro de um Fruto
+              </h3>
+              <p className="font-amiri text-text-secondary text-[0.98rem] leading-[1.7]">
+                Você traz a ideia, Idriel responde a partir do que já existe no seu mundo — e o resultado
+                pode virar ficha ou artigo no Codex com um clique. Recurso exclusivo dos planos Idriel.
+              </p>
+            </div>
+          </div>
         </motion.section>
 
 
