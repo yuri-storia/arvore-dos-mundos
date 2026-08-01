@@ -162,15 +162,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
       </div>
 
 
-      {/* Content */}
-      <div className={`relative z-10 flex flex-col items-center ${isMobile ? 'flex-1 justify-start gap-2 pt-4 pb-4' : 'gap-1 pt-6 pb-4'}`}>
-        {/* Brand badge */}
-        <div className="inline-block px-3 py-1 rounded-full border border-blue-bright/15 bg-blue-bright/[0.04] backdrop-blur-sm">
-          <span className="font-cinzel text-[9px] tracking-[0.18em] text-white uppercase">
-            A Árvore dos Mundos
-          </span>
-        </div>
+      {/* Brand badge - always at the top, independent of header content */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 inline-block px-3 py-1 rounded-full border border-blue-bright/15 bg-blue-bright/[0.04] backdrop-blur-sm">
+        <span className="font-cinzel text-[9px] tracking-[0.18em] text-white uppercase">
+          A Árvore dos Mundos
+        </span>
+      </div>
 
+      {/* Content */}
+      <div className={`relative z-10 flex flex-col items-center ${isMobile ? 'flex-1 justify-center gap-2 py-4' : 'gap-1 pt-6 pb-4'}`}>
         {/* Mobile: project switcher button */}
         {isMobile && worlds && (
           <button
