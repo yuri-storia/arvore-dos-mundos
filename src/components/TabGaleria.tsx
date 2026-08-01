@@ -421,8 +421,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
         const styleHint = STYLE_META.find(s => s.label === v.style)?.promptHint || '';
         prompt = `${v.description}. Style: ${v.style || ''} (${styleHint}). Type: ${v.image_type || ''}. Tone: ${v.tone || ''}.`;
       }
-      regenProg.setStage('generating');
-      const url = await callAIImageConsistent(prompt, [], codexContext, []);
+      const url = await callAIImageConsistent(prompt, [], codexContext, [], quality, regenProg.setStage);
       regenProg.setStage('saving');
       await updateVisionImage(v.id, url);
       regenProg.setStage('charging');
