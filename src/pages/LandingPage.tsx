@@ -632,17 +632,13 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          <VideoPlaceholder
-            screenshot={{ url: previewCodex.url, alt: "Aba Codex com fichas e artigos organizados por Fruto" }}
-            title="Vídeo da Idriel"
-            duration="35 a 50s · narração ou legendas"
-            bullets={[
-              'Usuário apresenta uma ideia de sistema mágico ou sociedade',
-              'Idriel reconhece algo já registrado no mundo',
-              'Aponta inconsistência ou consequência · sugere 2-3 caminhos',
-              'Usuário escolhe · plataforma gera resumo limpo',
-              'Resumo salvo como artigo ou ficha no Codex',
-            ]}
+          <DemoVideo
+            src={vidIdriel.url}
+            poster={vidIdrielPoster.url}
+            kicker="Ritual da Guardiã"
+            duration="23s"
+            title="Consultando Idriel dentro de um Fruto"
+            desc="Você traz a ideia, Idriel responde a partir do que já existe no seu mundo — e o resultado pode virar ficha ou artigo no Codex com um clique."
           />
         </div>
       </section>
