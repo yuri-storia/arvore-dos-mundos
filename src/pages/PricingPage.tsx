@@ -984,6 +984,13 @@ const PricingPage: React.FC = () => {
           </p>
         </div>
       </div>
+
+      <PlanChangeDialog
+        planId={changeTarget}
+        open={changeOpen}
+        onOpenChange={setChangeOpen}
+        onNeedsCheckout={(id) => handleCheckout(id)}
+      />
     </div>
   );
 };
