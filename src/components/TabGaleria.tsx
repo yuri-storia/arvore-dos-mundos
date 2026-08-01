@@ -6,6 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { callAIText, callAIImageConsistent, friendlyAIError } from '@/lib/helpers';
+import { GenerationProgress, useGenerationProgress } from '@/components/GenerationProgress';
+
 import { optimizeImage } from '@/lib/imageOptimizer';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useCodexEntries } from '@/hooks/useCodexEntries';
@@ -157,6 +159,9 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
   const [saveCat, setSaveCat] = useState<string>(FOLDER_FRUITS[0].name);
   const [showHistory, setShowHistory] = useState(false);
   const [regenVisionId, setRegenVisionId] = useState<string | null>(null);
+  const regenProg = useGenerationProgress();
+  const genProg = useGenerationProgress();
+
   const visionScrollRef = useRef<HTMLDivElement>(null);
   const visionVirt = useVirtualizer({
     count: visions.length + (hasMoreVisions ? 1 : 0),
@@ -182,19 +187,39 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
   useEffect(() => {
     if (promptJob?.status === 'done' && typeof promptJob.result === 'string' && promptJob.result) {
       setGeneratedPrompt(promptJob.result);
-      if (autoGenerate) { setAutoGenerate(false); handleGenerate(promptJob.result); }
+      if (autoGenerate) { setAutoGenerate(false); genProg.setStage('generating'); handleGenerate(promptJob.result); }
     }
-    if (promptJob?.status === 'error') { setAutoGenerate(false); const f = friendlyAIError(promptJob.error || ''); setError(`${f.title} ${f.hint}`); }
+    if (promptJob?.status === 'error') {
+      setAutoGenerate(false);
+      const f = friendlyAIError(promptJob.error || '');
+      setError(`${f.title} ${f.hint}`);
+      genProg.fail(f.title);
+      setTimeout(() => genProg.reset(), 3000);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [promptJob?.status, promptJob?.result, promptJob?.error]);
 
   useEffect(() => {
     if (imageJob?.status === 'done' && imageJob.result) {
       setGeneratedImage(imageJob.result);
-      if (activeVisionId) updateVisionImage(activeVisionId, imageJob.result);
+      genProg.setStage('saving');
+      const finish = async () => {
+        if (activeVisionId) await updateVisionImage(activeVisionId, imageJob.result!);
+        genProg.setStage('charging');
+        genProg.succeed();
+        setTimeout(() => genProg.reset(), 1400);
+      };
+      finish();
     }
-    if (imageJob?.status === 'error') { const f = friendlyAIError(imageJob.error || ''); setError(`${f.title} ${f.hint}`); }
-  }, [imageJob?.status, imageJob?.result, imageJob?.error, activeVisionId, updateVisionImage]);
+    if (imageJob?.status === 'error') {
+      const f = friendlyAIError(imageJob.error || '');
+      setError(`${f.title} ${f.hint}`);
+      genProg.fail(f.title);
+      setTimeout(() => genProg.reset(), 3000);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageJob?.status, imageJob?.result, imageJob?.error, activeVisionId]);
+
 
   useEffect(() => { if (promptJobKey) { activePromptJobId ? localStorage.setItem(promptJobKey, activePromptJobId) : localStorage.removeItem(promptJobKey); } }, [promptJobKey, activePromptJobId]);
   useEffect(() => { if (imageJobKey) { activeImageJobId ? localStorage.setItem(imageJobKey, activeImageJobId) : localStorage.removeItem(imageJobKey); } }, [imageJobKey, activeImageJobId]);
@@ -386,6 +411,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
   const regenerateVision = async (v: { id: string; description: string; prompt?: string; image_url: string | null; style: string | null; image_type: string | null; tone: string | null }) => {
     if (!planLimits.canUseAI) { toast.error('Plano ativo necessário para reprocessar.'); return; }
     setRegenVisionId(v.id);
+    regenProg.start();
     try {
       // O `prompt` não vem no payload enxuto da listagem — busca sob demanda.
       let prompt = v.prompt || '';
@@ -395,16 +421,22 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
         const styleHint = STYLE_META.find(s => s.label === v.style)?.promptHint || '';
         prompt = `${v.description}. Style: ${v.style || ''} (${styleHint}). Type: ${v.image_type || ''}. Tone: ${v.tone || ''}.`;
       }
+      regenProg.setStage('generating');
       const url = await callAIImageConsistent(prompt, [], codexContext, []);
+      regenProg.setStage('saving');
       await updateVisionImage(v.id, url);
+      regenProg.setStage('charging');
+      regenProg.succeed();
       toast.success('Visão reprocessada');
+      setTimeout(() => { setRegenVisionId(null); regenProg.reset(); }, 1200);
     } catch (e: any) {
       const f = friendlyAIError(e?.message || '');
+      regenProg.fail(f.title);
       toast.error(`${f.title} ${f.hint}`);
-    } finally {
-      setRegenVisionId(null);
+      setTimeout(() => { setRegenVisionId(null); regenProg.reset(); }, 3000);
     }
   };
+
 
   const copyPrompt = () => { navigator.clipboard.writeText(generatedPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); };
 
@@ -422,8 +454,10 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
   const confirmReview = () => {
     setShowReview(false);
     setAutoGenerate(true);
+    genProg.start();
     handleCreatePrompt();
   };
+
 
   const confirmSave = () => {
     if (!generatedImage) return;
@@ -961,30 +995,15 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
 
                   {error && <p className="text-red-alert text-sm mt-3">{error}</p>}
 
-                  {(loading1 || loading2) && (
-                    <div className="mt-4 animate-fadeUp">
-                      <div className="flex items-center gap-3 mb-3">
-
-                        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gold/60 shadow-[0_0_16px_rgba(218,165,32,0.4)] shrink-0">
-                          <img src={idrielAvatar} alt="Idriel" className="w-full h-full object-cover object-top" />
-                        </div>
-                        <div className="flex-1">
-                          <span className="font-merriweather italic text-xs text-gold-light">
-                            {loading1 ? 'Idriel está tecendo a essência da sua visão…' : 'O Elixir dos Mundos flui… sua visão está tomando forma…'}
-                          </span>
-                          <div className="w-full h-1.5 bg-gold/10 rounded-full overflow-hidden mt-1.5">
-                            <div className="h-full rounded-full bg-gradient-to-r from-gold/60 via-gold to-gold/60"
-                              style={{ width: loading1 ? '60%' : '80%', transition: 'width 3s ease-out' }}
-                            />
-                          </div>
-                          <p className="text-[9px] text-text-dim/50 mt-1 font-montserrat">
-                            {loading1 ? 'Preparando visão…' : 'Materializando (até 30s)'}
-                          </p>
-
-                        </div>
-                      </div>
-                    </div>
+                  {(genProg.active || loading1 || loading2) && (
+                    <GenerationProgress
+                      state={genProg.active ? genProg : { active: true, status: 'running', stage: loading1 ? 'prompt' : 'generating', stageIndex: loading1 ? 0 : 1, pct: loading1 ? 8 : 45, elapsed: 0 }}
+                      cost="16 gotas"
+                      title={genProg.status === 'done' ? 'Visão materializada' : 'Idriel materializa sua visão…'}
+                      className="mt-4"
+                    />
                   )}
+
                 </div>
               )}
 
@@ -1077,6 +1096,8 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                                 )}
                                 <div className="flex-1 min-w-0">
                                   <p className="text-xs font-merriweather text-foreground line-clamp-2 mb-1">{v.description || 'Sem descrição'}</p>
+                                  {isRegen && regenProg.active && <GenerationProgress state={regenProg} compact className="mb-1" />}
+
                                   <div className="flex flex-wrap gap-1.5 mt-1">
                                     {v.image_url && (
                                       <button onClick={() => reopenVision(v.image_url!, v.description, v.prompt)}

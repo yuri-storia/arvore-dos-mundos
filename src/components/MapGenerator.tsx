@@ -5,7 +5,6 @@ import { generateMap, friendlyAIError } from '@/lib/helpers';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useMapHistory } from '@/hooks/useMapHistory';
-import idrielAvatar from '@/assets/idriel-avatar.webp';
 import mapPolitical from '@/assets/style-thumbs/map-political.jpg';
 import mapGeographic from '@/assets/style-thumbs/map-geographic.jpg';
 import mapNautical from '@/assets/style-thumbs/map-nautical.jpg';
@@ -14,6 +13,8 @@ import mapCity from '@/assets/style-thumbs/map-city.jpg';
 import { createPortal } from 'react-dom';
 import { StyleCarousel } from '@/components/StyleCarousel';
 import { toast } from 'sonner';
+import { GenerationProgress, useGenerationProgress } from '@/components/GenerationProgress';
+
 
 const FOLDER_FRUITS = FRUITS.filter(f => f.id !== 10);
 
@@ -58,8 +59,10 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
   const { history, addMap, updateMapImage, deleteMap, hasMore, loadMore, isFetchingMore } = useMapHistory(worldId);
   const [showHistory, setShowHistory] = useState(false);
   const [regenId, setRegenId] = useState<string | null>(null);
-  type RegenPhase = 'prompt' | 'image' | 'saving' | 'done' | 'failed';
-  const [regenState, setRegenState] = useState<{ phase: RegenPhase; progress: number; error?: string } | null>(null);
+  const regenProg = useGenerationProgress();
+  const mainProg = useGenerationProgress();
+
+
 
   const previewRef = React.useRef<HTMLDivElement>(null);
   const reopen = (url: string) => {
@@ -76,26 +79,28 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
   const regenerate = async (h: { id: string; style: string; style_label: string; description: string | null }) => {
     if (!planLimits.canUseAI) { toast.error('Plano ativo necessário para reprocessar.'); return; }
     setRegenId(h.id);
-    setRegenState({ phase: 'prompt', progress: 15 });
+    regenProg.start();
     try {
-      setRegenState({ phase: 'image', progress: 55 });
+      regenProg.setStage('generating');
       const url = await generateMap({
         style: styleFor(h.style),
         description: h.description || '',
         worldContext: buildWorldContext(),
       });
-      setRegenState({ phase: 'saving', progress: 88 });
+      regenProg.setStage('saving');
       await updateMapImage(h.id, url);
-      setRegenState({ phase: 'done', progress: 100 });
+      regenProg.setStage('charging');
+      regenProg.succeed();
       toast.success('Mapa reprocessado');
-      setTimeout(() => { setRegenId(null); setRegenState(null); }, 1200);
+      setTimeout(() => { setRegenId(null); regenProg.reset(); }, 1200);
     } catch (e: any) {
       const f = friendlyAIError(e?.message || '');
-      setRegenState({ phase: 'failed', progress: 100, error: f.title });
+      regenProg.fail(f.title);
       toast.error(`${f.title} ${f.hint}`);
-      setTimeout(() => { setRegenId(null); setRegenState(null); }, 3000);
+      setTimeout(() => { setRegenId(null); regenProg.reset(); }, 3000);
     }
   };
+
 
 
   // Virtualização do histórico
@@ -137,23 +142,31 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
     setShowReview(false);
     setError('');
     setGeneratedImage('');
+    mainProg.start();
     try {
       setPhase('image');
+      mainProg.setStage('generating');
       const url = await generateMap({
         style: styleFor(styleObj.id),
         description: customDesc,
         worldContext: buildWorldContext(),
       });
       setGeneratedImage(url);
+      mainProg.setStage('saving');
       await addMap({ image_url: url, style: styleObj.id, style_label: styleObj.label, description: customDesc });
-
+      mainProg.setStage('charging');
+      mainProg.succeed();
+      setTimeout(() => mainProg.reset(), 1400);
     } catch (e: any) {
       const f = friendlyAIError(e?.message || '');
       setError(`${f.title} ${f.hint}`);
+      mainProg.fail(f.title);
+      setTimeout(() => mainProg.reset(), 3000);
     } finally {
       setPhase('idle');
     }
   };
+
 
   return (
     <div className="border-t border-gold-warm/20 pt-6">
@@ -239,19 +252,15 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
         <div className="text-red-alert text-xs font-montserrat mt-4 p-2 rounded border border-red-alert/20 bg-red-alert/5">{error}</div>
       )}
 
-      {isBusy && (
-        <div className="flex items-center gap-3 mt-4 p-3 rounded-lg card-glass">
-          <img src={idrielAvatar} alt="Idriel" className="w-8 h-8 rounded-full border border-gold/40" />
-          <div className="flex gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce" />
-            <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-2" />
-            <span className="w-1.5 h-1.5 rounded-full bg-gold dot-bounce-3" />
-          </div>
-          <span className="font-merriweather italic text-xs text-gold-light">
-            {phase === 'prompt' ? 'Traçando as linhas do firmamento…' : 'O Elixir molda o território…'}
-          </span>
-        </div>
+      {mainProg.active && (
+        <GenerationProgress
+          state={mainProg}
+          cost="5 gotas"
+          title={mainProg.status === 'done' ? 'Mapa materializado' : 'Idriel desenha seu território…'}
+          className="mt-4"
+        />
       )}
+
 
       {generatedImage && !isBusy && (
         <div ref={previewRef} className="animate-fadeUp mt-4 card-glass rounded-lg p-4 border border-gold/20 relative scroll-mt-24">
@@ -350,27 +359,10 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
                           <p className="text-xs font-cinzel text-gold-light">{h.style_label}</p>
                           <p className="text-[10px] text-text-dim font-merriweather italic line-clamp-2">{h.description || 'Sem descrição adicional'}</p>
                           <p className="text-[9px] text-text-dim/70 font-montserrat mt-0.5">{new Date(h.created_at).toLocaleString('pt-BR')}</p>
-                          {isRegen && regenState && (() => {
-                            const label = regenState.phase === 'prompt' ? 'Tecendo prompt cartográfico…'
-                              : regenState.phase === 'image' ? 'Gerando mapa…'
-                              : regenState.phase === 'saving' ? 'Atualizando histórico…'
-                              : regenState.phase === 'done' ? 'Concluído'
-                              : `Falhou · ${regenState.error || 'erro'}`;
-                            const barColor = regenState.phase === 'failed' ? 'bg-red-alert/70'
-                              : regenState.phase === 'done' ? 'bg-emerald-500/70'
-                              : 'bg-gradient-to-r from-gold-warm via-gold to-gold-champagne';
-                            return (
-                              <div className="mt-1.5">
-                                <div className="flex items-center justify-between gap-2">
-                                  <span className={`text-[9px] font-montserrat ${regenState.phase === 'failed' ? 'text-red-alert' : regenState.phase === 'done' ? 'text-emerald-400' : 'text-gold-light/85'}`}>{label}</span>
-                                  <span className="text-[9px] font-montserrat text-text-dim/70">{regenState.progress}%</span>
-                                </div>
-                                <div className="mt-1 h-1 rounded-full bg-gold/10 overflow-hidden">
-                                  <div className={`h-full ${barColor} transition-all duration-300`} style={{ width: `${regenState.progress}%` }} />
-                                </div>
-                              </div>
-                            );
-                          })()}
+                          {isRegen && regenProg.active && (
+                            <GenerationProgress state={regenProg} compact className="mt-1.5" />
+                          )}
+
                           <div className="flex flex-wrap gap-1.5 mt-2">
                             <button onClick={() => reopen(h.image_url)}
                               className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
