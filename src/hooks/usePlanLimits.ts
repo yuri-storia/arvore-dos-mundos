@@ -48,7 +48,9 @@ const RAIZ_LIMITS: PlanLimits = {
   maxFichas: Infinity,
   maxArtigos: Infinity,
   canExport: true,
-  canUseAI: false,
+  // Criador tem acesso às funcionalidades de Idriel enquanto houver gotas
+  // (5 gotas de cortesia). O saldo é validado no servidor (check_ai_quota).
+  canUseAI: true,
   canCreateWorld: true,
   canCreateFicha: true,
   canCreateArtigo: true,
