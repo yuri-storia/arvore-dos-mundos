@@ -76,26 +76,28 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
   const regenerate = async (h: { id: string; style: string; style_label: string; description: string | null }) => {
     if (!planLimits.canUseAI) { toast.error('Plano ativo necessário para reprocessar.'); return; }
     setRegenId(h.id);
-    setRegenState({ phase: 'prompt', progress: 15 });
+    regenProg.start();
     try {
-      setRegenState({ phase: 'image', progress: 55 });
+      regenProg.setStage('generating');
       const url = await generateMap({
         style: styleFor(h.style),
         description: h.description || '',
         worldContext: buildWorldContext(),
       });
-      setRegenState({ phase: 'saving', progress: 88 });
+      regenProg.setStage('saving');
       await updateMapImage(h.id, url);
-      setRegenState({ phase: 'done', progress: 100 });
+      regenProg.setStage('charging');
+      regenProg.succeed();
       toast.success('Mapa reprocessado');
-      setTimeout(() => { setRegenId(null); setRegenState(null); }, 1200);
+      setTimeout(() => { setRegenId(null); regenProg.reset(); }, 1200);
     } catch (e: any) {
       const f = friendlyAIError(e?.message || '');
-      setRegenState({ phase: 'failed', progress: 100, error: f.title });
+      regenProg.fail(f.title);
       toast.error(`${f.title} ${f.hint}`);
-      setTimeout(() => { setRegenId(null); setRegenState(null); }, 3000);
+      setTimeout(() => { setRegenId(null); regenProg.reset(); }, 3000);
     }
   };
+
 
 
   // Virtualização do histórico
