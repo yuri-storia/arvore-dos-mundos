@@ -161,6 +161,8 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
   const [regenVisionId, setRegenVisionId] = useState<string | null>(null);
   const regenProg = useGenerationProgress();
   const genProg = useGenerationProgress();
+  const [quality, setQuality] = useState<QualityTier>('essencial');
+  const galleryCost = qualityCost('gallery', quality);
 
   const visionScrollRef = useRef<HTMLDivElement>(null);
   const visionVirt = useVirtualizer({
