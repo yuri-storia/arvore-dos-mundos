@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/accordion';
 import { openCheckout, PLANS } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 import hero640 from '@/assets/arvore-mundos-hero-640.webp.asset.json';
 import hero960 from '@/assets/arvore-mundos-hero-960.webp.asset.json';
@@ -20,6 +21,9 @@ import hero1600 from '@/assets/arvore-mundos-hero-1600.webp.asset.json';
 import heroVideo1080 from '@/assets/arvore-hero-loop-1080.mp4.asset.json';
 import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
 import heroVideo480 from '@/assets/arvore-hero-loop-480.mp4.asset.json';
+import heroVideoMobileMaster from '@/assets/arvore-hero-mobile-master-1080.mp4.asset.json';
+import heroMobilePoster from '@/assets/arvore-hero-mobile-master-poster.png.asset.json';
+import heroVideoDesktopMaster from '@/assets/arvore-hero-desktop-master.mp4.asset.json';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
 import previewConstruir from '@/assets/plataforma-preview-construir.png.asset.json';
@@ -296,6 +300,8 @@ const LandingPage: React.FC = () => {
       '0 10px 32px hsl(30 30% 20% / 0.5), 0 0 44px hsl(38 60% 45% / 0.28), inset 0 1px 0 hsl(42 60% 96% / 0.7), inset 0 -2px 0 hsl(28 32% 22% / 0.4)',
     border: '1px solid hsl(34 42% 50% / 0.6)',
   };
+
+  const isMobileHero = useIsMobile();
 
   return (
     <div className="min-h-screen bg-[#02070d] text-foreground overflow-x-hidden antialiased">
