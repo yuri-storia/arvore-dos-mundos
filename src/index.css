@@ -137,16 +137,23 @@
 
 /* Fonts */
 .font-cinzel { font-family: 'Cinzel', serif; letter-spacing: 0.01em; }
-.font-montserrat { font-family: 'Montserrat', sans-serif; }
+/* Legado: `font-montserrat` é usada em todo o app para elementos funcionais —
+   passa a renderizar Manrope, mantendo as classes existentes intactas. */
+.font-montserrat { font-family: 'Manrope', 'Inter', system-ui, sans-serif; }
+.font-manrope { font-family: 'Manrope', 'Inter', system-ui, sans-serif; }
 .font-merriweather { font-family: 'Merriweather', serif; }
 .font-amiri { font-family: 'Amiri', 'Merriweather', Georgia, serif; }
 
-/* Escala tipográfica utilitária (corpo legível) — piso elevado p/ legibilidade. */
-.text-body-lg { font-size: clamp(1.2rem, 0.4vw + 1.05rem, 1.35rem); line-height: 1.78; }
-.text-body    { font-size: clamp(1.075rem, 0.4vw + 0.95rem, 1.2rem); line-height: 1.78; }
-.text-body-sm { font-size: 1.05rem; line-height: 1.7; }
-.text-ui      { font-family: 'Montserrat', sans-serif; font-size: 0.8125rem; letter-spacing: 0.08em; }
-.text-ui-xs   { font-family: 'Montserrat', sans-serif; font-size: 0.75rem; letter-spacing: 0.16em; text-transform: uppercase; }
+/* Escala tipográfica utilitária (corpo legível) — hierarquia clara. */
+.text-body-lg { font-size: clamp(1.12rem, 0.4vw + 1rem, 1.26rem); line-height: 1.85; }
+.text-body    { font-size: clamp(1rem, 0.4vw + 0.9rem, 1.12rem); line-height: 1.85; }
+.text-body-sm { font-size: 0.95rem; line-height: 1.75; }
+.text-ui      { font-family: 'Manrope', 'Inter', system-ui, sans-serif; font-size: 0.8125rem; letter-spacing: 0.04em; }
+.text-ui-xs   { font-family: 'Manrope', 'Inter', system-ui, sans-serif; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; }
+/* Largura de linha confortável para blocos de leitura */
+.measure { max-width: 68ch; }
+.measure-sm { max-width: 58ch; }
+
 
 /* Premium gold — bronze → champagne → cream */
 .text-gradient-gold {
