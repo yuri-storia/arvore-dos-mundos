@@ -294,59 +294,59 @@ const LandingPage: React.FC = () => {
       </header>
 
       {/* ============================== 1. HERO ============================= */}
-      <section className="relative isolate overflow-hidden min-h-[100svh] flex flex-col justify-center">
-        <video
-          className="absolute inset-0 -z-20 w-full h-full object-cover scale-[1.08]"
-          poster={hero1280.url}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          aria-hidden="true"
-          style={{ filter: 'brightness(1.1) contrast(1.05) saturate(1.12)' }}
-        >
-          <source src={heroVideo1080.url} type="video/mp4" media="(min-width: 1280px)" />
-          <source src={heroVideo720.url} type="video/mp4" media="(min-width: 640px)" />
-          <source src={heroVideo480.url} type="video/mp4" />
-        </video>
-        <img
-          src={hero1280.url}
-          srcSet={heroSrcSet}
-          sizes="100vw"
-          width={1600}
-          height={900}
-          alt=""
-          aria-hidden="true"
-          decoding="async"
-          className="absolute inset-0 -z-30 w-full h-full object-cover object-center scale-[1.08]"
-          style={{ filter: 'brightness(1.1) contrast(1.05) saturate(1.12)' }}
-        />
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-10 pointer-events-none"
-          style={{
-            background:
-              'radial-gradient(ellipse at center, hsl(214 80% 3% / 0.20) 0%, hsl(214 80% 3% / 0.58) 55%, hsl(214 80% 3% / 0.94) 100%)',
-          }}
-        />
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-10 pointer-events-none opacity-45"
-          style={{
-            background:
-              'radial-gradient(ellipse 55% 40% at 50% 42%, hsl(38 60% 45% / 0.18) 0%, transparent 72%)',
-          }}
-        />
-        <div
-          aria-hidden
-          className="absolute inset-x-0 bottom-0 h-72 -z-10 pointer-events-none"
-          style={{
-            background: 'linear-gradient(to bottom, transparent 0%, rgba(2,7,13,0.5) 40%, #02070d 100%)',
-          }}
-        />
+      <section className="relative overflow-hidden min-h-[100svh] flex flex-col justify-center">
+        <div aria-hidden className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <img
+            src={hero1280.url}
+            srcSet={heroSrcSet}
+            sizes="100vw"
+            width={1600}
+            height={900}
+            alt=""
+            aria-hidden="true"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover object-center scale-[1.08]"
+            style={{ filter: 'brightness(1.1) contrast(1.05) saturate(1.12)' }}
+          />
+          <video
+            className="absolute inset-0 w-full h-full object-cover scale-[1.08]"
+            poster={hero1280.url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+            style={{ filter: 'brightness(1.1) contrast(1.05) saturate(1.12)' }}
+          >
+            <source src={heroVideo1080.url} type="video/mp4" media="(min-width: 1280px)" />
+            <source src={heroVideo720.url} type="video/mp4" media="(min-width: 640px)" />
+            <source src={heroVideo480.url} type="video/mp4" />
+          </video>
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(ellipse at center, hsl(214 80% 3% / 0.20) 0%, hsl(214 80% 3% / 0.58) 55%, hsl(214 80% 3% / 0.94) 100%)',
+            }}
+          />
+          <div
+            className="absolute inset-0 opacity-45"
+            style={{
+              background:
+                'radial-gradient(ellipse 55% 40% at 50% 42%, hsl(38 60% 45% / 0.18) 0%, transparent 72%)',
+            }}
+          />
+          <div
+            className="absolute inset-x-0 bottom-0 h-72"
+            style={{
+              background: 'linear-gradient(to bottom, transparent 0%, rgba(2,7,13,0.5) 40%, #02070d 100%)',
+            }}
+          />
+        </div>
 
-        <Shell className="relative pt-32 sm:pt-36">
+        <Shell className="relative z-10 pt-32 sm:pt-36">
+
           <motion.div
             initial={reduced ? undefined : { opacity: 0, y: 20 }}
             animate={reduced ? undefined : { opacity: 1, y: 0 }}
