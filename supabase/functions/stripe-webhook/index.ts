@@ -281,15 +281,26 @@ Deno.serve(async (req) => {
     if (event.type === "customer.subscription.updated") {
       const sub = event.data.object as Stripe.Subscription;
       const status = sub.status === "active" || sub.status === "trialing" ? "active" : "cancelled";
+      const priceId = sub.items?.data?.[0]?.price?.id;
+      const plan = priceId ? planByPriceId(priceId) : undefined;
       await supa
         .from("subscriptions")
         .update({
           status,
+          ...(plan
+            ? {
+                plan_code: plan.code,
+                has_idriel: !!plan.hasIdriel,
+                billing_cycle: plan.cycle,
+                expires_at: expiresFor(plan.cycle),
+              }
+            : {}),
           cancelled_at: sub.cancel_at_period_end ? new Date().toISOString() : null,
           updated_at: new Date().toISOString(),
         })
         .eq("stripe_subscription_id", sub.id);
     }
+
 
     if (logId) {
       await supa
