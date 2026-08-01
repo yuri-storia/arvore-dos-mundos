@@ -4,7 +4,7 @@ import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { generateImageB64, persistImage, ImageGenError } from "../_shared/image-provider.ts";
 import { compileVisionPrompt, type RefIntent, type StructuredRef } from "../_shared/prompt-compilers.ts";
 import { resolveQuality } from "../_shared/image-quality.ts";
-import { ndjsonStream } from "../_shared/ndjson-stream.ts";
+import { createJob, runJob } from "../_shared/image-job.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
