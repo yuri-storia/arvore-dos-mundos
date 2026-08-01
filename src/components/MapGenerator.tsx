@@ -350,27 +350,10 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
                           <p className="text-xs font-cinzel text-gold-light">{h.style_label}</p>
                           <p className="text-[10px] text-text-dim font-merriweather italic line-clamp-2">{h.description || 'Sem descrição adicional'}</p>
                           <p className="text-[9px] text-text-dim/70 font-montserrat mt-0.5">{new Date(h.created_at).toLocaleString('pt-BR')}</p>
-                          {isRegen && regenState && (() => {
-                            const label = regenState.phase === 'prompt' ? 'Tecendo prompt cartográfico…'
-                              : regenState.phase === 'image' ? 'Gerando mapa…'
-                              : regenState.phase === 'saving' ? 'Atualizando histórico…'
-                              : regenState.phase === 'done' ? 'Concluído'
-                              : `Falhou · ${regenState.error || 'erro'}`;
-                            const barColor = regenState.phase === 'failed' ? 'bg-red-alert/70'
-                              : regenState.phase === 'done' ? 'bg-emerald-500/70'
-                              : 'bg-gradient-to-r from-gold-warm via-gold to-gold-champagne';
-                            return (
-                              <div className="mt-1.5">
-                                <div className="flex items-center justify-between gap-2">
-                                  <span className={`text-[9px] font-montserrat ${regenState.phase === 'failed' ? 'text-red-alert' : regenState.phase === 'done' ? 'text-emerald-400' : 'text-gold-light/85'}`}>{label}</span>
-                                  <span className="text-[9px] font-montserrat text-text-dim/70">{regenState.progress}%</span>
-                                </div>
-                                <div className="mt-1 h-1 rounded-full bg-gold/10 overflow-hidden">
-                                  <div className={`h-full ${barColor} transition-all duration-300`} style={{ width: `${regenState.progress}%` }} />
-                                </div>
-                              </div>
-                            );
-                          })()}
+                          {isRegen && regenProg.active && (
+                            <GenerationProgress state={regenProg} compact className="mt-1.5" />
+                          )}
+
                           <div className="flex flex-wrap gap-1.5 mt-2">
                             <button onClick={() => reopen(h.image_url)}
                               className="text-[9px] font-montserrat px-1.5 py-0.5 rounded border border-gold/20 text-gold-light/80 hover:bg-gold/10 transition-colors">
