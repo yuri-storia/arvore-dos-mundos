@@ -403,7 +403,7 @@ const LandingPage: React.FC = () => {
         </Shell>
 
         {/* Prévia da interface aparecendo parcialmente no limite inferior da dobra */}
-        <div className="relative mt-14 sm:mt-20 -mb-1">
+        <div className="relative z-10 mt-14 sm:mt-20 -mb-1">
           <motion.div
             initial={reduced ? undefined : { opacity: 0, y: 40 }}
             animate={reduced ? undefined : { opacity: 1, y: 0 }}
