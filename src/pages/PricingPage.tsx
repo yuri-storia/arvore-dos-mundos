@@ -538,45 +538,17 @@ const PricingPage: React.FC = () => {
                 poster: vidImagemPoster.url,
                 body: 'Escolha o estilo, descreva a cena e receba retratos e paisagens fiéis ao seu Codex — arquivados automaticamente nas pastas da sua biblioteca visual.',
               },
-            ].map(({ Icon, kicker, title, video, poster, body }) => (
-              <article
+            ].map(({ kicker, title, video, poster, body }) => (
+              <DemoVideo
                 key={kicker}
-                className="card-glass-gold rounded-2xl overflow-hidden group"
-              >
-                <div className="relative aspect-video overflow-hidden border-b border-gold-warm/20 bg-bg-deep">
-                  <video
-                    src={video}
-                    poster={poster}
-                    controls
-                    muted
-                    loop
-                    playsInline
-                    preload="none"
-                    aria-label={`${kicker} — ${title}`}
-                    className="absolute inset-0 w-full h-full object-contain"
-                  />
-                </div>
-
-                <div className="p-5 sm:p-6 space-y-3">
-                  <div className="flex items-center gap-2.5">
-                    <span className="shrink-0 w-9 h-9 rounded-lg bg-gradient-gold-premium grid place-items-center shadow-gold-glow">
-                      <Icon className="w-5 h-5 text-bg-deep" strokeWidth={2.2} />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="font-montserrat uppercase tracking-[0.28em] text-[9.5px] text-gold-champagne/90">
-                        {kicker}
-                      </p>
-                      <h3 className="font-cinzel font-bold text-foreground text-[1.05rem] sm:text-[1.15rem] leading-tight">
-                        {title}
-                      </h3>
-                    </div>
-                  </div>
-                  <p className="font-amiri text-text-secondary text-[0.98rem] leading-[1.7]">
-                    {body}
-                  </p>
-                </div>
-              </article>
+                src={video}
+                poster={poster}
+                kicker={kicker}
+                title={title}
+                desc={body}
+              />
             ))}
+
           </div>
         </motion.section>
 
