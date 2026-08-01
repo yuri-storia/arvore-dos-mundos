@@ -443,17 +443,17 @@ const PricingPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3 mt-8">
                 {[
-                  { Icon: Feather, label: 'Texto em Gemini 2.5 Pro' },
-                  { Icon: ImageIcon, label: 'Imagens em Gemini 3 Pro' },
+                  { Icon: Feather, label: 'Texto em Gemini 3 Flash' },
+                  { Icon: ImageIcon, label: 'Imagens em GPT Image 2' },
                   { Icon: Map, label: 'Mapas cartográficos' },
                   { Icon: Brain, label: 'Análise de mundo' },
                 ].map(({ Icon, label }) => (
                   <div
                     key={label}
-                    className="flex items-center gap-2.5 rounded-lg border border-gold-bronze/30 bg-card/40 backdrop-blur-md px-3.5 py-2.5"
+                    className="flex items-center gap-2.5 rounded-xl border border-gold-bronze/25 bg-[rgba(4,12,24,0.5)] backdrop-blur-md px-3.5 py-3"
                   >
                     <Icon className="w-4 h-4 text-gold-champagne shrink-0" strokeWidth={1.75} />
-                    <span className="font-amiri text-[13.5px] text-foreground/85 leading-tight">
+                    <span className="font-manrope text-[12.5px] text-foreground/85 leading-tight">
                       {label}
                     </span>
                   </div>
@@ -462,34 +462,17 @@ const PricingPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-12 rounded-2xl overflow-hidden border border-gold-warm/25 bg-bg-deep/60 backdrop-blur-xl">
-            <div className="relative aspect-video bg-bg-deep">
-              <video
-                src={vidIdriel.url}
-                poster={vidIdrielPoster.url}
-                controls
-                muted
-                loop
-                playsInline
-                preload="none"
-                aria-label="Consultando Idriel dentro de um Fruto"
-                className="absolute inset-0 w-full h-full object-contain"
-              />
-            </div>
-            <div className="px-5 sm:px-6 py-5 border-t border-gold-warm/20">
-              <p className="font-montserrat uppercase tracking-[0.28em] text-[9.5px] text-gold-champagne/90 mb-1.5">
-                Ritual da Guardiã
-              </p>
-              <h3 className="font-cinzel font-bold text-foreground text-[1.1rem] mb-1.5">
-                Consultando Idriel dentro de um Fruto
-              </h3>
-              <p className="font-amiri text-text-secondary text-[0.98rem] leading-[1.7]">
-                Você traz a ideia, Idriel responde a partir do que já existe no seu mundo — e o resultado
-                pode virar ficha ou artigo no Codex com um clique. Recurso exclusivo dos planos Idriel.
-              </p>
-            </div>
+          <div className="mt-14 max-w-3xl mx-auto">
+            <DemoVideo
+              src={vidIdriel.url}
+              poster={vidIdrielPoster.url}
+              kicker="Ritual da Guardiã"
+              title="Consultando Idriel dentro de um Fruto"
+              desc="Você traz a ideia, Idriel responde a partir do que já existe no seu mundo — e o resultado pode virar ficha ou artigo no Codex com um clique. Recurso exclusivo dos planos Idriel."
+            />
           </div>
         </motion.section>
+
 
 
         {/* =============== VEJA A PLATAFORMA POR DENTRO =============== */}
