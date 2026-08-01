@@ -740,17 +740,6 @@ const LandingPage: React.FC = () => {
               </p>
             </motion.div>
 
-            <VideoPlaceholder
-              screenshot={{ url: previewEscrever.url, alt: "Aba Escrever com o manuscrito e a lista de capítulos" }}
-              title="Vídeo da Importação"
-              duration="30 a 45s"
-              bullets={[
-                'Upload de PDF ou documento · estado de processamento',
-                'Idriel identificando possíveis entradas',
-                'Lista de fichas e artigos sugeridos · sugestão editada',
-                'Opção de criar várias entradas · Codex recebendo os conteúdos',
-              ]}
-            />
           </div>
         </section>
       )}
