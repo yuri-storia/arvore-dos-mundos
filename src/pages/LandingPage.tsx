@@ -84,13 +84,43 @@ const Eyebrow: React.FC<{ children: React.ReactNode; Icon?: React.ElementType }>
 );
 
 const Title: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <h2 className={`font-cinzel font-bold text-[clamp(1.6rem,3vw,2.4rem)] leading-[1.22] tracking-[-0.01em] ${className}`}>
+  <h2 className={`font-cinzel font-bold text-[clamp(1.6rem,3vw,2.4rem)] leading-[1.24] tracking-[-0.01em] ${className}`}>
     {children}
   </h2>
 );
 
+/** Cabeçalho de seção centralizado — mesma estrutura em toda a página. */
+const SectionHead: React.FC<{
+  eyebrow: string;
+  Icon?: React.ElementType;
+  title: React.ReactNode;
+  lede?: React.ReactNode;
+  className?: string;
+}> = ({ eyebrow, Icon, title, lede, className = '' }) => (
+  <Reveal className={`text-center max-w-[68ch] mx-auto mb-14 sm:mb-16 ${className}`}>
+    <Eyebrow Icon={Icon}>{eyebrow}</Eyebrow>
+    <Title>{title}</Title>
+    {lede && (
+      <p className="font-manrope text-[15px] sm:text-base text-text-secondary leading-[1.9] max-w-[60ch] mx-auto mt-5">
+        {lede}
+      </p>
+    )}
+  </Reveal>
+);
+
+/** Retângulo arredondado de borda discreta — dá ordem e agrupamento ao conteúdo. */
+const Panel: React.FC<{ children: React.ReactNode; className?: string; soft?: boolean }> = ({
+  children, className = '', soft = false,
+}) => (
+  <div
+    className={`rounded-2xl border ${soft ? 'border-gold/[0.07] bg-[rgba(4,12,24,0.28)]' : 'border-gold/[0.11] bg-[rgba(4,12,24,0.42)]'} backdrop-blur-[2px] p-6 sm:p-8 ${className}`}
+  >
+    {children}
+  </div>
+);
+
 const Lede: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <p className={`font-manrope text-[15px] sm:text-base text-text-secondary leading-[1.85] max-w-[62ch] ${className}`}>
+  <p className={`font-manrope text-[15px] sm:text-base text-text-secondary leading-[1.9] max-w-[62ch] ${className}`}>
     {children}
   </p>
 );
@@ -98,13 +128,23 @@ const Lede: React.FC<{ children: React.ReactNode; className?: string }> = ({ chi
 const CheckList: React.FC<{ items: string[]; columns?: 1 | 2; className?: string }> = ({ items, columns = 1, className = '' }) => (
   <ul className={`${columns === 2 ? 'sm:columns-2 sm:gap-x-10' : ''} space-y-2.5 ${className}`}>
     {items.map(t => (
-      <li key={t} className="flex items-start gap-2.5 font-manrope text-[14.5px] text-text-secondary leading-[1.7] break-inside-avoid">
+      <li key={t} className="flex items-start gap-2.5 font-manrope text-[14.5px] text-text-secondary leading-[1.75] break-inside-avoid">
         <Check className="w-4 h-4 text-gold-champagne/80 mt-[4px] shrink-0" strokeWidth={2} />
         <span>{t}</span>
       </li>
     ))}
   </ul>
 );
+
+/** Legenda editorial padrão sob os vídeos — mesma hierarquia em toda a página. */
+const VideoCaption: React.FC<{ kicker: string; title: string; children: React.ReactNode }> = ({ kicker, title, children }) => (
+  <div className="mt-5 px-1">
+    <p className="font-manrope font-semibold uppercase tracking-[0.2em] text-[10px] text-gold-champagne/80 mb-2">{kicker}</p>
+    <h4 className="font-cinzel font-bold text-base text-foreground mb-2">{title}</h4>
+    <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85] max-w-[50ch]">{children}</p>
+  </div>
+);
+
 
 /** Momento de respiro: uma única frase forte sobre o fundo. */
 const Breather: React.FC<{ children: React.ReactNode; sub?: string }> = ({ children, sub }) => (
