@@ -10,6 +10,7 @@ import mapGeographic from '@/assets/style-thumbs/map-geographic.jpg';
 import mapNautical from '@/assets/style-thumbs/map-nautical.jpg';
 import mapExplorer from '@/assets/style-thumbs/map-explorer.jpg';
 import mapCity from '@/assets/style-thumbs/map-city.jpg';
+import mapCustom from '@/assets/style-thumbs/map-custom.jpg';
 import { createPortal } from 'react-dom';
 import { StyleCarousel } from '@/components/StyleCarousel';
 import { toast } from 'sonner';
