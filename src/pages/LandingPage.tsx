@@ -766,76 +766,79 @@ const LandingPage: React.FC = () => {
               </motion.div>
             </Reveal>
 
-            <Reveal delay={0.12} className="lg:pr-[4%]">
-              <Title className="mb-6">
-                Uma inteligência que conhece seu mundo — sem tomar o lugar de quem o criou.
-              </Title>
-              <Lede>
-                Idriel é a assistente de worldbuilding da Árvore dos Mundos. Ela não existe para escrever o livro por você.
-                Ela existe para ajudar você a enxergar melhor o mundo que está construindo.
-              </Lede>
-              <CheckList
-                className="mt-8"
-                columns={2}
-                items={[
-                  'Fazer perguntas que aprofundam uma ideia',
-                  'Sugerir possibilidades para cada Fruto',
-                  'Identificar lacunas e inconsistências',
-                  'Explorar consequências',
-                  'Ajudar a criar sistemas, calendários e idiomas',
-                  'Resumir descobertas e transformá-las em fichas/artigos',
-                  'Analisar a coerência do universo',
-                ]}
-              />
-              <p className="font-cinzel text-lg text-gold-light mt-10">
-                Idriel sugere. Você decide. Você escreve.
-              </p>
-              <p className="font-merriweather italic text-text-dim text-sm leading-[1.9] mt-3 max-w-[54ch]">
-                A voz continua sendo sua. As escolhas continuam sendo suas. A autoria continua sendo sua.
-              </p>
+            <Reveal delay={0.12}>
+              <Panel>
+                <Title className="mb-5">
+                  Uma inteligência que conhece seu mundo — sem tomar o lugar de quem o criou.
+                </Title>
+                <Lede>
+                  Idriel é a assistente de worldbuilding da Árvore dos Mundos. Ela não existe para escrever o livro por você.
+                  Ela existe para ajudar você a enxergar melhor o mundo que está construindo.
+                </Lede>
+                <CheckList
+                  className="mt-7 pt-7 border-t border-gold/[0.10]"
+                  columns={2}
+                  items={[
+                    'Fazer perguntas que aprofundam uma ideia',
+                    'Sugerir possibilidades para cada Fruto',
+                    'Identificar lacunas e inconsistências',
+                    'Explorar consequências',
+                    'Ajudar a criar sistemas, calendários e idiomas',
+                    'Resumir descobertas e transformá-las em fichas/artigos',
+                    'Analisar a coerência do universo',
+                  ]}
+                />
+                <p className="font-cinzel text-lg text-gold-light mt-8">
+                  Idriel sugere. Você decide. Você escreve.
+                </p>
+                <p className="font-merriweather italic text-text-dim text-sm leading-[1.9] mt-3 max-w-[54ch]">
+                  A voz continua sendo sua. As escolhas continuam sendo suas. A autoria continua sendo sua.
+                </p>
+              </Panel>
             </Reveal>
           </div>
         </div>
 
-        <Shell className="mt-20 lg:mt-24">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_46%] gap-14 lg:gap-20 items-center">
-            <Reveal>
-              <div className="flex items-center gap-2.5 mb-4">
-                <Brain className="w-4 h-4 text-gold-champagne/80" strokeWidth={1.6} />
-                <h3 className="font-cinzel font-bold text-lg">Análise de Mundo</h3>
-              </div>
-              <p className="font-manrope text-[14.5px] text-text-secondary leading-[1.85] mb-6 max-w-[54ch]">
-                Idriel pode analisar o contexto construído e apresentar:
-              </p>
-              <div className="flex flex-wrap gap-2.5">
-                {['Pontos fortes', 'Lacunas', 'Inconsistências', 'Furos narrativos', 'Oportunidades', 'Recomendações de aprofundamento'].map(t => (
-                  <span key={t} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-gold/[0.14] bg-gold/[0.03] text-[12.5px] font-manrope text-text-secondary transition-colors duration-500 hover:border-gold/30">
-                    <span className="w-1 h-1 rounded-full bg-gold-champagne" />{t}
-                  </span>
-                ))}
-              </div>
+        <Shell className="mt-16 lg:mt-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
+            <Reveal className="h-full">
+              <Panel soft className="h-full flex flex-col justify-center">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <Brain className="w-4 h-4 text-gold-champagne/80" strokeWidth={1.6} />
+                  <h3 className="font-cinzel font-bold text-lg">Análise de Mundo</h3>
+                </div>
+                <p className="font-manrope text-[14.5px] text-text-secondary leading-[1.85] mb-6 max-w-[54ch]">
+                  Idriel pode analisar o contexto construído e apresentar:
+                </p>
+                <div className="flex flex-wrap gap-2.5">
+                  {['Pontos fortes', 'Lacunas', 'Inconsistências', 'Furos narrativos', 'Oportunidades', 'Recomendações de aprofundamento'].map(t => (
+                    <span key={t} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-gold/[0.14] bg-gold/[0.03] text-[12.5px] font-manrope text-text-secondary transition-colors duration-500 hover:border-gold/30">
+                      <span className="w-1 h-1 rounded-full bg-gold-champagne" />{t}
+                    </span>
+                  ))}
+                </div>
+              </Panel>
             </Reveal>
 
-            <Reveal delay={0.12}>
-              <DemoVideo
-                bare
-                src={vidIdriel.url}
-                poster={vidIdrielPoster.url}
-                kicker="Ritual da Guardiã"
-                duration="23s"
-                title="Consultando Idriel dentro de um Fruto"
-                desc="Você traz a ideia, Idriel responde a partir do que já existe no seu mundo."
-              />
-              <div className="mt-5 pl-1">
-                <p className="font-manrope font-semibold uppercase tracking-[0.24em] text-[10px] text-gold-champagne/80 mb-2">Ritual da Guardiã · 23s</p>
-                <h4 className="font-cinzel font-bold text-base text-foreground mb-2">Consultando Idriel dentro de um Fruto</h4>
-                <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.8] max-w-[46ch]">
+            <Reveal delay={0.1} className="h-full">
+              <Panel soft className="h-full">
+                <DemoVideo
+                  bare
+                  src={vidIdriel.url}
+                  poster={vidIdrielPoster.url}
+                  kicker="Ritual da Guardiã"
+                  duration="23s"
+                  title="Consultando Idriel dentro de um Fruto"
+                  desc="Você traz a ideia, Idriel responde a partir do que já existe no seu mundo."
+                />
+                <VideoCaption kicker="Ritual da Guardiã · 23s" title="Consultando Idriel dentro de um Fruto">
                   Você traz a ideia, Idriel responde a partir do que já existe no seu mundo — e o resultado pode virar ficha ou artigo no Codex com um clique.
-                </p>
-              </div>
+                </VideoCaption>
+              </Panel>
             </Reveal>
           </div>
         </Shell>
+
       </section>
 
       {/* ============================== 7. OFÍCIO COMPLETO ================== */}
