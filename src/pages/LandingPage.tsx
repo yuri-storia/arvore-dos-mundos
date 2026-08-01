@@ -340,33 +340,62 @@ const LandingPage: React.FC = () => {
       {/* ============================== 1. HERO ============================= */}
       <section className="relative overflow-hidden min-h-[100svh] flex flex-col justify-center">
         <div aria-hidden className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <img
-            src={hero1280.url}
-            srcSet={heroSrcSet}
-            sizes="100vw"
-            width={1600}
-            height={900}
-            alt=""
-            aria-hidden="true"
-            decoding="async"
-            className="absolute inset-0 w-full h-full object-cover object-center scale-[1.08]"
-            style={{ filter: 'brightness(1.1) contrast(1.05) saturate(1.12)' }}
-          />
-          <video
-            className="absolute inset-0 w-full h-full object-cover scale-[1.08]"
-            poster={hero1280.url}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            aria-hidden="true"
-            style={{ filter: 'brightness(1.1) contrast(1.05) saturate(1.12)' }}
-          >
-            <source src={heroVideo1080.url} type="video/mp4" media="(min-width: 1280px)" />
-            <source src={heroVideo720.url} type="video/mp4" media="(min-width: 640px)" />
-            <source src={heroVideo480.url} type="video/mp4" />
-          </video>
+          {isMobileHero ? (
+            <>
+              <img
+                src={heroMobilePoster.url}
+                alt=""
+                aria-hidden="true"
+                decoding="async"
+                className="absolute inset-0 w-full h-full object-cover object-center"
+                style={{ filter: 'brightness(1.1) contrast(1.05) saturate(1.12)' }}
+              />
+              <video
+                key="hero-mobile-master"
+                src={heroVideoMobileMaster.url}
+                poster={heroMobilePoster.url}
+                className="absolute inset-0 w-full h-full object-cover object-center"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                disablePictureInPicture
+                aria-hidden="true"
+                style={{ filter: 'brightness(1.1) contrast(1.05) saturate(1.12)' }}
+              />
+            </>
+          ) : (
+            <>
+              <img
+                src={hero1280.url}
+                srcSet={heroSrcSet}
+                sizes="100vw"
+                width={1600}
+                height={900}
+                alt=""
+                aria-hidden="true"
+                decoding="async"
+                className="absolute inset-0 w-full h-full object-cover object-center scale-[1.08]"
+                style={{ filter: 'brightness(1.1) contrast(1.05) saturate(1.12)' }}
+              />
+              <video
+                key="hero-desktop-master"
+                src={heroVideoDesktopMaster.url}
+                poster={hero1600.url}
+                className="absolute inset-0 w-full h-full object-cover object-center scale-[1.08]"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                disablePictureInPicture
+                aria-hidden="true"
+                style={{ filter: 'brightness(1.1) contrast(1.05) saturate(1.12)' }}
+              />
+            </>
+          )}
+
           <div
             className="absolute inset-0"
             style={{
