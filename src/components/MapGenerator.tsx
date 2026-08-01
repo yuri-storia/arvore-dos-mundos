@@ -10,6 +10,7 @@ import mapGeographic from '@/assets/style-thumbs/map-geographic.jpg';
 import mapNautical from '@/assets/style-thumbs/map-nautical.jpg';
 import mapExplorer from '@/assets/style-thumbs/map-explorer.jpg';
 import mapCity from '@/assets/style-thumbs/map-city.jpg';
+import mapCustom from '@/assets/style-thumbs/map-custom.jpg';
 import { createPortal } from 'react-dom';
 import { StyleCarousel } from '@/components/StyleCarousel';
 import { toast } from 'sonner';
@@ -33,7 +34,7 @@ const MAP_STYLES: MapStyle[] = [
   { id: 'nautical',   label: 'Náutico',       desc: 'Cartas marítimas com rotas e criaturas.',        image: mapNautical,   prompt: 'nautical sea chart, compass rose, sea routes, port cities, sea monsters, vintage cartography' },
   { id: 'explorer',   label: 'Explorador',    desc: 'Pergaminho antigo com anotações à mão.',         image: mapExplorer,   prompt: 'hand-drawn explorer map on aged parchment, ink annotations, compass rose, dotted travel routes' },
   { id: 'city',       label: 'Cidade',        desc: 'Planta urbana com distritos e marcos.',          image: mapCity,       prompt: 'fantasy city map, bird eye view, districts, walls, castle, market, docks, labeled landmarks' },
-  { id: 'custom',     label: 'Personalizado', desc: 'Descreva exatamente o mapa que imagina.',        prompt: '', custom: true },
+  { id: 'custom',     label: 'Personalizado', desc: 'Descreva exatamente o mapa que imagina.',        image: mapCustom, prompt: '', custom: true },
 ];
 
 interface Props {
