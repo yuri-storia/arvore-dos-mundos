@@ -110,7 +110,7 @@ const PricingPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen relative font-amiri" style={{ background: '#02070d' }}>
+    <div className="min-h-screen relative font-manrope" style={{ background: '#02070d' }}>
       {/* ---------------- HERO ---------------- */}
       <section className="relative w-full overflow-hidden" style={{ minHeight: '92vh' }}>
         <video
@@ -664,10 +664,10 @@ const PricingPage: React.FC = () => {
                 <span className="font-manrope text-text-secondary">/mês</span>
               </div>
               <p className="font-manrope text-[11px] text-text-secondary mb-6 tracking-wider">
-                R$ 397/ano · cobrança única · 2 meses grátis
+                R$ 397,90/ano · cobrança única · 2 meses grátis
               </p>
               <div className="inline-block px-4 py-2 rounded-full bg-gold-champagne/15 border border-gold-champagne/40 text-gold-champagne font-manrope font-bold text-xs uppercase tracking-[0.18em]">
-                Economia de ~R$ 296/mês
+                Economia de ~R$ 325/mês
               </div>
             </div>
           </div>
