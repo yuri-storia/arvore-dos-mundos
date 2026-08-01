@@ -407,18 +407,9 @@ const LandingPage: React.FC = () => {
           ))}
         </div>
 
-        <VideoPlaceholder
-          screenshot={{ url: previewConstruir.url, alt: "Aba Construir da plataforma, mostrando o carrossel dos 11 Frutos" }}
-          title="Tour principal da plataforma"
-          duration="60 a 90s · narrado · com legendas"
-          bullets={[
-            'Criar/abrir um mundo · entrar na aba Construir',
-            'Abrir um Fruto · responder a um campo · consultar Idriel',
-            'Salvar descoberta como ficha/artigo · abrir no Codex',
-            'Consultar a referência durante a escrita · exportar',
-            'Fechamento: "Tudo o que você cria permanece conectado ao mesmo universo."',
-          ]}
-        />
+        <p className="text-center font-merriweather text-sm text-text-dim">
+          Nas próximas seções você vê cada movimento acontecendo na tela — gravado direto da plataforma.
+        </p>
       </section>
 
       {/* ============================== 4. 11 FRUTOS ======================== */}
