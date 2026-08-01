@@ -477,45 +477,41 @@ const LandingPage: React.FC = () => {
       {/* ============================== 2. PROBLEMA ========================= */}
       <Band tone="mist">
         <Shell>
-          <div className="grid grid-cols-1 lg:grid-cols-[40%_1fr] gap-12 lg:gap-20">
-            <Reveal>
-              <Eyebrow>O ponto de partida</Eyebrow>
-              <Title>
-                Você não tem falta de ideias. Tem ideias demais vivendo em{' '}
-                <span className="text-gold-champagne">lugares diferentes</span>.
-              </Title>
-            </Reveal>
-            <Reveal delay={0.1}>
-              <Lede>
-                Um personagem em um documento. A religião de um povo em uma anotação antiga.
-                O mapa em uma pasta. A linha do tempo em uma planilha. As melhores respostas que você recebeu
-                de uma IA, desaparecidas em um histórico que você nunca mais encontrou. O mundo se expande —
-                mas a história não avança.
-              </Lede>
-              <p className="font-merriweather italic text-text-dim leading-[1.9] mt-6 max-w-[58ch]">
-                A Árvore dos Mundos reúne esse processo em um único ambiente: da construção do universo à escrita do manuscrito.
-              </p>
+          <SectionHead
+            eyebrow="O ponto de partida"
+            title={<>Você não tem falta de ideias. Tem ideias demais vivendo em <span className="text-gold-champagne">lugares diferentes</span>.</>}
+            lede="Um personagem em um documento. A religião de um povo em uma anotação antiga. O mapa em uma pasta. A linha do tempo em uma planilha. O mundo se expande — mas a história não avança."
+          />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-8 mt-12 pt-10 border-t border-gold/[0.10]">
-                <div>
-                  <p className="font-manrope font-semibold uppercase tracking-[0.28em] text-[10px] text-red-300/60 mb-4">Antes</p>
-                  <ul className="space-y-2.5">
-                    {['Documentos soltos no computador', 'Notas e rascunhos perdidos', 'Imagens em pastas diferentes', 'Planilhas para linha do tempo', 'Conversas com IA que somem do histórico'].map(t => (
-                      <li key={t} className="flex gap-2.5 font-manrope text-[14px] text-text-dim leading-[1.7]">
-                        <span className="text-red-300/50 mt-[1px]">×</span><span>{t}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <p className="font-manrope font-semibold uppercase tracking-[0.28em] text-[10px] text-gold-champagne mb-4">Com a Árvore dos Mundos</p>
-                  <CheckList items={['Mundo centralizado em um só lugar', 'Codex vivo de fichas e artigos', 'Galeria de referências e mapas', 'Manuscritos com capítulos e Storylines', 'Idriel contextual conhece o que você criou']} />
-                </div>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-[980px] mx-auto items-stretch">
+            <Reveal className="h-full">
+              <Panel soft className="h-full">
+                <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-red-300/70 mb-5">Antes</p>
+                <ul className="space-y-2.5">
+                  {['Documentos soltos no computador', 'Notas e rascunhos perdidos', 'Imagens em pastas diferentes', 'Planilhas para linha do tempo', 'Conversas com IA que somem do histórico'].map(t => (
+                    <li key={t} className="flex gap-2.5 font-manrope text-[14px] text-text-dim leading-[1.75]">
+                      <span className="text-red-300/50 mt-[1px]">×</span><span>{t}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Panel>
+            </Reveal>
+            <Reveal delay={0.08} className="h-full">
+              <Panel className="h-full">
+                <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne mb-5">Com a Árvore dos Mundos</p>
+                <CheckList items={['Mundo centralizado em um só lugar', 'Codex vivo de fichas e artigos', 'Galeria de referências e mapas', 'Manuscritos com capítulos e Storylines', 'Idriel contextual conhece o que você criou']} />
+              </Panel>
             </Reveal>
           </div>
+
+          <Reveal delay={0.1}>
+            <p className="font-merriweather italic text-text-dim leading-[1.9] mt-10 max-w-[58ch] mx-auto text-center">
+              A Árvore dos Mundos reúne esse processo em um único ambiente: da construção do universo à escrita do manuscrito.
+            </p>
+          </Reveal>
         </Shell>
       </Band>
+
 
       {/* ============================== 3. COMO FUNCIONA ==================== */}
       <Band id="tour">
