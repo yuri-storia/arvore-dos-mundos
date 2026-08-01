@@ -18,10 +18,16 @@ import hero1280 from '@/assets/arvore-mundos-hero-1280.webp.asset.json';
 import hero1600 from '@/assets/arvore-mundos-hero-1600.webp.asset.json';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
-import previewConstruir from '@/assets/plataforma-construir.jpg.asset.json';
-import previewCodex from '@/assets/plataforma-codex.jpg.asset.json';
-import previewEscrever from '@/assets/plataforma-escrever.jpg.asset.json';
-import previewGaleria from '@/assets/plataforma-galeria.jpg.asset.json';
+import vidFichas from '@/assets/demo-fichas-frutos.mp4.asset.json';
+import vidFichasPoster from '@/assets/demo-fichas-frutos.jpg.asset.json';
+import vidCodex from '@/assets/demo-codex-analise.mp4.asset.json';
+import vidCodexPoster from '@/assets/demo-codex-analise.jpg.asset.json';
+import vidExport from '@/assets/demo-exportar-manuscrito.mp4.asset.json';
+import vidExportPoster from '@/assets/demo-exportar-manuscrito.jpg.asset.json';
+import vidImagem from '@/assets/demo-gerar-imagem.mp4.asset.json';
+import vidImagemPoster from '@/assets/demo-gerar-imagem.jpg.asset.json';
+import vidIdriel from '@/assets/demo-consultar-idriel.mp4.asset.json';
+import vidIdrielPoster from '@/assets/demo-consultar-idriel.jpg.asset.json';
 
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -473,6 +479,34 @@ const PricingPage: React.FC = () => {
               </div>
             </div>
           </div>
+
+          <div className="mt-12 rounded-2xl overflow-hidden border border-gold-warm/25 bg-bg-deep/60 backdrop-blur-xl">
+            <div className="relative aspect-video bg-bg-deep">
+              <video
+                src={vidIdriel.url}
+                poster={vidIdrielPoster.url}
+                controls
+                muted
+                loop
+                playsInline
+                preload="none"
+                aria-label="Consultando Idriel dentro de um Fruto"
+                className="absolute inset-0 w-full h-full object-contain"
+              />
+            </div>
+            <div className="px-5 sm:px-6 py-5 border-t border-gold-warm/20">
+              <p className="font-montserrat uppercase tracking-[0.28em] text-[9.5px] text-gold-champagne/90 mb-1.5">
+                Ritual da Guardiã
+              </p>
+              <h3 className="font-cinzel font-bold text-foreground text-[1.1rem] mb-1.5">
+                Consultando Idriel dentro de um Fruto
+              </h3>
+              <p className="font-amiri text-text-secondary text-[0.98rem] leading-[1.7]">
+                Você traz a ideia, Idriel responde a partir do que já existe no seu mundo — e o resultado
+                pode virar ficha ou artigo no Codex com um clique. Recurso exclusivo dos planos Idriel.
+              </p>
+            </div>
+          </div>
         </motion.section>
 
 
@@ -509,111 +543,71 @@ const PricingPage: React.FC = () => {
               {
                 Icon: Trees,
                 kicker: 'Construir',
-                title: 'Os 11 Frutos do Mundo',
-                preview: previewConstruir.url,
-                body: 'De cosmologia a povos, cada Fruto é um pilar do seu universo. Idriel lê o conjunto e aponta o que ainda respira e o que precisa de raízes.',
-                roteiro: [
-                  'Abrir a aba Construir e passar pelo carrossel dos 11 Frutos',
-                  'Clicar em um Fruto e mostrar o preenchimento guiado',
-                  'Consultar Idriel → mostrar análise por card com evidências',
-                ],
+                title: 'Criando fichas através dos Frutos',
+                video: vidFichas.url,
+                poster: vidFichasPoster.url,
+                body: 'De cosmologia a povos, cada Fruto é um pilar do seu universo. Responda ao preenchimento guiado e transforme a descoberta em ficha ou artigo do Codex sem sair da tela.',
               },
               {
                 Icon: Library,
                 kicker: 'Codex',
-                title: 'Fichas, artigos e vínculos',
-                preview: previewCodex.url,
-                body: 'Personagens, lugares, artefatos, culturas — tudo organizado por Fruto, filtrável, com menções @ que viram links vivos entre entradas.',
-                roteiro: [
-                  'Abrir o Codex mostrando fichas e artigos por Fruto',
-                  'Criar uma nova ficha e digitar @ para vincular outra entrada',
-                  'Passar o mouse por uma menção → mostrar prévia lateral',
-                ],
+                title: 'Análise de Mundo no Codex',
+                video: vidCodex.url,
+                poster: vidCodexPoster.url,
+                body: 'Personagens, lugares, artefatos e culturas organizados por Fruto — e Idriel lendo o conjunto para apontar pontos fortes, lacunas e inconsistências.',
               },
               {
                 Icon: Feather,
                 kicker: 'Escrever',
-                title: 'Manuscrito capítulo a capítulo',
-                preview: previewEscrever.url,
-                body: 'Contador de palavras separado (total, capítulo, meta diária), Pomodoro embutido, formatação com IA e importação de .epub, .docx, .pdf, .txt.',
-                roteiro: [
-                  'Selecionar um capítulo e mostrar a escrita fluida',
-                  'Rodar "Formatar tudo" e mostrar antes/depois em capítulo',
-                  'Abrir o painel de Referências do Codex ao lado do texto',
-                ],
+                title: 'Exportando o manuscrito',
+                video: vidExport.url,
+                poster: vidExportPoster.url,
+                body: 'Contador de palavras, meta diária, Pomodoro, formatação com IA e exportação final em PDF, Word ou Kindle — pronta para revisão ou publicação.',
               },
               {
                 Icon: ImageIcon,
                 kicker: 'Galeria',
-                title: 'Visões de Idriel & referências',
-                preview: previewGaleria.url,
-                body: 'Dez pastas por Fruto, capas personalizadas e visões geradas por Idriel — retratos consistentes e paisagens fiéis ao Codex do seu mundo.',
-                roteiro: [
-                  'Percorrer as 10 pastas da biblioteca visual',
-                  'Gerar uma Visão de Idriel a partir de uma ficha do Codex',
-                  'Arquivar a visão na pasta correta e ajustar capa',
-                ],
+                title: 'Gerando uma Visão de Idriel',
+                video: vidImagem.url,
+                poster: vidImagemPoster.url,
+                body: 'Escolha o estilo, descreva a cena e receba retratos e paisagens fiéis ao seu Codex — arquivados automaticamente nas pastas da sua biblioteca visual.',
               },
-            ].map(({ Icon, kicker, title, preview, body, roteiro }) => (
+            ].map(({ Icon, kicker, title, video, poster, body }) => (
               <article
                 key={kicker}
                 className="card-glass-gold rounded-2xl overflow-hidden group"
               >
-                {/* Espaço reservado ao vídeo demonstrativo — hoje um print da plataforma */}
-                <div className="relative aspect-[16/10] overflow-hidden border-b border-gold-warm/20">
-                  <img
-                    src={preview}
-                    alt={`Prévia da aba ${kicker} da plataforma`}
-                    loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover object-left-top transition-transform duration-[900ms] ease-out group-hover:scale-[1.03]"
+                <div className="relative aspect-video overflow-hidden border-b border-gold-warm/20 bg-bg-deep">
+                  <video
+                    src={video}
+                    poster={poster}
+                    controls
+                    muted
+                    loop
+                    playsInline
+                    preload="none"
+                    aria-label={`${kicker} — ${title}`}
+                    className="absolute inset-0 w-full h-full object-contain"
                   />
-                  <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      background:
-                        'linear-gradient(180deg, hsl(214 60% 3% / 0) 55%, hsl(214 60% 3% / 0.85) 100%)',
-                    }}
-                    aria-hidden="true"
-                  />
-                  <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-gold-warm/40 bg-bg-deep/70 backdrop-blur-md px-2.5 py-1">
-                    <PlayCircle className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={2} />
-                    <span className="font-montserrat uppercase tracking-[0.24em] text-[9px] text-gold-champagne">
-                      Vídeo em breve
-                    </span>
-                  </div>
-                  <div className="absolute bottom-3 left-3 right-3 flex items-end gap-2.5">
-                    <div className="shrink-0 w-9 h-9 rounded-lg bg-gradient-gold-premium grid place-items-center shadow-gold-glow">
+                </div>
+
+                <div className="p-5 sm:p-6 space-y-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="shrink-0 w-9 h-9 rounded-lg bg-gradient-gold-premium grid place-items-center shadow-gold-glow">
                       <Icon className="w-5 h-5 text-bg-deep" strokeWidth={2.2} />
-                    </div>
+                    </span>
                     <div className="min-w-0">
                       <p className="font-montserrat uppercase tracking-[0.28em] text-[9.5px] text-gold-champagne/90">
                         {kicker}
                       </p>
-                      <h3 className="font-cinzel font-bold text-foreground text-[1.05rem] sm:text-[1.15rem] leading-tight truncate">
+                      <h3 className="font-cinzel font-bold text-foreground text-[1.05rem] sm:text-[1.15rem] leading-tight">
                         {title}
                       </h3>
                     </div>
                   </div>
-                </div>
-
-                <div className="p-5 sm:p-6 space-y-4">
                   <p className="font-amiri text-text-secondary text-[0.98rem] leading-[1.7]">
                     {body}
                   </p>
-
-                  {/* Roteiro do vídeo — mantido para gravação futura */}
-                  <details className="group/roteiro rounded-xl border border-gold-warm/25 bg-bg-deep/50 open:bg-bg-deep/70 transition-colors">
-                    <summary className="cursor-pointer list-none px-4 py-2.5 flex items-center gap-2 font-montserrat uppercase tracking-[0.24em] text-[10px] text-gold-champagne/85 hover:text-gold-cream transition-colors">
-                      <Eye className="w-3.5 h-3.5" strokeWidth={2} />
-                      <span>Roteiro do vídeo</span>
-                      <span className="ml-auto text-text-dim group-open/roteiro:rotate-90 transition-transform">›</span>
-                    </summary>
-                    <ol className="px-4 pb-4 pt-1 space-y-1.5 list-decimal list-inside font-amiri text-[0.9rem] text-text-secondary/90 leading-[1.6]">
-                      {roteiro.map((step) => (
-                        <li key={step} className="pl-1">{step}</li>
-                      ))}
-                    </ol>
-                  </details>
                 </div>
               </article>
             ))}

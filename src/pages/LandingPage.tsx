@@ -22,9 +22,17 @@ import heroVideo720 from '@/assets/arvore-hero-loop-720.mp4.asset.json';
 import heroVideo480 from '@/assets/arvore-hero-loop-480.mp4.asset.json';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
-import previewConstruir from '@/assets/plataforma-construir.jpg.asset.json';
-import previewCodex from '@/assets/plataforma-codex.jpg.asset.json';
-import previewEscrever from '@/assets/plataforma-escrever.jpg.asset.json';
+import { DemoVideo } from '@/components/marketing/DemoVideo';
+import vidFichas from '@/assets/demo-fichas-frutos.mp4.asset.json';
+import vidFichasPoster from '@/assets/demo-fichas-frutos.jpg.asset.json';
+import vidCodex from '@/assets/demo-codex-analise.mp4.asset.json';
+import vidCodexPoster from '@/assets/demo-codex-analise.jpg.asset.json';
+import vidIdriel from '@/assets/demo-consultar-idriel.mp4.asset.json';
+import vidIdrielPoster from '@/assets/demo-consultar-idriel.jpg.asset.json';
+import vidExport from '@/assets/demo-exportar-manuscrito.mp4.asset.json';
+import vidExportPoster from '@/assets/demo-exportar-manuscrito.jpg.asset.json';
+import vidImagem from '@/assets/demo-gerar-imagem.mp4.asset.json';
+import vidImagemPoster from '@/assets/demo-gerar-imagem.jpg.asset.json';
 
 
 const heroSrcSet = `${hero640.url} 640w, ${hero960.url} 960w, ${hero1280.url} 1280w, ${hero1600.url} 1600w`;
@@ -44,64 +52,49 @@ const fadeUp = {
 /*  Placeholders reservados                                                    */
 /* -------------------------------------------------------------------------- */
 
-const VideoPlaceholder: React.FC<{
-  title: string;
-  duration: string;
-  bullets: string[];
-  ratio?: string; // ex 'aspect-video'
-  screenshot?: { url: string; alt: string };
-}> = ({ title, duration, bullets, ratio = 'aspect-video', screenshot }) => (
-  <figure
-    aria-label={`Prévia da plataforma referente ao vídeo: ${title}. Duração ${duration}.`}
-    className="group relative rounded-2xl overflow-hidden border border-gold-warm/25 bg-[rgba(4,12,24,0.72)] backdrop-blur-xl shadow-[0_18px_60px_-24px_rgba(0,0,0,0.85),inset_0_1px_0_hsl(var(--gold-champagne)/0.10)]"
-  >
-    <div className={`relative ${ratio} w-full overflow-hidden`}>
-      {screenshot ? (
-        <>
-          <img
-            src={screenshot.url}
-            alt={screenshot.alt}
-            loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover object-left-top transition-transform duration-[900ms] ease-out group-hover:scale-[1.025]"
-          />
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                'linear-gradient(180deg, hsl(214 60% 3% / 0) 45%, hsl(214 60% 3% / 0.78) 100%)',
-            }}
-            aria-hidden="true"
-          />
-          <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-gold-warm/40 bg-[rgba(4,12,24,0.75)] backdrop-blur-md px-2.5 py-1">
-            <Play className="w-3 h-3 text-gold-champagne" strokeWidth={2.2} />
-            <span className="font-montserrat uppercase tracking-[0.22em] text-[9px] text-gold-champagne">
-              Vídeo em breve · print da plataforma
-            </span>
-          </div>
-        </>
-      ) : (
-        <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-gold/[0.04] via-transparent to-gold/[0.06]">
-          <div className="mx-auto w-14 h-14 rounded-full border border-gold/40 bg-gold/[0.08] flex items-center justify-center">
-            <Play className="w-6 h-6 text-gold-champagne" strokeWidth={1.5} />
-          </div>
-        </div>
-      )}
-    </div>
+const EBOOK_TESTIMONIALS = [
+  {
+    name: 'Mayara',
+    quote:
+      'Eu amei!! Eu gosto muito de criar mundos, mas geralmente são coisas bem aleatórias e com o material eu consegui estruturar minhas ideias!! Muito obrigada por compartilhar!!',
+  },
+  {
+    name: 'Janderson',
+    quote:
+      'MUITO BOM! Para um criador de mundo e história de RPG como eu, está sendo ótimo! Destravei bloqueios que eu tinha, sem falar da comunidade que você pode trocar ideia com outros criadores.',
+  },
+  {
+    name: 'Letícia Campos',
+    quote:
+      'Eu comprei e adorei, me ajudou muito na escrita do meu livro 😍😍❤️',
+  },
+];
 
-    <figcaption className="relative px-5 sm:px-6 py-5 border-t border-gold-warm/20 bg-[rgba(4,12,24,0.55)]">
-      <p className="font-montserrat uppercase tracking-[0.22em] text-[10px] text-gold-champagne mb-1.5">
-        Roteiro do vídeo · {duration}
-      </p>
-      <h4 className="font-cinzel font-bold text-base sm:text-lg text-foreground mb-3">{title}</h4>
-      <ol className="space-y-1.5 font-merriweather text-[13px] sm:text-sm text-text-secondary leading-relaxed list-decimal list-inside marker:text-gold-champagne/70">
-        {bullets.map((b) => (
-          <li key={b} className="pl-1">
-            {b}
-          </li>
-        ))}
-      </ol>
-    </figcaption>
-  </figure>
+const EbookTestimonials: React.FC = () => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {EBOOK_TESTIMONIALS.map((t) => (
+      <figure
+        key={t.name}
+        className="card-glass rounded-lg border border-gold/20 p-6 flex flex-col"
+      >
+        <Quote className="w-5 h-5 text-gold-champagne/70 mb-3" strokeWidth={1.5} />
+        <blockquote className="font-merriweather text-sm text-text-secondary leading-relaxed flex-1">
+          “{t.quote}”
+        </blockquote>
+        <figcaption className="flex items-center gap-3 mt-5 pt-4 border-t border-gold/10">
+          <span className="w-9 h-9 rounded-full border border-gold/30 bg-gold/[0.08] grid place-items-center font-cinzel font-bold text-sm text-gold-champagne">
+            {t.name.charAt(0)}
+          </span>
+          <span>
+            <span className="block font-cinzel font-bold text-sm text-foreground">{t.name}</span>
+            <span className="block font-montserrat uppercase tracking-[0.18em] text-[9px] text-text-dim">
+              Leitor(a) do e-book
+            </span>
+          </span>
+        </figcaption>
+      </figure>
+    ))}
+  </div>
 );
 
 const TestimonialPlaceholder: React.FC<{ kind: 'ebook' | 'beta'; count: number }> = ({ kind, count }) => (
@@ -130,7 +123,7 @@ const TestimonialPlaceholder: React.FC<{ kind: 'ebook' | 'beta'; count: number }
     <p className="sm:col-span-2 lg:col-span-3 text-center font-merriweather italic text-xs text-text-dim mt-2">
       {kind === 'ebook'
         ? 'Em curadoria — depoimentos do e-book serão adicionados após seleção (4 a 6).'
-        : 'Em curadoria — depoimentos serão adicionados após seleção (3 a 5).'}
+        : 'Em curadoria — depoimentos de quem já usa a plataforma chegam em breve.'}
     </p>
   </div>
 );
@@ -283,10 +276,11 @@ const LandingPage: React.FC = () => {
                 textShadow: '0 2px 20px rgba(2,7,13,0.95), 0 1px 6px rgba(2,7,13,0.85)',
               }}
             >
-              Construa universos profundos e coerentes com os <strong className="text-foreground">11 Frutos</strong>,
-              organize tudo em um <strong className="text-foreground">Codex vivo</strong> e
-              escreva suas histórias com a assistência de <strong className="text-foreground">Idriel</strong> —
-              sem entregar sua voz, suas escolhas ou sua autoria à inteligência artificial.
+              Construa universos profundos com os <strong className="text-foreground">11 Frutos</strong>,
+              organize tudo em um <strong className="text-foreground">Codex vivo</strong> com linha do tempo, mapas e galeria,
+              escreva seus manuscritos capítulo a capítulo e exporte em PDF, Word ou Kindle — com{' '}
+              <strong className="text-foreground">Idriel</strong> ao seu lado, sem entregar sua voz,
+              suas escolhas ou sua autoria à inteligência artificial.
             </p>
 
             <div className="flex flex-wrap gap-3 justify-center">
@@ -396,18 +390,9 @@ const LandingPage: React.FC = () => {
           ))}
         </div>
 
-        <VideoPlaceholder
-          screenshot={{ url: previewConstruir.url, alt: "Aba Construir da plataforma, mostrando o carrossel dos 11 Frutos" }}
-          title="Tour principal da plataforma"
-          duration="60 a 90s · narrado · com legendas"
-          bullets={[
-            'Criar/abrir um mundo · entrar na aba Construir',
-            'Abrir um Fruto · responder a um campo · consultar Idriel',
-            'Salvar descoberta como ficha/artigo · abrir no Codex',
-            'Consultar a referência durante a escrita · exportar',
-            'Fechamento: "Tudo o que você cria permanece conectado ao mesmo universo."',
-          ]}
-        />
+        <p className="text-center font-merriweather text-sm text-text-dim">
+          Nas próximas seções você vê cada movimento acontecendo na tela — gravado direto da plataforma.
+        </p>
       </section>
 
       {/* ============================== 4. 11 FRUTOS ======================== */}
@@ -460,16 +445,13 @@ const LandingPage: React.FC = () => {
             </motion.div>
           </div>
 
-          <VideoPlaceholder
-            screenshot={{ url: previewConstruir.url, alt: "Aba Construir da plataforma, mostrando o carrossel dos 11 Frutos" }}
-            title="Microvídeo dos 11 Frutos"
-            duration="20 a 30s"
-            bullets={[
-              'Lista/visualização dos Frutos · abertura de um Fruto',
-              'Bloco “Sobre este Fruto” · campo sendo preenchido',
-              'Indicação de que aquele conteúdo pode gerar ficha/artigo',
-              'Autosave funcionando · sugestão de Idriel',
-            ]}
+          <DemoVideo
+            src={vidFichas.url}
+            poster={vidFichasPoster.url}
+            kicker="Construir"
+            duration="45s"
+            title="Criando fichas através dos Frutos"
+            desc="Responda às perguntas de um Fruto e transforme a descoberta em ficha ou artigo do Codex sem sair do lugar — com autosave e apoio de Idriel."
           />
         </div>
       </section>
@@ -524,16 +506,13 @@ const LandingPage: React.FC = () => {
           ))}
         </ul>
 
-        <VideoPlaceholder
-          screenshot={{ url: previewCodex.url, alt: "Aba Codex com fichas e artigos organizados por Fruto" }}
-          title="Vídeo do Codex"
-          duration="20 a 30s"
-          bullets={[
-            'Grade do Codex · ficha visual com imagem · artigo aprofundado',
-            'Abertura rápida da entrada · edição simples',
-            'Busca/filtro · entrada consultada dentro da aba Escrever',
-            'Conteúdo ficcional de qualidade, nunca lorem ipsum',
-          ]}
+        <DemoVideo
+          src={vidCodex.url}
+          poster={vidCodexPoster.url}
+          kicker="Codex"
+          duration="16s"
+          title="Análise de Mundo dentro do Codex"
+          desc="Idriel lê tudo o que você registrou e devolve pontos fortes, lacunas, inconsistências e caminhos de aprofundamento — organizados por seção."
         />
       </section>
 
@@ -621,17 +600,13 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          <VideoPlaceholder
-            screenshot={{ url: previewCodex.url, alt: "Aba Codex com fichas e artigos organizados por Fruto" }}
-            title="Vídeo da Idriel"
-            duration="35 a 50s · narração ou legendas"
-            bullets={[
-              'Usuário apresenta uma ideia de sistema mágico ou sociedade',
-              'Idriel reconhece algo já registrado no mundo',
-              'Aponta inconsistência ou consequência · sugere 2-3 caminhos',
-              'Usuário escolhe · plataforma gera resumo limpo',
-              'Resumo salvo como artigo ou ficha no Codex',
-            ]}
+          <DemoVideo
+            src={vidIdriel.url}
+            poster={vidIdrielPoster.url}
+            kicker="Ritual da Guardiã"
+            duration="23s"
+            title="Consultando Idriel dentro de um Fruto"
+            desc="Você traz a ideia, Idriel responde a partir do que já existe no seu mundo — e o resultado pode virar ficha ou artigo no Codex com um clique."
           />
         </div>
       </section>
@@ -689,17 +664,24 @@ const LandingPage: React.FC = () => {
           ))}
         </div>
 
-        <VideoPlaceholder
-          screenshot={{ url: previewEscrever.url, alt: "Aba Escrever com o manuscrito e a lista de capítulos" }}
-          title="Vídeo do Ofício"
-          duration="30 a 40s"
-          bullets={[
-            'Troca entre dois manuscritos · abertura de um capítulo',
-            'Referência do Codex visualizada sem sair da escrita',
-            'Card sendo movido em uma Storyline · Galeria · Mapa',
-            'Modo Zen · Pomodoro sendo ativado',
-          ]}
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <DemoVideo
+            src={vidExport.url}
+            poster={vidExportPoster.url}
+            kicker="Escrever"
+            duration="24s"
+            title="Exportando o manuscrito"
+            desc="Termine o capítulo e leve o manuscrito inteiro para PDF, Word ou Kindle — com capa, sumário e formatação pronta para revisão ou publicação."
+          />
+          <DemoVideo
+            src={vidImagem.url}
+            poster={vidImagemPoster.url}
+            kicker="Galeria"
+            duration="27s"
+            title="Gerando uma Visão de Idriel"
+            desc="Escolha o estilo, descreva a cena e receba retratos e paisagens fiéis ao seu Codex — arquivados automaticamente na pasta certa da Galeria."
+          />
+        </div>
       </section>
 
       {/* ============================== 8. IMPORTAÇÃO ======================= */}
@@ -729,17 +711,6 @@ const LandingPage: React.FC = () => {
               </p>
             </motion.div>
 
-            <VideoPlaceholder
-              screenshot={{ url: previewEscrever.url, alt: "Aba Escrever com o manuscrito e a lista de capítulos" }}
-              title="Vídeo da Importação"
-              duration="30 a 45s"
-              bullets={[
-                'Upload de PDF ou documento · estado de processamento',
-                'Idriel identificando possíveis entradas',
-                'Lista de fichas e artigos sugeridos · sugestão editada',
-                'Opção de criar várias entradas · Codex recebendo os conteúdos',
-              ]}
-            />
           </div>
         </section>
       )}
@@ -801,7 +772,7 @@ const LandingPage: React.FC = () => {
                 Estes depoimentos referem-se ao e-book e à metodologia original — não ao uso do aplicativo.
               </p>
             </motion.div>
-            <TestimonialPlaceholder kind="ebook" count={3} />
+            <EbookTestimonials />
           </div>
 
           <div>
