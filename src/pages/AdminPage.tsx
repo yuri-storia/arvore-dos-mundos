@@ -461,13 +461,14 @@ const UserActionsMenu: React.FC<{ user: AdminUser; callerId: string; onChanged: 
                 onChange={e => setDurationDays(e.target.value)}
                 placeholder="Vazio = 30 (mensal) ou 365 (anual)"
                 className="bg-background border-blue-bright/30 mt-1"
-                disabled={planCode === 'none' || planCode === 'raiz_vitalicio'}
+                disabled={planCode === 'none'}
               />
             </div>
             <p className="text-[10px] text-text-dim mt-1.5">
               Nada é cobrado. Após expirar, o usuário poderá pagar normalmente para renovar.
-              <br />Vitalício = Raiz sem expiração.
+              <br />Membro Fundador inclui todas as funcionalidades de Idriel.
             </p>
+
             <ConfirmDialog
               title="Aplicar alteração de plano?"
               description={`Confirma alterar o plano de ${user.email} para "${PLAN_CODES.find(p => p.value === planCode)?.label || planCode}"${durationDays ? ` por ${durationDays} dias` : ''}? O plano atual será substituído imediatamente, sem cobrança.`}
