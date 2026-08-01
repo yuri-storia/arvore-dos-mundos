@@ -150,12 +150,12 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
     mainProg.start();
     try {
       setPhase('image');
-      mainProg.setStage('generating');
       const url = await generateMap({
         style: styleFor(styleObj.id),
         description: customDesc,
         worldContext: buildWorldContext(),
-      });
+        qualityTier: quality,
+      }, mainProg.setStage);
       setGeneratedImage(url);
       mainProg.setStage('saving');
       await addMap({ image_url: url, style: styleObj.id, style_label: styleObj.label, description: customDesc });
