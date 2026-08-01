@@ -14,6 +14,7 @@ export default {
       fontFamily: {
         cinzel: ["Cinzel", "serif"],
         montserrat: ["Montserrat", "sans-serif"],
+        manrope: ["Manrope", "Inter", "system-ui", "sans-serif"],
         merriweather: ["Merriweather", "serif"],
         amiri: ["Amiri", "Merriweather", "Georgia", "serif"],
       },

@@ -9,6 +9,8 @@ interface DemoVideoProps {
   desc: string;
   duration?: string;
   className?: string;
+  /** Mostra apenas o quadro do vídeo — o texto vive fora, na composição editorial. */
+  bare?: boolean;
 }
 
 /**
@@ -16,7 +18,7 @@ interface DemoVideoProps {
  * em loop). Carregamento preguiçoso para não pesar a página de vendas.
  */
 export const DemoVideo: React.FC<DemoVideoProps> = ({
-  src, poster, kicker, title, desc, duration, className = '',
+  src, poster, kicker, title, desc, duration, className = '', bare = false,
 }) => {
   const ref = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -35,8 +37,9 @@ export const DemoVideo: React.FC<DemoVideoProps> = ({
 
   return (
     <figure
-      className={`group relative rounded-2xl overflow-hidden border border-gold-warm/25 bg-[rgba(4,12,24,0.72)] backdrop-blur-xl shadow-[0_18px_60px_-24px_rgba(0,0,0,0.85)] ${className}`}
+      className={`group relative rounded-2xl overflow-hidden border border-gold-warm/15 bg-[rgba(4,12,24,0.55)] backdrop-blur-xl shadow-[0_30px_90px_-40px_rgba(0,0,0,0.95)] transition-transform duration-500 ease-out hover:-translate-y-1 ${className}`}
     >
+
       <div className="relative aspect-video w-full overflow-hidden bg-[#02070d]">
         <video
           ref={ref}
@@ -75,19 +78,22 @@ export const DemoVideo: React.FC<DemoVideoProps> = ({
         </button>
 
         {duration && !playing && (
-          <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-gold-warm/40 bg-[rgba(4,12,24,0.75)] backdrop-blur-md px-2.5 py-1 font-montserrat uppercase tracking-[0.22em] text-[9px] text-gold-champagne pointer-events-none">
+          <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-gold-warm/30 bg-[rgba(4,12,24,0.7)] backdrop-blur-md px-2.5 py-1 font-manrope font-semibold uppercase tracking-[0.22em] text-[9px] text-gold-champagne pointer-events-none">
             {kicker} · {duration}
           </span>
         )}
       </div>
 
-      <figcaption className="relative px-5 sm:px-6 py-5 border-t border-gold-warm/20 bg-[rgba(4,12,24,0.55)]">
-        <p className="font-montserrat uppercase tracking-[0.22em] text-[10px] text-gold-champagne mb-1.5">
-          {kicker}
-        </p>
-        <h4 className="font-cinzel font-bold text-base sm:text-lg text-foreground mb-2">{title}</h4>
-        <p className="font-merriweather text-[13px] sm:text-sm text-text-secondary leading-relaxed">{desc}</p>
-      </figcaption>
+      {!bare && (
+        <figcaption className="relative px-5 sm:px-6 py-5 border-t border-gold-warm/15 bg-[rgba(4,12,24,0.45)]">
+          <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne mb-1.5">
+            {kicker}
+          </p>
+          <h4 className="font-cinzel font-bold text-base sm:text-lg text-foreground mb-2">{title}</h4>
+          <p className="font-manrope text-[13px] sm:text-sm text-text-secondary leading-[1.75]">{desc}</p>
+        </figcaption>
+      )}
+
     </figure>
   );
 };
