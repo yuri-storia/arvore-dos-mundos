@@ -41,7 +41,7 @@ export const ManuscriptExportMenu: React.FC<Props> = ({ manuscript, chapters, sc
   if (!planLimits.canExport) {
     return (
       <Button variant="ghost" size="sm" disabled
-        className="text-muted-foreground gap-1.5 text-[11px] cursor-not-allowed" title="Exportação disponível a partir do plano Raiz">
+        className="text-muted-foreground gap-1.5 text-[11px] cursor-not-allowed" title="Exportação disponível a partir do plano Criador">
         <Lock className="w-3.5 h-3.5" />
         <span className="hidden sm:inline">Exportar</span>
       </Button>
@@ -99,18 +99,28 @@ export const ManuscriptExportMenu: React.FC<Props> = ({ manuscript, chapters, sc
             )}
 
             <div className="p-2 space-y-1">
-              {EXPORT_OPTIONS.map(opt => (
-                <button key={opt.id} onClick={() => handleExport(opt.id)}
-                  className="w-full flex items-start gap-3 p-3 rounded-lg hover:bg-white/[0.04] transition-colors group text-left">
-                  <div className="w-8 h-8 rounded-lg bg-blue-bright/10 flex items-center justify-center shrink-0 group-hover:bg-blue-bright/20 transition-colors">
-                    <opt.icon className="w-4 h-4 text-blue-light" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-montserrat font-bold text-xs text-foreground">{opt.label}</p>
-                    <p className="text-[11px] text-text-dim leading-snug mt-0.5">{opt.desc}</p>
-                  </div>
-                </button>
-              ))}
+              {EXPORT_OPTIONS.map(opt => {
+                const locked = opt.id === 'kindle' && !planLimits.canExportEpub;
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => (locked ? undefined : handleExport(opt.id))}
+                    disabled={locked}
+                    title={locked ? 'Exportação E-pub/Kindle é exclusiva do plano Idriel' : undefined}
+                    className={`w-full flex items-start gap-3 p-3 rounded-lg transition-colors group text-left ${locked ? 'opacity-45 cursor-not-allowed' : 'hover:bg-white/[0.04]'}`}
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-blue-bright/10 flex items-center justify-center shrink-0 group-hover:bg-blue-bright/20 transition-colors">
+                      {locked ? <Lock className="w-4 h-4 text-text-dim" /> : <opt.icon className="w-4 h-4 text-blue-light" />}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-montserrat font-bold text-xs text-foreground">{opt.label}</p>
+                      <p className="text-[11px] text-text-dim leading-snug mt-0.5">
+                        {locked ? 'Disponível no plano Idriel.' : opt.desc}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
 
             <div className="p-2 pt-0">
