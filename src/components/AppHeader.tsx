@@ -170,7 +170,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
       </div>
 
       {/* Content */}
-      <div className={`relative z-10 flex flex-col items-center ${isMobile ? 'flex-1 justify-center gap-2 py-4' : 'gap-1 pt-12 pb-4'}`}>
+      <div className={`relative z-10 flex flex-col items-center ${isMobile ? 'flex-1 justify-center gap-2 pt-12 pb-4' : 'gap-1 pt-16 pb-4'}`}>
         {/* Mobile: project switcher button */}
         {isMobile && worlds && (
           <button
