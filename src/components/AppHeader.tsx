@@ -287,7 +287,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
         </div>
 
         {/* Context row: method + user */}
-        <div className="flex items-center justify-center gap-4 mt-1 flex-wrap">
+        <div className="flex items-center justify-center gap-4 mt-0 sm:mt-1 flex-wrap">
           {hasWorld && (
             <span className="text-[10px] font-montserrat uppercase tracking-wider text-text-dim">
               <><ArrowDown className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={2} />{method === 'top-down' ? 'De Cima para Baixo' : 'De Baixo para Cima'}</>
