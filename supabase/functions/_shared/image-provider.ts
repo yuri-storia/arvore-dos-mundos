@@ -21,26 +21,55 @@ export class ImageGenError extends Error {
 
 export type ImageSize = "1024x1024" | "1536x1024" | "1024x1536";
 
+/**
+ * Teto de espera por tentativa. Gerações em alta fidelidade (1536x1024) podem
+ * passar de 3 minutos; damos folga em vez de cancelar cedo.
+ */
+const REQUEST_TIMEOUT_MS = 8 * 60 * 1000;
+
 /** Gera uma imagem e devolve o PNG em base64 (sem prefixo data:). */
 export async function generateImageB64(
   apiKey: string,
   prompt: string,
   size: ImageSize = "1024x1024",
   quality: "medium" | "high" = "high",
+  attempt = 0,
 ): Promise<string> {
   const safePrompt = prompt.length > 8000 ? prompt.slice(0, 8000) : prompt;
 
-  const res = await fetch(`${GATEWAY}/images/generations`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: IMAGE_MODEL,
-      prompt: safePrompt,
-      size,
-      quality,
-      n: 1,
-    }),
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  let res: Response;
+  try {
+    res = await fetch(`${GATEWAY}/images/generations`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: IMAGE_MODEL,
+        prompt: safePrompt,
+        size,
+        quality,
+        n: 1,
+      }),
+      signal: controller.signal,
+    });
+  } catch (e) {
+    clearTimeout(timer);
+    // Falha de rede / abort: uma nova tentativa antes de desistir.
+    if (attempt < 1) {
+      console.warn("image-provider network retry:", e);
+      return generateImageB64(apiKey, prompt, size, quality, attempt + 1);
+    }
+    throw new ImageGenError("A geração demorou mais do que o esperado. Tente novamente em instantes.", 504);
+  }
+  clearTimeout(timer);
+
+  // Instabilidade momentânea do provedor: tenta mais uma vez.
+  if ((res.status >= 500 || res.status === 408) && attempt < 1) {
+    console.warn("image-provider upstream retry:", res.status);
+    return generateImageB64(apiKey, prompt, size, quality, attempt + 1);
+  }
+
 
   if (!res.ok) {
     const raw = await res.text();
