@@ -41,6 +41,8 @@ import vidExport from '@/assets/demo-exportar-manuscrito.mp4.asset.json';
 import vidExportPoster from '@/assets/demo-exportar-manuscrito.jpg.asset.json';
 import vidImagem from '@/assets/demo-gerar-imagem.mp4.asset.json';
 import vidImagemPoster from '@/assets/demo-gerar-imagem.jpg.asset.json';
+import vidImportacao from '@/assets/demo-importacao.mp4.asset.json';
+import vidImportacaoPoster from '@/assets/demo-importacao.jpg.asset.json';
 
 const heroSrcSet = `${hero640.url} 640w, ${hero960.url} 960w, ${hero1280.url} 1280w, ${hero1600.url} 1600w`;
 
@@ -991,22 +993,58 @@ const LandingPage: React.FC = () => {
               title="Você não precisa começar outra vez."
               lede="Talvez seu mundo já exista há anos — em documentos, resumos, rascunhos e anotações. Você envia seus textos e Idriel identifica elementos que podem se transformar em fichas e artigos."
             />
-            <Reveal>
-              <Panel className="max-w-[900px] mx-auto text-center">
-                <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne/80 mb-5">
-                  O que Idriel reconhece nos seus textos
-                </p>
-                <div className="flex flex-wrap justify-center gap-2.5">
-                  {['Personagens', 'Lugares', 'Organizações', 'Povos', 'Acontecimentos', 'Sistemas', 'Objetos', 'Conceitos', 'Relações importantes'].map(t => (
-                    <span key={t} className="px-3.5 py-1.5 rounded-full border border-gold/[0.14] bg-gold/[0.03] text-[12.5px] font-manrope text-text-secondary transition-colors duration-500 hover:border-gold/30">{t}</span>
-                  ))}
-                </div>
-                <p className="font-manrope text-[14px] text-text-dim leading-[1.9] mt-7 max-w-[58ch] mx-auto">
-                  Você recebe uma lista de sugestões: pode revisar, editar, ignorar, criar individualmente ou criar todas.
-                  Seu trabalho anterior não precisa ser descartado para que você comece a utilizar a plataforma.
-                </p>
-              </Panel>
-            </Reveal>
+            <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-6 lg:gap-8 items-stretch">
+              <Reveal className="h-full">
+                <Panel className="h-full">
+                  <DemoVideo
+                    bare
+                    src={vidImportacao.url}
+                    poster={vidImportacaoPoster.url}
+                    kicker="Importação"
+                    duration="31s"
+                    title="Importando textos antigos para o Codex"
+                    desc="Envie seus documentos e veja Idriel transformá-los em fichas e artigos."
+                  />
+                  <VideoCaption kicker="Importação · 31s" title="Do documento antigo ao Codex vivo">
+                    Envie um arquivo ou cole o texto: Idriel lê, reconhece os elementos do seu mundo e devolve sugestões prontas para virarem fichas e artigos.
+                  </VideoCaption>
+                </Panel>
+              </Reveal>
+
+              <Reveal delay={0.1} className="h-full">
+                <Panel className="h-full flex flex-col">
+                  <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne/80 mb-5">
+                    O que Idriel reconhece nos seus textos
+                  </p>
+                  <div className="flex flex-wrap gap-2.5">
+                    {['Personagens', 'Lugares', 'Organizações', 'Povos', 'Acontecimentos', 'Sistemas', 'Objetos', 'Conceitos', 'Relações importantes'].map(t => (
+                      <span key={t} className="px-3.5 py-1.5 rounded-full border border-gold/[0.14] bg-gold/[0.03] text-[12.5px] font-manrope text-text-secondary transition-colors duration-500 hover:border-gold/30">{t}</span>
+                    ))}
+                  </div>
+
+                  <div className="mt-8 pt-7 border-t border-gold/[0.10] space-y-4">
+                    {[
+                      { n: '01', t: 'Envie o material', d: 'Documentos, resumos, rascunhos ou anotações soltas — em arquivo ou texto colado.' },
+                      { n: '02', t: 'Idriel interpreta', d: 'Ela identifica os elementos do seu mundo e organiza tudo em sugestões estruturadas.' },
+                      { n: '03', t: 'Você decide', d: 'Revise, edite, ignore, crie individualmente ou crie todas de uma vez.' },
+                    ].map(s => (
+                      <div key={s.n} className="flex gap-4">
+                        <span className="font-cinzel font-bold text-[13px] text-gold-champagne/70 pt-[3px] shrink-0">{s.n}</span>
+                        <div>
+                          <h4 className="font-cinzel font-bold text-[14.5px] leading-snug mb-1">{s.t}</h4>
+                          <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.8]">{s.d}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <p className="font-manrope text-[13.5px] text-text-dim leading-[1.9] mt-auto pt-7">
+                    Seu trabalho anterior não precisa ser descartado para que você comece a utilizar a plataforma.
+                  </p>
+                </Panel>
+              </Reveal>
+            </div>
+
           </Shell>
         </Band>
       )}
