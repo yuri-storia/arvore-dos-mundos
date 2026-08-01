@@ -1240,7 +1240,9 @@ const LandingPage: React.FC = () => {
             <Title>Tudo o que costuma ser perguntado antes de plantar.</Title>
           </Reveal>
 
+          <Panel soft className="py-2 sm:py-4">
           <Accordion type="single" collapsible className="w-full">
+
             {[
               {
                 q: 'Idriel escreve meu livro por mim?',
