@@ -187,19 +187,39 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
   useEffect(() => {
     if (promptJob?.status === 'done' && typeof promptJob.result === 'string' && promptJob.result) {
       setGeneratedPrompt(promptJob.result);
-      if (autoGenerate) { setAutoGenerate(false); handleGenerate(promptJob.result); }
+      if (autoGenerate) { setAutoGenerate(false); genProg.setStage('generating'); handleGenerate(promptJob.result); }
     }
-    if (promptJob?.status === 'error') { setAutoGenerate(false); const f = friendlyAIError(promptJob.error || ''); setError(`${f.title} ${f.hint}`); }
+    if (promptJob?.status === 'error') {
+      setAutoGenerate(false);
+      const f = friendlyAIError(promptJob.error || '');
+      setError(`${f.title} ${f.hint}`);
+      genProg.fail(f.title);
+      setTimeout(() => genProg.reset(), 3000);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [promptJob?.status, promptJob?.result, promptJob?.error]);
 
   useEffect(() => {
     if (imageJob?.status === 'done' && imageJob.result) {
       setGeneratedImage(imageJob.result);
-      if (activeVisionId) updateVisionImage(activeVisionId, imageJob.result);
+      genProg.setStage('saving');
+      const finish = async () => {
+        if (activeVisionId) await updateVisionImage(activeVisionId, imageJob.result!);
+        genProg.setStage('charging');
+        genProg.succeed();
+        setTimeout(() => genProg.reset(), 1400);
+      };
+      finish();
     }
-    if (imageJob?.status === 'error') { const f = friendlyAIError(imageJob.error || ''); setError(`${f.title} ${f.hint}`); }
-  }, [imageJob?.status, imageJob?.result, imageJob?.error, activeVisionId, updateVisionImage]);
+    if (imageJob?.status === 'error') {
+      const f = friendlyAIError(imageJob.error || '');
+      setError(`${f.title} ${f.hint}`);
+      genProg.fail(f.title);
+      setTimeout(() => genProg.reset(), 3000);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageJob?.status, imageJob?.result, imageJob?.error, activeVisionId]);
+
 
   useEffect(() => { if (promptJobKey) { activePromptJobId ? localStorage.setItem(promptJobKey, activePromptJobId) : localStorage.removeItem(promptJobKey); } }, [promptJobKey, activePromptJobId]);
   useEffect(() => { if (imageJobKey) { activeImageJobId ? localStorage.setItem(imageJobKey, activeImageJobId) : localStorage.removeItem(imageJobKey); } }, [imageJobKey, activeImageJobId]);
