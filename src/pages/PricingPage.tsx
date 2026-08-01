@@ -831,7 +831,7 @@ const PricingPage: React.FC = () => {
             {[
               { label: '1 ano de Idriel', value: 'R$ 397,90', note: 'cobrança única · 2 meses grátis' },
               { label: '1 mês das outras', value: 'R$ 678', note: 'somando o vitalício do Scrivener' },
-              { label: 'Economia no 1º ano', value: '~R$ 3.900', note: 'e tudo num só lugar, em português' },
+              { label: 'Economia no 1º ano', value: '~R$ 4.200', note: 'e tudo num só lugar, em português' },
             ].map((s, i) => (
               <div
                 key={s.label}
