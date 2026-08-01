@@ -22,7 +22,7 @@ Abas principais:
 Elixir dos Mundos: gotas de seiva da Árvore que Idriel destila para acender cada magia.
 - Texto/consulta: 1 gota · Análise de Mundo: 1 gota · Importação: 1 gota · Marco na Linha do Tempo: sem custo (é organização)
 - Imagens: 2 / 5 / 15 gotas · Mapa: 5 gotas
-- Plano Idriel: 100 gotas renovadas por mês.
+- Plano Idriel: 150 gotas renovadas por mês.
 
 Regra importante: **nunca invente funcionalidades**. Se não estiver aqui, diga com graça que aquele ramo ainda não floresceu no seu conhecimento.
 `.trim();

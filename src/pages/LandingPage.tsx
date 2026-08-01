@@ -1233,7 +1233,7 @@ const LandingPage: React.FC = () => {
                     </div>
                     <div>
                       <p className="font-manrope font-semibold uppercase tracking-[0.26em] text-[9.5px] text-gold-champagne/70 mb-3">Elixir dos Mundos</p>
-                      <CheckList items={['100 gotas de Elixir dos Mundos por mês', 'Recargas avulsas a partir de R$ 4,90']} />
+                      <CheckList items={['150 gotas de Elixir dos Mundos por mês', 'Recargas avulsas a partir de R$ 4,90']} />
                     </div>
                   </div>
                 </div>
@@ -1350,7 +1350,7 @@ const LandingPage: React.FC = () => {
               },
               {
                 q: 'Como funcionam as gotas?',
-                a: 'As gotas de Elixir dos Mundos são consumidas apenas em ações que envolvem inteligência artificial. O custo aparece antes da confirmação. O plano Idriel recebe 100 gotas por mês e permite comprar recargas.',
+                a: 'As gotas de Elixir dos Mundos são consumidas apenas em ações que envolvem inteligência artificial. O custo aparece antes da confirmação. O plano Idriel recebe 150 gotas por mês e permite comprar recargas.',
               },
               {
                 q: 'Posso excluir minha conta e meus dados?',

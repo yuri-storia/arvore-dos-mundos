@@ -10,7 +10,7 @@ import { openCheckout } from '@/hooks/useSubscription';
  *
  * Regra do plano:
  *   • Mensal: R$ 19,90/mês nos 3 primeiros meses, depois R$ 39,90/mês
- *   • Inclui todos os benefícios do Idriel + 100 gotas de Elixir por mês
+ *   • Inclui todos os benefícios do Idriel + 150 gotas de Elixir por mês
  */
 const FundadorInvitePage: React.FC = () => {
   const [params] = useSearchParams();
@@ -47,7 +47,7 @@ const FundadorInvitePage: React.FC = () => {
     'Todos os benefícios do plano Idriel',
     'Mundos, Codex e Manuscritos ilimitados',
     'Idriel completa: ideias, análises, imagens, mapas',
-    '100 gotas de Elixir por mês',
+    '150 gotas de Elixir por mês',
     'Recargas avulsas a partir de R$ 4,90',
   ];
 

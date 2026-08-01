@@ -37,7 +37,7 @@ const IDRIEL_FEATURES = [
   'Exportação PDF e E-pub/Kindle',
   'Identificação automática de fichas/artigos',
   'Corretor textual AI Powered',
-  '100 gotas de Elixir por mês',
+  '150 gotas de Elixir por mês',
   'Recargas avulsas a partir de R$ 4,90 (exclusivo Idriel)',
 ];
 
@@ -45,7 +45,7 @@ const FUNDADOR_FEATURES = [
   'Todos os benefícios do plano Idriel',
   'R$ 19,90/mês nos 3 primeiros meses',
   'Depois R$ 39,90/mês',
-  '100 gotas de Elixir por mês',
+  '150 gotas de Elixir por mês',
 ];
 
 export const PlanStatusCard: React.FC<PlanStatusCardProps> = ({ variant = 'settings', onUpgradeRequest }) => {

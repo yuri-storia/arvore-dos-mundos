@@ -63,8 +63,8 @@ export const RECHARGE_PACKAGES = [
   { id: "recarga_15",  drops: 15,  price: 4.90,  priceLabel: "R$ 4,90",  pricePerDrop: 0.327, badge: null },
   { id: "recarga_25",  drops: 25,  price: 7.90,  priceLabel: "R$ 7,90",  pricePerDrop: 0.316, badge: null },
   { id: "recarga_50",  drops: 50,  price: 14.90, priceLabel: "R$ 14,90", pricePerDrop: 0.298, badge: null },
-  { id: "recarga_100", drops: 100, price: 28.90, priceLabel: "R$ 28,90", pricePerDrop: 0.279, badge: "Mais popular" },
-  { id: "recarga_200", drops: 200, price: 56.90, priceLabel: "R$ 56,90", pricePerDrop: 0.275, badge: "Melhor custo-benefício" },
+  { id: "recarga_100", drops: 100, price: 28.90, priceLabel: "R$ 28,90", pricePerDrop: 0.289, badge: "Mais popular" },
+  { id: "recarga_200", drops: 200, price: 56.90, priceLabel: "R$ 56,90", pricePerDrop: 0.285, badge: "Melhor custo-benefício" },
 ] as const;
 
 export interface SubscriptionInfo {
