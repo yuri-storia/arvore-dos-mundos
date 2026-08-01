@@ -205,18 +205,38 @@ export async function callAITextStream(
 }
 
 
-export type ImageQuality = 'draft' | 'standard' | 'premium';
-export async function callAIImage(prompt: string, quality: ImageQuality = 'standard') {
+// Todas as gerações visuais usam GPT Image 2 em alta qualidade (nível único).
+export async function callAIImage(prompt: string, canonText = '') {
   const { data, error } = await supabase.functions.invoke('ai-image', {
-    body: { prompt, quality },
+    body: { purpose: 'vision', prompt, canonText: canonText.slice(0, 4000) },
   });
   if (error) await throwInvokeError(error, 'Erro ao gerar imagem');
   if (data?.error) throw new Error(data.error);
   return data?.imageUrl || '';
 }
 
-// Generate an image using Codex references (text + up to 5 image URLs) for consistency.
-// Accepts both plain canon URLs (legacy) and structured per-reference intents (Midjourney-style).
+// Forja de mapas: o cliente envia apenas parâmetros; o prompt cartográfico é
+// compilado no servidor (compileMapPrompt).
+export interface MapGenParams {
+  style: { id: string; label: string; desc: string; prompt: string; custom?: boolean };
+  description?: string;
+  worldContext?: string;
+}
+export async function generateMap(params: MapGenParams): Promise<string> {
+  const { data, error } = await supabase.functions.invoke('ai-image', {
+    body: {
+      purpose: 'map',
+      style: params.style,
+      description: (params.description || '').slice(0, 2000),
+      worldContext: (params.worldContext || '').slice(0, 4000),
+    },
+  });
+  if (error) await throwInvokeError(error, 'Erro ao gerar mapa');
+  if (data?.error) throw new Error(data.error);
+  return data?.imageUrl || '';
+}
+
+// Geração com referências do Codex/Galeria (até 3, cada uma com um papel).
 export type ImageRefIntent = 'estilo' | 'composicao' | 'ambientacao' | 'personagem' | 'paleta';
 export interface StructuredImageRef { url: string; intent: ImageRefIntent }
 export async function callAIImageConsistent(
@@ -228,15 +248,16 @@ export async function callAIImageConsistent(
   const { data, error } = await supabase.functions.invoke('ai-image-consistent', {
     body: {
       prompt,
-      referenceImageUrls: referenceImageUrls.slice(0, 5),
+      referenceImageUrls: referenceImageUrls.slice(0, 3),
       referenceText: referenceText.slice(0, 4000),
-      references: references.slice(0, 5),
+      references: references.slice(0, 3),
     },
   });
   if (error) await throwInvokeError(error, 'Erro ao gerar imagem consistente');
   if (data?.error) throw new Error(data.error);
   return data?.imageUrl || '';
 }
+
 
 // Send extracted document text to Idriel and receive Codex entry suggestions.
 export interface ImportedSuggestion {
