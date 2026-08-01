@@ -62,7 +62,7 @@ const CancelPlanPage: React.FC = () => {
             <p className="text-sm text-text-secondary font-merriweather leading-relaxed">
               Sua assinatura foi cancelada. <strong className="text-foreground">Você mantém acesso à sua conta</strong>,
               mas em modo somente leitura: pode consultar mundos, fichas, artigos e manuscritos e
-              exportar em PDF e Word (.docx). Novas edições e criações e criações ficam bloqueadas até você reativar um plano.
+              exportar em PDF e Word (.docx). Novas edições e criações ficam bloqueadas até você reativar um plano.
             </p>
             <div className="flex flex-wrap gap-2 pt-2">
               <Link to="/planos" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-[#1a0f00] text-xs font-montserrat font-bold uppercase tracking-wider">
