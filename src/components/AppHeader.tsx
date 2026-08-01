@@ -107,7 +107,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
   }, [editing]);
 
   return (
-    <header className={`relative text-center pt-6 pb-4 px-4 mb-0 ${isMobile ? 'min-h-[390px]' : 'min-h-[230px]'}`}>
+    <header className={`relative text-center px-4 mb-0 flex flex-col ${isMobile ? 'min-h-[390px]' : 'min-h-[230px]'}`}>
       {/* Background: renderizações independentes para preservar a definição em cada formato. */}
       <div className="absolute inset-0 overflow-hidden z-0">
         <div className="absolute inset-0 bg-background">
@@ -163,7 +163,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
 
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center gap-1">
+      <div className={`relative z-10 flex flex-col items-center ${isMobile ? 'flex-1 justify-center gap-2 py-4' : 'gap-1 pt-6 pb-4'}`}>
         {/* Brand badge */}
         <div className="inline-block px-3 py-1 rounded-full border border-blue-bright/15 bg-blue-bright/[0.04] backdrop-blur-sm">
           <span className="font-cinzel text-[9px] tracking-[0.18em] text-white uppercase">
@@ -175,7 +175,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
         {isMobile && worlds && (
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-gold/[0.10] border border-gold/30 hover:bg-gold/[0.18] hover:border-gold/50 transition-all backdrop-blur-sm mt-2 group"
+            className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-gold/[0.10] border border-gold/30 hover:bg-gold/[0.18] hover:border-gold/50 transition-all backdrop-blur-sm mt-0 sm:mt-2 group"
           >
             <FolderOpen className="w-3 h-3 text-gold/70 group-hover:text-gold-light transition-colors" />
             <span className="font-cinzel text-[9px] uppercase tracking-[0.2em] text-gold group-hover:text-gold-light transition-colors">
@@ -237,7 +237,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
         )}
 
         {/* World name display / input */}
-        <div data-tour="world-name" className="flex items-center justify-center gap-2 mt-1 w-full max-w-lg">
+        <div data-tour="world-name" className="flex items-center justify-center gap-2 mt-0 sm:mt-1 w-full max-w-lg">
           {editing ? (
             <input
               ref={inputRef}
@@ -287,7 +287,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
         </div>
 
         {/* Context row: method + user */}
-        <div className="flex items-center justify-center gap-4 mt-1 flex-wrap">
+        <div className="flex items-center justify-center gap-4 mt-0 sm:mt-1 flex-wrap">
           {hasWorld && (
             <span className="text-[10px] font-montserrat uppercase tracking-wider text-text-dim">
               <><ArrowDown className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={2} />{method === 'top-down' ? 'De Cima para Baixo' : 'De Baixo para Cima'}</>
