@@ -49,6 +49,7 @@ type Phase = 'idle' | 'prompt' | 'image';
 export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGallery }) => {
   const planLimits = usePlanLimits();
   const [selectedStyle, setSelectedStyle] = useState<string>('explorer');
+  const [quality, setQuality] = useState<QualityTier>('essencial');
   const [customDesc, setCustomDesc] = useState('');
   const [generatedImage, setGeneratedImage] = useState('');
   const [phase, setPhase] = useState<Phase>('idle');
@@ -56,6 +57,7 @@ export const MapGenerator: React.FC<Props> = ({ worldName, worldId, db, addToGal
   const [showReview, setShowReview] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveCat, setSaveCat] = useState<string>(FOLDER_FRUITS[0].name);
+  const mapCost = qualityCost('map', quality);
 
   const { history, addMap, updateMapImage, deleteMap, hasMore, loadMore, isFetchingMore } = useMapHistory(worldId);
   const [showHistory, setShowHistory] = useState(false);
