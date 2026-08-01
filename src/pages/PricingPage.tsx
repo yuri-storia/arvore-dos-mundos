@@ -259,7 +259,7 @@ const PricingPage: React.FC = () => {
                   {isPopular && (
                     <>
                       {/* Avatar de Idriel — acima do selo, sem sobreposição */}
-                      <div className="absolute -top-[4.25rem] left-1/2 -translate-x-1/2 z-10">
+                      <div className="absolute -top-[6.5rem] left-1/2 -translate-x-1/2 z-10">
                         <div
                           className="w-[4.5rem] h-[4.5rem] rounded-full p-[2px]"
                           style={{
