@@ -157,7 +157,7 @@ const PricingPage: React.FC = () => {
           <div className="flex items-center justify-center sm:justify-end mb-20">
             <button
               onClick={() => navigate(user ? '/' : '/login')}
-              className="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-montserrat font-bold uppercase tracking-[0.22em] text-[11px] text-[#1a0f00] transition-all hover:-translate-y-0.5"
+              className="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-manrope font-bold uppercase tracking-[0.22em] text-[11px] text-[#1a0f00] transition-all hover:-translate-y-0.5"
               style={{
                 background: 'linear-gradient(135deg, hsl(42 55% 90%) 0%, hsl(40 50% 78%) 30%, hsl(34 42% 58%) 65%, hsl(30 30% 42%) 100%)',
                 boxShadow: '0 8px 28px hsl(30 30% 30% / 0.5), inset 0 1px 0 hsl(42 60% 96% / 0.7), inset 0 -2px 0 hsl(28 32% 22% / 0.4)',
@@ -177,7 +177,7 @@ const PricingPage: React.FC = () => {
           >
             <div className="inline-flex items-center gap-2.5 px-4 py-1.5 mb-8 rounded-full border border-gold-warm/30 bg-gold-deep/10 backdrop-blur-sm">
               <Sparkles className="w-3.5 h-3.5 text-gold-champagne" />
-              <span className="font-montserrat uppercase tracking-[0.32em] text-[10px] text-gold-champagne">
+              <span className="font-manrope uppercase tracking-[0.32em] text-[10px] text-gold-champagne">
                 A Árvore dos Mundos
               </span>
             </div>
@@ -187,7 +187,7 @@ const PricingPage: React.FC = () => {
               <span className="text-gradient-gold">Mundos e Histórias</span>
             </h1>
 
-            <p className="font-amiri text-text-secondary text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+            <p className="font-manrope text-text-secondary text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
               O santuário do autor de fantasia e ficção. Construa universos vivos e escreva
               suas histórias com <span className="text-gold-champagne">Idriel ao seu lado</span> —
               uma assistente que <em className="text-gold-cream">ajuda você a enxergar ideias,
@@ -209,7 +209,7 @@ const PricingPage: React.FC = () => {
           <div className="inline-flex p-1 rounded-full border border-gold-bronze/40 bg-card/60 backdrop-blur-md">
             <button
               onClick={() => setBillingCycle('mensal')}
-              className={`px-7 py-2.5 rounded-full text-[11px] font-montserrat font-bold uppercase tracking-[0.18em] transition-all ${
+              className={`px-7 py-2.5 rounded-full text-[11px] font-manrope font-bold uppercase tracking-[0.18em] transition-all ${
                 billingCycle === 'mensal'
                   ? 'bg-gradient-gold-premium text-[#1a0f00] shadow-[0_4px_20px_rgba(0,0,0,0.4)]'
                   : 'text-text-secondary hover:text-foreground'
@@ -219,7 +219,7 @@ const PricingPage: React.FC = () => {
             </button>
             <button
               onClick={() => setBillingCycle('anual')}
-              className={`relative px-7 py-2.5 rounded-full text-[11px] font-montserrat font-bold uppercase tracking-[0.18em] transition-all ${
+              className={`relative px-7 py-2.5 rounded-full text-[11px] font-manrope font-bold uppercase tracking-[0.18em] transition-all ${
                 billingCycle === 'anual'
                   ? 'bg-gradient-gold-premium text-[#1a0f00] shadow-[0_4px_20px_rgba(0,0,0,0.4)]'
                   : 'text-text-secondary hover:text-foreground'
@@ -416,13 +416,13 @@ const PricingPage: React.FC = () => {
 
             {/* Texto */}
             <div className="order-1 lg:order-2">
-              <p className="font-montserrat uppercase tracking-[0.35em] text-[10px] text-gold-champagne mb-4">
+              <p className="font-manrope uppercase tracking-[0.35em] text-[10px] text-gold-champagne mb-4">
                 Conheça a assistente
               </p>
               <h2 className="font-cinzel font-bold text-[clamp(1.9rem,4.2vw,3rem)] text-foreground mb-6 leading-[1.1]">
                 Quem é <span className="text-gradient-gold">Idriel?</span>
               </h2>
-              <div className="space-y-5 font-amiri text-[1.05rem] sm:text-[1.1rem] leading-[1.75] text-text-secondary">
+              <div className="space-y-5 font-manrope text-[1.05rem] sm:text-[1.1rem] leading-[1.75] text-text-secondary">
                 <p>
                   Idriel é a <em className="text-gold-cream">assistente</em> da Árvore dos Mundos —
                   a Guardiã que caminha entre cosmologias e agora se debruça sobre o seu
@@ -488,7 +488,7 @@ const PricingPage: React.FC = () => {
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 rounded-full border border-gold-warm/40 bg-gold-deep/20 backdrop-blur-md px-4 py-1.5 mb-4">
               <Film className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={2} />
-              <span className="font-montserrat uppercase tracking-[0.32em] text-[10px] text-gold-champagne">
+              <span className="font-manrope uppercase tracking-[0.32em] text-[10px] text-gold-champagne">
                 Um tour pela plataforma
               </span>
             </div>
@@ -498,7 +498,7 @@ const PricingPage: React.FC = () => {
             >
               Veja a Árvore <span className="text-gradient-gold">por dentro</span>
             </h2>
-            <p className="font-amiri text-text-secondary text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="font-manrope text-text-secondary text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
               Quatro espaços conectados. Cada um com Idriel como assistente silenciosa,
               esperando o momento em que você precisa de um segundo olhar.
             </p>
@@ -564,7 +564,7 @@ const PricingPage: React.FC = () => {
           className="mb-24"
         >
           <div className="text-center mb-12">
-            <p className="font-montserrat uppercase tracking-[0.35em] text-[10px] text-gold-champagne mb-4">
+            <p className="font-manrope uppercase tracking-[0.35em] text-[10px] text-gold-champagne mb-4">
               Tudo num só lugar
             </p>
             <h2 className="font-cinzel font-bold text-[clamp(1.8rem,4vw,2.8rem)] text-foreground mb-4 leading-tight">
@@ -582,8 +582,8 @@ const PricingPage: React.FC = () => {
               { Icon: Trees, title: '11 Frutos de Worldbuilding', desc: 'Roteiro guiado para construir mundos do topo (cosmologia) à base (cultura cotidiana). Top-down ou bottom-up.' },
               { Icon: BookOpen, title: 'Manuscrito por capítulos', desc: 'Escreva direto em capítulos, com contador de palavras, autosave e foco total. Sem hierarquia confusa de cenas.' },
               { Icon: Wand2, title: 'Mural de Arcos', desc: 'Visualize sua história em colunas estilo storyboard. Arraste, reorganize e enxergue o ritmo da narrativa.' },
-              { Icon: Feather, title: 'Idriel — IA elfa em pt-BR', desc: 'Brainstorm de mundo, expansão de cenas, análise de coerência. Gemini 2.5 Pro alimentada pelo seu Codex inteiro.' },
-              { Icon: ImageIcon, title: 'Visões de Idriel', desc: 'Retratos de personagens, lugares e objetos com consistência visual gerados em Gemini 3 Pro.' },
+              { Icon: Feather, title: 'Idriel — IA elfa em pt-BR', desc: 'Brainstorm de mundo, expansão de cenas, análise de coerência. Gemini 3 Flash alimentada pelo seu Codex inteiro.' },
+              { Icon: ImageIcon, title: 'Visões de Idriel', desc: 'Retratos de personagens, lugares e objetos com consistência visual gerados em GPT Image 2.' },
               { Icon: Map, title: 'Mapas cartográficos', desc: 'Gere o mapa do seu mundo em 6 estilos diferentes — do pergaminho clássico ao satélite moderno.' },
               { Icon: Brain, title: 'Análise de mundo (6 dimensões)', desc: 'A Idriel lê seu mundo e devolve notas de 1 a 5 estrelas em coerência, originalidade e profundidade.' },
               { Icon: FileDown, title: 'Exportação completa', desc: 'Baixe seu Codex e seu Manuscrito em PDF, Word ou Kindle, prontos para publicação.' },
@@ -593,7 +593,7 @@ const PricingPage: React.FC = () => {
                   <Icon className="w-5 h-5 text-gold-champagne" strokeWidth={1.75} />
                 </div>
                 <h3 className="font-cinzel font-bold text-lg text-foreground mb-2 tracking-wide">{title}</h3>
-                <p className="font-amiri text-[15px] text-text-secondary leading-relaxed">{desc}</p>
+                <p className="font-manrope text-[15px] text-text-secondary leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -609,7 +609,7 @@ const PricingPage: React.FC = () => {
           style={{ background: 'linear-gradient(135deg, hsl(34 38% 30% / 0.14) 0%, hsl(214 60% 4% / 0.94) 100%)' }}
         >
           <div className="text-center mb-10">
-            <p className="font-montserrat uppercase tracking-[0.35em] text-[10px] text-gold-champagne mb-4">
+            <p className="font-manrope uppercase tracking-[0.35em] text-[10px] text-gold-champagne mb-4">
               Faça as contas
             </p>
             <h2 className="font-cinzel font-bold text-[clamp(1.8rem,4vw,2.8rem)] text-foreground mb-4 leading-tight">
@@ -630,8 +630,8 @@ const PricingPage: React.FC = () => {
                 { name: 'Notion AI (organização)', price: 'R$ 55/mês' },
               ].map((c) => (
                 <div key={c.name} className="flex items-center justify-between rounded-lg border border-border/60 bg-card/40 px-5 py-3.5">
-                  <span className="font-amiri text-[15px] text-foreground/85">{c.name}</span>
-                  <span className="font-montserrat font-bold text-sm text-text-secondary line-through">{c.price}</span>
+                  <span className="font-manrope text-[15px] text-foreground/85">{c.name}</span>
+                  <span className="font-manrope font-bold text-sm text-text-secondary line-through">{c.price}</span>
                 </div>
               ))}
               <div className="flex items-center justify-between rounded-lg border-2 border-red-alert/40 bg-red-alert/[0.06] px-5 py-4 mt-3">
@@ -647,7 +647,7 @@ const PricingPage: React.FC = () => {
                 boxShadow: '0 0 70px hsl(var(--gold-bronze) / 0.3)',
               }}
             >
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-gradient-gold-premium text-[10px] font-montserrat font-bold uppercase tracking-[0.22em] text-[#1a0f00] whitespace-nowrap flex items-center gap-1.5">
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-gradient-gold-premium text-[10px] font-manrope font-bold uppercase tracking-[0.22em] text-[#1a0f00] whitespace-nowrap flex items-center gap-1.5">
                 <Sparkles className="w-3 h-3" />
                 Tudo num plano só
               </span>
@@ -660,12 +660,12 @@ const PricingPage: React.FC = () => {
               </p>
               <div className="flex items-baseline justify-center gap-1.5 mb-1.5">
                 <span className="font-cinzel font-bold text-6xl text-gradient-gold">R$ 33</span>
-                <span className="font-montserrat text-text-secondary">/mês</span>
+                <span className="font-manrope text-text-secondary">/mês</span>
               </div>
-              <p className="font-montserrat text-[11px] text-text-secondary mb-6 tracking-wider">
+              <p className="font-manrope text-[11px] text-text-secondary mb-6 tracking-wider">
                 R$ 397/ano · cobrança única · 2 meses grátis
               </p>
-              <div className="inline-block px-4 py-2 rounded-full bg-gold-champagne/15 border border-gold-champagne/40 text-gold-champagne font-montserrat font-bold text-xs uppercase tracking-[0.18em]">
+              <div className="inline-block px-4 py-2 rounded-full bg-gold-champagne/15 border border-gold-champagne/40 text-gold-champagne font-manrope font-bold text-xs uppercase tracking-[0.18em]">
                 Economia de ~R$ 296/mês
               </div>
             </div>
@@ -696,7 +696,7 @@ const PricingPage: React.FC = () => {
               <div key={title} className="rounded-xl border border-gold-bronze/25 bg-card/40 backdrop-blur-md p-6 text-center hover:border-gold-warm/50 transition-all">
                 <Icon className="w-7 h-7 text-gold-champagne mx-auto mb-3" strokeWidth={1.5} />
                 <h3 className="font-cinzel font-bold text-base text-foreground mb-2 tracking-wide">{title}</h3>
-                <p className="font-amiri text-[14px] text-text-secondary leading-relaxed">{desc}</p>
+                <p className="font-manrope text-[14px] text-text-secondary leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -722,7 +722,7 @@ const PricingPage: React.FC = () => {
               { q: 'Qual a diferença entre Raiz e Idriel?', a: 'Raiz te dá worldbuilding e escrita ilimitados, com exportação. Idriel acrescenta toda a parte de IA: assistente Idriel, geração de imagens, mapas e análise de mundo. Comece pelo Raiz e suba para Idriel quando quiser turbinar com IA.' },
               { q: 'O que é o Elixir dos Mundos?', a: 'É a poção que Idriel destila a partir da Seiva Lendária da Árvore dos Mundos — a essência que alimenta toda a magia da plataforma. Cada gota é um pedaço dessa Seiva: texto, consulta a Idriel, análise de mundo e import de documentos custam 1 gota; imagens da Galeria custam 5 gotas (Essencial) ou 9 (Alta Fidelidade) e mapas 7 ou 10 gotas. O plano Idriel inclui 150 gotas renovadas por mês, e você pode recarregar avulso a partir de R$ 4,90 sem mexer na assinatura.' },
               { q: 'Meus mundos ficam salvos? Posso exportar tudo?', a: 'Sim. Tudo é salvo automaticamente na nuvem. Exporte seu Codex e Manuscrito em PDF, Word ou Kindle a qualquer momento — o conteúdo é seu, para sempre.' },
-              { q: 'A IA é boa mesmo? Que modelo vocês usam?', a: 'Idriel roda nos modelos mais recentes do mercado: Gemini 3 Flash Preview para texto e análises, Nano Banana Pro (Gemini 3 Pro Image) para imagens padrão com canon do Codex, e GPT Image 2 da OpenAI nas gerações visuais — todos com prompts adaptados em pt-BR.' },
+              { q: 'A IA é boa mesmo? Que modelo vocês usam?', a: 'Idriel roda nos modelos mais recentes do mercado: Gemini 3 Flash para texto, análises e importações, e GPT Image 2 (OpenAI) para todas as gerações visuais — visões da Galeria e mapas do mundo, com dois níveis de qualidade (Essencial e Alta Fidelidade) — todos com prompts adaptados em pt-BR.' },
               { q: 'Como funciona o pagamento?', a: 'Cartão de crédito, boleto ou Pix processados via Asaas (instituição de pagamento brasileira regulamentada pelo Banco Central). No anual, cobrança única com 2 meses grátis. No mensal, cobrança recorrente. Sem fidelidade — cancele a qualquer momento.' },
             ].map((item, i) => (
               <details key={i} className="group rounded-xl border border-gold-bronze/25 bg-card/40 backdrop-blur-md overflow-hidden hover:border-gold-warm/40 transition-colors">
@@ -730,7 +730,7 @@ const PricingPage: React.FC = () => {
                   <span className="font-cinzel font-bold text-base sm:text-lg text-foreground tracking-wide">{item.q}</span>
                   <Plus className="w-5 h-5 text-gold-champagne transition-transform group-open:rotate-45 shrink-0" strokeWidth={1.75} />
                 </summary>
-                <div className="px-6 pb-5 font-amiri text-[15px] text-text-secondary leading-relaxed">{item.a}</div>
+                <div className="px-6 pb-5 font-manrope text-[15px] text-text-secondary leading-relaxed">{item.a}</div>
               </details>
             ))}
           </div>
@@ -761,12 +761,12 @@ const PricingPage: React.FC = () => {
           <button
             onClick={() => handleCheckout(idrielPriceId)}
             disabled={!!loading}
-            className="inline-flex items-center gap-2.5 px-9 py-4 rounded-xl bg-gradient-gold-premium text-[#1a0f00] font-montserrat font-bold uppercase tracking-[0.22em] text-xs hover:shadow-[0_10px_42px_hsl(var(--gold-warm)/0.6)] hover:-translate-y-0.5 transition-all"
+            className="inline-flex items-center gap-2.5 px-9 py-4 rounded-xl bg-gradient-gold-premium text-[#1a0f00] font-manrope font-bold uppercase tracking-[0.22em] text-xs hover:shadow-[0_10px_42px_hsl(var(--gold-warm)/0.6)] hover:-translate-y-0.5 transition-all"
           >
             <Crown className="w-4 h-4" strokeWidth={2} />
             Começar com Idriel Anual
           </button>
-          <p className="mt-5 font-montserrat text-[11px] text-text-secondary tracking-wider">
+          <p className="mt-5 font-manrope text-[11px] text-text-secondary tracking-wider">
             R$ 397/ano · 2 meses grátis · cancele a qualquer momento
           </p>
         </motion.section>
@@ -817,7 +817,7 @@ const PricingPage: React.FC = () => {
                 >
                   {pkg.badge && (
                     <span
-                      className={`absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-full text-[8px] font-montserrat font-bold uppercase tracking-wider ${
+                      className={`absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-full text-[8px] font-manrope font-bold uppercase tracking-wider ${
                         pkg.badge === 'Popular'
                           ? 'bg-gradient-gold-premium text-[#1a0f00]'
                           : 'bg-gold-champagne text-[#1a0f00]'
@@ -828,9 +828,9 @@ const PricingPage: React.FC = () => {
                   )}
                   <Droplet className="w-6 h-6 text-gold-champagne mb-2" strokeWidth={1.5} />
                   <span className="font-cinzel font-bold text-2xl text-gradient-gold">{pkg.drops}</span>
-                  <span className="font-montserrat text-[10px] text-text-secondary uppercase tracking-wider mb-2">gotas</span>
-                  <span className="font-montserrat font-bold text-sm text-foreground">{pkg.price}</span>
-                  <span className="font-montserrat text-[10px] text-text-secondary mt-1">R$ {pkg.perDrop}/gota</span>
+                  <span className="font-manrope text-[10px] text-text-secondary uppercase tracking-wider mb-2">gotas</span>
+                  <span className="font-manrope font-bold text-sm text-foreground">{pkg.price}</span>
+                  <span className="font-manrope text-[10px] text-text-secondary mt-1">R$ {pkg.perDrop}/gota</span>
                 </button>
               );
             })}
@@ -841,11 +841,11 @@ const PricingPage: React.FC = () => {
         <div className="text-center pb-8 space-y-3">
           <a
             href="/seguranca"
-            className="inline-block font-montserrat text-[10px] uppercase tracking-[0.3em] text-gold-champagne/80 hover:text-gold-champagne transition-colors"
+            className="inline-block font-manrope text-[10px] uppercase tracking-[0.3em] text-gold-champagne/80 hover:text-gold-champagne transition-colors"
           >
             Segurança & Privacidade
           </a>
-          <p className="font-montserrat text-[10px] uppercase tracking-[0.3em] text-text-secondary/60">
+          <p className="font-manrope text-[10px] uppercase tracking-[0.3em] text-text-secondary/60">
             Universo STORIA · Todos os direitos reservados
           </p>
         </div>
