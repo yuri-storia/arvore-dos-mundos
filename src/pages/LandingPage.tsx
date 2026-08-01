@@ -25,6 +25,17 @@ import idrielPoster from '@/assets/idriel-avatar.webp';
 import previewConstruir from '@/assets/plataforma-construir.jpg.asset.json';
 import previewCodex from '@/assets/plataforma-codex.jpg.asset.json';
 import previewEscrever from '@/assets/plataforma-escrever.jpg.asset.json';
+import { DemoVideo } from '@/components/marketing/DemoVideo';
+import vidFichas from '@/assets/demo-fichas-frutos.mp4.asset.json';
+import vidFichasPoster from '@/assets/demo-fichas-frutos.jpg.asset.json';
+import vidCodex from '@/assets/demo-codex-analise.mp4.asset.json';
+import vidCodexPoster from '@/assets/demo-codex-analise.jpg.asset.json';
+import vidIdriel from '@/assets/demo-consultar-idriel.mp4.asset.json';
+import vidIdrielPoster from '@/assets/demo-consultar-idriel.jpg.asset.json';
+import vidExport from '@/assets/demo-exportar-manuscrito.mp4.asset.json';
+import vidExportPoster from '@/assets/demo-exportar-manuscrito.jpg.asset.json';
+import vidImagem from '@/assets/demo-gerar-imagem.mp4.asset.json';
+import vidImagemPoster from '@/assets/demo-gerar-imagem.jpg.asset.json';
 
 
 const heroSrcSet = `${hero640.url} 640w, ${hero960.url} 960w, ${hero1280.url} 1280w, ${hero1600.url} 1600w`;
