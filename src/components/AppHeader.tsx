@@ -117,7 +117,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
                 src={heroMobilePoster.url}
                 alt=""
                 aria-hidden="true"
-                className="absolute left-0 top-[-96px] h-auto w-full max-w-none opacity-80"
+                className="absolute left-0 top-[-96px] aspect-[9/16] w-full max-w-none object-contain opacity-80"
               />
               <video
                 key="mobile-master"
@@ -130,7 +130,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
                 preload="auto"
                 disablePictureInPicture
                 aria-hidden="true"
-                className="absolute left-0 top-[-96px] h-auto w-full max-w-none opacity-80"
+                className="absolute left-0 top-[-96px] aspect-[9/16] w-full max-w-none object-contain opacity-80"
               />
             </>
           ) : (
