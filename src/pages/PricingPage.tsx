@@ -623,21 +623,22 @@ const PricingPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div className="space-y-3">
               {[
-                { name: 'ChatGPT Plus (IA texto)', price: 'R$ 104/mês' },
-                { name: 'Midjourney (IA imagens)', price: 'R$ 55/mês' },
-                { name: 'World Anvil Author', price: 'R$ 115/mês' },
-                { name: 'Scrivener (manuscrito)', price: 'R$ 290 vitalício' },
-                { name: 'Notion AI (organização)', price: 'R$ 55/mês' },
+                { name: 'ChatGPT Plus (IA de texto)', price: 'R$ 115/mês' },
+                { name: 'Midjourney (IA de imagens)', price: 'R$ 58/mês' },
+                { name: 'World Anvil Author (worldbuilding)', price: 'R$ 125/mês' },
+                { name: 'Scrivener (manuscrito)', price: 'R$ 320 vitalício' },
+                { name: 'Notion AI (organização)', price: 'R$ 60/mês' },
               ].map((c) => (
-                <div key={c.name} className="flex items-center justify-between rounded-lg border border-border/60 bg-card/40 px-5 py-3.5">
-                  <span className="font-manrope text-[15px] text-foreground/85">{c.name}</span>
-                  <span className="font-manrope font-bold text-sm text-text-secondary line-through">{c.price}</span>
+                <div key={c.name} className="flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-[rgba(4,12,24,0.45)] px-5 py-3.5">
+                  <span className="font-manrope text-[14px] text-foreground/85">{c.name}</span>
+                  <span className="font-manrope font-bold text-[13px] text-text-secondary line-through whitespace-nowrap">{c.price}</span>
                 </div>
               ))}
-              <div className="flex items-center justify-between rounded-lg border-2 border-red-alert/40 bg-red-alert/[0.06] px-5 py-4 mt-3">
+              <div className="flex items-center justify-between rounded-xl border-2 border-red-alert/40 bg-red-alert/[0.06] px-5 py-4 mt-3">
                 <span className="font-cinzel font-bold text-base text-red-300">Total mensal</span>
-                <span className="font-cinzel font-bold text-2xl text-red-300">R$ 329+/mês</span>
+                <span className="font-cinzel font-bold text-2xl text-red-300">R$ 358+/mês</span>
               </div>
+
             </div>
 
             <div
