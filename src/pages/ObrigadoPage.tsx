@@ -1,19 +1,31 @@
 import { useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Sparkles, Mail, CheckCircle2 } from "lucide-react";
+import Seo from "@/components/Seo";
 
 export default function ObrigadoPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const ref = params.get("ref") || "";
+  // A página só é legítima quando vem de um checkout (Stripe devolve session_id / ref).
+  const hasCheckoutToken = Boolean(params.get("session_id") || ref);
 
   useEffect(() => {
     document.title = "Pagamento confirmado — Árvore dos Mundos";
   }, []);
 
+  if (!hasCheckoutToken) return <Navigate to="/" replace />;
+
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-16" style={{ background: "#02070d" }}>
+      <Seo
+        title="Pagamento confirmado — Árvore dos Mundos"
+        description="Confirmação de pagamento da Árvore dos Mundos."
+        path="/obrigado"
+        noindex
+      />
+
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
