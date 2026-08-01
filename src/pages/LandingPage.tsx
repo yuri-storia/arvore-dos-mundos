@@ -994,26 +994,24 @@ const LandingPage: React.FC = () => {
         <Shell>
           <div className="space-y-24">
             <div>
-              <Reveal className="max-w-[52ch] mb-14">
-                <Eyebrow>Quem já plantou</Eyebrow>
-                <Title>Antes de virar plataforma, a Árvore já ajudava escritores a construir mundos.</Title>
-                <p className="font-merriweather italic text-text-dim mt-5 leading-[1.9] text-sm">
-                  Estes depoimentos referem-se ao e-book e à metodologia original — não ao uso do aplicativo.
-                </p>
-              </Reveal>
+              <SectionHead
+                eyebrow="Quem já plantou"
+                title="Antes de virar plataforma, a Árvore já ajudava escritores a construir mundos."
+                lede="Estes depoimentos referem-se ao e-book e à metodologia original — não ao uso do aplicativo."
+              />
               <EbookTestimonials />
             </div>
 
             <div>
-              <Reveal className="max-w-[52ch] mb-14">
-                <Title>Mundos que já começaram a criar raízes dentro da plataforma.</Title>
-                <p className="font-merriweather italic text-text-dim mt-5 leading-[1.9] text-sm">
-                  Primeiros usuários que estão construindo seus universos dentro da Árvore dos Mundos.
-                </p>
-              </Reveal>
+              <SectionHead
+                eyebrow="Primeiros mundos"
+                title="Mundos que já começaram a criar raízes dentro da plataforma."
+                lede="Primeiros usuários que estão construindo seus universos dentro da Árvore dos Mundos."
+              />
               <TestimonialPlaceholder kind="beta" count={3} />
             </div>
           </div>
+
         </Shell>
       </Band>
 
