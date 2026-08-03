@@ -328,32 +328,34 @@ const UserRow = memo<UserRowProps>(({ user: u, callerId, onOpenDetail, onChanged
       <span className="text-[10px] text-text-dim">Criado {fmtDate(u.created_at).split(',')[0]}</span>
     </td>
     <td className="px-3 py-2.5">
-      <div className="flex items-center gap-1 flex-wrap">
-        <Badge variant="outline" className={`text-[10px] ${planTone(u.plan_code)}`}>{planLabel(u.plan_code)}</Badge>
-        {u.plan_code && u.sub_status !== 'active' && (
-          <Badge variant="outline" className="text-[9px] border-red-alert/50 bg-red-alert/10 text-red-alert font-bold uppercase tracking-wider">Cancelado</Badge>
-        )}
-        {u.billing_cycle === 'manual' && (
-          <Badge variant="outline" className="text-[9px] border-blue-bright/50 bg-blue-bright/10 text-blue-light font-bold uppercase tracking-wider">Manual</Badge>
-        )}
-        {!u.plan_code && (
-          <Badge variant="outline" className="text-[9px] border-text-dim/40 bg-white/5 text-text-dim font-bold uppercase tracking-wider">Gratuito</Badge>
-        )}
-      </div>
-
-      {u.expires_at && (() => {
+      {(() => {
+        const inactive = !u.plan_code || u.sub_status !== 'active';
+        if (inactive) {
+          return (
+            <Badge variant="outline" className="text-[10px] border-text-dim/40 bg-white/5 text-text-dim font-bold uppercase tracking-wider">Sem plano</Badge>
+          );
+        }
         const days = daysUntil(u.expires_at);
-        const expired = days !== null && days < 0;
         const urgent = days !== null && days >= 0 && days <= 7;
         return (
-          <span className={`mt-0.5 inline-flex items-center gap-1 text-[9px] ${expired ? 'px-1.5 py-0.5 rounded border border-red-alert/40 bg-red-alert/10' : urgent ? 'px-1.5 py-0.5 rounded border border-orange-400/40 bg-orange-400/10' : ''}`}>
-            {expired && <AlertCircle className="w-2.5 h-2.5 text-red-alert" />}
-            {urgent && !expired && <Clock className="w-2.5 h-2.5 text-orange-400 animate-pulse" />}
-            <span className="text-text-dim">até {fmtDate(u.expires_at).split(',')[0]} · </span>
-            <span className={`font-montserrat font-bold ${countdownTone(days)}`}>{countdownLabel(days)}</span>
-          </span>
+          <>
+            <div className="flex items-center gap-1 flex-wrap">
+              <Badge variant="outline" className={`text-[10px] ${planTone(u.plan_code)}`}>{planLabel(u.plan_code)}</Badge>
+              {u.billing_cycle === 'manual' && (
+                <Badge variant="outline" className="text-[9px] border-blue-bright/50 bg-blue-bright/10 text-blue-light font-bold uppercase tracking-wider">Manual</Badge>
+              )}
+            </div>
+            {u.expires_at && (
+              <span className={`mt-0.5 inline-flex items-center gap-1 text-[9px] ${urgent ? 'px-1.5 py-0.5 rounded border border-orange-400/40 bg-orange-400/10' : ''}`}>
+                {urgent && <Clock className="w-2.5 h-2.5 text-orange-400 animate-pulse" />}
+                <span className="text-text-dim">até {fmtDate(u.expires_at).split(',')[0]} · </span>
+                <span className={`font-montserrat font-bold ${countdownTone(days)}`}>{countdownLabel(days)}</span>
+              </span>
+            )}
+          </>
         );
       })()}
+
     </td>
     <td className="px-3 py-2.5 text-right font-montserrat text-foreground">
       {u.bonus_drops}
