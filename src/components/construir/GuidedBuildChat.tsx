@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { BookOpen, ChevronDown, Leaf, Save, ScrollText, Send, Sparkles, Trees, Check } from 'lucide-react';
+import { BookOpen, ChevronDown, Leaf, Save, ScrollText, Send, Sparkles, Check, PenLine } from 'lucide-react';
 import { IdrielStateSprite } from '@/components/idriel/IdrielStateSprite';
 import { IdrielMarkdown } from '@/components/IdrielMarkdown';
 import { stateForEvent, type IdrielState } from '@/lib/idriel/idrielStates';
@@ -116,39 +116,54 @@ export const GuidedBuildChat: React.FC<Props> = ({
   };
 
   const outputs: OutputType[] = config.outputs;
+  const outputsLabel = outputs.map(o => OUTPUT_LABEL[o]).join(' · ');
 
   return (
-    <div className="rounded-2xl border border-gold/20 bg-[rgba(4,10,20,0.72)] backdrop-blur-md overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.45)]">
-      {/* Cabeçalho compacto do Fruto */}
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gold/15 bg-gradient-to-r from-gold/[0.06] to-transparent">
-        <Trees className="w-3.5 h-3.5 text-gold-champagne shrink-0" strokeWidth={1.75} />
-        <span className="font-cinzel font-bold text-[11px] uppercase tracking-[0.14em] text-gold-light truncate">
-          {config.num} · {config.name}
-        </span>
-        <span className="ml-auto font-montserrat text-[10px] text-text-dim tabular-nums shrink-0">
-          {questions.length > 0 && `${Math.min(stepIndex + 1, questions.length)}/${questions.length}`}
-        </span>
+    /* Retângulo maior — o palco de Idriel */
+    <div className="relative rounded-[26px] border border-gold/20 bg-[radial-gradient(120%_100%_at_0%_100%,hsl(var(--idriel)/0.16),transparent_58%),linear-gradient(180deg,rgba(6,14,26,0.92),rgba(2,7,13,0.96))] shadow-[0_24px_70px_-24px_rgba(0,0,0,0.85)] overflow-hidden">
+      {/* Brilho superior sutil */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
+
+      {/* Idriel — enquadrada no palco, sangrando pela esquerda */}
+      <div className="pointer-events-none absolute left-0 bottom-0 z-0 w-[210px] h-[300px] sm:w-[260px] sm:h-[360px] md:w-[320px] md:h-[calc(100%-8px)] md:top-2 opacity-95 [mask-image:linear-gradient(to_right,black_62%,transparent_100%)] md:[mask-image:linear-gradient(to_right,black_78%,transparent_100%)]">
+        <IdrielStateSprite state={idrielState} heightClass="h-full" className="w-full" />
       </div>
 
-      <div className="flex">
-        {/* Idriel à esquerda — área de dimensões estáveis */}
-        <div className="hidden md:block relative w-[190px] lg:w-[220px] shrink-0 border-r border-gold/10 bg-gradient-to-b from-idriel/[0.06] to-transparent">
-          <div className="sticky top-0 h-[420px] lg:h-[480px] flex items-end">
-            <IdrielStateSprite state={idrielState} heightClass="h-full" className="w-full" />
-          </div>
+      <div className="relative z-10 p-3 sm:p-4 md:p-5 md:pl-[300px]">
+        {/* Saudação — voz de Idriel */}
+        <div className="mb-3 pl-[120px] sm:pl-[150px] md:pl-0">
+          <p className="font-cinzel text-[19px] sm:text-[22px] leading-tight text-foreground">
+            Olá, <span className="text-gold-light">Criador!</span>
+          </p>
+          <p className="font-merriweather text-[12.5px] text-text-dim mt-0.5">
+            {config.num} · {config.name} — o que daremos vida agora?
+          </p>
         </div>
 
-        <div className="flex-1 min-w-0 flex flex-col">
-          {/* Transcrição */}
-          <div ref={scrollRef} className="flex-1 min-h-[260px] max-h-[420px] lg:max-h-[480px] overflow-y-auto px-4 py-4 space-y-3">
-            {/* Idriel no mobile */}
-            <div className="md:hidden flex items-center gap-3 mb-1">
-              <div className="w-14 h-14 rounded-full overflow-hidden border border-gold/25 bg-idriel/10 shrink-0">
-                <IdrielStateSprite state={idrielState} heightClass="h-14" />
-              </div>
-              <span className="font-cinzel text-[11px] text-gold-light uppercase tracking-widest">Idriel</span>
-            </div>
+        {/* Retângulo menor — a área de conversa */}
+        <div className="rounded-2xl border border-gold/15 bg-[rgba(3,9,18,0.82)] backdrop-blur-md overflow-hidden shadow-[0_10px_36px_rgba(0,0,0,0.5)]">
+          {/* Barra de contexto da conversa */}
+          <div className="flex items-center gap-2 px-3.5 py-2 border-b border-gold/12 bg-gradient-to-r from-gold/[0.07] to-transparent">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-gold-champagne opacity-70 animate-ping" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold-champagne" />
+            </span>
+            <span className="font-cinzel text-[10px] uppercase tracking-[0.16em] text-gold-light">
+              Conversa com Idriel
+            </span>
+            <span className="ml-auto inline-flex items-center gap-1 font-montserrat text-[9px] uppercase tracking-wider text-text-dim">
+              <PenLine className="w-3 h-3" strokeWidth={1.75} />
+              Vira {outputsLabel}
+            </span>
+            {questions.length > 0 && (
+              <span className="font-montserrat text-[10px] text-text-dim tabular-nums pl-2 border-l border-gold/15">
+                {Math.min(stepIndex + 1, questions.length)}/{questions.length}
+              </span>
+            )}
+          </div>
 
+          {/* Transcrição */}
+          <div ref={scrollRef} className="min-h-[220px] max-h-[300px] md:max-h-[380px] overflow-y-auto px-3.5 py-3.5 space-y-3">
             {log.map(b => {
               if (b.kind === 'user') {
                 return (
@@ -254,26 +269,33 @@ export const GuidedBuildChat: React.FC<Props> = ({
                   {OUTPUT_HINT[config.preferredOutput]}
                 </p>
                 <p className="font-montserrat text-[10px] uppercase tracking-wider text-text-dim">
-                  Use os botões abaixo de cada campo para salvar como {outputs.map(o => OUTPUT_LABEL[o]).join(' · ')}.
+                  Salve o que criaram como {outputsLabel}.
                 </p>
               </div>
             )}
           </div>
 
           {/* Compositor */}
-          <div className="border-t border-gold/15 px-3.5 py-3 bg-[rgba(2,7,13,0.6)]">
+          <div className="border-t border-gold/12 px-3.5 py-3 bg-[rgba(2,7,13,0.72)]">
+            {/* Chips estratégicos — orientações de Idriel */}
             {!askMode && step?.suggestions?.length > 0 && (
-              <div className="flex gap-1.5 overflow-x-auto pb-2 -mx-0.5 px-0.5">
-                {step.suggestions.map(s => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => { setAskMode(true); setDraft(s); inputRef.current?.focus(); }}
-                    className="shrink-0 px-2.5 py-1 rounded-full text-[10px] font-montserrat border border-gold/20 text-text-dim hover:text-gold-champagne hover:border-gold/40 transition-colors"
-                  >
-                    {s}
-                  </button>
-                ))}
+              <div className="mb-2">
+                <span className="block font-montserrat text-[9px] uppercase tracking-[0.18em] text-text-dim mb-1.5">
+                  <Sparkles className="inline-block w-3 h-3 mr-1 align-[-0.15em] text-gold-champagne" strokeWidth={2} />
+                  Sugestões
+                </span>
+                <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-0.5 px-0.5">
+                  {step.suggestions.map(s => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => { setAskMode(true); setDraft(s); inputRef.current?.focus(); }}
+                      className="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-montserrat border border-gold/25 bg-gold/[0.04] text-text-secondary hover:text-gold-champagne hover:border-gold/50 hover:bg-gold/[0.1] transition-colors"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -297,7 +319,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
                   }}
                   rows={2}
                   placeholder={askMode ? 'Pergunte a Idriel sobre este Fruto…' : (step?.placeholder || 'Escreva aqui…')}
-                  className={`flex-1 min-w-0 resize-y rounded-lg px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none transition-colors ${
+                  className={`flex-1 min-w-0 resize-y rounded-xl px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none transition-colors ${
                     askMode
                       ? 'bg-gold/[0.05] border border-gold/30 focus:border-gold/60'
                       : 'bg-[rgba(4,12,24,0.6)] border border-blue-bright/20 focus:border-blue-bright/50'
@@ -307,7 +329,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
                   type="button"
                   onClick={handleSubmit}
                   disabled={!draft.trim() || (askMode && (aiLoading || !canUseAI))}
-                  className={`shrink-0 h-9 w-9 rounded-lg flex items-center justify-center transition-all disabled:opacity-40 ${
+                  className={`shrink-0 h-10 w-10 rounded-xl flex items-center justify-center transition-all disabled:opacity-40 ${
                     askMode
                       ? 'bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] shadow-[0_0_14px_hsl(var(--gold)/0.35)]'
                       : 'bg-blue-main hover:bg-blue-bright text-foreground'
@@ -319,12 +341,18 @@ export const GuidedBuildChat: React.FC<Props> = ({
               </div>
             )}
 
+            <p className="mt-1.5 font-montserrat text-[9.5px] text-text-dim/80">
+              {askMode
+                ? 'Idriel responde com faíscas — o texto pode virar ficha ou artigo depois.'
+                : `O que você escrever aqui é registrado no Fruto e pode ser salvo como ${outputsLabel}.`}
+            </p>
+
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               {canUseAI ? (
                 <button
                   type="button"
                   onClick={() => { setAskMode(a => !a); setDraft(''); }}
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border transition-colors ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border transition-colors ${
                     askMode
                       ? 'border-gold-light text-gold-light bg-gold/15'
                       : 'border-gold/25 text-text-dim hover:text-gold-champagne hover:border-gold/45'
@@ -360,11 +388,11 @@ export const GuidedBuildChat: React.FC<Props> = ({
             {historySlot}
           </div>
         </div>
-      </div>
 
-      {specialSlot && (
-        <div className="border-t border-gold/15 p-4">{specialSlot}</div>
-      )}
+        {specialSlot && (
+          <div className="mt-4 rounded-2xl border border-gold/12 bg-[rgba(3,9,18,0.6)] p-3.5">{specialSlot}</div>
+        )}
+      </div>
     </div>
   );
 };
