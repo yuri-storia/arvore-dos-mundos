@@ -12,6 +12,16 @@ import thoughtful from '@/assets/idriel/states/thoughtful.webp.asset.json';
 import inspired from '@/assets/idriel/states/inspired.webp.asset.json';
 import enthusiastic from '@/assets/idriel/states/enthusiastic.webp.asset.json';
 import determined from '@/assets/idriel/states/determined.webp.asset.json';
+import concerned from '@/assets/idriel/states/concerned.webp.asset.json';
+import compassionate from '@/assets/idriel/states/compassionate.webp.asset.json';
+import mysterious from '@/assets/idriel/states/mysterious.webp.asset.json';
+import satisfied from '@/assets/idriel/states/satisfied.webp.asset.json';
+import consultingCodex from '@/assets/idriel/states/consulting-codex.webp.asset.json';
+import presentingPaths from '@/assets/idriel/states/presenting-paths.webp.asset.json';
+import invitingContinue from '@/assets/idriel/states/inviting-continue.webp.asset.json';
+import warning from '@/assets/idriel/states/warning.webp.asset.json';
+import gentleError from '@/assets/idriel/states/gentle-error.webp.asset.json';
+import forging from '@/assets/idriel/states/forging.webp.asset.json';
 
 export type IdrielState =
   | 'neutral_attentive'
