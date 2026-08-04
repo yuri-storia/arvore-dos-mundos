@@ -7,7 +7,6 @@ import { FRUIT_IMAGES } from '@/assets/fruitImages';
 import { FruitGuideBlock } from '@/components/FruitGuideBlock';
 import { IdrielMarkdown } from '@/components/IdrielMarkdown';
 import { ImageLightbox } from '@/components/ImageLightbox';
-import { CreateFichaButton } from '@/components/CreateFichaButton';
 import { MapGenerator } from '@/components/MapGenerator';
 import { useCodexEntries } from '@/hooks/useCodexEntries';
 import { useTimelineEvents, type TimelineEventType } from '@/hooks/useTimelineEvents';
