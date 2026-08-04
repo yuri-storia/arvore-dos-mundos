@@ -423,8 +423,10 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 </button>
               )}
             </div>
+            </div>
           </div>
         </div>
+
       )}
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
