@@ -7,7 +7,6 @@ import { FRUIT_IMAGES } from '@/assets/fruitImages';
 import { FruitGuideBlock } from '@/components/FruitGuideBlock';
 import { IdrielMarkdown } from '@/components/IdrielMarkdown';
 import { ImageLightbox } from '@/components/ImageLightbox';
-import { CreateFichaButton } from '@/components/CreateFichaButton';
 import { MapGenerator } from '@/components/MapGenerator';
 import { useCodexEntries } from '@/hooks/useCodexEntries';
 import { useTimelineEvents, type TimelineEventType } from '@/hooks/useTimelineEvents';
@@ -338,69 +337,8 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               );
             })()}
 
-            {/* Fields — simplified, no per-field AI buttons */}
-            <div className="space-y-4 mb-8">
-              {fruit.fields.map(field => {
-                const isMagictype = currentFruit === 4 && field.id === 'magictype';
-                const entryType = getEntryTypeForField(currentFruit, field.id);
+            {/* Os campos de criação vivem no Estúdio (chat) acima, junto da consulta a Idriel e do gerador de mapa. */}
 
-                return (
-                  <div key={field.id}>
-                    <label className="block text-xs uppercase tracking-wider text-blue-light font-montserrat font-bold mb-1.5">
-                      {field.label}
-                    </label>
-
-                    {isMagictype ? (
-                      <select
-                        value={db[currentFruit]?.[field.id] || ''}
-                        onChange={e => handleMagictypeChange(e.target.value)}
-                        className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50"
-                      >
-                        <option value="">Selecione…</option>
-                        {field.opts?.map(o => <option key={o} value={o}>{o}</option>)}
-                      </select>
-                    ) : (
-                      <CreateFichaButton
-                        fieldValue={db[currentFruit]?.[field.id] || ''}
-                        fieldLabel={field.label}
-                        fruitId={currentFruit}
-                        worldId={currentSaveId || undefined}
-                        entryType={entryType}
-                        onCreated={(action) => action === 'codex' && onNavigateCodex?.()}
-                        onSaved={() => updateField(currentFruit, field.id, '')}
-                        timelineOption={showTimelineShortcut ? {
-                          onSelect: (value, label) => {
-                            setTimelinePrefill({ title: label, description: value });
-                            setTimelineDialogOpen(true);
-                          },
-                        } : undefined}
-                      >
-                        {field.type === 'select' ? (
-                          <select
-                            value={db[currentFruit]?.[field.id] || ''}
-                            onChange={e => updateField(currentFruit, field.id, e.target.value)}
-                            className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-0 rounded-t-md px-3 py-2 text-sm text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50"
-                          >
-                            <option value="">Selecione…</option>
-                            {field.opts?.map(o => <option key={o} value={o}>{o}</option>)}
-                          </select>
-                        ) : (
-                          <textarea
-                            value={db[currentFruit]?.[field.id] || ''}
-                            onChange={e => updateField(currentFruit, field.id, e.target.value)}
-                            placeholder={field.ph}
-                            rows={3}
-                            className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 border-b-0 rounded-t-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-blue-bright/50 resize-y"
-                          />
-                        )}
-                      </CreateFichaButton>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* A consulta a Idriel e o gerador de mapa vivem no Estúdio (chat) acima. */}
 
             {/* Navigation */}
             <div className="flex justify-between items-center mt-8 pt-5 border-t border-blue-bright/15">
