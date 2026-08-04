@@ -483,7 +483,7 @@ const LandingPage: React.FC = () => {
             >
               <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne/80" strokeWidth={2} /> Acesso completo desde o 1º minuto</span>
               <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne/80" strokeWidth={2} /> Cancele a qualquer momento</span>
-              <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne/80" strokeWidth={2} /> Seus conteúdos continuam sendo seus</span>
+              <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne/80" strokeWidth={2} /> Seus conteúdos continuam&nbsp; sendo seus</span>
             </div>
           </motion.div>
         </Shell>
