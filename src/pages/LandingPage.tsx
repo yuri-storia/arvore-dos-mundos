@@ -457,7 +457,7 @@ const LandingPage: React.FC = () => {
               className="font-manrope text-[16.5px] sm:text-[18px] text-foreground/90 font-medium leading-[1.85] mb-11 max-w-[56ch] mx-auto"
               style={{ textShadow: '0 2px 20px rgba(2,7,13,0.95), 0 1px 6px rgba(2,7,13,0.9)' }}
             >
-              Construa universos profundos com os <strong className="text-gold-champagne font-semibold">11 Frutos</strong>,
+              Construa universos profundos com os <strong className="text-gold-champagne font-semibold">11 Frutos do Worldbuilding</strong>,
               organize tudo em um <strong className="text-gold-champagne font-semibold">Codex vivo</strong> com linha do tempo, mapas e galeria,
               escreva seus manuscritos capítulo a capítulo e exporte em PDF, Word ou Kindle.
             </p>
