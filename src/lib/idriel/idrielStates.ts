@@ -68,11 +68,7 @@ const SOURCES: Record<IdrielState, string> = {
 };
 
 export function idrielStateSrc(state: IdrielState): string {
-  const direct = SOURCES[state];
-  if (direct) return direct;
-  const alias = ALIASES[state];
-  if (alias && SOURCES[alias]) return SOURCES[alias]!;
-  return SOURCES[IDRIEL_FALLBACK]!;
+  return SOURCES[state] ?? SOURCES[IDRIEL_FALLBACK];
 }
 
 /** Estados pré-carregados no primeiro render do Estúdio. */
