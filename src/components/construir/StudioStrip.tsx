@@ -3,15 +3,13 @@ import { METHOD_DESCRIPTIONS, type MethodType } from '@/lib/data';
 import { DropsCounterBadge } from '@/components/DropsCounterBadge';
 
 interface Props {
-  worldName: string;
   method: MethodType;
   setMethod: (m: MethodType) => void;
 }
 
 /**
  * Faixa horizontal única do Estúdio de Criação:
- * título do mundo · seletor de abordagem · Elixir dos Mundos.
- * Recupera espaço vertical unindo três blocos que antes eram empilhados.
+ * seletor de abordagem · Elixir dos Mundos.
  */
 export const StudioStrip: React.FC<Props> = ({ method, setMethod }) => (
   <div className="mb-3">
