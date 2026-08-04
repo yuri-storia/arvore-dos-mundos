@@ -6,13 +6,15 @@ interface Props {
   className?: string;
   /** Altura fixa da área reservada — evita reflow ao trocar de estado. */
   heightClass?: string;
+  /** Classes de encaixe da imagem (default: contain / ancorada embaixo). */
+  objectClass?: string;
 }
 
 /**
  * Sprite da Idriel com área de dimensões estáveis e crossfade suave.
  * Nunca altera a altura do container ao trocar de estado.
  */
-export const IdrielStateSprite: React.FC<Props> = ({ state, className = '', heightClass = 'h-full' }) => {
+export const IdrielStateSprite: React.FC<Props> = ({ state, className = '', heightClass = 'h-full', objectClass = 'object-contain object-bottom' }) => {
   const [current, setCurrent] = useState(state);
   const [previous, setPrevious] = useState<IdrielState | null>(null);
   const [failed, setFailed] = useState(false);
@@ -43,7 +45,7 @@ export const IdrielStateSprite: React.FC<Props> = ({ state, className = '', heig
           key={`prev-${previous}`}
           src={idrielStateSrc(previous)}
           alt=""
-          className="absolute inset-0 w-full h-full object-contain object-bottom opacity-0 motion-safe:transition-opacity motion-safe:duration-300"
+          className={`absolute inset-0 w-full h-full ${objectClass} opacity-0 motion-safe:transition-opacity motion-safe:duration-300`}
         />
       )}
       {!failed && (
@@ -54,7 +56,7 @@ export const IdrielStateSprite: React.FC<Props> = ({ state, className = '', heig
           loading="lazy"
           decoding="async"
           onError={() => setFailed(true)}
-          className="absolute inset-0 w-full h-full object-contain object-bottom animate-idriel-fade"
+          className={`absolute inset-0 w-full h-full ${objectClass} animate-idriel-fade`}
         />
       )}
       {failed && (
