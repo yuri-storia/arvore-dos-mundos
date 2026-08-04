@@ -131,7 +131,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
 
       <div className="relative z-10 p-3 sm:p-4 md:p-5 md:pl-[300px]">
         {/* Saudação — voz de Idriel */}
-        <div className="mb-3 pl-[120px] sm:pl-[150px] md:pl-0">
+        <div className="mb-3 pl-[92px] sm:pl-[130px] md:pl-0">
           <p className="font-cinzel text-[19px] sm:text-[22px] leading-tight text-foreground">
             Olá, <span className="text-gold-light">Criador!</span>
           </p>
@@ -141,7 +141,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
         </div>
 
         {/* Retângulo menor — a área de conversa */}
-        <div className="rounded-2xl border border-gold/15 bg-[rgba(3,9,18,0.82)] backdrop-blur-md overflow-hidden shadow-[0_10px_36px_rgba(0,0,0,0.5)]">
+        <div className="ml-[92px] sm:ml-[130px] md:ml-0 rounded-2xl border border-gold/15 bg-[rgba(3,9,18,0.82)] backdrop-blur-md overflow-hidden shadow-[0_10px_36px_rgba(0,0,0,0.5)]">
           {/* Barra de contexto da conversa */}
           <div className="flex items-center gap-2 px-3.5 py-2 border-b border-gold/12 bg-gradient-to-r from-gold/[0.07] to-transparent">
             <span className="relative flex h-1.5 w-1.5">
