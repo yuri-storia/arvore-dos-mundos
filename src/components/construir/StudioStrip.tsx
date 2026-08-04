@@ -13,11 +13,9 @@ interface Props {
  * título do mundo · seletor de abordagem · Elixir dos Mundos.
  * Recupera espaço vertical unindo três blocos que antes eram empilhados.
  */
-export const StudioStrip: React.FC<Props> = ({ worldName, method, setMethod }) => (
+export const StudioStrip: React.FC<Props> = ({ method, setMethod }) => (
   <div className="mb-3">
-    <h1 className="font-cinzel font-bold text-lg sm:text-xl text-center text-gold-light uppercase tracking-[0.18em] truncate mb-2">
-      {worldName || 'Mundo sem nome'}
-    </h1>
+
 
     <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 rounded-xl border border-gold/15 bg-[rgba(4,10,20,0.6)] backdrop-blur-md px-3 py-2.5">
       <div data-tour="method-selector" className="flex items-center gap-1 p-0.5 rounded-full border border-blue-bright/20 bg-blue-main/10 shrink-0 self-start sm:self-auto">
