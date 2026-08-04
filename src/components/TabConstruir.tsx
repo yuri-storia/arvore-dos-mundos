@@ -26,6 +26,8 @@ import { History, Trash2, Trees, Leaf, Sparkles, Check, Image as ImageIcon, Save
 import { toast } from 'sonner';
 import { useLatestAnalysis, getFruitScore, getFruitDetail } from '@/hooks/useLatestAnalysis';
 import { FruitCarousel } from '@/components/construir/FruitCarousel';
+import { StudioStrip } from '@/components/construir/StudioStrip';
+import { GuidedBuildChat } from '@/components/construir/GuidedBuildChat';
 import { TimelineEventDialog } from '@/components/timeline/TimelineEventDialog';
 
 interface Props {
@@ -188,7 +190,9 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   const fruit = FRUITS[currentFruit];
   const currentOrderIndex = orderedFruits.findIndex(f => f.id === currentFruit);
 
-  const handleConsult = async () => {
+  const handleConsult = async (questionOverride?: string) => {
+    const question = (questionOverride ?? aiQuestion).trim();
+    if (!question) return;
     setAiLoading(true);
     setAiResponse('');
     try {
@@ -204,14 +208,14 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       ].filter(Boolean).join('\n\n').slice(0, 4000);
 
       const systemPrompt = `Você é Idriel, a Guardiã da Árvore dos Mundos — uma sábia ancestral que observa os mundos florescerem através dos Frutos da criação. Você fala com elegância, sabedoria profunda e encorajamento maternal. Nunca se descreva como "élfica" ou "imortal"; use apenas o título "Guardiã da Árvore dos Mundos". Mundo: '${worldName || 'Sem nome'}'. Fruto atual: ${fruit.num} — ${fruit.name}. Metodologia: ${method === 'top-down' ? 'Cima para Baixo' : 'Baixo para Cima'}. Responda em português brasileiro. Seja específica, criativa e encantada com a criação do usuário. Sempre que possível, REFERENCIE entradas do Codex pelo nome para garantir coerência — NÃO invente o que não está no canon.${codexCanon ? `\n\nCanon do mundo (use como referência inviolável):\n${codexCanon}` : ''}`;
-      const userMsg = `Contexto atual do Fruto:\n${context}\n\nPergunta: ${aiQuestion}`;
+      const userMsg = `Contexto atual do Fruto:\n${context}\n\nPergunta: ${question}`;
       const response = await callAIText(
         [{ role: 'user', content: userMsg }],
         systemPrompt
       );
       setAiResponse(response);
       if (response && !response.startsWith('[ERRO]')) {
-        await saveSuggestion(aiQuestion, response);
+        await saveSuggestion(question, response);
       }
       setRefreshKey(k => k + 1);
     } catch (e: any) {
@@ -239,35 +243,13 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   const methodInfo = METHOD_DESCRIPTIONS[method];
 
   return (
-    <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-6">
-      {/* Method toggle */}
-      <div data-tour="method-selector" className="flex flex-col sm:flex-row gap-2 mb-3">
-        {(['top-down', 'bottom-up'] as const).map(m => (
-          <button
-            key={m}
-            data-tour={m === 'bottom-up' ? 'method-bottom-up' : undefined}
-            onClick={() => setMethod(m)}
-            className={`px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all ${
-              method === m
-                ? 'border border-blue-bright text-blue-bright bg-blue-main/20'
-                : 'border border-blue-bright/20 text-text-dim hover:text-text-secondary'
-            }`}
-          >
-            {METHOD_DESCRIPTIONS[m].title}
-          </button>
-        ))}
-      </div>
+    <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-4">
+      {/* Faixa única: mundo · abordagem · Elixir */}
+      <StudioStrip worldName={worldName} method={method} setMethod={setMethod} />
 
-      {/* Method description */}
-      <div className="mb-5 p-3.5 rounded-md bg-blue-bright/[0.04] border border-blue-bright/10">
-        <p className="font-merriweather italic text-text-secondary text-sm leading-relaxed">
-          {methodInfo.desc}
-        </p>
-      </div>
-
-
-      {/* Fruit carousel — elegant arrow navigation, no slider bar */}
+      {/* Carrossel compacto dos Frutos */}
       <FruitCarousel
+        compact
         orderedFruits={orderedFruits}
         currentFruit={currentFruit}
         currentSaveId={currentSaveId}
@@ -283,41 +265,53 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
         }}
       />
 
-
-      {/* Fruit panel */}
+      {/* Estúdio de Criação */}
       {fruit && (
-        <div id="fruit-panel" key={currentFruit} className="animate-fadeUp card-glass rounded-lg overflow-hidden">
-          {/* Hero */}
-          <div className="relative h-[140px] sm:h-[200px]">
-            {FRUIT_IMAGES[fruit.id] ? (
-              <img src={FRUIT_IMAGES[fruit.id]} alt={fruit.name} className="absolute inset-0 w-full h-full object-cover opacity-50" />
-            ) : (
-              <div className={`absolute inset-0 bg-gradient-to-br ${fruit.gradient}`}>
-                <div className="absolute inset-0 flex items-center justify-center opacity-20"><fruit.Icon className="w-28 h-28 text-gold-champagne" strokeWidth={1.25} /></div>
-              </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-[rgba(6,14,28,0.95)] via-transparent to-transparent" />
+        <div id="fruit-panel" key={currentFruit} className="animate-fadeUp space-y-4">
+          <div data-tour="consult-idriel">
+            <GuidedBuildChat
+              fruitId={currentFruit}
+              values={db[currentFruit] || {}}
+              onFieldChange={(fieldId, value) => {
+                if (currentFruit === 4 && fieldId === 'magictype') handleMagictypeChange(value);
+                else updateField(currentFruit, fieldId, value);
+              }}
+              onConsult={(question) => { setAiQuestion(question); handleConsult(question); }}
+              aiLoading={aiLoading}
+              aiResponse={aiResponse}
+              canUseAI={planLimits.canUseAI}
+              onSaveAs={(kind, text) => handleOpenSaveDialog(kind, text)}
+              onSendTimeline={(text) => {
+                const firstLine = text.split('\n').find(l => l.trim()) || FRUITS[currentFruit].name;
+                setTimelinePrefill({ title: firstLine.replace(/^[#*\-\d.\s]+/, '').slice(0, 120), description: text });
+                setTimelineDialogOpen(true);
+              }}
+              specialSlot={currentFruit === 0 ? (
+                <MapGenerator worldName={worldName} worldId={currentSaveId || undefined} db={db} addToGallery={addToGallery} />
+              ) : undefined}
+              upgradeSlot={(
+                <button
+                  onClick={() => navigate('/planos')}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/15 transition-colors"
+                >
+                  <Sparkles className="w-3 h-3" strokeWidth={2} />Idriel responde no plano Idriel
+                </button>
+              )}
+              historySlot={suggestions.length > 0 ? (
+                <button
+                  onClick={() => setShowHistory(true)}
+                  className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-montserrat text-text-dim border border-gold/20 hover:text-gold-light hover:border-gold/40 transition-colors"
+                >
+                  <History className="w-3 h-3" />Histórico de Idriel ({suggestions.length})
+                </button>
+              ) : undefined}
+            />
           </div>
 
-          <div className="p-4 sm:p-5 md:p-7">
-            <span className="font-cinzel text-sm text-blue-light inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3" strokeWidth={1.5} /> {fruit.num}</span>
-            <h2 className="font-cinzel font-bold text-2xl sm:text-3xl text-foreground mt-1 mb-1">{fruit.name}</h2>
-            <p className="font-merriweather italic text-text-dim text-[15px] leading-relaxed mb-4">{fruit.desc}</p>
+          <div className="card-glass rounded-lg overflow-hidden">
+            <div className="p-4 sm:p-5">
+              <p className="font-merriweather italic text-text-dim text-[13px] leading-relaxed mb-4">{fruit.desc}</p>
 
-            {/* Idriel methodology note */}
-            <div className="mb-5 flex items-start gap-3 p-3.5 rounded-lg bg-idriel/[0.04] border border-idriel/15">
-              <img src={idrielAvatar} alt="Idriel, a assistente criativa da Árvore dos Mundos" className="w-7 h-7 rounded-full object-cover border border-idriel/30 shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0">
-                <p className="font-merriweather italic text-sm text-text-secondary leading-relaxed">
-                  {method === 'top-down'
-                    ? `Este é o ${orderedFruits.findIndex(f => f.id === currentFruit) + 1}º passo na abordagem "De Cima para Baixo" — construímos do panorama geral aos detalhes. Se preferir começar pelos personagens e expandir, experimente "De Baixo para Cima".`
-                    : `Este é o ${orderedFruits.findIndex(f => f.id === currentFruit) + 1}º passo na abordagem "De Baixo para Cima" — partimos dos personagens e expandimos o mundo conforme a história pede. Se preferir começar pela visão geral, experimente "De Cima para Baixo".`
-                  }
-                </p>
-              </div>
-            </div>
-
-            <FruitGuideBlock guide={fruit.guide} id="orientacoes-idriel" fruitId={fruit.id} />
 
             {/* Gallery images */}
             {(() => {
@@ -406,130 +400,8 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
               })}
             </div>
 
+            {/* A consulta a Idriel e o gerador de mapa vivem no Estúdio (chat) acima. */}
 
-
-            {/* Conditional bottom section: Map generator for fruit 0, Idriel for others */}
-            {currentFruit === 0 ? (
-              <MapGenerator worldName={worldName} worldId={currentSaveId || undefined} db={db} addToGallery={addToGallery} />
-            ) : planLimits.canUseAI ? (
-              <div data-tour="consult-idriel" className="border-t border-gold/15 pt-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="w-2 h-2 rounded-full bg-gold-champagne animate-blink" />
-                  <span className="font-cinzel font-bold text-xs text-gold-light inline-flex items-center gap-1.5"><Trees className="w-3.5 h-3.5 text-gold-champagne" strokeWidth={1.75} />Consultar Idriel</span>
-                  <span className="font-merriweather italic text-[10px] text-text-dim">— Guardiã da Árvore dos Mundos</span>
-                </div>
-
-                {/* Chips */}
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {fruit.chips.map(chip => (
-                    <button
-                      key={chip}
-                      onClick={() => { setAiQuestion(chip); setActiveChip(chip); }}
-                      className={`px-3 py-1 rounded-full text-xs font-montserrat transition-all ${
-                        activeChip === chip
-                          ? 'border border-gold-light text-gold-light bg-gold/15'
-                          : 'border border-gold/20 text-text-dim hover:text-gold-champagne hover:border-gold/35'
-                      }`}
-                    >
-                      {chip}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Question input */}
-                <div className="flex flex-col sm:flex-row gap-2 mb-4">
-                  <input
-                    type="text"
-                    value={aiQuestion}
-                    onChange={e => setAiQuestion(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && aiQuestion.trim() && handleConsult()}
-                    placeholder="Faça uma pergunta a Idriel sobre este fruto…"
-                    className="flex-1 bg-gold/[0.04] border border-gold/20 rounded-md px-3 py-2 text-sm text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-gold/50"
-                  />
-                  <button
-                    onClick={handleConsult}
-                    disabled={!aiQuestion.trim() || aiLoading}
-                    className="px-4 py-2 bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] hover:from-gold-warm hover:via-gold hover:to-gold-light rounded-md text-xs font-montserrat font-bold uppercase tracking-wider disabled:opacity-40 transition-all shadow-[0_0_14px_hsl(var(--gold)/0.35)] hover:shadow-[0_0_22px_hsl(var(--gold)/0.55)] whitespace-nowrap"
-                  >
-                    <><Leaf className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Consultar Idriel</>
-                  </button>
-                </div>
-
-                {aiLoading && (
-                  <div className="flex items-center gap-1 text-text-dim text-sm mb-4">
-                    <span className="w-1.5 h-1.5 rounded-full bg-gold-champagne dot-bounce" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-gold-champagne dot-bounce-2" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-gold-champagne dot-bounce-3" />
-                    <span className="ml-2 font-merriweather italic text-xs">Idriel contempla os galhos da Árvore…</span>
-                  </div>
-                )}
-
-                {aiResponse && !aiLoading && (
-                  <div className="animate-fadeUp border-l-[3px] border-gold-light pl-4 py-3 bg-gold/[0.04] rounded-r-md">
-                    <span className="font-cinzel text-[10px] text-gold-light mb-2 inline-flex items-center gap-1.5"><Leaf className="w-3 h-3 text-gold-champagne" strokeWidth={1.75} />Idriel responde</span>
-                    <IdrielMarkdown>{aiResponse}</IdrielMarkdown>
-                    <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gold/15">
-                      <button
-                        onClick={() => handleOpenSaveDialog('ficha')}
-                        className="px-3 py-1.5 rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/15 transition-colors"
-                      >
-                        <><Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Salvar como Ficha</>
-                      </button>
-                      <button
-                        onClick={() => handleOpenSaveDialog('artigo')}
-                        className="px-3 py-1.5 rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/15 transition-colors"
-                      >
-                        <><Save className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Salvar como Artigo</>
-                      </button>
-                      {(currentFruit === 2 || currentFruit === 8) && (
-                        <button
-                          onClick={async () => {
-                            const type: TimelineEventType = currentFruit === 8 ? 'mito' : 'fato';
-                            const firstLine = aiResponse.split('\n').find(l => l.trim()) || FRUITS[currentFruit].name;
-                            await createTimelineEvent({
-                              title: firstLine.replace(/^[#*\-\d.\s]+/, '').slice(0, 120),
-                              description: aiResponse,
-                              event_type: type,
-                              fruit_id: currentFruit,
-                            });
-                          }}
-                          className="px-3 py-1.5 rounded-md text-[11px] font-montserrat font-bold uppercase tracking-wider border border-gold-champagne/50 text-gold-champagne hover:bg-gold/15 transition-colors"
-                        >
-                          <><ScrollText className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Enviar para a Linha do Tempo</>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* History toggle */}
-                {suggestions.length > 0 && (
-                  <button
-                    onClick={() => setShowHistory(true)}
-                    className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[11px] font-montserrat text-text-dim border border-gold/20 hover:text-gold-light hover:border-gold/40 transition-colors"
-                  >
-                    <History className="w-3.5 h-3.5" />
-                    <><ScrollText className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Histórico de Idriel ({suggestions.length})</>
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="border-t border-idriel/15 pt-6">
-                <div className="rounded-xl border border-gold/20 bg-gold/[0.04] p-5 text-center">
-                  <Trees className="w-7 h-7 mx-auto mb-2 text-gold-champagne" strokeWidth={1.5} />
-                  <h4 className="font-cinzel font-bold text-sm text-gold-light mb-1">Consultar Idriel</h4>
-                  <p className="font-merriweather italic text-text-dim text-xs mb-3">
-                    A Guardiã da Árvore aguarda seu chamado — disponível no plano Idriel.
-                  </p>
-                  <button
-                    onClick={() => navigate('/planos')}
-                    className="px-5 py-2 rounded-lg bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--idriel-light))] text-[#1a0f00] font-montserrat font-bold text-xs uppercase tracking-wider hover:shadow-[0_0_20px_rgba(218,165,32,0.3)] transition-all"
-                  >
-                    <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Conhecer planos</>
-                  </button>
-                </div>
-              </div>
-            )}
             {/* Navigation */}
             <div className="flex justify-between items-center mt-8 pt-5 border-t border-blue-bright/15">
               <button
@@ -555,8 +427,10 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
                 </button>
               )}
             </div>
+            </div>
           </div>
         </div>
+
       )}
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}

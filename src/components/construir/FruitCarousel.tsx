@@ -12,6 +12,8 @@ interface Props {
   fruitScores: Record<string, any>;
   hasAnalysis: boolean;
   onSelect: (id: number) => void;
+  /** Variante compacta (~30% menor) usada no Estúdio de Criação. */
+  compact?: boolean;
 }
 
 export const FruitCarousel: React.FC<Props> = ({
@@ -21,6 +23,7 @@ export const FruitCarousel: React.FC<Props> = ({
   fruitScores,
   hasAnalysis,
   onSelect,
+  compact = false,
 }) => {
   const storageKey = `construir_carousel_snap_${currentSaveId ?? 'none'}`;
 
@@ -94,7 +97,7 @@ export const FruitCarousel: React.FC<Props> = ({
   };
 
   return (
-    <div className="mb-6">
+    <div className={compact ? "mb-3" : "mb-6"}>
       <div className="relative">
         <button
           type="button"
@@ -118,7 +121,7 @@ export const FruitCarousel: React.FC<Props> = ({
         <div
           ref={emblaRef}
           data-tour="fruit-grid"
-          className="overflow-hidden py-6 px-12 sm:px-14 -mx-3 sm:-mx-4 cursor-grab active:cursor-grabbing"
+          className={`overflow-hidden ${compact ? "py-3.5" : "py-6"} px-12 sm:px-14 -mx-3 sm:-mx-4 cursor-grab active:cursor-grabbing`}
         >
           <div className="flex gap-3 sm:gap-4 touch-pan-y select-none">
             {orderedFruits.map((f, idx) => {
@@ -137,7 +140,7 @@ export const FruitCarousel: React.FC<Props> = ({
                   key={f.id}
                   title={tooltip}
                   onClick={() => handleSelect(f.id, idx)}
-                  className={`relative shrink-0 aspect-[3/4] w-[150px] sm:w-[170px] md:w-[180px] lg:w-[190px] rounded-xl overflow-hidden transition-all duration-500 ease-out group ${
+                  className={`relative shrink-0 aspect-[3/4] ${compact ? 'w-[104px] sm:w-[118px] md:w-[126px] lg:w-[132px]' : 'w-[150px] sm:w-[170px] md:w-[180px] lg:w-[190px]'} rounded-xl overflow-hidden transition-all duration-500 ease-out group ${
                     isActive
                       ? 'ring-2 ring-blue-bright shadow-[0_0_36px_rgba(59,130,246,0.45),0_0_18px_hsl(var(--gold-warm)/0.25)] scale-[1.06] -translate-y-1 animate-fruit-active'
                       : 'ring-1 ring-transparent hover:ring-gold-bronze/40 hover:shadow-[0_8px_30px_rgba(0,0,0,0.35)] hover:-translate-y-0.5'
@@ -177,11 +180,13 @@ export const FruitCarousel: React.FC<Props> = ({
                     )}
                   </div>
 
-                  <div className="absolute bottom-0 left-0 right-0 p-3">
-                    <span className="text-[10px] font-montserrat text-blue-light/80 uppercase tracking-wider block mb-0.5">
-                      {idx + 1}º passo
-                    </span>
-                    <span className="font-cinzel font-bold text-xs sm:text-sm text-foreground leading-tight block mb-2">
+                  <div className={`absolute bottom-0 left-0 right-0 ${compact ? "p-2" : "p-3"}`}>
+                    {!compact && (
+                      <span className="text-[10px] font-montserrat text-blue-light/80 uppercase tracking-wider block mb-0.5">
+                        {idx + 1}º passo
+                      </span>
+                    )}
+                    <span className={`font-cinzel font-bold text-foreground leading-tight block ${compact ? 'text-[10px] sm:text-[11px] mb-1' : 'text-xs sm:text-sm mb-2'}`}>
                       {f.name}
                     </span>
                     <div className="flex items-center justify-between">
@@ -212,7 +217,7 @@ export const FruitCarousel: React.FC<Props> = ({
       </div>
 
       {/* Pagination dots */}
-      <div className="mt-3 flex items-center justify-center gap-1.5 flex-wrap px-4">
+      <div className={`${compact ? "mt-2" : "mt-3"} flex items-center justify-center gap-1.5 flex-wrap px-4`}>
         {orderedFruits.map((f, idx) => {
           const isActive = currentFruit === f.id;
           return (
