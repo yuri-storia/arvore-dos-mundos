@@ -275,6 +275,14 @@
   to { transform: scaleX(1); }
 }
 
+@keyframes idrielFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-idriel-fade { animation: idrielFade 0.24s ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-idriel-fade { animation: none; }
+}
 .animate-fadeUp { animation: fadeUp 0.33s ease-out both; }
 .animate-heroFloat { animation: heroFloat 5s ease-in-out infinite; }
 .animate-blink { animation: blink 2.2s ease-in-out infinite; }
