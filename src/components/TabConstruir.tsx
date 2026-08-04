@@ -239,35 +239,13 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   const methodInfo = METHOD_DESCRIPTIONS[method];
 
   return (
-    <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-6">
-      {/* Method toggle */}
-      <div data-tour="method-selector" className="flex flex-col sm:flex-row gap-2 mb-3">
-        {(['top-down', 'bottom-up'] as const).map(m => (
-          <button
-            key={m}
-            data-tour={m === 'bottom-up' ? 'method-bottom-up' : undefined}
-            onClick={() => setMethod(m)}
-            className={`px-4 py-2 rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-all ${
-              method === m
-                ? 'border border-blue-bright text-blue-bright bg-blue-main/20'
-                : 'border border-blue-bright/20 text-text-dim hover:text-text-secondary'
-            }`}
-          >
-            {METHOD_DESCRIPTIONS[m].title}
-          </button>
-        ))}
-      </div>
+    <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-4">
+      {/* Faixa única: mundo · abordagem · Elixir */}
+      <StudioStrip worldName={worldName} method={method} setMethod={setMethod} />
 
-      {/* Method description */}
-      <div className="mb-5 p-3.5 rounded-md bg-blue-bright/[0.04] border border-blue-bright/10">
-        <p className="font-merriweather italic text-text-secondary text-sm leading-relaxed">
-          {methodInfo.desc}
-        </p>
-      </div>
-
-
-      {/* Fruit carousel — elegant arrow navigation, no slider bar */}
+      {/* Carrossel compacto dos Frutos */}
       <FruitCarousel
+        compact
         orderedFruits={orderedFruits}
         currentFruit={currentFruit}
         currentSaveId={currentSaveId}
@@ -283,41 +261,53 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
         }}
       />
 
-
-      {/* Fruit panel */}
+      {/* Estúdio de Criação */}
       {fruit && (
-        <div id="fruit-panel" key={currentFruit} className="animate-fadeUp card-glass rounded-lg overflow-hidden">
-          {/* Hero */}
-          <div className="relative h-[140px] sm:h-[200px]">
-            {FRUIT_IMAGES[fruit.id] ? (
-              <img src={FRUIT_IMAGES[fruit.id]} alt={fruit.name} className="absolute inset-0 w-full h-full object-cover opacity-50" />
-            ) : (
-              <div className={`absolute inset-0 bg-gradient-to-br ${fruit.gradient}`}>
-                <div className="absolute inset-0 flex items-center justify-center opacity-20"><fruit.Icon className="w-28 h-28 text-gold-champagne" strokeWidth={1.25} /></div>
-              </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-[rgba(6,14,28,0.95)] via-transparent to-transparent" />
+        <div id="fruit-panel" key={currentFruit} className="animate-fadeUp space-y-4">
+          <div data-tour="consult-idriel">
+            <GuidedBuildChat
+              fruitId={currentFruit}
+              values={db[currentFruit] || {}}
+              onFieldChange={(fieldId, value) => {
+                if (currentFruit === 4 && fieldId === 'magictype') handleMagictypeChange(value);
+                else updateField(currentFruit, fieldId, value);
+              }}
+              onConsult={(question) => { setAiQuestion(question); handleConsult(question); }}
+              aiLoading={aiLoading}
+              aiResponse={aiResponse}
+              canUseAI={planLimits.canUseAI}
+              onSaveAs={(kind, text) => handleOpenSaveDialog(kind, text)}
+              onSendTimeline={(text) => {
+                const firstLine = text.split('\n').find(l => l.trim()) || FRUITS[currentFruit].name;
+                setTimelinePrefill({ title: firstLine.replace(/^[#*\-\d.\s]+/, '').slice(0, 120), description: text });
+                setTimelineDialogOpen(true);
+              }}
+              specialSlot={currentFruit === 0 ? (
+                <MapGenerator worldName={worldName} worldId={currentSaveId || undefined} db={db} addToGallery={addToGallery} />
+              ) : undefined}
+              upgradeSlot={(
+                <button
+                  onClick={() => navigate('/planos')}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 text-gold-light hover:bg-gold/15 transition-colors"
+                >
+                  <Sparkles className="w-3 h-3" strokeWidth={2} />Idriel responde no plano Idriel
+                </button>
+              )}
+              historySlot={suggestions.length > 0 ? (
+                <button
+                  onClick={() => setShowHistory(true)}
+                  className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-montserrat text-text-dim border border-gold/20 hover:text-gold-light hover:border-gold/40 transition-colors"
+                >
+                  <History className="w-3 h-3" />Histórico de Idriel ({suggestions.length})
+                </button>
+              ) : undefined}
+            />
           </div>
 
-          <div className="p-4 sm:p-5 md:p-7">
-            <span className="font-cinzel text-sm text-blue-light inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3" strokeWidth={1.5} /> {fruit.num}</span>
-            <h2 className="font-cinzel font-bold text-2xl sm:text-3xl text-foreground mt-1 mb-1">{fruit.name}</h2>
-            <p className="font-merriweather italic text-text-dim text-[15px] leading-relaxed mb-4">{fruit.desc}</p>
+          <div className="card-glass rounded-lg overflow-hidden">
+            <div className="p-4 sm:p-5">
+              <p className="font-merriweather italic text-text-dim text-[13px] leading-relaxed mb-4">{fruit.desc}</p>
 
-            {/* Idriel methodology note */}
-            <div className="mb-5 flex items-start gap-3 p-3.5 rounded-lg bg-idriel/[0.04] border border-idriel/15">
-              <img src={idrielAvatar} alt="Idriel, a assistente criativa da Árvore dos Mundos" className="w-7 h-7 rounded-full object-cover border border-idriel/30 shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0">
-                <p className="font-merriweather italic text-sm text-text-secondary leading-relaxed">
-                  {method === 'top-down'
-                    ? `Este é o ${orderedFruits.findIndex(f => f.id === currentFruit) + 1}º passo na abordagem "De Cima para Baixo" — construímos do panorama geral aos detalhes. Se preferir começar pelos personagens e expandir, experimente "De Baixo para Cima".`
-                    : `Este é o ${orderedFruits.findIndex(f => f.id === currentFruit) + 1}º passo na abordagem "De Baixo para Cima" — partimos dos personagens e expandimos o mundo conforme a história pede. Se preferir começar pela visão geral, experimente "De Cima para Baixo".`
-                  }
-                </p>
-              </div>
-            </div>
-
-            <FruitGuideBlock guide={fruit.guide} id="orientacoes-idriel" fruitId={fruit.id} />
 
             {/* Gallery images */}
             {(() => {
