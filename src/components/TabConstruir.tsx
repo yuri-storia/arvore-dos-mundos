@@ -26,6 +26,8 @@ import { History, Trash2, Trees, Leaf, Sparkles, Check, Image as ImageIcon, Save
 import { toast } from 'sonner';
 import { useLatestAnalysis, getFruitScore, getFruitDetail } from '@/hooks/useLatestAnalysis';
 import { FruitCarousel } from '@/components/construir/FruitCarousel';
+import { StudioStrip } from '@/components/construir/StudioStrip';
+import { GuidedBuildChat } from '@/components/construir/GuidedBuildChat';
 import { TimelineEventDialog } from '@/components/timeline/TimelineEventDialog';
 
 interface Props {
@@ -188,7 +190,9 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   const fruit = FRUITS[currentFruit];
   const currentOrderIndex = orderedFruits.findIndex(f => f.id === currentFruit);
 
-  const handleConsult = async () => {
+  const handleConsult = async (questionOverride?: string) => {
+    const question = (questionOverride ?? aiQuestion).trim();
+    if (!question) return;
     setAiLoading(true);
     setAiResponse('');
     try {
@@ -204,14 +208,14 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
       ].filter(Boolean).join('\n\n').slice(0, 4000);
 
       const systemPrompt = `Você é Idriel, a Guardiã da Árvore dos Mundos — uma sábia ancestral que observa os mundos florescerem através dos Frutos da criação. Você fala com elegância, sabedoria profunda e encorajamento maternal. Nunca se descreva como "élfica" ou "imortal"; use apenas o título "Guardiã da Árvore dos Mundos". Mundo: '${worldName || 'Sem nome'}'. Fruto atual: ${fruit.num} — ${fruit.name}. Metodologia: ${method === 'top-down' ? 'Cima para Baixo' : 'Baixo para Cima'}. Responda em português brasileiro. Seja específica, criativa e encantada com a criação do usuário. Sempre que possível, REFERENCIE entradas do Codex pelo nome para garantir coerência — NÃO invente o que não está no canon.${codexCanon ? `\n\nCanon do mundo (use como referência inviolável):\n${codexCanon}` : ''}`;
-      const userMsg = `Contexto atual do Fruto:\n${context}\n\nPergunta: ${aiQuestion}`;
+      const userMsg = `Contexto atual do Fruto:\n${context}\n\nPergunta: ${question}`;
       const response = await callAIText(
         [{ role: 'user', content: userMsg }],
         systemPrompt
       );
       setAiResponse(response);
       if (response && !response.startsWith('[ERRO]')) {
-        await saveSuggestion(aiQuestion, response);
+        await saveSuggestion(question, response);
       }
       setRefreshKey(k => k + 1);
     } catch (e: any) {
