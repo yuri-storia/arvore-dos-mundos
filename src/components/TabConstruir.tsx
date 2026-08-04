@@ -245,7 +245,7 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
   return (
     <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-4">
       {/* Faixa única: mundo · abordagem · Elixir */}
-      <StudioStrip worldName={worldName} method={method} setMethod={setMethod} />
+      <StudioStrip method={method} setMethod={setMethod} />
 
       {/* Carrossel compacto dos Frutos */}
       <FruitCarousel

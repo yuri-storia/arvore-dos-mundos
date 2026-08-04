@@ -12,6 +12,16 @@ import thoughtful from '@/assets/idriel/states/thoughtful.webp.asset.json';
 import inspired from '@/assets/idriel/states/inspired.webp.asset.json';
 import enthusiastic from '@/assets/idriel/states/enthusiastic.webp.asset.json';
 import determined from '@/assets/idriel/states/determined.webp.asset.json';
+import concerned from '@/assets/idriel/states/concerned.webp.asset.json';
+import compassionate from '@/assets/idriel/states/compassionate.webp.asset.json';
+import mysterious from '@/assets/idriel/states/mysterious.webp.asset.json';
+import satisfied from '@/assets/idriel/states/satisfied.webp.asset.json';
+import consultingCodex from '@/assets/idriel/states/consulting-codex.webp.asset.json';
+import presentingPaths from '@/assets/idriel/states/presenting-paths.webp.asset.json';
+import invitingContinue from '@/assets/idriel/states/inviting-continue.webp.asset.json';
+import warning from '@/assets/idriel/states/warning.webp.asset.json';
+import gentleError from '@/assets/idriel/states/gentle-error.webp.asset.json';
+import forging from '@/assets/idriel/states/forging.webp.asset.json';
 
 export type IdrielState =
   | 'neutral_attentive'
@@ -35,8 +45,8 @@ export type IdrielState =
 
 export const IDRIEL_FALLBACK: IdrielState = 'neutral_attentive';
 
-/** Estados com asset próprio já disponível. Os demais usam o fallback. */
-const SOURCES: Partial<Record<IdrielState, string>> = {
+/** Todos os 18 estados possuem asset próprio. */
+const SOURCES: Record<IdrielState, string> = {
   neutral_attentive: neutralAttentive.url,
   warm_welcome: warmWelcome.url,
   explaining: explaining.url,
@@ -45,31 +55,20 @@ const SOURCES: Partial<Record<IdrielState, string>> = {
   inspired: inspired.url,
   enthusiastic: enthusiastic.url,
   determined: determined.url,
-};
-
-/**
- * Aproximações declaradas enquanto as imagens 09–18 não chegam.
- * Substituir por assets próprios assim que forem enviados.
- */
-const ALIASES: Partial<Record<IdrielState, IdrielState>> = {
-  concerned: 'thoughtful',
-  compassionate: 'warm_welcome',
-  mysterious: 'thoughtful',
-  satisfied: 'enthusiastic',
-  consulting_codex: 'thoughtful',
-  presenting_paths: 'explaining',
-  inviting_continue: 'curious',
-  warning: 'determined',
-  gentle_error: 'thoughtful',
-  forging: 'inspired',
+  concerned: concerned.url,
+  compassionate: compassionate.url,
+  mysterious: mysterious.url,
+  satisfied: satisfied.url,
+  consulting_codex: consultingCodex.url,
+  presenting_paths: presentingPaths.url,
+  inviting_continue: invitingContinue.url,
+  warning: warning.url,
+  gentle_error: gentleError.url,
+  forging: forging.url,
 };
 
 export function idrielStateSrc(state: IdrielState): string {
-  const direct = SOURCES[state];
-  if (direct) return direct;
-  const alias = ALIASES[state];
-  if (alias && SOURCES[alias]) return SOURCES[alias]!;
-  return SOURCES[IDRIEL_FALLBACK]!;
+  return SOURCES[state] ?? SOURCES[IDRIEL_FALLBACK];
 }
 
 /** Estados pré-carregados no primeiro render do Estúdio. */
