@@ -1446,7 +1446,7 @@ const LandingPage: React.FC = () => {
               </a>
             </div>
             <p className="text-[11px] font-manrope tracking-[0.06em] text-text-dim">
-              Crie Mundos Fantásticos · Seus conteúdos continuam sendo seus
+              Crie Mundos Fantásticos · Seus conteúdos continuam&nbsp; sendo seus
             </p>
             <p className="font-merriweather italic text-gold-champagne/90 mt-10">
               Onde mundos criam raízes e narrativas dão frutos.
