@@ -341,30 +341,31 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
 
             {/* Navigation */}
-            <div className="flex justify-between items-center mt-8 pt-5 border-t border-blue-bright/15">
+            <div className="flex justify-between items-center gap-2 mt-8 pt-5 border-t border-gold/12">
               <button
                 onClick={() => navigateFruit(-1)}
                 disabled={currentOrderIndex <= 0}
-                className="px-3 sm:px-4 py-2 rounded-md text-xs font-montserrat font-bold text-text-dim border border-blue-bright/15 hover:text-foreground hover:border-blue-bright/30 disabled:opacity-30 transition-all"
+                className="px-3.5 sm:px-4 py-2 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider text-text-dim border border-gold/20 hover:text-gold-champagne hover:border-gold/45 disabled:opacity-30 transition-all"
               >
                 <><ArrowLeft className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Anterior</>
               </button>
               {currentOrderIndex < orderedFruits.length - 1 ? (
                 <button
                   onClick={() => navigateFruit(1)}
-                  className="px-4 sm:px-5 py-2 bg-blue-main hover:bg-blue-bright text-foreground rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+                  className="px-4 sm:px-5 py-2 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider text-gold-light border border-gold/35 bg-gradient-to-r from-gold/[0.12] to-transparent hover:bg-gold/20 hover:border-gold/60 transition-all shadow-[0_0_18px_-6px_hsl(var(--gold)/0.5)]"
                 >
                   <>Próximo Fruto <ArrowRight className="inline-block w-3.5 h-3.5 ml-1.5 align-[-0.15em]" strokeWidth={2} /></>
                 </button>
               ) : (
                 <button
                   onClick={() => exportWorldMarkdown(worldName, method, db)}
-                  className="px-4 sm:px-5 py-2 bg-gold hover:bg-gold-light text-background rounded-md text-xs font-montserrat font-bold uppercase tracking-wider transition-colors"
+                  className="px-4 sm:px-5 py-2 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] shadow-[0_0_20px_-6px_hsl(var(--gold)/0.6)] hover:brightness-110 transition-all"
                 >
                   <><Trees className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Exportar Mundo</>
                 </button>
               )}
             </div>
+
             </div>
           </div>
         </div>
