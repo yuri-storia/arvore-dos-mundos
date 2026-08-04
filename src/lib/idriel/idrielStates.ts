@@ -45,8 +45,8 @@ export type IdrielState =
 
 export const IDRIEL_FALLBACK: IdrielState = 'neutral_attentive';
 
-/** Estados com asset próprio já disponível. Os demais usam o fallback. */
-const SOURCES: Partial<Record<IdrielState, string>> = {
+/** Todos os 18 estados possuem asset próprio. */
+const SOURCES: Record<IdrielState, string> = {
   neutral_attentive: neutralAttentive.url,
   warm_welcome: warmWelcome.url,
   explaining: explaining.url,
@@ -55,23 +55,16 @@ const SOURCES: Partial<Record<IdrielState, string>> = {
   inspired: inspired.url,
   enthusiastic: enthusiastic.url,
   determined: determined.url,
-};
-
-/**
- * Aproximações declaradas enquanto as imagens 09–18 não chegam.
- * Substituir por assets próprios assim que forem enviados.
- */
-const ALIASES: Partial<Record<IdrielState, IdrielState>> = {
-  concerned: 'thoughtful',
-  compassionate: 'warm_welcome',
-  mysterious: 'thoughtful',
-  satisfied: 'enthusiastic',
-  consulting_codex: 'thoughtful',
-  presenting_paths: 'explaining',
-  inviting_continue: 'curious',
-  warning: 'determined',
-  gentle_error: 'thoughtful',
-  forging: 'inspired',
+  concerned: concerned.url,
+  compassionate: compassionate.url,
+  mysterious: mysterious.url,
+  satisfied: satisfied.url,
+  consulting_codex: consultingCodex.url,
+  presenting_paths: presentingPaths.url,
+  inviting_continue: invitingContinue.url,
+  warning: warning.url,
+  gentle_error: gentleError.url,
+  forging: forging.url,
 };
 
 export function idrielStateSrc(state: IdrielState): string {
