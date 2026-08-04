@@ -121,7 +121,7 @@ const ElixirBar: React.FC<{
 };
 
 
-export const DropsCounterBadge: React.FC = () => {
+export const DropsCounterBadge: React.FC<{ inline?: boolean }> = ({ inline = false }) => {
   const { user, isAdmin } = useAuth();
   const sub = useSubscription();
   
@@ -156,11 +156,14 @@ export const DropsCounterBadge: React.FC = () => {
   );
 
   // wrapper centralizado, abaixo do header
-  const wrap = (inner: React.ReactNode) => (
-    <div className="w-full flex justify-center px-3 sm:px-4 mt-1 mb-3">
-      <div className="flex items-center gap-2 w-full max-w-2xl min-w-0">{inner}</div>
-    </div>
-  );
+  const wrap = (inner: React.ReactNode) =>
+    inline ? (
+      <div className="flex items-center gap-2 flex-1 min-w-0">{inner}</div>
+    ) : (
+      <div className="w-full flex justify-center px-3 sm:px-4 mt-1 mb-3">
+        <div className="flex items-center gap-2 w-full max-w-2xl min-w-0">{inner}</div>
+      </div>
+    );
 
 
   // Tooltip content with breakdown
