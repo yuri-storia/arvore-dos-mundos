@@ -1158,7 +1158,7 @@ const LandingPage: React.FC = () => {
                 title="Mundos que já começaram a criar raízes dentro da plataforma."
                 lede="Primeiros usuários que estão construindo seus universos dentro da Árvore dos Mundos."
               />
-              <TestimonialPlaceholder kind="beta" count={3} />
+              <PlatformTestimonials />
             </div>
           </div>
 
