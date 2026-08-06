@@ -190,14 +190,19 @@ export const GuidedBuildChat: React.FC<Props> = ({
 
       <div className="relative z-10 p-4 sm:p-5 md:p-6 lg:pl-[348px] xl:pl-[404px] lg:flex lg:flex-col lg:justify-center">
 
-        <div className="mb-4">
-          <p className="font-cinzel text-[21px] sm:text-[25px] leading-tight text-foreground">
+        <div className="mb-5">
+          <p className="font-montserrat text-[9.5px] uppercase tracking-[0.32em] text-gold-champagne/70 mb-2">
+            Estúdio de Criação
+          </p>
+          <p className="font-cinzel text-[22px] sm:text-[27px] leading-[1.2] tracking-[0.01em] text-foreground">
             Olá, <span className="text-gold-light">Criador!</span>
           </p>
-          <p className="font-merriweather text-[12.5px] text-text-dim mt-1">
-            {config.name} — o que daremos vida hoje?
+          <p className="font-merriweather text-[12.5px] leading-relaxed text-text-dim mt-1.5">
+            <span className="text-text-secondary">{config.name}</span> — o que daremos vida hoje?
           </p>
+          <span className="mt-3 block h-px w-24 bg-gradient-to-r from-gold/45 to-transparent" />
         </div>
+
 
         {/* Card de chat */}
         <div className="rounded-2xl border border-gold/15 bg-[rgba(3,9,18,0.86)] backdrop-blur-md overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.55)]">
@@ -310,31 +315,40 @@ export const GuidedBuildChat: React.FC<Props> = ({
           </div>
 
           {/* Ações — tutorial */}
-          <div className="border-t border-gold/10 px-4 sm:px-5 pt-4 pb-2 bg-[rgba(2,7,13,0.7)] space-y-5">
-            <div className="flex flex-wrap gap-2.5">
-              <button
-                type="button"
-                onClick={() => runLesson(false)}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] font-montserrat font-medium border border-gold/35 bg-gold/[0.07] text-gold-champagne hover:bg-gold/15 hover:border-gold/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
-              >
-                <BookOpen className="w-3.5 h-3.5" strokeWidth={1.75} />Aprender sobre o Fruto
-              </button>
-              <button
-                type="button"
-                onClick={runCaseStudy}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] font-montserrat border border-blue-bright/25 bg-blue-bright/[0.06] text-text-secondary hover:text-foreground hover:border-blue-bright/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
-              >
-                <ScrollText className="w-3.5 h-3.5" strokeWidth={1.75} />Estudo de caso
-              </button>
+          <div className="border-t border-gold/10 px-4 sm:px-5 pt-5 pb-3 bg-[rgba(2,7,13,0.7)] space-y-6">
+            <div className="space-y-3">
+              <p className="font-montserrat text-[9px] uppercase tracking-[0.28em] text-text-dim/75">
+                Caminhos de estudo
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() => runLesson(false)}
+                  className="inline-flex items-center gap-2.5 px-[18px] py-2.5 rounded-full text-[11.5px] font-montserrat font-medium tracking-[0.02em] border border-gold/35 bg-gold/[0.07] text-gold-champagne hover:bg-gold/15 hover:border-gold/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
+                >
+                  <BookOpen className="w-3.5 h-3.5" strokeWidth={1.75} />Aprender sobre o Fruto
+                </button>
+                <button
+                  type="button"
+                  onClick={runCaseStudy}
+                  className="inline-flex items-center gap-2.5 px-[18px] py-2.5 rounded-full text-[11.5px] font-montserrat tracking-[0.02em] border border-blue-bright/25 bg-blue-bright/[0.06] text-text-secondary hover:text-foreground hover:border-blue-bright/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
+                >
+                  <ScrollText className="w-3.5 h-3.5" strokeWidth={1.75} />Estudo de caso
+                </button>
+              </div>
             </div>
 
             {/* O que criar hoje */}
             {creationChips.length > 0 && (
-              <div className="space-y-2.5">
-                <h3 className="font-cinzel text-[13.5px] sm:text-[15px] uppercase tracking-[0.16em] text-gold-light">O que você quer criar hoje?</h3>
-                <div className="flex flex-wrap gap-2.5" aria-busy={typing}>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <h3 className="font-cinzel text-[13.5px] sm:text-[15px] uppercase tracking-[0.18em] text-gold-light whitespace-nowrap">O que você quer criar hoje?</h3>
+                  <span className="h-px flex-1 bg-gradient-to-r from-gold/25 to-transparent" />
+                </div>
+                <div className="flex flex-wrap gap-2.5 sm:gap-3" aria-busy={typing}>
                   {typing
                     ? creationChips.map((s, i) => (
+
                         <span
                           key={`skeleton-${s}`}
                           aria-hidden="true"
@@ -348,8 +362,9 @@ export const GuidedBuildChat: React.FC<Props> = ({
                           type="button"
                           onClick={() => { setAskMode(true); setDraft(s); inputRef.current?.focus(); }}
                           style={{ animationDelay: `${i * 60}ms`, animationFillMode: 'backwards' }}
-                          className="animate-fadeUp px-3.5 py-2 rounded-full text-[11.5px] font-montserrat border border-blue-bright/25 bg-blue-bright/[0.05] text-text-secondary hover:text-foreground hover:border-blue-bright/55 hover:bg-blue-bright/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
+                          className="animate-fadeUp group inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] leading-none tracking-[0.02em] font-montserrat border border-blue-bright/25 bg-blue-bright/[0.05] text-text-secondary hover:text-foreground hover:border-blue-bright/55 hover:bg-blue-bright/[0.1] hover:shadow-[0_0_18px_-8px_hsl(var(--blue-bright)/0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
                         >
+                          <Sparkles className="w-3 h-3 text-blue-light/60 group-hover:text-gold-champagne transition-colors" strokeWidth={1.75} />
                           {s}
                         </button>
                       ))}
@@ -360,9 +375,10 @@ export const GuidedBuildChat: React.FC<Props> = ({
 
             {/* Compositor */}
             <div>
-              <p className="font-cinzel text-[10px] uppercase tracking-[0.2em] text-text-dim mb-2">
+              <p className="font-cinzel text-[10px] uppercase tracking-[0.22em] text-text-dim mb-2.5">
                 {askMode ? 'Pergunta a Idriel · 1 gota' : step ? step.label : 'Escreva livremente'}
               </p>
+
               {step?.type === 'select' && !askMode ? (
                 <select
                   value={values[step.fieldId] || ''}
@@ -437,7 +453,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
               <span className="font-cinzel text-[12.5px] uppercase tracking-[0.18em] font-bold">
                 Poderes de Idriel
               </span>
-              <ChevronDown className={`ml-auto w-4.5 h-4.5 transition-transform duration-300 ${specialOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`ml-auto w-4 h-4 transition-transform duration-300 ${specialOpen ? 'rotate-180' : ''}`} />
             </button>
             {specialOpen && (
               <div id="idriel-powers-panel" className="pt-4 space-y-3.5 animate-fadeUp">
