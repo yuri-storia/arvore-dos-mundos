@@ -97,19 +97,39 @@ export const GuidedBuildChat: React.FC<Props> = ({
     setAskMode(false);
     setSpecialOpen(false);
     setProgress(null);
-    setChatOpen(true);
+    setChatOpen(false);
     setPathChoice(true);
 
     const firstUnanswered = questions.findIndex(q => !(values[q.fieldId] || '').trim());
     setStepIndex(firstUnanswered === -1 ? 0 : firstUnanswered);
     setVisualState(OPENING_STATES[fruitId % OPENING_STATES.length]);
-    streamIdriel([
-      { text: config.intro },
-      { text: 'Podemos começar de dois jeitos: aprender sobre este Fruto, ou criar algo agora mesmo.' },
-    ]);
     return clearTimers;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fruitId]);
+
+  /** Alterna o Tutorial do Fruto — as falas de Idriel só começam na primeira abertura. */
+  const toggleChat = useCallback(() => {
+    setChatOpen(open => {
+      const next = !open;
+      if (next) {
+        setLog(prev => {
+          if (prev.length === 0) {
+            streamIdriel([
+              { text: config.intro },
+              { text: 'Podemos começar de dois jeitos: aprender sobre este Fruto, ou criar algo agora mesmo.' },
+            ]);
+          }
+          return prev;
+        });
+      } else {
+        clearTimers();
+        setTyping(false);
+      }
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config, streamIdriel]);
+
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
