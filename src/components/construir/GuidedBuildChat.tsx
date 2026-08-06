@@ -123,6 +123,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
   /** Tutorial animado do Fruto. */
   const runLesson = useCallback((replay = false) => {
     setChatOpen(true);
+    setPathChoice(false);
     if (replay) setLog([]);
     pushUser(replay ? 'Reproduzir o tutorial novamente.' : 'Quero aprender sobre este Fruto.');
     const parts = config.principles.slice(0, 3).map(p => ({ text: `${p.title}\n${p.body}`, kind: 'lesson' as const }));
@@ -137,6 +138,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
 
   const runCaseStudy = () => {
     setChatOpen(true);
+    setPathChoice(false);
     pushUser('Mostre um estudo de caso.');
     streamIdriel([
       { text: 'Veja como isto se sustenta em um mundo já formado:' },
@@ -144,6 +146,15 @@ export const GuidedBuildChat: React.FC<Props> = ({
       { text: 'Quer tentar algo parecido no seu mundo? Comece por um dos caminhos abaixo.' },
     ], stateForEvent('lore_reveal'), 'Estudo de caso');
   };
+
+  /** Sai do modo "pergunta a Idriel" sem precisar trocar de Fruto. */
+  const cancelAsk = () => {
+    setAskMode(false);
+    setDraft('');
+    setVisualState(OPENING_STATES[fruitId % OPENING_STATES.length]);
+  };
+
+
 
 
 
