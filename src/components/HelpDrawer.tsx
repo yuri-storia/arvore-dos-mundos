@@ -29,10 +29,14 @@ const FAQ: Record<string, { label: string; items: { q: string; a: string }[] }> 
   construir: {
     label: 'Construir',
     items: [
-      { q: 'Como funcionam os 11 Frutos?', a: 'Cada Fruto representa um pilar do worldbuilding (ex.: Cosmogonia, Povos e Culturas, Magia). Basta escolher um Fruto no carrossel e preencher os campos. Tudo salva automaticamente a cada 2 segundos.' },
-      { q: 'Qual a diferença entre "Cima pra Baixo" e "Baixo pra Cima"?', a: '**Cima pra Baixo** começa pelo macro (cosmogonia, mapa) e desce até detalhes. **Baixo pra Cima** começa por um detalhe concreto (um personagem, uma cidade) e expande o mundo ao redor.' },
-      { q: 'Como gerar um mapa do mundo?', a: 'No Fruto "Mapa do Mundo", clique em **Gerar Mapa**. São 6 estilos e o custo é de **5 gotas**.' },
-      { q: 'O que é o Elixir dos Mundos?', a: 'É a **seiva** que destilo para acender cada magia. Cada gota tem um poder: texto/consulta (1), análise de mundo (1), imagens (2 / 5 / 15), mapa (5).' },
+      { q: 'Como funciona o Estúdio de Criação?', a: 'Escolha um Fruto no carrossel e o Estúdio abaixo se adapta a ele. A barra dourada **Tutorial do Fruto** abre a conversa comigo (princípios, estudo de caso e caminhos de criação) — de graça, sem gastar gotas. O que você escrever fica salvo automaticamente.' },
+      { q: 'Como funcionam os 11 Frutos?', a: 'Cada Fruto representa um pilar do worldbuilding (ex.: Cosmogonia, Povos e Culturas, Magia). Navegue por eles no carrossel ou pelo botão **Próximo Fruto**.' },
+      { q: 'Onde escrevo sem gastar elixir?', a: 'No bloco azul **Escreva livremente** (brainstorming): texto livre, custo zero, sem chamar a IA. Depois é só salvar como **Ficha**, **Artigo** ou **Fato na Linha do Tempo** no Codex.' },
+      { q: 'Como sei o que ativa a Idriel?', a: 'Tudo o que é **dourado** sou eu. No bloco **Peça ajuda a Idriel** os chips mostram o custo (· 1 gota) e a resposta usa o seu Codex como contexto. O azul nunca consome elixir.' },
+      { q: 'Qual a diferença entre "Cima pra Baixo" e "Baixo pra Cima"?', a: '**Cima pra Baixo** começa pelo macro (cosmogonia, mapa) e desce até detalhes. **Baixo pra Cima** começa por um detalhe concreto (um personagem, uma cidade) e expande o mundo ao redor. O seletor fica no cabeçalho, ao lado do Elixir.' },
+      { q: 'Como gerar um mapa do mundo?', a: 'Apenas no Fruto **Mapa do Mundo**: use **Crie Mapas com Idriel**, escolha entre os 6 estilos cartográficos e confirme o custo em gotas.' },
+      { q: 'Posso rever o tutorial de um Fruto?', a: 'Sim. Ao final da conversa há o botão de **reproduzir o tutorial novamente**, e a barra dourada recolhe/expande a qualquer momento.' },
+
     ],
   },
   codex: {
