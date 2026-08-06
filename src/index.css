@@ -609,13 +609,13 @@
   100% { background-position: -200% 0; }
 }
 
-@keyframes tour-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--idriel-glow) / 0.6), inset 0 0 0 0 transparent; }
-  50% { box-shadow: 0 0 20px 4px hsl(var(--idriel-glow) / 0.4), inset 0 0 8px hsl(var(--idriel-glow) / 0.1); }
-}
-
 .animate-tour-pulse {
-  animation: tour-pulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 20px 4px hsl(var(--idriel-glow) / 0.4), inset 0 0 8px hsl(var(--idriel-glow) / 0.1);
+  animation: glowFade 2.6s ease-in-out infinite;
+  will-change: opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-tour-pulse { animation: none; }
 }
 
 @keyframes elixir-shimmer {
