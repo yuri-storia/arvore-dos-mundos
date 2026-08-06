@@ -8,20 +8,25 @@ interface Props {
   heightClass?: string;
   /** Classes de encaixe da imagem (default: contain / ancorada embaixo). */
   objectClass?: string;
+  /** Esfumaçado apenas na base da imagem. */
+  fadeBottom?: boolean;
 }
 
 /**
- * Sprite da Idriel — troca direta de imagem, sem crossfade nem animação.
- * A área mantém dimensões estáveis para não causar reflow.
+ * Sprite da Idriel — troca direta de imagem (sem crossfade), com um indicador
+ * discreto de carregamento enquanto o novo estado é decodificado.
  */
 export const IdrielStateSprite: React.FC<Props> = ({
   state,
   className = '',
   heightClass = 'h-full',
   objectClass = 'object-contain object-bottom',
+  fadeBottom = true,
 }) => {
   const [failed, setFailed] = useState(false);
+  const [loading, setLoading] = useState(false);
   const preloaded = useRef(false);
+  const seen = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (preloaded.current) return;
@@ -32,22 +37,47 @@ export const IdrielStateSprite: React.FC<Props> = ({
     });
   }, []);
 
-  useEffect(() => { setFailed(false); }, [state]);
+  const src = idrielStateSrc(state);
+
+  useEffect(() => {
+    setFailed(false);
+    setLoading(!seen.current.has(src));
+  }, [src]);
+
+  const done = () => { seen.current.add(src); setLoading(false); };
 
   return (
-    <div className={`relative overflow-hidden pointer-events-none select-none ${heightClass} ${className}`} aria-hidden="true">
+    <div
+      className={`relative overflow-hidden pointer-events-none select-none ${heightClass} ${className}`}
+      aria-hidden="true"
+      style={
+        fadeBottom
+          ? {
+              WebkitMaskImage: 'linear-gradient(to bottom, #000 0%, #000 72%, rgba(0,0,0,0.45) 88%, transparent 100%)',
+              maskImage: 'linear-gradient(to bottom, #000 0%, #000 72%, rgba(0,0,0,0.45) 88%, transparent 100%)',
+            }
+          : undefined
+      }
+    >
       {!failed ? (
         <img
-          src={idrielStateSrc(state)}
+          key={src}
+          src={src}
           alt=""
           decoding="async"
-          onError={() => setFailed(true)}
+          onLoad={done}
+          onError={() => { setLoading(false); setFailed(true); }}
           className={`absolute inset-0 w-full h-full ${objectClass}`}
         />
       ) : (
         <div className="absolute inset-0 flex items-end justify-center pb-4">
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold/30 to-idriel/20 border border-gold/30" />
         </div>
+      )}
+
+      {/* Carregamento discreto: brilho suave no topo da silhueta */}
+      {loading && !failed && (
+        <div className="absolute inset-0 animate-pulse bg-[radial-gradient(60%_45%_at_50%_25%,hsl(var(--gold)/0.10),transparent_70%)]" />
       )}
     </div>
   );
