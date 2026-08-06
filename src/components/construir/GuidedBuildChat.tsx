@@ -401,10 +401,28 @@ export const GuidedBuildChat: React.FC<Props> = ({
 
 
             {/* Compositor */}
-            <div>
-              <p className="font-cinzel text-[10px] uppercase tracking-[0.22em] text-text-dim mb-2.5">
-                {askMode ? 'Pergunta a Idriel · 1 gota' : step ? step.label : 'Escreva livremente'}
-              </p>
+            <div className={askMode ? 'rounded-2xl border border-gold/30 bg-gold/[0.04] p-3.5 -mx-1' : undefined}>
+              <div className="flex items-center gap-2 mb-2.5">
+                {askMode ? (
+                  <>
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/[0.1] px-2.5 py-1 font-cinzel text-[9.5px] uppercase tracking-[0.18em] text-gold-light">
+                      <Wand2 className="w-3 h-3" strokeWidth={2} />Função de Idriel · 1 gota
+                    </span>
+                    <button
+                      type="button"
+                      onClick={cancelAsk}
+                      className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-blue-bright/25 px-3 py-1 font-montserrat text-[9.5px] uppercase tracking-[0.14em] text-text-dim hover:text-foreground hover:border-blue-bright/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-colors"
+                    >
+                      <ArrowLeft className="w-3 h-3" strokeWidth={2} />Voltar
+                    </button>
+                  </>
+                ) : (
+                  <p className="font-cinzel text-[10px] uppercase tracking-[0.22em] text-text-dim">
+                    {step ? step.label : 'Escreva livremente'}
+                  </p>
+                )}
+              </div>
+
 
               {step?.type === 'select' && !askMode ? (
                 <select
