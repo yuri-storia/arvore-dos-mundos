@@ -867,7 +867,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                   <div className="absolute inset-0 bg-gradient-to-br from-gold/[0.04] via-background/80 to-gold/[0.02]" />
                   <div className="relative p-6 sm:p-8 text-center">
                     <div className="relative w-20 h-20 mx-auto mb-4">
-                      <div className="absolute inset-0 rounded-full bg-gold/10 animate-pulse" />
+                      <div className="absolute inset-0 rounded-full bg-gold/10 animate-soft-pulse" />
                       <div className="relative w-full h-full rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-2 border-gold/30 flex items-center justify-center shadow-[0_0_30px_rgba(218,165,32,0.15)]">
                         <div className="relative">
                           <Apple className="w-10 h-10 text-gold-champagne" strokeWidth={1.5} />
@@ -995,7 +995,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                       disabled={loading1 || loading2 || !desc.trim()}
                       className="group relative inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full font-cinzel text-sm font-bold uppercase tracking-wider text-background bg-gradient-to-r from-gold-bronze via-gold-warm to-gold-champagne hover:from-gold-warm hover:via-gold-champagne hover:to-gold-cream shadow-[0_0_28px_rgba(218,165,32,0.45)] hover:shadow-[0_0_40px_rgba(218,165,32,0.65)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                      <span className="pointer-events-none absolute inset-0 rounded-full bg-gold/40 blur-xl opacity-70 animate-pulse -z-10" aria-hidden="true" />
+                      <span className="pointer-events-none absolute inset-0 rounded-full bg-gold/40 blur-xl opacity-70 animate-soft-pulse -z-10" aria-hidden="true" />
                       <Wand2 className="w-4 h-4" strokeWidth={2} />
                       {(loading1 || loading2) ? 'Idriel está trabalhando…' : 'Gerar Imagem com Idriel'}
                     </button>

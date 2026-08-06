@@ -20,7 +20,7 @@ export const OnboardingBanner: React.FC = () => {
         className="w-full flex items-center justify-center gap-2 group py-2"
       >
         <h2
-          className="font-cinzel font-bold text-xs sm:text-sm text-gold-light group-hover:text-gold-light transition-colors uppercase tracking-[0.15em] animate-pulse"
+          className="font-cinzel font-bold text-xs sm:text-sm text-gold-light group-hover:text-gold-light transition-colors uppercase tracking-[0.15em] animate-soft-pulse"
           style={{
             textShadow: '0 0 8px hsl(38 73% 60% / 0.8), 0 0 20px hsl(38 73% 60% / 0.5), 0 0 40px hsl(38 67% 48% / 0.3)',
           }}
