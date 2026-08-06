@@ -60,6 +60,8 @@ export const GuidedBuildChat: React.FC<Props> = ({
   const timers = useRef<number[]>([]);
 
   const step = questions[stepIndex];
+  /** Campo alvo da escrita livre — se o passo atual for um select, usa o primeiro campo de texto. */
+  const freeStep = step?.type === 'select' ? (questions.find(q => q.type !== 'select') ?? step) : step;
   const outputs: OutputType[] = config.outputs;
   const outputsLabel = outputs.map(o => OUTPUT_LABEL[o]).join(' · ');
 
