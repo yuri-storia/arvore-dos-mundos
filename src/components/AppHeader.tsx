@@ -5,8 +5,8 @@ import heroPoster from '@/assets/arvore-mundos-hero.webp.asset.json';
 import heroMobilePoster from '@/assets/arvore-hero-mobile-master-poster.png.asset.json';
 import { UserMenu } from '@/components/UserMenu';
 
-import { Pencil, ChevronDown, FolderOpen, Plus, Trash2, ArrowDown } from 'lucide-react';
-import type { MethodType } from '@/lib/data';
+import { Pencil, ChevronDown, FolderOpen, Plus, Trash2 } from 'lucide-react';
+import { METHOD_DESCRIPTIONS, type MethodType } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -17,6 +17,7 @@ interface AppHeaderProps {
   setWorldName?: (name: string) => void;
   onCreateWorld?: () => void;
   method?: MethodType;
+  setMethod?: (m: MethodType) => void;
   currentSaveId?: string;
   db?: Record<number, Record<string, string>>;
   // Mobile project switching
@@ -95,7 +96,7 @@ const formatDate = (ts: string) => {
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
 };
 
-export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, onCreateWorld, method, currentSaveId, db, worlds, onLoadWorld, onNewWorld, onDeleteWorld }) => {
+export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, onCreateWorld, method, setMethod, currentSaveId, db, worlds, onLoadWorld, onNewWorld, onDeleteWorld }) => {
   const isMobile = useIsMobile();
   const hasWorld = !!currentSaveId;
   const [editing, setEditing] = useState(false);
@@ -286,16 +287,40 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, o
           )}
         </div>
 
-        {/* Context row: method + user */}
+        {/* Context row: user actions */}
         <div className="flex items-center justify-center gap-4 mt-0 sm:mt-1 flex-wrap">
-          {hasWorld && (
-            <span className="text-[10px] font-montserrat uppercase tracking-wider text-text-dim">
-              <><ArrowDown className="inline-block w-3 h-3 mr-1 align-[-0.1em]" strokeWidth={2} />{method === 'top-down' ? 'De Cima para Baixo' : 'De Baixo para Cima'}</>
-            </span>
-          )}
           <UserMenu />
+        </div>
+
+        {/* Method selector */}
+        {hasWorld && setMethod && (
+          <div data-tour="method-selector" className="flex items-center gap-1 p-0.5 rounded-full border border-blue-bright/20 bg-blue-main/10 backdrop-blur-sm mt-1">
+            {(['top-down', 'bottom-up'] as const).map(m => (
+              <button
+                key={m}
+                data-tour={m === 'bottom-up' ? 'method-bottom-up' : undefined}
+                onClick={() => setMethod(m)}
+                title={METHOD_DESCRIPTIONS[m].desc}
+                className={`px-3 sm:px-5 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
+                  method === m
+                    ? 'bg-blue-main/40 text-blue-light shadow-[0_0_12px_rgba(59,130,246,0.25)]'
+                    : 'text-text-dim hover:text-text-secondary'
+                }`}
+              >
+                {METHOD_DESCRIPTIONS[m].title}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Elixir strip */}
+        <div className="w-full max-w-3xl mt-2">
+          <div className="flex items-center gap-2 rounded-xl border border-gold/15 bg-[rgba(4,10,20,0.55)] backdrop-blur-md px-3 py-2">
+            <DropsCounterBadge inline />
+          </div>
         </div>
       </div>
     </header>
   );
 };
+

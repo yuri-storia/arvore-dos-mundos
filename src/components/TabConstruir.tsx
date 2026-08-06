@@ -25,7 +25,6 @@ import { History, Trash2, Trees, Leaf, Sparkles, Check, Image as ImageIcon, Save
 import { toast } from 'sonner';
 import { useLatestAnalysis, getFruitScore, getFruitDetail } from '@/hooks/useLatestAnalysis';
 import { FruitCarousel } from '@/components/construir/FruitCarousel';
-import { StudioStrip } from '@/components/construir/StudioStrip';
 import { GuidedBuildChat } from '@/components/construir/GuidedBuildChat';
 import { TimelineEventDialog } from '@/components/timeline/TimelineEventDialog';
 
@@ -243,9 +242,6 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
   return (
     <div className="animate-fadeUp mx-auto max-w-[1060px] px-3 sm:px-4 py-4">
-      {/* Faixa única: mundo · abordagem · Elixir */}
-      <StudioStrip method={method} setMethod={setMethod} />
-
       {/* Carrossel compacto dos Frutos */}
       <FruitCarousel
         compact
