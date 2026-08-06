@@ -171,14 +171,14 @@ export const GuidedBuildChat: React.FC<Props> = ({
       setDraft('');
       return;
     }
-    if (!step) return;
+    if (!freeStep) return;
     pushUser(text);
-    onFieldChange(step.fieldId, text);
+    onFieldChange(freeStep.fieldId, text);
     const last = stepIndex >= questions.length - 1;
     streamIdriel([{
       text: last
-        ? `Registrado em ${step.label}. Você percorreu todos os caminhos deste Fruto — agora podemos transformar isso em ${outputsLabel}.`
-        : `Registrado em ${step.label}. Seguimos.`,
+        ? `Registrado em ${freeStep.label}. Você percorreu todos os caminhos deste Fruto — agora podemos transformar isso em ${outputsLabel}.`
+        : `Registrado em ${freeStep.label}. Seguimos.`,
     }], stateForEvent(last ? 'celebrate' : 'saved'));
     setDraft('');
     if (!last) setStepIndex(stepIndex + 1);
