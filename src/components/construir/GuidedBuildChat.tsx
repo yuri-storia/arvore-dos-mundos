@@ -495,7 +495,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
             )}
 
             {/* 2 · Peça ajuda a Idriel — funções douradas (1 gota) */}
-            <div className="space-y-3.5 rounded-2xl border border-gold/20 bg-[linear-gradient(180deg,rgba(20,13,2,0.35),rgba(2,7,13,0.35))] p-4">
+            <div data-tour="idriel-help" className="space-y-3.5 rounded-2xl border border-gold/20 bg-[linear-gradient(180deg,rgba(20,13,2,0.35),rgba(2,7,13,0.35))] p-4">
               <div>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                   <h3 className="font-cinzel text-[14px] sm:text-[15.5px] uppercase tracking-[0.18em] text-gold-light">Peça ajuda a Idriel</h3>
