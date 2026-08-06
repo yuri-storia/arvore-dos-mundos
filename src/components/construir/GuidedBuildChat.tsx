@@ -356,36 +356,18 @@ export const GuidedBuildChat: React.FC<Props> = ({
             )}
           </div>
 
-          {/* Ações — tutorial */}
+          {/* Ações */}
           <div className="border-t border-gold/10 px-4 sm:px-5 pt-5 pb-3 bg-[rgba(2,7,13,0.7)] space-y-6">
-            <div className="space-y-3">
-              <p className="font-montserrat text-[9px] uppercase tracking-[0.28em] text-text-dim/75">
-                Caminhos de estudo
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={() => runLesson(false)}
-                  className="inline-flex items-center gap-2.5 px-[18px] py-2.5 rounded-full text-[11.5px] font-montserrat font-medium tracking-[0.02em] border border-gold/35 bg-gold/[0.07] text-gold-champagne hover:bg-gold/15 hover:border-gold/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
-                >
-                  <BookOpen className="w-3.5 h-3.5" strokeWidth={1.75} />Aprender sobre o Fruto
-                </button>
-                <button
-                  type="button"
-                  onClick={runCaseStudy}
-                  className="inline-flex items-center gap-2.5 px-[18px] py-2.5 rounded-full text-[11.5px] font-montserrat tracking-[0.02em] border border-blue-bright/25 bg-blue-bright/[0.06] text-text-secondary hover:text-foreground hover:border-blue-bright/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
-                >
-                  <ScrollText className="w-3.5 h-3.5" strokeWidth={1.75} />Estudo de caso
-                </button>
-              </div>
-            </div>
 
-            {/* O que criar hoje */}
+            {/* O que criar hoje — funções de Idriel (douradas, 1 gota) */}
             {creationChips.length > 0 && (
               <div className="space-y-3">
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                   <h3 className="font-cinzel text-[13.5px] sm:text-[15px] uppercase tracking-[0.18em] text-gold-light whitespace-nowrap">O que você quer criar hoje?</h3>
-                  <span className="h-px flex-1 bg-gradient-to-r from-gold/25 to-transparent" />
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/35 bg-gold/[0.08] px-2.5 py-1 font-montserrat text-[9px] uppercase tracking-[0.16em] text-gold-champagne">
+                    <Wand2 className="w-3 h-3" strokeWidth={2} />Funções de Idriel · 1 gota
+                  </span>
+                  <span className="h-px flex-1 min-w-[24px] bg-gradient-to-r from-gold/25 to-transparent" />
                 </div>
                 <div className="flex flex-wrap gap-2.5 sm:gap-3" aria-busy={typing}>
                   {typing
@@ -394,7 +376,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
                         <span
                           key={`skeleton-${s}`}
                           aria-hidden="true"
-                          className="h-[34px] rounded-full border border-blue-bright/15 bg-blue-bright/[0.05] animate-pulse"
+                          className="h-[34px] rounded-full border border-gold/15 bg-gold/[0.05] animate-pulse"
                           style={{ width: `${Math.min(220, 70 + s.length * 6)}px`, animationDelay: `${i * 90}ms` }}
                         />
                       ))
@@ -403,16 +385,19 @@ export const GuidedBuildChat: React.FC<Props> = ({
                           key={s}
                           type="button"
                           onClick={() => { setAskMode(true); setDraft(s); inputRef.current?.focus(); }}
+                          aria-label={`${s} — função de Idriel, custa 1 gota de elixir`}
                           style={{ animationDelay: `${i * 60}ms`, animationFillMode: 'backwards' }}
-                          className="animate-fadeUp group inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] leading-none tracking-[0.02em] font-montserrat border border-blue-bright/25 bg-blue-bright/[0.05] text-text-secondary hover:text-foreground hover:border-blue-bright/55 hover:bg-blue-bright/[0.1] hover:shadow-[0_0_18px_-8px_hsl(var(--blue-bright)/0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
+                          className="animate-fadeUp group inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] leading-none tracking-[0.02em] font-montserrat border border-gold/40 bg-gold/[0.08] text-gold-light hover:bg-gold/[0.16] hover:border-gold/70 hover:shadow-[0_0_18px_-8px_hsl(var(--gold)/0.9)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
                         >
-                          <Sparkles className="w-3 h-3 text-blue-light/60 group-hover:text-gold-champagne transition-colors" strokeWidth={1.75} />
+                          <Sparkles className="w-3 h-3 text-gold-champagne" strokeWidth={1.75} />
                           {s}
+                          <span className="ml-1 rounded-full border border-gold/30 bg-gold/10 px-1.5 py-0.5 text-[8.5px] uppercase tracking-[0.12em] text-gold-champagne">1 gota</span>
                         </button>
                       ))}
                 </div>
               </div>
             )}
+
 
 
             {/* Compositor */}
