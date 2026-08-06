@@ -291,9 +291,9 @@ export const GuidedBuildChat: React.FC<Props> = ({
               </button>
               <span
                 aria-hidden
-                className="h-7 w-7 rounded-lg flex items-center justify-center border border-gold/25 text-gold-champagne"
+                className="h-8 w-8 rounded-lg flex items-center justify-center bg-gold text-black shadow-[0_0_12px_rgba(212,175,55,0.5)]"
               >
-                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${chatOpen ? '' : '-rotate-90'}`} />
+                {chatOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
               </span>
             </div>
           </div>
