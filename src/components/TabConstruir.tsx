@@ -262,7 +262,8 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
 
       {/* Estúdio de Criação */}
       {fruit && (
-        <div id="fruit-panel" key={currentFruit} className="animate-fadeUp space-y-6">
+        <div id="fruit-panel" key={currentFruit} className="animate-fadeUp space-y-6 mt-10 sm:mt-14">
+
           <div data-tour="consult-idriel">
             <GuidedBuildChat
               fruitId={currentFruit}
