@@ -231,7 +231,7 @@ const PlatformTestimonials: React.FC = () => (
             <span>
               <span className="block font-cinzel font-bold text-sm text-foreground">{t.name}</span>
               <span className="block font-manrope tracking-[0.06em] text-[11px] text-text-dim mt-0.5">
-                Criador(a) na plataforma
+                {t.role || 'Criador(a) na plataforma'}
               </span>
             </span>
           </div>
