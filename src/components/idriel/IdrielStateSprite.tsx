@@ -11,12 +11,15 @@ interface Props {
 }
 
 /**
- * Sprite da Idriel com área de dimensões estáveis e crossfade suave.
- * Nunca altera a altura do container ao trocar de estado.
+ * Sprite da Idriel — troca direta de imagem, sem crossfade nem animação.
+ * A área mantém dimensões estáveis para não causar reflow.
  */
-export const IdrielStateSprite: React.FC<Props> = ({ state, className = '', heightClass = 'h-full', objectClass = 'object-contain object-bottom' }) => {
-  const [current, setCurrent] = useState(state);
-  const [previous, setPrevious] = useState<IdrielState | null>(null);
+export const IdrielStateSprite: React.FC<Props> = ({
+  state,
+  className = '',
+  heightClass = 'h-full',
+  objectClass = 'object-contain object-bottom',
+}) => {
   const [failed, setFailed] = useState(false);
   const preloaded = useRef(false);
 
@@ -29,37 +32,19 @@ export const IdrielStateSprite: React.FC<Props> = ({ state, className = '', heig
     });
   }, []);
 
-  useEffect(() => {
-    if (state === current) return;
-    setPrevious(current);
-    setCurrent(state);
-    setFailed(false);
-    const t = setTimeout(() => setPrevious(null), 300);
-    return () => clearTimeout(t);
-  }, [state, current]);
+  useEffect(() => { setFailed(false); }, [state]);
 
   return (
     <div className={`relative overflow-hidden pointer-events-none select-none ${heightClass} ${className}`} aria-hidden="true">
-      {previous && (
+      {!failed ? (
         <img
-          key={`prev-${previous}`}
-          src={idrielStateSrc(previous)}
+          src={idrielStateSrc(state)}
           alt=""
-          className={`absolute inset-0 w-full h-full ${objectClass} opacity-0 motion-safe:transition-opacity motion-safe:duration-300`}
-        />
-      )}
-      {!failed && (
-        <img
-          key={current}
-          src={idrielStateSrc(current)}
-          alt=""
-          loading="lazy"
           decoding="async"
           onError={() => setFailed(true)}
-          className={`absolute inset-0 w-full h-full ${objectClass} animate-idriel-fade`}
+          className={`absolute inset-0 w-full h-full ${objectClass}`}
         />
-      )}
-      {failed && (
+      ) : (
         <div className="absolute inset-0 flex items-end justify-center pb-4">
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold/30 to-idriel/20 border border-gold/30" />
         </div>
