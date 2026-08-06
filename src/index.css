@@ -491,21 +491,26 @@
 }
 .consult-idriel-cta:hover::after { opacity: 1; }
 
-@keyframes gold-blink {
-  0%, 100% {
-    box-shadow:
-      0 0 12px hsl(var(--gold-warm) / 0.35),
-      0 0 24px hsl(var(--gold-champagne) / 0.20);
-    filter: brightness(1);
-  }
-  50% {
-    box-shadow:
-      0 0 28px hsl(var(--gold-warm) / 0.85),
-      0 0 56px hsl(var(--gold-champagne) / 0.55);
-    filter: brightness(1.18);
-  }
+@keyframes glowFade {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
 }
-.animate-gold-blink { animation: gold-blink 1.2s ease-in-out infinite; }
+.animate-gold-blink { position: relative; }
+.animate-gold-blink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    0 0 22px hsl(var(--gold-warm) / 0.70),
+    0 0 44px hsl(var(--gold-champagne) / 0.45);
+  animation: glowFade 2.4s ease-in-out infinite;
+  will-change: opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-gold-blink::after { animation: none; opacity: 0.55; }
+}
 
 /* Botão de expansão premium — identidade do Estúdio de Criação */
 .expand-toggle {
