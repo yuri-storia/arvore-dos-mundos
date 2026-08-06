@@ -324,14 +324,14 @@ export const GuidedBuildChat: React.FC<Props> = ({
                 <button
                   type="button"
                   onClick={() => runLesson(false)}
-                  className="inline-flex items-center gap-2.5 px-4.5 py-2.5 rounded-full text-[11.5px] font-montserrat font-medium tracking-[0.02em] border border-gold/35 bg-gold/[0.07] text-gold-champagne hover:bg-gold/15 hover:border-gold/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
+                  className="inline-flex items-center gap-2.5 px-[18px] py-2.5 rounded-full text-[11.5px] font-montserrat font-medium tracking-[0.02em] border border-gold/35 bg-gold/[0.07] text-gold-champagne hover:bg-gold/15 hover:border-gold/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
                 >
                   <BookOpen className="w-3.5 h-3.5" strokeWidth={1.75} />Aprender sobre o Fruto
                 </button>
                 <button
                   type="button"
                   onClick={runCaseStudy}
-                  className="inline-flex items-center gap-2.5 px-4.5 py-2.5 rounded-full text-[11.5px] font-montserrat tracking-[0.02em] border border-blue-bright/25 bg-blue-bright/[0.06] text-text-secondary hover:text-foreground hover:border-blue-bright/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
+                  className="inline-flex items-center gap-2.5 px-[18px] py-2.5 rounded-full text-[11.5px] font-montserrat tracking-[0.02em] border border-blue-bright/25 bg-blue-bright/[0.06] text-text-secondary hover:text-foreground hover:border-blue-bright/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
                 >
                   <ScrollText className="w-3.5 h-3.5" strokeWidth={1.75} />Estudo de caso
                 </button>
@@ -451,7 +451,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
               <span className="font-cinzel text-[12.5px] uppercase tracking-[0.18em] font-bold">
                 Poderes de Idriel
               </span>
-              <ChevronDown className={`ml-auto w-4.5 h-4.5 transition-transform duration-300 ${specialOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`ml-auto w-4 h-4 transition-transform duration-300 ${specialOpen ? 'rotate-180' : ''}`} />
             </button>
             {specialOpen && (
               <div id="idriel-powers-panel" className="pt-4 space-y-3.5 animate-fadeUp">
