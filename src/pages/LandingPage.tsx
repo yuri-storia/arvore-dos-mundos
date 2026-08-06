@@ -189,6 +189,9 @@ const EBOOK_TESTIMONIALS = [
   },
   {
     name: 'Letícia Campos',
+    quote:
+      'Eu comprei e adorei, me ajudou muito na escrita do meu livro 😍😍❤️',
+  },
 ];
 
 const PLATFORM_TESTIMONIALS = [
