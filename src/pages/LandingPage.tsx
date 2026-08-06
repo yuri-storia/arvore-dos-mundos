@@ -266,34 +266,6 @@ const EbookTestimonials: React.FC = () => (
 );
 
 
-const TestimonialPlaceholder: React.FC<{ kind: 'ebook' | 'beta'; count: number }> = ({ kind, count }) => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-10">
-    {Array.from({ length: count }).map((_, i) => (
-      <div key={i} className="flex flex-col opacity-60">
-        <Quote className="w-6 h-6 text-gold/25 mb-4" strokeWidth={1.25} />
-        <div className="space-y-2.5 mb-6 flex-1">
-          <div className="h-2 w-11/12 bg-gold/10 rounded-full" />
-          <div className="h-2 w-9/12 bg-gold/10 rounded-full" />
-          <div className="h-2 w-10/12 bg-gold/10 rounded-full" />
-          <div className="h-2 w-7/12 bg-gold/10 rounded-full" />
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-gold/10 border border-gold/15" />
-          <div className="space-y-1.5">
-            <div className="h-2 w-20 bg-gold/15 rounded-full" />
-            <div className="h-1.5 w-14 bg-gold/10 rounded-full" />
-          </div>
-        </div>
-      </div>
-    ))}
-    <p className="md:col-span-3 text-center font-merriweather italic text-xs text-text-dim mt-2">
-      {kind === 'ebook'
-        ? 'Em curadoria — depoimentos do e-book serão adicionados após seleção (4 a 6).'
-        : 'Em curadoria — depoimentos de quem já usa a plataforma chegam em breve.'}
-    </p>
-  </div>
-);
-
 /* -------------------------------------------------------------------------- */
 
 const LandingPage: React.FC = () => {
