@@ -280,15 +280,6 @@ export const GuidedBuildChat: React.FC<Props> = ({
                   {Math.min(stepIndex + 1, questions.length)}/{questions.length}
                 </span>
               )}
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); runLesson(true); }}
-                aria-label="Reiniciar o tutorial animado"
-                title="Reiniciar tutorial"
-                className="h-7 w-7 rounded-lg flex items-center justify-center border border-gold/25 text-gold-champagne hover:bg-gold/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-colors"
-              >
-                <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.75} />
-              </button>
               <span
                 aria-hidden
                 className={`expand-toggle ${chatOpen ? 'open' : ''}`}
