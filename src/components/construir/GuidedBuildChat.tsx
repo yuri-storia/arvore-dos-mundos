@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, BookOpen, ChevronDown, ChevronUp, Leaf, PenLine, RotateCcw, Save, ScrollText, Send, Sparkles, Wand2 } from 'lucide-react';
+import { ArrowLeft, BookOpen, ChevronDown, Leaf, PenLine, RotateCcw, Save, ScrollText, Send, Sparkles, Wand2 } from 'lucide-react';
 import { IdrielStateSprite } from '@/components/idriel/IdrielStateSprite';
 import { IdrielMarkdown } from '@/components/IdrielMarkdown';
 import { stateForEvent, type IdrielState } from '@/lib/idriel/idrielStates';
