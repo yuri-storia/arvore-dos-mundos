@@ -197,16 +197,19 @@ const EBOOK_TESTIMONIALS = [
 const PLATFORM_TESTIMONIALS = [
   {
     name: 'Rodolfo Machado',
+    role: 'Criador na plataforma',
     quote:
       'Depois de testar bastante a Árvore dos Mundos de verdade, fiquei verdadeiramente impressionado.\n\nPela primeira vez eu vi uma plataforma conseguir transformar uma ideia complexa (juntar worldbuilding + assistente de IA + geração de imagem) numa experiência que flui. Dá pra sentir que cada parte foi pensada com esmero, não só implementada.',
   },
   {
     name: 'Vanessa Fernandes',
+    role: 'Criadora na plataforma',
     quote:
       'Como escritora, o que mais gostei na plataforma Árvore dos Mundos foi a praticidade. Ela reúne tudo o que preciso em um só lugar, sem complicar o processo criativo.\n\nA criação de mapas integrada, a geração de imagens e a importação de textos existentes com a Idriel são ferramentas incríveis, deixando a organização mais leve para que eu possa focar no que realmente importa: escrever.\n\nE o visual da plataforma é lindo, o que acaba tornando toda a experiência ainda mais agradável.',
   },
   {
     name: 'Erin',
+    role: 'Criadora na plataforma',
     quote:
       'Fiquei muito tempo procurando a plataforma e um método para me ajudar a organizar minhas ideias.\n\nMeu mundo se perdia entre as anotações, fichas, arquivos e pastas. Mas com o Árvore dos Mundos eu posso ver meu mundo florescer e ganhar vida! Minha motivação cresceu mais do que qualquer outra plataforma que eu tenha testado!\n\nSou muito grata a Árvore dos Mundos por proporcionar essa experiência!',
   },
