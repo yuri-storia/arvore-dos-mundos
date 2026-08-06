@@ -515,8 +515,8 @@
     inset 0 1px 0 hsl(var(--gold-cream) / 0.45);
 }
 .expand-toggle svg {
-  width: 1.1rem;
-  height: 1.1rem;
+  width: 1.25rem;
+  height: 1.25rem;
   stroke-width: 2.5;
 }
 
