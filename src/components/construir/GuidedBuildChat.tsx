@@ -309,7 +309,9 @@ export const GuidedBuildChat: React.FC<Props> = ({
           )}
 
           {/* Transcrição */}
-          <div ref={scrollRef} className={`${chatOpen ? 'min-h-[260px] max-h-[340px] md:max-h-[420px] py-4' : 'max-h-0 py-0'} overflow-y-auto px-4 space-y-3.5 scroll-smooth transition-all duration-300`}>
+          <div className={`grid ${chatOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'} transition-[grid-template-rows] duration-[450ms] ease-[cubic-bezier(0.16,1,0.3,1)]`}>
+            <div className="overflow-hidden min-h-0">
+              <div ref={scrollRef} className={`${chatOpen ? 'min-h-[260px] max-h-[340px] md:max-h-[420px] py-4' : 'max-h-0 py-0'} overflow-y-auto px-4 space-y-3.5 scroll-smooth`}>
 
             {log.map(b => b.from === 'user' ? (
               <div key={b.id} className="flex justify-end animate-fadeUp">
