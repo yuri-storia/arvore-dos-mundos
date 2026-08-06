@@ -250,6 +250,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
         {/* Card de chat */}
         <div className="rounded-2xl border border-gold/15 bg-[rgba(3,9,18,0.86)] backdrop-blur-md overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.55)]">
           <div
+            data-tour="fruit-tutorial"
             role="button"
             tabIndex={0}
             aria-expanded={chatOpen}
