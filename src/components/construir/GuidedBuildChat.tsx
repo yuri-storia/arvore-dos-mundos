@@ -255,19 +255,19 @@ export const GuidedBuildChat: React.FC<Props> = ({
           </div>
 
           {/* Ações — tutorial */}
-          <div className="border-t border-gold/10 px-4 pt-3.5 pb-1 bg-[rgba(2,7,13,0.7)] space-y-3.5">
-            <div className="flex flex-wrap gap-2">
+          <div className="border-t border-gold/10 px-4 sm:px-5 pt-4 pb-2 bg-[rgba(2,7,13,0.7)] space-y-5">
+            <div className="flex flex-wrap gap-2.5">
               <button
                 type="button"
                 onClick={runLesson}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[11px] font-montserrat border border-gold/30 bg-gold/[0.06] text-gold-champagne hover:bg-gold/15 hover:border-gold/55 transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] font-montserrat font-medium border border-gold/35 bg-gold/[0.07] text-gold-champagne hover:bg-gold/15 hover:border-gold/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
               >
                 <BookOpen className="w-3.5 h-3.5" strokeWidth={1.75} />Aprender sobre o Fruto
               </button>
               <button
                 type="button"
                 onClick={runCaseStudy}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[11px] font-montserrat border border-blue-bright/25 bg-blue-bright/[0.06] text-text-secondary hover:text-foreground hover:border-blue-bright/50 transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] font-montserrat border border-blue-bright/25 bg-blue-bright/[0.06] text-text-secondary hover:text-foreground hover:border-blue-bright/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
               >
                 <ScrollText className="w-3.5 h-3.5" strokeWidth={1.75} />Estudo de caso
               </button>
@@ -275,15 +275,15 @@ export const GuidedBuildChat: React.FC<Props> = ({
 
             {/* O que criar hoje */}
             {creationChips.length > 0 && (
-              <div className="space-y-2">
-                <p className="font-cinzel text-[10px] uppercase tracking-[0.18em] text-text-dim">O que você quer criar hoje?</p>
-                <div className="flex flex-wrap gap-2">
+              <div className="space-y-2.5">
+                <p className="font-cinzel text-[10px] uppercase tracking-[0.2em] text-text-dim">O que você quer criar hoje?</p>
+                <div className="flex flex-wrap gap-2.5">
                   {creationChips.map(s => (
                     <button
                       key={s}
                       type="button"
                       onClick={() => { setAskMode(true); setDraft(s); inputRef.current?.focus(); }}
-                      className="px-3 py-1.5 rounded-full text-[11px] font-montserrat border border-blue-bright/25 bg-blue-bright/[0.05] text-text-secondary hover:text-foreground hover:border-blue-bright/55 transition-colors"
+                      className="px-3.5 py-2 rounded-full text-[11.5px] font-montserrat border border-blue-bright/25 bg-blue-bright/[0.05] text-text-secondary hover:text-foreground hover:border-blue-bright/55 hover:bg-blue-bright/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
                     >
                       {s}
                     </button>
@@ -291,6 +291,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
                 </div>
               </div>
             )}
+
 
             {/* Compositor */}
             <div>
