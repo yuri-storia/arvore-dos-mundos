@@ -295,20 +295,20 @@ export const GuidedBuildChat: React.FC<Props> = ({
 
             {/* Compositor */}
             <div>
-              <p className="font-cinzel text-[10px] uppercase tracking-[0.18em] text-text-dim mb-1.5">
+              <p className="font-cinzel text-[10px] uppercase tracking-[0.2em] text-text-dim mb-2">
                 {askMode ? 'Pergunta a Idriel · 1 gota' : step ? step.label : 'Escreva livremente'}
               </p>
               {step?.type === 'select' && !askMode ? (
                 <select
                   value={values[step.fieldId] || ''}
                   onChange={e => { onFieldChange(step.fieldId, e.target.value); }}
-                  className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/20 rounded-xl px-3.5 py-2.5 text-sm text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50"
+                  className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/20 rounded-xl px-3.5 py-3 text-sm text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50"
                 >
                   <option value="">Selecione…</option>
                   {step.options?.map(o => <option key={o} value={o}>{o}</option>)}
                 </select>
               ) : (
-                <div className="flex items-end gap-2.5">
+                <div className="flex items-end gap-3">
                   <textarea
                     ref={inputRef}
                     value={draft}
@@ -316,7 +316,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
                     onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
                     rows={2}
                     placeholder={askMode ? 'Pergunte a Idriel sobre este Fruto…' : (step?.placeholder || 'Escreva aqui…')}
-                    className={`flex-1 min-w-0 resize-y rounded-xl px-3.5 py-2.5 text-[13.5px] text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none transition-colors ${
+                    className={`flex-1 min-w-0 resize-y rounded-xl px-4 py-3 text-[13.5px] text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none transition-colors ${
                       askMode ? 'bg-gold/[0.05] border border-gold/30 focus:border-gold/60'
                               : 'bg-[rgba(4,12,24,0.6)] border border-blue-bright/20 focus:border-blue-bright/50'
                     }`}
@@ -326,8 +326,8 @@ export const GuidedBuildChat: React.FC<Props> = ({
                     onClick={handleSubmit}
                     disabled={!draft.trim() || (askMode && (aiLoading || !canUseAI))}
                     aria-label={askMode ? 'Enviar pergunta a Idriel' : 'Registrar resposta'}
-                    className={`shrink-0 h-11 w-11 rounded-xl flex items-center justify-center transition-all disabled:opacity-40 ${
-                      askMode ? 'bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] shadow-[0_0_14px_hsl(var(--gold)/0.35)]'
+                    className={`shrink-0 h-11 w-11 rounded-xl flex items-center justify-center transition-all disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 ${
+                      askMode ? 'gold-sweep text-[#1a0f00] shadow-[0_0_14px_hsl(var(--gold)/0.35)]'
                               : 'bg-blue-main hover:bg-blue-bright text-foreground'
                     }`}
                   >
@@ -335,20 +335,20 @@ export const GuidedBuildChat: React.FC<Props> = ({
                   </button>
                 </div>
               )}
-              <p className="mt-1.5 font-montserrat text-[9.5px] text-text-dim/80">
+              <p className="mt-2 font-montserrat text-[9.5px] text-text-dim/80">
                 O que você escrever aqui vira {outputsLabel}.
               </p>
             </div>
 
             {/* Navegação entre caminhos */}
             {questions.length > 1 && !askMode && (
-              <div className="flex items-center justify-end gap-1.5">
+              <div className="flex items-center justify-end gap-2">
                 <button type="button" onClick={() => setStepIndex(i => Math.max(0, i - 1))} disabled={stepIndex === 0}
-                  className="px-2.5 py-1.5 rounded-lg text-[10px] font-montserrat text-text-dim border border-blue-bright/15 hover:text-foreground disabled:opacity-30 transition-colors">
+                  className="px-3 py-1.5 rounded-lg text-[10px] font-montserrat text-text-dim border border-blue-bright/15 hover:text-foreground disabled:opacity-30 transition-colors">
                   Anterior
                 </button>
                 <button type="button" onClick={() => setStepIndex(i => Math.min(questions.length - 1, i + 1))} disabled={stepIndex >= questions.length - 1}
-                  className="px-2.5 py-1.5 rounded-lg text-[10px] font-montserrat text-text-dim border border-blue-bright/15 hover:text-foreground disabled:opacity-30 transition-colors">
+                  className="px-3 py-1.5 rounded-lg text-[10px] font-montserrat text-text-dim border border-blue-bright/15 hover:text-foreground disabled:opacity-30 transition-colors">
                   Próximo
                 </button>
               </div>
@@ -357,31 +357,32 @@ export const GuidedBuildChat: React.FC<Props> = ({
             {historySlot && <div className="pb-1">{historySlot}</div>}
           </div>
 
-          {/* Opções especiais de IA — recolhidas e pulsando */}
-          <div className="border-t border-gold/15 bg-[linear-gradient(180deg,rgba(2,7,13,0.75),rgba(20,13,2,0.5))]">
+          {/* Opções especiais de IA — recolhidas, douradas e pulsando */}
+          <div className="border-t border-gold/15 bg-[linear-gradient(180deg,rgba(2,7,13,0.8),rgba(20,13,2,0.55))] px-4 sm:px-5 py-4">
             <button
               type="button"
               onClick={() => setSpecialOpen(o => !o)}
-              className="w-full flex items-center gap-2 px-4 py-3 text-left group"
+              aria-expanded={specialOpen}
+              aria-controls="idriel-powers-panel"
+              className={`gold-sweep ${specialOpen ? '' : 'gold-breath'} w-full flex items-center gap-3 rounded-2xl px-4 py-3.5 text-left text-[#1a0f00] border border-gold-light/50 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light focus-visible:ring-offset-2 focus-visible:ring-offset-[#02070d] transition-all`}
             >
-              <span className="relative flex items-center justify-center h-6 w-6 rounded-full bg-gold/15 border border-gold/40">
-                <span className="absolute inset-0 rounded-full bg-gold/25 animate-ping opacity-60" />
-                <Wand2 className="relative w-3.5 h-3.5 text-gold-light" strokeWidth={1.9} />
+              <span className="relative flex items-center justify-center h-7 w-7 rounded-full bg-[#1a0f00]/15 border border-[#1a0f00]/25">
+                <Wand2 className="relative w-4 h-4" strokeWidth={2} />
               </span>
-              <span className="font-cinzel text-[11px] uppercase tracking-[0.16em] text-gold-light">
+              <span className="font-cinzel text-[12.5px] uppercase tracking-[0.18em] font-bold">
                 Poderes de Idriel
               </span>
-              <ChevronDown className={`ml-auto w-4 h-4 text-gold-champagne transition-transform ${specialOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`ml-auto w-4.5 h-4.5 transition-transform duration-300 ${specialOpen ? 'rotate-180' : ''}`} />
             </button>
             {specialOpen && (
-              <div className="px-4 pb-4 space-y-3 animate-fadeUp">
+              <div id="idriel-powers-panel" className="pt-4 space-y-3.5 animate-fadeUp">
                 {canUseAI ? (
                   <button
                     type="button"
                     onClick={() => { setAskMode(true); setDraft(''); inputRef.current?.focus(); }}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] shadow-[0_0_16px_-4px_hsl(var(--gold)/0.6)] hover:brightness-110 transition-all"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[10.5px] font-montserrat font-bold uppercase tracking-wider border border-gold/45 bg-gold/[0.08] text-gold-light hover:bg-gold/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
                   >
-                    <Sparkles className="w-3 h-3" strokeWidth={2} />Pedir ideias a Idriel · 1 gota
+                    <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />Pedir ideias a Idriel · 1 gota
                   </button>
                 ) : upgradeSlot}
                 {specialSlot && (
@@ -390,6 +391,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
               </div>
             )}
           </div>
+
         </div>
       </div>
     </div>
