@@ -50,7 +50,9 @@ export const GuidedBuildChat: React.FC<Props> = ({
   const [stepIndex, setStepIndex] = useState(0);
   const [specialOpen, setSpecialOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
+  const [pathChoice, setPathChoice] = useState(true);
   const [progress, setProgress] = useState<{ label: string; done: number; total: number } | null>(null);
+
   const [visualState, setVisualState] = useState<IdrielState>(OPENING_STATES[fruitId % OPENING_STATES.length]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
