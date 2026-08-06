@@ -357,52 +357,11 @@ export const GuidedBuildChat: React.FC<Props> = ({
           </div>
 
           {/* Ações */}
-          <div className="border-t border-gold/10 px-4 sm:px-5 pt-5 pb-3 bg-[rgba(2,7,13,0.7)] space-y-6">
+          <div className="border-t border-gold/10 px-4 sm:px-5 pt-5 pb-4 bg-[rgba(2,7,13,0.7)] space-y-7">
 
-            {/* O que criar hoje — funções de Idriel (douradas, 1 gota) */}
-            {creationChips.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                  <h3 className="font-cinzel text-[13.5px] sm:text-[15px] uppercase tracking-[0.18em] text-gold-light whitespace-nowrap">O que você quer criar hoje?</h3>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/35 bg-gold/[0.08] px-2.5 py-1 font-montserrat text-[9px] uppercase tracking-[0.16em] text-gold-champagne">
-                    <Wand2 className="w-3 h-3" strokeWidth={2} />Funções de Idriel · 1 gota
-                  </span>
-                  <span className="h-px flex-1 min-w-[24px] bg-gradient-to-r from-gold/25 to-transparent" />
-                </div>
-                <div className="flex flex-wrap gap-2.5 sm:gap-3" aria-busy={typing}>
-                  {typing
-                    ? creationChips.map((s, i) => (
-
-                        <span
-                          key={`skeleton-${s}`}
-                          aria-hidden="true"
-                          className="h-[34px] rounded-full border border-gold/15 bg-gold/[0.05] animate-pulse"
-                          style={{ width: `${Math.min(220, 70 + s.length * 6)}px`, animationDelay: `${i * 90}ms` }}
-                        />
-                      ))
-                    : creationChips.map((s, i) => (
-                        <button
-                          key={s}
-                          type="button"
-                          onClick={() => { setAskMode(true); setDraft(s); inputRef.current?.focus(); }}
-                          aria-label={`${s} — função de Idriel, custa 1 gota de elixir`}
-                          style={{ animationDelay: `${i * 60}ms`, animationFillMode: 'backwards' }}
-                          className="animate-fadeUp group inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] leading-none tracking-[0.02em] font-montserrat border border-gold/40 bg-gold/[0.08] text-gold-light hover:bg-gold/[0.16] hover:border-gold/70 hover:shadow-[0_0_18px_-8px_hsl(var(--gold)/0.9)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
-                        >
-                          <Sparkles className="w-3 h-3 text-gold-champagne" strokeWidth={1.75} />
-                          {s}
-                          <span className="ml-1 rounded-full border border-gold/30 bg-gold/10 px-1.5 py-0.5 text-[8.5px] uppercase tracking-[0.12em] text-gold-champagne">1 gota</span>
-                        </button>
-                      ))}
-                </div>
-              </div>
-            )}
-
-
-
-            {/* Compositor */}
+            {/* 1 · Espaço livre de escrita — sem custo, salvável no Codex */}
             <div className={askMode ? 'rounded-2xl border border-gold/30 bg-gold/[0.04] p-3.5 -mx-1' : undefined}>
-              <div className="flex items-center gap-2 mb-2.5">
+              <div className="flex flex-wrap items-center gap-2 mb-2.5">
                 {askMode ? (
                   <>
                     <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/[0.1] px-2.5 py-1 font-cinzel text-[9.5px] uppercase tracking-[0.18em] text-gold-light">
@@ -417,58 +376,66 @@ export const GuidedBuildChat: React.FC<Props> = ({
                     </button>
                   </>
                 ) : (
-                  <p className="font-cinzel text-[10px] uppercase tracking-[0.22em] text-text-dim">
-                    {step ? step.label : 'Escreva livremente'}
-                  </p>
+                  <>
+                    <h3 className="font-cinzel text-[13px] sm:text-[14.5px] uppercase tracking-[0.16em] text-blue-light">
+                      {freeStep ? freeStep.label : 'Escreva livremente'}
+                    </h3>
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-bright/30 bg-blue-bright/[0.07] px-2.5 py-1 font-montserrat text-[9px] uppercase tracking-[0.16em] text-blue-light">
+                      <PenLine className="w-3 h-3" strokeWidth={2} />Brainstorming livre · sem custo
+                    </span>
+                    <span className="h-px flex-1 min-w-[24px] bg-gradient-to-r from-blue-bright/25 to-transparent" />
+                  </>
                 )}
               </div>
 
-
-              {step?.type === 'select' && !askMode ? (
+              {step?.type === 'select' && !askMode && (
                 <select
                   value={values[step.fieldId] || ''}
                   onChange={e => { onFieldChange(step.fieldId, e.target.value); }}
-                  className="w-full bg-[rgba(4,12,24,0.6)] border border-blue-bright/20 rounded-xl px-3.5 py-3 text-sm text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50"
+                  aria-label={step.label}
+                  className="w-full mb-3 bg-[rgba(4,12,24,0.6)] border border-blue-bright/20 rounded-xl px-3.5 py-3 text-sm text-foreground font-merriweather focus:outline-none focus:border-blue-bright/50"
                 >
-                  <option value="">Selecione…</option>
+                  <option value="">{step.label} — selecione…</option>
                   {step.options?.map(o => <option key={o} value={o}>{o}</option>)}
                 </select>
-              ) : (
-                <div className="flex items-end gap-3">
-                  <textarea
-                    ref={inputRef}
-                    value={draft}
-                    onChange={e => setDraft(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
-                    rows={2}
-                    placeholder={askMode ? 'Pergunte a Idriel sobre este Fruto…' : (step?.placeholder || 'Escreva aqui…')}
-                    className={`flex-1 min-w-0 resize-y rounded-xl px-4 py-3 text-[13.5px] text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none transition-colors ${
-                      askMode ? 'bg-gold/[0.05] border border-gold/30 focus:border-gold/60'
-                              : 'bg-[rgba(4,12,24,0.6)] border border-blue-bright/20 focus:border-blue-bright/50'
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleSubmit}
-                    disabled={!draft.trim() || (askMode && (aiLoading || !canUseAI))}
-                    aria-label={askMode ? 'Enviar pergunta a Idriel' : 'Registrar resposta'}
-                    className={`shrink-0 h-11 w-11 rounded-xl flex items-center justify-center transition-all disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 ${
-                      askMode ? 'gold-sweep text-[#1a0f00] shadow-[0_0_14px_hsl(var(--gold)/0.35)]'
-                              : 'bg-blue-main hover:bg-blue-bright text-foreground'
-                    }`}
-                  >
-                    <Send className="w-4 h-4" strokeWidth={2} />
-                  </button>
-                </div>
               )}
-              <p className="mt-2 font-montserrat text-[9.5px] text-text-dim/80">
-                O que você escrever aqui vira {outputsLabel}.
+
+              <div className="relative">
+                <textarea
+                  ref={inputRef}
+                  value={draft}
+                  onChange={e => setDraft(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
+                  rows={3}
+                  placeholder={askMode ? 'Pergunte a Idriel sobre este Fruto…' : (freeStep?.placeholder || 'Escreva livremente as suas ideias…')}
+                  className={`w-full resize-y rounded-xl pl-4 pr-16 py-3 text-[13.5px] text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none transition-colors ${
+                    askMode ? 'bg-gold/[0.05] border border-gold/30 focus:border-gold/60'
+                            : 'bg-[rgba(4,12,24,0.6)] border border-blue-bright/20 focus:border-blue-bright/50'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={!draft.trim() || (askMode && (aiLoading || !canUseAI))}
+                  aria-label={askMode ? 'Enviar pergunta a Idriel' : 'Registrar anotação'}
+                  className={`absolute right-2.5 bottom-3 h-9 w-9 rounded-lg flex items-center justify-center transition-all disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 ${
+                    askMode ? 'gold-sweep text-[#1a0f00] shadow-[0_0_14px_hsl(var(--gold)/0.35)]'
+                            : 'bg-blue-main hover:bg-blue-bright text-foreground'
+                  }`}
+                >
+                  <Send className="w-4 h-4" strokeWidth={2} />
+                </button>
+              </div>
+              <p className="mt-2 font-montserrat text-[9.5px] leading-relaxed text-text-dim/85">
+                {askMode
+                  ? 'Idriel responderá com base no seu Codex — esta ação consome 1 gota de elixir.'
+                  : `Espaço de brainstorming: escreva sem custo e sem chamar Idriel. Tudo o que ficar aqui pode ser salvo no Codex como ${outputsLabel}.`}
               </p>
             </div>
 
             {/* Navegação entre caminhos */}
             {questions.length > 1 && !askMode && (
-              <div className="flex items-center justify-end gap-2">
+              <div className="flex items-center justify-end gap-2 -mt-3">
                 <button type="button" onClick={() => setStepIndex(i => Math.max(0, i - 1))} disabled={stepIndex === 0}
                   className="px-3 py-1.5 rounded-lg text-[10px] font-montserrat text-text-dim border border-blue-bright/15 hover:text-foreground disabled:opacity-30 transition-colors">
                   Anterior
@@ -480,43 +447,86 @@ export const GuidedBuildChat: React.FC<Props> = ({
               </div>
             )}
 
-            {historySlot && <div className="pb-1">{historySlot}</div>}
-          </div>
+            {/* 2 · Peça ajuda a Idriel — funções douradas (1 gota) */}
+            <div className="space-y-3.5 rounded-2xl border border-gold/20 bg-[linear-gradient(180deg,rgba(20,13,2,0.35),rgba(2,7,13,0.35))] p-4">
+              <div>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                  <h3 className="font-cinzel text-[14px] sm:text-[15.5px] uppercase tracking-[0.18em] text-gold-light">Peça ajuda a Idriel</h3>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/35 bg-gold/[0.08] px-2.5 py-1 font-montserrat text-[9px] uppercase tracking-[0.16em] text-gold-champagne">
+                    <Wand2 className="w-3 h-3" strokeWidth={2} />1 gota por pedido
+                  </span>
+                  <span className="h-px flex-1 min-w-[24px] bg-gradient-to-r from-gold/25 to-transparent" />
+                </div>
+                <p className="mt-1.5 font-merriweather text-[12px] leading-relaxed text-text-dim">
+                  Idriel estuda o seu Codex e dá ideias complementares a tudo o que você já criou até aqui.
+                </p>
+              </div>
 
-          {/* Opções especiais de IA — recolhidas, douradas e pulsando */}
-          <div className="border-t border-gold/15 bg-[linear-gradient(180deg,rgba(2,7,13,0.8),rgba(20,13,2,0.55))] px-4 sm:px-5 py-4">
-            <button
-              type="button"
-              onClick={() => setSpecialOpen(o => !o)}
-              aria-expanded={specialOpen}
-              aria-controls="idriel-powers-panel"
-              className={`gold-sweep ${specialOpen ? '' : 'gold-breath'} w-full flex items-center gap-3 rounded-2xl px-4 py-3.5 text-left text-[#1a0f00] border border-gold-light/50 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light focus-visible:ring-offset-2 focus-visible:ring-offset-[#02070d] transition-all`}
-            >
-              <span className="relative flex items-center justify-center h-7 w-7 rounded-full bg-[#1a0f00]/15 border border-[#1a0f00]/25">
-                <Wand2 className="relative w-4 h-4" strokeWidth={2} />
-              </span>
-              <span className="font-cinzel text-[12.5px] uppercase tracking-[0.18em] font-bold">
-                Poderes de Idriel
-              </span>
-              <ChevronDown className={`ml-auto w-4 h-4 transition-transform duration-300 ${specialOpen ? 'rotate-180' : ''}`} />
-            </button>
-            {specialOpen && (
-              <div id="idriel-powers-panel" className="pt-4 space-y-3.5 animate-fadeUp">
-                {canUseAI ? (
+              {canUseAI ? (
+                <div className="flex flex-wrap gap-2.5 sm:gap-3" aria-busy={typing}>
+                  {typing
+                    ? creationChips.map((s, i) => (
+                        <span
+                          key={`skeleton-${s}`}
+                          aria-hidden="true"
+                          className="h-[36px] rounded-full border border-gold/15 bg-gold/[0.05] animate-pulse"
+                          style={{ width: `${Math.min(220, 70 + s.length * 6)}px`, animationDelay: `${i * 90}ms` }}
+                        />
+                      ))
+                    : creationChips.map((s, i) => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => { setAskMode(true); setDraft(s); inputRef.current?.focus(); }}
+                          aria-label={`${s} — pedir ideias a Idriel, custa 1 gota de elixir`}
+                          style={{ animationDelay: `${i * 60}ms`, animationFillMode: 'backwards' }}
+                          className="animate-fadeUp gold-sweep inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] leading-none tracking-[0.02em] font-montserrat font-semibold text-[#1a0f00] border border-gold-light/50 hover:brightness-110 hover:shadow-[0_0_20px_-6px_hsl(var(--gold)/0.9)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light transition-all"
+                        >
+                          <Sparkles className="w-3 h-3" strokeWidth={2} />
+                          {s}
+                          <span className="ml-1 rounded-full bg-[#1a0f00]/15 border border-[#1a0f00]/25 px-1.5 py-0.5 text-[8.5px] uppercase tracking-[0.12em]">1 gota</span>
+                        </button>
+                      ))}
                   <button
                     type="button"
                     onClick={() => { setAskMode(true); setDraft(''); inputRef.current?.focus(); }}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[10.5px] font-montserrat font-bold uppercase tracking-wider border border-gold/45 bg-gold/[0.08] text-gold-light hover:bg-gold/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] font-montserrat tracking-[0.02em] border border-gold/40 bg-gold/[0.08] text-gold-light hover:bg-gold/[0.18] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
                   >
-                    <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />Pedir ideias a Idriel · 1 gota
+                    <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />Escrever meu próprio pedido
                   </button>
-                ) : upgradeSlot}
-                {specialSlot && (
-                  <div className="rounded-2xl border border-gold/15 bg-[rgba(3,9,18,0.6)] p-4">{specialSlot}</div>
-                )}
-              </div>
-            )}
+                </div>
+              ) : upgradeSlot}
+            </div>
+
+            {historySlot && <div className="pb-1">{historySlot}</div>}
           </div>
+
+          {/* Crie Mapas com Idriel — exclusivo do Fruto "Mapa do Mundo" */}
+          {config.special === 'map' && specialSlot && (
+            <div className="border-t border-gold/15 bg-[linear-gradient(180deg,rgba(2,7,13,0.8),rgba(20,13,2,0.55))] px-4 sm:px-5 py-4">
+              <button
+                type="button"
+                onClick={() => setSpecialOpen(o => !o)}
+                aria-expanded={specialOpen}
+                aria-controls="idriel-powers-panel"
+                className={`gold-sweep ${specialOpen ? '' : 'gold-breath'} w-full flex items-center gap-3 rounded-2xl px-4 py-3.5 text-left text-[#1a0f00] border border-gold-light/50 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light focus-visible:ring-offset-2 focus-visible:ring-offset-[#02070d] transition-all`}
+              >
+                <span className="relative flex items-center justify-center h-7 w-7 rounded-full bg-[#1a0f00]/15 border border-[#1a0f00]/25">
+                  <Wand2 className="relative w-4 h-4" strokeWidth={2} />
+                </span>
+                <span className="font-cinzel text-[12.5px] uppercase tracking-[0.18em] font-bold">
+                  Crie Mapas com Idriel
+                </span>
+                <ChevronDown className={`ml-auto w-4 h-4 transition-transform duration-300 ${specialOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {specialOpen && (
+                <div id="idriel-powers-panel" className="pt-4 animate-fadeUp">
+                  <div className="rounded-2xl border border-gold/15 bg-[rgba(3,9,18,0.6)] p-4">{specialSlot}</div>
+                </div>
+              )}
+            </div>
+          )}
+
 
         </div>
       </div>
