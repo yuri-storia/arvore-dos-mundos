@@ -407,7 +407,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
           <div className="border-t border-gold/10 px-4 sm:px-5 pt-5 pb-4 bg-[rgba(2,7,13,0.7)] space-y-7">
 
             {/* 1 · Espaço livre de escrita — sem custo, salvável no Codex */}
-            <div className={askMode ? 'rounded-2xl border border-gold/30 bg-gold/[0.04] p-3.5 -mx-1' : undefined}>
+            <div data-tour="free-writing" className={askMode ? 'rounded-2xl border border-gold/30 bg-gold/[0.04] p-3.5 -mx-1' : undefined}>
               <div className="flex flex-wrap items-center gap-2 mb-2.5">
                 {askMode ? (
                   <>
