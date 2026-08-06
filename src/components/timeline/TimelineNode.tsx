@@ -210,7 +210,7 @@ export const TimelineNode: React.FC<Props> = ({
         >
           <Icon className="w-4 h-4" strokeWidth={2} />
           {expanded && (
-            <span className="absolute inset-0 rounded-full ring-2 ring-gold-champagne/70 animate-pulse" style={{ animationDuration: '2.4s' }} />
+            <span className="absolute inset-0 rounded-full ring-2 ring-gold-champagne/70 animate-soft-pulse" style={{ animationDuration: '2.4s' }} />
           )}
         </motion.button>
       </div>

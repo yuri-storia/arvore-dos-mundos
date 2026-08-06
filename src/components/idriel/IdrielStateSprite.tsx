@@ -77,7 +77,7 @@ export const IdrielStateSprite: React.FC<Props> = ({
 
       {/* Carregamento discreto: brilho suave no topo da silhueta */}
       {loading && !failed && (
-        <div className="absolute inset-0 animate-pulse bg-[radial-gradient(60%_45%_at_50%_25%,hsl(var(--gold)/0.10),transparent_70%)]" />
+        <div className="absolute inset-0 animate-soft-pulse bg-[radial-gradient(60%_45%_at_50%_25%,hsl(var(--gold)/0.10),transparent_70%)]" />
       )}
     </div>
   );

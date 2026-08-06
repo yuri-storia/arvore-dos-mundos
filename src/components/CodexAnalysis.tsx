@@ -1173,7 +1173,7 @@ Ao final do lote, opcionalmente adicione uma seção "### Observações do lote"
 
             {isRevealing && (
               <div className="mb-3 flex items-center gap-1.5 text-gold-light/70">
-                <span className="w-1.5 h-1.5 rounded-full bg-gold-champagne animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-gold-champagne animate-soft-pulse" />
                 <span className="text-[10px] font-montserrat italic">Idriel escrevendo…</span>
               </div>
             )}

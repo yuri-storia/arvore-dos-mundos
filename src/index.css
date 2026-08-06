@@ -285,17 +285,30 @@
 }
 .animate-fadeUp { animation: fadeUp 0.33s ease-out both; }
 .animate-heroFloat { animation: heroFloat 5s ease-in-out infinite; }
-.animate-blink { animation: blink 2.2s ease-in-out infinite; }
+.animate-blink { animation: blink 2.6s ease-in-out infinite; }
 .animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; }
+
+/* Pulsar discreto e barato (só opacidade — sem repaint pesado) */
+@keyframes softPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.68; }
+}
+.animate-soft-pulse {
+  animation: softPulse 2.8s ease-in-out infinite;
+  will-change: opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-soft-pulse { animation: none; }
+}
 
 /* Degradê dourado premium em movimento */
 @keyframes goldSweep {
   0% { background-position: 0% 50%; }
   100% { background-position: 200% 50%; }
 }
-@keyframes goldBreath {
-  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--gold) / 0.30), 0 10px 30px -14px hsl(var(--gold) / 0.55); }
-  50% { box-shadow: 0 0 0 6px hsl(var(--gold) / 0), 0 14px 38px -14px hsl(var(--gold) / 0.75); }
+@keyframes goldBreathGlow {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
 }
 .gold-sweep {
   background-image: linear-gradient(
@@ -309,18 +322,30 @@
     hsl(var(--gold-light)) 100%
   );
   background-size: 200% 100%;
-  animation: goldSweep 7s linear infinite;
+  animation: goldSweep 9s linear infinite;
 }
-.gold-breath { animation: goldBreath 3.2s ease-in-out infinite; }
+/* O brilho pulsante vive num pseudo-elemento: anima opacidade, não box-shadow */
+.gold-breath { position: relative; }
+.gold-breath::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 14px 38px -14px hsl(var(--gold) / 0.75);
+  animation: goldBreathGlow 3.6s ease-in-out infinite;
+  will-change: opacity;
+}
 @media (prefers-reduced-motion: reduce) {
-  .gold-sweep, .gold-breath { animation: none; }
+  .gold-sweep { animation: none; }
+  .gold-breath::after { animation: none; opacity: 0.6; }
 }
 
 
 /* Painel azul premium do Estúdio (aba Construir) */
 @keyframes bluePanelDrift {
   0%, 100% { background-position: 0% 0%, 100% 100%, 50% 0%; }
-  50% { background-position: 20% 30%, 80% 70%, 50% 100%; }
+  50% { background-position: 12% 20%, 88% 80%, 50% 100%; }
 }
 .blue-panel {
   background-image:
@@ -328,7 +353,7 @@
     radial-gradient(110% 90% at 100% 100%, hsl(210 90% 55% / 0.20), transparent 65%),
     linear-gradient(165deg, rgba(8, 24, 48, 0.96) 0%, rgba(5, 16, 34, 0.97) 45%, rgba(2, 9, 20, 0.98) 100%);
   background-size: 180% 180%, 180% 180%, 100% 200%;
-  animation: bluePanelDrift 18s ease-in-out infinite;
+  animation: bluePanelDrift 40s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
   .blue-panel { animation: none; }
@@ -466,21 +491,26 @@
 }
 .consult-idriel-cta:hover::after { opacity: 1; }
 
-@keyframes gold-blink {
-  0%, 100% {
-    box-shadow:
-      0 0 12px hsl(var(--gold-warm) / 0.35),
-      0 0 24px hsl(var(--gold-champagne) / 0.20);
-    filter: brightness(1);
-  }
-  50% {
-    box-shadow:
-      0 0 28px hsl(var(--gold-warm) / 0.85),
-      0 0 56px hsl(var(--gold-champagne) / 0.55);
-    filter: brightness(1.18);
-  }
+@keyframes glowFade {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
 }
-.animate-gold-blink { animation: gold-blink 1.2s ease-in-out infinite; }
+.animate-gold-blink { position: relative; }
+.animate-gold-blink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    0 0 22px hsl(var(--gold-warm) / 0.70),
+    0 0 44px hsl(var(--gold-champagne) / 0.45);
+  animation: glowFade 2.4s ease-in-out infinite;
+  will-change: opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-gold-blink::after { animation: none; opacity: 0.55; }
+}
 
 /* Botão de expansão premium — identidade do Estúdio de Criação */
 .expand-toggle {
@@ -527,11 +557,20 @@
   box-shadow: 0 8px 32px hsl(var(--idriel) / 0.15), 0 0 0 1px hsl(var(--idriel) / 0.08);
 }
 
-@keyframes idriel-pulse {
-  0%, 100% { box-shadow: 0 0 10px hsl(var(--idriel-glow) / 0.4), 0 0 20px hsl(var(--idriel-glow) / 0.15); }
-  50% { box-shadow: 0 0 24px hsl(var(--idriel-glow) / 0.7), 0 0 40px hsl(var(--idriel-glow) / 0.25); }
+.animate-idriel-pulse { position: relative; }
+.animate-idriel-pulse::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 22px hsl(var(--idriel-glow) / 0.65), 0 0 38px hsl(var(--idriel-glow) / 0.22);
+  animation: glowFade 3.2s ease-in-out infinite;
+  will-change: opacity;
 }
-.animate-idriel-pulse { animation: idriel-pulse 2.5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-idriel-pulse::after { animation: none; opacity: 0.6; }
+}
 
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(20px) scale(0.97); }
@@ -570,13 +609,13 @@
   100% { background-position: -200% 0; }
 }
 
-@keyframes tour-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--idriel-glow) / 0.6), inset 0 0 0 0 transparent; }
-  50% { box-shadow: 0 0 20px 4px hsl(var(--idriel-glow) / 0.4), inset 0 0 8px hsl(var(--idriel-glow) / 0.1); }
-}
-
 .animate-tour-pulse {
-  animation: tour-pulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 20px 4px hsl(var(--idriel-glow) / 0.4), inset 0 0 8px hsl(var(--idriel-glow) / 0.1);
+  animation: glowFade 2.6s ease-in-out infinite;
+  will-change: opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-tour-pulse { animation: none; }
 }
 
 @keyframes elixir-shimmer {
@@ -624,16 +663,20 @@
   .codex-fade-in { animation: none; }
 }
 
-/* Fruit carousel — active card microanimation */
-@keyframes fruitActivePulse {
-  0%, 100% { box-shadow: 0 0 36px rgba(59,130,246,0.42), 0 0 18px hsl(var(--gold-warm) / 0.22); }
-  50%      { box-shadow: 0 0 46px rgba(59,130,246,0.62), 0 0 24px hsl(var(--gold-warm) / 0.32); }
-}
-.animate-fruit-active {
-  animation: fruitActivePulse 3.4s ease-in-out infinite;
+/* Fruit carousel — active card microanimation (opacidade, sem repaint de sombra) */
+.animate-fruit-active { position: relative; }
+.animate-fruit-active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 46px rgba(59,130,246,0.55), 0 0 24px hsl(var(--gold-warm) / 0.30);
+  animation: glowFade 4s ease-in-out infinite;
+  will-change: opacity;
 }
 @media (prefers-reduced-motion: reduce) {
-  .animate-fruit-active { animation: none; }
+  .animate-fruit-active::after { animation: none; opacity: 0.7; }
 }
 
 /* =========================================================
