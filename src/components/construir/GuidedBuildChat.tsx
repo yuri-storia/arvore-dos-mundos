@@ -49,6 +49,8 @@ export const GuidedBuildChat: React.FC<Props> = ({
   const [askMode, setAskMode] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [specialOpen, setSpecialOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(true);
+  const [progress, setProgress] = useState<{ label: string; done: number; total: number } | null>(null);
   const [visualState, setVisualState] = useState<IdrielState>(OPENING_STATES[fruitId % OPENING_STATES.length]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -62,9 +64,10 @@ export const GuidedBuildChat: React.FC<Props> = ({
   const clearTimers = () => { timers.current.forEach(clearTimeout); timers.current = []; };
 
   /** Sequência animada de falas de Idriel (imita digitação de chat). */
-  const streamIdriel = useCallback((texts: { text: string; kind?: Bubble['kind'] }[], state?: IdrielState) => {
+  const streamIdriel = useCallback((texts: { text: string; kind?: Bubble['kind'] }[], state?: IdrielState, progressLabel?: string) => {
     clearTimers();
     if (state) setVisualState(state);
+    if (progressLabel) setProgress({ label: progressLabel, done: 0, total: texts.length });
     let delay = 0;
     texts.forEach((t, i) => {
       const wait = i === 0 ? 320 : Math.min(1400, 420 + t.text.length * 4);
@@ -75,9 +78,11 @@ export const GuidedBuildChat: React.FC<Props> = ({
       timers.current.push(window.setTimeout(() => {
         setTyping(i < texts.length - 1);
         setLog(prev => [...prev, { id: uid(), from: 'idriel', text: t.text, kind: t.kind }]);
+        if (progressLabel) setProgress({ label: progressLabel, done: i + 1, total: texts.length });
       }, delay) as unknown as number);
     });
   }, []);
+
 
   // Reinício ao trocar de Fruto
   useEffect(() => {
