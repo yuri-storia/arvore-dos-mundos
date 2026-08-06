@@ -303,67 +303,71 @@ export const TabConstruir: React.FC<Props> = ({ state, updateField, setCurrentFr
             />
           </div>
 
-          <div className="card-glass rounded-lg overflow-hidden">
-            <div className="p-4 sm:p-5">
-              <p className="font-merriweather italic text-text-dim text-[13px] leading-relaxed mb-4">{fruit.desc}</p>
+          {/* Epígrafe do Fruto — leve, sem moldura */}
+          <p className="px-1 font-merriweather italic text-[12.5px] leading-[1.85] text-text-dim/90 tracking-[0.01em]">
+            <span className="text-gold/60 mr-1.5">❧</span>{fruit.desc}
+          </p>
 
-
-            {/* Gallery images */}
-            {(() => {
-              const fruitTag = `Fruto: ${fruit.name}`;
-              const fruitImages = state.gallery.filter(img => img.cat === fruitTag);
-              if (fruitImages.length === 0) return null;
-              return (
-                <div className="mb-6">
-                  <h3 className="font-montserrat font-bold text-xs uppercase tracking-wider text-gold mb-2 inline-flex items-center gap-1.5"><ImageIcon className="w-3.5 h-3.5" strokeWidth={1.75} />Referências deste Fruto</h3>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                    {fruitImages.map(img => (
-                      <div key={img.id} className="rounded-lg overflow-hidden border border-gold/20 hover:border-gold/50 transition-colors">
-                        <img
-                          src={img.src}
-                          alt={img.name}
-                          className="w-full h-[80px] sm:h-[100px] object-cover cursor-zoom-in"
-                          onClick={() => setLightbox({ src: img.src, alt: img.name })}
-                        />
-                        <p className="text-[9px] text-text-dim font-montserrat p-1 truncate">{img.name}</p>
-                      </div>
-                    ))}
-                  </div>
+          {/* Referências deste Fruto */}
+          {(() => {
+            const fruitTag = `Fruto: ${fruit.name}`;
+            const fruitImages = state.gallery.filter(img => img.cat === fruitTag);
+            if (fruitImages.length === 0) return null;
+            return (
+              <section className="pt-1">
+                <h3 className="font-cinzel text-[11px] uppercase tracking-[0.22em] text-gold-champagne/90 mb-3 inline-flex items-center gap-2">
+                  <ImageIcon className="w-3.5 h-3.5" strokeWidth={1.5} />Referências deste Fruto
+                </h3>
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
+                  {fruitImages.map(img => (
+                    <figure key={img.id} className="group rounded-xl overflow-hidden border border-gold/12 bg-[rgba(3,9,18,0.6)] hover:border-gold/40 transition-colors">
+                      <img
+                        src={img.src}
+                        alt={img.name}
+                        loading="lazy"
+                        className="w-full h-[80px] sm:h-[100px] object-cover cursor-zoom-in transition-transform duration-500 group-hover:scale-[1.04]"
+                        onClick={() => setLightbox({ src: img.src, alt: img.name })}
+                      />
+                      <figcaption className="text-[9px] text-text-dim font-montserrat px-2 py-1.5 truncate">{img.name}</figcaption>
+                    </figure>
+                  ))}
                 </div>
-              );
-            })()}
+              </section>
+            );
+          })()}
 
-            {/* Os campos de criação vivem no Estúdio (chat) acima, junto da consulta a Idriel e do gerador de mapa. */}
+          {/* Trilha dos Frutos — navegação discreta */}
+          <div className="flex items-center justify-between gap-3 pt-2">
+            <button
+              onClick={() => navigateFruit(-1)}
+              disabled={currentOrderIndex <= 0}
+              className="inline-flex items-center gap-1.5 py-1.5 font-montserrat text-[10px] uppercase tracking-[0.18em] text-text-dim hover:text-gold-champagne disabled:opacity-25 disabled:hover:text-text-dim transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.75} />Anterior
+            </button>
 
+            <span className="font-montserrat text-[9.5px] tracking-[0.2em] text-text-dim/60 tabular-nums">
+              {currentOrderIndex + 1} / {orderedFruits.length}
+            </span>
 
-            {/* Navigation */}
-            <div className="flex justify-between items-center gap-2 mt-8 pt-5 border-t border-gold/12">
+            {currentOrderIndex < orderedFruits.length - 1 ? (
               <button
-                onClick={() => navigateFruit(-1)}
-                disabled={currentOrderIndex <= 0}
-                className="px-3.5 sm:px-4 py-2 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider text-text-dim border border-gold/20 hover:text-gold-champagne hover:border-gold/45 disabled:opacity-30 transition-all"
+                onClick={() => navigateFruit(1)}
+                className="group inline-flex items-center gap-1.5 py-1.5 font-montserrat text-[10px] uppercase tracking-[0.18em] text-gold-champagne/85 hover:text-gold-light transition-colors"
               >
-                <><ArrowLeft className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={2} />Anterior</>
+                Próximo Fruto
+                <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5" strokeWidth={1.75} />
               </button>
-              {currentOrderIndex < orderedFruits.length - 1 ? (
-                <button
-                  onClick={() => navigateFruit(1)}
-                  className="px-4 sm:px-5 py-2 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider text-gold-light border border-gold/35 bg-gradient-to-r from-gold/[0.12] to-transparent hover:bg-gold/20 hover:border-gold/60 transition-all shadow-[0_0_18px_-6px_hsl(var(--gold)/0.5)]"
-                >
-                  <>Próximo Fruto <ArrowRight className="inline-block w-3.5 h-3.5 ml-1.5 align-[-0.15em]" strokeWidth={2} /></>
-                </button>
-              ) : (
-                <button
-                  onClick={() => exportWorldMarkdown(worldName, method, db)}
-                  className="px-4 sm:px-5 py-2 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold-deep via-gold-warm to-gold text-[#1a0f00] shadow-[0_0_20px_-6px_hsl(var(--gold)/0.6)] hover:brightness-110 transition-all"
-                >
-                  <><Trees className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Exportar Mundo</>
-                </button>
-              )}
-            </div>
-
-            </div>
+            ) : (
+              <button
+                onClick={() => exportWorldMarkdown(worldName, method, db)}
+                className="inline-flex items-center gap-1.5 py-1.5 font-montserrat text-[10px] uppercase tracking-[0.18em] text-gold-champagne/85 hover:text-gold-light transition-colors"
+              >
+                <Trees className="w-3.5 h-3.5" strokeWidth={1.5} />Exportar Mundo
+              </button>
+            )}
           </div>
+
         </div>
 
       )}
