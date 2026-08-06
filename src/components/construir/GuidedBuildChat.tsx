@@ -49,7 +49,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
   const [askMode, setAskMode] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [specialOpen, setSpecialOpen] = useState(false);
-  const [chatOpen, setChatOpen] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false);
   const [pathChoice, setPathChoice] = useState(true);
   const [progress, setProgress] = useState<{ label: string; done: number; total: number } | null>(null);
 
