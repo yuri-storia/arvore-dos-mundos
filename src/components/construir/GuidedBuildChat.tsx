@@ -303,7 +303,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
             <div className="flex flex-wrap gap-2.5">
               <button
                 type="button"
-                onClick={runLesson}
+                onClick={() => runLesson(false)}
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] font-montserrat font-medium border border-gold/35 bg-gold/[0.07] text-gold-champagne hover:bg-gold/15 hover:border-gold/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
               >
                 <BookOpen className="w-3.5 h-3.5" strokeWidth={1.75} />Aprender sobre o Fruto
