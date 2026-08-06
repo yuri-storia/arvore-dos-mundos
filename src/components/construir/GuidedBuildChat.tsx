@@ -187,25 +187,25 @@ export const GuidedBuildChat: React.FC<Props> = ({
   const creationChips = step?.suggestions ?? [];
 
   return (
-    <div className="blue-panel relative overflow-hidden rounded-[26px] border border-idriel/25 shadow-[0_26px_74px_-26px_rgba(0,0,0,0.9)] lg:min-h-[720px]">
+    <div className="blue-panel relative overflow-hidden rounded-[26px] border border-idriel/25 shadow-[0_26px_74px_-26px_rgba(0,0,0,0.9)] lg:min-h-[780px]">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-idriel/60 to-transparent" />
 
       {/* Nicho escuro atrás da Idriel — funde melhor o recorte */}
       <div
-        className="pointer-events-none absolute inset-y-0 left-0 z-0 hidden lg:block w-[620px]"
+        className="pointer-events-none absolute inset-y-0 left-0 z-0 hidden lg:block w-[700px]"
         style={{
           background:
-            'radial-gradient(72% 66% at 32% 50%, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.85) 44%, rgba(0,0,0,0.45) 72%, transparent 100%)',
+            'radial-gradient(74% 68% at 30% 50%, rgba(0,0,0,0.97) 0%, rgba(0,0,0,0.88) 46%, rgba(0,0,0,0.48) 74%, transparent 100%)',
         }}
       />
 
       {/* Idriel — apenas desktop, tamanho fixo e centralizada verticalmente */}
-      <div className="pointer-events-none absolute lg:left-[-40px] xl:left-[12px] top-1/2 -translate-y-1/2 z-0 hidden lg:block w-[460px] h-[720px]">
-        <IdrielStateSprite state={visualState} heightClass="h-[720px]" className="w-[460px]" objectClass="object-contain object-center" />
+      <div className="pointer-events-none absolute lg:left-[-48px] xl:left-[8px] top-1/2 -translate-y-1/2 z-0 hidden lg:block w-[540px] h-[820px]">
+        <IdrielStateSprite state={visualState} heightClass="h-[820px]" className="w-[540px]" objectClass="object-contain object-center" />
       </div>
 
 
-      <div className="relative z-10 p-4 sm:p-5 md:p-6 lg:pl-[380px] xl:pl-[440px] lg:flex lg:flex-col lg:justify-center">
+      <div className="relative z-10 p-4 sm:p-5 md:p-6 lg:pl-[420px] xl:pl-[500px] lg:flex lg:flex-col lg:justify-center">
 
         <div className="mb-5 flex items-start gap-3">
           {/* Idriel em miniatura — só onde o retrato completo não cabe */}
