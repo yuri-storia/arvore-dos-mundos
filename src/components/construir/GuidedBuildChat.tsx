@@ -384,6 +384,21 @@ export const GuidedBuildChat: React.FC<Props> = ({
                 </div>
               </div>
             )}
+
+            {/* Reiniciar tutorial — ao final do chat */}
+            {log.length > 0 && !typing && !aiLoading && (
+              <div className="flex justify-center animate-fadeUp pt-1 pb-1">
+                <button
+                  type="button"
+                  onClick={() => runLesson(true)}
+                  aria-label="Reiniciar o tutorial animado"
+                  className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/[0.08] px-4 py-2 text-[11px] font-montserrat tracking-[0.08em] text-gold-champagne hover:bg-gold/15 hover:text-gold-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.75} />
+                  Refazer o tutorial
+                </button>
+              </div>
+            )}
               </div>
             </div>
           </div>
