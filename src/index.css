@@ -663,16 +663,20 @@
   .codex-fade-in { animation: none; }
 }
 
-/* Fruit carousel — active card microanimation */
-@keyframes fruitActivePulse {
-  0%, 100% { box-shadow: 0 0 36px rgba(59,130,246,0.42), 0 0 18px hsl(var(--gold-warm) / 0.22); }
-  50%      { box-shadow: 0 0 46px rgba(59,130,246,0.62), 0 0 24px hsl(var(--gold-warm) / 0.32); }
-}
-.animate-fruit-active {
-  animation: fruitActivePulse 3.4s ease-in-out infinite;
+/* Fruit carousel — active card microanimation (opacidade, sem repaint de sombra) */
+.animate-fruit-active { position: relative; }
+.animate-fruit-active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 46px rgba(59,130,246,0.55), 0 0 24px hsl(var(--gold-warm) / 0.30);
+  animation: glowFade 4s ease-in-out infinite;
+  will-change: opacity;
 }
 @media (prefers-reduced-motion: reduce) {
-  .animate-fruit-active { animation: none; }
+  .animate-fruit-active::after { animation: none; opacity: 0.7; }
 }
 
 /* =========================================================
