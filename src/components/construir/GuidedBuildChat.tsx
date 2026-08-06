@@ -362,8 +362,9 @@ export const GuidedBuildChat: React.FC<Props> = ({
                           type="button"
                           onClick={() => { setAskMode(true); setDraft(s); inputRef.current?.focus(); }}
                           style={{ animationDelay: `${i * 60}ms`, animationFillMode: 'backwards' }}
-                          className="animate-fadeUp px-3.5 py-2 rounded-full text-[11.5px] font-montserrat border border-blue-bright/25 bg-blue-bright/[0.05] text-text-secondary hover:text-foreground hover:border-blue-bright/55 hover:bg-blue-bright/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
+                          className="animate-fadeUp group inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] leading-none tracking-[0.02em] font-montserrat border border-blue-bright/25 bg-blue-bright/[0.05] text-text-secondary hover:text-foreground hover:border-blue-bright/55 hover:bg-blue-bright/[0.1] hover:shadow-[0_0_18px_-8px_hsl(var(--blue-bright)/0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
                         >
+                          <Sparkles className="w-3 h-3 text-blue-light/60 group-hover:text-gold-champagne transition-colors" strokeWidth={1.75} />
                           {s}
                         </button>
                       ))}
@@ -374,9 +375,10 @@ export const GuidedBuildChat: React.FC<Props> = ({
 
             {/* Compositor */}
             <div>
-              <p className="font-cinzel text-[10px] uppercase tracking-[0.2em] text-text-dim mb-2">
+              <p className="font-cinzel text-[10px] uppercase tracking-[0.22em] text-text-dim mb-2.5">
                 {askMode ? 'Pergunta a Idriel · 1 gota' : step ? step.label : 'Escreva livremente'}
               </p>
+
               {step?.type === 'select' && !askMode ? (
                 <select
                   value={values[step.fieldId] || ''}
