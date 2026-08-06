@@ -321,17 +321,27 @@ export const GuidedBuildChat: React.FC<Props> = ({
             {creationChips.length > 0 && (
               <div className="space-y-2.5">
                 <h3 className="font-cinzel text-[13.5px] sm:text-[15px] uppercase tracking-[0.16em] text-gold-light">O que você quer criar hoje?</h3>
-                <div className="flex flex-wrap gap-2.5">
-                  {creationChips.map(s => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => { setAskMode(true); setDraft(s); inputRef.current?.focus(); }}
-                      className="px-3.5 py-2 rounded-full text-[11.5px] font-montserrat border border-blue-bright/25 bg-blue-bright/[0.05] text-text-secondary hover:text-foreground hover:border-blue-bright/55 hover:bg-blue-bright/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
-                    >
-                      {s}
-                    </button>
-                  ))}
+                <div className="flex flex-wrap gap-2.5" aria-busy={typing}>
+                  {typing
+                    ? creationChips.map((s, i) => (
+                        <span
+                          key={`skeleton-${s}`}
+                          aria-hidden="true"
+                          className="h-[34px] rounded-full border border-blue-bright/15 bg-blue-bright/[0.05] animate-pulse"
+                          style={{ width: `${Math.min(220, 70 + s.length * 6)}px`, animationDelay: `${i * 90}ms` }}
+                        />
+                      ))
+                    : creationChips.map((s, i) => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => { setAskMode(true); setDraft(s); inputRef.current?.focus(); }}
+                          style={{ animationDelay: `${i * 60}ms`, animationFillMode: 'backwards' }}
+                          className="animate-fadeUp px-3.5 py-2 rounded-full text-[11.5px] font-montserrat border border-blue-bright/25 bg-blue-bright/[0.05] text-text-secondary hover:text-foreground hover:border-blue-bright/55 hover:bg-blue-bright/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
+                        >
+                          {s}
+                        </button>
+                      ))}
                 </div>
               </div>
             )}
