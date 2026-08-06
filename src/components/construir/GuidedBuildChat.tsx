@@ -315,31 +315,40 @@ export const GuidedBuildChat: React.FC<Props> = ({
           </div>
 
           {/* Ações — tutorial */}
-          <div className="border-t border-gold/10 px-4 sm:px-5 pt-4 pb-2 bg-[rgba(2,7,13,0.7)] space-y-5">
-            <div className="flex flex-wrap gap-2.5">
-              <button
-                type="button"
-                onClick={() => runLesson(false)}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] font-montserrat font-medium border border-gold/35 bg-gold/[0.07] text-gold-champagne hover:bg-gold/15 hover:border-gold/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
-              >
-                <BookOpen className="w-3.5 h-3.5" strokeWidth={1.75} />Aprender sobre o Fruto
-              </button>
-              <button
-                type="button"
-                onClick={runCaseStudy}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] font-montserrat border border-blue-bright/25 bg-blue-bright/[0.06] text-text-secondary hover:text-foreground hover:border-blue-bright/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
-              >
-                <ScrollText className="w-3.5 h-3.5" strokeWidth={1.75} />Estudo de caso
-              </button>
+          <div className="border-t border-gold/10 px-4 sm:px-5 pt-5 pb-3 bg-[rgba(2,7,13,0.7)] space-y-6">
+            <div className="space-y-3">
+              <p className="font-montserrat text-[9px] uppercase tracking-[0.28em] text-text-dim/75">
+                Caminhos de estudo
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() => runLesson(false)}
+                  className="inline-flex items-center gap-2.5 px-4.5 py-2.5 rounded-full text-[11.5px] font-montserrat font-medium tracking-[0.02em] border border-gold/35 bg-gold/[0.07] text-gold-champagne hover:bg-gold/15 hover:border-gold/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
+                >
+                  <BookOpen className="w-3.5 h-3.5" strokeWidth={1.75} />Aprender sobre o Fruto
+                </button>
+                <button
+                  type="button"
+                  onClick={runCaseStudy}
+                  className="inline-flex items-center gap-2.5 px-4.5 py-2.5 rounded-full text-[11.5px] font-montserrat tracking-[0.02em] border border-blue-bright/25 bg-blue-bright/[0.06] text-text-secondary hover:text-foreground hover:border-blue-bright/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
+                >
+                  <ScrollText className="w-3.5 h-3.5" strokeWidth={1.75} />Estudo de caso
+                </button>
+              </div>
             </div>
 
             {/* O que criar hoje */}
             {creationChips.length > 0 && (
-              <div className="space-y-2.5">
-                <h3 className="font-cinzel text-[13.5px] sm:text-[15px] uppercase tracking-[0.16em] text-gold-light">O que você quer criar hoje?</h3>
-                <div className="flex flex-wrap gap-2.5" aria-busy={typing}>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <h3 className="font-cinzel text-[13.5px] sm:text-[15px] uppercase tracking-[0.18em] text-gold-light whitespace-nowrap">O que você quer criar hoje?</h3>
+                  <span className="h-px flex-1 bg-gradient-to-r from-gold/25 to-transparent" />
+                </div>
+                <div className="flex flex-wrap gap-2.5 sm:gap-3" aria-busy={typing}>
                   {typing
                     ? creationChips.map((s, i) => (
+
                         <span
                           key={`skeleton-${s}`}
                           aria-hidden="true"
