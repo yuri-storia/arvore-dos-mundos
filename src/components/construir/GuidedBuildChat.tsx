@@ -393,6 +393,8 @@ export const GuidedBuildChat: React.FC<Props> = ({
                 </div>
               </div>
             )}
+              </div>
+            </div>
           </div>
 
           {/* Ações */}
