@@ -170,13 +170,14 @@ export const GuidedBuildChat: React.FC<Props> = ({
   const creationChips = step?.suggestions ?? [];
 
   return (
-    <div className="relative overflow-hidden rounded-[26px] border border-gold/20 bg-[radial-gradient(120%_100%_at_0%_0%,hsl(var(--idriel)/0.14),transparent_58%),linear-gradient(180deg,rgba(6,14,26,0.94),rgba(2,7,13,0.97))] shadow-[0_26px_74px_-26px_rgba(0,0,0,0.9)]">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
+    <div className="blue-panel relative overflow-hidden rounded-[26px] border border-idriel/25 shadow-[0_26px_74px_-26px_rgba(0,0,0,0.9)]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-idriel/60 to-transparent" />
 
-      {/* Idriel — apenas desktop, tamanho fixo (não acompanha a expansão do card) */}
-      <div className="pointer-events-none absolute left-0 top-0 z-0 hidden lg:block w-[380px] h-[620px]">
-        <IdrielStateSprite state={visualState} heightClass="h-[620px]" className="w-[380px]" objectClass="object-contain object-top" />
+      {/* Idriel — apenas desktop, tamanho fixo e centralizada verticalmente */}
+      <div className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 z-0 hidden lg:block w-[380px] h-[620px]">
+        <IdrielStateSprite state={visualState} heightClass="h-[620px]" className="w-[380px]" objectClass="object-contain object-center" />
       </div>
+
 
       <div className="relative z-10 p-4 sm:p-5 md:p-6 lg:pl-[400px]">
         <div className="mb-4">
