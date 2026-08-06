@@ -237,7 +237,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
               <span className="absolute inline-flex h-full w-full rounded-full bg-gold-champagne opacity-70 animate-ping" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold-champagne" />
             </span>
-            <h3 className="font-cinzel text-[13.5px] sm:text-[15px] uppercase tracking-[0.16em] text-gold-light">Tutorial do Fruto</h3>
+            <h3 className="font-cinzel text-[13.5px] sm:text-[15px] uppercase tracking-[0.16em] text-gold-light animate-pulse cursor-pointer" onClick={() => setChatOpen(o => !o)}>Tutorial do Fruto</h3>
 
             {progress && (
               <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-gold/25 bg-gold/[0.07] px-2.5 py-1 font-montserrat text-[9.5px] uppercase tracking-[0.14em] text-gold-champagne">
