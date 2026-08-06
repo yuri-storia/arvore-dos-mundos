@@ -314,6 +314,8 @@
 .gold-breath { animation: goldBreath 3.2s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) {
   .gold-sweep, .gold-breath { animation: none; }
+}
+
 
 /* Painel azul premium do Estúdio (aba Construir) */
 @keyframes bluePanelDrift {
