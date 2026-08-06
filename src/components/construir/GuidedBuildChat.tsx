@@ -190,14 +190,19 @@ export const GuidedBuildChat: React.FC<Props> = ({
 
       <div className="relative z-10 p-4 sm:p-5 md:p-6 lg:pl-[348px] xl:pl-[404px] lg:flex lg:flex-col lg:justify-center">
 
-        <div className="mb-4">
-          <p className="font-cinzel text-[21px] sm:text-[25px] leading-tight text-foreground">
+        <div className="mb-5">
+          <p className="font-montserrat text-[9.5px] uppercase tracking-[0.32em] text-gold-champagne/70 mb-2">
+            Estúdio de Criação
+          </p>
+          <p className="font-cinzel text-[22px] sm:text-[27px] leading-[1.2] tracking-[0.01em] text-foreground">
             Olá, <span className="text-gold-light">Criador!</span>
           </p>
-          <p className="font-merriweather text-[12.5px] text-text-dim mt-1">
-            {config.name} — o que daremos vida hoje?
+          <p className="font-merriweather text-[12.5px] leading-relaxed text-text-dim mt-1.5">
+            <span className="text-text-secondary">{config.name}</span> — o que daremos vida hoje?
           </p>
+          <span className="mt-3 block h-px w-24 bg-gradient-to-r from-gold/45 to-transparent" />
         </div>
+
 
         {/* Card de chat */}
         <div className="rounded-2xl border border-gold/15 bg-[rgba(3,9,18,0.86)] backdrop-blur-md overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.55)]">
