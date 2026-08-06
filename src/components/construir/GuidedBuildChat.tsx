@@ -170,16 +170,26 @@ export const GuidedBuildChat: React.FC<Props> = ({
   const creationChips = step?.suggestions ?? [];
 
   return (
-    <div className="blue-panel relative overflow-hidden rounded-[26px] border border-idriel/25 shadow-[0_26px_74px_-26px_rgba(0,0,0,0.9)]">
+    <div className="blue-panel relative overflow-hidden rounded-[26px] border border-idriel/25 shadow-[0_26px_74px_-26px_rgba(0,0,0,0.9)] lg:min-h-[664px]">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-idriel/60 to-transparent" />
 
+      {/* Nicho escuro atrás da Idriel — funde melhor o recorte */}
+      <div
+        className="pointer-events-none absolute inset-y-0 left-0 z-0 hidden lg:block w-[520px]"
+        style={{
+          background:
+            'radial-gradient(70% 62% at 34% 52%, rgba(0,0,0,0.94) 0%, rgba(0,0,0,0.82) 42%, rgba(0,0,0,0.42) 70%, transparent 100%)',
+        }}
+      />
+
       {/* Idriel — apenas desktop, tamanho fixo e centralizada verticalmente */}
-      <div className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 z-0 hidden lg:block w-[380px] h-[620px]">
+      <div className="pointer-events-none absolute lg:left-[-52px] xl:left-0 top-1/2 -translate-y-1/2 z-0 hidden lg:block w-[380px] h-[620px]">
         <IdrielStateSprite state={visualState} heightClass="h-[620px]" className="w-[380px]" objectClass="object-contain object-center" />
       </div>
 
 
-      <div className="relative z-10 p-4 sm:p-5 md:p-6 lg:pl-[400px]">
+      <div className="relative z-10 p-4 sm:p-5 md:p-6 lg:pl-[348px] xl:pl-[404px] lg:flex lg:flex-col lg:justify-center">
+
         <div className="mb-4">
           <p className="font-cinzel text-[21px] sm:text-[25px] leading-tight text-foreground">
             Olá, <span className="text-gold-light">Criador!</span>
