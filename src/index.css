@@ -314,7 +314,25 @@
 .gold-breath { animation: goldBreath 3.2s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) {
   .gold-sweep, .gold-breath { animation: none; }
+
+/* Painel azul premium do Estúdio (aba Construir) */
+@keyframes bluePanelDrift {
+  0%, 100% { background-position: 0% 0%, 100% 100%, 50% 0%; }
+  50% { background-position: 20% 30%, 80% 70%, 50% 100%; }
 }
+.blue-panel {
+  background-image:
+    radial-gradient(120% 90% at 0% 0%, hsl(var(--idriel) / 0.30), transparent 62%),
+    radial-gradient(110% 90% at 100% 100%, hsl(210 90% 55% / 0.20), transparent 65%),
+    linear-gradient(165deg, rgba(8, 24, 48, 0.96) 0%, rgba(5, 16, 34, 0.97) 45%, rgba(2, 9, 20, 0.98) 100%);
+  background-size: 180% 180%, 180% 180%, 100% 200%;
+  animation: bluePanelDrift 18s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .blue-panel { animation: none; }
+}
+
+
 
 
 .dot-bounce { animation: bounce-dot 1.2s ease-in-out infinite; }
