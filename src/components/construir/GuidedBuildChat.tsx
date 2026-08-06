@@ -207,24 +207,33 @@ export const GuidedBuildChat: React.FC<Props> = ({
 
       <div className="relative z-10 p-4 sm:p-5 md:p-6 lg:pl-[348px] xl:pl-[404px] lg:flex lg:flex-col lg:justify-center">
 
-        <div className="mb-5">
-          <p className="font-montserrat text-[9.5px] uppercase tracking-[0.32em] text-gold-champagne/70 mb-2">
-            Estúdio de Criação
-          </p>
-          <p className="font-cinzel text-[22px] sm:text-[27px] leading-[1.2] tracking-[0.01em] text-foreground">
-            Olá, <span className="text-gold-light">Criador!</span>
-          </p>
-          <p className="font-merriweather text-[12.5px] leading-relaxed text-text-dim mt-1.5">
-            <span className="text-text-secondary">{config.name}</span> — o que daremos vida hoje?
-          </p>
-          <span className="mt-3 block h-px w-24 bg-gradient-to-r from-gold/45 to-transparent" />
+        <div className="mb-5 flex items-start gap-3">
+          {/* Idriel em miniatura — só onde o retrato completo não cabe */}
+          <span className="lg:hidden shrink-0 mt-0.5 h-12 w-12 rounded-full overflow-hidden border border-gold/40 bg-[radial-gradient(circle_at_50%_30%,rgba(0,0,0,0.6),rgba(2,7,13,0.95))] shadow-[0_0_18px_-6px_hsl(var(--gold)/0.8)]">
+            <IdrielStateSprite state={visualState} heightClass="h-12" className="w-12" objectClass="object-cover object-top scale-[1.6] origin-top" fadeBottom={false} />
+          </span>
+          <div className="min-w-0">
+            <p className="font-montserrat text-[9.5px] uppercase tracking-[0.32em] text-gold-champagne/70 mb-2">
+              Estúdio de Criação
+            </p>
+            <p className="font-cinzel text-[22px] sm:text-[27px] leading-[1.2] tracking-[0.01em] text-foreground">
+              Olá, <span className="text-gold-light">Criador!</span>
+            </p>
+            <p className="font-merriweather text-[12.5px] leading-relaxed text-text-dim mt-1.5">
+              <span className="text-text-secondary">{config.name}</span> — o que daremos vida hoje?
+            </p>
+            <span className="mt-3 block h-px w-24 bg-gradient-to-r from-gold/45 to-transparent" />
+          </div>
         </div>
 
 
         {/* Card de chat */}
         <div className="rounded-2xl border border-gold/15 bg-[rgba(3,9,18,0.86)] backdrop-blur-md overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.55)]">
           <div className="flex items-center gap-2.5 px-4 py-3 border-b border-gold/10">
-            <span className="relative flex h-1.5 w-1.5">
+            <span className="lg:hidden shrink-0 h-8 w-8 rounded-full overflow-hidden border border-gold/40 bg-[rgba(2,7,13,0.9)]">
+              <IdrielStateSprite state={visualState} heightClass="h-8" className="w-8" objectClass="object-cover object-top scale-[1.6] origin-top" fadeBottom={false} />
+            </span>
+            <span className="relative hidden lg:flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full rounded-full bg-gold-champagne opacity-70 animate-ping" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold-champagne" />
             </span>
