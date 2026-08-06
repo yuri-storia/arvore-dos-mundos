@@ -288,6 +288,35 @@
 .animate-blink { animation: blink 2.2s ease-in-out infinite; }
 .animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; }
 
+/* Degradê dourado premium em movimento */
+@keyframes goldSweep {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+@keyframes goldBreath {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--gold) / 0.30), 0 10px 30px -14px hsl(var(--gold) / 0.55); }
+  50% { box-shadow: 0 0 0 6px hsl(var(--gold) / 0), 0 14px 38px -14px hsl(var(--gold) / 0.75); }
+}
+.gold-sweep {
+  background-image: linear-gradient(
+    100deg,
+    hsl(var(--gold-deep)) 0%,
+    hsl(var(--gold-warm)) 18%,
+    hsl(var(--gold-light)) 34%,
+    hsl(var(--gold-warm)) 50%,
+    hsl(var(--gold-deep)) 68%,
+    hsl(var(--gold-warm)) 86%,
+    hsl(var(--gold-light)) 100%
+  );
+  background-size: 200% 100%;
+  animation: goldSweep 7s linear infinite;
+}
+.gold-breath { animation: goldBreath 3.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .gold-sweep, .gold-breath { animation: none; }
+}
+
+
 .dot-bounce { animation: bounce-dot 1.2s ease-in-out infinite; }
 .dot-bounce-2 { animation: bounce-dot 1.2s ease-in-out 0.15s infinite; }
 .dot-bounce-3 { animation: bounce-dot 1.2s ease-in-out 0.3s infinite; }
