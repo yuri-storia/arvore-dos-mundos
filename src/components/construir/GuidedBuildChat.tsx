@@ -96,6 +96,8 @@ export const GuidedBuildChat: React.FC<Props> = ({
     setSpecialOpen(false);
     setProgress(null);
     setChatOpen(true);
+    setPathChoice(true);
+
     const firstUnanswered = questions.findIndex(q => !(values[q.fieldId] || '').trim());
     setStepIndex(firstUnanswered === -1 ? 0 : firstUnanswered);
     setVisualState(OPENING_STATES[fruitId % OPENING_STATES.length]);
