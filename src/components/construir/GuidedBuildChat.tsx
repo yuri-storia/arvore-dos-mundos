@@ -320,7 +320,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
             {/* O que criar hoje */}
             {creationChips.length > 0 && (
               <div className="space-y-2.5">
-                <p className="font-cinzel text-[10px] uppercase tracking-[0.2em] text-text-dim">O que você quer criar hoje?</p>
+                <h3 className="font-cinzel text-[13.5px] sm:text-[15px] uppercase tracking-[0.16em] text-gold-light">O que você quer criar hoje?</h3>
                 <div className="flex flex-wrap gap-2.5">
                   {creationChips.map(s => (
                     <button
