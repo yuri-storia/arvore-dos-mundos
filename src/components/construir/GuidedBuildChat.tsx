@@ -249,7 +249,15 @@ export const GuidedBuildChat: React.FC<Props> = ({
 
         {/* Card de chat */}
         <div className="rounded-2xl border border-gold/15 bg-[rgba(3,9,18,0.86)] backdrop-blur-md overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.55)]">
-          <div className="flex items-center gap-2.5 px-4 py-3 border-b border-gold/10">
+          <div
+            role="button"
+            tabIndex={0}
+            aria-expanded={chatOpen}
+            aria-label={chatOpen ? 'Recolher o Tutorial do Fruto' : 'Expandir o Tutorial do Fruto'}
+            onClick={toggleChat}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleChat(); } }}
+            className="flex items-center gap-2.5 px-4 py-3 border-b border-gold/25 cursor-pointer select-none bg-gradient-to-r from-gold/25 via-gold/15 to-gold/5 hover:from-gold/35 hover:via-gold/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
+          >
             <span className="lg:hidden shrink-0 h-8 w-8 rounded-full overflow-hidden border border-gold/40 bg-[rgba(2,7,13,0.9)]">
               <IdrielStateSprite state={visualState} heightClass="h-8" className="w-8" objectClass="object-cover object-top scale-[1.6] origin-top" fadeBottom={false} />
             </span>
@@ -257,7 +265,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
               <span className="absolute inline-flex h-full w-full rounded-full bg-gold-champagne opacity-70 animate-ping" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold-champagne" />
             </span>
-            <h3 className="font-cinzel text-[13.5px] sm:text-[15px] uppercase tracking-[0.16em] text-gold-light animate-pulse cursor-pointer" onClick={() => setChatOpen(o => !o)}>Tutorial do Fruto</h3>
+            <h3 className="font-cinzel text-[13.5px] sm:text-[15px] uppercase tracking-[0.16em] text-gold-light animate-pulse">Tutorial do Fruto</h3>
 
             {progress && (
               <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-gold/25 bg-gold/[0.07] px-2.5 py-1 font-montserrat text-[9.5px] uppercase tracking-[0.14em] text-gold-champagne">
@@ -274,24 +282,22 @@ export const GuidedBuildChat: React.FC<Props> = ({
               )}
               <button
                 type="button"
-                onClick={() => runLesson(true)}
+                onClick={(e) => { e.stopPropagation(); runLesson(true); }}
                 aria-label="Reiniciar o tutorial animado"
                 title="Reiniciar tutorial"
                 className="h-7 w-7 rounded-lg flex items-center justify-center border border-gold/25 text-gold-champagne hover:bg-gold/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-colors"
               >
                 <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.75} />
               </button>
-              <button
-                type="button"
-                onClick={() => setChatOpen(o => !o)}
-                aria-expanded={chatOpen}
-                aria-label={chatOpen ? 'Recolher o tutorial' : 'Expandir o tutorial'}
-                className="h-7 w-7 rounded-lg flex items-center justify-center border border-gold/25 text-gold-champagne hover:bg-gold/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-colors"
+              <span
+                aria-hidden
+                className="h-7 w-7 rounded-lg flex items-center justify-center border border-gold/25 text-gold-champagne"
               >
                 <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${chatOpen ? '' : '-rotate-90'}`} />
-              </button>
+              </span>
             </div>
           </div>
+
 
           {progress && (
             <div className="h-0.5 w-full bg-gold/10">
