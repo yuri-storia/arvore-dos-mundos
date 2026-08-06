@@ -117,6 +117,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
       { text: `Então ouça com calma o que sei sobre ${config.name}.` },
       ...parts,
       ...(config.closing ? [{ text: config.closing }] : []),
+      { text: 'Agora me diga: o que você quer criar hoje? Escolha um dos caminhos abaixo ou escreva à vontade.' },
     ], stateForEvent('tutorial'));
   };
 
@@ -125,8 +126,10 @@ export const GuidedBuildChat: React.FC<Props> = ({
     streamIdriel([
       { text: 'Veja como isto se sustenta em um mundo já formado:' },
       { text: config.caseStudy, kind: 'case' },
+      { text: 'Quer tentar algo parecido no seu mundo? Comece por um dos caminhos abaixo.' },
     ], stateForEvent('lore_reveal'));
   };
+
 
   const handleSubmit = () => {
     const text = draft.trim();
