@@ -5,8 +5,8 @@ import heroPoster from '@/assets/arvore-mundos-hero.webp.asset.json';
 import heroMobilePoster from '@/assets/arvore-hero-mobile-master-poster.png.asset.json';
 import { UserMenu } from '@/components/UserMenu';
 
-import { Pencil, ChevronDown, FolderOpen, Plus, Trash2, ArrowDown } from 'lucide-react';
-import type { MethodType } from '@/lib/data';
+import { Pencil, ChevronDown, FolderOpen, Plus, Trash2 } from 'lucide-react';
+import { METHOD_DESCRIPTIONS, type MethodType } from '@/lib/data';
 import type { WorldRecord } from '@/hooks/useWorlds';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -17,6 +17,7 @@ interface AppHeaderProps {
   setWorldName?: (name: string) => void;
   onCreateWorld?: () => void;
   method?: MethodType;
+  setMethod?: (m: MethodType) => void;
   currentSaveId?: string;
   db?: Record<number, Record<string, string>>;
   // Mobile project switching
@@ -95,7 +96,7 @@ const formatDate = (ts: string) => {
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
 };
 
-export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, onCreateWorld, method, currentSaveId, db, worlds, onLoadWorld, onNewWorld, onDeleteWorld }) => {
+export const AppHeader: React.FC<AppHeaderProps> = ({ worldName, setWorldName, onCreateWorld, method, setMethod, currentSaveId, db, worlds, onLoadWorld, onNewWorld, onDeleteWorld }) => {
   const isMobile = useIsMobile();
   const hasWorld = !!currentSaveId;
   const [editing, setEditing] = useState(false);
