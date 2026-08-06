@@ -293,6 +293,33 @@ export const GuidedBuildChat: React.FC<Props> = ({
               </div>
             ))}
 
+            {/* Decisão dentro do diálogo — caminhos de estudo (grátis) */}
+            {pathChoice && !typing && log.length > 0 && (
+              <div className="animate-fadeUp pl-6">
+                <p className="font-montserrat text-[9px] uppercase tracking-[0.28em] text-text-dim/75 mb-2.5">
+                  Sua decisão · sem custo de elixir
+                </p>
+                <div className="flex flex-wrap gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => runLesson(false)}
+                    className="inline-flex items-center gap-2.5 px-[18px] py-2.5 rounded-full text-[11.5px] font-montserrat tracking-[0.02em] border border-blue-bright/30 bg-blue-bright/[0.06] text-text-secondary hover:text-foreground hover:border-blue-bright/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" strokeWidth={1.75} />Aprender sobre o Fruto
+                  </button>
+                  <button
+                    type="button"
+                    onClick={runCaseStudy}
+                    className="inline-flex items-center gap-2.5 px-[18px] py-2.5 rounded-full text-[11.5px] font-montserrat tracking-[0.02em] border border-blue-bright/30 bg-blue-bright/[0.06] text-text-secondary hover:text-foreground hover:border-blue-bright/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-bright/50 transition-all"
+                  >
+                    <ScrollText className="w-3.5 h-3.5" strokeWidth={1.75} />Estudo de caso
+                  </button>
+                </div>
+              </div>
+            )}
+
+
+
             {(typing || aiLoading) && (
               <div className="flex items-center gap-1 pl-6 text-text-dim animate-fadeUp">
                 <span className="w-1.5 h-1.5 rounded-full bg-gold-champagne dot-bounce" />
