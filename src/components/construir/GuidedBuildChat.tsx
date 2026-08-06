@@ -291,9 +291,9 @@ export const GuidedBuildChat: React.FC<Props> = ({
               </button>
               <span
                 aria-hidden
-                className="h-8 w-8 rounded-lg flex items-center justify-center bg-gold text-black shadow-[0_0_12px_rgba(212,175,55,0.5)]"
+                className={`expand-toggle ${chatOpen ? 'open' : ''}`}
               >
-                {chatOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                <ChevronDown className="w-5 h-5" />
               </span>
             </div>
           </div>
