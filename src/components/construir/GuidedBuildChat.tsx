@@ -173,18 +173,12 @@ export const GuidedBuildChat: React.FC<Props> = ({
     <div className="relative overflow-hidden rounded-[26px] border border-gold/20 bg-[radial-gradient(120%_100%_at_0%_0%,hsl(var(--idriel)/0.14),transparent_58%),linear-gradient(180deg,rgba(6,14,26,0.94),rgba(2,7,13,0.97))] shadow-[0_26px_74px_-26px_rgba(0,0,0,0.9)]">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
 
-      {/* Idriel — apenas desktop/tablet, com dissolução suave para o fundo */}
-      <div className="pointer-events-none absolute left-0 top-0 bottom-0 z-0 hidden md:block w-[330px] lg:w-[380px]">
-        <div className="absolute inset-0 [mask-image:linear-gradient(to_right,black_55%,transparent_96%)]">
-          <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_72%,transparent_100%)]">
-            <IdrielStateSprite state={visualState} heightClass="h-full" className="w-full" objectClass="object-cover object-top" />
-          </div>
-        </div>
-        <div className="absolute inset-y-0 right-0 w-40 bg-gradient-to-l from-[rgba(2,7,13,0.96)] to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[rgba(2,7,13,0.96)] to-transparent" />
+      {/* Idriel — apenas desktop, tamanho fixo (não acompanha a expansão do card) */}
+      <div className="pointer-events-none absolute left-0 top-0 z-0 hidden lg:block w-[380px] h-[620px]">
+        <IdrielStateSprite state={visualState} heightClass="h-[620px]" className="w-[380px]" objectClass="object-contain object-top" />
       </div>
 
-      <div className="relative z-10 p-4 sm:p-5 md:p-6 md:pl-[350px] lg:pl-[400px]">
+      <div className="relative z-10 p-4 sm:p-5 md:p-6 lg:pl-[400px]">
         <div className="mb-4">
           <p className="font-cinzel text-[21px] sm:text-[25px] leading-tight text-foreground">
             Olá, <span className="text-gold-light">Criador!</span>
@@ -196,21 +190,59 @@ export const GuidedBuildChat: React.FC<Props> = ({
 
         {/* Card de chat */}
         <div className="rounded-2xl border border-gold/15 bg-[rgba(3,9,18,0.86)] backdrop-blur-md overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.55)]">
-          <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gold/10">
+          <div className="flex items-center gap-2.5 px-4 py-3 border-b border-gold/10">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full rounded-full bg-gold-champagne opacity-70 animate-ping" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold-champagne" />
             </span>
-            <span className="font-cinzel text-[10px] uppercase tracking-[0.18em] text-gold-light">Conversa com Idriel</span>
-            {questions.length > 0 && (
-              <span className="ml-auto font-montserrat text-[10px] text-text-dim tabular-nums">
-                {Math.min(stepIndex + 1, questions.length)}/{questions.length}
+            <h3 className="font-cinzel text-[13.5px] sm:text-[15px] uppercase tracking-[0.16em] text-gold-light">Tutorial do Fruto</h3>
+
+            {progress && (
+              <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-gold/25 bg-gold/[0.07] px-2.5 py-1 font-montserrat text-[9.5px] uppercase tracking-[0.14em] text-gold-champagne">
+                {progress.label}
+                <span className="tabular-nums text-text-dim">{progress.done}/{progress.total}</span>
               </span>
             )}
+
+            <div className="ml-auto flex items-center gap-1.5">
+              {questions.length > 0 && (
+                <span className="font-montserrat text-[10px] text-text-dim tabular-nums pr-1">
+                  {Math.min(stepIndex + 1, questions.length)}/{questions.length}
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => runLesson(true)}
+                aria-label="Reiniciar o tutorial animado"
+                title="Reiniciar tutorial"
+                className="h-7 w-7 rounded-lg flex items-center justify-center border border-gold/25 text-gold-champagne hover:bg-gold/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.75} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setChatOpen(o => !o)}
+                aria-expanded={chatOpen}
+                aria-label={chatOpen ? 'Recolher o tutorial' : 'Expandir o tutorial'}
+                className="h-7 w-7 rounded-lg flex items-center justify-center border border-gold/25 text-gold-champagne hover:bg-gold/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-colors"
+              >
+                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${chatOpen ? '' : '-rotate-90'}`} />
+              </button>
+            </div>
           </div>
 
+          {progress && (
+            <div className="h-0.5 w-full bg-gold/10">
+              <div
+                className="h-full bg-gradient-to-r from-gold/60 to-gold-light transition-all duration-500"
+                style={{ width: `${Math.round((progress.done / progress.total) * 100)}%` }}
+              />
+            </div>
+          )}
+
           {/* Transcrição */}
-          <div ref={scrollRef} className="min-h-[260px] max-h-[340px] md:max-h-[420px] overflow-y-auto px-4 py-4 space-y-3.5 scroll-smooth">
+          <div ref={scrollRef} className={`${chatOpen ? 'min-h-[260px] max-h-[340px] md:max-h-[420px] py-4' : 'max-h-0 py-0'} overflow-y-auto px-4 space-y-3.5 scroll-smooth transition-all duration-300`}>
+
             {log.map(b => b.from === 'user' ? (
               <div key={b.id} className="flex justify-end animate-fadeUp">
                 <p className="max-w-[82%] rounded-2xl rounded-br-md bg-blue-main/25 border border-blue-bright/25 px-4 py-2.5 text-[13.5px] text-foreground font-merriweather whitespace-pre-wrap">
