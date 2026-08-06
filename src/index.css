@@ -312,25 +312,9 @@
   animation: goldSweep 7s linear infinite;
 }
 .gold-breath { animation: goldBreath 3.2s ease-in-out infinite; }
-
-/* Aurora azulada premium — painel do Estúdio de Criação */
-@keyframes auroraDrift {
-  0%, 100% { background-position: 0% 0%, 100% 0%, 50% 100%; }
-  50% { background-position: 20% 30%, 70% 20%, 40% 70%; }
-}
-.aurora-blue {
-  background-color: #030b18;
-  background-image:
-    radial-gradient(90% 70% at 0% 0%, hsl(var(--idriel) / 0.30), transparent 62%),
-    radial-gradient(80% 70% at 100% 0%, hsl(210 90% 45% / 0.20), transparent 60%),
-    radial-gradient(120% 90% at 50% 120%, hsl(220 80% 22% / 0.55), transparent 70%);
-  background-size: 160% 160%, 160% 160%, 180% 180%;
-  animation: auroraDrift 18s ease-in-out infinite;
-}
 @media (prefers-reduced-motion: reduce) {
-  .gold-sweep, .gold-breath, .aurora-blue { animation: none; }
+  .gold-sweep, .gold-breath { animation: none; }
 }
-
 
 
 .dot-bounce { animation: bounce-dot 1.2s ease-in-out infinite; }
