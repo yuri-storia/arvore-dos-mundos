@@ -189,10 +189,52 @@ const EBOOK_TESTIMONIALS = [
   },
   {
     name: 'Letícia Campos',
+];
+
+const PLATFORM_TESTIMONIALS = [
+  {
+    name: 'Rodolfo Machado',
     quote:
-      'Eu comprei e adorei, me ajudou muito na escrita do meu livro 😍😍❤️',
+      'Depois de testar bastante a Árvore dos Mundos de verdade, fiquei verdadeiramente impressionado.\n\nPela primeira vez eu vi uma plataforma conseguir transformar uma ideia complexa (juntar worldbuilding + assistente de IA + geração de imagem) numa experiência que flui. Dá pra sentir que cada parte foi pensada com esmero, não só implementada.',
+  },
+  {
+    name: 'Vanessa Fernandes',
+    quote:
+      'Como escritora, o que mais gostei na plataforma Árvore dos Mundos foi a praticidade. Ela reúne tudo o que preciso em um só lugar, sem complicar o processo criativo.\n\nA criação de mapas integrada, a geração de imagens e a importação de textos existentes com a Idriel são ferramentas incríveis, deixando a organização mais leve para que eu possa focar no que realmente importa: escrever.\n\nE o visual da plataforma é lindo, o que acaba tornando toda a experiência ainda mais agradável.',
+  },
+  {
+    name: 'Erin',
+    quote:
+      'Fiquei muito tempo procurando a plataforma e um método para me ajudar a organizar minhas ideias.\n\nMeu mundo se perdia entre as anotações, fichas, arquivos e pastas. Mas com o Árvore dos Mundos eu posso ver meu mundo florescer e ganhar vida! Minha motivação cresceu mais do que qualquer outra plataforma que eu tenha testado!\n\nSou muito grata a Árvore dos Mundos por proporcionar essa experiência!',
   },
 ];
+
+const PlatformTestimonials: React.FC = () => (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
+    {PLATFORM_TESTIMONIALS.map((t, i) => (
+      <Reveal key={t.name} delay={i * 0.08} className="h-full">
+        <Panel soft className="h-full flex flex-col">
+          <Quote className="w-6 h-6 text-gold-champagne/40 mb-4" strokeWidth={1.25} />
+          <blockquote className="font-merriweather text-[14.5px] text-text-secondary leading-[1.9] flex-1 whitespace-pre-line">
+            “{t.quote}”
+          </blockquote>
+          <div className="flex items-center gap-3 mt-6 pt-5 border-t border-gold/[0.08]">
+            <span className="w-9 h-9 rounded-full border border-gold/25 bg-gold/[0.06] grid place-items-center font-cinzel font-bold text-sm text-gold-champagne">
+              {t.name.charAt(0)}
+            </span>
+            <span>
+              <span className="block font-cinzel font-bold text-sm text-foreground">{t.name}</span>
+              <span className="block font-manrope tracking-[0.06em] text-[11px] text-text-dim mt-0.5">
+                Criador(a) na plataforma
+              </span>
+            </span>
+          </div>
+        </Panel>
+      </Reveal>
+    ))}
+  </div>
+);
+
 
 const EbookTestimonials: React.FC = () => (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
