@@ -557,11 +557,20 @@
   box-shadow: 0 8px 32px hsl(var(--idriel) / 0.15), 0 0 0 1px hsl(var(--idriel) / 0.08);
 }
 
-@keyframes idriel-pulse {
-  0%, 100% { box-shadow: 0 0 10px hsl(var(--idriel-glow) / 0.4), 0 0 20px hsl(var(--idriel-glow) / 0.15); }
-  50% { box-shadow: 0 0 24px hsl(var(--idriel-glow) / 0.7), 0 0 40px hsl(var(--idriel-glow) / 0.25); }
+.animate-idriel-pulse { position: relative; }
+.animate-idriel-pulse::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 22px hsl(var(--idriel-glow) / 0.65), 0 0 38px hsl(var(--idriel-glow) / 0.22);
+  animation: glowFade 3.2s ease-in-out infinite;
+  will-change: opacity;
 }
-.animate-idriel-pulse { animation: idriel-pulse 2.5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-idriel-pulse::after { animation: none; opacity: 0.6; }
+}
 
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(20px) scale(0.97); }
