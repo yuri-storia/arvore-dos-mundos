@@ -92,6 +92,8 @@ export const GuidedBuildChat: React.FC<Props> = ({
     setDraft('');
     setAskMode(false);
     setSpecialOpen(false);
+    setProgress(null);
+    setChatOpen(true);
     const firstUnanswered = questions.findIndex(q => !(values[q.fieldId] || '').trim());
     setStepIndex(firstUnanswered === -1 ? 0 : firstUnanswered);
     setVisualState(OPENING_STATES[fruitId % OPENING_STATES.length]);
@@ -115,25 +117,30 @@ export const GuidedBuildChat: React.FC<Props> = ({
   const pushUser = (text: string) => setLog(prev => [...prev, { id: uid(), from: 'user', text }]);
 
   /** Tutorial animado do Fruto. */
-  const runLesson = () => {
-    pushUser('Quero aprender sobre este Fruto.');
+  const runLesson = useCallback((replay = false) => {
+    setChatOpen(true);
+    if (replay) setLog([]);
+    pushUser(replay ? 'Reproduzir o tutorial novamente.' : 'Quero aprender sobre este Fruto.');
     const parts = config.principles.slice(0, 3).map(p => ({ text: `${p.title}\n${p.body}`, kind: 'lesson' as const }));
     streamIdriel([
       { text: `Então ouça com calma o que sei sobre ${config.name}.` },
       ...parts,
       ...(config.closing ? [{ text: config.closing }] : []),
       { text: 'Agora me diga: o que você quer criar hoje? Escolha um dos caminhos abaixo ou escreva à vontade.' },
-    ], stateForEvent('tutorial'));
-  };
+    ], stateForEvent('tutorial'), 'Tutorial');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config, streamIdriel]);
 
   const runCaseStudy = () => {
+    setChatOpen(true);
     pushUser('Mostre um estudo de caso.');
     streamIdriel([
       { text: 'Veja como isto se sustenta em um mundo já formado:' },
       { text: config.caseStudy, kind: 'case' },
       { text: 'Quer tentar algo parecido no seu mundo? Comece por um dos caminhos abaixo.' },
-    ], stateForEvent('lore_reveal'));
+    ], stateForEvent('lore_reveal'), 'Estudo de caso');
   };
+
 
 
   const handleSubmit = () => {
