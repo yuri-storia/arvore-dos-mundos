@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, BookOpen, ChevronDown, ChevronUp, Leaf, PenLine, RotateCcw, Save, ScrollText, Send, Sparkles, Wand2 } from 'lucide-react';
+import { ArrowLeft, BookOpen, ChevronDown, Leaf, PenLine, RotateCcw, Save, ScrollText, Send, Sparkles, Wand2 } from 'lucide-react';
 import { IdrielStateSprite } from '@/components/idriel/IdrielStateSprite';
 import { IdrielMarkdown } from '@/components/IdrielMarkdown';
 import { stateForEvent, type IdrielState } from '@/lib/idriel/idrielStates';
@@ -291,9 +291,9 @@ export const GuidedBuildChat: React.FC<Props> = ({
               </button>
               <span
                 aria-hidden
-                className="h-8 w-8 rounded-lg flex items-center justify-center bg-gold text-black shadow-[0_0_12px_rgba(212,175,55,0.5)]"
+                className={`expand-toggle ${chatOpen ? 'open' : ''}`}
               >
-                {chatOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                <ChevronDown className="w-5 h-5" />
               </span>
             </div>
           </div>
@@ -309,7 +309,9 @@ export const GuidedBuildChat: React.FC<Props> = ({
           )}
 
           {/* Transcrição */}
-          <div ref={scrollRef} className={`${chatOpen ? 'min-h-[260px] max-h-[340px] md:max-h-[420px] py-4' : 'max-h-0 py-0'} overflow-y-auto px-4 space-y-3.5 scroll-smooth transition-all duration-300`}>
+          <div className={`grid ${chatOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'} transition-[grid-template-rows] duration-[450ms] ease-[cubic-bezier(0.16,1,0.3,1)]`}>
+            <div className="overflow-hidden min-h-0">
+              <div ref={scrollRef} className={`${chatOpen ? 'min-h-[260px] max-h-[340px] md:max-h-[420px] py-4' : 'max-h-0 py-0'} overflow-y-auto px-4 space-y-3.5 scroll-smooth`}>
 
             {log.map(b => b.from === 'user' ? (
               <div key={b.id} className="flex justify-end animate-fadeUp">
@@ -391,6 +393,8 @@ export const GuidedBuildChat: React.FC<Props> = ({
                 </div>
               </div>
             )}
+              </div>
+            </div>
           </div>
 
           {/* Ações */}

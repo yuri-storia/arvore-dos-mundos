@@ -482,6 +482,44 @@
 }
 .animate-gold-blink { animation: gold-blink 1.2s ease-in-out infinite; }
 
+/* Botão de expansão premium — identidade do Estúdio de Criação */
+.expand-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg,
+    hsl(var(--gold-deep)) 0%,
+    hsl(var(--gold-bronze)) 30%,
+    hsl(var(--gold-warm)) 60%,
+    hsl(var(--gold-champagne)) 100%);
+  border: 1px solid hsl(var(--gold-champagne) / 0.55);
+  box-shadow:
+    0 0 0 1px hsl(var(--gold-bronze) / 0.35),
+    0 4px 16px -4px hsl(var(--gold-warm) / 0.55),
+    inset 0 1px 0 hsl(var(--gold-cream) / 0.35);
+  color: hsl(var(--bg-deep));
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, filter 0.3s ease;
+}
+.expand-toggle.open {
+  transform: rotate(180deg);
+}
+.expand-toggle:hover {
+  filter: brightness(1.12);
+  box-shadow:
+    0 0 0 1px hsl(var(--gold-bronze) / 0.45),
+    0 6px 22px -4px hsl(var(--gold-warm) / 0.75),
+    inset 0 1px 0 hsl(var(--gold-cream) / 0.45);
+}
+.expand-toggle svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  stroke-width: 2.5;
+}
+
 .card-glass-idriel {
   background: linear-gradient(135deg, hsl(var(--idriel) / 0.18) 0%, hsl(214 60% 3% / 0.96) 100%);
   backdrop-filter: blur(24px);
