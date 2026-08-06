@@ -53,8 +53,12 @@ export const IdrielStateSprite: React.FC<Props> = ({
       style={
         fadeBottom
           ? {
-              WebkitMaskImage: 'linear-gradient(to bottom, #000 0%, #000 72%, rgba(0,0,0,0.45) 88%, transparent 100%)',
-              maskImage: 'linear-gradient(to bottom, #000 0%, #000 72%, rgba(0,0,0,0.45) 88%, transparent 100%)',
+              WebkitMaskImage:
+                'radial-gradient(78% 70% at 50% 44%, #000 55%, rgba(0,0,0,0.55) 78%, transparent 100%), linear-gradient(to bottom, #000 0%, #000 68%, rgba(0,0,0,0.4) 88%, transparent 100%)',
+              maskImage:
+                'radial-gradient(78% 70% at 50% 44%, #000 55%, rgba(0,0,0,0.55) 78%, transparent 100%), linear-gradient(to bottom, #000 0%, #000 68%, rgba(0,0,0,0.4) 88%, transparent 100%)',
+              WebkitMaskComposite: 'source-in',
+              maskComposite: 'intersect',
             }
           : undefined
       }
@@ -67,7 +71,7 @@ export const IdrielStateSprite: React.FC<Props> = ({
           decoding="async"
           onLoad={done}
           onError={() => { setLoading(false); setFailed(true); }}
-          className={`absolute inset-0 w-full h-full ${objectClass}`}
+          className={`absolute inset-0 w-full h-full mix-blend-screen ${objectClass}`}
         />
       ) : (
         <div className="absolute inset-0 flex items-end justify-center pb-4">
@@ -79,6 +83,7 @@ export const IdrielStateSprite: React.FC<Props> = ({
       {loading && !failed && (
         <div className="absolute inset-0 animate-pulse bg-[radial-gradient(60%_45%_at_50%_25%,hsl(var(--gold)/0.10),transparent_70%)]" />
       )}
+
     </div>
   );
 };
