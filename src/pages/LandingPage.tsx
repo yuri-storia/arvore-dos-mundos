@@ -1140,31 +1140,6 @@ const LandingPage: React.FC = () => {
       </Band>
 
 
-      {/* ============================== 10. PROVAS ========================== */}
-      <Band>
-        <Shell>
-          <div className="space-y-24">
-            <div>
-              <SectionHead
-                eyebrow="Quem já plantou"
-                title="Antes de virar plataforma, a Árvore já ajudava escritores a construir mundos."
-                lede="Estes depoimentos referem-se ao e-book e à metodologia original da Árvore dos Mundos."
-              />
-              <EbookTestimonials />
-            </div>
-
-            <div>
-              <SectionHead
-                eyebrow="Primeiros mundos"
-                title="Mundos que já começaram a criar raízes dentro da plataforma."
-                lede="Primeiros usuários que estão construindo seus universos dentro da Árvore dos Mundos."
-              />
-              <PlatformTestimonials />
-            </div>
-          </div>
-
-        </Shell>
-      </Band>
 
       {/* ============================== 11. PLANOS ========================== */}
       <section id="planos" className="relative scroll-mt-24 py-24 sm:py-32 lg:py-[150px] overflow-hidden">
