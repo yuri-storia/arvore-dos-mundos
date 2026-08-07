@@ -815,7 +815,31 @@ const LandingPage: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
             <Reveal className="h-full">
-              <Panel soft className="h-full">
+              <Panel className="flex flex-col h-full">
+                <FileText className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
+                <h3 className="font-cinzel font-bold text-base mb-2">Fichas</h3>
+                <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">
+                  Para elementos objetivos: personagens, lugares, organizações e itens.
+                </p>
+                <Shot className="mt-auto" src={shotFichas.url} alt="Ficha de personagem aberta no Codex" />
+              </Panel>
+            </Reveal>
+
+            <Reveal delay={0.1} className="h-full">
+              <Panel className="flex flex-col h-full">
+                <BookOpen className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
+                <h3 className="font-cinzel font-bold text-base mb-2">Artigos</h3>
+                <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">
+                  Para conceitos amplos: sistemas mágicos, períodos históricos, religiões, culturas e acontecimentos.
+                </p>
+                <Shot className="mt-auto" src={shotArtigos.url} alt="Artigo aberto no Codex" />
+              </Panel>
+            </Reveal>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start mt-8">
+            <Reveal delay={0.08}>
+              <Panel soft>
                 <DemoVideo
                   bare
                   src={vidCodex.url}
@@ -831,49 +855,17 @@ const LandingPage: React.FC = () => {
               </Panel>
             </Reveal>
 
-            <Reveal delay={0.1} className="h-full">
-              <div className="h-full grid grid-cols-1 gap-6">
-                <Panel className="flex flex-col">
-                  <FileText className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
-                  <h3 className="font-cinzel font-bold text-base mb-2">Fichas</h3>
-                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">
-                    Para elementos objetivos: personagens, lugares, organizações e itens.
-                  </p>
-                  <Shot className="mt-auto" src={shotFichas.url} alt="Ficha de personagem aberta no Codex" />
-                </Panel>
-                <Panel className="flex flex-col">
-                  <BookOpen className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
-                  <h3 className="font-cinzel font-bold text-base mb-2">Artigos</h3>
-                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">
-                    Para conceitos amplos: sistemas mágicos, períodos históricos, religiões, culturas e acontecimentos.
-                  </p>
-                  <Shot className="mt-auto" src={shotArtigos.url} alt="Artigo aberto no Codex" />
-                </Panel>
-              </div>
+            <Reveal delay={0.12}>
+              <Panel className="flex flex-col">
+                <Library className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
+                <h3 className="font-cinzel font-bold text-base mb-2">O que você faz no Codex</h3>
+                <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">
+                  Centralize fichas, artigos, referências e análises do seu mundo em um só lugar.
+                </p>
+                <Shot src={shotCodex.url} alt="Visão geral do Codex na plataforma" ratio="aspect-[16/9]" />
+              </Panel>
             </Reveal>
           </div>
-
-          <Reveal delay={0.08} className="mt-8">
-            <Panel soft>
-              <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne/80 mb-5">
-                O que você faz no Codex
-              </p>
-              <CheckList
-                columns={2}
-                items={[
-                  'Criar fichas com imagens',
-                  'Escrever artigos completos',
-                  'Editar títulos e conteúdos diretamente',
-                  'Organizar entradas por mundo',
-                  'Importar conteúdos entre mundos',
-                  'Consultar referências durante a escrita',
-                  'Exportar entradas em PDF',
-                  'Manter uma memória central do universo',
-                ]}
-              />
-              <Shot src={shotCodex.url} alt="Visão geral do Codex na plataforma" />
-            </Panel>
-          </Reveal>
         </Shell>
       </Band>
 
