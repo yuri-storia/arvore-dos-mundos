@@ -564,6 +564,32 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
+      {/* ============================== 2. PROVAS =========================== */}
+      <Band tone="deep">
+        <Shell>
+          <div className="space-y-20 sm:space-y-24">
+            <div>
+              <SectionHead
+                eyebrow="Primeiros mundos"
+                title="Mundos que já começaram a criar raízes dentro da plataforma."
+                lede="Primeiros usuários que estão construindo seus universos dentro da Árvore dos Mundos."
+              />
+              <PlatformTestimonials />
+            </div>
+
+            <div>
+              <SectionHead
+                eyebrow="Quem já plantou"
+                title="Antes de virar plataforma, a Árvore já ajudava escritores a construir mundos."
+                lede="Estes depoimentos referem-se ao e-book e à metodologia original da Árvore dos Mundos."
+              />
+              <EbookTestimonials />
+            </div>
+          </div>
+        </Shell>
+      </Band>
+
+
       {/* ============================== 2. PROBLEMA ========================= */}
       <Band tone="mist">
         <Shell>
