@@ -714,46 +714,7 @@ const LandingPage: React.FC = () => {
       </Band>
 
 
-      {/* ============================== 3. COMO FUNCIONA ==================== */}
-      <Band id="tour">
-        <Shell>
-          <SectionHead
-            eyebrow="Como funciona"
-            title="Da primeira semente ao manuscrito."
-            lede="A Árvore dos Mundos organiza o processo de criação em quatro movimentos."
-          />
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
-            {[
-              { n: '01', title: 'Plante', desc: 'Crie seu mundo e registre a ideia que dará origem a ele. Você não precisa saber tudo antes de começar.', Icon: Leaf },
-              { n: '02', title: 'Cultive', desc: 'Desenvolva povos, lugares, culturas, conflitos, sistemas e linguagens pelos 11 Frutos do Worldbuilding.', Icon: Trees },
-              { n: '03', title: 'Organize', desc: 'Transforme descobertas em fichas e artigos dentro de um Codex vivo, criado para conectar cada parte do universo.', Icon: Library },
-              { n: '04', title: 'Escreva', desc: 'Leve tudo o que foi construído para seus manuscritos, capítulos e Storylines.', Icon: Feather },
-            ].map((s, i) => (
-              <Reveal key={s.n} delay={i * 0.07} className="h-full">
-                <Panel soft className="h-full group transition-colors duration-500 hover:border-gold/25">
-                  <div className="flex items-center justify-between mb-5">
-                    <s.Icon className="w-5 h-5 text-gold-champagne/75" strokeWidth={1.5} />
-                    <span className="font-cinzel font-bold text-gold-champagne/30 text-2xl transition-colors duration-500 group-hover:text-gold-champagne/55">
-                      {s.n}
-                    </span>
-                  </div>
-                  <h3 className="font-cinzel font-bold text-lg mb-2.5">{s.title}</h3>
-                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">{s.desc}</p>
-                </Panel>
-              </Reveal>
-            ))}
-          </div>
-
-          <Reveal delay={0.1}>
-            <p className="font-merriweather italic text-sm text-text-dim mt-12 text-center max-w-[58ch] mx-auto">
-              Nas próximas seções você vê cada movimento acontecendo na tela — gravado direto da plataforma.
-            </p>
-          </Reveal>
-        </Shell>
-      </Band>
-
-      {/* ============================== 4. 11 FRUTOS ======================== */}
+      {/* ============================== 3. 11 FRUTOS ======================== */}
       <Band tone="mist">
         <Shell>
           <SectionHead
@@ -799,6 +760,45 @@ const LandingPage: React.FC = () => {
             </Reveal>
           </div>
 
+        </Shell>
+      </Band>
+
+      {/* ============================== 4. COMO FUNCIONA ==================== */}
+      <Band id="tour">
+        <Shell>
+          <SectionHead
+            eyebrow="Como funciona"
+            title="Da primeira semente ao manuscrito."
+            lede="A Árvore dos Mundos organiza o processo de criação em quatro movimentos."
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
+            {[
+              { n: '01', title: 'Plante', desc: 'Crie seu mundo e registre a ideia que dará origem a ele. Você não precisa saber tudo antes de começar.', Icon: Leaf },
+              { n: '02', title: 'Cultive', desc: 'Desenvolva povos, lugares, culturas, conflitos, sistemas e linguagens pelos 11 Frutos do Worldbuilding.', Icon: Trees },
+              { n: '03', title: 'Organize', desc: 'Transforme descobertas em fichas e artigos dentro de um Codex vivo, criado para conectar cada parte do universo.', Icon: Library },
+              { n: '04', title: 'Escreva', desc: 'Leve tudo o que foi construído para seus manuscritos, capítulos e Storylines.', Icon: Feather },
+            ].map((s, i) => (
+              <Reveal key={s.n} delay={i * 0.07} className="h-full">
+                <Panel soft className="h-full group transition-colors duration-500 hover:border-gold/25">
+                  <div className="flex items-center justify-between mb-5">
+                    <s.Icon className="w-5 h-5 text-gold-champagne/75" strokeWidth={1.5} />
+                    <span className="font-cinzel font-bold text-gold-champagne/30 text-2xl transition-colors duration-500 group-hover:text-gold-champagne/55">
+                      {s.n}
+                    </span>
+                  </div>
+                  <h3 className="font-cinzel font-bold text-lg mb-2.5">{s.title}</h3>
+                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">{s.desc}</p>
+                </Panel>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal delay={0.1}>
+            <p className="font-merriweather italic text-sm text-text-dim mt-12 text-center max-w-[58ch] mx-auto">
+              Nas próximas seções você vê cada movimento acontecendo na tela — gravado direto da plataforma.
+            </p>
+          </Reveal>
         </Shell>
       </Band>
 
