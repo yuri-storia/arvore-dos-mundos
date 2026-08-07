@@ -292,20 +292,23 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
     let raf = 0;
     let cancelled = false;
     let ro: ResizeObserver | null = null;
-    let mo: MutationObserver | null = null;
 
     const measure = () => {
       if (cancelled) return;
       const el = document.querySelector(`[data-tour="${s.target}"]`) as HTMLElement | null;
-      if (!el) { setTargetRect(null); return; }
+      // Elemento pode sumir por 1 frame durante re-renders (carrossel, chat).
+      // Mantemos o último retângulo conhecido — nunca voltamos ao centro da tela,
+      // que é justamente o "salto"/glitch percebido.
+      if (!el) return;
       const r = el.getBoundingClientRect();
+      if (r.width < 1 && r.height < 1) return;
       const prev = lastRectRef.current;
       if (
         !prev ||
-        Math.abs(prev.x - r.left) >= 1 ||
-        Math.abs(prev.y - r.top) >= 1 ||
-        Math.abs(prev.w - r.width) >= 1 ||
-        Math.abs(prev.h - r.height) >= 1
+        Math.abs(prev.x - r.left) >= 2 ||
+        Math.abs(prev.y - r.top) >= 2 ||
+        Math.abs(prev.w - r.width) >= 2 ||
+        Math.abs(prev.h - r.height) >= 2
       ) {
         lastRectRef.current = { x: r.left, y: r.top, w: r.width, h: r.height };
         setTargetRect(r);
@@ -324,24 +327,33 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
       const el = document.querySelector(`[data-tour="${s.target}"]`);
       if (el) {
         measure();
-        if (el instanceof Element) {
-          ro = new ResizeObserver(schedule);
-          ro.observe(el);
-        }
+        ro = new ResizeObserver(schedule);
+        ro.observe(el);
       } else if (attempts++ < 30) {
         raf = requestAnimationFrame(initial);
       }
     };
     initial();
 
-    mo = new MutationObserver(schedule);
-    mo.observe(document.body, { childList: true, subtree: true, attributes: false });
+    // Janela curta de acomodação (scroll suave + layout). Depois disso só
+    // reagimos a scroll/resize/resize do alvo — sem MutationObserver global,
+    // que disparava a cada caractere digitado pela Idriel e fazia o cartão tremer.
+    const settleUntil = performance.now() + 900;
+    let settleRaf = 0;
+    const settle = () => {
+      if (cancelled) return;
+      measure();
+      if (performance.now() < settleUntil) settleRaf = requestAnimationFrame(settle);
+    };
+    settleRaf = requestAnimationFrame(settle);
+
     window.addEventListener('scroll', schedule, { passive: true, capture: true });
     window.addEventListener('resize', schedule);
 
     return () => {
       cancelled = true;
       cancelAnimationFrame(raf);
+      cancelAnimationFrame(settleRaf);
       ro?.disconnect();
       mo?.disconnect();
       window.removeEventListener('scroll', schedule, { capture: true } as any);
