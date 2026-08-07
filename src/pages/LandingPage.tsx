@@ -175,23 +175,31 @@ const CheckList: React.FC<{ items: string[]; columns?: 1 | 2; className?: string
   </ul>
 );
 
-/** Captura de tela da plataforma — moldura editorial responsiva. */
-const Shot: React.FC<{ src: string; alt: string; className?: string }> = ({ src, alt, className = '' }) => (
-  <figure className={`relative mt-6 overflow-hidden rounded-xl border border-gold/[0.14] bg-[rgba(2,7,13,0.6)] ${className}`}>
-    <img
-      src={src}
-      alt={alt}
-      loading="lazy"
-      decoding="async"
-      className="block w-full h-auto object-cover object-top"
-    />
-    <span
-      aria-hidden
-      className="pointer-events-none absolute inset-0 rounded-xl"
-      style={{ boxShadow: 'inset 0 -40px 60px -30px rgba(2,7,13,0.9)' }}
-    />
+/**
+ * Captura de tela da plataforma — moldura editorial com proporção fixa,
+ * para que cards vizinhos tenham sempre a mesma altura de imagem.
+ */
+const Shot: React.FC<{ src: string; alt: string; className?: string; ratio?: string }> = ({
+  src, alt, className = '', ratio = 'aspect-[16/10]',
+}) => (
+  <figure className={`relative mt-8 pt-8 border-t border-gold/[0.08] ${className}`}>
+    <div className={`relative ${ratio} overflow-hidden rounded-xl border border-gold/[0.14] bg-[rgba(2,7,13,0.6)]`}>
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-cover object-top"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-xl"
+        style={{ boxShadow: 'inset 0 -40px 60px -30px rgba(2,7,13,0.9)' }}
+      />
+    </div>
   </figure>
 );
+
 
 /** Legenda editorial padrão sob os vídeos — mesma hierarquia em toda a página. */
 const VideoCaption: React.FC<{ kicker: string; title: string; children: React.ReactNode }> = ({ kicker, title, children }) => (
