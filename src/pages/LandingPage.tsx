@@ -152,7 +152,7 @@ const Panel: React.FC<{ children: React.ReactNode; className?: string; soft?: bo
   children, className = '', soft = false,
 }) => (
   <div
-    className={`rounded-2xl border ${soft ? 'border-gold/[0.07] bg-[rgba(4,12,24,0.28)]' : 'border-gold/[0.11] bg-[rgba(4,12,24,0.42)]'} backdrop-blur-[2px] p-6 sm:p-8 ${className}`}
+    className={`rounded-2xl border ${soft ? 'border-gold/[0.07] bg-[rgba(4,12,24,0.28)]' : 'border-gold/[0.11] bg-[rgba(4,12,24,0.42)]'} backdrop-blur-[2px] p-6 sm:p-7 ${className}`}
   >
     {children}
   </div>
