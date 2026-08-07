@@ -52,6 +52,30 @@ import shotFoco from '@/assets/shot-foco.webp.asset.json';
 import shotGaleria from '@/assets/shot-galeria.webp.asset.json';
 import shotManuscrito from '@/assets/shot-manuscrito.webp.asset.json';
 import shotStoryline from '@/assets/shot-storyline.webp.asset.json';
+import VisionsCarousel from '@/components/marketing/VisionsCarousel';
+import visCidadela from '@/assets/visao-cidadela-crepusculo.webp.asset.json';
+import visResgate from '@/assets/visao-resgate-batalha.webp.asset.json';
+import visRei from '@/assets/visao-rei-solar.webp.asset.json';
+import visFogueira from '@/assets/visao-fogueira-ruinas.webp.asset.json';
+import visProfeta from '@/assets/visao-profeta-vale.webp.asset.json';
+import visMae from '@/assets/visao-mae-e-filho.webp.asset.json';
+import visCidadeMorta from '@/assets/visao-cidade-morta.webp.asset.json';
+import visJardim from '@/assets/visao-jardim-encantado.webp.asset.json';
+import visErudito from '@/assets/visao-erudito-tumba.webp.asset.json';
+
+/** Visões geradas dentro da plataforma — carrossel da seção Galeria. */
+const PLATFORM_VISIONS = [
+  { src: visCidadela.url, title: 'A cidadela ao crepúsculo', caption: 'Paisagem épica gerada a partir de um artigo de território.' },
+  { src: visJardim.url, title: 'O jardim das criaturas', caption: 'Cenário de fauna e flora fantástica para o Fruto de Seres Fantásticos.' },
+  { src: visRei.url, title: 'O rei solar', caption: 'Retrato de personagem fiel à ficha registrada no Codex.' },
+  { src: visProfeta.url, title: 'O anúncio no vale', caption: 'Cena de mitologia e fundação de um povo.' },
+  { src: visCidadeMorta.url, title: 'A cidade morta', caption: 'Ruínas para ancorar um evento da linha do tempo.' },
+  { src: visResgate.url, title: 'O resgate', caption: 'Momento de conflito gerado a partir de uma cena do manuscrito.' },
+  { src: visFogueira.url, title: 'Depois da batalha', caption: 'Atmosfera e tom emocional de um arco narrativo.' },
+  { src: visMae.url, title: 'A herdeira', caption: 'Retrato íntimo para uma ficha de personagem.' },
+  { src: visErudito.url, title: 'O erudito', caption: 'Referência histórica para um artigo do Codex.' },
+];
+
 
 const heroSrcSet = `${hero640.url} 640w, ${hero960.url} 960w, ${hero1280.url} 1280w, ${hero1600.url} 1600w`;
 
@@ -128,7 +152,7 @@ const Panel: React.FC<{ children: React.ReactNode; className?: string; soft?: bo
   children, className = '', soft = false,
 }) => (
   <div
-    className={`rounded-2xl border ${soft ? 'border-gold/[0.07] bg-[rgba(4,12,24,0.28)]' : 'border-gold/[0.11] bg-[rgba(4,12,24,0.42)]'} backdrop-blur-[2px] p-6 sm:p-8 ${className}`}
+    className={`rounded-2xl border ${soft ? 'border-gold/[0.07] bg-[rgba(4,12,24,0.28)]' : 'border-gold/[0.11] bg-[rgba(4,12,24,0.42)]'} backdrop-blur-[2px] p-6 sm:p-7 ${className}`}
   >
     {children}
   </div>
@@ -151,23 +175,31 @@ const CheckList: React.FC<{ items: string[]; columns?: 1 | 2; className?: string
   </ul>
 );
 
-/** Captura de tela da plataforma — moldura editorial responsiva. */
-const Shot: React.FC<{ src: string; alt: string; className?: string }> = ({ src, alt, className = '' }) => (
-  <figure className={`relative mt-6 overflow-hidden rounded-xl border border-gold/[0.14] bg-[rgba(2,7,13,0.6)] ${className}`}>
-    <img
-      src={src}
-      alt={alt}
-      loading="lazy"
-      decoding="async"
-      className="block w-full h-auto object-cover object-top"
-    />
-    <span
-      aria-hidden
-      className="pointer-events-none absolute inset-0 rounded-xl"
-      style={{ boxShadow: 'inset 0 -40px 60px -30px rgba(2,7,13,0.9)' }}
-    />
+/**
+ * Captura de tela da plataforma — moldura editorial com proporção fixa,
+ * para que cards vizinhos tenham sempre a mesma altura de imagem.
+ */
+const Shot: React.FC<{ src: string; alt: string; className?: string; ratio?: string }> = ({
+  src, alt, className = '', ratio = 'aspect-[16/10]',
+}) => (
+  <figure className={`relative mt-8 pt-8 border-t border-gold/[0.08] ${className}`}>
+    <div className={`relative ${ratio} overflow-hidden rounded-xl border border-gold/[0.14] bg-[rgba(2,7,13,0.6)]`}>
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-cover object-top"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-xl"
+        style={{ boxShadow: 'inset 0 -40px 60px -30px rgba(2,7,13,0.9)' }}
+      />
+    </div>
   </figure>
 );
+
 
 /** Legenda editorial padrão sob os vídeos — mesma hierarquia em toda a página. */
 const VideoCaption: React.FC<{ kicker: string; title: string; children: React.ReactNode }> = ({ kicker, title, children }) => (
@@ -584,7 +616,60 @@ const LandingPage: React.FC = () => {
                 lede="Estes depoimentos referem-se ao e-book e à metodologia original da Árvore dos Mundos."
               />
               <EbookTestimonials />
+
+              <Reveal delay={0.05} className="mt-12 sm:mt-14">
+                <Panel soft className="overflow-hidden">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                    <figure className="relative">
+                      <div
+                        className="absolute inset-0 -m-6 rounded-[2rem] pointer-events-none"
+                        style={{ background: 'radial-gradient(60% 60% at 50% 50%, hsl(210 70% 30% / 0.22) 0%, transparent 72%)' }}
+                      />
+                      <img
+                        src={ebookMockup.url}
+                        alt="O e-book A Árvore dos Mundos exibido em celular, tablet e notebook"
+                        loading="lazy"
+                        decoding="async"
+                        className="relative w-full h-auto mx-auto opacity-[0.82] mix-blend-screen"
+                        style={{
+                          filter: 'drop-shadow(0 30px 70px rgba(0,0,0,0.55))',
+                          maskImage: 'radial-gradient(80% 80% at 50% 48%, #000 55%, transparent 100%)',
+                          WebkitMaskImage: 'radial-gradient(80% 80% at 50% 48%, #000 55%, transparent 100%)',
+                        }}
+                      />
+                    </figure>
+
+                    <div className="text-center lg:text-left">
+                      <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne/80 mb-4">
+                        Uma metodologia que já existia antes da plataforma
+                      </p>
+                      <h3 className="font-cinzel font-bold text-xl sm:text-2xl mb-4">Do e-book ao ambiente vivo</h3>
+                      <p className="font-manrope text-[14.5px] text-text-secondary leading-[1.9] max-w-[52ch] mx-auto lg:mx-0">
+                        Os 11 Frutos nasceram no e-book <em>A Árvore dos Mundos</em>, uma metodologia de worldbuilding que já vendeu
+                        mais de <strong className="text-foreground font-semibold">1.500 exemplares</strong>. Agora, o método deixou de existir apenas
+                        nas páginas e se transformou em um ambiente vivo de criação.
+                      </p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-7 text-left">
+                        <div className="rounded-2xl border border-gold/[0.12] bg-white/[0.02] px-4 py-3.5">
+                          <p className="font-manrope font-semibold uppercase tracking-[0.18em] text-[9.5px] text-gold-champagne/75 mb-1.5">Antes</p>
+                          <p className="font-manrope text-[13px] text-text-secondary leading-[1.8]">O método em páginas: leitura, anotações soltas e cadernos dispersos.</p>
+                        </div>
+                        <div className="rounded-2xl border border-gold/[0.12] bg-white/[0.02] px-4 py-3.5">
+                          <p className="font-manrope font-semibold uppercase tracking-[0.18em] text-[9.5px] text-gold-champagne/75 mb-1.5">Agora</p>
+                          <p className="font-manrope text-[13px] text-text-secondary leading-[1.8]">O método vivo: Frutos, Codex, linha do tempo e manuscrito no mesmo lugar.</p>
+                        </div>
+                      </div>
+
+                      <div className="inline-flex items-center gap-2 mt-6 text-[11px] font-manrope uppercase tracking-[0.2em] text-gold-champagne/80">
+                        <Star className="w-3.5 h-3.5" strokeWidth={2} /> +1.500 exemplares vendidos
+                      </div>
+                    </div>
+                  </div>
+                </Panel>
+              </Reveal>
             </div>
+
           </div>
         </Shell>
       </Band>
@@ -714,57 +799,6 @@ const LandingPage: React.FC = () => {
             </Reveal>
           </div>
 
-          <Reveal delay={0.05} className="mt-20 lg:mt-24">
-            <Panel soft className="overflow-hidden">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-                <figure className="relative">
-                  <div
-                    className="absolute inset-0 -m-6 rounded-[2rem] pointer-events-none"
-                    style={{ background: 'radial-gradient(60% 60% at 50% 50%, hsl(210 70% 30% / 0.22) 0%, transparent 72%)' }}
-                  />
-                  <img
-                    src={ebookMockup.url}
-                    alt="O e-book A Árvore dos Mundos exibido em celular, tablet e notebook"
-                    loading="lazy"
-                    decoding="async"
-                    className="relative w-full h-auto mx-auto opacity-[0.82] mix-blend-screen"
-                    style={{
-                      filter: 'drop-shadow(0 30px 70px rgba(0,0,0,0.55))',
-                      maskImage: 'radial-gradient(80% 80% at 50% 48%, #000 55%, transparent 100%)',
-                      WebkitMaskImage: 'radial-gradient(80% 80% at 50% 48%, #000 55%, transparent 100%)',
-                    }}
-                  />
-                </figure>
-
-                <div className="text-center lg:text-left">
-                  <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne/80 mb-4">
-                    Uma metodologia que já existia antes da plataforma
-                  </p>
-                  <h3 className="font-cinzel font-bold text-xl sm:text-2xl mb-4">Do e-book ao ambiente vivo</h3>
-                  <p className="font-manrope text-[14.5px] text-text-secondary leading-[1.9] max-w-[52ch] mx-auto lg:mx-0">
-                    Os 11 Frutos nasceram no e-book <em>A Árvore dos Mundos</em>, uma metodologia de worldbuilding que já vendeu
-                    mais de <strong className="text-foreground font-semibold">1.500 exemplares</strong>. Agora, o método deixou de existir apenas
-                    nas páginas e se transformou em um ambiente vivo de criação.
-                  </p>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-7 text-left">
-                    <div className="rounded-2xl border border-gold/[0.12] bg-white/[0.02] px-4 py-3.5">
-                      <p className="font-manrope font-semibold uppercase tracking-[0.18em] text-[9.5px] text-gold-champagne/75 mb-1.5">Antes</p>
-                      <p className="font-manrope text-[13px] text-text-secondary leading-[1.8]">O método em páginas: leitura, anotações soltas e cadernos dispersos.</p>
-                    </div>
-                    <div className="rounded-2xl border border-gold/[0.12] bg-white/[0.02] px-4 py-3.5">
-                      <p className="font-manrope font-semibold uppercase tracking-[0.18em] text-[9.5px] text-gold-champagne/75 mb-1.5">Agora</p>
-                      <p className="font-manrope text-[13px] text-text-secondary leading-[1.8]">O método vivo: Frutos, Codex, linha do tempo e manuscrito no mesmo lugar.</p>
-                    </div>
-                  </div>
-
-                  <div className="inline-flex items-center gap-2 mt-6 text-[11px] font-manrope uppercase tracking-[0.2em] text-gold-champagne/80">
-                    <Star className="w-3.5 h-3.5" strokeWidth={2} /> +1.500 exemplares vendidos
-                  </div>
-                </div>
-              </div>
-            </Panel>
-          </Reveal>
         </Shell>
       </Band>
 
@@ -1063,6 +1097,23 @@ const LandingPage: React.FC = () => {
           </div>
         </Shell>
       </Band>
+
+      {/* ====================== 7b. GALERIA DE VISÕES ======================= */}
+      <Band>
+        <Shell>
+          <SectionHead
+            eyebrow="Visões de Idriel"
+            Icon={ImageIcon}
+            title="Imagens nascidas dentro do seu próprio mundo."
+            lede="Todas as imagens abaixo foram geradas dentro da plataforma, a partir de fichas, artigos e cenas registradas no Codex — e arquivadas automaticamente na Galeria."
+          />
+          <Reveal>
+            <VisionsCarousel items={PLATFORM_VISIONS} />
+          </Reveal>
+        </Shell>
+      </Band>
+
+
 
       {/* ============================== 8. IMPORTAÇÃO ======================= */}
       {SHOW_IMPORT_BLOCK && (
