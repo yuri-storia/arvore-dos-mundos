@@ -932,6 +932,7 @@ const LandingPage: React.FC = () => {
                     </span>
                   ))}
                 </div>
+                <Shot src={shotAnalise.url} alt="Análise de Mundo feita por Idriel dentro do Codex" />
               </Panel>
             </Reveal>
 
