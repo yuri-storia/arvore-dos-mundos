@@ -44,6 +44,14 @@ import vidImagem from '@/assets/demo-gerar-imagem.mp4.asset.json';
 import vidImagemPoster from '@/assets/demo-gerar-imagem.jpg.asset.json';
 import vidImportacao from '@/assets/demo-importacao.mp4.asset.json';
 import vidImportacaoPoster from '@/assets/demo-importacao.jpg.asset.json';
+import shotAnalise from '@/assets/shot-analise-mundos.webp.asset.json';
+import shotArtigos from '@/assets/shot-artigos.webp.asset.json';
+import shotCodex from '@/assets/shot-codex.webp.asset.json';
+import shotFichas from '@/assets/shot-fichas.webp.asset.json';
+import shotFoco from '@/assets/shot-foco.webp.asset.json';
+import shotGaleria from '@/assets/shot-galeria.webp.asset.json';
+import shotManuscrito from '@/assets/shot-manuscrito.webp.asset.json';
+import shotStoryline from '@/assets/shot-storyline.webp.asset.json';
 
 const heroSrcSet = `${hero640.url} 640w, ${hero960.url} 960w, ${hero1280.url} 1280w, ${hero1600.url} 1600w`;
 
@@ -141,6 +149,24 @@ const CheckList: React.FC<{ items: string[]; columns?: 1 | 2; className?: string
       </li>
     ))}
   </ul>
+);
+
+/** Captura de tela da plataforma — moldura editorial responsiva. */
+const Shot: React.FC<{ src: string; alt: string; className?: string }> = ({ src, alt, className = '' }) => (
+  <figure className={`relative mt-6 overflow-hidden rounded-xl border border-gold/[0.14] bg-[rgba(2,7,13,0.6)] ${className}`}>
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      decoding="async"
+      className="block w-full h-auto object-cover object-top"
+    />
+    <span
+      aria-hidden
+      className="pointer-events-none absolute inset-0 rounded-xl"
+      style={{ boxShadow: 'inset 0 -40px 60px -30px rgba(2,7,13,0.9)' }}
+    />
+  </figure>
 );
 
 /** Legenda editorial padrão sob os vídeos — mesma hierarquia em toda a página. */
@@ -538,6 +564,32 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
+      {/* ============================== 2. PROVAS =========================== */}
+      <Band tone="deep">
+        <Shell>
+          <div className="space-y-20 sm:space-y-24">
+            <div>
+              <SectionHead
+                eyebrow="Primeiros mundos"
+                title="Mundos que já começaram a criar raízes dentro da plataforma."
+                lede="Primeiros usuários que estão construindo seus universos dentro da Árvore dos Mundos."
+              />
+              <PlatformTestimonials />
+            </div>
+
+            <div>
+              <SectionHead
+                eyebrow="Quem já plantou"
+                title="Antes de virar plataforma, a Árvore já ajudava escritores a construir mundos."
+                lede="Estes depoimentos referem-se ao e-book e à metodologia original da Árvore dos Mundos."
+              />
+              <EbookTestimonials />
+            </div>
+          </div>
+        </Shell>
+      </Band>
+
+
       {/* ============================== 2. PROBLEMA ========================= */}
       <Band tone="mist">
         <Shell>
@@ -746,20 +798,22 @@ const LandingPage: React.FC = () => {
             </Reveal>
 
             <Reveal delay={0.1} className="h-full">
-              <div className="h-full grid grid-rows-2 gap-6">
-                <Panel>
+              <div className="h-full grid grid-cols-1 gap-6">
+                <Panel className="flex flex-col">
                   <FileText className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
                   <h3 className="font-cinzel font-bold text-base mb-2">Fichas</h3>
                   <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">
                     Para elementos objetivos: personagens, lugares, organizações e itens.
                   </p>
+                  <Shot className="mt-auto" src={shotFichas.url} alt="Ficha de personagem aberta no Codex" />
                 </Panel>
-                <Panel>
+                <Panel className="flex flex-col">
                   <BookOpen className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
                   <h3 className="font-cinzel font-bold text-base mb-2">Artigos</h3>
                   <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">
                     Para conceitos amplos: sistemas mágicos, períodos históricos, religiões, culturas e acontecimentos.
                   </p>
+                  <Shot className="mt-auto" src={shotArtigos.url} alt="Artigo aberto no Codex" />
                 </Panel>
               </div>
             </Reveal>
@@ -783,6 +837,7 @@ const LandingPage: React.FC = () => {
                   'Manter uma memória central do universo',
                 ]}
               />
+              <Shot src={shotCodex.url} alt="Visão geral do Codex na plataforma" />
             </Panel>
           </Reveal>
         </Shell>
@@ -906,6 +961,7 @@ const LandingPage: React.FC = () => {
                     </span>
                   ))}
                 </div>
+                <Shot src={shotAnalise.url} alt="Análise de Mundo feita por Idriel dentro do Codex" />
               </Panel>
             </Reveal>
 
@@ -942,29 +998,30 @@ const LandingPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8 items-stretch">
             {[
               {
-                Icon: Feather, title: 'Manuscritos',
+                Icon: Feather, title: 'Manuscritos', shot: shotManuscrito.url,
                 items: ['Múltiplos manuscritos por mundo', 'Capítulos com autosave e contagem de palavras', 'Consulta ao Codex sem sair da página', 'Modo Zen para reduzir distrações', 'Exportação em PDF, Word e Kindle'],
               },
               {
-                Icon: Layers, title: 'Storylines',
+                Icon: Layers, title: 'Storylines', shot: shotStoryline.url,
                 items: ['Arcos e linhas narrativas em painéis visuais', 'Múltiplas Storylines · colunas renomeáveis', 'Cards arrastáveis · acompanhe conflitos e tramas'],
               },
               {
-                Icon: ImageIcon, title: 'Galeria e Mapas',
+                Icon: ImageIcon, title: 'Galeria e Mapas', shot: shotGaleria.url,
                 items: ['Reúna referências, personagens, cenários, objetos e mapas', 'Organize por mundo, Fruto ou categoria', 'Imagens geradas na plataforma salvas automaticamente'],
               },
               {
-                Icon: Timer, title: 'Ferramentas de Foco',
+                Icon: Timer, title: 'Ferramentas de Foco', shot: shotFoco.url,
                 items: ['Pomodoro com intervalos configuráveis', 'Ciclos de trabalho e sons suaves', 'Ambiente de escrita mais imersivo'],
               },
             ].map((b, i) => (
               <Reveal key={b.title} delay={i * 0.07} className="h-full">
-                <Panel soft className="h-full">
+                <Panel soft className="h-full flex flex-col">
                   <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-gold/[0.10]">
                     <b.Icon className="w-5 h-5 text-gold-champagne/80" strokeWidth={1.4} />
                     <h3 className="font-cinzel font-bold text-lg">{b.title}</h3>
                   </div>
                   <CheckList items={b.items} />
+                  <Shot className="mt-auto" src={b.shot} alt={`Tela da plataforma: ${b.title}`} />
                 </Panel>
               </Reveal>
             ))}
@@ -1114,31 +1171,6 @@ const LandingPage: React.FC = () => {
       </Band>
 
 
-      {/* ============================== 10. PROVAS ========================== */}
-      <Band>
-        <Shell>
-          <div className="space-y-24">
-            <div>
-              <SectionHead
-                eyebrow="Quem já plantou"
-                title="Antes de virar plataforma, a Árvore já ajudava escritores a construir mundos."
-                lede="Estes depoimentos referem-se ao e-book e à metodologia original da Árvore dos Mundos."
-              />
-              <EbookTestimonials />
-            </div>
-
-            <div>
-              <SectionHead
-                eyebrow="Primeiros mundos"
-                title="Mundos que já começaram a criar raízes dentro da plataforma."
-                lede="Primeiros usuários que estão construindo seus universos dentro da Árvore dos Mundos."
-              />
-              <PlatformTestimonials />
-            </div>
-          </div>
-
-        </Shell>
-      </Band>
 
       {/* ============================== 11. PLANOS ========================== */}
       <section id="planos" className="relative scroll-mt-24 py-24 sm:py-32 lg:py-[150px] overflow-hidden">
