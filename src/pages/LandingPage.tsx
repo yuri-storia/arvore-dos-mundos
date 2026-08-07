@@ -799,57 +799,6 @@ const LandingPage: React.FC = () => {
             </Reveal>
           </div>
 
-          <Reveal delay={0.05} className="mt-20 lg:mt-24">
-            <Panel soft className="overflow-hidden">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-                <figure className="relative">
-                  <div
-                    className="absolute inset-0 -m-6 rounded-[2rem] pointer-events-none"
-                    style={{ background: 'radial-gradient(60% 60% at 50% 50%, hsl(210 70% 30% / 0.22) 0%, transparent 72%)' }}
-                  />
-                  <img
-                    src={ebookMockup.url}
-                    alt="O e-book A Árvore dos Mundos exibido em celular, tablet e notebook"
-                    loading="lazy"
-                    decoding="async"
-                    className="relative w-full h-auto mx-auto opacity-[0.82] mix-blend-screen"
-                    style={{
-                      filter: 'drop-shadow(0 30px 70px rgba(0,0,0,0.55))',
-                      maskImage: 'radial-gradient(80% 80% at 50% 48%, #000 55%, transparent 100%)',
-                      WebkitMaskImage: 'radial-gradient(80% 80% at 50% 48%, #000 55%, transparent 100%)',
-                    }}
-                  />
-                </figure>
-
-                <div className="text-center lg:text-left">
-                  <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne/80 mb-4">
-                    Uma metodologia que já existia antes da plataforma
-                  </p>
-                  <h3 className="font-cinzel font-bold text-xl sm:text-2xl mb-4">Do e-book ao ambiente vivo</h3>
-                  <p className="font-manrope text-[14.5px] text-text-secondary leading-[1.9] max-w-[52ch] mx-auto lg:mx-0">
-                    Os 11 Frutos nasceram no e-book <em>A Árvore dos Mundos</em>, uma metodologia de worldbuilding que já vendeu
-                    mais de <strong className="text-foreground font-semibold">1.500 exemplares</strong>. Agora, o método deixou de existir apenas
-                    nas páginas e se transformou em um ambiente vivo de criação.
-                  </p>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-7 text-left">
-                    <div className="rounded-2xl border border-gold/[0.12] bg-white/[0.02] px-4 py-3.5">
-                      <p className="font-manrope font-semibold uppercase tracking-[0.18em] text-[9.5px] text-gold-champagne/75 mb-1.5">Antes</p>
-                      <p className="font-manrope text-[13px] text-text-secondary leading-[1.8]">O método em páginas: leitura, anotações soltas e cadernos dispersos.</p>
-                    </div>
-                    <div className="rounded-2xl border border-gold/[0.12] bg-white/[0.02] px-4 py-3.5">
-                      <p className="font-manrope font-semibold uppercase tracking-[0.18em] text-[9.5px] text-gold-champagne/75 mb-1.5">Agora</p>
-                      <p className="font-manrope text-[13px] text-text-secondary leading-[1.8]">O método vivo: Frutos, Codex, linha do tempo e manuscrito no mesmo lugar.</p>
-                    </div>
-                  </div>
-
-                  <div className="inline-flex items-center gap-2 mt-6 text-[11px] font-manrope uppercase tracking-[0.2em] text-gold-champagne/80">
-                    <Star className="w-3.5 h-3.5" strokeWidth={2} /> +1.500 exemplares vendidos
-                  </div>
-                </div>
-              </div>
-            </Panel>
-          </Reveal>
         </Shell>
       </Band>
 
