@@ -985,12 +985,13 @@ const LandingPage: React.FC = () => {
               },
             ].map((b, i) => (
               <Reveal key={b.title} delay={i * 0.07} className="h-full">
-                <Panel soft className="h-full">
+                <Panel soft className="h-full flex flex-col">
                   <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-gold/[0.10]">
                     <b.Icon className="w-5 h-5 text-gold-champagne/80" strokeWidth={1.4} />
                     <h3 className="font-cinzel font-bold text-lg">{b.title}</h3>
                   </div>
                   <CheckList items={b.items} />
+                  <Shot className="mt-auto" src={b.shot} alt={`Tela da plataforma: ${b.title}`} />
                 </Panel>
               </Reveal>
             ))}
