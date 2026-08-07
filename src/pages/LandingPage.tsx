@@ -52,6 +52,30 @@ import shotFoco from '@/assets/shot-foco.webp.asset.json';
 import shotGaleria from '@/assets/shot-galeria.webp.asset.json';
 import shotManuscrito from '@/assets/shot-manuscrito.webp.asset.json';
 import shotStoryline from '@/assets/shot-storyline.webp.asset.json';
+import VisionsCarousel from '@/components/marketing/VisionsCarousel';
+import visCidadela from '@/assets/visao-cidadela-crepusculo.webp.asset.json';
+import visResgate from '@/assets/visao-resgate-batalha.webp.asset.json';
+import visRei from '@/assets/visao-rei-solar.webp.asset.json';
+import visFogueira from '@/assets/visao-fogueira-ruinas.webp.asset.json';
+import visProfeta from '@/assets/visao-profeta-vale.webp.asset.json';
+import visMae from '@/assets/visao-mae-e-filho.webp.asset.json';
+import visCidadeMorta from '@/assets/visao-cidade-morta.webp.asset.json';
+import visJardim from '@/assets/visao-jardim-encantado.webp.asset.json';
+import visErudito from '@/assets/visao-erudito-tumba.webp.asset.json';
+
+/** Visões geradas dentro da plataforma — carrossel da seção Galeria. */
+const PLATFORM_VISIONS = [
+  { src: visCidadela.url, title: 'A cidadela ao crepúsculo', caption: 'Paisagem épica gerada a partir de um artigo de território.' },
+  { src: visJardim.url, title: 'O jardim das criaturas', caption: 'Cenário de fauna e flora fantástica para o Fruto de Seres Fantásticos.' },
+  { src: visRei.url, title: 'O rei solar', caption: 'Retrato de personagem fiel à ficha registrada no Codex.' },
+  { src: visProfeta.url, title: 'O anúncio no vale', caption: 'Cena de mitologia e fundação de um povo.' },
+  { src: visCidadeMorta.url, title: 'A cidade morta', caption: 'Ruínas para ancorar um evento da linha do tempo.' },
+  { src: visResgate.url, title: 'O resgate', caption: 'Momento de conflito gerado a partir de uma cena do manuscrito.' },
+  { src: visFogueira.url, title: 'Depois da batalha', caption: 'Atmosfera e tom emocional de um arco narrativo.' },
+  { src: visMae.url, title: 'A herdeira', caption: 'Retrato íntimo para uma ficha de personagem.' },
+  { src: visErudito.url, title: 'O erudito', caption: 'Referência histórica para um artigo do Codex.' },
+];
+
 
 const heroSrcSet = `${hero640.url} 640w, ${hero960.url} 960w, ${hero1280.url} 1280w, ${hero1600.url} 1600w`;
 
