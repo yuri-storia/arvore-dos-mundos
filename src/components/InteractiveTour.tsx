@@ -355,7 +355,7 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
       cancelAnimationFrame(raf);
       cancelAnimationFrame(settleRaf);
       ro?.disconnect();
-      mo?.disconnect();
+      
       window.removeEventListener('scroll', schedule, { capture: true } as any);
       window.removeEventListener('resize', schedule);
     };
