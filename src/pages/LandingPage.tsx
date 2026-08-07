@@ -772,20 +772,22 @@ const LandingPage: React.FC = () => {
             </Reveal>
 
             <Reveal delay={0.1} className="h-full">
-              <div className="h-full grid grid-rows-2 gap-6">
-                <Panel>
+              <div className="h-full grid grid-cols-1 gap-6">
+                <Panel className="flex flex-col">
                   <FileText className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
                   <h3 className="font-cinzel font-bold text-base mb-2">Fichas</h3>
                   <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">
                     Para elementos objetivos: personagens, lugares, organizações e itens.
                   </p>
+                  <Shot className="mt-auto" src={shotFichas.url} alt="Ficha de personagem aberta no Codex" />
                 </Panel>
-                <Panel>
+                <Panel className="flex flex-col">
                   <BookOpen className="w-5 h-5 text-gold-champagne/80 mb-3" strokeWidth={1.4} />
                   <h3 className="font-cinzel font-bold text-base mb-2">Artigos</h3>
                   <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">
                     Para conceitos amplos: sistemas mágicos, períodos históricos, religiões, culturas e acontecimentos.
                   </p>
+                  <Shot className="mt-auto" src={shotArtigos.url} alt="Artigo aberto no Codex" />
                 </Panel>
               </div>
             </Reveal>
