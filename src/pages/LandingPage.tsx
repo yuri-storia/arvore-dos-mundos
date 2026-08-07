@@ -151,6 +151,24 @@ const CheckList: React.FC<{ items: string[]; columns?: 1 | 2; className?: string
   </ul>
 );
 
+/** Captura de tela da plataforma — moldura editorial responsiva. */
+const Shot: React.FC<{ src: string; alt: string; className?: string }> = ({ src, alt, className = '' }) => (
+  <figure className={`relative mt-6 overflow-hidden rounded-xl border border-gold/[0.14] bg-[rgba(2,7,13,0.6)] ${className}`}>
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      decoding="async"
+      className="block w-full h-auto object-cover object-top"
+    />
+    <span
+      aria-hidden
+      className="pointer-events-none absolute inset-0 rounded-xl"
+      style={{ boxShadow: 'inset 0 -40px 60px -30px rgba(2,7,13,0.9)' }}
+    />
+  </figure>
+);
+
 /** Legenda editorial padrão sob os vídeos — mesma hierarquia em toda a página. */
 const VideoCaption: React.FC<{ kicker: string; title: string; children: React.ReactNode }> = ({ kicker, title, children }) => (
   <div className="mt-5 px-1">
