@@ -1098,6 +1098,23 @@ const LandingPage: React.FC = () => {
         </Shell>
       </Band>
 
+      {/* ====================== 7b. GALERIA DE VISÕES ======================= */}
+      <Band>
+        <Shell>
+          <SectionHead
+            eyebrow="Visões de Idriel"
+            Icon={ImageIcon}
+            title="Imagens nascidas dentro do seu próprio mundo."
+            lede="Todas as imagens abaixo foram geradas dentro da plataforma, a partir de fichas, artigos e cenas registradas no Codex — e arquivadas automaticamente na Galeria."
+          />
+          <Reveal>
+            <VisionsCarousel items={PLATFORM_VISIONS} />
+          </Reveal>
+        </Shell>
+      </Band>
+
+
+
       {/* ============================== 8. IMPORTAÇÃO ======================= */}
       {SHOW_IMPORT_BLOCK && (
         <Band>
