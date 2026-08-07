@@ -968,19 +968,19 @@ const LandingPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8 items-stretch">
             {[
               {
-                Icon: Feather, title: 'Manuscritos',
+                Icon: Feather, title: 'Manuscritos', shot: shotManuscrito.url,
                 items: ['Múltiplos manuscritos por mundo', 'Capítulos com autosave e contagem de palavras', 'Consulta ao Codex sem sair da página', 'Modo Zen para reduzir distrações', 'Exportação em PDF, Word e Kindle'],
               },
               {
-                Icon: Layers, title: 'Storylines',
+                Icon: Layers, title: 'Storylines', shot: shotStoryline.url,
                 items: ['Arcos e linhas narrativas em painéis visuais', 'Múltiplas Storylines · colunas renomeáveis', 'Cards arrastáveis · acompanhe conflitos e tramas'],
               },
               {
-                Icon: ImageIcon, title: 'Galeria e Mapas',
+                Icon: ImageIcon, title: 'Galeria e Mapas', shot: shotGaleria.url,
                 items: ['Reúna referências, personagens, cenários, objetos e mapas', 'Organize por mundo, Fruto ou categoria', 'Imagens geradas na plataforma salvas automaticamente'],
               },
               {
-                Icon: Timer, title: 'Ferramentas de Foco',
+                Icon: Timer, title: 'Ferramentas de Foco', shot: shotFoco.url,
                 items: ['Pomodoro com intervalos configuráveis', 'Ciclos de trabalho e sons suaves', 'Ambiente de escrita mais imersivo'],
               },
             ].map((b, i) => (
