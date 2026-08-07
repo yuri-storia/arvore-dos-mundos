@@ -811,6 +811,7 @@ const LandingPage: React.FC = () => {
                   'Manter uma memória central do universo',
                 ]}
               />
+              <Shot src={shotCodex.url} alt="Visão geral do Codex na plataforma" />
             </Panel>
           </Reveal>
         </Shell>
