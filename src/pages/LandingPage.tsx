@@ -44,6 +44,14 @@ import vidImagem from '@/assets/demo-gerar-imagem.mp4.asset.json';
 import vidImagemPoster from '@/assets/demo-gerar-imagem.jpg.asset.json';
 import vidImportacao from '@/assets/demo-importacao.mp4.asset.json';
 import vidImportacaoPoster from '@/assets/demo-importacao.jpg.asset.json';
+import shotAnalise from '@/assets/shot-analise-mundos.webp.asset.json';
+import shotArtigos from '@/assets/shot-artigos.webp.asset.json';
+import shotCodex from '@/assets/shot-codex.webp.asset.json';
+import shotFichas from '@/assets/shot-fichas.webp.asset.json';
+import shotFoco from '@/assets/shot-foco.webp.asset.json';
+import shotGaleria from '@/assets/shot-galeria.webp.asset.json';
+import shotManuscrito from '@/assets/shot-manuscrito.webp.asset.json';
+import shotStoryline from '@/assets/shot-storyline.webp.asset.json';
 
 const heroSrcSet = `${hero640.url} 640w, ${hero960.url} 960w, ${hero1280.url} 1280w, ${hero1600.url} 1600w`;
 
