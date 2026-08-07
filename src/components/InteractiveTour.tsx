@@ -557,7 +557,7 @@ export const InteractiveTour: React.FC<Props> = ({ active, onFinish, setActiveTa
                 ? `top-0 pt-[max(12px,env(safe-area-inset-top))] pb-3 ${animating ? '-translate-y-4 opacity-0' : 'translate-y-0 opacity-100'}`
                 : `bottom-0 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] ${animating ? 'translate-y-4 opacity-0' : 'translate-y-0 opacity-100'}`
             }`
-          : `fixed z-[10001] transition-all duration-300 ${animating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`;
+          : `fixed z-[10001] transition-[opacity,transform] duration-300 will-change-[opacity,transform] ${animating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`;
         const cardClass = mobileDocked
           ? 'relative rounded-2xl p-4 overflow-hidden w-full mx-auto max-w-[560px]'
           : `relative rounded-2xl p-5 sm:p-6 overflow-hidden ${
