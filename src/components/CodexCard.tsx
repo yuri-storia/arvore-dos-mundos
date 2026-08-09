@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
-import { Sparkles, Loader2, X, FileText, BookText, FileDown, Trash2, Move, Image as ImageIcon, ArrowLeft, FolderUp, Link2 } from 'lucide-react';
+import { Sparkles, Loader2, X, FileText, BookText, FileDown, Trash2, Move, Image as ImageIcon, ArrowLeft, FolderUp } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
