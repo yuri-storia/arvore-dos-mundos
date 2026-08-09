@@ -52,6 +52,8 @@ export const GuidedBuildChat: React.FC<Props> = ({
   const [chatOpen, setChatOpen] = useState(false);
   const [pathChoice, setPathChoice] = useState(true);
   const [progress, setProgress] = useState<{ label: string; done: number; total: number } | null>(null);
+  /** True apenas depois que a lição do Fruto foi exibida por completo. */
+  const [lessonDone, setLessonDone] = useState(false);
 
   const [visualState, setVisualState] = useState<IdrielState>(OPENING_STATES[fruitId % OPENING_STATES.length]);
 
@@ -68,7 +70,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
   const clearTimers = () => { timers.current.forEach(clearTimeout); timers.current = []; };
 
   /** Sequência animada de falas de Idriel (imita digitação de chat). */
-  const streamIdriel = useCallback((texts: { text: string; kind?: Bubble['kind'] }[], state?: IdrielState, progressLabel?: string) => {
+  const streamIdriel = useCallback((texts: { text: string; kind?: Bubble['kind'] }[], state?: IdrielState, progressLabel?: string, onComplete?: () => void) => {
     clearTimers();
     if (state) setVisualState(state);
     if (progressLabel) setProgress({ label: progressLabel, done: 0, total: texts.length });
@@ -83,6 +85,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
         setTyping(i < texts.length - 1);
         setLog(prev => [...prev, { id: uid(), from: 'idriel', text: t.text, kind: t.kind }]);
         if (progressLabel) setProgress({ label: progressLabel, done: i + 1, total: texts.length });
+        if (i === texts.length - 1) onComplete?.();
       }, delay) as unknown as number);
     });
   }, []);
@@ -99,6 +102,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
     setProgress(null);
     setChatOpen(false);
     setPathChoice(true);
+    setLessonDone(false);
 
     const firstUnanswered = questions.findIndex(q => !(values[q.fieldId] || '').trim());
     setStepIndex(firstUnanswered === -1 ? 0 : firstUnanswered);
@@ -147,6 +151,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
     setChatOpen(true);
     setPathChoice(false);
     if (replay) setLog([]);
+    setLessonDone(false);
     pushUser(replay ? 'Reproduzir o tutorial novamente.' : 'Quero aprender sobre este Fruto.');
     const parts = config.principles.slice(0, 3).map(p => ({ text: `${p.title}\n${p.body}`, kind: 'lesson' as const }));
     streamIdriel([
@@ -154,9 +159,17 @@ export const GuidedBuildChat: React.FC<Props> = ({
       ...parts,
       ...(config.closing ? [{ text: config.closing }] : []),
       { text: 'Agora me diga: o que você quer criar hoje? Escolha um dos caminhos abaixo ou escreva à vontade.' },
-    ], stateForEvent('tutorial'), 'Tutorial');
+    ], stateForEvent('tutorial'), 'Tutorial', () => setLessonDone(true));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config, streamIdriel]);
+
+  /** Rola a transcrição de volta ao início para o usuário reler a lição. */
+  const reviewFromStart = useCallback(() => {
+    setChatOpen(true);
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }, []);
 
   const runCaseStudy = () => {
     setChatOpen(true);
@@ -386,23 +399,27 @@ export const GuidedBuildChat: React.FC<Props> = ({
               </div>
             )}
 
-            {/* Reiniciar tutorial — ao final do chat */}
-            {log.length > 0 && !typing && !aiLoading && (
-              <div className="flex justify-center animate-fadeUp pt-1 pb-1">
-                <button
-                  type="button"
-                  onClick={() => runLesson(true)}
-                  aria-label="Reiniciar o tutorial animado"
-                  className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/[0.08] px-4 py-2 text-[11px] font-montserrat tracking-[0.08em] text-gold-champagne hover:bg-gold/15 hover:text-gold-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.75} />
-                  Refazer o tutorial
-                </button>
-              </div>
-            )}
               </div>
             </div>
           </div>
+
+          {/* Rodapé do tutorial — só aparece depois da lição concluída */}
+          {chatOpen && lessonDone && !typing && !aiLoading && (
+            <div className="flex items-center justify-between gap-3 border-t border-gold/15 bg-[rgba(2,7,13,0.6)] px-4 py-2.5 animate-fadeUp">
+              <span className="font-montserrat text-[9.5px] uppercase tracking-[0.22em] text-text-dim/75">
+                Tutorial concluído
+              </span>
+              <button
+                type="button"
+                onClick={reviewFromStart}
+                aria-label="Voltar ao início da conversa para rever o tutorial"
+                className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/[0.08] px-4 py-1.5 text-[11px] font-montserrat tracking-[0.06em] text-gold-champagne hover:bg-gold/15 hover:text-gold-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
+              >
+                <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.75} />
+                Rever do início
+              </button>
+            </div>
+          )}
 
           {/* Ações */}
           <div className="border-t border-gold/10 px-4 sm:px-5 pt-5 pb-4 bg-[rgba(2,7,13,0.7)] space-y-7">
