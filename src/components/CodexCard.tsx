@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
-import { Sparkles, Loader2, X, FileText, BookText, FileDown, Trash2, Move, Image as ImageIcon, ArrowLeft, FolderUp, Link2 } from 'lucide-react';
+import { Sparkles, Loader2, X, FileText, BookText, FileDown, Trash2, Move, Image as ImageIcon, ArrowLeft, FolderUp } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { FRUITS, type GalleryImage } from '@/lib/data';
 import type { CodexEntry } from '@/hooks/useCodexEntries';
@@ -14,6 +14,7 @@ import { buildEntriesByName, renderMentionChildren, renderInlineMentions } from 
 import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor';
 import { htmlToPlainText } from '@/lib/htmlToText';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { CodexImageStudio } from '@/components/codex/CodexImageStudio';
 
 /**
  * Ao subir uma imagem manualmente para uma ficha, arquivamos uma cópia
@@ -71,9 +72,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   const [uploading, setUploading] = useState(false);
   const [showImageMenu, setShowImageMenu] = useState(false);
   const [showGalleryPicker, setShowGalleryPicker] = useState(false);
-  const [aiPrompt, setAiPrompt] = useState('');
-  const [generatingAi, setGeneratingAi] = useState(false);
-  const [consistent, setConsistent] = useState(true);
+  const [showAiStudio, setShowAiStudio] = useState(false);
   const [showRepositioner, setShowRepositioner] = useState<null | 'collapsed' | 'expanded' | 'expandedMobile'>(null);
   // Prévia interna (card aberto) é agora sensível ao dispositivo:
   // - Desktop/tablet exibe recorte vertical (~300×600) → slot `expanded` (expandedX/Y)
@@ -265,41 +264,21 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
     setShowImageMenu(false);
   };
 
-  const handleAiGenerate = async () => {
-    if (!aiPrompt.trim()) return;
-    if (!planLimits.canUseAI) {
-      toast.error('A geração de imagens com IA está disponível apenas no plano Idriel.');
-      return;
-    }
-    setGeneratingAi(true);
+  /** Salva na ficha a imagem gerada pelo Estúdio de Idriel. */
+  const handleAiImageSaved = async (url: string) => {
+    const defaultPosition = { x: 50, y: 50 };
+    setImgPos(defaultPosition);
+    await onUpdate(entry.id, { image_url: url, image_position: defaultPosition });
     try {
-      let url: string;
-      if (consistent) {
-        // Build references from same-fruit Codex entries with images (excluding self), up to 5.
-        const sameFruitWithImage = gallery
-          .filter(g => g.src && g.src !== entry.image_url)
-          .slice(0, 5)
-          .map(g => g.src);
-        const refText = `Entrada atual: "${entry.title}" (${entry.entry_type}). Conteúdo:\n${(entry.content || '').slice(0, 2000)}`;
-        url = await callAIImageConsistent(aiPrompt, sameFruitWithImage, refText);
-      } else {
-        url = await callAIImage(aiPrompt);
+      if (entry.world_id && !gallery.some(g => g.src === url)) {
+        const folder = (entry.fruit_id !== null && FRUIT_TO_GALLERY_FOLDER[entry.fruit_id]) || 'Geral';
+        await addToGallery({ src: url, name: entry.title || 'Sem título', cat: folder, status: 'kept' });
       }
-      if (url) {
-        const defaultPosition = { x: 50, y: 50 };
-        setImgPos(defaultPosition);
-        await onUpdate(entry.id, { image_url: url, image_position: defaultPosition });
-        toast.success(consistent ? 'Imagem gerada com consistência do Codex!' : 'Imagem gerada com sucesso!');
-      }
-    } catch (err: unknown) {
-      const raw = err instanceof Error ? err.message : 'Erro ao gerar imagem';
-      const f = friendlyAIError(raw);
-      toast.error(f.title, { description: f.hint });
-    } finally {
-      setGeneratingAi(false);
-      setShowImageMenu(false);
-      setAiPrompt('');
+    } catch (err) {
+      console.error('Falha ao arquivar imagem na galeria:', err);
     }
+    setShowAiStudio(false);
+    setShowImageMenu(false);
   };
 
   const handleRemoveImage = async () => {
@@ -895,39 +874,34 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
               </div>
 
 
-              <div className="border-t border-border pt-3 mt-1">
-                <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1.5 inline-flex items-center gap-1.5"><Sparkles className="w-3 h-3 text-gold-champagne" strokeWidth={1.75} />Gerar imagem com IA</label>
-                <div className="flex gap-2">
-                  <input
-                    value={aiPrompt}
-                    onChange={e => setAiPrompt(e.target.value)}
-                    placeholder={`Descreva a imagem para "${entry.title}"…`}
-                    className="flex-1 bg-[rgba(4,12,24,0.6)] border border-blue-bright/15 rounded-md px-3 py-2 text-xs text-foreground font-merriweather placeholder:italic placeholder:text-text-dim/70 focus:outline-none focus:border-ring/50"
-                  />
-                  <button
-                    onClick={handleAiGenerate}
-                    disabled={!aiPrompt.trim() || generatingAi}
-                    className="px-4 py-2 bg-accent/80 hover:bg-accent text-accent-foreground rounded-md text-[10px] font-montserrat font-bold uppercase tracking-wider transition-colors disabled:opacity-40"
-                  >
-                    <>{generatingAi ? <><Loader2 className="inline-block w-3.5 h-3.5 mr-1.5 animate-spin align-[-0.15em]" strokeWidth={2} />Gerando…</> : <><Sparkles className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Gerar</>}</>
-                  </button>
-                </div>
-                <label className="flex items-center gap-2 mt-2 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={consistent}
-                    onChange={e => setConsistent(e.target.checked)}
-                    className="accent-gold"
-                  />
-                  <span className="text-[10px] text-foreground/80 font-merriweather">
-                    <><Link2 className="inline-block w-3.5 h-3.5 mr-1.5 align-[-0.15em]" strokeWidth={1.75} />Manter consistência com o Codex (usa imagens da galeria como referência visual)</>
-                  </span>
-                </label>
+              <div className="border-t border-border pt-4 mt-1 flex flex-col items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAiStudio(true)}
+                  className="group relative inline-flex items-center gap-2.5 px-7 py-3 rounded-full font-cinzel text-[12.5px] font-bold uppercase tracking-wider text-background bg-gradient-to-r from-gold-bronze via-gold-warm to-gold-champagne hover:from-gold-warm hover:via-gold-champagne hover:to-gold-cream shadow-[0_0_26px_rgba(218,165,32,0.45)] hover:shadow-[0_0_38px_rgba(218,165,32,0.65)] transition-all"
+                >
+                  <span className="pointer-events-none absolute inset-0 rounded-full bg-gold/40 blur-xl opacity-70 animate-soft-pulse -z-10" aria-hidden="true" />
+                  <Sparkles className="w-4 h-4" strokeWidth={2} />
+                  Gerar Imagem com Idriel
+                </button>
+                <p className="font-merriweather italic text-[10.5px] text-text-dim text-center">
+                  Estilo, tipo, tom e qualidade — como na Galeria. Você revisa antes de salvar na ficha.
+                </p>
               </div>
             </div>
           )}
         </div>
       )}
+
+      <CodexImageStudio
+        open={showAiStudio}
+        onClose={() => setShowAiStudio(false)}
+        entryTitle={entry.title}
+        entryText={(entry.content || '').replace(/^__magictype__\n?/, '')}
+        referenceImageUrls={gallery.filter(g => g.src && g.src !== entry.image_url).slice(0, 3).map(g => g.src)}
+        onSave={handleAiImageSaved}
+        canUseAI={planLimits.canUseAI}
+      />
     </div>
   );
 };
