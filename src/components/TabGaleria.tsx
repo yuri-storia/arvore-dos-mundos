@@ -54,7 +54,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
 
   // --- Folder navigation state ---
   const [openFolder, setOpenFolder] = useState<number | null>(null); // fruit id
-  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+  const [lightbox, setLightbox] = useState<{ items: GalleryImage[]; index: number } | null>(null);
 
   // --- Custom covers per world (persisted on server via folderCovers prop) ---
   const customCovers = folderCovers || {};
