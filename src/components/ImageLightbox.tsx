@@ -31,7 +31,9 @@ export const ImageLightbox: React.FC<Props> = ({
     hasItems ? Math.max(0, Math.min(initialIndex, items!.length - 1)) : 0
   );
 
-  const current = hasItems ? items![index] : { src: src || '', alt: alt || '' };
+  const current = hasItems
+    ? items![index]
+    : { src: src || '', alt: alt || '', name: '' };
   const total = hasItems ? items!.length : 1;
   const canPrev = hasItems && total > 1;
   const canNext = hasItems && total > 1;
