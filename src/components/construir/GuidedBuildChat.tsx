@@ -187,12 +187,13 @@ export const GuidedBuildChat: React.FC<Props> = ({
   const runCaseStudy = () => {
     setChatOpen(true);
     setPathChoice(false);
+    setCaseDone(false);
     pushUser('Mostre um estudo de caso.');
     streamIdriel([
       { text: 'Veja como isto se sustenta em um mundo já formado:' },
       { text: config.caseStudy, kind: 'case' },
       { text: 'Quer tentar algo parecido no seu mundo? Comece por um dos caminhos abaixo.' },
-    ], stateForEvent('lore_reveal'), 'Estudo de caso');
+    ], stateForEvent('lore_reveal'), 'Estudo de caso', () => setCaseDone(true));
   };
 
   /** Sai do modo "pergunta a Idriel" sem precisar trocar de Fruto. */
