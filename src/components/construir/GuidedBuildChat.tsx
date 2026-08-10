@@ -420,12 +420,12 @@ export const GuidedBuildChat: React.FC<Props> = ({
               </span>
               <button
                 type="button"
-                onClick={reviewFromStart}
-                aria-label="Voltar ao início da conversa para rever o tutorial"
+                onClick={resetChat}
+                aria-label="Voltar à escolha inicial do Fruto"
                 className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/[0.08] px-4 py-1.5 text-[11px] font-montserrat tracking-[0.06em] text-gold-champagne hover:bg-gold/15 hover:text-gold-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
               >
-                <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.75} />
-                Rever do início
+                <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.75} />
+                Voltar
               </button>
             </div>
           )}
