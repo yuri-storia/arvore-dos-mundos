@@ -54,6 +54,8 @@ export const GuidedBuildChat: React.FC<Props> = ({
   const [progress, setProgress] = useState<{ label: string; done: number; total: number } | null>(null);
   /** True apenas depois que a lição do Fruto foi exibida por completo. */
   const [lessonDone, setLessonDone] = useState(false);
+  /** True apenas depois que o estudo de caso for exibido por completo. */
+  const [caseDone, setCaseDone] = useState(false);
 
   const [visualState, setVisualState] = useState<IdrielState>(OPENING_STATES[fruitId % OPENING_STATES.length]);
 
