@@ -90,7 +90,7 @@ export const ImageLightbox: React.FC<Props> = ({
       <img
         key={current.src}
         src={current.src}
-        alt={current.alt}
+        alt={current.alt || current.name || ''}
         className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-fadeUp"
         onClick={e => e.stopPropagation()}
       />
