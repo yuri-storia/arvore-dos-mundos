@@ -163,13 +163,22 @@ export const GuidedBuildChat: React.FC<Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config, streamIdriel]);
 
-  /** Rola a transcrição de volta ao início para o usuário reler a lição. */
-  const reviewFromStart = useCallback(() => {
+  /** Reseta a conversa e volta para a escolha inicial do Fruto. */
+  const resetChat = useCallback(() => {
+    clearTimers();
+    setLog([]);
+    setTyping(false);
+    setDraft('');
+    setAskMode(false);
+    setLessonDone(false);
+    setPathChoice(true);
+    setVisualState(OPENING_STATES[fruitId % OPENING_STATES.length]);
     setChatOpen(true);
-    requestAnimationFrame(() => {
-      scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  }, []);
+    streamIdriel([
+      { text: config.intro },
+      { text: 'Podemos começar de dois jeitos: aprender sobre este Fruto, ou criar algo agora mesmo.' },
+    ]);
+  }, [clearTimers, config, fruitId, streamIdriel]);
 
   const runCaseStudy = () => {
     setChatOpen(true);
@@ -411,12 +420,12 @@ export const GuidedBuildChat: React.FC<Props> = ({
               </span>
               <button
                 type="button"
-                onClick={reviewFromStart}
-                aria-label="Voltar ao início da conversa para rever o tutorial"
+                onClick={resetChat}
+                aria-label="Voltar à escolha inicial do Fruto"
                 className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/[0.08] px-4 py-1.5 text-[11px] font-montserrat tracking-[0.06em] text-gold-champagne hover:bg-gold/15 hover:text-gold-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-all"
               >
-                <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.75} />
-                Rever do início
+                <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.75} />
+                Voltar
               </button>
             </div>
           )}
