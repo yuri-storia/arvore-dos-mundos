@@ -4,7 +4,8 @@ import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface LightboxItem {
   src: string;
-  alt: string;
+  alt?: string;
+  name?: string;
   id?: string;
 }
 
