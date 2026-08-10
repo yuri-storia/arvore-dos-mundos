@@ -559,7 +559,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
                           onClick={() => { setAskMode(true); setDraft(s); inputRef.current?.focus(); }}
                           aria-label={`${s} — pedir ideias a Idriel, custa 1 gota de elixir`}
                           style={{ animationDelay: `${i * 60}ms`, animationFillMode: 'backwards' }}
-                          className="animate-fadeUp gold-sweep inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] leading-none tracking-[0.02em] font-montserrat font-semibold text-[#1a0f00] border border-gold-light/50 hover:brightness-110 hover:shadow-[0_0_20px_-6px_hsl(var(--gold)/0.9)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light transition-all"
+                          className="animate-fadeUp gold-gradient inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] leading-none tracking-[0.02em] font-montserrat font-semibold text-[#1a0f00] border border-gold-light/50 hover:brightness-110 hover:shadow-[0_0_20px_-6px_hsl(var(--gold)/0.9)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light transition-all"
                         >
                           <Sparkles className="w-3 h-3" strokeWidth={2} />
                           {s}
