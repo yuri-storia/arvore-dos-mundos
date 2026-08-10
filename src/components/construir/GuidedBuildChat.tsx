@@ -54,6 +54,8 @@ export const GuidedBuildChat: React.FC<Props> = ({
   const [progress, setProgress] = useState<{ label: string; done: number; total: number } | null>(null);
   /** True apenas depois que a lição do Fruto foi exibida por completo. */
   const [lessonDone, setLessonDone] = useState(false);
+  /** True apenas depois que o estudo de caso for exibido por completo. */
+  const [caseDone, setCaseDone] = useState(false);
 
   const [visualState, setVisualState] = useState<IdrielState>(OPENING_STATES[fruitId % OPENING_STATES.length]);
 
@@ -103,6 +105,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
     setChatOpen(false);
     setPathChoice(true);
     setLessonDone(false);
+    setCaseDone(false);
 
     const firstUnanswered = questions.findIndex(q => !(values[q.fieldId] || '').trim());
     setStepIndex(firstUnanswered === -1 ? 0 : firstUnanswered);
@@ -171,6 +174,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
     setDraft('');
     setAskMode(false);
     setLessonDone(false);
+    setCaseDone(false);
     setPathChoice(true);
     setVisualState(OPENING_STATES[fruitId % OPENING_STATES.length]);
     setChatOpen(true);
@@ -183,12 +187,13 @@ export const GuidedBuildChat: React.FC<Props> = ({
   const runCaseStudy = () => {
     setChatOpen(true);
     setPathChoice(false);
+    setCaseDone(false);
     pushUser('Mostre um estudo de caso.');
     streamIdriel([
       { text: 'Veja como isto se sustenta em um mundo já formado:' },
       { text: config.caseStudy, kind: 'case' },
       { text: 'Quer tentar algo parecido no seu mundo? Comece por um dos caminhos abaixo.' },
-    ], stateForEvent('lore_reveal'), 'Estudo de caso');
+    ], stateForEvent('lore_reveal'), 'Estudo de caso', () => setCaseDone(true));
   };
 
   /** Sai do modo "pergunta a Idriel" sem precisar trocar de Fruto. */
@@ -412,11 +417,11 @@ export const GuidedBuildChat: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Rodapé do tutorial — só aparece depois da lição concluída */}
-          {chatOpen && lessonDone && !typing && !aiLoading && (
+          {/* Rodapé do tutorial — só aparece depois da lição ou estudo de caso concluídos */}
+          {chatOpen && (lessonDone || caseDone) && !typing && !aiLoading && (
             <div className="flex items-center justify-between gap-3 border-t border-gold/15 bg-[rgba(2,7,13,0.6)] px-4 py-2.5 animate-fadeUp">
               <span className="font-montserrat text-[9.5px] uppercase tracking-[0.22em] text-text-dim/75">
-                Tutorial concluído
+                {lessonDone ? 'Tutorial concluído' : 'Estudo de caso concluído'}
               </span>
               <button
                 type="button"
