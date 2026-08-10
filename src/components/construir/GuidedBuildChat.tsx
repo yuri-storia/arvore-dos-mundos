@@ -105,6 +105,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
     setChatOpen(false);
     setPathChoice(true);
     setLessonDone(false);
+    setCaseDone(false);
 
     const firstUnanswered = questions.findIndex(q => !(values[q.fieldId] || '').trim());
     setStepIndex(firstUnanswered === -1 ? 0 : firstUnanswered);
