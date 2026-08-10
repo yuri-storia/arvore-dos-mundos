@@ -163,13 +163,22 @@ export const GuidedBuildChat: React.FC<Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config, streamIdriel]);
 
-  /** Rola a transcrição de volta ao início para o usuário reler a lição. */
-  const reviewFromStart = useCallback(() => {
+  /** Reseta a conversa e volta para a escolha inicial do Fruto. */
+  const resetChat = useCallback(() => {
+    clearTimers();
+    setLog([]);
+    setTyping(false);
+    setDraft('');
+    setAskMode(false);
+    setLessonDone(false);
+    setPathChoice(true);
+    setVisualState(OPENING_STATES[fruitId % OPENING_STATES.length]);
     setChatOpen(true);
-    requestAnimationFrame(() => {
-      scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  }, []);
+    streamIdriel([
+      { text: config.intro },
+      { text: 'Podemos começar de dois jeitos: aprender sobre este Fruto, ou criar algo agora mesmo.' },
+    ]);
+  }, [clearTimers, config, fruitId, streamIdriel]);
 
   const runCaseStudy = () => {
     setChatOpen(true);
