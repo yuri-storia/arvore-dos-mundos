@@ -174,6 +174,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
     setDraft('');
     setAskMode(false);
     setLessonDone(false);
+    setCaseDone(false);
     setPathChoice(true);
     setVisualState(OPENING_STATES[fruitId % OPENING_STATES.length]);
     setChatOpen(true);
