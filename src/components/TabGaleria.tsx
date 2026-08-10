@@ -54,7 +54,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
 
   // --- Folder navigation state ---
   const [openFolder, setOpenFolder] = useState<number | null>(null); // fruit id
-  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+  const [lightbox, setLightbox] = useState<{ items: GalleryImage[]; index: number } | null>(null);
 
   // --- Custom covers per world (persisted on server via folderCovers prop) ---
   const customCovers = folderCovers || {};
@@ -576,7 +576,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                   <div key={img.id} className="rounded-lg overflow-hidden border border-gold/30 bg-background/40">
                     <img src={img.src} alt={img.name} loading="lazy"
                       className="w-full h-[100px] object-cover cursor-zoom-in"
-                      onClick={() => setLightbox({ src: img.src, alt: img.name })}
+                      onClick={() => setLightbox({ items: unsorted, index: unsorted.findIndex(i => i.id === img.id) })}
                     />
                     <div className="p-2 space-y-1.5">
                       <p className="text-[10px] text-foreground font-montserrat truncate">{img.name}</p>
@@ -803,7 +803,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
                 <div key={img.id} className="group relative rounded-lg overflow-hidden border border-gold/15 hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(218,165,32,0.15)] transition-all">
                   <img src={img.src} alt={img.name} loading="lazy" decoding="async"
                     className="w-full h-[110px] sm:h-[140px] object-cover cursor-zoom-in"
-                    onClick={() => setLightbox({ src: img.src, alt: img.name })}
+                    onClick={() => setLightbox({ items: currentImages, index: currentImages.findIndex(i => i.id === img.id) })}
                   />
                   <div className="p-2">
                     <p className="text-xs text-foreground font-montserrat truncate">{img.name}</p>
@@ -1187,7 +1187,7 @@ export const TabGaleria: React.FC<Props> = ({ gallery, setGallery, folderCovers,
       )}
 
 
-      {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />}
+      {lightbox && <ImageLightbox items={lightbox.items} initialIndex={lightbox.index} onClose={() => setLightbox(null)} />}
 
       {showReview && createPortal(
         <div className="fixed inset-0 z-[100] bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
