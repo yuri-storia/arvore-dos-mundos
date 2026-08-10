@@ -417,11 +417,11 @@ export const GuidedBuildChat: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Rodapé do tutorial — só aparece depois da lição concluída */}
-          {chatOpen && lessonDone && !typing && !aiLoading && (
+          {/* Rodapé do tutorial — só aparece depois da lição ou estudo de caso concluídos */}
+          {chatOpen && (lessonDone || caseDone) && !typing && !aiLoading && (
             <div className="flex items-center justify-between gap-3 border-t border-gold/15 bg-[rgba(2,7,13,0.6)] px-4 py-2.5 animate-fadeUp">
               <span className="font-montserrat text-[9.5px] uppercase tracking-[0.22em] text-text-dim/75">
-                Tutorial concluído
+                {lessonDone ? 'Tutorial concluído' : 'Estudo de caso concluído'}
               </span>
               <button
                 type="button"
