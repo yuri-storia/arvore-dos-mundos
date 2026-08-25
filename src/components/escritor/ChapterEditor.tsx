@@ -303,6 +303,26 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
               <span className="text-text-dim/40 italic">Nada escrito ainda.</span>
             )}
           </div>
+        ) : isMobile ? (
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            className="w-full h-full text-left overflow-y-auto p-4"
+          >
+            {content?.trim() ? (
+              isHTML(content) ? (
+                <RichTextView value={content} />
+              ) : (
+                <div className="font-merriweather text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
+                  {content}
+                </div>
+              )
+            ) : (
+              <span className="text-text-dim/50 italic font-merriweather text-sm">
+                Toque para escrever em tela cheia…
+              </span>
+            )}
+          </button>
         ) : (
           <RichTextEditor
             entries={entries}
@@ -318,6 +338,30 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
 
         )}
       </div>
+
+      <MobileWritingSheet
+        open={isMobile && mobileOpen}
+        title={title}
+        onTitleChange={setTitle}
+        content={content}
+        onContentChange={handleContentChange}
+        entries={entries}
+        wordCount={wordCount}
+        saveStatus={saveStatus}
+        onDone={() => {
+          if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+          if (title.trim() && title !== chapter.title) onTitleSave(title.trim());
+          onContentSave(content);
+          setMobileOpen(false);
+        }}
+        onCancel={() => {
+          if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+          setContent(chapter.content || '');
+          setTitle(chapter.title);
+          setMobileOpen(false);
+        }}
+      />
+
 
       <Dialog open={formatOpen} onOpenChange={(o) => { if (!formatting) setFormatOpen(o); }}>
         <DialogContent className="border-amber-400/30 bg-[#0a0f18] backdrop-blur-xl max-w-lg">
