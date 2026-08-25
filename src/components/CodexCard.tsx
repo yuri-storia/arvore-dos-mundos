@@ -15,6 +15,7 @@ import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor
 import { htmlToPlainText } from '@/lib/htmlToText';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { CodexImageStudio } from '@/components/codex/CodexImageStudio';
+import { MobileEditorSheet } from '@/components/codex/MobileEditorSheet';
 
 /**
  * Ao subir uma imagem manualmente para uma ficha, arquivamos uma cópia
