@@ -718,7 +718,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
         <div className="flex-1 flex flex-col min-h-0 p-4 sm:p-5">
           {/* Header — fixed */}
           <div className="flex items-start justify-between mb-3 flex-shrink-0">
-            {editing ? (
+            {editing && !isMobile ? (
               <input
                 value={title}
                 onChange={e => setTitle(e.target.value)}
