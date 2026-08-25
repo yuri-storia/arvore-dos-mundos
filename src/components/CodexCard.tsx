@@ -620,6 +620,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   // Expanded ficha (with image support)
   return (
     <div className="rounded-lg overflow-hidden animate-fadeUp card-glass">
+      {mobileEditor}
       {/* Fixed-height layout */}
       <div className="flex flex-col md:flex-row h-[70vh] max-h-[600px]">
         {/* Image section — fixed size, contained */}
