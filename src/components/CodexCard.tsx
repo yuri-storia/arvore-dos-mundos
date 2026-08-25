@@ -480,7 +480,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
           {/* Scrollable content area */}
           <div className="flex-1 overflow-y-auto min-h-0 pr-1">
-            {editing ? (
+            {editing && !isMobile ? (
               <>
                 <div className="mb-3">
                   <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Fruto</label>
