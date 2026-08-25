@@ -581,7 +581,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
           {/* Actions — fixed at bottom */}
           <div className="flex flex-wrap gap-2 pt-3 border-t border-accent/20 mt-3 flex-shrink-0">
-            {editing && (
+            {editing && !isMobile && (
               <>
                 <button onClick={handleSave} className="px-4 py-1.5 bg-accent/80 hover:bg-accent text-accent-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
                   Salvar
