@@ -88,6 +88,7 @@ export const MobileEditorSheet: React.FC<Props> = ({
           onChange={onContentChange}
           placeholder={isArticle ? 'Escreva o conteúdo do artigo… Use @ para mencionar.' : 'Descreva esta ficha… Use @ para mencionar.'}
           minHeight="100%"
+          compact
         />
       </div>
     </div>,
