@@ -15,6 +15,7 @@ import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor
 import { htmlToPlainText } from '@/lib/htmlToText';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { CodexImageStudio } from '@/components/codex/CodexImageStudio';
+import { MobileEditorSheet } from '@/components/codex/MobileEditorSheet';
 
 /**
  * Ao subir uma imagem manualmente para uma ficha, arquivamos uma cópia
@@ -437,15 +438,44 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
     );
   }
 
+  // Edição em tela cheia no mobile (o editor inline fica desativado nesse caso)
+  const cancelEditing = () => {
+    localStorage.removeItem(DRAFT_KEY(entry.id));
+    setEditing(false);
+    setTitle(entry.title);
+    setContent(entry.content);
+    setEditFruit(entry.fruit_id);
+    lastSavedRef.current = { title: entry.title, content: entry.content, fruit_id: entry.fruit_id };
+    setSaveState('idle');
+  };
+
+  const mobileEditor = (
+    <MobileEditorSheet
+      open={isMobile && editing}
+      isArticle={isArticle}
+      title={title}
+      onTitleChange={setTitle}
+      content={content}
+      onContentChange={setContent}
+      fruitId={editFruit}
+      onFruitChange={setEditFruit}
+      siblings={(siblings || []).filter(e => e.id !== entry.id)}
+      saveState={saveState}
+      onSave={handleSave}
+      onCancel={cancelEditing}
+    />
+  );
+
   // Expanded card
   if (isArticle) {
     // Wiki-style expanded article — no images, text-focused
     return (
       <div className="rounded-lg overflow-hidden animate-fadeUp card-glass-gold">
+        {mobileEditor}
         <div className="flex flex-col h-[70vh] max-h-[600px] p-5 sm:p-7">
           {/* Header */}
           <div className="flex items-start justify-between mb-1">
-            {editing ? (
+            {editing && !isMobile ? (
               <input
                 value={title}
                 onChange={e => setTitle(e.target.value)}
@@ -480,7 +510,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
           {/* Scrollable content area */}
           <div className="flex-1 overflow-y-auto min-h-0 pr-1">
-            {editing ? (
+            {editing && !isMobile ? (
               <>
                 <div className="mb-3">
                   <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Fruto</label>
@@ -581,7 +611,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
           {/* Actions — fixed at bottom */}
           <div className="flex flex-wrap gap-2 pt-3 border-t border-accent/20 mt-3 flex-shrink-0">
-            {editing && (
+            {editing && !isMobile && (
               <>
                 <button onClick={handleSave} className="px-4 py-1.5 bg-accent/80 hover:bg-accent text-accent-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
                   Salvar
@@ -620,6 +650,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
   // Expanded ficha (with image support)
   return (
     <div className="rounded-lg overflow-hidden animate-fadeUp card-glass">
+      {mobileEditor}
       {/* Fixed-height layout */}
       <div className="flex flex-col md:flex-row h-[70vh] max-h-[600px]">
         {/* Image section — fixed size, contained */}
@@ -718,7 +749,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
         <div className="flex-1 flex flex-col min-h-0 p-4 sm:p-5">
           {/* Header — fixed */}
           <div className="flex items-start justify-between mb-3 flex-shrink-0">
-            {editing ? (
+            {editing && !isMobile ? (
               <input
                 value={title}
                 onChange={e => setTitle(e.target.value)}
@@ -738,7 +769,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
           {/* Scrollable content area */}
           <div className="flex-1 overflow-y-auto min-h-0 pr-1">
-            {editing ? (
+            {editing && !isMobile ? (
               <>
                 <div className="mb-3">
                   <label className="block text-[10px] uppercase tracking-wider text-text-dim font-montserrat mb-1">Fruto</label>
@@ -786,7 +817,7 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
 
           {/* Actions — fixed at bottom */}
           <div className="flex flex-wrap gap-2 pt-3 border-t border-border mt-3 flex-shrink-0">
-            {editing && (
+            {editing && !isMobile && (
               <>
                 <button onClick={handleSave} className="px-4 py-1.5 bg-primary hover:bg-ring text-foreground rounded-md text-[10px] font-montserrat font-bold uppercase transition-colors">
                   Salvar
