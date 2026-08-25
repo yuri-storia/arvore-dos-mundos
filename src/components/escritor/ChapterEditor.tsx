@@ -8,6 +8,7 @@ import {
 import { toast } from 'sonner';
 import { buildEntriesByName, renderInlineMentions } from './MentionChip';
 import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor';
+import { MobileWritingSheet } from './MobileWritingSheet';
 import { useSpellcheckEnabled } from '@/lib/spellcheck/spellcheckSettings';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { supabase } from '@/integrations/supabase/client';
@@ -45,6 +46,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
   const [content, setContent] = useState(chapter.content || '');
   const [title, setTitle] = useState(chapter.title);
   const [previewMode, setPreviewMode] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [spellOn, setSpellOn] = useSpellcheckEnabled();
   const plan = usePlanLimits();
@@ -60,6 +62,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
     setContent(chapter.content || '');
     setTitle(chapter.title);
     setSaveStatus('idle');
+    setMobileOpen(false);
   }, [chapter.id]); // eslint-disable-line
 
   useEffect(() => () => {
