@@ -8,6 +8,7 @@ import {
 import { toast } from 'sonner';
 import { buildEntriesByName, renderInlineMentions } from './MentionChip';
 import { RichTextEditor, RichTextView } from '@/components/editor/RichTextEditor';
+import { MobileWritingSheet } from './MobileWritingSheet';
 import { useSpellcheckEnabled } from '@/lib/spellcheck/spellcheckSettings';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { supabase } from '@/integrations/supabase/client';
@@ -45,6 +46,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
   const [content, setContent] = useState(chapter.content || '');
   const [title, setTitle] = useState(chapter.title);
   const [previewMode, setPreviewMode] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [spellOn, setSpellOn] = useSpellcheckEnabled();
   const plan = usePlanLimits();
@@ -60,6 +62,7 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
     setContent(chapter.content || '');
     setTitle(chapter.title);
     setSaveStatus('idle');
+    setMobileOpen(false);
   }, [chapter.id]); // eslint-disable-line
 
   useEffect(() => () => {
@@ -250,11 +253,14 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
                 <Eye className="w-3 h-3" />
               </button>
             </div>
-            <button onClick={() => setZenMode(!zenMode)}
-              className={`p-1.5 rounded hover:bg-white/[0.05] transition-colors ${zenMode ? 'text-blue-light' : 'text-text-dim hover:text-foreground'}`}
-              title={zenMode ? 'Sair do modo foco' : 'Modo foco'}>
-              {zenMode ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-            </button>
+            {!isMobile && (
+              <button onClick={() => setZenMode(!zenMode)}
+                className={`p-1.5 rounded hover:bg-white/[0.05] transition-colors ${zenMode ? 'text-blue-light' : 'text-text-dim hover:text-foreground'}`}
+                title={zenMode ? 'Sair do modo foco' : 'Modo foco'}>
+                {zenMode ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+              </button>
+            )}
+
             {!zenMode && !isMobile && (
               <button onClick={() => setShowRefPanel(!showRefPanel)}
                 className="p-1.5 rounded hover:bg-white/[0.05] text-text-dim hover:text-foreground transition-colors"
@@ -300,6 +306,26 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
               <span className="text-text-dim/40 italic">Nada escrito ainda.</span>
             )}
           </div>
+        ) : isMobile ? (
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            className="w-full h-full text-left overflow-y-auto p-4"
+          >
+            {content?.trim() ? (
+              isHTML(content) ? (
+                <RichTextView value={content} />
+              ) : (
+                <div className="font-merriweather text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
+                  {content}
+                </div>
+              )
+            ) : (
+              <span className="text-text-dim/50 italic font-merriweather text-sm">
+                Toque para escrever em tela cheia…
+              </span>
+            )}
+          </button>
         ) : (
           <RichTextEditor
             entries={entries}
@@ -315,6 +341,30 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
 
         )}
       </div>
+
+      <MobileWritingSheet
+        open={isMobile && mobileOpen}
+        title={title}
+        onTitleChange={setTitle}
+        content={content}
+        onContentChange={handleContentChange}
+        entries={entries}
+        wordCount={wordCount}
+        saveStatus={saveStatus}
+        onDone={() => {
+          if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+          if (title.trim() && title !== chapter.title) onTitleSave(title.trim());
+          onContentSave(content);
+          setMobileOpen(false);
+        }}
+        onCancel={() => {
+          if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+          setContent(chapter.content || '');
+          setTitle(chapter.title);
+          setMobileOpen(false);
+        }}
+      />
+
 
       <Dialog open={formatOpen} onOpenChange={(o) => { if (!formatting) setFormatOpen(o); }}>
         <DialogContent className="border-amber-400/30 bg-[#0a0f18] backdrop-blur-xl max-w-lg">
