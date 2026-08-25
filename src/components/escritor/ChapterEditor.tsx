@@ -250,11 +250,14 @@ export const ChapterEditor: React.FC<Props> = React.memo(({
                 <Eye className="w-3 h-3" />
               </button>
             </div>
-            <button onClick={() => setZenMode(!zenMode)}
-              className={`p-1.5 rounded hover:bg-white/[0.05] transition-colors ${zenMode ? 'text-blue-light' : 'text-text-dim hover:text-foreground'}`}
-              title={zenMode ? 'Sair do modo foco' : 'Modo foco'}>
-              {zenMode ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-            </button>
+            {!isMobile && (
+              <button onClick={() => setZenMode(!zenMode)}
+                className={`p-1.5 rounded hover:bg-white/[0.05] transition-colors ${zenMode ? 'text-blue-light' : 'text-text-dim hover:text-foreground'}`}
+                title={zenMode ? 'Sair do modo foco' : 'Modo foco'}>
+                {zenMode ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+              </button>
+            )}
+
             {!zenMode && !isMobile && (
               <button onClick={() => setShowRefPanel(!showRefPanel)}
                 className="p-1.5 rounded hover:bg-white/[0.05] text-text-dim hover:text-foreground transition-colors"
