@@ -437,6 +437,34 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
     );
   }
 
+  // Edição em tela cheia no mobile (o editor inline fica desativado nesse caso)
+  const cancelEditing = () => {
+    localStorage.removeItem(DRAFT_KEY(entry.id));
+    setEditing(false);
+    setTitle(entry.title);
+    setContent(entry.content);
+    setEditFruit(entry.fruit_id);
+    lastSavedRef.current = { title: entry.title, content: entry.content, fruit_id: entry.fruit_id };
+    setSaveState('idle');
+  };
+
+  const mobileEditor = (
+    <MobileEditorSheet
+      open={isMobile && editing}
+      isArticle={isArticle}
+      title={title}
+      onTitleChange={setTitle}
+      content={content}
+      onContentChange={setContent}
+      fruitId={editFruit}
+      onFruitChange={setEditFruit}
+      siblings={(siblings || []).filter(e => e.id !== entry.id)}
+      saveState={saveState}
+      onSave={handleSave}
+      onCancel={cancelEditing}
+    />
+  );
+
   // Expanded card
   if (isArticle) {
     // Wiki-style expanded article — no images, text-focused
