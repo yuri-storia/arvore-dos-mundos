@@ -442,10 +442,11 @@ export const CodexCard: React.FC<Props> = ({ entry, expanded, onToggle, onUpdate
     // Wiki-style expanded article — no images, text-focused
     return (
       <div className="rounded-lg overflow-hidden animate-fadeUp card-glass-gold">
+        {mobileEditor}
         <div className="flex flex-col h-[70vh] max-h-[600px] p-5 sm:p-7">
           {/* Header */}
           <div className="flex items-start justify-between mb-1">
-            {editing ? (
+            {editing && !isMobile ? (
               <input
                 value={title}
                 onChange={e => setTitle(e.target.value)}
