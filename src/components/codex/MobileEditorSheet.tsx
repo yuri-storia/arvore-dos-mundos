@@ -35,7 +35,7 @@ export const MobileEditorSheet: React.FC<Props> = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[120] flex flex-col bg-[#02070d]"
+      className="fixed inset-0 z-[400] flex flex-col bg-[#02070d]"
       style={{ height: '100dvh' }}
       onClick={e => e.stopPropagation()}
     >
