@@ -48,13 +48,19 @@ export function useCodexEntries(worldId?: string) {
   // A listagem inicial vem sem `content` (payload enxuto), então o CodexCard
   // precisa saber quando é seguro renderizar/editar sem risco de sobrescrever
   // o texto real com string vazia.
-  const [hydratedIds, setHydratedIds] = useState<Set<string>>(new Set());
+  const hydratedTick = useSyncExternalStore(
+    (cb) => { hydratedListeners.add(cb); return () => { hydratedListeners.delete(cb); }; },
+    () => hydratedStore.size,
+    () => 0,
+  );
   const hydratingRef = useRef<Set<string>>(new Set());
   // Mundos em que a hidratação em lote está atualmente rodando (previne
   // requisições concorrentes). NÃO é persistente: ao terminar removemos, para
   // que futuras entradas sem content possam disparar nova hidratação.
   const bulkInflightRef = useRef<Set<string>>(new Set());
-  const isContentHydrated = useCallback((id: string) => hydratedIds.has(id), [hydratedIds]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const isContentHydrated = useCallback((id: string) => hydratedStore.has(id), [hydratedTick]);
+
 
   const { data: entries = [], isLoading: loading, refetch } = useQuery({
     queryKey: CODEX_KEY(worldId),
