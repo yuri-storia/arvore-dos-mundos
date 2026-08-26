@@ -183,18 +183,17 @@ const KanbanColumn: React.FC<{
       }}
       className={`shrink-0 rounded-lg border ${t.wrap} flex flex-col ${isDragging ? 'opacity-50' : ''}`}
     >
-      <div className={`p-2.5 border-b border-white/5 flex items-center gap-1 rounded-t-lg ${t.head}`}>
-        <button
-          {...attributes}
-          {...listeners}
-          aria-label="Reordenar coluna"
-          title="Segure para mover a coluna"
-          className="p-0.5 text-text-dim/60 hover:text-foreground cursor-grab active:cursor-grabbing touch-none"
-        >
+      <div
+        {...attributes}
+        {...listeners}
+        title="Segure em uma área livre para mover a coluna"
+        className={`p-2.5 border-b border-white/5 flex items-center gap-1 rounded-t-lg touch-none cursor-grab active:cursor-grabbing ${t.head}`}
+      >
+        <span className="p-0.5 text-text-dim/60 shrink-0">
           <GripVertical className="w-3.5 h-3.5" />
-        </button>
+        </span>
         {editing ? (
-          <div className="flex items-center gap-1 flex-1">
+          <div className="flex items-center gap-1 flex-1" onPointerDown={e => e.stopPropagation()}>
             <input
               value={draft}
               onChange={e => setDraft(e.target.value)}
@@ -205,10 +204,11 @@ const KanbanColumn: React.FC<{
             <button onClick={save} aria-label="Salvar coluna" className="p-0.5 text-green-400"><Check className="w-3 h-3" /></button>
           </div>
         ) : (
-          <button onClick={() => setEditing(true)} className="text-xs font-montserrat font-bold truncate text-left flex-1 hover:text-blue-light transition-colors" title="Clique para renomear">
+          <button onPointerDown={e => e.stopPropagation()} onClick={() => setEditing(true)} className="text-xs font-montserrat font-bold truncate text-left flex-1 hover:text-blue-light transition-colors cursor-text" title="Clique para renomear">
             {col.title}
           </button>
         )}
+
         <span className="text-[10px] text-text-dim bg-white/[0.06] px-1.5 py-0.5 rounded-full shrink-0">{cards.length}</span>
 
         <div className="relative shrink-0">
