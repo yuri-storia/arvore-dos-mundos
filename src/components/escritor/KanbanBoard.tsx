@@ -204,12 +204,22 @@ const KanbanColumn: React.FC<{
             <button onClick={save} aria-label="Salvar coluna" className="p-0.5 text-green-400"><Check className="w-3 h-3" /></button>
           </div>
         ) : (
-          <button onPointerDown={e => e.stopPropagation()} onClick={() => setEditing(true)} className="text-xs font-montserrat font-bold truncate text-left flex-1 hover:text-blue-light transition-colors cursor-text" title="Clique para renomear">
-            {col.title}
-          </button>
+          <>
+            <button
+              onPointerDown={e => e.stopPropagation()}
+              onClick={() => setEditing(true)}
+              className="text-xs font-montserrat font-bold truncate text-left max-w-[55%] hover:text-blue-light transition-colors cursor-text"
+              title="Toque para renomear"
+            >
+              {col.title}
+            </button>
+            {/* espaço livre = área de arraste */}
+            <div className="flex-1 self-stretch min-w-[16px]" aria-hidden />
+          </>
         )}
 
         <span className="text-[10px] text-text-dim bg-white/[0.06] px-1.5 py-0.5 rounded-full shrink-0">{cards.length}</span>
+
 
         <div className="relative shrink-0" onPointerDown={e => e.stopPropagation()}>
           <button
