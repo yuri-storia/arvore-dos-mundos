@@ -158,7 +158,7 @@ const KanbanColumn: React.FC<{
   onUpdateColumn: Props['onUpdateColumn'];
   onDeleteColumn: Props['onDeleteColumn'];
   onCreateCard: (colId: string) => void;
-  onUpdateCard: (id: string, updates: Partial<StorylineCard>) => void;
+  onUpdateCard: (id: string, updates: Partial<Pick<StorylineCard, 'title' | 'content' | 'storyline_column_id' | 'sort_order'>>) => void;
   onDeleteCard: (id: string) => void;
 }> = ({ col, cards, canDelete, onUpdateColumn, onDeleteColumn, onCreateCard, onUpdateCard, onDeleteCard }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
