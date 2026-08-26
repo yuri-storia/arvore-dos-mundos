@@ -21,6 +21,20 @@ export interface CodexEntry {
 
 const CODEX_KEY = (worldId?: string) => ['codex', worldId ?? null] as const;
 
+// ── Registro GLOBAL de conteúdos já hidratados ────────────────────────────
+// Precisa ser compartilhado entre TODAS as instâncias do hook: uma ficha
+// criada na aba "Construir" (instância A) precisa ser considerada hidratada
+// na aba "Codex" (instância B), senão a edição fica bloqueada para sempre
+// ("Carregando conteúdo…") em entradas recém-criadas.
+const hydratedStore = new Set<string>();
+const hydratedListeners = new Set<() => void>();
+const markHydrated = (ids: string[]) => {
+  let changed = false;
+  ids.forEach(id => { if (id && !hydratedStore.has(id)) { hydratedStore.add(id); changed = true; } });
+  if (changed) hydratedListeners.forEach(l => l());
+};
+
+
 // Lista enxuta — não traz `content` (pode ter dezenas de KB por entrada).
 // O `content` é carregado sob demanda quando o card é expandido.
 const LIST_COLUMNS = 'id, title, image_url, entry_type, fruit_id, world_id, image_position, created_at, updated_at';
