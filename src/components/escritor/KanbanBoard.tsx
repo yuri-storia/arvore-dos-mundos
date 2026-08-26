@@ -211,7 +211,7 @@ const KanbanColumn: React.FC<{
 
         <span className="text-[10px] text-text-dim bg-white/[0.06] px-1.5 py-0.5 rounded-full shrink-0">{cards.length}</span>
 
-        <div className="relative shrink-0">
+        <div className="relative shrink-0" onPointerDown={e => e.stopPropagation()}>
           <button
             onClick={() => setShowColors(v => !v)}
             aria-label="Cor da coluna"
@@ -245,10 +245,11 @@ const KanbanColumn: React.FC<{
         {canDelete && (
           <ConfirmDialog
             trigger={
-              <button aria-label="Excluir coluna" className="p-0.5 text-text-dim hover:text-red-alert shrink-0" title="Excluir coluna">
+              <button onPointerDown={e => e.stopPropagation()} aria-label="Excluir coluna" className="p-0.5 text-text-dim hover:text-red-alert shrink-0" title="Excluir coluna">
                 <X className="w-3 h-3" />
               </button>
             }
+
             title="Excluir coluna"
             description={`Excluir "${col.title}"? Os cards desta coluna serão removidos.`}
             confirmLabel="Excluir"
