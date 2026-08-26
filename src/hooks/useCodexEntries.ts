@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -98,7 +98,7 @@ export function useCodexEntries(worldId?: string) {
     if (!user || !worldId) return;
     if (!entries.length) return;
     if (bulkInflightRef.current.has(worldId)) return;
-    const missing = entries.filter(e => !hydratedIds.has(e.id));
+    const missing = entries.filter(e => !hydratedStore.has(e.id));
     if (!missing.length) return;
     bulkInflightRef.current.add(worldId);
     let cancelled = false;
@@ -118,14 +118,10 @@ export function useCodexEntries(worldId?: string) {
       qc.setQueryData(CODEX_KEY(worldId), (old: CodexEntry[] = []) =>
         old.map(e => byId.has(e.id) ? { ...e, content: byId.get(e.id)! } : e)
       );
-      setHydratedIds(prev => {
-        const n = new Set(prev);
-        byId.forEach((_, id) => n.add(id));
-        return n;
-      });
+      markHydrated(Array.from(byId.keys()));
     })();
     return () => { cancelled = true; };
-  }, [user, worldId, entries, hydratedIds, qc]);
+  }, [user, worldId, entries, hydratedTick, qc]);
 
   /** Busca o `content` completo de uma ficha sob demanda (ao expandir). */
   const fetchEntryContent = useCallback(async (id: string): Promise<string> => {
@@ -142,10 +138,7 @@ export function useCodexEntries(worldId?: string) {
       qc.setQueryData(CODEX_KEY(worldId), (old: CodexEntry[] = []) =>
         old.map(e => e.id === id ? { ...e, content: full } : e)
       );
-      setHydratedIds(prev => {
-        if (prev.has(id)) return prev;
-        const n = new Set(prev); n.add(id); return n;
-      });
+      markHydrated([id]);
       return full;
     } finally {
       hydratingRef.current.delete(id);
@@ -164,11 +157,7 @@ export function useCodexEntries(worldId?: string) {
       .single();
     if (error) { if (!handlePlanEditError(error)) toast.error(`Erro ao criar ficha: ${error.message}`); console.error(error); return null; }
     qc.setQueryData(CODEX_KEY(worldId), (old: CodexEntry[] = []) => [data as any, ...old]);
-    setHydratedIds(prev => {
-      const id = (data as any)?.id;
-      if (!id || prev.has(id)) return prev;
-      const n = new Set(prev); n.add(id); return n;
-    });
+    markHydrated([(data as any)?.id]);
     toast.success(entry.entry_type === 'artigo' ? 'Artigo criado!' : 'Ficha criada!');
     return data as unknown as CodexEntry;
   }, [user, worldId, qc, isUnlimited]);
@@ -249,11 +238,7 @@ export function useCodexEntries(worldId?: string) {
       ...old,
     ]);
     // Marca como hidratadas (temos o `content` completo já no insert-return).
-    setHydratedIds(prev => {
-      const n = new Set(prev);
-      ((data as any[]) ?? []).forEach(row => { if (row?.id) n.add(row.id); });
-      return n;
-    });
+    markHydrated(((data as any[]) ?? []).map(row => row?.id));
     toast.success(`${entriesToImport.length} entrada(s) importada(s)!`);
   }, [user, worldId, qc]);
 
