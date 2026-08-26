@@ -247,9 +247,13 @@ export const GuidedBuildChat: React.FC<Props> = ({
       />
 
       {/* Idriel — apenas desktop, tamanho fixo e centralizada verticalmente */}
-      <div className="pointer-events-none absolute lg:left-[-48px] xl:left-[8px] top-1/2 -translate-y-1/2 z-0 hidden lg:block w-[540px] h-[820px]">
+      <div
+        className="pointer-events-none absolute lg:left-[-48px] xl:left-[8px] top-1/2 -translate-y-1/2 z-0 hidden lg:block w-[540px] h-[820px]"
+        style={{ filter: 'saturate(0.62) brightness(0.96)' }}
+      >
         <IdrielStateSprite state={visualState} heightClass="h-[820px]" className="w-[540px]" objectClass="object-contain object-center" />
       </div>
+
 
 
       <div className="relative z-10 p-4 sm:p-5 md:p-6 lg:pl-[420px] xl:pl-[500px] lg:flex lg:flex-col lg:justify-center">
