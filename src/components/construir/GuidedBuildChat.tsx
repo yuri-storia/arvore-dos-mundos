@@ -592,7 +592,7 @@ export const GuidedBuildChat: React.FC<Props> = ({
                 onClick={() => setSpecialOpen(o => !o)}
                 aria-expanded={specialOpen}
                 aria-controls="idriel-powers-panel"
-                className={`gold-sweep ${specialOpen ? '' : 'gold-breath'} w-full flex items-center gap-3 rounded-2xl px-4 py-3.5 text-left text-[#1a0f00] border border-gold-light/50 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light focus-visible:ring-offset-2 focus-visible:ring-offset-[#02070d] transition-all`}
+                className={`gold-gradient ${specialOpen ? '' : 'gold-breath'} w-full flex items-center gap-3 rounded-2xl px-4 py-3.5 text-left text-[#1a0f00] border border-gold-light/50 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-light focus-visible:ring-offset-2 focus-visible:ring-offset-[#02070d] transition-all`}
               >
                 <span className="relative flex items-center justify-center h-7 w-7 rounded-full bg-[#1a0f00]/15 border border-[#1a0f00]/25">
                   <Wand2 className="relative w-4 h-4" strokeWidth={2} />
