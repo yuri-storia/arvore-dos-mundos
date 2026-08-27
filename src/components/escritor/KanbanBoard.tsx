@@ -614,6 +614,28 @@ export const KanbanBoard: React.FC<Props> = ({
           </DragOverlay>
         </DndContext>
       </div>
+
+      {/* Barra de rolagem horizontal com área de toque ampliada */}
+      {thumb.visible && (
+        <div
+          ref={trackRef}
+          onPointerDown={onTrackPointerDown}
+          className="relative shrink-0 mx-3 mb-2 h-7 flex items-center cursor-pointer touch-none select-none"
+        >
+          <div className="absolute inset-x-0 h-2 rounded-full bg-blue-bright/10" />
+          <div
+            onPointerDown={onThumbPointerDown}
+            onPointerMove={onThumbPointerMove}
+            onPointerUp={onThumbPointerUp}
+            onPointerCancel={onThumbPointerUp}
+            className="absolute h-7 flex items-center touch-none cursor-grab active:cursor-grabbing"
+            style={{ width: thumb.width, transform: `translateX(${thumb.left}px)` }}
+          >
+            <div className="w-full h-2.5 rounded-full bg-blue-bright/50 hover:bg-blue-bright/70 transition-colors" />
+          </div>
+        </div>
+      )}
     </div>
+
   );
 };
