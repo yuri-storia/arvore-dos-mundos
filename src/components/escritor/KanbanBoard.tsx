@@ -569,7 +569,7 @@ export const KanbanBoard: React.FC<Props> = ({
       </p>
 
       {/* Colunas */}
-      <div className="flex-1 overflow-x-auto">
+      <div ref={scrollRef} className="flex-1 overflow-x-auto kanban-scroll">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}
