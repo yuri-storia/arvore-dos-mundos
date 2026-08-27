@@ -965,3 +965,12 @@
     transform: scale(1.08);
   }
 }
+
+/* Barra de rolagem do quadro de arcos (Storyline) */
+.kanban-scroll {
+  scrollbar-width: none;
+}
+.kanban-scroll::-webkit-scrollbar {
+  height: 0;
+  display: none;
+}
