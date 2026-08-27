@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { type Storyline, type StorylineColumn } from '@/hooks/useStorylines';
 import { useStorylineCards, type StorylineCard } from '@/hooks/useStorylineCards';
 import type { Manuscript } from '@/hooks/useManuscript';
