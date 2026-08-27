@@ -328,11 +328,76 @@ export const KanbanBoard: React.FC<Props> = ({
   const cardById = useMemo(() => new Map(cards.map(c => [c.id, c])), [cards]);
   const colById = useMemo(() => new Map(columns.map(c => [c.id, c])), [columns]);
 
+  // ---- Barra de rolagem horizontal customizada (área de toque ampliada) ----
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const [thumb, setThumb] = useState({ width: 0, left: 0, visible: false });
+
+  const syncThumb = useCallback(() => {
+    const el = scrollRef.current;
+    const track = trackRef.current;
+    if (!el || !track) return;
+    const ratio = el.clientWidth / Math.max(el.scrollWidth, 1);
+    if (ratio >= 0.999) { setThumb(t => ({ ...t, visible: false })); return; }
+    const trackW = track.clientWidth;
+    const width = Math.max(48, trackW * ratio);
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    const left = maxScroll > 0 ? (el.scrollLeft / maxScroll) * (trackW - width) : 0;
+    setThumb({ width, left, visible: true });
+  }, []);
+
+  useEffect(() => {
+    syncThumb();
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', syncThumb, { passive: true });
+    window.addEventListener('resize', syncThumb);
+    return () => { el.removeEventListener('scroll', syncThumb); window.removeEventListener('resize', syncThumb); };
+  }, [syncThumb, colOrder.length, cards.length]);
+
+  const dragScrollRef = useRef<{ startX: number; startLeft: number } | null>(null);
+
+  const onThumbPointerDown = (e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const el = scrollRef.current;
+    if (!el) return;
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    dragScrollRef.current = { startX: e.clientX, startLeft: el.scrollLeft };
+  };
+
+  const onThumbPointerMove = (e: React.PointerEvent) => {
+    const el = scrollRef.current;
+    const track = trackRef.current;
+    const st = dragScrollRef.current;
+    if (!el || !track || !st) return;
+    const trackW = track.clientWidth;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    const usable = Math.max(trackW - thumb.width, 1);
+    el.scrollLeft = st.startLeft + ((e.clientX - st.startX) / usable) * maxScroll;
+  };
+
+  const onThumbPointerUp = (e: React.PointerEvent) => {
+    dragScrollRef.current = null;
+    try { (e.target as HTMLElement).releasePointerCapture(e.pointerId); } catch { /* noop */ }
+  };
+
+  const onTrackPointerDown = (e: React.PointerEvent) => {
+    const el = scrollRef.current;
+    const track = trackRef.current;
+    if (!el || !track) return;
+    const rect = track.getBoundingClientRect();
+    const target = e.clientX - rect.left - thumb.width / 2;
+    const usable = Math.max(rect.width - thumb.width, 1);
+    el.scrollTo({ left: (target / usable) * (el.scrollWidth - el.clientWidth), behavior: 'smooth' });
+  };
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 220, tolerance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
+
 
   const findColumnOf = (cardId: string) =>
     Object.keys(board).find(colId => board[colId]?.includes(cardId));
