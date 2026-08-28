@@ -699,21 +699,34 @@ export const KanbanBoard: React.FC<Props> = ({
 
       {/* Barra de rolagem horizontal com área de toque ampliada */}
       {thumb.visible && (
-        <div
-          ref={trackRef}
-          onPointerDown={onTrackPointerDown}
-          className="relative shrink-0 mx-3 mb-2 h-7 flex items-center cursor-pointer touch-none select-none"
-        >
-          <div className="absolute inset-x-0 h-2 rounded-full bg-blue-bright/10" />
+        <div className="relative shrink-0">
+          {showSwipeHint && (
+            <div
+              onPointerDown={dismissHint}
+              className="absolute -top-9 left-1/2 -translate-x-1/2 z-20 px-3 py-1.5 rounded-full border border-gold/30 bg-[#071426]/95 shadow-lg backdrop-blur-sm animate-fadeUp cursor-pointer"
+            >
+              <span className="text-[10.5px] font-montserrat text-gold-light whitespace-nowrap">
+                <span className="inline-block animate-pulse mr-1">↔</span>
+                Deslize para ver mais colunas · ou arraste esta barra
+              </span>
+            </div>
+          )}
           <div
-            onPointerDown={onThumbPointerDown}
-            onPointerMove={onThumbPointerMove}
-            onPointerUp={onThumbPointerUp}
-            onPointerCancel={onThumbPointerUp}
-            className="absolute h-7 flex items-center touch-none cursor-grab active:cursor-grabbing"
-            style={{ width: thumb.width, transform: `translateX(${thumb.left}px)` }}
+            ref={trackRef}
+            onPointerDown={(e) => { dismissHint(); onTrackPointerDown(e); }}
+            className="relative mx-3 mb-2 h-9 flex items-center cursor-pointer touch-none select-none"
           >
-            <div className="w-full h-2.5 rounded-full bg-blue-bright/50 hover:bg-blue-bright/70 transition-colors" />
+            <div className="absolute inset-x-0 h-2 rounded-full bg-blue-bright/10" />
+            <div
+              onPointerDown={onThumbPointerDown}
+              onPointerMove={onThumbPointerMove}
+              onPointerUp={onThumbPointerUp}
+              onPointerCancel={onThumbPointerUp}
+              className="absolute h-9 flex items-center touch-none cursor-grab active:cursor-grabbing"
+              style={{ width: thumb.width, transform: `translateX(${thumb.left}px)` }}
+            >
+              <div className="w-full h-3 rounded-full bg-blue-bright/50 hover:bg-blue-bright/70 transition-colors" />
+            </div>
           </div>
         </div>
       )}
