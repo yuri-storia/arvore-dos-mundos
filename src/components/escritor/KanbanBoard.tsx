@@ -647,11 +647,15 @@ export const KanbanBoard: React.FC<Props> = ({
       </div>
 
       <p className="px-3 pt-2 text-[10px] text-text-dim/60 font-montserrat">
-        Toque no card para abrir · segure para arrastar entre colunas · use a alça ⠿ para reordenar colunas
+        Toque no card para abrir · segure para arrastar entre colunas · deslize o dedo para navegar entre colunas
       </p>
 
       {/* Colunas */}
-      <div ref={scrollRef} className="flex-1 overflow-x-auto kanban-scroll">
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-x-auto kanban-scroll"
+        style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorX: 'contain' }}
+      >
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}
