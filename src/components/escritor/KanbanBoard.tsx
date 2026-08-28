@@ -392,6 +392,88 @@ export const KanbanBoard: React.FC<Props> = ({
     el.scrollTo({ left: (target / usable) * (el.scrollWidth - el.clientWidth), behavior: 'smooth' });
   };
 
+  // ---- Swipe horizontal (iOS/Android): desliza entre colunas sem arrastar cards ----
+  // O dnd-kit aplica `touch-action: none` nos elementos arrastáveis, o que bloqueia a
+  // rolagem nativa quando o toque começa em cima de um card. Reimplementamos o gesto.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    let startX = 0, startY = 0, lastX = 0, lastT = 0, vx = 0;
+    let axis: 'none' | 'x' | 'y' = 'none';
+    let raf = 0;
+
+    const onStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return;
+      cancelAnimationFrame(raf);
+      const t = e.touches[0];
+      startX = lastX = t.clientX; startY = t.clientY;
+      lastT = performance.now(); vx = 0; axis = 'none';
+    };
+
+    const onMove = (e: TouchEvent) => {
+      if (draggingRef.current || e.touches.length !== 1) return;
+      const t = e.touches[0];
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+      if (axis === 'none') {
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+        axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+      }
+      if (axis !== 'x') return;
+      const now = performance.now();
+      const delta = t.clientX - lastX;
+      if (now > lastT) vx = delta / (now - lastT);
+      lastX = t.clientX; lastT = now;
+      el.scrollLeft -= delta;
+      if (e.cancelable) e.preventDefault();
+    };
+
+    const onEnd = () => {
+      if (axis !== 'x' || Math.abs(vx) < 0.25) { axis = 'none'; return; }
+      // Inércia leve, mais próxima do comportamento nativo
+      let v = vx * 16;
+      const step = () => {
+        el.scrollLeft -= v;
+        v *= 0.92;
+        if (Math.abs(v) > 0.5) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+      axis = 'none';
+    };
+
+    el.addEventListener('touchstart', onStart, { passive: true });
+    el.addEventListener('touchmove', onMove, { passive: false });
+    el.addEventListener('touchend', onEnd, { passive: true });
+    el.addEventListener('touchcancel', onEnd, { passive: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      el.removeEventListener('touchstart', onStart);
+      el.removeEventListener('touchmove', onMove as EventListener);
+      el.removeEventListener('touchend', onEnd);
+      el.removeEventListener('touchcancel', onEnd);
+    };
+  }, []);
+
+  // ---- Dica visual inicial (uma vez por usuário) ----
+  const [showSwipeHint, setShowSwipeHint] = useState(false);
+  useEffect(() => {
+    if (!thumb.visible) return;
+    try {
+      if (localStorage.getItem('adm_kanban_swipe_hint') === '1') return;
+    } catch { /* storage indisponível */ }
+    setShowSwipeHint(true);
+    const t = setTimeout(() => {
+      setShowSwipeHint(false);
+      try { localStorage.setItem('adm_kanban_swipe_hint', '1'); } catch { /* noop */ }
+    }, 6000);
+    return () => clearTimeout(t);
+  }, [thumb.visible]);
+
+  const dismissHint = useCallback(() => {
+    setShowSwipeHint(false);
+    try { localStorage.setItem('adm_kanban_swipe_hint', '1'); } catch { /* noop */ }
+  }, []);
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 220, tolerance: 8 } }),
