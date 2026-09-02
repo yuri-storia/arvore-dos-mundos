@@ -41,7 +41,7 @@ export const ManuscriptExportMenu: React.FC<Props> = ({ manuscript, chapters, sc
   if (!planLimits.canExport) {
     return (
       <Button variant="ghost" size="sm" disabled
-        className="text-muted-foreground gap-1.5 text-[11px] cursor-not-allowed" title="Exportação disponível a partir do plano Criador">
+        className="text-muted-foreground gap-1.5 text-[11px] cursor-not-allowed" title="Exportação disponível para assinantes">
         <Lock className="w-3.5 h-3.5" />
         <span className="hidden sm:inline">Exportar</span>
       </Button>
