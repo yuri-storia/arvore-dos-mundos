@@ -1403,58 +1403,59 @@ const LandingPage: React.FC = () => {
 
             {[
               {
-                q: 'Idriel escreve meu livro por mim?',
-                a: 'Não. Idriel é uma assistente de worldbuilding. Ela pode fazer perguntas, sugerir caminhos, identificar inconsistências e ajudar você a organizar suas descobertas. As decisões, a escrita, a voz e a autoria continuam sendo suas.',
+                q: 'A IA escreve minha história por mim?',
+                a: 'Não — e essa não é a proposta. Idriel analisa, pergunta, sugere e ajuda você a desenvolver o que já é seu. A decisão criativa continua com você.',
               },
               {
-                q: 'Preciso utilizar inteligência artificial?',
-                a: 'Não. O plano Raiz oferece acesso à plataforma completa sem Idriel. Você pode construir, organizar e escrever seus mundos utilizando apenas os recursos tradicionais.',
+                q: 'Preciso usar inteligência artificial para usar a Árvore?',
+                a: 'Não. Você pode usar Codex, manuscritos e ferramentas de organização sem acionar a IA. As gotas só são usadas quando você escolhe uma ação inteligente específica.',
               },
               {
-                q: 'Meus conteúdos são usados para treinar inteligência artificial?',
-                a: 'A Árvore dos Mundos não utiliza seus manuscritos, personagens e mundos como material próprio para treinar modelos. Quando você solicita uma ação de Idriel, o contexto necessário pode ser processado pelos serviços tecnológicos integrados, conforme nossa Política de Privacidade.',
+                q: 'O que acontece quando minhas gotas acabam?',
+                a: 'A Árvore continua funcionando. Se quiser fazer novas análises, gerar imagens ou usar outras ações de Idriel, basta recarregar o Elixir.',
               },
               {
-                q: 'Minhas ideias ficam protegidas?',
-                a: 'A plataforma utiliza autenticação, políticas de acesso e isolamento por usuário. Cada conta deve acessar apenas os conteúdos aos quais possui autorização. Também disponibilizamos uma página específica explicando os compromissos de segurança e privacidade.',
+                q: 'Posso trazer um mundo que já comecei?',
+                a: 'Sim. Você pode trazer documentos, resumos e anotações para não precisar reconstruir seu mundo do zero. Idriel ajuda a identificar personagens, lugares, organizações e acontecimentos, e você decide o que vai para o Codex.',
               },
               {
-                q: 'Posso exportar o que criei?',
-                a: 'Sim. As exportações disponíveis incluem PDF, Word e formatos compatíveis com Kindle, conforme o tipo de conteúdo e os recursos ativos na plataforma.',
+                q: 'Posso exportar meu trabalho?',
+                a: 'Sim. Você pode exportar seu conteúdo nos formatos disponíveis na plataforma — PDF, Word e formatos compatíveis com Kindle, conforme o tipo de conteúdo.',
               },
               {
-                q: 'O que acontece quando o teste termina?',
-                a: 'Nenhum mundo é apagado. Seus conteúdos permanecem salvos. Para continuar utilizando a plataforma, você escolhe entre Raiz e Idriel.',
+                q: 'A Árvore serve para RPG?',
+                a: 'Sim. Mestres podem organizar cenários, povos, NPCs, acontecimentos, conflitos e relações do mesmo universo.',
               },
               {
-                q: 'O que acontece se eu cancelar?',
-                a: 'Você continua com acesso até o fim do período já pago. Depois disso, poderá escolher outro plano ou reativar sua assinatura. Os detalhes sobre armazenamento, retenção e acesso após cancelamento são descritos nos termos.',
+                q: 'Serve somente para fantasia?',
+                a: 'A Árvore foi criada com fantasia e worldbuilding no centro, mas a estrutura também pode ser usada para outros tipos de universo ficcional: ficção científica, distopia, fantasia urbana, horror e história alternativa.',
               },
               {
                 q: 'Preciso preencher todos os 11 Frutos?',
                 a: 'Não. Você pode começar por qualquer Fruto, avançar no próprio ritmo e desenvolver apenas o que fizer sentido para a história.',
               },
               {
-                q: 'A plataforma serve apenas para fantasia?',
-                a: 'Não. A Árvore dos Mundos pode ser utilizada para fantasia, ficção científica, distopia, fantasia urbana, horror, história alternativa, RPG e outras narrativas que dependam de um universo consistente.',
+                q: 'Tudo o que eu criar continua sendo meu?',
+                a: 'Sim. O que você cria na Árvore continua sendo seu. A plataforma não reivindica autoria sobre personagens, histórias, sistemas, mapas ou manuscritos criados por você.',
               },
               {
-                q: 'Posso usar um mundo que já comecei fora da plataforma?',
-                a: 'Sim. Você pode inserir conteúdos manualmente, importar fichas e artigos entre mundos e, no plano Idriel, utilizar a importação inteligente de textos e documentos.',
+                q: 'Meus textos são usados para treinar modelos de IA?',
+                a: 'A Árvore dos Mundos não utiliza seus manuscritos, personagens e mundos como material próprio para treinar modelos. Quando você solicita uma ação de Idriel, o contexto necessário é processado pelos serviços integrados apenas para executar aquela ação, conforme a Política de Privacidade.',
               },
               {
-                q: 'Posso criar mais de um mundo?',
-                a: 'Sim. Os planos Raiz e Idriel oferecem mundos ilimitados.',
+                q: 'Minhas ideias ficam protegidas?',
+                a: 'A plataforma utiliza autenticação, políticas de acesso e isolamento por usuário: mundos privados não ficam expostos a outras contas. Também mantemos uma página específica com os compromissos de segurança e privacidade.',
               },
               {
-                q: 'Como funcionam as gotas?',
-                a: 'As gotas de Elixir dos Mundos são consumidas apenas em ações que envolvem inteligência artificial. O custo aparece antes da confirmação. O plano Idriel recebe 150 gotas por mês e permite comprar recargas.',
+                q: 'Como funciona o cancelamento?',
+                a: 'Você pode cancelar quando quiser. A renovação é interrompida e o acesso continua até o fim do período já pago; depois disso, seus conteúdos permanecem salvos em modo somente leitura até que você reative a assinatura.',
               },
               {
                 q: 'Posso excluir minha conta e meus dados?',
                 a: 'Sim. A plataforma oferece meios para exclusão da conta e dos conteúdos associados, conforme as regras informadas nos Termos de Uso e na Política de Privacidade.',
               },
             ].map((item, i) => (
+
               <AccordionItem key={i} value={`item-${i}`} className="border-gold/[0.10]">
                 <AccordionTrigger className="font-cinzel text-left text-[15px] py-6 hover:text-gold-light hover:no-underline transition-colors duration-500">
                   {item.q}
