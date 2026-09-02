@@ -1229,7 +1229,21 @@ const LandingPage: React.FC = () => {
         </Shell>
       </Band>
 
+      {/* ============================== 13. DEPOIMENTOS ===================== */}
+      <Band>
+        <Shell>
+          <SectionHead
+            eyebrow="Depoimentos"
+            Icon={Quote}
+            title="Quando tudo encontra seu lugar, criar fica mais leve."
+            lede="Quem constrói mundos há muito tempo conhece a sensação de ter coisa demais na cabeça e espalhada em todo canto. A diferença aparece quando as ideias começam a se encontrar, se conectar e fazer sentido como um todo."
+          />
+          <PlatformTestimonials />
+        </Shell>
+      </Band>
+
       {/* ============================== 9. SEGURANÇA ======================== */}
+
       <Band tone="deep">
         <Shell>
           <SectionHead
