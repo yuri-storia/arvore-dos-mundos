@@ -4,29 +4,13 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Pricing plans (gateway será integrado depois — IDs prontos para mapear)
-// Códigos internos "raiz_*" foram mantidos para preservar dados no DB/Asaas,
-// mas o nome comercial passou a ser "Criador".
+// Plano único da Árvore dos Mundos — mensal ou anual.
+// Os códigos internos "idriel_*" foram mantidos para preservar o histórico
+// do banco e da Stripe.
 export const PLANS = {
-  raiz_mensal: {
-    id: "raiz_mensal",
-    name: "Criador",
-    price: "R$ 19,90/mês",
-    priceValue: 19.90,
-    period: "mensal",
-    hasIdriel: false,
-  },
-  raiz_anual: {
-    id: "raiz_anual",
-    name: "Criador Anual",
-    price: "R$ 197,90/ano",
-    priceValue: 197.90,
-    period: "anual",
-    hasIdriel: false,
-  },
   idriel_mensal: {
     id: "idriel_mensal",
-    name: "Idriel",
+    name: "Árvore dos Mundos",
     price: "R$ 39,90/mês",
     priceValue: 39.90,
     period: "mensal",
@@ -34,12 +18,13 @@ export const PLANS = {
   },
   idriel_anual: {
     id: "idriel_anual",
-    name: "Idriel Anual",
+    name: "Árvore dos Mundos Anual",
     price: "R$ 397,90/ano",
     priceValue: 397.90,
     period: "anual",
     hasIdriel: true,
   },
+
 
   // Plano exclusivo — só via convite do fundador
   fundador_mensal: {
