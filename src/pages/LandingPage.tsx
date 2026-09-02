@@ -27,7 +27,6 @@ import heroMobilePoster from '@/assets/arvore-hero-mobile-master-poster.png.asse
 import heroVideoDesktopMaster from '@/assets/arvore-hero-desktop-master.mp4.asset.json';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
-import previewConstruir from '@/assets/plataforma-preview-construir.png.asset.json';
 import ebookMockup from '@/assets/ebook-mockup-devices.png.asset.json';
 import { DemoVideo } from '@/components/marketing/DemoVideo';
 import { Reveal } from '@/components/marketing/Reveal';
