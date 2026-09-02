@@ -405,9 +405,13 @@ const LandingPage: React.FC = () => {
               <span className="font-cinzel font-bold tracking-[0.06em] text-[13px] sm:text-sm">Árvore dos Mundos</span>
             </Link>
             <nav className="flex items-center gap-5 sm:gap-7">
+              <a href="#trailer" className="hidden md:inline font-manrope text-[13px] text-text-secondary hover:text-foreground transition-colors duration-300">
+                Trailer
+              </a>
               <a href="#tour" className="hidden md:inline font-manrope text-[13px] text-text-secondary hover:text-foreground transition-colors duration-300">
                 A plataforma
               </a>
+
               <a href="#idriel" className="hidden md:inline font-manrope text-[13px] text-text-secondary hover:text-foreground transition-colors duration-300">
                 Idriel
               </a>
