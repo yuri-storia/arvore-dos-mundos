@@ -113,7 +113,7 @@ export const SubscriptionBanner: React.FC = () => {
     );
   }
 
-  // Plano Criador ativo — indicação de plano/upgrade agora vive em Configurações e no menu da Idriel.
+  // Plano ativo — indicação de plano agora vive em Configurações e no menu da Idriel.
   // Removido daqui para eliminar redundância no topo do app.
   if (sub.plan === 'template' && !sub.hasIdriel) {
     return null;
