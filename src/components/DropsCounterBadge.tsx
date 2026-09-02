@@ -4,7 +4,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
 
 import { RechargePackageDialog } from '@/components/RechargePackageDialog';
-import { UpgradeIdrielDialog } from '@/components/UpgradeIdrielDialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 /**
@@ -126,7 +125,6 @@ export const DropsCounterBadge: React.FC<{ inline?: boolean }> = ({ inline = fal
   const sub = useSubscription();
   
   const [showRecharge, setShowRecharge] = useState(false);
-  const [showUpgrade, setShowUpgrade] = useState(false);
 
   if (!user || sub.loading) return null;
 
@@ -264,7 +262,7 @@ export const DropsCounterBadge: React.FC<{ inline?: boolean }> = ({ inline = fal
     );
   }
 
-  // Plano Criador: mostra apenas o saldo de gotas de cortesia (sem recarga).
+  // Sem assinatura ativa: mostra apenas o saldo de gotas de recarga (sem compra).
   if (sub.bonusDrops > 0) {
     return (
       <TooltipProvider delayDuration={150}>

@@ -8,7 +8,6 @@ import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import { WORLDBUILDING_LESSONS, type WorldbuildingLesson } from '@/lib/idriel/worldbuildingLessons';
 import { IDRIEL_DIALOGUES, type Dialogue, type DialogueNode } from '@/lib/idriel/dialogues';
 import { PlanStatusCard } from '@/components/PlanStatusCard';
-import { UpgradeIdrielDialog } from '@/components/UpgradeIdrielDialog';
 
 /* ============================================================
  * Types
@@ -65,8 +64,8 @@ const FAQ: Record<string, { label: string; items: { q: string; a: string }[] }> 
   geral: {
     label: 'Geral',
     items: [
-      { q: 'Quais são os planos?', a: '**Criador (R$ 19,90/mês ou R$ 197,90/ano)** libera worldbuilding, fichas, escrita e exportação em PDF. **Idriel (R$ 39,90/mês ou R$ 397,90/ano)** adiciona todas as IAs, geração de imagens e 150 gotas de Elixir por mês.' },
-      { q: 'Como faço upgrade de plano?', a: 'Em **Configurações → Minha conta** ou na página **/planos**, clique em *Fazer upgrade*. O upgrade vale **na hora** e você paga apenas a diferença proporcional aos dias restantes do ciclo atual.' },
+      { q: 'Qual é o plano?', a: 'Uma assinatura só, com a Árvore inteira: **R$ 39,90/mês ou R$ 397,90/ano**. Inclui os 11 Frutos, Codex, manuscritos, Idriel, análises, geração de imagens, importação, exportação e **150 gotas de Elixir por mês**.' },
+      { q: 'Como troco de mensal para anual?', a: 'Em **Configurações → Minha conta** ou na página **/planos**, escolha o ciclo anual. A troca vale **na hora** e você paga apenas a diferença proporcional aos dias restantes do ciclo atual.' },
       { q: 'E se eu quiser voltar para um plano menor?', a: 'É o **downgrade**: nada é cobrado agora e você mantém todos os recursos do plano atual até o fim do período já pago. A mudança entra em vigor na renovação seguinte — e pode ser desfeita a qualquer momento antes disso.' },
       { q: 'Mudar de mensal para anual vale a pena?', a: 'Sim: o anual equivale a **2 meses grátis**. A troca é feita como upgrade imediato, com crédito proporcional do que você já pagou no mês.' },
       { q: 'O que acontece se eu cancelar?', a: 'Você mantém o acesso completo até o fim do ciclo já pago. Depois disso **nada é apagado**: seus mundos, fichas, artigos e manuscritos continuam salvos em **modo somente leitura**, com exportação em **PDF e Word** liberada para você levar o conteúdo. A exclusão só acontece se você mesmo pedir em Configurações.' },
@@ -98,7 +97,6 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
   const [dialogueNode, setDialogueNode] = useState<DialogueNode | null>(null);
   const [dialogueLog, setDialogueLog] = useState<{ role: 'idriel' | 'user'; text: string }[]>([]);
   const [dragging, setDragging] = useState(false);
-  const [showUpgrade, setShowUpgrade] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const heroVideoRef = useRef<HTMLVideoElement>(null);
@@ -260,12 +258,6 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
         <SheetContent
           side="right"
           className="border-l border-gold-bronze/40 p-0 flex flex-col w-full sm:w-[440px] md:w-[480px] lg:w-[520px] sm:max-w-[92vw]"
-          onInteractOutside={(event) => {
-            const target = event.detail.originalEvent.target;
-            if (target instanceof Element && target.closest('[data-upgrade-idriel-dialog="true"]')) {
-              event.preventDefault();
-            }
-          }}
           style={{
             background: 'radial-gradient(120% 60% at 80% 0%, hsl(34 50% 14% / 0.55) 0%, transparent 55%), linear-gradient(180deg, hsl(220 60% 4%) 0%, hsl(220 70% 2.5%) 100%)',
             boxShadow: '-18px 0 60px hsl(220 80% 1% / 0.7)',
@@ -332,10 +324,6 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
                   onFaq={() => setView('faq')}
                   onLessons={() => setView('lessons')}
                   onDialogues={() => setView('dialogues')}
-                  onUpgradeRequest={() => {
-                    setOpen(false);
-                    setShowUpgrade(true);
-                  }}
                 />
               )}
 
@@ -374,7 +362,6 @@ export const HelpDrawer: React.FC<Props> = ({ tab }) => {
           </ScrollArea>
         </SheetContent>
       </Sheet>
-      <UpgradeIdrielDialog open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </>
   );
 };
@@ -388,10 +375,9 @@ const HubMenu: React.FC<{
   onFaq: () => void;
   onLessons: () => void;
   onDialogues: () => void;
-  onUpgradeRequest: () => void;
-}> = ({ onTour, onFaq, onLessons, onDialogues, onUpgradeRequest }) => (
+}> = ({ onTour, onFaq, onLessons, onDialogues }) => (
   <div className="space-y-3.5">
-    <PlanStatusCard variant="help" onUpgradeRequest={onUpgradeRequest} />
+    <PlanStatusCard variant="help" />
     <p className="font-amiri italic text-[13px] text-text-secondary text-center mb-5">
       Escolha um caminho entre as raízes, viajante.
     </p>

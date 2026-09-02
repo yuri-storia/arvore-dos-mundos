@@ -20,7 +20,7 @@ const CancelPlanPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
-  const planName = sub.hasIdriel ? 'Idriel' : sub.hasTemplate ? 'Criador' : 'Sem plano';
+  const planName = sub.plan_code === 'fundador_mensal' ? 'Membro Fundador' : sub.subscribed ? 'Árvore dos Mundos' : 'Sem plano';
   const canCancel = sub.subscribed;
 
   const handleCancel = async () => {
