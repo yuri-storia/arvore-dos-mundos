@@ -8,7 +8,6 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { useElixirBalance, type ElixirLedgerEntry } from '@/hooks/useElixirBalance';
 import { RechargePackageDialog } from '@/components/RechargePackageDialog';
-import { UpgradeIdrielDialog } from '@/components/UpgradeIdrielDialog';
 
 /**
  * /minha-conta — Painel único para gerenciar assinatura, limites, saldo
@@ -21,17 +20,14 @@ const ManageAccountPage: React.FC = () => {
   const { user, isAdmin } = useAuth();
   const { bonusDrops, ledger, loading: ledgerLoading, refetch } = useElixirBalance();
   const [rechargeOpen, setRechargeOpen] = React.useState(false);
-  const [upgradeOpen, setUpgradeOpen] = React.useState(false);
 
   const isFundador = sub.plan_code === 'fundador_mensal';
   const isIdriel = sub.hasIdriel && !isFundador;
-  const isCriador = sub.hasTemplate && !sub.hasIdriel;
   const isNone = !sub.subscribed && !isAdmin;
 
   const planName = isAdmin ? 'Admin'
     : isFundador ? 'Membro Fundador'
-    : isIdriel ? 'Idriel'
-    : isCriador ? 'Criador'
+    : isIdriel ? 'Árvore dos Mundos'
     : 'Sem plano ativo';
 
   const remainingMonth = Math.max(0, sub.creditLimit - sub.creditsUsed);
@@ -69,14 +65,12 @@ const ManageAccountPage: React.FC = () => {
           className={`rounded-2xl border p-5 sm:p-6 mb-5 ${
             isIdriel || isFundador || isAdmin
               ? 'border-gold/40'
-              : isCriador ? 'border-blue-bright/25' : 'border-white/10'
+              : 'border-white/10'
           }`}
           style={{
             background: (isIdriel || isFundador || isAdmin)
               ? 'linear-gradient(135deg, rgba(200,146,42,0.14) 0%, rgba(200,146,42,0.04) 100%)'
-              : isCriador
-                ? 'rgba(59,130,246,0.06)'
-                : 'rgba(255,255,255,0.02)',
+              : 'rgba(255,255,255,0.02)',
           }}
         >
           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -91,7 +85,7 @@ const ManageAccountPage: React.FC = () => {
               <div className="min-w-0">
                 <p className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-text-dim">Plano ativo</p>
                 <p className={`font-cinzel font-bold text-2xl leading-tight ${
-                  isIdriel || isFundador || isAdmin ? 'text-gold-light' : isCriador ? 'text-blue-light' : 'text-text-dim'
+                  isIdriel || isFundador || isAdmin ? 'text-gold-light' : 'text-text-dim'
                 }`}>{planName}</p>
                 {endLabel && sub.subscribed && (
                   <p className="text-[11px] text-text-dim mt-1 flex items-center gap-1.5 font-merriweather">
@@ -107,13 +101,13 @@ const ManageAccountPage: React.FC = () => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {(isNone || isCriador) && (
+              {isNone && (
                 <button
-                  onClick={() => isCriador ? setUpgradeOpen(true) : navigate('/planos')}
+                  onClick={() => navigate('/planos')}
                   className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[11px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-[#1a0f00] hover:opacity-90 transition-opacity"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  {isCriador ? 'Upgrade para Idriel' : 'Escolher plano'}
+                  Escolher plano
                 </button>
               )}
               {sub.hasIdriel && (
@@ -203,7 +197,6 @@ const ManageAccountPage: React.FC = () => {
       </div>
 
       <RechargePackageDialog open={rechargeOpen} onClose={() => setRechargeOpen(false)} />
-      <UpgradeIdrielDialog open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
     </div>
   );
 };

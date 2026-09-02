@@ -17,7 +17,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useElixirBalance } from '@/hooks/useElixirBalance';
 import { useBillingHistory, openBillingPortal, type BillingCharge } from '@/hooks/useBillingHistory';
 import { RechargePackageDialog } from '@/components/RechargePackageDialog';
-import { UpgradeIdrielDialog } from '@/components/UpgradeIdrielDialog';
 
 const brl = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -34,10 +33,8 @@ const STATUS_META: Record<string, { label: string; tone: 'ok' | 'warn' | 'bad' }
 };
 
 const PLAN_LABEL: Record<string, string> = {
-  raiz_mensal: 'Criador · mensal',
-  raiz_anual: 'Criador · anual',
-  idriel_mensal: 'Idriel · mensal',
-  idriel_anual: 'Idriel · anual',
+  idriel_mensal: 'Árvore dos Mundos · mensal',
+  idriel_anual: 'Árvore dos Mundos · anual',
   fundador_mensal: 'Membro Fundador',
 };
 
@@ -51,7 +48,6 @@ export const AccountBillingPanel: React.FC = () => {
   const { bonusDrops, loading: balLoading, refetch: refetchBalance } = useElixirBalance();
   const { charges, loading: chargesLoading, refetch: refetchCharges } = useBillingHistory();
   const [rechargeOpen, setRechargeOpen] = useState(false);
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const [changeTarget, setChangeTarget] = useState<string | null>(null);
   const [changeOpen, setChangeOpen] = useState(false);
@@ -81,13 +77,11 @@ export const AccountBillingPanel: React.FC = () => {
 
   const isFundador = sub.plan_code === 'fundador_mensal';
   const isIdriel = sub.hasIdriel && !isFundador;
-  const isCriador = sub.hasTemplate && !sub.hasIdriel;
   const isNone = !sub.subscribed && !isAdmin;
 
   const planName = isAdmin ? 'Admin'
     : isFundador ? 'Membro Fundador'
-    : isIdriel ? 'Idriel'
-    : isCriador ? 'Criador'
+    : isIdriel ? 'Árvore dos Mundos'
     : 'Sem plano ativo';
 
   const remainingMonth = Math.max(0, sub.creditLimit - sub.creditsUsed);
@@ -134,11 +128,11 @@ export const AccountBillingPanel: React.FC = () => {
     <div className="space-y-4">
       {/* Plano + status */}
       <div
-        className={`rounded-lg border p-4 ${accentGold ? 'border-gold/35' : isCriador ? 'border-blue-bright/25' : 'border-white/10'}`}
+        className={`rounded-lg border p-4 ${accentGold ? 'border-gold/35' : 'border-white/10'}`}
         style={{
           background: accentGold
             ? 'linear-gradient(135deg, rgba(200,146,42,0.12) 0%, rgba(200,146,42,0.04) 100%)'
-            : isCriador ? 'rgba(59,130,246,0.06)' : 'rgba(255,255,255,0.02)',
+            : 'rgba(255,255,255,0.02)',
         }}
       >
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -148,7 +142,7 @@ export const AccountBillingPanel: React.FC = () => {
               : <Leaf className="w-5 h-5 text-blue-light shrink-0" strokeWidth={2} />}
             <div className="min-w-0">
               <p className="font-montserrat font-bold text-[10px] uppercase tracking-wider text-text-dim">Plano atual</p>
-              <p className={`font-cinzel font-bold text-lg leading-tight ${accentGold ? 'text-gold-light' : isCriador ? 'text-blue-light' : 'text-text-dim'}`}>
+              <p className={`font-cinzel font-bold text-lg leading-tight ${accentGold ? 'text-gold-light' : 'text-text-dim'}`}>
                 {planName}
               </p>
               <p className={`text-[11px] mt-1 inline-flex items-center gap-1.5 font-merriweather ${
@@ -170,14 +164,6 @@ export const AccountBillingPanel: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {isCriador && (
-              <button
-                onClick={() => (canManage ? openChange(isYearly ? 'idriel_anual' : 'idriel_mensal') : setUpgradeOpen(true))}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider bg-gradient-to-r from-gold via-gold-warm to-gold-deep text-[#1a0f00] hover:opacity-90 transition-opacity"
-              >
-                <Sparkles className="w-3 h-3" /> Upgrade para Idriel
-              </button>
-            )}
             {isNone && (
               <Link
                 to="/planos"
@@ -197,20 +183,11 @@ export const AccountBillingPanel: React.FC = () => {
             )}
             {canManage && !isYearly && (
               <button
-                onClick={() => openChange(sub.hasIdriel ? 'idriel_anual' : 'raiz_anual')}
+                onClick={() => openChange('idriel_anual')}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-gold/40 bg-gold/10 text-gold-light hover:bg-gold/20 transition-all"
                 title="Economize 2 meses pagando anualmente"
               >
                 <ArrowUpRight className="w-3 h-3" /> Mudar para anual
-              </button>
-            )}
-            {canManage && sub.hasIdriel && !isFundador && (
-              <button
-                onClick={() => openChange(isYearly ? 'raiz_anual' : 'raiz_mensal')}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border border-white/12 text-text-dim hover:text-foreground hover:border-white/25 transition-colors"
-                title="Downgrade — passa a valer no fim do ciclo já pago"
-              >
-                <ArrowDownRight className="w-3 h-3" /> Mudar para Criador
               </button>
             )}
             <button
@@ -288,7 +265,7 @@ export const AccountBillingPanel: React.FC = () => {
         <DropCard
           label="Gotas do mês"
           value={sub.hasIdriel || isAdmin ? `${monthDrops}/${sub.creditLimit}` : '—'}
-          hint={sub.hasIdriel || isAdmin ? `Usadas: ${sub.creditsUsed}` : 'Exclusivo do plano Idriel'}
+          hint={sub.hasIdriel || isAdmin ? `Usadas: ${sub.creditsUsed}` : 'Assine para receber gotas todo mês'}
           tone="gold"
           progress={sub.hasIdriel || isAdmin ? monthPct : undefined}
         />
@@ -340,12 +317,10 @@ export const AccountBillingPanel: React.FC = () => {
       </div>
 
       <RechargePackageDialog open={rechargeOpen} onClose={() => setRechargeOpen(false)} />
-      <UpgradeIdrielDialog open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
       <PlanChangeDialog
         planId={changeTarget}
         open={changeOpen}
         onOpenChange={setChangeOpen}
-        onNeedsCheckout={() => setUpgradeOpen(true)}
       />
 
     </div>
