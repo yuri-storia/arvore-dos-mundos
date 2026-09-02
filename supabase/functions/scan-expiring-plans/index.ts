@@ -11,8 +11,6 @@ type NotifType = "T-7" | "T-1" | "T+0";
 
 function planLabel(planCode: string | null, billingCycle: string | null): string {
   
-  if (planCode === "idriel") return "Idriel";
-  if (planCode === "template") return "Raiz";
   return "Árvore dos Mundos";
 }
 
