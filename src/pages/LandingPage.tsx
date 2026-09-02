@@ -594,26 +594,70 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
+      {/* ============================== 1b. TRAILER ========================= */}
+      <Band id="trailer" tone="deep" className="!py-20 sm:!py-24">
+        <Shell>
+          <Reveal className="text-center max-w-[56ch] mx-auto mb-10">
+            <Eyebrow Icon={Play}>O trailer</Eyebrow>
+            <Title>Veja a Árvore dos Mundos em movimento.</Title>
+            <p className="font-manrope text-[14.5px] text-text-secondary leading-[1.9] mt-4">
+              Um panorama rápido de como a plataforma organiza o seu universo — dos Frutos ao manuscrito.
+            </p>
+          </Reveal>
+
+          <Reveal delay={0.08}>
+            <div className="relative mx-auto w-[min(1040px,94vw)]">
+              <div
+                aria-hidden
+                className="absolute -inset-8 -z-10 blur-[70px] pointer-events-none"
+                style={{ background: 'radial-gradient(circle at 50% 40%, hsl(38 62% 45% / 0.22) 0%, transparent 70%)' }}
+              />
+              <figure className="relative rounded-2xl overflow-hidden border border-gold-warm/20 bg-[rgba(4,12,24,0.6)] shadow-[0_40px_120px_-50px_rgba(0,0,0,0.95)]">
+                <div className="relative aspect-video w-full bg-[#02070d]">
+                  {/* PLACEHOLDER — substituir pelo trailer oficial da Árvore dos Mundos */}
+                  <video
+                    src={heroVideo1080.url}
+                    poster={hero1600.url}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    disablePictureInPicture
+                    aria-label="Prévia em vídeo da Árvore dos Mundos"
+                  />
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0"
+                    style={{ background: 'radial-gradient(ellipse at center, transparent 35%, rgba(2,7,13,0.55) 100%)' }}
+                  />
+                  <span className="absolute top-4 left-4 inline-flex items-center gap-2 rounded-full border border-gold-warm/30 bg-[rgba(4,12,24,0.72)] backdrop-blur-md px-3 py-1.5 font-manrope font-bold uppercase tracking-[0.22em] text-[9px] text-gold-champagne">
+                    <Play className="w-3 h-3" strokeWidth={2.25} /> Trailer · prévia
+                  </span>
+                </div>
+              </figure>
+              <p className="font-merriweather italic text-[12.5px] text-text-dim text-center mt-4">
+                Espaço reservado para o trailer oficial — em produção.
+              </p>
+            </div>
+          </Reveal>
+        </Shell>
+      </Band>
+
       {/* ============================== 2. PROVAS =========================== */}
       <Band tone="deep">
         <Shell>
           <div className="space-y-20 sm:space-y-24">
             <div>
               <SectionHead
-                eyebrow="Primeiros mundos"
-                title="Quando tudo encontra seu lugar, criar fica mais leve."
-                lede="Quem constrói mundos há muito tempo conhece a sensação de ter coisa demais na cabeça e espalhada em todo canto. A diferença aparece quando as ideias começam a se encontrar e fazer sentido como um todo."
-              />
-              <PlatformTestimonials />
-            </div>
-
-            <div>
-              <SectionHead
                 eyebrow="Quem já plantou"
+                Icon={Star}
                 title="A Árvore dos Mundos já criava raízes antes de virar plataforma."
-                lede="Antes de virar software, a Árvore já era o Guia Definitivo do Worldbuilding. Mais de 1.500 pessoas compraram produtos ligados a esse universo — e agora o método ganhou um lugar próprio para ser usado enquanto você cria."
+                lede="Antes de virar software, a Árvore dos Mundos já era o Guia Definitivo do Worldbuilding para construir mundos com mais profundidade e coerência. Mais de 1.500 pessoas compraram produtos ligados a esse universo. Agora, o método ganhou um lugar próprio para ser usado enquanto você cria."
               />
               <EbookTestimonials />
+
 
               <Reveal delay={0.05} className="mt-12 sm:mt-14">
                 <Panel soft className="overflow-hidden">
