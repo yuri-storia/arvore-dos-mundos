@@ -27,7 +27,6 @@ import heroMobilePoster from '@/assets/arvore-hero-mobile-master-poster.png.asse
 import heroVideoDesktopMaster from '@/assets/arvore-hero-desktop-master.mp4.asset.json';
 import idrielVideo from '@/assets/idriel-animated.mp4.asset.json';
 import idrielPoster from '@/assets/idriel-avatar.webp';
-import previewConstruir from '@/assets/plataforma-preview-construir.png.asset.json';
 import ebookMockup from '@/assets/ebook-mockup-devices.png.asset.json';
 import { DemoVideo } from '@/components/marketing/DemoVideo';
 import { Reveal } from '@/components/marketing/Reveal';
@@ -569,38 +568,11 @@ const LandingPage: React.FC = () => {
           </motion.div>
         </Shell>
 
-        {/* Prévia da interface aparecendo parcialmente no limite inferior da dobra */}
-        <div className="relative z-10 mt-14 sm:mt-20 -mb-1">
-          <motion.div
-            initial={reduced ? undefined : { opacity: 0, y: 40 }}
-            animate={reduced ? undefined : { opacity: 1, y: 0 }}
-            transition={{ duration: 1.4, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="mx-auto w-[min(1100px,92vw)]"
-          >
-            <div
-              className="relative rounded-t-2xl overflow-hidden border border-gold-warm/15 border-b-0"
-              style={{ boxShadow: '0 -20px 90px -30px hsl(38 60% 45% / 0.35), 0 -8px 60px -20px rgba(0,0,0,0.9)' }}
-            >
-              <img
-                src={previewConstruir.url}
-                alt="Prévia da plataforma: aba Construir com os Frutos do Worldbuilding"
-                loading="lazy"
-                decoding="async"
-                className="w-full h-[28vh] sm:h-[34vh] object-cover object-top"
-              />
-
-              <div
-                aria-hidden
-                className="absolute inset-0"
-                style={{ background: 'linear-gradient(to bottom, rgba(2,7,13,0.25) 0%, rgba(2,7,13,0.55) 55%, #02070d 100%)' }}
-              />
-            </div>
-          </motion.div>
-        </div>
       </section>
 
       {/* ============================== 1b. TRAILER ========================= */}
-      <Band id="trailer" tone="deep" className="!py-20 sm:!py-24">
+      <Band id="trailer" tone="deep" className="!pt-10 sm:!pt-14 !pb-20 sm:!pb-24">
+
         <Shell>
           <Reveal className="text-center max-w-[56ch] mx-auto mb-10">
             <Eyebrow Icon={Play}>O trailer</Eyebrow>
