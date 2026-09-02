@@ -36,6 +36,7 @@ export const PLANS = {
     hasIdriel: true,
   },
 
+
   // Pacotes de recarga de Elixir dos Mundos (avulsos)
   recarga_15: { id: "recarga_15", name: "15 gotas", price: "R$ 4,90", priceValue: 4.90, drops: 15, period: "avulso", hasIdriel: false },
   recarga_25: { id: "recarga_25", name: "25 gotas", price: "R$ 7,90", priceValue: 7.90, drops: 25, period: "avulso", hasIdriel: false },
@@ -267,8 +268,7 @@ export async function openCustomerPortal() {
 export const STRIPE_PLANS = {
   idriel_mensal:  { price_id: PLANS.idriel_mensal.id },
   idriel_anual:   { price_id: PLANS.idriel_anual.id },
-  template_anual: { price_id: PLANS.raiz_anual.id },
-  raiz_mensal:    { price_id: PLANS.raiz_mensal.id },
   recarga_seiva:  { price_id: PLANS.recarga_seiva.id },
 };
+
 
