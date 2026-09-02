@@ -98,13 +98,14 @@ Deno.serve(async (req) => {
         // Manually set a user's subscription. No payment is charged; the user can be billed
         // normally after expires_at.
         // body: { user_id, plan_code, duration_days? }
-        // plan_code: 'raiz_mensal'|'raiz_anual'|'idriel_mensal'|'idriel_anual'|'fundador_mensal'|'none'
+        // plan_code: 'idriel_mensal'|'idriel_anual'|'fundador_mensal'|'none'
+
         const targetId = body?.user_id as string;
         const planCode = body?.plan_code as string;
         const durationDays = Number(body?.duration_days ?? 0);
         if (!targetId || !planCode) return json({ error: "user_id and plan_code required" }, 400);
 
-        const VALID_PLANS = ["raiz_mensal", "raiz_anual", "idriel_mensal", "idriel_anual", "fundador_mensal", "none"];
+        const VALID_PLANS = ["idriel_mensal", "idriel_anual", "fundador_mensal", "none"];
         if (!VALID_PLANS.includes(planCode)) return json({ error: `plano inválido: ${planCode}` }, 400);
 
         if (planCode === "none") {

@@ -43,8 +43,6 @@ import vidIdrielPoster from '@/assets/demo-consultar-idriel.jpg.asset.json';
 
 // Ranking local para decidir upgrade x downgrade (espelha o backend)
 const PLAN_RANK: Record<string, { tier: number; cycle: number }> = {
-  raiz_mensal: { tier: 1, cycle: 1 },
-  raiz_anual: { tier: 1, cycle: 2 },
   idriel_mensal: { tier: 2, cycle: 1 },
   fundador_mensal: { tier: 2, cycle: 1 },
   idriel_anual: { tier: 2, cycle: 2 },
@@ -136,43 +134,16 @@ const PricingPage: React.FC = () => {
     };
   };
 
-  const raizPriceId = billingCycle === 'mensal' ? PLANS.raiz_mensal.id : PLANS.raiz_anual.id;
   const idrielPriceId = billingCycle === 'mensal' ? PLANS.idriel_mensal.id : PLANS.idriel_anual.id;
 
-  const raizCta = ctaFor(raizPriceId, 'Criador');
-  const idrielCta = ctaFor(idrielPriceId, 'Idriel');
+  const idrielCta = ctaFor(idrielPriceId, 'Árvore dos Mundos');
 
   const tiers = [
     {
-      id: 'raiz',
-      name: 'Criador',
-      Icon: Leaf,
-      tagline: 'Worldbuilding e escrita com corretor AI Powered',
-      price: billingCycle === 'mensal' ? 'R$ 19,90' : 'R$ 197,90',
-      priceDetail: billingCycle === 'mensal' ? '/mês' : '/ano',
-      savings: billingCycle === 'anual' ? '2 meses grátis nesse plano' : null,
-      cta: raizCta.label,
-      ctaAction: raizCta.onClick,
-      ctaDisabled: raizCta.disabled,
-      ctaNote: raizCta.note,
-      popular: false,
-      features: [
-        'Mundos ilimitados',
-        'Codex ilimitado + Linha do Tempo',
-        'Manuscritos ilimitados',
-        '11 Frutos de Worldbuilding',
-        'Galeria de Referências',
-        'Exportação PDF e Word (Manuscritos, Fichas, Artigos)',
-        'Corretor textual AI Powered',
-        '5 gotas de Elixir no 1º mês (para experimentar a Idriel)',
-      ],
-      missing: ['Idriel (IA de texto e imagens)', 'Mapas IA e análise de mundo', 'Exportação E-pub/Kindle', 'Recargas de Elixir avulsas'],
-    },
-    {
       id: 'idriel',
-      name: 'Idriel',
+      name: 'A Árvore dos Mundos',
       Icon: Crown,
-      tagline: 'Tudo do Criador mais a Idriel ao seu lado',
+      tagline: 'Um único plano. A Árvore inteira, com Idriel ao seu lado.',
       price: billingCycle === 'mensal' ? 'R$ 39,90' : 'R$ 397,90',
       priceDetail: billingCycle === 'mensal' ? '/mês' : '/ano',
       savings: billingCycle === 'anual' ? '2 meses grátis nesse plano' : null,
@@ -186,14 +157,14 @@ const PricingPage: React.FC = () => {
         'Codex ilimitado + Linha do Tempo',
         'Manuscritos ilimitados',
         '11 Frutos de Worldbuilding',
-        'Suporte de Idriel para criação de ideias',
+        'Idriel ao seu lado em todas as etapas',
         'Análise completa de Worldbuilding (1 clique)',
         'Geração de Imagens com Idriel',
         'Exportação PDF, Word e E-pub/Kindle',
         'Identificação automática de fichas e artigos',
         'Corretor textual AI Powered',
         '150 gotas de Elixir por mês',
-        'Recargas avulsas a partir de R$ 4,90 (exclusivo Idriel)',
+        'Recargas de Elixir avulsas a partir de R$ 4,90',
       ],
       missing: [],
     },
@@ -203,8 +174,8 @@ const PricingPage: React.FC = () => {
   return (
     <div className="min-h-screen relative font-manrope" style={{ background: '#02070d' }}>
       <Seo
-        title="Planos e Assinaturas — A Árvore dos Mundos"
-        description="Escolha entre os planos Criador e Idriel: mensal ou anual, com Codex ilimitado, mapas, galeria e as gotas de Elixir para as funções de IA."
+        title="Plano e Assinatura — A Árvore dos Mundos"
+        description="Um único plano para escrever e construir mundos: R$ 39,90/mês ou R$ 397,90/ano, com Codex ilimitado, mapas, galeria, Idriel e 150 gotas de Elixir por mês."
         path="/planos"
         jsonLd={{
           "@context": "https://schema.org",
@@ -213,10 +184,8 @@ const PricingPage: React.FC = () => {
           description: "Plataforma de worldbuilding e escrita criativa com Codex, linha do tempo, mapas, galeria e a assistente Idriel.",
           brand: { "@type": "Brand", name: "A Árvore dos Mundos" },
           offers: [
-            { "@type": "Offer", name: "Criador Mensal", price: "19.90", priceCurrency: "BRL", url: "https://arvoredosmundos.app/planos", availability: "https://schema.org/InStock" },
-            { "@type": "Offer", name: "Criador Anual", price: "197.90", priceCurrency: "BRL", url: "https://arvoredosmundos.app/planos", availability: "https://schema.org/InStock" },
-            { "@type": "Offer", name: "Idriel Mensal", price: "39.90", priceCurrency: "BRL", url: "https://arvoredosmundos.app/planos", availability: "https://schema.org/InStock" },
-            { "@type": "Offer", name: "Idriel Anual", price: "397.90", priceCurrency: "BRL", url: "https://arvoredosmundos.app/planos", availability: "https://schema.org/InStock" },
+            { "@type": "Offer", name: "Árvore dos Mundos Mensal", price: "39.90", priceCurrency: "BRL", url: "https://arvoredosmundos.app/planos", availability: "https://schema.org/InStock" },
+            { "@type": "Offer", name: "Árvore dos Mundos Anual", price: "397.90", priceCurrency: "BRL", url: "https://arvoredosmundos.app/planos", availability: "https://schema.org/InStock" },
           ],
         }}
       />
@@ -343,7 +312,7 @@ const PricingPage: React.FC = () => {
         </motion.div>
 
         {/* Pricing cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-8 mb-28 max-w-4xl mx-auto items-start pt-28 md:pt-32">
+        <div className="grid grid-cols-1 gap-7 mb-28 max-w-xl mx-auto items-start pt-28 md:pt-32">
           {tiers.map((tier, i) => {
             const Icon = tier.Icon;
             const isPopular = tier.popular;
@@ -448,7 +417,7 @@ const PricingPage: React.FC = () => {
                   {tier.ctaNote ? (
                     <p className="mt-3 text-center font-manrope text-[11.5px] leading-[1.6] text-foreground/55">{tier.ctaNote}</p>
                   ) : null}
-                  {sub.plan_code === (tier.id === 'raiz' ? raizPriceId : idrielPriceId) && sub.cancelAtPeriodEnd && (
+                  {sub.plan_code === idrielPriceId && sub.cancelAtPeriodEnd && (
                     <button
                       onClick={handleReactivate}
                       disabled={!!loading}
@@ -457,7 +426,7 @@ const PricingPage: React.FC = () => {
                       Reativar renovação
                     </button>
                   )}
-                  {sub.scheduledPlanCode === (tier.id === 'raiz' ? raizPriceId : idrielPriceId) && (
+                  {sub.scheduledPlanCode === idrielPriceId && (
                     <button
                       onClick={handleCancelScheduled}
                       disabled={!!loading}

@@ -88,20 +88,10 @@ export const SubscriptionBanner: React.FC = () => {
               <Leaf className="w-5 h-5 text-emerald-400" strokeWidth={1.75} />
               <div>
                 <span className="font-montserrat font-bold text-sm text-foreground">Sem plano ativo</span>
-                <span className="block text-xs text-text-dim">Escolha Criador ou Idriel para liberar a Árvore dos Mundos</span>
+                <span className="block text-xs text-text-dim">Assine para liberar a Árvore dos Mundos</span>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {/* Criador Annual */}
-              <button
-                onClick={() => handleCheckout('template_anual')}
-                disabled={!!loading}
-                className="flex flex-col items-start gap-1.5 p-3 rounded-lg border border-blue-bright/20 bg-blue-bright/[0.06] hover:bg-blue-bright/[0.12] transition-all text-left"
-              >
-                <span className="font-montserrat font-bold text-xs text-blue-light"><><Leaf className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em] text-blue-light" strokeWidth={1.75} />Criador — Worldbuilding Completo</></span>
-                <span className="text-[10px] text-text-dim">Até 3 mundos, 20 entradas no Codex, 3 manuscritos, exportação em PDF</span>
-                <span className="font-montserrat font-bold text-sm text-blue-light">R$ 197,90/ano</span>
-              </button>
               {/* Idriel Monthly */}
               <button
                 onClick={() => handleCheckout('idriel_mensal')}
@@ -109,8 +99,8 @@ export const SubscriptionBanner: React.FC = () => {
                 className="flex flex-col items-start gap-1.5 p-3 rounded-lg border border-gold/30 hover:border-gold/50 transition-all text-left"
                 style={{ background: 'linear-gradient(135deg, rgba(200,146,42,0.10) 0%, rgba(200,146,42,0.04) 100%)' }}
               >
-                <span className="font-montserrat font-bold text-xs text-gold-light"><><Sparkles className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} />Idriel — Tudo + IA Suprema</></span>
-                <span className="text-[10px] text-text-dim">Tudo do Raiz + IA + imagens em qualidade máxima (Gemini 3 Pro Image)</span>
+                <span className="font-montserrat font-bold text-xs text-gold-light"><><Sparkles className="inline-block w-3.5 h-3.5 mr-1 align-[-0.15em] text-gold-champagne" strokeWidth={1.75} />A Árvore dos Mundos — plano único</></span>
+                <span className="text-[10px] text-text-dim">Mundos, Codex e manuscritos ilimitados + Idriel, imagens e 150 gotas por mês</span>
                 <span className="font-montserrat font-bold text-sm text-gold-light">R$ 39,90/mês</span>
               </button>
             </div>

@@ -33,14 +33,12 @@ interface BugReport {
   attachment_path?: string | null; attachment_type?: string | null;
 }
 
-// Planos ativos hoje (espelham src/hooks/useSubscription.ts).
-// Os códigos internos "raiz_*" foram mantidos por compatibilidade com o
-// histórico do banco/Stripe, mas o nome comercial é "Criador".
+// Plano único da Árvore dos Mundos (espelha src/hooks/useSubscription.ts).
+// Os códigos internos "idriel_*" foram mantidos por compatibilidade com o
+// histórico do banco/Stripe.
 const PLAN_CODES = [
-  { value: 'raiz_mensal', label: 'Criador Mensal (30d sem cobrança)' },
-  { value: 'raiz_anual', label: 'Criador Anual (365d sem cobrança)' },
-  { value: 'idriel_mensal', label: 'Idriel Mensal (30d sem cobrança)' },
-  { value: 'idriel_anual', label: 'Idriel Anual (365d sem cobrança)' },
+  { value: 'idriel_mensal', label: 'Árvore dos Mundos Mensal (30d sem cobrança)' },
+  { value: 'idriel_anual', label: 'Árvore dos Mundos Anual (365d sem cobrança)' },
   { value: 'fundador_mensal', label: 'Membro Fundador Mensal' },
   { value: 'none', label: 'Cancelar / Sem plano' },
 ];
@@ -197,16 +195,14 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
   }, [users, q, filter, from, to]);
 
   const stats = useMemo(() => {
-    let raiz_mensal = 0, raiz_anual = 0, idriel_mensal = 0, idriel_anual = 0, fundador = 0, mrr = 0;
+    let idriel_mensal = 0, idriel_anual = 0, fundador = 0, mrr = 0;
     for (const u of users) {
       if (u.sub_status !== 'active') continue;
-      if (u.plan_code === 'raiz_mensal')         { raiz_mensal++;   mrr += 19.90; }
-      else if (u.plan_code === 'raiz_anual')     { raiz_anual++;    mrr += 197.90 / 12; }
-      else if (u.plan_code === 'idriel_mensal')  { idriel_mensal++; mrr += 39.90; }
+      if (u.plan_code === 'idriel_mensal')       { idriel_mensal++; mrr += 39.90; }
       else if (u.plan_code === 'idriel_anual')   { idriel_anual++;  mrr += 397.90 / 12; }
       else if (u.plan_code === 'fundador_mensal') { fundador++;     mrr += 19.90; }
     }
-    return { total: users.length, raiz_mensal, raiz_anual, idriel_mensal, idriel_anual, fundador, mrr };
+    return { total: users.length, idriel_mensal, idriel_anual, fundador, mrr };
   }, [users]);
 
 
@@ -229,13 +225,10 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
 
   return (
     <div className="space-y-4">
-        <div className="grid grid-cols-2 md:grid-cols-7 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
         <StatCard label="Total usuários" value={stats.total} tone="blue" />
-        <StatCard label="Criador Mensal" value={stats.raiz_mensal} tone="blue" />
-        <StatCard label="Criador Anual" value={stats.raiz_anual} tone="blue" />
-
-        <StatCard label="Idriel Mensal" value={stats.idriel_mensal} tone="gold" />
-        <StatCard label="Idriel Anual" value={stats.idriel_anual} tone="gold" />
+        <StatCard label="Mensal" value={stats.idriel_mensal} tone="gold" />
+        <StatCard label="Anual" value={stats.idriel_anual} tone="gold" />
           <StatCard label="Fundadores" value={stats.fundador} tone="gold" />
         <StatCard label="MRR estimado" value={fmtMoney(stats.mrr)} tone="gold" />
       </div>
@@ -249,10 +242,8 @@ const UsersTab: React.FC<{ callerId: string }> = ({ callerId }) => {
           <SelectTrigger className="w-[180px] bg-[rgba(4,12,24,0.6)] border-blue-bright/20"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os planos</SelectItem>
-            <SelectItem value="raiz_mensal">Criador Mensal</SelectItem>
-            <SelectItem value="raiz_anual">Criador Anual</SelectItem>
-            <SelectItem value="idriel_mensal">Idriel Mensal</SelectItem>
-            <SelectItem value="idriel_anual">Idriel Anual</SelectItem>
+            <SelectItem value="idriel_mensal">Árvore dos Mundos Mensal</SelectItem>
+            <SelectItem value="idriel_anual">Árvore dos Mundos Anual</SelectItem>
             <SelectItem value="fundador_mensal">Fundador Mensal</SelectItem>
 
             <SelectItem value="none">Sem plano ativo</SelectItem>

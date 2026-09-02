@@ -369,7 +369,6 @@ const LandingPage: React.FC = () => {
     }
   };
 
-  const raizKey = billing === 'mensal' ? 'raiz_mensal' : 'raiz_anual';
   const idrielKey = billing === 'mensal' ? 'idriel_mensal' : 'idriel_anual';
 
   const goldButton =
@@ -1262,55 +1261,10 @@ const LandingPage: React.FC = () => {
           </div>
 
           {/* Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 max-w-[1080px] mx-auto items-start">
-            {/* CRIADOR */}
-            <Reveal>
-              <div className="relative rounded-3xl p-8 sm:p-10 border border-gold/[0.12] bg-[rgba(4,12,24,0.45)] backdrop-blur-xl transition-transform duration-500 ease-out hover:-translate-y-1 flex flex-col">
-                <p className="font-manrope font-semibold uppercase tracking-[0.26em] text-[9.5px] text-text-dim mb-5">
-                  Para quem quer construir e escrever no próprio ritmo
-                </p>
-                <div className="flex items-center gap-2.5 mb-3">
-                  <Leaf className="w-5 h-5 text-gold-champagne/80" strokeWidth={1.5} />
-                  <h3 className="font-cinzel font-bold text-2xl">Criador</h3>
-                </div>
-                <p className="font-merriweather italic text-text-dim text-[13.5px] leading-[1.8] mb-7 max-w-[42ch]">
-                  Toda a plataforma para construir, organizar e escrever seus mundos — com corretor AI Powered.
-                </p>
-                <div className="mb-1.5">
-                  <span className="font-cinzel font-bold text-[2.6rem] leading-none">{billing === 'mensal' ? 'R$ 19,90' : 'R$ 197,90'}</span>
-                  <span className="text-text-secondary text-sm font-manrope ml-1.5">{billing === 'mensal' ? '/mês' : '/ano'}</span>
-                </div>
-                <p className="text-[12.5px] font-manrope text-text-dim mb-8">
-                  {billing === 'anual' ? 'Equivale a R$ 16,49 por mês · Economize R$ 40,90 no plano anual.' : 'Cobrança mensal · cancele quando quiser.'}
-                </p>
-                <button
-                  onClick={() => handleCheckout(raizKey)}
-                  disabled={checkoutLoading === raizKey}
-                  className="w-full py-3.5 rounded-xl border border-gold/35 text-gold-light/90 hover:text-gold-light hover:bg-gold/[0.08] hover:border-gold/55 font-manrope font-bold uppercase text-[11px] tracking-[0.18em] transition-all duration-500 mb-9 disabled:opacity-50"
-                >
-                  {checkoutLoading === raizKey ? 'Abrindo…' : 'Escolher Criador'}
-                </button>
-
-                <div className="space-y-7">
-                  <div>
-                    <p className="font-manrope font-semibold uppercase tracking-[0.26em] text-[9.5px] text-gold-champagne/70 mb-3">Construção</p>
-                    <CheckList items={['Mundos ilimitados', 'Os 11 Frutos do Worldbuilding', 'Codex ilimitado (fichas e artigos)', 'Linha do Tempo completa', 'Galeria de Referências']} />
-                  </div>
-                  <div>
-                    <p className="font-manrope font-semibold uppercase tracking-[0.26em] text-[9.5px] text-gold-champagne/70 mb-3">Escrita e saída</p>
-                    <CheckList items={['Manuscritos ilimitados', 'Exportação em PDF de Manuscritos, Fichas e Artigos', 'Corretor textual AI Powered (entende contexto)']} />
-                  </div>
-                  <div>
-                    <p className="font-manrope font-semibold uppercase tracking-[0.26em] text-[9.5px] text-gold-champagne/70 mb-3">Experimentação</p>
-                    <CheckList items={['5 gotas de Elixir no 1º mês (para experimentar a Idriel)']} />
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-
+          <div className="grid grid-cols-1 max-w-[620px] mx-auto items-start">
             {/* IDRIEL */}
             <Reveal delay={0.12}>
-              <div className="relative lg:scale-[1.03] lg:origin-top">
+              <div className="relative">
                 <div
                   aria-hidden
                   className="absolute -inset-10 -z-10 blur-[70px] pointer-events-none"
@@ -1325,17 +1279,17 @@ const LandingPage: React.FC = () => {
                   }}
                 >
                   <div className="absolute -top-3 left-10 px-3.5 py-1 rounded-full bg-gold text-background text-[9.5px] font-manrope font-bold uppercase tracking-[0.16em]">
-                    Experiência Completa
+                    Plano único
                   </div>
                   <p className="font-manrope font-semibold uppercase tracking-[0.26em] text-[9.5px] text-gold-champagne/70 mb-5">
-                    Para quem quer uma guardiã que conhece o mundo inteiro
+                    Um plano só. A Árvore inteira.
                   </p>
                   <div className="flex items-center gap-2.5 mb-3">
                     <Crown className="w-5 h-5 text-gold-champagne" strokeWidth={1.5} />
-                    <h3 className="font-cinzel font-bold text-2xl text-gold-light">Idriel</h3>
+                    <h3 className="font-cinzel font-bold text-2xl text-gold-light">A Árvore dos Mundos</h3>
                   </div>
                   <p className="font-merriweather italic text-text-dim text-[13.5px] leading-[1.8] mb-7 max-w-[42ch]">
-                    Toda a plataforma acompanhada por uma assistente que conhece seu mundo.
+                    Toda a plataforma, sem níveis nem recursos bloqueados — e Idriel, a guardiã que conhece o seu mundo, ao seu lado.
                   </p>
                   <div className="mb-1.5">
                     <span className="font-cinzel font-bold text-[2.6rem] leading-none text-gold-light">{billing === 'mensal' ? 'R$ 39,90' : 'R$ 397,90'}</span>
@@ -1350,11 +1304,19 @@ const LandingPage: React.FC = () => {
                     className="w-full py-3.5 rounded-xl font-manrope font-bold uppercase text-[11px] tracking-[0.18em] text-[#1a0f00] transition-all duration-500 mb-9 disabled:opacity-50 hover:-translate-y-[2px]"
                     style={goldButtonStyle}
                   >
-                    {checkoutLoading === idrielKey ? 'Abrindo…' : 'Continuar com Idriel'}
+                    {checkoutLoading === idrielKey ? 'Abrindo…' : 'Começar agora'}
                   </button>
 
-                  <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne mb-6">Tudo do Criador, mais:</p>
+                  <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne mb-6">Tudo incluso:</p>
                   <div className="space-y-7">
+                    <div>
+                      <p className="font-manrope font-semibold uppercase tracking-[0.26em] text-[9.5px] text-gold-champagne/70 mb-3">Construção</p>
+                      <CheckList items={['Mundos ilimitados', 'Os 11 Frutos do Worldbuilding', 'Codex ilimitado (fichas e artigos)', 'Linha do Tempo completa', 'Galeria de Referências']} />
+                    </div>
+                    <div>
+                      <p className="font-manrope font-semibold uppercase tracking-[0.26em] text-[9.5px] text-gold-champagne/70 mb-3">Escrita e saída</p>
+                      <CheckList items={['Manuscritos ilimitados', 'Storyline com Mural de Arcos', 'Exportação em PDF, Word e E-pub/Kindle', 'Corretor textual AI Powered (entende contexto)']} />
+                    </div>
                     <div>
                       <p className="font-manrope font-semibold uppercase tracking-[0.26em] text-[9.5px] text-gold-champagne/70 mb-3">A Guardiã</p>
                       <CheckList items={['Idriel — assistente contextual de worldbuilding', 'Sugestões personalizadas em cada Fruto', 'Histórico de sugestões', 'Resumos para fichas e artigos']} />
