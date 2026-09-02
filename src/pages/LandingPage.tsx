@@ -1653,7 +1653,23 @@ const LandingPage: React.FC = () => {
           </div>
         </Shell>
       </footer>
+
+      {/* ================= CTA fixo (mobile) ================= */}
+      <div
+        className={`sm:hidden fixed bottom-0 inset-x-0 z-40 px-4 pb-4 pt-3 transition-all duration-500 ${
+          scrolled ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'
+        }`}
+        style={{ background: 'linear-gradient(to top, #02070d 55%, rgba(2,7,13,0))' }}
+      >
+        <a href="#planos" className={`${goldButton} w-full justify-center !py-3`} style={goldButtonStyle}>
+          <Crown className="w-4 h-4" strokeWidth={2} /> Criar meu mundo
+        </a>
+        <p className="text-center text-[10px] font-manrope text-text-dim mt-2">
+          R$ 39,90/mês · Cancele quando quiser
+        </p>
+      </div>
     </div>
+
   );
 };
 
