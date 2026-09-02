@@ -549,7 +549,7 @@ const LandingPage: React.FC = () => {
                 href="#tour"
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-gold-warm/30 bg-[rgba(2,7,13,0.45)] backdrop-blur-md text-gold-champagne hover:bg-gold/[0.08] hover:border-gold-warm/50 font-manrope font-bold uppercase text-[11px] tracking-[0.2em] transition-all duration-500"
               >
-                <Play className="w-3.5 h-3.5" strokeWidth={2.25} /> Ver a plataforma por dentro
+                <Play className="w-3.5 h-3.5" strokeWidth={2.25} /> Assistir ao trailer
               </a>
             </div>
 
