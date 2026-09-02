@@ -6,7 +6,7 @@ import {
   Sparkles, Leaf, Crown, BookOpen, Library, Image as ImageIcon,
   Feather, ShieldCheck, ArrowRight, LogIn, Check, Play,
   FileText, Layers, Upload, Lock, Quote, Droplet,
-  ChevronDown, Trees, Star, FileDown, Brain, Timer,
+  ChevronDown, Trees, Star, FileDown, Brain, Timer, Users,
 } from 'lucide-react';
 import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
