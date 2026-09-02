@@ -20,4 +20,4 @@
 ## Páginas de venda
 - [x] `/planos`: card único com toggle mensal/anual
 - [x] `/` LandingPage: seção de planos com card único
-- [ ] `/` LandingPage: aplicar a nova copy V4 completa (18 seções)
+- [x] `/` LandingPage: copy V4 aplicada (hero, prova, dor, Frutos, Codex, Idriel, análise, visões, escrita, importação, casos de uso, segurança, oferta, Elixir, FAQ, CTA final)

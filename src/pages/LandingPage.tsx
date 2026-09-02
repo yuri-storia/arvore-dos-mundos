@@ -6,7 +6,7 @@ import {
   Sparkles, Leaf, Crown, BookOpen, Library, Image as ImageIcon,
   Feather, ShieldCheck, ArrowRight, LogIn, Check, Play,
   FileText, Layers, Upload, Lock, Quote, Droplet,
-  ChevronDown, Trees, Star, FileDown, Brain, Timer,
+  ChevronDown, Trees, Star, FileDown, Brain, Timer, Users,
 } from 'lucide-react';
 import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
@@ -518,32 +518,31 @@ const LandingPage: React.FC = () => {
             className="text-center"
           >
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold-warm/30 bg-[rgba(4,12,24,0.45)] backdrop-blur-md text-[10px] font-manrope font-bold uppercase tracking-[0.28em] text-gold-champagne/90">
-              <Sparkles className="w-3 h-3" strokeWidth={1.75} /> Mais de 1.500 exemplares vendidos
+              <Sparkles className="w-3 h-3" strokeWidth={1.75} /> Criação de mundos • Escrita • Idriel
             </span>
 
             <h1
               className="font-cinzel font-bold text-[clamp(1.9rem,4vw,3.1rem)] leading-[1.16] tracking-[-0.01em] mt-10 mb-8 mx-auto max-w-[19ch]"
               style={{ textShadow: '0 2px 28px rgba(2,7,13,0.95), 0 1px 8px rgba(2,7,13,0.85)' }}
             >
-              Crie Mundos Fantásticos com a{' '}
-              <span className="text-gradient-gold-hero">Plataforma Definitiva</span>{' '}
-              de Worldbuilding.
+              Plante Ideias.<br />
+              <span className="text-gradient-gold-hero">Cultive Mundos.</span><br />
+              Colha Histórias.
             </h1>
 
             <p
               className="font-manrope text-[16.5px] sm:text-[18px] text-foreground/90 font-medium leading-[1.85] mb-11 max-w-[56ch] mx-auto"
               style={{ textShadow: '0 2px 20px rgba(2,7,13,0.95), 0 1px 6px rgba(2,7,13,0.9)' }}
             >
-              Construa universos profundos com os <strong className="text-gold-champagne font-semibold">11 Frutos do Worldbuilding</strong>,
-              organize tudo em um <strong className="text-gold-champagne font-semibold">Codex vivo</strong> com linha do tempo, mapas e galeria,
-              escreva seus manuscritos capítulo a capítulo e exporte em PDF, Word ou Kindle.
+              Junte num só lugar tudo o que vive na sua imaginação. Crie <strong className="text-gold-champagne font-semibold">povos, lugares e personagens</strong>,
+              aprofunde seu universo com <strong className="text-gold-champagne font-semibold">Idriel</strong> e escreva sem perder o fio da história.
             </p>
 
 
             <div className="flex flex-wrap gap-3 justify-center">
               <a href="#planos" className={goldButton} style={goldButtonStyle}>
                 <Crown className="w-4 h-4" strokeWidth={2} />
-                Começar agora
+                Criar meu mundo
                 <ArrowRight className="w-3.5 h-3.5 transition-transform duration-500 group-hover:translate-x-1" strokeWidth={2.25} />
               </a>
               <a
@@ -558,7 +557,7 @@ const LandingPage: React.FC = () => {
               className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2 mt-8 text-[11px] font-manrope text-text-dim tracking-[0.04em]"
               style={{ textShadow: '0 1px 10px rgba(2,7,13,0.85)' }}
             >
-              <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne/80" strokeWidth={2} /> Acesso completo desde o 1º minuto</span>
+              <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne/80" strokeWidth={2} /> Acesso completo à Árvore dos Mundos</span>
               <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne/80" strokeWidth={2} /> Cancele a qualquer momento</span>
               <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne/80" strokeWidth={2} /> Seus conteúdos continuam&nbsp; sendo seus</span>
             </div>
@@ -602,8 +601,8 @@ const LandingPage: React.FC = () => {
             <div>
               <SectionHead
                 eyebrow="Primeiros mundos"
-                title="Mundos que já começaram a criar raízes dentro da plataforma."
-                lede="Primeiros usuários que estão construindo seus universos dentro da Árvore dos Mundos."
+                title="Quando tudo encontra seu lugar, criar fica mais leve."
+                lede="Quem constrói mundos há muito tempo conhece a sensação de ter coisa demais na cabeça e espalhada em todo canto. A diferença aparece quando as ideias começam a se encontrar e fazer sentido como um todo."
               />
               <PlatformTestimonials />
             </div>
@@ -611,8 +610,8 @@ const LandingPage: React.FC = () => {
             <div>
               <SectionHead
                 eyebrow="Quem já plantou"
-                title="Antes de virar plataforma, a Árvore já ajudava escritores a construir mundos."
-                lede="Estes depoimentos referem-se ao e-book e à metodologia original da Árvore dos Mundos."
+                title="A Árvore dos Mundos já criava raízes antes de virar plataforma."
+                lede="Antes de virar software, a Árvore já era o Guia Definitivo do Worldbuilding. Mais de 1.500 pessoas compraram produtos ligados a esse universo — e agora o método ganhou um lugar próprio para ser usado enquanto você cria."
               />
               <EbookTestimonials />
 
@@ -679,8 +678,8 @@ const LandingPage: React.FC = () => {
         <Shell>
           <SectionHead
             eyebrow="O ponto de partida"
-            title={<>Você não tem falta de ideias. Tem ideias demais vivendo em <span className="text-gold-champagne">lugares diferentes</span>.</>}
-            lede="Um personagem em um documento. A religião de um povo em uma anotação antiga. O mapa em uma pasta. A linha do tempo em uma planilha. O mundo se expande — mas a história não avança."
+            title={<>Seu mundo não cabe em <span className="text-gold-champagne">dez arquivos diferentes</span>.</>}
+            lede="Um personagem no Docs. O mapa numa pasta. Uma ideia no celular. A cronologia naquela planilha que você jurava que estava organizada. E aquela ideia ótima que apareceu de madrugada? Você sabe que anotou. Só não sabe onde."
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-[980px] mx-auto items-stretch">
@@ -706,7 +705,7 @@ const LandingPage: React.FC = () => {
 
           <Reveal delay={0.1}>
             <p className="font-merriweather italic text-text-dim leading-[1.9] mt-10 max-w-[58ch] mx-auto text-center">
-              A Árvore dos Mundos reúne esse processo em um único ambiente: da construção do universo à escrita do manuscrito.
+              Quanto mais o mundo cresce, mais fácil é se perder dentro dele. A Árvore põe cada coisa no lugar sem engessar sua criação — para você enxergar o que existe, o que se conecta e o que ainda falta. Tudo começa a caber no mesmo mundo.
             </p>
           </Reveal>
         </Shell>
@@ -719,8 +718,8 @@ const LandingPage: React.FC = () => {
           <SectionHead
             eyebrow="Os 11 Frutos"
             Icon={Trees}
-            title="Você não precisa construir um universo diante de uma página vazia."
-            lede="Muitos criadores sabem que desejam construir um mundo profundo, mas não sabem qual pergunta fazer primeiro. Os 11 Frutos organizam as grandes dimensões do worldbuilding e mostram o que ainda pode ser desenvolvido."
+            title="Comece por onde a imaginação puxar."
+            lede="Um povo. Uma cidade. Uma guerra. Uma criatura. Um sistema de magia. Não existe uma ordem certa para começar. Os 11 Frutos ajudam você a explorar cada lado do universo sem transformar a criação num formulário infinito."
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
@@ -736,7 +735,7 @@ const LandingPage: React.FC = () => {
                   ]}
                 />
                 <p className="font-merriweather italic text-text-dim text-sm leading-[1.9] mt-7 pt-6 border-t border-gold/[0.10]">
-                  Você pode começar por onde fizer mais sentido. Não existe obrigação de preencher tudo. Não existe uma ordem única.
+                  Você começa pelo que está vivo na cabeça. A Árvore mostra caminhos para desenvolver o resto.
                 </p>
               </Panel>
             </Reveal>
@@ -808,8 +807,8 @@ const LandingPage: React.FC = () => {
           <SectionHead
             eyebrow="Codex"
             Icon={Library}
-            title="Cada personagem, lugar e descoberta encontra seu lugar."
-            lede="Um universo cresce por meio de relações: personagens pertencem a povos, povos ocupam territórios, religiões influenciam conflitos. O Codex reúne cada uma dessas partes dentro do mundo ao qual pertencem."
+            title="Um mundo ganha vida quando uma coisa se conecta com a outra."
+            lede="Uma religião muda costumes. Um rio muda rotas. Uma guerra muda preços, fronteiras e famílias. Um segredo muda um personagem. No Codex, você deixa de guardar fichas isoladas e passa a enxergar como cada parte mexe com as outras."
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
@@ -887,9 +886,9 @@ const LandingPage: React.FC = () => {
         <Shell>
           <Reveal className="text-center mb-16 sm:mb-20">
             <Eyebrow Icon={Feather}>Idriel</Eyebrow>
-            <p className="font-cinzel text-[clamp(1.6rem,3.4vw,2.7rem)] leading-[1.32] text-foreground max-w-[22ch] mx-auto">
-              Conheça <span className="text-gradient-gold-hero">Idriel</span>,<br className="hidden sm:block" />{' '}
-              a Protetora da Árvore dos Mundos.
+            <p className="font-cinzel text-[clamp(1.6rem,3.4vw,2.7rem)] leading-[1.32] text-foreground max-w-[26ch] mx-auto">
+              <span className="text-gradient-gold-hero">Idriel</span> conhece o seu mundo.<br className="hidden sm:block" />{' '}
+              E ajuda você a enxergar o que pode ter passado batido.
             </p>
           </Reveal>
         </Shell>
@@ -938,12 +937,27 @@ const LandingPage: React.FC = () => {
             <Reveal delay={0.12}>
               <Panel>
                 <Title className="mb-5">
-                  Uma inteligência que conhece seu mundo — sem tomar o lugar de quem o criou.
+                  Uma inteligência que lê o seu mundo — sem tomar o lugar de quem o criou.
                 </Title>
                 <Lede>
-                  Idriel é a assistente de worldbuilding da Árvore dos Mundos. Ela não existe para escrever o livro por você.
-                  Ela existe para ajudar você a enxergar melhor o mundo que está construindo.
+                  Conheça Idriel, a Guardiã da Árvore dos Mundos. Ela lê os personagens, povos, lugares, acontecimentos e regras
+                  que você criou e cruza essas informações para encontrar relações, contradições e perguntas que fazem o universo crescer.
+                  Você pergunta sobre o seu universo, e ela responde levando em conta aquilo que já existe nele.
                 </Lede>
+                <div className="mt-6 space-y-2.5">
+                  {[
+                    'Existe alguma contradição na história deste reino?',
+                    'O que mudaria nesta cidade se o rio secasse?',
+                    'Esse personagem realmente teria motivos para acreditar nessa religião?',
+                  ].map(q => (
+                    <p
+                      key={q}
+                      className="font-merriweather italic text-[13.5px] text-text-secondary leading-[1.8] pl-4 border-l border-gold/25"
+                    >
+                      “{q}”
+                    </p>
+                  ))}
+                </div>
                 <CheckList
                   className="mt-7 pt-7 border-t border-gold/[0.10]"
                   columns={2}
@@ -961,7 +975,7 @@ const LandingPage: React.FC = () => {
                   Idriel sugere. Você decide. Você escreve.
                 </p>
                 <p className="font-merriweather italic text-text-dim text-sm leading-[1.9] mt-3 max-w-[54ch]">
-                  A voz continua sendo sua. As escolhas continuam sendo suas. A autoria continua sendo sua.
+                  Idriel não escreve a sua história por você: ela ajuda você a pensar melhor sobre uma história que continua sendo sua.
                 </p>
               </Panel>
             </Reveal>
@@ -974,10 +988,11 @@ const LandingPage: React.FC = () => {
               <Panel soft className="h-full flex flex-col justify-center">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Brain className="w-4 h-4 text-gold-champagne/80" strokeWidth={1.6} />
-                  <h3 className="font-cinzel font-bold text-lg">Análise de Mundo</h3>
+                  <h3 className="font-cinzel font-bold text-lg">Enxergue o que está faltando</h3>
                 </div>
                 <p className="font-manrope text-[14.5px] text-text-secondary leading-[1.85] mb-6 max-w-[54ch]">
-                  Idriel pode analisar o contexto construído e apresentar:
+                  Idriel olha para o conjunto e ajuda você a encontrar o que não fecha na cronologia,
+                  relações que ficaram soltas e consequências que deveriam existir — antes que isso vire um furo na história:
                 </p>
                 <div className="flex flex-wrap gap-2.5">
                   {['Pontos fortes', 'Lacunas', 'Inconsistências', 'Furos narrativos', 'Oportunidades', 'Recomendações de aprofundamento'].map(t => (
@@ -1016,8 +1031,8 @@ const LandingPage: React.FC = () => {
         <Shell>
           <SectionHead
             eyebrow="O ofício completo"
-            title="Do planejamento à escrita, sem abandonar o seu mundo."
-            lede="Um mundo só ganha vida quando começa a afetar escolhas, conflitos, cenas e personagens. Por isso a Árvore reúne construção, organização e escrita dentro do mesmo ambiente."
+            title="Na hora de escrever, seu mundo não fica para trás."
+            lede="Escreva capítulos e organize Storylines com o Codex por perto. Precisa lembrar onde um personagem nasceu, quem venceu uma guerra ou como funciona aquela religião? Consulte e volte ao texto sem sair caçando informação em outras abas. Menos tempo procurando, mais tempo escrevendo."
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8 items-stretch">
@@ -1095,8 +1110,8 @@ const LandingPage: React.FC = () => {
           <SectionHead
             eyebrow="Visões de Idriel"
             Icon={ImageIcon}
-            title="Imagens nascidas dentro do seu próprio mundo."
-            lede="Todas as imagens abaixo foram geradas dentro da plataforma, a partir de fichas, artigos e cenas registradas no Codex — e arquivadas automaticamente na Galeria."
+            title="Visualize os seus personagens. Enxergue os lugares que só existiam na sua cabeça."
+            lede="Use o que já existe no seu mundo para criar imagens de personagens, lugares e criaturas. Teste caminhos visuais, descubra detalhes e dê mais corpo ao que você já criou — tudo arquivado automaticamente na Galeria."
           />
           <Reveal>
             <VisionsCarousel items={PLATFORM_VISIONS} />
@@ -1113,8 +1128,8 @@ const LandingPage: React.FC = () => {
             <SectionHead
               eyebrow="Importação inteligente"
               Icon={Upload}
-              title="Você não precisa começar outra vez."
-              lede="Talvez seu mundo já exista há anos — em documentos, resumos, rascunhos e anotações. Você envia seus textos e Idriel identifica elementos que podem se transformar em fichas e artigos."
+              title="Já começou seu mundo? Você não precisa começar do zero."
+              lede="Traga resumos, fichas, documentos e anotações que você já criou. Idriel ajuda a identificar personagens, lugares, objetos, organizações e acontecimentos — você revisa o que foi encontrado e leva esse material para o Codex."
             />
             <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-6 lg:gap-8 items-stretch">
               <Reveal className="h-full">
@@ -1162,7 +1177,7 @@ const LandingPage: React.FC = () => {
                   </div>
 
                   <p className="font-manrope text-[13.5px] text-text-dim leading-[1.9] mt-auto pt-7">
-                    Seu trabalho anterior não precisa ser descartado para que você comece a utilizar a plataforma.
+                    Seu trabalho antigo não vira peso. Vira ponto de partida.
                   </p>
                 </Panel>
               </Reveal>
@@ -1172,14 +1187,42 @@ const LandingPage: React.FC = () => {
         </Band>
       )}
 
+      {/* ============================== 10. CASOS DE USO ==================== */}
+      <Band tone="mist">
+        <Shell>
+          <SectionHead
+            eyebrow="Casos de uso"
+            Icon={Users}
+            title="Para quem não consegue olhar para uma história sem imaginar o mundo por trás."
+            lede="A Árvore encontra lugar em qualquer criação que dependa de um universo coerente."
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 lg:gap-6 items-stretch">
+            {[
+              { Icon: Feather, title: 'Quem escreve fantasia', desc: 'Tenha o universo por perto enquanto planeja, escreve e revisa sua história.' },
+              { Icon: Trees, title: 'Quem cria mundos', desc: 'Crie porque você gosta de criar. Explore povos, lugares, mitologias e tudo o que pode existir além da história.' },
+              { Icon: Layers, title: 'Mestres de RPG', desc: 'Mantenha cenários, povos, NPCs, conflitos e acontecimentos organizados sem perder o fio da campanha.' },
+            ].map((c, i) => (
+              <Reveal key={c.title} delay={i * 0.07} className="h-full">
+                <Panel soft className="h-full">
+                  <c.Icon className="w-5 h-5 text-gold-champagne/75 mb-4" strokeWidth={1.4} />
+                  <h3 className="font-cinzel font-bold text-[15px] mb-2.5 leading-snug">{c.title}</h3>
+                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">{c.desc}</p>
+                </Panel>
+              </Reveal>
+            ))}
+          </div>
+        </Shell>
+      </Band>
+
       {/* ============================== 9. SEGURANÇA ======================== */}
       <Band tone="deep">
         <Shell>
           <SectionHead
             eyebrow="Segurança"
             Icon={ShieldCheck}
-            title="Suas ideias pertencem a você. E continuarão pertencendo."
-            lede="Personagens, mapas, sistemas, culturas e manuscritos ainda não publicados não são apenas dados — são propriedade intelectual. Segurança e privacidade são compromissos do produto."
+            title="Seu mundo é seu. Do começo ao fim."
+            lede="O que você escreve, organiza e desenvolve na Árvore continua sendo seu. A plataforma existe para ajudar a cuidar da criação — não para tomar posse dela."
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6 items-stretch">
@@ -1227,9 +1270,10 @@ const LandingPage: React.FC = () => {
         <Shell>
           <Reveal className="text-center mb-14">
             <Eyebrow>Planos</Eyebrow>
-            <Title>Como você deseja cultivar seus mundos?</Title>
+            <Title>Uma assinatura. A Árvore inteira.</Title>
             <p className="font-manrope text-[15px] text-text-secondary max-w-[58ch] mx-auto leading-[1.9] mt-5">
-              Organização, análise, formatação e suporte visual em um só lugar: <strong className="text-foreground font-semibold">escolha como será a sua experiência</strong> com a Árvore dos Mundos.
+              Você não precisa escolher qual pedaço da Árvore quer usar. A assinatura libera a experiência completa:{' '}
+              <strong className="text-foreground font-semibold">Frutos, Codex, manuscritos, Idriel, análises, imagens, importação e exportação</strong>.
             </p>
           </Reveal>
 
@@ -1296,7 +1340,7 @@ const LandingPage: React.FC = () => {
                     <span className="text-text-secondary text-sm font-manrope ml-1.5">{billing === 'mensal' ? '/mês' : '/ano'}</span>
                   </div>
                   <p className="text-[12.5px] font-manrope text-text-dim mb-8">
-                    {billing === 'anual' ? 'Equivale a R$ 33,15 por mês · Economize R$ 80,90 no plano anual.' : 'Cobrança mensal · cancele quando quiser.'}
+                    {billing === 'anual' ? 'Equivale a R$ 33,15 por mês · Economize R$ 80,90 escolhendo o anual.' : 'Cobrança mensal · cancele quando quiser.'}
                   </p>
                   <button
                     onClick={() => handleCheckout(idrielKey)}
@@ -1304,7 +1348,7 @@ const LandingPage: React.FC = () => {
                     className="w-full py-3.5 rounded-xl font-manrope font-bold uppercase text-[11px] tracking-[0.18em] text-[#1a0f00] transition-all duration-500 mb-9 disabled:opacity-50 hover:-translate-y-[2px]"
                     style={goldButtonStyle}
                   >
-                    {checkoutLoading === idrielKey ? 'Abrindo…' : 'Começar agora'}
+                    {checkoutLoading === idrielKey ? 'Abrindo…' : 'Começar meu mundo'}
                   </button>
 
                   <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne mb-6">Tudo incluso:</p>
@@ -1344,10 +1388,11 @@ const LandingPage: React.FC = () => {
             <div className="flex items-start gap-4 mb-6">
               <Droplet className="w-5 h-5 text-gold-champagne/80 mt-1 shrink-0" strokeWidth={1.4} />
               <div>
-                <h3 className="font-cinzel font-bold text-lg mb-2.5">Como funciona o Elixir dos Mundos?</h3>
+                <h3 className="font-cinzel font-bold text-lg mb-2.5">Use a IA quando fizer sentido. Recarregue quando precisar.</h3>
                 <p className="font-manrope text-[14px] text-text-secondary leading-[1.9] max-w-[64ch]">
-                  As gotas são utilizadas somente em ações que envolvem inteligência artificial. Antes de confirmar qualquer
-                  ação, você vê quantas gotas serão consumidas. Os recursos tradicionais continuam disponíveis mesmo quando as gotas acabam.
+                  Algumas ações de Idriel — como análises, imagens e importações — usam gotas do Elixir. Todo mês, sua
+                  assinatura recebe 150 gotas. Quando elas acabarem, o resto da Árvore continua funcionando normalmente.
+                  Quer usar mais Idriel naquele mês? Recarregue. Não quer? Siga criando. Sem precisar trocar de plano.
                 </p>
               </div>
             </div>
@@ -1381,7 +1426,7 @@ const LandingPage: React.FC = () => {
                     </div>
                   ))}
                   <p className="col-span-2 sm:col-span-5 text-[11.5px] font-merriweather italic text-text-dim text-center mt-1">
-                    Recargas disponíveis para assinantes Idriel.
+                    Recargas disponíveis para assinantes da Árvore dos Mundos.
                   </p>
                 </div>
               )}
@@ -1403,58 +1448,59 @@ const LandingPage: React.FC = () => {
 
             {[
               {
-                q: 'Idriel escreve meu livro por mim?',
-                a: 'Não. Idriel é uma assistente de worldbuilding. Ela pode fazer perguntas, sugerir caminhos, identificar inconsistências e ajudar você a organizar suas descobertas. As decisões, a escrita, a voz e a autoria continuam sendo suas.',
+                q: 'A IA escreve minha história por mim?',
+                a: 'Não — e essa não é a proposta. Idriel analisa, pergunta, sugere e ajuda você a desenvolver o que já é seu. A decisão criativa continua com você.',
               },
               {
-                q: 'Preciso utilizar inteligência artificial?',
-                a: 'Não. O plano Raiz oferece acesso à plataforma completa sem Idriel. Você pode construir, organizar e escrever seus mundos utilizando apenas os recursos tradicionais.',
+                q: 'Preciso usar inteligência artificial para usar a Árvore?',
+                a: 'Não. Você pode usar Codex, manuscritos e ferramentas de organização sem acionar a IA. As gotas só são usadas quando você escolhe uma ação inteligente específica.',
               },
               {
-                q: 'Meus conteúdos são usados para treinar inteligência artificial?',
-                a: 'A Árvore dos Mundos não utiliza seus manuscritos, personagens e mundos como material próprio para treinar modelos. Quando você solicita uma ação de Idriel, o contexto necessário pode ser processado pelos serviços tecnológicos integrados, conforme nossa Política de Privacidade.',
+                q: 'O que acontece quando minhas gotas acabam?',
+                a: 'A Árvore continua funcionando. Se quiser fazer novas análises, gerar imagens ou usar outras ações de Idriel, basta recarregar o Elixir.',
               },
               {
-                q: 'Minhas ideias ficam protegidas?',
-                a: 'A plataforma utiliza autenticação, políticas de acesso e isolamento por usuário. Cada conta deve acessar apenas os conteúdos aos quais possui autorização. Também disponibilizamos uma página específica explicando os compromissos de segurança e privacidade.',
+                q: 'Posso trazer um mundo que já comecei?',
+                a: 'Sim. Você pode trazer documentos, resumos e anotações para não precisar reconstruir seu mundo do zero. Idriel ajuda a identificar personagens, lugares, organizações e acontecimentos, e você decide o que vai para o Codex.',
               },
               {
-                q: 'Posso exportar o que criei?',
-                a: 'Sim. As exportações disponíveis incluem PDF, Word e formatos compatíveis com Kindle, conforme o tipo de conteúdo e os recursos ativos na plataforma.',
+                q: 'Posso exportar meu trabalho?',
+                a: 'Sim. Você pode exportar seu conteúdo nos formatos disponíveis na plataforma — PDF, Word e formatos compatíveis com Kindle, conforme o tipo de conteúdo.',
               },
               {
-                q: 'O que acontece quando o teste termina?',
-                a: 'Nenhum mundo é apagado. Seus conteúdos permanecem salvos. Para continuar utilizando a plataforma, você escolhe entre Raiz e Idriel.',
+                q: 'A Árvore serve para RPG?',
+                a: 'Sim. Mestres podem organizar cenários, povos, NPCs, acontecimentos, conflitos e relações do mesmo universo.',
               },
               {
-                q: 'O que acontece se eu cancelar?',
-                a: 'Você continua com acesso até o fim do período já pago. Depois disso, poderá escolher outro plano ou reativar sua assinatura. Os detalhes sobre armazenamento, retenção e acesso após cancelamento são descritos nos termos.',
+                q: 'Serve somente para fantasia?',
+                a: 'A Árvore foi criada com fantasia e worldbuilding no centro, mas a estrutura também pode ser usada para outros tipos de universo ficcional: ficção científica, distopia, fantasia urbana, horror e história alternativa.',
               },
               {
                 q: 'Preciso preencher todos os 11 Frutos?',
                 a: 'Não. Você pode começar por qualquer Fruto, avançar no próprio ritmo e desenvolver apenas o que fizer sentido para a história.',
               },
               {
-                q: 'A plataforma serve apenas para fantasia?',
-                a: 'Não. A Árvore dos Mundos pode ser utilizada para fantasia, ficção científica, distopia, fantasia urbana, horror, história alternativa, RPG e outras narrativas que dependam de um universo consistente.',
+                q: 'Tudo o que eu criar continua sendo meu?',
+                a: 'Sim. O que você cria na Árvore continua sendo seu. A plataforma não reivindica autoria sobre personagens, histórias, sistemas, mapas ou manuscritos criados por você.',
               },
               {
-                q: 'Posso usar um mundo que já comecei fora da plataforma?',
-                a: 'Sim. Você pode inserir conteúdos manualmente, importar fichas e artigos entre mundos e, no plano Idriel, utilizar a importação inteligente de textos e documentos.',
+                q: 'Meus textos são usados para treinar modelos de IA?',
+                a: 'A Árvore dos Mundos não utiliza seus manuscritos, personagens e mundos como material próprio para treinar modelos. Quando você solicita uma ação de Idriel, o contexto necessário é processado pelos serviços integrados apenas para executar aquela ação, conforme a Política de Privacidade.',
               },
               {
-                q: 'Posso criar mais de um mundo?',
-                a: 'Sim. Os planos Raiz e Idriel oferecem mundos ilimitados.',
+                q: 'Minhas ideias ficam protegidas?',
+                a: 'A plataforma utiliza autenticação, políticas de acesso e isolamento por usuário: mundos privados não ficam expostos a outras contas. Também mantemos uma página específica com os compromissos de segurança e privacidade.',
               },
               {
-                q: 'Como funcionam as gotas?',
-                a: 'As gotas de Elixir dos Mundos são consumidas apenas em ações que envolvem inteligência artificial. O custo aparece antes da confirmação. O plano Idriel recebe 150 gotas por mês e permite comprar recargas.',
+                q: 'Como funciona o cancelamento?',
+                a: 'Você pode cancelar quando quiser. A renovação é interrompida e o acesso continua até o fim do período já pago; depois disso, seus conteúdos permanecem salvos em modo somente leitura até que você reative a assinatura.',
               },
               {
                 q: 'Posso excluir minha conta e meus dados?',
                 a: 'Sim. A plataforma oferece meios para exclusão da conta e dos conteúdos associados, conforme as regras informadas nos Termos de Uso e na Política de Privacidade.',
               },
             ].map((item, i) => (
+
               <AccordionItem key={i} value={`item-${i}`} className="border-gold/[0.10]">
                 <AccordionTrigger className="font-cinzel text-left text-[15px] py-6 hover:text-gold-light hover:no-underline transition-colors duration-500">
                   {item.q}
@@ -1484,16 +1530,17 @@ const LandingPage: React.FC = () => {
           <Reveal className="text-center max-w-[62ch] mx-auto">
             <Leaf className="w-9 h-9 mx-auto text-gold-champagne/80 mb-8" strokeWidth={1.1} />
             <h2 className="font-cinzel font-bold text-[clamp(1.8rem,3.6vw,2.8rem)] leading-[1.28] mb-7">
-              Seu mundo já existe dentro de você.<br className="hidden sm:block" />
-              Agora ele precisa de um lugar para <span className="text-gold-light">crescer</span>.
+              Seu mundo não precisa nascer pronto.<br className="hidden sm:block" />
+              Só precisa <span className="text-gold-light">começar</span>.
             </h2>
             <p className="font-manrope text-[15px] sm:text-base text-text-secondary leading-[1.9] mb-10 max-w-[56ch] mx-auto">
-              Plante a primeira semente. Organize o que já criou. Aprofunde as partes que ainda não conhece.
-              E transforme esse universo em uma história que possa ser escrita, revisada e compartilhada.
+              Plante uma ideia. Pode ser um personagem, uma cidade, uma guerra ou uma pergunta.
+              A Árvore ajuda você a dar corpo ao resto até que aquilo que estava só na sua cabeça vire um mundo
+              que você consegue ver, explorar e escrever.
             </p>
             <div className="flex flex-wrap gap-3 justify-center mb-7">
               <a href="#planos" className={goldButton} style={goldButtonStyle}>
-                <Crown className="w-4 h-4" strokeWidth={2} /> Criar meu primeiro mundo
+                <Crown className="w-4 h-4" strokeWidth={2} /> Criar meu mundo
               </a>
               <a
                 href="#tour"
@@ -1503,7 +1550,7 @@ const LandingPage: React.FC = () => {
               </a>
             </div>
             <p className="text-[11px] font-manrope tracking-[0.06em] text-text-dim">
-              Crie Mundos Fantásticos · Seus conteúdos continuam&nbsp; sendo seus
+              Árvore dos Mundos · R$ 39,90/mês · Cancele quando quiser
             </p>
             <p className="font-merriweather italic text-gold-champagne/90 mt-10">
               Onde mundos criam raízes e narrativas dão frutos.
