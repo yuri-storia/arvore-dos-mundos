@@ -405,9 +405,13 @@ const LandingPage: React.FC = () => {
               <span className="font-cinzel font-bold tracking-[0.06em] text-[13px] sm:text-sm">Árvore dos Mundos</span>
             </Link>
             <nav className="flex items-center gap-5 sm:gap-7">
+              <a href="#trailer" className="hidden md:inline font-manrope text-[13px] text-text-secondary hover:text-foreground transition-colors duration-300">
+                Trailer
+              </a>
               <a href="#tour" className="hidden md:inline font-manrope text-[13px] text-text-secondary hover:text-foreground transition-colors duration-300">
                 A plataforma
               </a>
+
               <a href="#idriel" className="hidden md:inline font-manrope text-[13px] text-text-secondary hover:text-foreground transition-colors duration-300">
                 Idriel
               </a>
@@ -546,10 +550,11 @@ const LandingPage: React.FC = () => {
                 <ArrowRight className="w-3.5 h-3.5 transition-transform duration-500 group-hover:translate-x-1" strokeWidth={2.25} />
               </a>
               <a
-                href="#tour"
+                href="#trailer"
+
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-gold-warm/30 bg-[rgba(2,7,13,0.45)] backdrop-blur-md text-gold-champagne hover:bg-gold/[0.08] hover:border-gold-warm/50 font-manrope font-bold uppercase text-[11px] tracking-[0.2em] transition-all duration-500"
               >
-                <Play className="w-3.5 h-3.5" strokeWidth={2.25} /> Ver a plataforma por dentro
+                <Play className="w-3.5 h-3.5" strokeWidth={2.25} /> Assistir ao trailer
               </a>
             </div>
 
@@ -594,26 +599,70 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
+      {/* ============================== 1b. TRAILER ========================= */}
+      <Band id="trailer" tone="deep" className="!py-20 sm:!py-24">
+        <Shell>
+          <Reveal className="text-center max-w-[56ch] mx-auto mb-10">
+            <Eyebrow Icon={Play}>O trailer</Eyebrow>
+            <Title>Veja a Árvore dos Mundos em movimento.</Title>
+            <p className="font-manrope text-[14.5px] text-text-secondary leading-[1.9] mt-4">
+              Um panorama rápido de como a plataforma organiza o seu universo — dos Frutos ao manuscrito.
+            </p>
+          </Reveal>
+
+          <Reveal delay={0.08}>
+            <div className="relative mx-auto w-[min(1040px,94vw)]">
+              <div
+                aria-hidden
+                className="absolute -inset-8 -z-10 blur-[70px] pointer-events-none"
+                style={{ background: 'radial-gradient(circle at 50% 40%, hsl(38 62% 45% / 0.22) 0%, transparent 70%)' }}
+              />
+              <figure className="relative rounded-2xl overflow-hidden border border-gold-warm/20 bg-[rgba(4,12,24,0.6)] shadow-[0_40px_120px_-50px_rgba(0,0,0,0.95)]">
+                <div className="relative aspect-video w-full bg-[#02070d]">
+                  {/* PLACEHOLDER — substituir pelo trailer oficial da Árvore dos Mundos */}
+                  <video
+                    src={heroVideo1080.url}
+                    poster={hero1600.url}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    disablePictureInPicture
+                    aria-label="Prévia em vídeo da Árvore dos Mundos"
+                  />
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0"
+                    style={{ background: 'radial-gradient(ellipse at center, transparent 35%, rgba(2,7,13,0.55) 100%)' }}
+                  />
+                  <span className="absolute top-4 left-4 inline-flex items-center gap-2 rounded-full border border-gold-warm/30 bg-[rgba(4,12,24,0.72)] backdrop-blur-md px-3 py-1.5 font-manrope font-bold uppercase tracking-[0.22em] text-[9px] text-gold-champagne">
+                    <Play className="w-3 h-3" strokeWidth={2.25} /> Trailer · prévia
+                  </span>
+                </div>
+              </figure>
+              <p className="font-merriweather italic text-[12.5px] text-text-dim text-center mt-4">
+                Espaço reservado para o trailer oficial — em produção.
+              </p>
+            </div>
+          </Reveal>
+        </Shell>
+      </Band>
+
       {/* ============================== 2. PROVAS =========================== */}
       <Band tone="deep">
         <Shell>
           <div className="space-y-20 sm:space-y-24">
             <div>
               <SectionHead
-                eyebrow="Primeiros mundos"
-                title="Quando tudo encontra seu lugar, criar fica mais leve."
-                lede="Quem constrói mundos há muito tempo conhece a sensação de ter coisa demais na cabeça e espalhada em todo canto. A diferença aparece quando as ideias começam a se encontrar e fazer sentido como um todo."
-              />
-              <PlatformTestimonials />
-            </div>
-
-            <div>
-              <SectionHead
                 eyebrow="Quem já plantou"
+                Icon={Star}
                 title="A Árvore dos Mundos já criava raízes antes de virar plataforma."
-                lede="Antes de virar software, a Árvore já era o Guia Definitivo do Worldbuilding. Mais de 1.500 pessoas compraram produtos ligados a esse universo — e agora o método ganhou um lugar próprio para ser usado enquanto você cria."
+                lede="Antes de virar software, a Árvore dos Mundos já era o Guia Definitivo do Worldbuilding para construir mundos com mais profundidade e coerência. Mais de 1.500 pessoas compraram produtos ligados a esse universo. Agora, o método ganhou um lugar próprio para ser usado enquanto você cria."
               />
               <EbookTestimonials />
+
 
               <Reveal delay={0.05} className="mt-12 sm:mt-14">
                 <Panel soft className="overflow-hidden">
@@ -994,6 +1043,19 @@ const LandingPage: React.FC = () => {
                   Idriel olha para o conjunto e ajuda você a encontrar o que não fecha na cronologia,
                   relações que ficaram soltas e consequências que deveriam existir — antes que isso vire um furo na história:
                 </p>
+                <ul className="space-y-2.5 mb-6">
+                  {[
+                    'O que não fecha na cronologia ou nas regras do mundo.',
+                    'Relações importantes que ficaram soltas.',
+                    'Consequências que deveriam existir — mas ainda não aparecem.',
+                    'Pontos do mundo que podem render conflito, profundidade e história.',
+                  ].map(t => (
+                    <li key={t} className="flex items-start gap-2.5 font-manrope text-[13.5px] text-text-secondary leading-[1.8]">
+                      <span className="mt-[7px] w-1.5 h-1.5 rounded-full bg-gold-champagne/80 shrink-0" />
+                      <span>{t}</span>
+                    </li>
+                  ))}
+                </ul>
                 <div className="flex flex-wrap gap-2.5">
                   {['Pontos fortes', 'Lacunas', 'Inconsistências', 'Furos narrativos', 'Oportunidades', 'Recomendações de aprofundamento'].map(t => (
                     <span key={t} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-gold/[0.14] bg-gold/[0.03] text-[12.5px] font-manrope text-text-secondary transition-colors duration-500 hover:border-gold/30">
@@ -1001,6 +1063,7 @@ const LandingPage: React.FC = () => {
                     </span>
                   ))}
                 </div>
+
                 <Shot src={shotAnalise.url} alt="Análise de Mundo feita por Idriel dentro do Codex" />
               </Panel>
             </Reveal>
@@ -1215,7 +1278,21 @@ const LandingPage: React.FC = () => {
         </Shell>
       </Band>
 
+      {/* ============================== 13. DEPOIMENTOS ===================== */}
+      <Band>
+        <Shell>
+          <SectionHead
+            eyebrow="Depoimentos"
+            Icon={Quote}
+            title="Quando tudo encontra seu lugar, criar fica mais leve."
+            lede="Quem constrói mundos há muito tempo conhece a sensação de ter coisa demais na cabeça e espalhada em todo canto. A diferença aparece quando as ideias começam a se encontrar, se conectar e fazer sentido como um todo."
+          />
+          <PlatformTestimonials />
+        </Shell>
+      </Band>
+
       {/* ============================== 9. SEGURANÇA ======================== */}
+
       <Band tone="deep">
         <Shell>
           <SectionHead
@@ -1576,7 +1653,23 @@ const LandingPage: React.FC = () => {
           </div>
         </Shell>
       </footer>
+
+      {/* ================= CTA fixo (mobile) ================= */}
+      <div
+        className={`sm:hidden fixed bottom-0 inset-x-0 z-40 px-4 pb-4 pt-3 transition-all duration-500 ${
+          scrolled ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'
+        }`}
+        style={{ background: 'linear-gradient(to top, #02070d 55%, rgba(2,7,13,0))' }}
+      >
+        <a href="#planos" className={`${goldButton} w-full justify-center !py-3`} style={goldButtonStyle}>
+          <Crown className="w-4 h-4" strokeWidth={2} /> Criar meu mundo
+        </a>
+        <p className="text-center text-[10px] font-manrope text-text-dim mt-2">
+          R$ 39,90/mês · Cancele quando quiser
+        </p>
+      </div>
     </div>
+
   );
 };
 
