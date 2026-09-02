@@ -20,28 +20,10 @@ export interface StripePlanDef {
 }
 
 export const STRIPE_PLANS: Record<string, StripePlanDef> = {
-  raiz_mensal: {
-    code: "raiz_mensal",
-    priceId: "price_1Tz2d6Pqftrc5bEYkZsmRCu5",
-    name: "Criador Mensal",
-    amount: 19.9,
-    kind: "subscription",
-    cycle: "monthly",
-    hasIdriel: false,
-  },
-  raiz_anual: {
-    code: "raiz_anual",
-    priceId: "price_1Tz2ffPqftrc5bEYVArxoa2i",
-    name: "Criador Anual",
-    amount: 197.9,
-    kind: "subscription",
-    cycle: "yearly",
-    hasIdriel: false,
-  },
   idriel_mensal: {
     code: "idriel_mensal",
     priceId: "price_1Tz2g4Pqftrc5bEYByZzhqfn",
-    name: "Idriel Mensal",
+    name: "Árvore dos Mundos Mensal",
     amount: 39.9,
     kind: "subscription",
     cycle: "monthly",
@@ -50,12 +32,13 @@ export const STRIPE_PLANS: Record<string, StripePlanDef> = {
   idriel_anual: {
     code: "idriel_anual",
     priceId: "price_1Tz2gSPqftrc5bEYb1vl2xBV",
-    name: "Idriel Anual",
+    name: "Árvore dos Mundos Anual",
     amount: 397.9,
     kind: "subscription",
     cycle: "yearly",
     hasIdriel: true,
   },
+
   fundador_mensal: {
     code: "fundador_mensal",
     priceId: "price_1Tz2g4Pqftrc5bEYByZzhqfn", // Idriel mensal

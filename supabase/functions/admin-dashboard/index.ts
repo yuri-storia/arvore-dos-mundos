@@ -98,7 +98,8 @@ Deno.serve(async (req) => {
         // Manually set a user's subscription. No payment is charged; the user can be billed
         // normally after expires_at.
         // body: { user_id, plan_code, duration_days? }
-        // plan_code: 'raiz_mensal'|'raiz_anual'|'idriel_mensal'|'idriel_anual'|'fundador_mensal'|'none'
+        // plan_code: 'idriel_mensal'|'idriel_anual'|'fundador_mensal'|'none'
+
         const targetId = body?.user_id as string;
         const planCode = body?.plan_code as string;
         const durationDays = Number(body?.duration_days ?? 0);
