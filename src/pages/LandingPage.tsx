@@ -994,6 +994,19 @@ const LandingPage: React.FC = () => {
                   Idriel olha para o conjunto e ajuda você a encontrar o que não fecha na cronologia,
                   relações que ficaram soltas e consequências que deveriam existir — antes que isso vire um furo na história:
                 </p>
+                <ul className="space-y-2.5 mb-6">
+                  {[
+                    'O que não fecha na cronologia ou nas regras do mundo.',
+                    'Relações importantes que ficaram soltas.',
+                    'Consequências que deveriam existir — mas ainda não aparecem.',
+                    'Pontos do mundo que podem render conflito, profundidade e história.',
+                  ].map(t => (
+                    <li key={t} className="flex items-start gap-2.5 font-manrope text-[13.5px] text-text-secondary leading-[1.8]">
+                      <span className="mt-[7px] w-1.5 h-1.5 rounded-full bg-gold-champagne/80 shrink-0" />
+                      <span>{t}</span>
+                    </li>
+                  ))}
+                </ul>
                 <div className="flex flex-wrap gap-2.5">
                   {['Pontos fortes', 'Lacunas', 'Inconsistências', 'Furos narrativos', 'Oportunidades', 'Recomendações de aprofundamento'].map(t => (
                     <span key={t} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-gold/[0.14] bg-gold/[0.03] text-[12.5px] font-manrope text-text-secondary transition-colors duration-500 hover:border-gold/30">
@@ -1001,6 +1014,7 @@ const LandingPage: React.FC = () => {
                     </span>
                   ))}
                 </div>
+
                 <Shot src={shotAnalise.url} alt="Análise de Mundo feita por Idriel dentro do Codex" />
               </Panel>
             </Reveal>
