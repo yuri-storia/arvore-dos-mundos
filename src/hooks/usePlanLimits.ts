@@ -46,26 +46,6 @@ const SEMENTE_LIMITS: PlanLimits = {
   planLabel: 'Sem plano',
 };
 
-const RAIZ_LIMITS: PlanLimits = {
-  maxWorlds: Infinity,
-  maxFichas: Infinity,
-  maxArtigos: Infinity,
-  canExport: true,
-  canExportEpub: false,
-  // Criador tem acesso às funcionalidades de Idriel enquanto houver gotas
-  // (5 gotas de cortesia). O saldo é validado no servidor (check_ai_quota).
-  canUseAI: true,
-  canCreateWorld: true,
-  canCreateFicha: true,
-  canCreateArtigo: true,
-  canUploadGallery: true,
-  canRecharge: false,
-  canWrite: true,
-  canEdit: true,
-  isExpired: false,
-  planLabel: 'Criador',
-};
-
 const IDRIEL_LIMITS: PlanLimits = {
   maxWorlds: Infinity,
   maxFichas: Infinity,
@@ -127,10 +107,6 @@ export function usePlanLimits(): PlanLimits & { loading: boolean } {
 
   if (sub.hasIdriel) {
     return { ...IDRIEL_LIMITS, loading: false };
-  }
-
-  if (sub.subscribed && sub.plan === 'template') {
-    return { ...RAIZ_LIMITS, loading: false };
   }
 
   // Sem assinatura ativa: se já houve plano (plan_code presente), trata como expirado.
