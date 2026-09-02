@@ -518,32 +518,31 @@ const LandingPage: React.FC = () => {
             className="text-center"
           >
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold-warm/30 bg-[rgba(4,12,24,0.45)] backdrop-blur-md text-[10px] font-manrope font-bold uppercase tracking-[0.28em] text-gold-champagne/90">
-              <Sparkles className="w-3 h-3" strokeWidth={1.75} /> Mais de 1.500 exemplares vendidos
+              <Sparkles className="w-3 h-3" strokeWidth={1.75} /> Criação de mundos • Escrita • Idriel
             </span>
 
             <h1
               className="font-cinzel font-bold text-[clamp(1.9rem,4vw,3.1rem)] leading-[1.16] tracking-[-0.01em] mt-10 mb-8 mx-auto max-w-[19ch]"
               style={{ textShadow: '0 2px 28px rgba(2,7,13,0.95), 0 1px 8px rgba(2,7,13,0.85)' }}
             >
-              Crie Mundos Fantásticos com a{' '}
-              <span className="text-gradient-gold-hero">Plataforma Definitiva</span>{' '}
-              de Worldbuilding.
+              Plante Ideias.<br />
+              <span className="text-gradient-gold-hero">Cultive Mundos.</span><br />
+              Colha Histórias.
             </h1>
 
             <p
               className="font-manrope text-[16.5px] sm:text-[18px] text-foreground/90 font-medium leading-[1.85] mb-11 max-w-[56ch] mx-auto"
               style={{ textShadow: '0 2px 20px rgba(2,7,13,0.95), 0 1px 6px rgba(2,7,13,0.9)' }}
             >
-              Construa universos profundos com os <strong className="text-gold-champagne font-semibold">11 Frutos do Worldbuilding</strong>,
-              organize tudo em um <strong className="text-gold-champagne font-semibold">Codex vivo</strong> com linha do tempo, mapas e galeria,
-              escreva seus manuscritos capítulo a capítulo e exporte em PDF, Word ou Kindle.
+              Junte num só lugar tudo o que vive na sua imaginação. Crie <strong className="text-gold-champagne font-semibold">povos, lugares e personagens</strong>,
+              aprofunde seu universo com <strong className="text-gold-champagne font-semibold">Idriel</strong> e escreva sem perder o fio da história.
             </p>
 
 
             <div className="flex flex-wrap gap-3 justify-center">
               <a href="#planos" className={goldButton} style={goldButtonStyle}>
                 <Crown className="w-4 h-4" strokeWidth={2} />
-                Começar agora
+                Criar meu mundo
                 <ArrowRight className="w-3.5 h-3.5 transition-transform duration-500 group-hover:translate-x-1" strokeWidth={2.25} />
               </a>
               <a
@@ -558,7 +557,7 @@ const LandingPage: React.FC = () => {
               className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2 mt-8 text-[11px] font-manrope text-text-dim tracking-[0.04em]"
               style={{ textShadow: '0 1px 10px rgba(2,7,13,0.85)' }}
             >
-              <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne/80" strokeWidth={2} /> Acesso completo desde o 1º minuto</span>
+              <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne/80" strokeWidth={2} /> Acesso completo à Árvore dos Mundos</span>
               <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne/80" strokeWidth={2} /> Cancele a qualquer momento</span>
               <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-gold-champagne/80" strokeWidth={2} /> Seus conteúdos continuam&nbsp; sendo seus</span>
             </div>
@@ -887,9 +886,9 @@ const LandingPage: React.FC = () => {
         <Shell>
           <Reveal className="text-center mb-16 sm:mb-20">
             <Eyebrow Icon={Feather}>Idriel</Eyebrow>
-            <p className="font-cinzel text-[clamp(1.6rem,3.4vw,2.7rem)] leading-[1.32] text-foreground max-w-[22ch] mx-auto">
-              Conheça <span className="text-gradient-gold-hero">Idriel</span>,<br className="hidden sm:block" />{' '}
-              a Protetora da Árvore dos Mundos.
+            <p className="font-cinzel text-[clamp(1.6rem,3.4vw,2.7rem)] leading-[1.32] text-foreground max-w-[26ch] mx-auto">
+              <span className="text-gradient-gold-hero">Idriel</span> conhece o seu mundo.<br className="hidden sm:block" />{' '}
+              E ajuda você a enxergar o que pode ter passado batido.
             </p>
           </Reveal>
         </Shell>
@@ -938,12 +937,27 @@ const LandingPage: React.FC = () => {
             <Reveal delay={0.12}>
               <Panel>
                 <Title className="mb-5">
-                  Uma inteligência que conhece seu mundo — sem tomar o lugar de quem o criou.
+                  Uma inteligência que lê o seu mundo — sem tomar o lugar de quem o criou.
                 </Title>
                 <Lede>
-                  Idriel é a assistente de worldbuilding da Árvore dos Mundos. Ela não existe para escrever o livro por você.
-                  Ela existe para ajudar você a enxergar melhor o mundo que está construindo.
+                  Conheça Idriel, a Guardiã da Árvore dos Mundos. Ela lê os personagens, povos, lugares, acontecimentos e regras
+                  que você criou e cruza essas informações para encontrar relações, contradições e perguntas que fazem o universo crescer.
+                  Você pergunta sobre o seu universo, e ela responde levando em conta aquilo que já existe nele.
                 </Lede>
+                <div className="mt-6 space-y-2.5">
+                  {[
+                    'Existe alguma contradição na história deste reino?',
+                    'O que mudaria nesta cidade se o rio secasse?',
+                    'Esse personagem realmente teria motivos para acreditar nessa religião?',
+                  ].map(q => (
+                    <p
+                      key={q}
+                      className="font-merriweather italic text-[13.5px] text-text-secondary leading-[1.8] pl-4 border-l border-gold/25"
+                    >
+                      “{q}”
+                    </p>
+                  ))}
+                </div>
                 <CheckList
                   className="mt-7 pt-7 border-t border-gold/[0.10]"
                   columns={2}
@@ -961,7 +975,7 @@ const LandingPage: React.FC = () => {
                   Idriel sugere. Você decide. Você escreve.
                 </p>
                 <p className="font-merriweather italic text-text-dim text-sm leading-[1.9] mt-3 max-w-[54ch]">
-                  A voz continua sendo sua. As escolhas continuam sendo suas. A autoria continua sendo sua.
+                  Idriel não escreve a sua história por você: ela ajuda você a pensar melhor sobre uma história que continua sendo sua.
                 </p>
               </Panel>
             </Reveal>
@@ -974,10 +988,11 @@ const LandingPage: React.FC = () => {
               <Panel soft className="h-full flex flex-col justify-center">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Brain className="w-4 h-4 text-gold-champagne/80" strokeWidth={1.6} />
-                  <h3 className="font-cinzel font-bold text-lg">Análise de Mundo</h3>
+                  <h3 className="font-cinzel font-bold text-lg">Enxergue o que está faltando</h3>
                 </div>
                 <p className="font-manrope text-[14.5px] text-text-secondary leading-[1.85] mb-6 max-w-[54ch]">
-                  Idriel pode analisar o contexto construído e apresentar:
+                  Idriel olha para o conjunto e ajuda você a encontrar o que não fecha na cronologia,
+                  relações que ficaram soltas e consequências que deveriam existir — antes que isso vire um furo na história:
                 </p>
                 <div className="flex flex-wrap gap-2.5">
                   {['Pontos fortes', 'Lacunas', 'Inconsistências', 'Furos narrativos', 'Oportunidades', 'Recomendações de aprofundamento'].map(t => (
@@ -1171,6 +1186,34 @@ const LandingPage: React.FC = () => {
           </Shell>
         </Band>
       )}
+
+      {/* ============================== 10. CASOS DE USO ==================== */}
+      <Band tone="mist">
+        <Shell>
+          <SectionHead
+            eyebrow="Casos de uso"
+            Icon={Users}
+            title="Para quem não consegue olhar para uma história sem imaginar o mundo por trás."
+            lede="A Árvore encontra lugar em qualquer criação que dependa de um universo coerente."
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 lg:gap-6 items-stretch">
+            {[
+              { Icon: Feather, title: 'Quem escreve fantasia', desc: 'Tenha o universo por perto enquanto planeja, escreve e revisa sua história.' },
+              { Icon: Trees, title: 'Quem cria mundos', desc: 'Crie porque você gosta de criar. Explore povos, lugares, mitologias e tudo o que pode existir além da história.' },
+              { Icon: Layers, title: 'Mestres de RPG', desc: 'Mantenha cenários, povos, NPCs, conflitos e acontecimentos organizados sem perder o fio da campanha.' },
+            ].map((c, i) => (
+              <Reveal key={c.title} delay={i * 0.07} className="h-full">
+                <Panel soft className="h-full">
+                  <c.Icon className="w-5 h-5 text-gold-champagne/75 mb-4" strokeWidth={1.4} />
+                  <h3 className="font-cinzel font-bold text-[15px] mb-2.5 leading-snug">{c.title}</h3>
+                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">{c.desc}</p>
+                </Panel>
+              </Reveal>
+            ))}
+          </div>
+        </Shell>
+      </Band>
 
       {/* ============================== 9. SEGURANÇA ======================== */}
       <Band tone="deep">
