@@ -105,7 +105,7 @@ Deno.serve(async (req) => {
         const durationDays = Number(body?.duration_days ?? 0);
         if (!targetId || !planCode) return json({ error: "user_id and plan_code required" }, 400);
 
-        const VALID_PLANS = ["raiz_mensal", "raiz_anual", "idriel_mensal", "idriel_anual", "fundador_mensal", "none"];
+        const VALID_PLANS = ["idriel_mensal", "idriel_anual", "fundador_mensal", "none"];
         if (!VALID_PLANS.includes(planCode)) return json({ error: `plano inválido: ${planCode}` }, 400);
 
         if (planCode === "none") {
