@@ -1347,8 +1347,9 @@ const LandingPage: React.FC = () => {
                 onClick={() => setBilling('mensal')}
                 aria-pressed={billing === 'mensal'}
                 className={`px-7 py-2.5 rounded-full text-[11px] font-manrope font-bold uppercase tracking-[0.16em] transition-all duration-500 ${
-                  billing === 'mensal' ? 'bg-gold text-background' : 'text-text-secondary hover:text-foreground'
+                  billing === 'mensal' ? 'text-background' : 'text-text-secondary hover:text-foreground'
                 }`}
+                style={billing === 'mensal' ? { background: 'linear-gradient(135deg, hsl(203 92% 72%) 0%, hsl(209 88% 56%) 55%, hsl(214 84% 44%) 100%)', boxShadow: '0 10px 30px -12px hsl(207 90% 55% / 0.75)' } : undefined}
               >
                 Mensal
               </button>
@@ -1366,6 +1367,7 @@ const LandingPage: React.FC = () => {
               </button>
             </div>
           </div>
+
 
           {/* Cards */}
           <div className="grid grid-cols-1 max-w-[620px] mx-auto items-start">
