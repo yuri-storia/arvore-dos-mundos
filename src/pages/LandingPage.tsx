@@ -1376,32 +1376,53 @@ const LandingPage: React.FC = () => {
               <div className="relative">
                 <div
                   aria-hidden
-                  className="absolute -inset-10 -z-10 blur-[70px] pointer-events-none"
-                  style={{ background: 'radial-gradient(circle at 50% 30%, hsl(38 62% 45% / 0.26) 0%, transparent 70%)' }}
+                  className="absolute -inset-10 -z-10 blur-[70px] pointer-events-none transition-all duration-700"
+                  style={{ background: billing === 'mensal'
+                    ? 'radial-gradient(circle at 50% 30%, hsl(207 85% 52% / 0.26) 0%, transparent 70%)'
+                    : 'radial-gradient(circle at 50% 30%, hsl(38 62% 45% / 0.26) 0%, transparent 70%)' }}
                 />
                 <div
-                  className="relative rounded-3xl p-8 sm:p-10 border border-gold/35 backdrop-blur-xl transition-transform duration-500 ease-out hover:-translate-y-1 flex flex-col"
+                  className="relative rounded-3xl p-8 sm:p-10 border backdrop-blur-xl transition-all duration-700 ease-out hover:-translate-y-1 flex flex-col"
                   style={{
-                    background:
-                      'linear-gradient(160deg, hsl(38 55% 32% / 0.14) 0%, hsl(214 60% 4% / 0.9) 42%, hsl(214 60% 3% / 0.95) 100%)',
-                    boxShadow: '0 40px 120px -50px hsl(38 60% 45% / 0.5), inset 0 1px 0 hsl(42 60% 90% / 0.10)',
+                    borderColor: billing === 'mensal' ? 'hsl(207 80% 60% / 0.38)' : 'hsl(38 62% 55% / 0.35)',
+                    background: billing === 'mensal'
+                      ? 'linear-gradient(160deg, hsl(207 70% 40% / 0.18) 0%, hsl(214 60% 5% / 0.9) 42%, hsl(214 60% 3% / 0.95) 100%)'
+                      : 'linear-gradient(160deg, hsl(38 55% 32% / 0.14) 0%, hsl(214 60% 4% / 0.9) 42%, hsl(214 60% 3% / 0.95) 100%)',
+                    boxShadow: billing === 'mensal'
+                      ? '0 40px 120px -50px hsl(207 85% 55% / 0.55), inset 0 1px 0 hsl(205 80% 90% / 0.12)'
+                      : '0 40px 120px -50px hsl(38 60% 45% / 0.5), inset 0 1px 0 hsl(42 60% 90% / 0.10)',
                   }}
                 >
-                  <div className="absolute -top-3 left-10 px-3.5 py-1 rounded-full bg-gold text-background text-[9.5px] font-manrope font-bold uppercase tracking-[0.16em]">
+                  <div
+                    className="absolute -top-3 left-10 px-3.5 py-1 rounded-full text-background text-[9.5px] font-manrope font-bold uppercase tracking-[0.16em] transition-all duration-700"
+                    style={{ background: billing === 'mensal'
+                      ? 'linear-gradient(135deg, hsl(203 92% 74%), hsl(211 88% 52%))'
+                      : 'hsl(var(--gold))' }}
+                  >
                     Plano único
                   </div>
-                  <p className="font-manrope font-semibold uppercase tracking-[0.26em] text-[9.5px] text-gold-champagne/70 mb-5">
+                  <p
+                    className="font-manrope font-semibold uppercase tracking-[0.26em] text-[9.5px] mb-5"
+                    style={{ color: billing === 'mensal' ? 'hsl(203 80% 80% / 0.8)' : 'hsl(var(--gold-champagne) / 0.7)' }}
+                  >
                     Um plano só. A Árvore inteira.
                   </p>
                   <div className="flex items-center gap-2.5 mb-3">
-                    <Crown className="w-5 h-5 text-gold-champagne" strokeWidth={1.5} />
-                    <h3 className="font-cinzel font-bold text-2xl text-gold-light">A Árvore dos Mundos</h3>
+                    <Crown className="w-5 h-5" strokeWidth={1.5} style={{ color: billing === 'mensal' ? 'hsl(203 88% 78%)' : 'hsl(var(--gold-champagne))' }} />
+                    <h3 className="font-cinzel font-bold text-2xl" style={{ color: billing === 'mensal' ? 'hsl(203 92% 82%)' : 'hsl(var(--gold-light))' }}>
+                      A Árvore dos Mundos
+                    </h3>
                   </div>
                   <p className="font-merriweather italic text-text-dim text-[13.5px] leading-[1.8] mb-7 max-w-[42ch]">
                     Toda a plataforma, sem níveis nem recursos bloqueados — e Idriel, a guardiã que conhece o seu mundo, ao seu lado.
                   </p>
                   <div className="mb-1.5">
-                    <span className="font-cinzel font-bold text-[2.6rem] leading-none text-gold-light">{billing === 'mensal' ? 'R$ 39,90' : 'R$ 397,90'}</span>
+                    <span
+                      className="font-cinzel font-bold text-[2.6rem] leading-none transition-colors duration-700"
+                      style={{ color: billing === 'mensal' ? 'hsl(203 92% 82%)' : 'hsl(var(--gold-light))' }}
+                    >
+                      {billing === 'mensal' ? 'R$ 39,90' : 'R$ 397,90'}
+                    </span>
                     <span className="text-text-secondary text-sm font-manrope ml-1.5">{billing === 'mensal' ? '/mês' : '/ano'}</span>
                   </div>
                   <p className="text-[12.5px] font-manrope text-text-dim mb-8">
@@ -1410,11 +1431,18 @@ const LandingPage: React.FC = () => {
                   <button
                     onClick={() => handleCheckout(idrielKey)}
                     disabled={checkoutLoading === idrielKey}
-                    className="w-full py-3.5 rounded-xl font-manrope font-bold uppercase text-[11px] tracking-[0.18em] text-[#1a0f00] transition-all duration-500 mb-9 disabled:opacity-50 hover:-translate-y-[2px]"
-                    style={goldButtonStyle}
+                    className="w-full py-3.5 rounded-xl font-manrope font-bold uppercase text-[11px] tracking-[0.18em] transition-all duration-500 mb-9 disabled:opacity-50 hover:-translate-y-[2px]"
+                    style={billing === 'mensal'
+                      ? {
+                          background: 'linear-gradient(135deg, hsl(203 92% 74%) 0%, hsl(209 88% 56%) 48%, hsl(215 86% 42%) 100%)',
+                          color: '#02121f',
+                          boxShadow: '0 18px 44px -18px hsl(207 90% 55% / 0.75)',
+                        }
+                      : { ...goldButtonStyle, color: '#1a0f00' }}
                   >
                     {checkoutLoading === idrielKey ? 'Abrindo…' : 'Começar meu mundo'}
                   </button>
+
 
                   <p className="font-manrope font-semibold uppercase tracking-[0.22em] text-[10px] text-gold-champagne mb-6">Tudo incluso:</p>
                   <div className="space-y-7">
