@@ -51,6 +51,8 @@ import shotFoco from '@/assets/shot-foco.webp.asset.json';
 import shotGaleria from '@/assets/shot-galeria.webp.asset.json';
 import shotManuscrito from '@/assets/shot-manuscrito.webp.asset.json';
 import shotStoryline from '@/assets/shot-storyline.webp.asset.json';
+import casosDesktop from '@/assets/casos-uso-desktop.webp.asset.json';
+import casosMobile from '@/assets/casos-uso-mobile.webp.asset.json';
 import VisionsCarousel from '@/components/marketing/VisionsCarousel';
 import visCidadela from '@/assets/visao-cidadela-crepusculo.webp.asset.json';
 import visResgate from '@/assets/visao-resgate-batalha.webp.asset.json';
