@@ -1232,21 +1232,33 @@ const LandingPage: React.FC = () => {
             lede="A Árvore encontra lugar em qualquer criação que dependa de um universo coerente."
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 lg:gap-6 items-stretch">
-            {[
-              { Icon: Feather, title: 'Quem escreve fantasia', desc: 'Tenha o universo por perto enquanto planeja, escreve e revisa sua história.' },
-              { Icon: Trees, title: 'Quem cria mundos', desc: 'Crie porque você gosta de criar. Explore povos, lugares, mitologias e tudo o que pode existir além da história.' },
-              { Icon: Layers, title: 'Mestres de RPG', desc: 'Mantenha cenários, povos, NPCs, conflitos e acontecimentos organizados sem perder o fio da campanha.' },
-            ].map((c, i) => (
-              <Reveal key={c.title} delay={i * 0.07} className="h-full">
-                <Panel soft className="h-full">
-                  <c.Icon className="w-5 h-5 text-gold-champagne/75 mb-4" strokeWidth={1.4} />
-                  <h3 className="font-cinzel font-bold text-[15px] mb-2.5 leading-snug">{c.title}</h3>
-                  <p className="font-manrope text-[13.5px] text-text-secondary leading-[1.85]">{c.desc}</p>
-                </Panel>
-              </Reveal>
-            ))}
-          </div>
+          <motion.figure
+            initial={reduced ? false : { opacity: 0, y: 34, scale: 0.97 }}
+            whileInView={reduced ? undefined : { opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: '-12% 0px -8% 0px' }}
+            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+            className="relative mx-auto max-w-[1180px]"
+          >
+            <div
+              aria-hidden
+              className="absolute inset-0 -z-10 blur-[90px] pointer-events-none"
+              style={{ background: 'radial-gradient(60% 60% at 50% 50%, hsl(205 80% 45% / 0.16) 0%, hsl(38 60% 45% / 0.12) 45%, transparent 75%)' }}
+            />
+            <img
+              src={casosDesktop.url}
+              alt="Perfis atendidos pela Árvore dos Mundos: quem escreve fantasia, quem cria mundos, mestres de RPG e quem quer saber se está no caminho certo"
+              loading="lazy"
+              className="hidden sm:block w-full h-auto select-none pointer-events-none"
+              style={{ filter: 'drop-shadow(0 40px 90px rgba(0,0,0,0.55))' }}
+            />
+            <img
+              src={casosMobile.url}
+              alt="Perfis atendidos pela Árvore dos Mundos: quem escreve fantasia, quem cria mundos, mestres de RPG e quem quer saber se está no caminho certo"
+              loading="lazy"
+              className="sm:hidden w-full h-auto select-none pointer-events-none"
+              style={{ filter: 'drop-shadow(0 30px 70px rgba(0,0,0,0.55))' }}
+            />
+          </motion.figure>
         </Shell>
       </Band>
 
