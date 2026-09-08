@@ -578,7 +578,7 @@ const LandingPage: React.FC = () => {
         <Shell>
           <Reveal className="text-center max-w-[56ch] mx-auto mb-10">
             <Eyebrow Icon={Play}>O trailer</Eyebrow>
-            <Title>Veja a Árvore dos Mundos em movimento.</Title>
+            <Title>Veja a Árvore dos Mundos em Ação.</Title>
             <p className="font-manrope text-[14.5px] text-text-secondary leading-[1.9] mt-4">
               Um panorama rápido de como a plataforma organiza o seu universo — dos Frutos ao manuscrito.
             </p>
