@@ -1340,6 +1340,137 @@ const LandingPage: React.FC = () => {
             </p>
           </Reveal>
 
+          {/* Comparativo de custos */}
+          <Reveal className="mb-16">
+            {(() => {
+              const isMensal = billing === 'mensal';
+              const accent = isMensal ? 'hsl(203 92% 78%)' : 'hsl(var(--gold-light))';
+              const border = isMensal ? 'hsl(207 80% 60% / 0.32)' : 'hsl(38 62% 55% / 0.30)';
+              const glow = isMensal
+                ? '0 40px 110px -60px hsl(207 85% 55% / 0.6)'
+                : '0 40px 110px -60px hsl(38 60% 50% / 0.55)';
+              const rows = [
+                { tool: 'ChatGPT Plus', role: 'Ideias, textos e revisão', mensal: 115 },
+                { tool: 'Midjourney', role: 'Imagens do seu mundo', mensal: 58 },
+                { tool: 'World Anvil Author', role: 'Enciclopédia e worldbuilding', mensal: 125 },
+                { tool: 'Notion AI', role: 'Organização de anotações', mensal: 60 },
+              ];
+              const somaMensal = rows.reduce((s, r) => s + r.mensal, 0);
+              const scrivener = 320;
+              const totalFora = isMensal ? somaMensal : somaMensal * 12 + scrivener;
+              const nosso = isMensal ? 39.9 : 397.9;
+              const economia = totalFora - nosso;
+              const brl = (v: number) =>
+                v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 });
+              return (
+                <div className="max-w-[900px] mx-auto">
+                  <div className="text-center mb-8">
+                    <h3 className="font-cinzel font-bold text-[22px] sm:text-[26px]" style={{ color: accent }}>
+                      Quantas assinaturas você precisaria para chegar perto?
+                    </h3>
+                    <p className="font-manrope text-[13.5px] text-text-secondary mt-3 max-w-[56ch] mx-auto leading-[1.85]">
+                      Compare o que custaria montar por fora o que a Árvore dos Mundos entrega em um só lugar.
+                    </p>
+                  </div>
+
+                  {/* Botão de troca destacado */}
+                  <div className="flex justify-center mb-9">
+                    <div
+                      className="inline-flex p-1.5 rounded-full border backdrop-blur-xl"
+                      style={{ borderColor: border, background: 'rgba(4,12,24,0.6)', boxShadow: glow }}
+                    >
+                      <button
+                        onClick={() => setBilling('mensal')}
+                        aria-pressed={isMensal}
+                        className={`px-8 py-3 rounded-full text-[11.5px] font-manrope font-bold uppercase tracking-[0.16em] transition-all duration-500 ${isMensal ? '' : 'text-text-secondary hover:text-foreground'}`}
+                        style={isMensal ? {
+                          background: 'linear-gradient(135deg, hsl(203 92% 74%) 0%, hsl(209 88% 56%) 55%, hsl(215 86% 42%) 100%)',
+                          color: '#02121f',
+                          boxShadow: '0 14px 36px -14px hsl(207 90% 55% / 0.8)',
+                        } : undefined}
+                      >
+                        Comparar mensal
+                      </button>
+                      <button
+                        onClick={() => setBilling('anual')}
+                        aria-pressed={!isMensal}
+                        className={`px-8 py-3 rounded-full text-[11.5px] font-manrope font-bold uppercase tracking-[0.16em] transition-all duration-500 ${!isMensal ? '' : 'text-text-secondary hover:text-foreground'}`}
+                        style={!isMensal ? {
+                          background: 'linear-gradient(135deg, hsl(44 78% 78%) 0%, hsl(38 72% 58%) 55%, hsl(33 68% 44%) 100%)',
+                          color: '#1a0f00',
+                          boxShadow: '0 14px 36px -14px hsl(38 75% 55% / 0.8)',
+                        } : undefined}
+                      >
+                        Comparar anual
+                      </button>
+                    </div>
+                  </div>
+
+                  <div
+                    className="rounded-3xl overflow-hidden border backdrop-blur-xl transition-all duration-700"
+                    style={{ borderColor: border, background: 'linear-gradient(160deg, rgba(6,16,30,0.86) 0%, rgba(3,9,18,0.94) 100%)', boxShadow: glow }}
+                  >
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[520px] text-left">
+                        <thead>
+                          <tr className="border-b" style={{ borderColor: border }}>
+                            <th className="py-4 px-5 font-manrope font-bold uppercase tracking-[0.16em] text-[9.5px] text-text-dim">Ferramenta</th>
+                            <th className="py-4 px-5 font-manrope font-bold uppercase tracking-[0.16em] text-[9.5px] text-text-dim">Para quê</th>
+                            <th className="py-4 px-5 text-right font-manrope font-bold uppercase tracking-[0.16em] text-[9.5px]" style={{ color: accent }}>
+                              {isMensal ? 'Por mês' : 'Por ano'}
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {rows.map((r) => (
+                            <tr key={r.tool} className="border-b border-white/5">
+                              <td className="py-4 px-5 font-manrope text-[13.5px] text-foreground">{r.tool}</td>
+                              <td className="py-4 px-5 font-manrope text-[12.5px] text-text-secondary">{r.role}</td>
+                              <td className="py-4 px-5 text-right font-manrope text-[13.5px] text-text-secondary tabular-nums">
+                                {brl(isMensal ? r.mensal : r.mensal * 12)}
+                              </td>
+                            </tr>
+                          ))}
+                          {!isMensal && (
+                            <tr className="border-b border-white/5">
+                              <td className="py-4 px-5 font-manrope text-[13.5px] text-foreground">Scrivener</td>
+                              <td className="py-4 px-5 font-manrope text-[12.5px] text-text-secondary">Editor de manuscritos (licença única)</td>
+                              <td className="py-4 px-5 text-right font-manrope text-[13.5px] text-text-secondary tabular-nums">{brl(scrivener)}</td>
+                            </tr>
+                          )}
+                          <tr>
+                            <td className="py-5 px-5 font-cinzel font-bold text-[15px] text-foreground" colSpan={2}>
+                              Total por fora {isMensal ? '(por mês)' : '(no primeiro ano)'}
+                            </td>
+                            <td className="py-5 px-5 text-right font-cinzel font-bold text-[19px] text-red-alert tabular-nums">{brl(totalFora)}</td>
+                          </tr>
+                          <tr style={{ background: isMensal ? 'hsl(207 80% 45% / 0.10)' : 'hsl(38 62% 45% / 0.10)' }}>
+                            <td className="py-5 px-5 font-cinzel font-bold text-[15px]" colSpan={2} style={{ color: accent }}>
+                              Árvore dos Mundos {isMensal ? '(mensal)' : '(anual)'}
+                            </td>
+                            <td className="py-5 px-5 text-right font-cinzel font-bold text-[22px] tabular-nums" style={{ color: accent }}>
+                              {brl(nosso)}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="px-5 py-5 text-center border-t" style={{ borderColor: border }}>
+                      <p className="font-manrope text-[13px] text-text-secondary">
+                        Você economiza{' '}
+                        <strong className="font-cinzel text-[17px]" style={{ color: accent }}>{brl(economia)}</strong>{' '}
+                        {isMensal ? 'todo mês' : 'no primeiro ano'} — e tudo funciona dentro do seu mundo, sem repetir contexto em cada ferramenta.
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-center font-manrope text-[11px] text-text-dim mt-4">
+                    Valores de referência das assinaturas em reais, convertidos e arredondados. Podem variar conforme câmbio e promoções.
+                  </p>
+                </div>
+              );
+            })()}
+          </Reveal>
+
           {/* Toggle billing */}
           <div className="flex items-center justify-center mb-16">
             <div className="inline-flex p-1 rounded-full border border-gold/20 bg-[rgba(4,12,24,0.5)] backdrop-blur-xl">
